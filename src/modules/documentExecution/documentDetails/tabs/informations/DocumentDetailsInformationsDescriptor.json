@@ -1,6 +1,13 @@
 {
+    "globalFilterFields": ["name", "label", "description", "author", "scope"],
+    "style": {
+        "center": {
+            "align-self": "center",
+            "text-align": "center"
+        }
+    },
     "validations": {
-        "driver": [
+        "document": [
             {
                 "fieldName": "label",
                 "validators": [
@@ -30,7 +37,34 @@
                 ]
             },
             {
-                "fieldName": "type",
+                "fieldName": "description",
+                "validators": [
+                    {
+                        "key": "regex",
+                        "validator": {
+                            "type": "extendedAlphanumericRegex"
+                        }
+                    }
+                ]
+            },
+            {
+                "fieldName": "typeCode",
+                "validators": [
+                    {
+                        "key": "required"
+                    }
+                ]
+            },
+            {
+                "fieldName": "engine",
+                "validators": [
+                    {
+                        "key": "required"
+                    }
+                ]
+            },
+            {
+                "fieldName": "stateCode",
                 "validators": [
                     {
                         "key": "required"
