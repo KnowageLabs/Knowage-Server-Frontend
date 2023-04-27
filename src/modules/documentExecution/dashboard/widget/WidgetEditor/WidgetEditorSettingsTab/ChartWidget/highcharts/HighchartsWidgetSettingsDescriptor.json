@@ -131,6 +131,32 @@
         }
     ],
     "scaleOptions": ["empty", "k", "m", "g", "t", "p", "e"],
+    "serieTypeOptions": [
+        {
+            "label": "",
+            "value": ""
+        },
+        {
+            "label": "dashboard.widgetEditor.visualizationType.bar",
+            "value": "bar"
+        },
+        {
+            "label": "dashboard.widgetEditor.line",
+            "value": "line"
+        },
+        {
+            "label": "dashboard.widgetEditor.area",
+            "value": "area"
+        },
+        {
+            "label": "dashboard.widgetEditor.highcharts.areaRangeLow",
+            "value": "arerangelow"
+        },
+        {
+            "label": "dashboard.widgetEditor.highcharts.areaRangeHigh",
+            "value": "arerangehigh"
+        }
+    ],
     "tickPositionOptions": [
         {
             "label": "dashboard.widgetEditor.inside",

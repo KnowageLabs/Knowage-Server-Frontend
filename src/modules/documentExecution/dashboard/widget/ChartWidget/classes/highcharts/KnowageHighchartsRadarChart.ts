@@ -96,6 +96,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
 
     resetSeriesSettings() {
         this.model.series.forEach((serie: any) => {
+            serie.type = ''
             serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' }
         })
     }
@@ -114,6 +115,12 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     updateSeriesDataWithSerieSettings(serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) {
+        // TODO 
+        if (serie.type === 'bar') serie.type = 'column'
+        else serie.type = seriesSettings.type && ['arearange', 'arearangelow', 'arearangehigh'].includes(seriesSettings.type) ? '' : seriesSettings.type
+
+
+
         serie.dataLabels = {
             backgroundColor: seriesSettings.label.backgroundColor ?? '',
             enabled: true,
