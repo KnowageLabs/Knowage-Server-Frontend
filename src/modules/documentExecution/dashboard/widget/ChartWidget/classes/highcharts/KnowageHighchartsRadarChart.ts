@@ -116,7 +116,8 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
 
     updateSeriesDataWithSerieSettings(serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) {
         // TODO 
-        if (serie.type === 'bar') serie.type = 'column'
+        console.log('----- SERIE TYPE: ', serie)
+        if (seriesSettings.type === 'bar') serie.type = 'column'
         else serie.type = seriesSettings.type && ['arearange', 'arearangelow', 'arearangehigh'].includes(seriesSettings.type) ? '' : seriesSettings.type
 
 
