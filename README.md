@@ -1,4 +1,4 @@
-# knowage-vue
+# KNOWAGE Server Frontend
 
 ## Project setup
 
