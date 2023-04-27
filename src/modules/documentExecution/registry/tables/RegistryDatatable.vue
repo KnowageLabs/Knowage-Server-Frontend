@@ -403,6 +403,7 @@ export default defineComponent({
                 tempRow.isNew = true
                 delete tempRow.id
                 if (this.keyColumnName) tempRow[this.keyColumnName] = ''
+				this.columns.filter((x) => x.isAudit).forEach((column) => delete tempRow[column.field])
                 this.addRowToFirstPosition(tempRow)
                 this.$emit('rowChanged', tempRow)
             })
