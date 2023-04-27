@@ -1896,7 +1896,7 @@
         "categoriesManagement": {
             "code": "Category code",
             "name": "Category name",
-            "occurences": "Used by",
+            "occurrences": "Used by",
             "title": "Categories Management",
             "type": "Type"
         },
@@ -3045,6 +3045,7 @@
         }
     },
     "menu": {
+        "Categories": "Categories",
         "ThemeManagement": "Themes",
         "group": {
             "ImportExport": "Import/Export",
