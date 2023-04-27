@@ -601,7 +601,8 @@
                     "valuesTableHint": "Measures only."
                 },
                 "bands": {
-                    "bandsHint": "An array of colored bands stretching across the plot area marking an interval on the axis. In a gauge, a plot band on the Y axis (value axis) will stretch along the perimeter of the gauge.",
+                    "bandsGaugeHint": "In a gauge, a plot band on the Y axis (value axis) will stretch along the perimeter of the gauge.",
+                    "bandsHint": "An array of colored bands stretching across the plot area marking an interval on the axis.",
                     "colorHint": "The color of the plot band.",
                     "fromHint": "The start position of the plot band in axis units.",
                     "thickness": "Thickness",
@@ -645,6 +646,17 @@
                     "layoutHint": "The layout of the legend items. Can be one of horizontal or vertical or proximate. When proximate, the legend items will be placed as close as possible to the graphs they're representing, except in inverted charts or when the legend position doesn't allow it.",
                     "verticalAlignHint": "The vertical alignment of the legend box. Can be one of top, middle or bottom. Vertical position can be further determined by the y option. In the case that the legend is aligned in a corner position, the layout option will determine whether to place it above/below or on the side of the plot area. When the layout option is proximate, the verticalAlign option doesn't apply."
                 },
+                "lines": {
+                    "lineColor": "Line Color",
+                    "lineInterval": "Line Interval",
+                    "lineType": "Line Type",
+                    "linesHint": "An array of lines stretching across the plot area, marking a specific value on one of the axes.",
+                    "title": "Lines",
+                    "valueHint": "The position of the line in axis units.",
+                    "widthHint": "The width or thickness of the plot line."
+                },
+                "majorGridDetails": "Axis major grid details",
+                "minorGridDetails": "Axis minor grid details",
                 "paneSettings": {
                     "centralHorizontalPosition": "Centar Horizontal Position",
                     "centralVerticalPosition": "Centar Vertical Position",
@@ -663,12 +675,21 @@
                     "pivotRadiusHint": "The pixel radius of the pivot."
                 },
                 "proximate": "Proximate",
+                "radar": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories If you enable splitting serie using second category, you need to define exactly two categories and one serie.",
+                    "valuesTableHint": "Click on at least one measure to define series If you enable splitting serie using second category, you need to define exactly one serie."
+                },
                 "scale": {
                     "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
                     "minHint": "The minimum value of the axis. If null the min value is automatically calculated."
                 },
                 "solidGauge": {
                     "valuesTableHint": "Measures only."
+                },
+                "splitting": {
+                    "hint": "Options available only if you are not using datetime and Group by categories. You can use only one Splitting function.",
+                    "secondCategory": "Series to use on second category options",
+                    "title": "Serie splitting"
                 },
                 "stops": {
                     "colorHint": "Solid gauge series only. Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
@@ -1896,7 +1917,7 @@
         "categoriesManagement": {
             "code": "Category code",
             "name": "Category name",
-            "occurrences": "Used by",
+            "occurences": "Used by",
             "title": "Categories Management",
             "type": "Type"
         },
@@ -3045,7 +3066,6 @@
         }
     },
     "menu": {
-        "Categories": "Categories",
         "ThemeManagement": "Themes",
         "group": {
             "ImportExport": "Import/Export",

@@ -1,6 +1,9 @@
 <template>
     <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
         <div v-for="(serieSetting, index) in seriesSettings" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
+            <div class="p-col-12">
+                {{ serieSetting }}
+            </div>
             <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-p-2">
                 <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.series.title') }}</label>
                 <Dropdown v-if="index === 0 && allSeriesOptionEnabled" v-model="serieSetting.names[0]" class="kn-material-input" :options="descriptor.allSerieOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
@@ -74,7 +77,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
@@ -126,19 +129,19 @@ export default defineComponent({
             return this.model && this.model.chart.type !== 'pie' && this.model.chart.type !== 'solidgauge'
         },
         formattingSectionAvailable() {
-            return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar'].includes(this.model.chart.type)
         },
         advancedSectionAvailable() {
             return this.model?.chart.type === 'gauge'
         },
         styleToolbarVisible() {
-            return this.model && ['pie', 'gauge'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'radar'].includes(this.model.chart.type)
         },
         serieColorPickerVisible() {
             return this.model?.chart.type === 'activitygauge'
         },
         labelOptionsVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar'].includes(this.model.chart.type)
         }
     },
     watch: {
@@ -148,6 +151,10 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
+        this.loadModel()
+    },
+    mounted() {
         this.loadWidgetModel()
         this.loadModel()
     },
@@ -204,9 +211,9 @@ export default defineComponent({
         },
         loadSeriesOptions() {
             this.availableSeriesOptions = []
-            if (!this.model) return
-            this.model.series.forEach((serie: IHighchartsChartSerie) => {
-                this.availableSeriesOptions.push(serie.name)
+            if (!this.widgetModel) return
+            this.widgetModel.columns.forEach((column: IWidgetColumn) => {
+                if (column.fieldType === 'MEASURE') this.availableSeriesOptions.push(column.columnName)
             })
         },
         addFirstSeriesSetting() {

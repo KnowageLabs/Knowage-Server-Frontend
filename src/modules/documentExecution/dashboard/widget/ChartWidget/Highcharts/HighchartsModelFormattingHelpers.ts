@@ -54,3 +54,7 @@ const formatHeatmapColors = (formattedChartModel: IHighchartsChartModel) => {
         formattedChartModel.colorAxis.stops.push([i * increment, colors[i]])
     }
 }
+
+export const formatRadar = (formattedChartModel: IHighchartsChartModel) => {
+    formattedChartModel.chart.type = ''
+}

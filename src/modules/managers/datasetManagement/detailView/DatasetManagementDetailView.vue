@@ -82,7 +82,7 @@
 
         <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" :popup="true" />
 
-        <WorkspaceDataPreviewDialog :visible="showPreviewDialog" :prop-dataset="previewDataset" :preview-type="'dataset'" :load-from-dataset-management="true" @close="showPreviewDialog = false"></WorkspaceDataPreviewDialog>
+        <WorkspaceDataPreviewDialog v-if="showPreviewDialog" :visible="showPreviewDialog" :prop-dataset="previewDataset" :preview-type="'dataset'" :load-from-dataset-management="true" @close="showPreviewDialog = false"></WorkspaceDataPreviewDialog>
     </div>
 </template>
 

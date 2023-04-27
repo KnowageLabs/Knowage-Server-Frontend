@@ -11,22 +11,23 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'activitygauge':
         case 'solidgauge':
         case 'heatmap':
+        case 'radar':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }
 
 const addHighchartsColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, mode: string, widgetModel: IWidget) => {
     if (mode === 'attributesOnly') {
-        addAttributeColumnToTableRows(tempColumn, rows, chartType)
+        addAttributeColumnToTableRows(tempColumn, rows, chartType, widgetModel)
     } else if (mode === 'measuresOnly') {
         addMeasureColumnToTableRows(tempColumn, rows, chartType, widgetModel)
     }
 }
 
 
-const addAttributeColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined) => {
+const addAttributeColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, widgetModel: IWidget) => {
     const maxValues = getMaxCategoriesNumber(chartType)
-    if (maxValues && rows.length >= maxValues || areAdditionalAttributesConstraintsInvalid(tempColumn, rows, chartType)) return
+    if (maxValues && rows.length >= maxValues || areAdditionalAttributesConstraintsInvalid(tempColumn, rows, chartType, widgetModel)) return
     if (tempColumn.fieldType === 'MEASURE') {
         tempColumn.fieldType = 'ATTRIBUTE'
         tempColumn.aggregation = ''
@@ -51,10 +52,12 @@ const getMaxCategoriesNumber = (chartType: string | undefined) => {
     }
 }
 
-const areAdditionalAttributesConstraintsInvalid = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined) => {
+const areAdditionalAttributesConstraintsInvalid = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, widgetModel: IWidget) => {
     switch (chartType) {
         case 'heatmap':
             return isHeatmapTimestampColumnIsTheFirstOne(tempColumn, rows)
+        case 'radar':
+            return isRadarSplitInvalidForAttributes(tempColumn, rows, widgetModel)
         default:
             return false
     }
@@ -62,6 +65,14 @@ const areAdditionalAttributesConstraintsInvalid = (tempColumn: IWidgetColumn, ro
 
 const isHeatmapTimestampColumnIsTheFirstOne = (tempColumn: IWidgetColumn, rows: IWidgetColumn[]) => {
     if (tempColumn.type.includes('TIMESTAMP') && rows.length === 1) return true
+    return false
+}
+
+const isRadarSplitInvalidForAttributes = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], widgetModel: IWidget) => {
+    const splitEnabled = widgetModel.settings?.configuration?.splitting
+    console.log('--------------------------- splitEnabled: ', splitEnabled)
+    console.log('--------------------------- rows: ', rows)
+    if (splitEnabled && (rows.length === 2 || tempColumn.type.includes('DATE') || tempColumn.type.includes('TIMESTAMP'))) return true
     return false
 }
 
@@ -76,9 +87,10 @@ const addMeasureColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetCol
         rows[0] = tempColumn
     }
     addColumnToRows(rows, tempColumn)
-    widgetModel.settings.chartModel.addSerie(tempColumn)
+    widgetModel.settings.chartModel.addSerie(tempColumn, chartType)
     emitter.emit('seriesAdded', tempColumn)
 }
+
 
 const getMaxValuesNumber = (chartType: string | undefined) => {
     switch (chartType) {

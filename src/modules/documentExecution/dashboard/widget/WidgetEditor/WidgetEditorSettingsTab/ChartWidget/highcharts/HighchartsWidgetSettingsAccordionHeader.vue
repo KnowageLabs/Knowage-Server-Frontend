@@ -49,6 +49,8 @@ export default defineComponent({
                     return this.widgetModel.settings.chartModel.model?.xAxis?.title
                 case 'DatetypeSettings':
                     return this.widgetModel.settings.configuration.datetypeSettings
+                case 'SplittingSettings':
+                    return this.widgetModel.settings.configuration.splitting
                 case 'Title':
                     return this.widgetModel.settings.style.title
                 case 'ColumnStyle':
@@ -73,6 +75,7 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.link
                 case 'Preview':
                     return this.widgetModel.settings.interactions.preview
+
                 default:
                     return null
             }

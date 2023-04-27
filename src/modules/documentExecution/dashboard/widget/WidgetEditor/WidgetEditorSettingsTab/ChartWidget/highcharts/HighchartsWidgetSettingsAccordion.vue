@@ -20,7 +20,7 @@
                 <HighchartsGaugeScaleSettings v-else-if="accordion.type === 'ScaleSettings'" :widget-model="widgetModel"></HighchartsGaugeScaleSettings>
                 <HighchartsGaugeTickSettings v-else-if="accordion.type === 'TickSettings'" :widget-model="widgetModel"></HighchartsGaugeTickSettings>
                 <HighchartsStopsSettings v-else-if="accordion.type === 'StopsSettings'" :widget-model="widgetModel"></HighchartsStopsSettings>
-                <HighchartsGaugeBandsSettings v-else-if="accordion.type === 'BandsSettings'" :widget-model="widgetModel"></HighchartsGaugeBandsSettings>
+                <HighchartsBandsSettings v-else-if="accordion.type === 'BandsSettings'" :widget-model="widgetModel"></HighchartsBandsSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
@@ -34,12 +34,16 @@
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
-                <HighchartsHeatmapAxisSettings v-else-if="accordion.type === 'HeatmapXAxisSettings'" :widget-model="widgetModel" axis="x"></HighchartsHeatmapAxisSettings>
-                <HighchartsHeatmapAxisSettings v-else-if="accordion.type === 'HeatmapYAxisSettings'" :widget-model="widgetModel" axis="y"></HighchartsHeatmapAxisSettings>
-                <HighchartsHeatmapAxisTitleSettings v-else-if="accordion.type === 'HeatmapXAxisTitleSettings'" :widget-model="widgetModel" axis="x"></HighchartsHeatmapAxisTitleSettings>
-                <HighchartsHeatmapAxisTitleSettings v-else-if="accordion.type === 'HeatmapYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsHeatmapAxisTitleSettings>
+                <HighchartsAxisSettings v-else-if="accordion.type === 'HeatmapXAxisSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisSettings>
+                <HighchartsAxisSettings v-else-if="accordion.type === 'HeatmapYAxisSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisSettings>
+                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HeatmapXAxisTitleSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisTitleSettings>
+                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HeatmapYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
                 <HighchartsHeatmapNullSettings v-else-if="accordion.type === 'HeatmapNullSettings'" :widget-model="widgetModel"></HighchartsHeatmapNullSettings>
-                <HighchartsHeatmapDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsHeatmapDatetypeSettings>
+                <HighchartsDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsDatetypeSettings>
+                <HighchartsLineSettings v-else-if="accordion.type === 'LinesSettings'" :widget-model="widgetModel"></HighchartsLineSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'MajorGridSettings'" :widget-model="widgetModel" type="major"></HighchartsAxisGridSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'MinorGridSettings'" :widget-model="widgetModel" type="minor"></HighchartsAxisGridSettings>
+                <HighchartsRadarSplittingSettings v-else-if="accordion.type === 'SplittingSettings'" :widget-model="widgetModel"></HighchartsRadarSplittingSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -78,12 +82,15 @@ import HighchartsGaugeGeneralSettings from './gauge/settings/HighchartsGaugeGene
 import HighchartsGaugeScaleSettings from './gauge/settings/HighchartsGaugeScaleSettings.vue'
 import HighchartsGaugeTickSettings from './gauge/settings/HighchartsGaugeTickSettings.vue'
 import HighchartsStopsSettings from './gauge/settings/HighchartsStopsSettings.vue'
-import HighchartsGaugeBandsSettings from './gauge/settings/HighchartsGaugeBandsSettings.vue'
+import HighchartsBandsSettings from './settings/HighchartsBandsSettings.vue'
 import HighchartsWidgetSettingsAccordionHeader from './HighchartsWidgetSettingsAccordionHeader.vue'
-import HighchartsHeatmapAxisSettings from './heatmap/HighchartsHeatmapAxisSettings.vue'
-import HighchartsHeatmapAxisTitleSettings from './heatmap/HighchartsHeatmapAxisTitleSettings.vue'
+import HighchartsAxisSettings from './axis/HighchartsAxisSettings.vue'
+import HighchartsAxisTitleSettings from './axis/HighchartsAxisTitleSettings.vue'
 import HighchartsHeatmapNullSettings from './heatmap/HighchartsHeatmapNullSettings.vue'
-import HighchartsHeatmapDatetypeSettings from './heatmap/HighchartsHeatmapDatetypeSettings.vue'
+import HighchartsDatetypeSettings from './configuration/HighchartsDatetypeSettings.vue'
+import HighchartsLineSettings from './settings/HighchartsLineSettings.vue'
+import HighchartsAxisGridSettings from './axis/HighchartsAxisGridSettings.vue'
+import HighchartsRadarSplittingSettings from './radar/HighchartsRadarSplittingSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -117,12 +124,15 @@ export default defineComponent({
         HighchartsGaugeScaleSettings,
         HighchartsGaugeTickSettings,
         HighchartsStopsSettings,
-        HighchartsGaugeBandsSettings,
+        HighchartsBandsSettings,
         HighchartsWidgetSettingsAccordionHeader,
-        HighchartsHeatmapAxisSettings,
-        HighchartsHeatmapAxisTitleSettings,
+        HighchartsAxisSettings,
+        HighchartsAxisTitleSettings,
         HighchartsHeatmapNullSettings,
-        HighchartsHeatmapDatetypeSettings
+        HighchartsDatetypeSettings,
+        HighchartsLineSettings,
+        HighchartsAxisGridSettings,
+        HighchartsRadarSplittingSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

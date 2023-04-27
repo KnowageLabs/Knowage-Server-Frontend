@@ -16,19 +16,21 @@ export const getFormattedSerieLabelsSettings = (widget: any) => {
         const formattedSettings = { names: [oldModelSerie.name] } as IHighchartsSeriesLabelsSetting
         setFormattedSerieLabelSettings(oldModelSerie, formattedSettings)
         setSerieSettingsForGaugeChart(oldModelSerie, formattedSettings, widget)
+        if (widget.content.chartTemplate.CHART.type === 'RADAR') formattedSettings.type = oldModelSerie.type
         formattedSerieSettings.push(formattedSettings)
     }
     return formattedSerieSettings
 }
 
 const setFormattedSerieLabelSettings = (oldModelSerie: any, formattedSettings: IHighchartsSeriesLabelsSetting) => {
+    console.log(' !!!!!!! OLD MODEL SERIE: ', oldModelSerie)
     formattedSettings.label = {
         enabled: oldModelSerie.showValue,
         style: {
-            fontFamily: oldModelSerie.dataLabels?.style?.fontFamily ?? '',
-            fontSize: oldModelSerie.dataLabels?.style?.fontSize ?? '',
-            fontWeight: oldModelSerie.dataLabels?.style?.fontWeight ?? '',
-            color: oldModelSerie.dataLabels?.style?.color ? hexToRgba(oldModelSerie.dataLabels.style.color) : '',
+            fontFamily: '',
+            fontSize: '',
+            fontWeight: '',
+            color: '',
         },
         backgroundColor: 'rgba(246,246,246, 1)',
         prefix: oldModelSerie.prefixChar ?? '',
@@ -37,6 +39,20 @@ const setFormattedSerieLabelSettings = (oldModelSerie: any, formattedSettings: I
         precision: oldModelSerie.precision ?? 2,
         absolute: oldModelSerie.showAbsValue,
         percentage: oldModelSerie.showPercentage
+    }
+    setFormattedSerieStyle(oldModelSerie, formattedSettings)
+}
+
+const setFormattedSerieStyle = (oldModelSerie: any, formattedSettings: IHighchartsSeriesLabelsSetting) => {
+    let labelsStyle = null as any
+    if (oldModelSerie.dataLabels?.style) labelsStyle = oldModelSerie.dataLabels.style
+    else if (oldModelSerie.TOOLTIP?.style) labelsStyle = oldModelSerie.TOOLTIP.style
+    if (!labelsStyle) return
+    formattedSettings.label.style = {
+        fontFamily: labelsStyle.fontFamily ?? '',
+        fontSize: labelsStyle.fontSize ?? '',
+        fontWeight: labelsStyle.fontWeight ?? '',
+        color: labelsStyle.color ? hexToRgba(labelsStyle.color) : '',
     }
 }
 

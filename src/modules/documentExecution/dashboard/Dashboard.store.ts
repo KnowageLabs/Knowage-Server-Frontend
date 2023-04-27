@@ -106,6 +106,9 @@ const store = defineStore('dashboardStore', {
             })
             if (removedSelections.length > 0) emitter.emit('selectionsDeleted', removedSelections)
         },
+        getDashboardDatasets(dashboardId: number) {
+            return this.dashboards[dashboardId]?.configuration?.datasets
+        },
         getAllDatasets() {
             return this.allDatasets
         },

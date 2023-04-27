@@ -1,7 +1,9 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
+        {{ 'TODO' }}
+        {{ widgetModel.columns }}
         <WidgetEditorColumnTable
-            v-if="['pie', 'heatmap'].includes(chartType)"
+            v-if="['pie', 'heatmap', 'radar'].includes(chartType)"
             class="p-m-2 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
@@ -65,6 +67,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
                 case 'heatmap':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[0] }
+                case 'radar':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.radarColumnTableSettings[0] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }
@@ -81,6 +85,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.solidgaugeChartColumnTableSettings[0] }
                 case 'heatmap':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[1] }
+                case 'radar':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.radarColumnTableSettings[1] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[0] }
             }

@@ -40,6 +40,7 @@ export const getFormattedSeries = (oldModel: any, newModel: IHighchartsChartMode
             const serie = oldModel.CHART.VALUES.SERIE[i]
             switch (oldModel.CHART.type) {
                 case 'PIE':
+                case 'RADAR':
                     newModel.series.push(createSerie(serie.name, serie.groupingFunction, colorByPoint))
                     break;
                 case 'HEATMAP':
@@ -103,5 +104,45 @@ export const getFormattedTooltipSettings = (oldModel: any, newModel: IHighcharts
             },
             backgroundColor: oldTooltipSettings.backgroundColor ? hexToRgba(oldTooltipSettings.backgroundColor) : ''
         }
+    }
+}
+
+
+export const setFormattedAxisLabels = (oldAxis: any, newModelAxis: any) => {
+    if (oldAxis.position) newModelAxis.labels.align = oldAxis.position
+    if (oldAxis.style) {
+        if (oldAxis.style.align) newModelAxis.labels.align = oldAxis.style.align
+        if (oldAxis.style.color) newModelAxis.labels.style.color = hexToRgba(oldAxis.style.color)
+        if (oldAxis.style.fontFamily) newModelAxis.labels.style.fontFamily = oldAxis.style.fontFamily
+        if (oldAxis.style.fontSize) newModelAxis.labels.style.fontSize = oldAxis.style.fontSize
+        if (oldAxis.style.fontWeight) newModelAxis.labels.style.fontWeight = oldAxis.style.fontWeight
+        if (oldAxis.style.rotate) newModelAxis.labels.rotation = oldAxis.style.rotate
+    }
+}
+
+export const setFormattedAxisTitle = (oldAxis: any, newModelAxis: any) => {
+    const oldAxisTitle = oldAxis.TITLE
+    if (!oldAxisTitle) return
+    if (oldAxisTitle.text) {
+        newModelAxis.title.enabled = true
+        newModelAxis.title.text = oldAxisTitle.text
+    }
+    if (oldAxisTitle.style) {
+        if (oldAxisTitle.style.align) newModelAxis.title.align = getFormattedTitleAlign(oldAxisTitle.style.align)
+        if (oldAxisTitle.style.color) newModelAxis.title.style.color = hexToRgba(oldAxisTitle.style.color)
+        if (oldAxisTitle.style.fontFamily) newModelAxis.title.style.fontFamily = oldAxisTitle.style.fontFamily
+        if (oldAxisTitle.style.fontSize) newModelAxis.title.style.fontSize = oldAxisTitle.style.fontSize
+        if (oldAxisTitle.style.fontWeight) newModelAxis.title.style.fontWeight = oldAxisTitle.style.fontWeight
+    }
+}
+
+const getFormattedTitleAlign = (oldAxisTitleAlign: 'left' | 'center' | 'right') => {
+    switch (oldAxisTitleAlign) {
+        case 'left':
+            return 'low'
+        case 'right':
+            return 'high'
+        default:
+            return 'middle'
     }
 }

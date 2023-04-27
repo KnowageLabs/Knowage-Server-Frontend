@@ -470,6 +470,8 @@ export const getHighchartsWidgetData = async (widget: IWidget, datasets: IDashbo
             return await getGaugeChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'heatmap':
             return await getGaugeChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'radar':
+            return await getRadarChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             return ''
     }
@@ -507,6 +509,42 @@ const getPieChartData = async (widget: IWidget, datasets: IDashboardDataset[], $
     }
 }
 
+// TODO - Darko
+export const getPieChartDrilldownData = async (widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], likeSelections: any, drillDownLevel: number) => {
+    const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
+    const selectedDataset = datasets[datasetIndex]
+
+    // Ovde formatiram ove likeSelections, likeSelections imae vrednost "parceta" koje je korisnik kliknuo i naziv kolone, od toga kreiram objekat, pozicija u nizu je drill nivo - 1 (trebalo bi :/)
+    const formattedLikeSelections = {}
+    likeSelections.forEach((likeSelection: any) => {
+        const key = Object.keys(likeSelection)[0]
+        console.log(' !!!!!! key: ', key)
+        formattedLikeSelections[key] = likeSelection[key]
+    })
+    const datasetLabel = selectedDataset.dsLabel as any
+    const formattedSelections = { [datasetLabel]: formattedLikeSelections }
+
+    if (selectedDataset) {
+        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, {}, drillDownLevel)
+        // dodajem like selections
+        postData.likeSelections = formattedSelections
+        let tempResponse = null as any
+
+        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
+        await $http
+            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .then((response: AxiosResponse<any>) => {
+                tempResponse = response.data
+                tempResponse.initialCall = initialCall
+            })
+            .catch((error: any) => {
+                showGetDataError(error, selectedDataset.dsLabel)
+            })
+        return tempResponse
+    }
+}
+
 export const getGaugeChartData = async (widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
@@ -536,7 +574,7 @@ export const getGaugeChartData = async (widget: IWidget, datasets: IDashboardDat
     }
 }
 
-const formatChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+const formatChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any, drillDownLevel?: number) => {
     const dataToSend = {
         aggregations: {
             dataset: '',
@@ -578,12 +616,98 @@ const formatChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDataset
             })
         } else {
             //FIRST CATEGORY LOGIC - TODO: Make it grab the drilldown Category instead of the first one.
+            // TODO - Darko Drill down level
+            // uzimam kategoriju na osnovu drill nivoa, ako ga nema (pocetno stanje) uzimam ovako kako smo radili, ali bi to TREBALO da je uvek prva kolona
             const categoryIndex = propWidget.columns.findIndex((column: any) => column.fieldType !== 'MEASURE')
-            const category = propWidget.columns[categoryIndex]
+            const category = propWidget.columns[drillDownLevel ?? categoryIndex]
             const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderType: '', funct: 'NONE' } as any
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }
+
+    if (dataset.drivers && dataset.drivers.length > 0) {
+        dataset.drivers.forEach((driver: IDashboardDatasetDriver) => {
+            dataToSend.drivers[`${driver.urlName}`] = driver.parameterValue
+        })
+    }
+
+    return dataToSend
+}
+
+const getRadarChartData = async (widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+    const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
+    const selectedDataset = datasets[datasetIndex]
+
+    const measureCheck = widget.columns.findIndex((column: any) => column.fieldType === 'MEASURE') != -1
+    const categoryCheck = widget.columns.findIndex((column: any) => column.fieldType !== 'MEASURE') != -1
+
+    if (selectedDataset && measureCheck && categoryCheck) {
+        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+
+        const postData = formatRadarChartWidgetForGet(widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+        let tempResponse = null as any
+
+        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
+        await $http
+            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .then((response: AxiosResponse<any>) => {
+                tempResponse = response.data
+                tempResponse.initialCall = initialCall
+            })
+            .catch((error: any) => {
+                showGetDataError(error, selectedDataset.dsLabel)
+            })
+            .finally(() => {
+                // TODO - uncomment when realtime dataset example is ready
+                // resetDatasetInterval(widget)
+            })
+        return tempResponse
+    }
+}
+
+const formatRadarChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any, drillDownLevel?: number) => {
+    const dataToSend = {
+        aggregations: {
+            dataset: '',
+            measures: [],
+            categories: []
+        },
+        parameters: {},
+        selections: {},
+        drivers: {},
+        indexes: []
+    } as any
+
+    addSelectionsToData(dataToSend, propWidget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    dataToSend.aggregations.dataset = dataset.dsLabel
+
+    propWidget.columns.forEach((measure) => {
+        if (measure.fieldType == 'MEASURE') {
+            const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias } as any
+            measure.formula ? (measureToPush.formula = measure.formula) : ''
+            dataToSend.aggregations.measures.push(measureToPush)
+        }
+    })
+
+    for (let index = 0; index < propWidget.columns.length; index++) {
+        const measure = propWidget.columns[index]
+
+        if (measure.fieldType !== 'MEASURE') {
+            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: 'none', orderColumn: '' } as any
+            measure.formula ? (measureToPush.formula = measure.formula) : ''
+            dataToSend.aggregations.categories.push(measureToPush)
+
+            //hvataj samo prvu za sada
+            break
+        }
+    }
+
+    // propWidget.columns.forEach((column: any) => {
+    //     if (column.fieldType !== 'MEASURE') {
+    //         const categoryToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any
+    //         dataToSend.aggregations.categories.push(categoryToPush)
+    //     }
+    // })
 
     if (dataset.drivers && dataset.drivers.length > 0) {
         dataset.drivers.forEach((driver: IDashboardDatasetDriver) => {
@@ -806,7 +930,7 @@ const formatPivotModelForGet = (dashboardId: any, propWidget: IWidget, dataset: 
     }
 
     if (dataset.parameters && dataset.parameters.length > 0) {
-        const paramRegex = /[^\$P{]+(?=\})/
+        const paramRegex = /[^$P{]+(?=\})/
         dataset.parameters.forEach((param: any) => {
             const matched = paramRegex.exec(param.value)
             if (matched && matched[0]) {

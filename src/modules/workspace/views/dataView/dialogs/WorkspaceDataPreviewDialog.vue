@@ -123,13 +123,11 @@ export default defineComponent({
         async loadPreview() {
             this.loadDataset()
 
-            if (this.dataset.drivers && this.dataset.drivers.length > 0) {
-                if (this.userRole) {
-                    await this.loadDatasetDrivers()
-                } else {
-                    this.parameterSidebarVisible = true
-                    return
-                }
+            if (this.userRole) {
+                await this.loadDatasetDrivers()
+            } else {
+                this.parameterSidebarVisible = true
+                return
             }
 
             if (this.loadFromDatasetManagement) this.correctRolesForExecution = (this.store.$state as any).user.roles

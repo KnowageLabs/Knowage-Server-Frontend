@@ -1,0 +1,44 @@
+{
+    "axisTitleAlignOptions": [
+        {
+            "label": "common.low",
+            "value": "low"
+        },
+        {
+            "label": "common.center",
+            "value": "middle"
+        },
+        {
+            "label": "common.high",
+            "value": "high"
+        }
+    ],
+    "gridLineTypeOptions": [
+        {
+            "label": "dashboard.widgetEditor.borders.solid",
+            "value": "Solid"
+        },
+        {
+            "label": "dashboard.widgetEditor.borders.dashed",
+            "value": "Dash"
+        },
+        {
+            "label": "dashboard.widgetEditor.borders.dotted",
+            "value": "Dot"
+        }
+    ],
+    "styleToolbarSettings": [
+        {
+            "type": "font-weight"
+        },
+        {
+            "type": "font-size"
+        },
+        {
+            "type": "font-family"
+        },
+        {
+            "type": "color"
+        }
+    ]
+}
