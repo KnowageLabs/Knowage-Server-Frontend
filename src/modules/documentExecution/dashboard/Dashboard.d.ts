@@ -418,7 +418,8 @@ export interface IWidgetColumn {
     formulaEditor?: string
     drillOrder?: IDrillOrderItem
     orderType?: string
-    sort?: string
+    sort?: string,
+    serieType?: string
 }
 
 export interface IWidgetColumnFilter {
