@@ -23,7 +23,6 @@ export const getFormattedSerieLabelsSettings = (widget: any) => {
 }
 
 const setFormattedSerieLabelSettings = (oldModelSerie: any, formattedSettings: IHighchartsSeriesLabelsSetting) => {
-    console.log(' !!!!!!! OLD MODEL SERIE: ', oldModelSerie)
     formattedSettings.label = {
         enabled: oldModelSerie.showValue,
         style: {

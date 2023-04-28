@@ -55,21 +55,7 @@
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.percentage') }}</label>
                 <InputSwitch v-model="serieSetting.label.percentage" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
             </div>
-            <div v-if="serieTypeAvailable" class="p-col-12 p-md-4 p-lg-2 p-d-flex p-flex-column">
-                <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
-                <Dropdown v-model="serieSetting.type" class="kn-material-input" :options="descriptor.serieTypeOptions" option-value="value" :disabled="!serieSetting.label.enabled" @change="modelChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.serieTypeOptions, $t) }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-            </div>
+
             <div v-if="formattingSectionAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.absolute') }}</label>
                 <InputSwitch v-model="serieSetting.label.absolute" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
@@ -148,9 +134,6 @@ export default defineComponent({
         },
         percentageAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
-        },
-        serieTypeAvailable() {
-            return this.model && ['radar'].includes(this.model.chart.type)
         },
         advancedSectionAvailable() {
             return this.model?.chart.type === 'gauge'

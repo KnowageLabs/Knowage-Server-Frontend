@@ -1,5 +1,6 @@
 <template>
     <div v-if="column" class="widget-editor-card p-p-2">
+        {{ column }}
         <div class="p-my-2">
             <div class="p-d-flex p-flex-row p-ai-center">
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
@@ -34,7 +35,7 @@
                 </div>
             </div>
 
-            <div v-else-if="['pie', 'heatmap', 'radar'].includes(chartType)" class="p-d-flex p-flex-row p-ai-center p-mt-2">
+            <div v-else-if="['pie', 'heatmap', 'radar'].includes(chartType)" class="p-d-flex p-flex-row p-ai-center kn-flex p-mt-2">
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
                     <Dropdown v-model="column.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
@@ -50,6 +51,24 @@
                         </template>
                     </Dropdown>
                 </div>
+
+                <div v-if="['radar'].includes(chartType)" class="p-d-flex p-flex-column kn-flex">
+                    <div class="p-d-flex p-flex-column kn-flex p-m-2">
+                        <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
+                        <Dropdown v-model="column.serieType" class="kn-material-input" :options="descriptor.serieTypeOptions" option-value="value">
+                            <template #value="slotProps">
+                                <div>
+                                    <span>{{ getTranslatedLabel(slotProps.value, descriptor.serieTypeOptions, $t) }}</span>
+                                </div>
+                            </template>
+                            <template #option="slotProps">
+                                <div>
+                                    <span>{{ $t(slotProps.option.label) }}</span>
+                                </div>
+                            </template>
+                        </Dropdown>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -63,9 +82,11 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn, IWidgetColumnFilter } from '../../../../../Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
+import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import WidgetEditorFilterForm from '../../common/WidgetEditorFilterForm.vue'
+import descriptor from './ChartWidgetColumnFormDescriptor.json'
 
 export default defineComponent({
     name: 'table-widget-column-form',
@@ -73,8 +94,10 @@ export default defineComponent({
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedColumn: { type: Object as PropType<IWidgetColumn | null>, required: true }, chartType: { type: String, required: true } },
     data() {
         return {
+            descriptor,
             commonDescriptor,
-            column: null as IWidgetColumn | null
+            column: null as IWidgetColumn | null,
+            getTranslatedLabel
         }
     },
     computed: {
