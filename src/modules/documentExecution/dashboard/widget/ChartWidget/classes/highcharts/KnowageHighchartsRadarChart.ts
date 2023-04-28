@@ -1,7 +1,6 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartSerie, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
 import { updateRadarChartModel } from './updater/KnowageHighchartsRadarChartUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
@@ -35,24 +34,38 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     setData(data: any, widgetModel: IWidget) {
         // TODO
         console.log('----------------------- DATA: ', data)
-        if (this.model.series.length === 0) this.getSeriesFromWidgetModel(widgetModel)
-
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.model.series.map((serie) => {
-            const index = data.metaData.fields.findIndex((field: any) => field.header?.startsWith(serie.name))
-            const dataIndex = index !== -1 ? data.metaData.fields[index].dataIndex : ''
-            const attribute = data.metaData.fields[1]
-            serie.data = []
-            data?.rows?.forEach((row: any) => {
-                serie.data.push({
-                    name: dateFormat && ['date', 'timestamp'].includes(attribute.type) ? this.getFormattedDateCategoryValue(row[attribute.dataIndex], dateFormat, attribute.type) : row[attribute.dataIndex],
-                    y: row[dataIndex],
-                    drilldown: false // TODO 
-                })
+        const formattedSeries = [] as any[]
+        widgetModel.columns.forEach((column: IWidgetColumn) => {
+            if (column.fieldType === 'MEASURE') {
+                const serie = this.createFormattedSerieFromColumn(column, data, dateFormat)
+                if (serie) formattedSeries.push(serie)
+                console.log('--- FORMATTED SERIE: ', serie)
+            }
+        })
+        this.model.series = formattedSeries
+        return this.model.series
+    }
+
+    createFormattedSerieFromColumn(column: IWidgetColumn, data: any, dateFormat: string) {
+        const serie = this.model.series.find((serie: any) => serie.name === column.columnName)
+        console.log('--- column: ', column)
+
+        if (!serie) return null
+        serie.type = column.serieType && ['arearangelow', 'arearangehigh'].includes(column.serieType) ? '' : column.serieType
+        const index = data.metaData.fields.findIndex((field: any) => field.header?.startsWith(serie.name))
+        const dataIndex = index !== -1 ? data.metaData.fields[index].dataIndex : ''
+        const attribute = data.metaData.fields[1]
+        serie.data = []
+        data?.rows?.forEach((row: any) => {
+            serie.data.push({
+                name: dateFormat && ['date', 'timestamp'].includes(attribute.type) ? this.getFormattedDateCategoryValue(row[attribute.dataIndex], dateFormat, attribute.type) : row[attribute.dataIndex],
+                y: row[dataIndex],
+                drilldown: false // TODO 
             })
         })
-
-        return this.model.series
+        console.log('--- SERIE: ', serie)
+        return serie
     }
 
     // TODO - Move to common?
@@ -62,13 +75,6 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         return date.isValid() ? date.format(dateFormat) : dateString
     }
 
-
-    getSeriesFromWidgetModel(widgetModel: IWidget) {
-        // TODO
-        const measureColumn = widgetModel.columns.find((column: IWidgetColumn) => column.fieldType === 'MEASURE')
-        if (!measureColumn) return
-        this.model.series = [createSerie(measureColumn.columnName, measureColumn.aggregation, true)]
-    }
 
     setHeatmapXAxis() {
         this.model.xAxis = highchartsDefaultValues.getDefaultHeatmapXAxis()
@@ -84,6 +90,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         this.setSpecificSeriesSettings(widgetModel)
     }
 
+
     setAllSeriesSettings(widgetModel: IWidget) {
         const allSeriesSettings = widgetModel.settings.series.seriesLabelsSettings[0]
         if (allSeriesSettings.label.enabled) {
@@ -95,10 +102,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     resetSeriesSettings() {
-        this.model.series.forEach((serie: any) => {
-            serie.type = ''
-            serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' }
-        })
+        this.model.series.forEach((serie: any) => serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' })
     }
 
     setSpecificSeriesSettings(widgetModel: IWidget) {

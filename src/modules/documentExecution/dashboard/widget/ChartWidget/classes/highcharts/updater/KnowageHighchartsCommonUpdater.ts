@@ -2,8 +2,10 @@ import { hexToRgba } from "@/modules/documentExecution/dashboard/helpers/Formatt
 import { IHighchartsChartModel } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
-export const createSerie = (serieName: string, groupingFunction: string, colorByPoint: boolean) => {
-    return { name: serieName, data: [], colorByPoint: colorByPoint, groupingFunction: groupingFunction, accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() }
+export const createSerie = (serieName: string, groupingFunction: string, colorByPoint: boolean, serieType?: string) => {
+    const serie = { name: serieName, data: [], colorByPoint: colorByPoint, groupingFunction: groupingFunction, accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() } as any
+    if (serieType) serie.serieType = serieType
+    return serie
 }
 
 export const createGaugeSerie = (serieName: string) => {
