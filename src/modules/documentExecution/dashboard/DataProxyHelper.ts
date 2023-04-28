@@ -681,33 +681,36 @@ const formatRadarChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDa
     addSelectionsToData(dataToSend, propWidget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
     dataToSend.aggregations.dataset = dataset.dsLabel
 
+    console.log('opoppoppopo', propWidget)
+
     propWidget.columns.forEach((measure) => {
         if (measure.fieldType == 'MEASURE') {
-            const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias } as any
+            const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
             measure.formula ? (measureToPush.formula = measure.formula) : ''
             dataToSend.aggregations.measures.push(measureToPush)
         }
     })
 
-    for (let index = 0; index < propWidget.columns.length; index++) {
-        const measure = propWidget.columns[index]
-
-        if (measure.fieldType !== 'MEASURE') {
-            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: 'none', orderColumn: '' } as any
-            measure.formula ? (measureToPush.formula = measure.formula) : ''
-            dataToSend.aggregations.categories.push(measureToPush)
-
-            //hvataj samo prvu za sada
-            break
-        }
+    function formatCategory(category) {
+        const categoryToPush = { id: `${category.alias}`, alias: `${category.alias}`, columnName: category.columnName, funct: 'none', orderColumn: category.alias, orderType: category.orderType } as any
+        category.formula ? (categoryToPush.formula = category.formula) : ''
+        return categoryToPush
     }
 
-    // propWidget.columns.forEach((column: any) => {
-    //     if (column.fieldType !== 'MEASURE') {
-    //         const categoryToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any
-    //         dataToSend.aggregations.categories.push(categoryToPush)
-    //     }
-    // })
+    if (propWidget.settings.configuration.splitting.enabled) {
+        for (let index = 0; index < propWidget.columns.length; index++) {
+            const category = propWidget.columns[index]
+            if (category.fieldType !== 'MEASURE') dataToSend.aggregations.categories.push(formatCategory(category))
+        }
+    } else {
+        for (let index = 0; index < propWidget.columns.length; index++) {
+            const category = propWidget.columns[index]
+            if (category.fieldType !== 'MEASURE') {
+                dataToSend.aggregations.categories.push(formatCategory(category))
+                break
+            }
+        }
+    }
 
     if (dataset.drivers && dataset.drivers.length > 0) {
         dataset.drivers.forEach((driver: IDashboardDatasetDriver) => {
