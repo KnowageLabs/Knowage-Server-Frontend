@@ -55,7 +55,7 @@
                 <div v-if="['radar'].includes(chartType)" class="p-d-flex p-flex-column kn-flex">
                     <div class="p-d-flex p-flex-column kn-flex p-m-2">
                         <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
-                        <Dropdown v-model="column.serieType" class="kn-material-input" :options="descriptor.serieTypeOptions" option-value="value">
+                        <Dropdown v-model="column.serieType" class="kn-material-input" :options="descriptor.serieTypeOptions" option-value="value" @change="selectedColumnUpdated">
                             <template #value="slotProps">
                                 <div>
                                     <span>{{ getTranslatedLabel(slotProps.value, descriptor.serieTypeOptions, $t) }}</span>

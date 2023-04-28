@@ -36,13 +36,27 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         console.log('----------------------- DATA: ', data)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         const formattedSeries = [] as any[]
+        let areRangeLowColumn = null as IWidgetColumn | null
+        let areRangeHighColumn = null as IWidgetColumn | null
         widgetModel.columns.forEach((column: IWidgetColumn) => {
             if (column.fieldType === 'MEASURE') {
-                const serie = this.createFormattedSerieFromColumn(column, data, dateFormat)
-                if (serie) formattedSeries.push(serie)
-                console.log('--- FORMATTED SERIE: ', serie)
+                console.log('--- 111111111111 column: ', column)
+                if (!['arearangelow', 'arearangehigh'].includes('' + column.serieType)) {
+                    const serie = this.createFormattedSerieFromColumn(column, data, dateFormat)
+                    if (serie) formattedSeries.push(serie)
+                    console.log('--- FORMATTED SERIE: ', serie)
+                } else if (column.serieType === 'arearangelow') {
+                    areRangeLowColumn = column
+                } else if (column.serieType === 'arearangehigh') {
+                    areRangeHighColumn = column
+                }
             }
         })
+
+        if (areRangeLowColumn && areRangeHighColumn) {
+            const serie = this.createFormattedSerieFromAreaRangeColumns(areRangeLowColumn, areRangeHighColumn, data, dateFormat)
+            if (serie) formattedSeries.push(serie)
+        }
         this.model.series = formattedSeries
         return this.model.series
     }
@@ -50,9 +64,8 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     createFormattedSerieFromColumn(column: IWidgetColumn, data: any, dateFormat: string) {
         const serie = this.model.series.find((serie: any) => serie.name === column.columnName)
         console.log('--- column: ', column)
-
         if (!serie) return null
-        serie.type = column.serieType && ['arearangelow', 'arearangehigh'].includes(column.serieType) ? '' : column.serieType
+        serie.type = column.serieType === 'bar' ? 'column' : column.serieType
         const index = data.metaData.fields.findIndex((field: any) => field.header?.startsWith(serie.name))
         const dataIndex = index !== -1 ? data.metaData.fields[index].dataIndex : ''
         const attribute = data.metaData.fields[1]
@@ -67,6 +80,37 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         console.log('--- SERIE: ', serie)
         return serie
     }
+
+
+    createFormattedSerieFromAreaRangeColumns(areRangeLowColumn: IWidgetColumn, areRangeHighColumn: IWidgetColumn, data: any, dateFormat: string) {
+        const lowSerie = this.model.series.find((serie: any) => serie.name === areRangeLowColumn.columnName)
+        const highSerie = this.model.series.find((serie: any) => serie.name === areRangeHighColumn.columnName)
+        console.log('--- areRangeLowColumn: ', areRangeLowColumn)
+        console.log('--- areRangeHighColumn: ', areRangeHighColumn)
+        if (!lowSerie || !highSerie) return null
+        lowSerie.type = 'arearange'
+        highSerie.type = 'arearange'
+
+        const lowSerieIndex = data.metaData.fields.findIndex((field: any) => field.header?.startsWith(lowSerie.name))
+        const lowSerieIndexDataIndex = lowSerieIndex !== -1 ? data.metaData.fields[lowSerieIndex].dataIndex : ''
+        const highSerieIndex = data.metaData.fields.findIndex((field: any) => field.header?.startsWith(highSerie.name))
+        const highSerieIndexDataIndex = lowSerieIndex !== -1 ? data.metaData.fields[highSerieIndex].dataIndex : ''
+        const attribute = data.metaData.fields[1]
+        lowSerie.data = []
+        data?.rows?.forEach((row: any) => {
+            lowSerie.data.push({
+                name: dateFormat && ['date', 'timestamp'].includes(attribute.type) ? this.getFormattedDateCategoryValue(row[attribute.dataIndex], dateFormat, attribute.type) : row[attribute.dataIndex],
+                low: row[lowSerieIndexDataIndex],
+                high: row[highSerieIndexDataIndex],
+                drilldown: false // TODO 
+            })
+        })
+        console.log('--- lowSerie: ', lowSerie)
+        lowSerie.name += ' / ' + highSerie.name
+        return lowSerie
+    }
+
+
 
     // TODO - Move to common?
     getFormattedDateCategoryValue(dateString: string, dateFormat: string, type: 'date' | 'timestamp') {
