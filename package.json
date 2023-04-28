@@ -138,5 +138,8 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/KnowageLabs/Knowage-Server.git"
-    }
+    },
+    "workspaces": [
+        "../vue-addon"
+    ]
 }
