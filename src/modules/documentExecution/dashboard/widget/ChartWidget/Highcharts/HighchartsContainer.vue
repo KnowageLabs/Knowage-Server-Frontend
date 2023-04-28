@@ -107,11 +107,13 @@ export default defineComponent({
             this.setSeriesEvents()
 
             const modelToRender = this.getModelForRender()
+            modelToRender.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
             modelToRender.chart.backgroundColor = null
 
             console.log('-------- MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
+                console.log('--------this.highchartsInstance : ', this.highchartsInstance)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
                 console.log('--------- EROR: ', error)
@@ -145,15 +147,16 @@ export default defineComponent({
         },
 
         setSeriesEvents() {
-            this.chartModel.chart.events = { drillup: this.onDrillUp }
+            this.chartModel.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
             if (this.chartModel.plotOptions.series) this.chartModel.plotOptions.series = { events: { click: this.executeInteractions } }
         },
         onDrillUp(event: any) {
-            // console.log('--------- DRILL UP CAAAAAAAAALLED!: ', event)
             this.drillLevel = event.seriesOptions._levelNumber
             this.likeSelections = this.likeSelections.slice(0, this.drillLevel)
+            this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
+            console.log('--------- event ', event)
             if (!['pie', 'heatmap', 'radar'].includes(this.chartModel.chart.type)) return
 
             // TODO - refactor
@@ -165,6 +168,7 @@ export default defineComponent({
                 this.drillLevel++
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })
+                console.log(' likeSelections ', this.likeSelections)
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
                 const temp = await getPieChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
                 console.log(' resp: ', temp)
@@ -180,9 +184,10 @@ export default defineComponent({
                     serieElement.drilldown = true
                     tempSeries.push(serieElement)
                 })
-                // console.log('--------- TEMP SERIES: ', tempSeries)
+                console.log('--------- TEMP SERIES: ', tempSeries)
                 this.highchartsInstance.hideLoading()
                 this.highchartsInstance.addSeriesAsDrilldown(event.point, { data: tempSeries, name: event.point.name })
+                this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)

@@ -107,7 +107,8 @@ export interface IHighchartsChartModel {
     pane?: any,
     xAxis?: any
     yAxis?: any,
-    colorAxis?: { stops: any[] }
+    colorAxis?: { stops: any[] },
+    seriesForRender?: any[]
 }
 
 export interface IHighchartsChartPlotOptions {
