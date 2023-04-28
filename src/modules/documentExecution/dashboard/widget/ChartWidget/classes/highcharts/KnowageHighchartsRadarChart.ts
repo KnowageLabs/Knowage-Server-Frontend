@@ -34,17 +34,57 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     setData(data: any, widgetModel: IWidget) {
         // TODO
         console.log('----------------------- DATA: ', data)
+        if (!data || !data.metaData || !data.rows) return
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
+        const splitting = widgetModel.settings?.configuration?.splitting
+        console.log('----------------------- splitted: ', splitting)
+        if (splitting?.enabled) {
+            this.setSplitedData(splitting.groupedSerie, data)
+        } else {
+            this.setNormalData(data, widgetModel, dateFormat)
+        }
+
+        return this.model.series
+    }
+
+    setSplitedData(splitingColumn: string, data: any) {
+        const groupedSerie = data.metaData.fields.find((field: any) => field.header?.startsWith(splitingColumn))
+        if (!groupedSerie) return
+        const distinctFirstAttributeValues = data.stats[1].distinct
+        const distinctValues = data.stats[2].distinct
+        const distinctValuesMap = {}
+        distinctValues?.forEach((value: string) => {
+            distinctValuesMap[value] = { data: [] }
+            distinctFirstAttributeValues.forEach((firstAttributeValue: string) => distinctValuesMap[value].data.push({ name: firstAttributeValue, datetype: 'string' }))
+        })
+        data.rows.forEach((row: any) => {
+            distinctValuesMap[row['column_2']]?.data?.push({
+                "y": row[groupedSerie.dataIndex],
+                "name": row['column_1'],
+                "datetype": "string"
+            })
+        })
+        const formattedSeries = [] as any[]
+        Object.keys(distinctValuesMap).forEach((key: string) => {
+            const serie = {
+                name: key,
+                data: distinctValuesMap[key].data,
+                label: { enabled: false }
+            }
+            formattedSeries.push(serie)
+        })
+        this.model.series = formattedSeries
+    }
+
+    setNormalData(data: any, widgetModel: IWidget, dateFormat: string) {
         const formattedSeries = [] as any[]
         let areRangeLowColumn = null as IWidgetColumn | null
         let areRangeHighColumn = null as IWidgetColumn | null
         widgetModel.columns.forEach((column: IWidgetColumn) => {
             if (column.fieldType === 'MEASURE') {
-                console.log('--- 111111111111 column: ', column)
                 if (!['arearangelow', 'arearangehigh'].includes('' + column.serieType)) {
                     const serie = this.createFormattedSerieFromColumn(column, data, dateFormat)
                     if (serie) formattedSeries.push(serie)
-                    console.log('--- FORMATTED SERIE: ', serie)
                 } else if (column.serieType === 'arearangelow') {
                     areRangeLowColumn = column
                 } else if (column.serieType === 'arearangehigh') {
@@ -58,12 +98,10 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
             if (serie) formattedSeries.push(serie)
         }
         this.model.series = formattedSeries
-        return this.model.series
     }
 
     createFormattedSerieFromColumn(column: IWidgetColumn, data: any, dateFormat: string) {
         const serie = this.model.series.find((serie: any) => serie.name === column.columnName)
-        console.log('--- column: ', column)
         if (!serie) return null
         serie.type = column.serieType === 'bar' ? 'column' : column.serieType
         const index = data.metaData.fields.findIndex((field: any) => field.header?.startsWith(serie.name))
@@ -77,7 +115,6 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
                 drilldown: false // TODO 
             })
         })
-        console.log('--- SERIE: ', serie)
         return serie
     }
 
@@ -85,8 +122,6 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     createFormattedSerieFromAreaRangeColumns(areRangeLowColumn: IWidgetColumn, areRangeHighColumn: IWidgetColumn, data: any, dateFormat: string) {
         const lowSerie = this.model.series.find((serie: any) => serie.name === areRangeLowColumn.columnName)
         const highSerie = this.model.series.find((serie: any) => serie.name === areRangeHighColumn.columnName)
-        console.log('--- areRangeLowColumn: ', areRangeLowColumn)
-        console.log('--- areRangeHighColumn: ', areRangeHighColumn)
         if (!lowSerie || !highSerie) return null
         lowSerie.type = 'arearange'
         highSerie.type = 'arearange'
@@ -105,7 +140,6 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
                 drilldown: false // TODO 
             })
         })
-        console.log('--- lowSerie: ', lowSerie)
         lowSerie.name += ' / ' + highSerie.name
         return lowSerie
     }

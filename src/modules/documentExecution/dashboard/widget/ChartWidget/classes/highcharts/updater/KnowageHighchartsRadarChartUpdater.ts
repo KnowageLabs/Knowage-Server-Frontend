@@ -41,13 +41,13 @@ const setYAxisSpecificValues = (newModelAxis: any) => {
 
 const setYAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
     if (oldAxis.MAJORGRID) {
-        newModelAxis.tickInterval = oldAxis.MAJORGRID.interval ?? null
+        newModelAxis.tickInterval = oldAxis.MAJORGRID.interval && oldAxis.MAJORGRID.interval !== '' ? oldAxis.MAJORGRID.interval : null
         newModelAxis.gridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
         newModelAxis.gridLineColor = oldAxis.MAJORGRID.style?.color ? hexToRgba(oldAxis.MAJORGRID.style.color) : ''
     }
 
     if (oldAxis.MINORGRID) {
-        newModelAxis.minorTickInterval = oldAxis.MINORGRID.interval ?? null
+        newModelAxis.minorTickInterval = oldAxis.MINORGRID.interval && oldAxis.MINORGRID.interval !== '' ? oldAxis.MINORGRID.interval : null
         newModelAxis.minorGridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
         newModelAxis.minorGridLineColor = oldAxis.MINORGRID.style?.color ? hexToRgba(oldAxis.MINORGRID.style.color) : ''
     }
