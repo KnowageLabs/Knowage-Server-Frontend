@@ -349,7 +349,7 @@ export default defineComponent({
 
         isEmpty(): boolean {
             const selectedPlaceholder = this.activeTemplate.placeholders[this.currentSelectedIndex]
-            return (this.currentSelectedIndex != -1 && selectedPlaceholder?.parameters?.length != 0) || selectedPlaceholder?.views?.length != 0
+            return (this.currentSelectedIndex != -1 && selectedPlaceholder?.parameters?.length != 0) || selectedPlaceholder?.views.availableViews?.length != 0
         },
 
         getTypes() {
@@ -357,7 +357,7 @@ export default defineComponent({
             const currTempl = this.activeTemplate.placeholders[this.currentSelectedIndex]
             if (this.currentSelectedIndex != -1) {
                 if (!currTempl.parameters || currTempl.parameters?.length == 0) types = types.filter((x) => x.code !== 'DRIVERS')
-                if (!currTempl.views || currTempl.views?.length == 0) types = types.filter((x) => x.code !== 'VIEWS')
+                if (!currTempl.views || currTempl.views.availableViews?.length == 0) types = types.filter((x) => x.code !== 'VIEWS')
                 if (types.length == 1) currTempl.source = types[0].code
             }
 
