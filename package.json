@@ -140,6 +140,6 @@
         "url": "git+https://github.com/KnowageLabs/Knowage-Server.git"
     },
     "workspaces": [
-        "../vue-addon"
+        "src/workspaces"
     ]
 }

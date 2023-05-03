@@ -1,0 +1,12 @@
+{
+    "author": "Darko Bulatovic",
+    "description": "knowage enterprise version",
+    "devDependencies": {},
+    "license": "AGPL-3.0",
+    "main": "index.js",
+    "name": "workspaces",
+    "scripts": {
+        "test": "test"
+    },
+    "version": "1.0.0"
+}
