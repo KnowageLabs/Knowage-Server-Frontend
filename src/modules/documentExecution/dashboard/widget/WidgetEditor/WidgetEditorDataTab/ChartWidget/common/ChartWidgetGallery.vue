@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IChartType } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IWidget, IChartType } from '@/modules/documentExecution/dashboard/Dashboard'
 import galleryDescriptor from './ChartWidgetGalleryDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import MasonryWall from '@yeger/vue-masonry-wall'
