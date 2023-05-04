@@ -146,7 +146,16 @@
                                         :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
                                         :global-filter-fields="['name', 'type', 'tags']"
                                     >
-                                        <Column v-for="col of viewColumns" :key="col.name" class="kn-truncated" :field="col.name" :header="col.header" :sortable="true"> </Column>
+                                        <Column v-for="col of viewColumns" :key="col.name" class="kn-truncated" :field="col.name" :header="col.header" :sortable="true">
+                                            <template #body="slotProps">
+                                                <span v-if="slotProps.field === 'time_in' && slotProps.data[slotProps.field]">
+                                                    {{ formatDateWithLocale(slotProps.data[slotProps.field]) }}
+                                                </span>
+                                                <span v-else>
+                                                    {{ slotProps.data[slotProps.field] }}
+                                                </span>
+                                            </template>
+                                        </Column>
                                     </DataTable>
                                 </div>
                                 <div v-else-if="activeTemplate.placeholders[currentSelectedIndex].source === 'DRIVERS'">
@@ -237,7 +246,7 @@ import { mapState, mapActions } from 'pinia'
 import Dialog from 'primevue/dialog'
 import ProgressSpinner from 'primevue/progressspinner'
 import mainStore from '../../../../../App.store'
-import { iDossierTemplate, iPlaceholder } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierTemplate'
+import { iDossierTemplate, iPlaceholder, iViews } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierTemplate'
 import useValidate from '@vuelidate/core'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
 import descriptor from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialogDescriptor.json'
@@ -256,6 +265,7 @@ import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import Divider from 'primevue/divider'
 import DashboardControllerSaveDialog from '@/modules/documentExecution/dashboard/DashboardControllerSaveDialog.vue'
+import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 
 export default defineComponent({
     name: 'document-detail-dossier-designer-dialog',
@@ -271,6 +281,7 @@ export default defineComponent({
             descriptor,
             filterDefault,
             FilterOperator,
+            formatDateWithLocale,
             document: null as iDocument | null,
             loading: false,
             uploadedFile: {} as any,
@@ -573,18 +584,10 @@ export default defineComponent({
                 this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = response.data
             })
 
-            /* TODO LOAD VIEWS */
-            /*await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documents/${doc.DOCUMENT_LABEL}/views/`).then((response: AxiosResponse<any>) => {
-                response.data.forEach((element) => {
-                    this.activeTemplate.placeholders[this.currentSelectedIndex].views = []
-                    this.activeTemplate.placeholders[this.currentSelectedIndex]?.views?.push({
-                        label: element.label,
-                        type: '',
-                        urlName: '',
-                        urlName_description: ''
-                    })
-                })
-            }) */
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/document/${doc.DOCUMENT_ID}`).then((response: AxiosResponse<any>) => {
+                this.activeTemplate.placeholders[this.currentSelectedIndex].views = {} as iViews
+                this.activeTemplate.placeholders[this.currentSelectedIndex].views.availableViews = response.data
+            })
         },
         handleDocDialog() {
             this.docId = this.document?.id

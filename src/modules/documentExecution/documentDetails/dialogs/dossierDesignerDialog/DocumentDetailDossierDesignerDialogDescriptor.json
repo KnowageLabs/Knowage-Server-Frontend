@@ -83,8 +83,12 @@
                 "name": "name"
             },
             {
+                "header": "common.description",
+                "name": "description"
+            },
+            {
                 "header": "common.creationDate",
-                "name": "creationDate"
+                "name": "time_in"
             }
         ]
     }
