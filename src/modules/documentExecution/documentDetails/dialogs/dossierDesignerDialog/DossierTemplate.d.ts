@@ -10,6 +10,7 @@ export interface iDossierTemplate {
 export interface iPlaceholder {
     imageName: string
     label?: string
+    docId?: string
     source: string
     parameters: any[]
     views: iViews

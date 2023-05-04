@@ -123,7 +123,7 @@
                                     </div>
                                 </div>
                             </AccordionTab>
-                            <AccordionTab :header="$t('common.parameters')" class="accordionTab">
+                            <AccordionTab :header="activeTemplate.placeholders[currentSelectedIndex].source === 'VIEWS' ? $t('common.views') : $t('common.parameters')" class="accordionTab">
                                 <div v-if="activeTemplate.placeholders[currentSelectedIndex].label && !docHasDriversOrViews()">
                                     <Message class="p-m-4" severity="warn" :closable="false">
                                         {{ $t(`documentExecution.dossier.designerDialog.noDriversAndNoViewsForDocument`) }}
@@ -347,12 +347,13 @@ export default defineComponent({
             this.loadDocument()
         },
 
-        activeTemplate: {
-            async handler(oldValue, newValue) {
-                if (oldValue.placeholders && newValue.placeholders && oldValue.placeholders[this.currentSelectedIndex]?.source !== newValue.placeholders[this.currentSelectedIndex]?.source) {
-                }
-            },
-            deep: true
+        async currentSelectedIndex() {
+            const docId = this.activeTemplate.placeholders[this.currentSelectedIndex]?.docId
+
+            if (docId) {
+                await this.loadParameters(docId)
+                await this.loadViews(docId)
+            }
         }
     },
     async created() {
@@ -402,17 +403,6 @@ export default defineComponent({
                 .finally(() => (this.loading = false))
 
             this.applyTranslations()
-
-            /* MOCKS */
-
-            /*    this.views.push({ name: 'View 1', creationDate: new Date() })
-                this.views.push({ name: 'View 2', creationDate: new Date() }) */
-
-            // const url = `/knowagedossierengine/api/start/dossierTemplate?documentId=${this.document.id}`
-            //  const url = 'http://localhost:3000/knowagedossierengine/api/start'
-            // await this.$http.post(url, null, { headers: { Accept: 'application/json, text/plain, */*' } }).then((response: AxiosResponse<any>) => {
-            //     console.log(response)
-            // })
 
             this.loading = false
         },
@@ -625,8 +615,23 @@ export default defineComponent({
 
         async loadParameters(docId) {
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${docId}/drivers`).then((response: AxiosResponse<any>) => {
-                this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
-                this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = response.data
+                response.data.forEach((par) => {
+                    const existing = this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.filter((x) => x.urlName == par.parameterUrlName)
+                    if (existing.length > 0) {
+                        return
+                    }
+
+                    this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.push(par)
+                })
+
+                this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.forEach((par, index) => {
+                    const existing = response.data.filter((x) => x.parameterUrlName == par.urlName || x.parameterUrlName == par.parameterUrlName)
+                    if (existing.length > 0) {
+                        return
+                    }
+
+                    this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.splice(index)
+                })
             })
         },
         async loadViews(docId) {
