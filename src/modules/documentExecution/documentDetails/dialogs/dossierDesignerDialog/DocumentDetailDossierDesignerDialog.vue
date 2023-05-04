@@ -146,6 +146,7 @@
                                         :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
                                         :global-filter-fields="['name', 'type', 'tags']"
                                     >
+                                        <Column selection-mode="single" header-style="width: 3rem"></Column>
                                         <Column v-for="col of viewColumns" :key="col.name" class="kn-truncated" :field="col.name" :header="col.header" :sortable="true">
                                             <template #body="slotProps">
                                                 <span v-if="slotProps.field === 'time_in' && slotProps.data[slotProps.field]">
@@ -266,6 +267,7 @@ import AccordionTab from 'primevue/accordiontab'
 import Divider from 'primevue/divider'
 import DashboardControllerSaveDialog from '@/modules/documentExecution/dashboard/DashboardControllerSaveDialog.vue'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
+import { v4 as uuidv4 } from 'uuid'
 
 export default defineComponent({
     name: 'document-detail-dossier-designer-dialog',
@@ -308,6 +310,8 @@ export default defineComponent({
             saveDialogVisible: false,
             fileHasBeenUploaded: false,
             inheritedDrivers: false,
+            uuid: '',
+            uuidv4,
             filters: {
                 global: [filterDefault],
                 typeCode: {
@@ -341,9 +345,18 @@ export default defineComponent({
     watch: {
         selectedDocument() {
             this.loadDocument()
+        },
+
+        activeTemplate: {
+            async handler(oldValue, newValue) {
+                if (oldValue.placeholders && newValue.placeholders && oldValue.placeholders[this.currentSelectedIndex]?.source !== newValue.placeholders[this.currentSelectedIndex]?.source) {
+                }
+            },
+            deep: true
         }
     },
     async created() {
+        this.uuid = uuidv4()
         await this.loadDocument()
         await this.setActiveTemplate()
     },
@@ -448,10 +461,29 @@ export default defineComponent({
         },
         async next() {
             if (this.step == 0) {
-                if (this.fileHasBeenUploaded && !(await this.isValidFile())) {
-                    // validation
-                    this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') })
-                    return
+                if (this.fileHasBeenUploaded) {
+                    const formData = new FormData()
+                    formData.append('file', this.uploadedFile)
+                    formData.append('uuid', this.uuid)
+
+                    let valid = true
+                    await this.$http
+                        .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                        .then(async (response: any) => {
+                            if (response.status === 'KO') {
+                                this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') })
+                                valid = false
+                            } else {
+                                if (!(await this.isValidFile())) {
+                                    this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') })
+                                    valid = false
+                                }
+                            }
+                        })
+                        .catch(() => this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') }))
+                        .finally(() => (this.triggerUpload = false))
+
+                    if (!valid) return
                 }
 
                 const ppt = this.activeTemplate.type === 'PPT_TEMPLATE_V2'
@@ -463,6 +495,14 @@ export default defineComponent({
                 const prefix = this.activeTemplate.prefix
 
                 url += `?fileName=${fileName}&prefix=${prefix}&user_id=${userId}`
+
+                const docId = this.getDocument()?.id
+                if (docId) {
+                    url += `&documentId=${docId}`
+                } else {
+                    url += `&uuid=${this.uuid}`
+                }
+
                 this.loading = true
 
                 const placeholdersInTheLastTemplate = this.activeTemplate.placeholders?.length > 0
@@ -579,12 +619,18 @@ export default defineComponent({
 
             this.activeTemplate.placeholders[this.currentSelectedIndex] = { ...this.activeTemplate.placeholders[this.currentSelectedIndex], label: doc.DOCUMENT_LABEL, source: '' }
 
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${doc.DOCUMENT_ID}/drivers`).then((response: AxiosResponse<any>) => {
+            await this.loadParameters(doc.DOCUMENT_ID)
+            await this.loadViews(doc.DOCUMENT_ID)
+        },
+
+        async loadParameters(docId) {
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${docId}/drivers`).then((response: AxiosResponse<any>) => {
                 this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
                 this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = response.data
             })
-
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/document/${doc.DOCUMENT_ID}`).then((response: AxiosResponse<any>) => {
+        },
+        async loadViews(docId) {
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/document/${docId}`).then((response: AxiosResponse<any>) => {
                 this.activeTemplate.placeholders[this.currentSelectedIndex].views = {} as iViews
                 this.activeTemplate.placeholders[this.currentSelectedIndex].views.availableViews = response.data
             })
@@ -621,7 +667,7 @@ export default defineComponent({
             }
         },
         async save() {
-            if (this.fileHasBeenUploaded) {
+            /*             if (this.fileHasBeenUploaded) {
                 const formData = new FormData()
                 formData.append('file', this.uploadedFile)
                 formData.append('documentId', '' + this.getDocument()?.id)
@@ -629,7 +675,7 @@ export default defineComponent({
                     .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
                     .catch(() => this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') }))
                     .finally(() => (this.triggerUpload = false))
-            }
+            } */
             await this.saveTemplate()
         },
 
@@ -639,7 +685,15 @@ export default defineComponent({
 
             const templateToSave = await this.handleDrivers()
 
-            const objToSend = { id: this.getDocument()?.id, template: templateToSave }
+            const objToSend = { template: templateToSave } as any
+            const docId = this.getDocument()?.id
+            if (docId) {
+                objToSend.id = this.getDocument()?.id
+            }
+
+            if (this.fileHasBeenUploaded) {
+                objToSend.uuid = this.uuid
+            }
 
             // SAVE TEMPLATE
             await this.$http
@@ -659,59 +713,67 @@ export default defineComponent({
             for (let i = 0; i < tempDrivers.length; i++) {
                 const placeholder = tempDrivers[i]
 
-                for (let j = 0; j < placeholder.parameters?.length; j++) {
-                    if (placeholder.parameters[j].type === 'static') {
-                        placeholder.parameters[j] = {
-                            urlName: placeholder.parameters[j].dossierUrlName || placeholder.parameters[j].parameterUrlName,
-                            type: 'static',
-                            dossierUrlName: placeholder.parameters[j].dossierUrlName,
-                            value: placeholder.parameters[j].value
-                        }
-                    } else if (placeholder.parameters[j].type === 'dynamic') {
-                        placeholder.parameters[j] = {
-                            urlName: placeholder.parameters[j].dossierUrlName || placeholder.parameters[j].parameterUrlName,
-                            type: 'dynamic',
-                            dossierUrlName: placeholder.parameters[j].dossierUrlName
-                        }
-                    } else if (placeholder.parameters[j].type === 'inherit') {
-                        this.inheritedDrivers = true
-                        const existing = this.document?.drivers?.filter((x) => x.parameterUrlName === placeholder.parameters[j].parameterUrlName)
+                if (placeholder.source === 'VIEWS') {
+                    delete placeholder.parameters
+                    placeholder.viewId = placeholder.views.selected.id
 
-                        if (existing?.length > 0) {
+                    delete placeholder.views
+                } else {
+                    delete placeholder.views
+                    for (let j = 0; j < placeholder.parameters?.length; j++) {
+                        if (placeholder.parameters[j].type === 'static') {
                             placeholder.parameters[j] = {
-                                urlName: existing[0].parameterUrlName,
+                                urlName: placeholder.parameters[j].dossierUrlName || placeholder.parameters[j].parameterUrlName,
+                                type: 'static',
+                                dossierUrlName: placeholder.parameters[j].dossierUrlName,
+                                value: placeholder.parameters[j].value
+                            }
+                        } else if (placeholder.parameters[j].type === 'dynamic') {
+                            placeholder.parameters[j] = {
+                                urlName: placeholder.parameters[j].dossierUrlName || placeholder.parameters[j].parameterUrlName,
                                 type: 'dynamic',
-                                dossierUrlName: existing[0].parameterUrlName
+                                dossierUrlName: placeholder.parameters[j].dossierUrlName
+                            }
+                        } else if (placeholder.parameters[j].type === 'inherit') {
+                            this.inheritedDrivers = true
+                            const existing = this.document?.drivers?.filter((x) => x.parameterUrlName === placeholder.parameters[j].parameterUrlName)
+
+                            if (existing?.length > 0) {
+                                placeholder.parameters[j] = {
+                                    urlName: existing[0].parameterUrlName,
+                                    type: 'dynamic',
+                                    dossierUrlName: existing[0].parameterUrlName
+                                }
+                            } else {
+                                const newDriver = { ...placeholder.parameters[j] }
+                                newDriver.modifiable = 0
+                                delete newDriver.id
+                                newDriver.biObjectID = this.getDocument()?.id
+                                delete newDriver.type
+                                newDriver.prog = this.document?.drivers?.length ?? 1
+
+                                await this.$http
+                                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                                    .then(() => {
+                                        placeholder.parameters[j] = {
+                                            urlName: newDriver.parameterUrlName,
+                                            type: 'dynamic',
+                                            dossierUrlName: newDriver.dossierUrlName
+                                        }
+                                    })
+                                    .catch(() => this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
+
+                                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${newDriver.biObjectID}/drivers`).then((response: AxiosResponse<any>) => {
+                                    if (this.document && this.document.drivers) this.document.drivers = response.data
+                                })
                             }
                         } else {
-                            const newDriver = { ...placeholder.parameters[j] }
-                            newDriver.modifiable = 0
-                            delete newDriver.id
-                            newDriver.biObjectID = this.getDocument()?.id
-                            delete newDriver.type
-                            newDriver.prog = this.document?.drivers?.length ?? 1
-
-                            await this.$http
-                                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
-                                .then(() => {
-                                    placeholder.parameters[j] = {
-                                        urlName: newDriver.parameterUrlName,
-                                        type: 'dynamic',
-                                        dossierUrlName: newDriver.dossierUrlName
-                                    }
-                                })
-                                .catch(() => this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
-
-                            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${newDriver.biObjectID}/drivers`).then((response: AxiosResponse<any>) => {
-                                if (this.document && this.document.drivers) this.document.drivers = response.data
+                            this.setError({
+                                title: this.$t('common.error.generic'),
+                                msg: this.$t('documentExecution.dossier.designerDialog.driverNotHandled', { driverName: placeholder.parameters[j].label, placeholderName: placeholder.imageName })
                             })
+                            return
                         }
-                    } else {
-                        this.setError({
-                            title: this.$t('common.error.generic'),
-                            msg: this.$t('documentExecution.dossier.designerDialog.driverNotHandled', { driverName: placeholder.parameters[j].label, placeholderName: placeholder.imageName })
-                        })
-                        return
                     }
                 }
             }
@@ -730,9 +792,15 @@ export default defineComponent({
             if (!valid) return false
 
             const formData = new FormData()
-            formData.append('file', this.uploadedFile)
-            if (this.getDocument()?.id) formData.append('documentId', '' + this.getDocument()?.id)
+            //formData.append('file', this.uploadedFile)
+            if (!this.isFromWorkspace) {
+                formData.append('documentId', '' + this.getDocument()?.id)
+            }
+            if (this.fileHasBeenUploaded) {
+                formData.append('uuid', this.uuid)
+            }
             formData.append('prefix', '' + this.activeTemplate.prefix)
+            formData.append('fileName', fileName)
             await this.$http
                 .post(`/knowagedossierengine/api/dossiervalidator/validateDocument?user_id=${this.user?.userUniqueIdentifier}`, formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
                 .then(() => (valid = true))
