@@ -99,26 +99,14 @@ export default defineComponent({
             customChartLoading: false,
             canEditDashboard,
             items: [
-                {
-                    label: 'Edit Widget',
-                    icon: 'fa-solid fa-pen-to-square',
-                    command: () => this.toggleEditMode()
-                },
-                {
-                    label: 'Delete Widget',
-                    icon: 'fa-solid fa-trash',
-                    command: () => this.deleteWidget(this.dashboardId, this.widget)
-                },
-                {
-                    label: 'Expand',
-                    icon: 'fa-solid fa-expand',
-                    command: () => this.expandWidget(this.widget)
-                },
-                {
-                    label: 'Add Quick Widget',
-                    icon: 'fas fa-magic',
-                    command: () => this.toggleQuickDialog()
-                }
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.cloneWidget(this.widget), visible: this.widget.type === 'highcharts' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'map' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'table' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: true }
             ] as IMenuItem[]
         }
     },
@@ -300,6 +288,12 @@ export default defineComponent({
         },
         toggleQuickDialog() {
             this.showQuickDialog = !this.showQuickDialog
+        },
+        searchOnWidget(widget) {
+            console.log('widget', widget)
+        },
+        cloneWidget(widget) {
+            console.log('widget', widget)
         }
     }
 })

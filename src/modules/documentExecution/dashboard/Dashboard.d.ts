@@ -717,4 +717,5 @@ export interface IMenuItem {
     label: string
     icon: string
     command: Function
+    visible: boolean
 }
