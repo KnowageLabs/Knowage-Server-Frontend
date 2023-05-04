@@ -6,8 +6,24 @@
     </div>
 
     <div class="widgetButtonBarContainer">
-        <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="toggle" />
-        <Menu ref="widgetmenu" label="Toggle" :model="menuItems" :popup="true" @click="toggle" />
+        <!-- <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="toggle" /> -->
+        <!-- <Menu ref="widgetmenu" label="Toggle" :model="menuItems" :popup="true" @click="toggle" /> -->
+        <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
+    </div>
+
+    <div class="qmenu-anchor">
+        <q-menu v-model:model-value="qMenuShown" anchor="top right" self="top left" no-parent-event>
+            <q-list style="min-width: 100px">
+                <q-item v-for="(item, index) in menuItems" :key="index" v-ripple dense clickable @click="closeMenu(item.command)">
+                    <q-item-section>
+                        <div>
+                            <i class="p-mr-3" :class="item.icon" />
+                            <label>{{ item.label }}</label>
+                        </div>
+                    </q-item-section>
+                </q-item>
+            </q-list>
+        </q-menu>
     </div>
 </template>
 
@@ -16,7 +32,7 @@
  * ! this component will be in charge of managing the widget buttons and visibility.
  */
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '../Dashboard'
+import { IMenuItem, IWidget } from '../Dashboard'
 import Menu from 'primevue/menu'
 
 export default defineComponent({
@@ -28,9 +44,14 @@ export default defineComponent({
         selectionIsLocked: { type: Boolean, required: true },
         dashboardId: { type: String, required: true },
         inFocus: { type: Boolean, required: true },
-        menuItems: { type: Object as PropType<any> }
+        menuItems: { type: Object as PropType<IMenuItem[]> }
     },
     emits: ['editWidget', 'unlockSelection', 'launchSelection', 'changeFocus'],
+    data() {
+        return {
+            qMenuShown: false
+        }
+    },
     methods: {
         toggle(event) {
             const menu = this.$refs.widgetmenu as any
@@ -38,6 +59,10 @@ export default defineComponent({
         },
         editWidget() {
             this.$emit('editWidget')
+        },
+        closeMenu(command) {
+            this.qMenuShown = false
+            command()
         }
     }
 })
@@ -61,8 +86,8 @@ export default defineComponent({
 .widgetButtonBarContainer {
     display: none;
     position: absolute;
-    top: 2px;
-    right: 2px;
+    bottom: 2px;
+    left: 2px;
     .widgetMenuButton.p-button.p-button-outlined:enabled {
         background-color: rgba(256, 256, 256, 0.6);
         &:hover {
@@ -74,6 +99,13 @@ export default defineComponent({
         }
     }
 }
+
+.qmenu-anchor {
+    position: absolute;
+    bottom: 15px;
+    left: 20px;
+}
+
 .drag-widget-icon {
     position: absolute;
     display: none;
