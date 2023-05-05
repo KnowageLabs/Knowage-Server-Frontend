@@ -616,7 +616,7 @@ export default defineComponent({
         async loadParameters(docId) {
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${docId}/drivers`).then((response: AxiosResponse<any>) => {
                 response.data.forEach((par) => {
-                    const existing = this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.filter((x) => x.urlName == par.parameterUrlName)
+                    const existing = this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters?.filter((x) => x.urlName == par.parameterUrlName)
                     if (existing.length > 0) {
                         return
                     }
