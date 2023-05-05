@@ -617,7 +617,7 @@ export default defineComponent({
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${docId}/drivers`).then((response: AxiosResponse<any>) => {
                 response.data.forEach((par) => {
                     const existing = this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters?.filter((x) => x.urlName == par.parameterUrlName)
-                    if (existing.length > 0) {
+                    if (existing?.length > 0) {
                         return
                     }
 
@@ -626,7 +626,7 @@ export default defineComponent({
 
                 this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.forEach((par, index) => {
                     const existing = response.data.filter((x) => x.parameterUrlName == par.urlName || x.parameterUrlName == par.parameterUrlName)
-                    if (existing.length > 0) {
+                    if (existing?.length > 0) {
                         return
                     }
 
