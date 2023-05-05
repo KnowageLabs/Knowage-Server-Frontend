@@ -337,7 +337,7 @@ export default defineComponent({
             let fieldAlias = ''
             let spContent = ''
             if (data.item.fieldAlias) {
-                fieldAlias = this.source !== 'QBE' ? this.wrap(data.item.fieldAlias) : data.item.fieldAlias
+                fieldAlias = this.source !== 'QBE' && this.source !== 'dashboard' ? this.wrap(data.item.fieldAlias) : data.item.fieldAlias
             }
             spContent = data.elementType === 'function' ? data.item : fieldAlias
             if (range.match(/\(|\)|,|\./g)) {
