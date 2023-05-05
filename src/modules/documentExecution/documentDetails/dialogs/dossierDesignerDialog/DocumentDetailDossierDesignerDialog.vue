@@ -5,7 +5,7 @@
             {{ $t(`documentExecution.dossier.designerDialog.step0.info`) }}
         </Message>
 
-        <div>
+        <div class="kn-width-full">
             <div v-if="step == 0" class="p-grid kn-height-full p-pl-2 p-ml-2 p-pr-2 p-mr-2">
                 <div class="p-col-6 p-d-flex">
                     <span class="p-float-label p-col">
@@ -51,183 +51,183 @@
                     </span>
                 </div>
             </div>
+        </div>
 
-            <div v-if="step == 1" class="p-grid kn-height-full p-pl-2 p-ml-2 p-pr-2 p-mr-2">
-                <div class="p-col-4">
-                    <Listbox
-                        option-label="name"
-                        class="kn-list kn-flex kn-height-full"
-                        :options="activeTemplate.placeholders"
-                        :filter="true"
-                        :filter-placeholder="$t('common.search')"
-                        filter-match-mode="contains"
-                        :filter-fields="['label']"
-                        :empty-filter-message="$t('common.info.noDataFound')"
-                        @change="selected($event)"
-                    >
-                        <template #option="slotProps">
-                            <div :class="['kn-list-item', 'selected']">
-                                <div class="kn-list-item-text">{{ slotProps.option.imageName }}</div>
+        <div v-if="step == 1" class="p-grid kn-height-full p-pl-2 p-ml-2 p-pr-2 p-mr-2">
+            <div class="p-col-4">
+                <Listbox
+                    option-label="name"
+                    class="kn-list kn-flex kn-height-full"
+                    :options="activeTemplate.placeholders"
+                    :filter="true"
+                    :filter-placeholder="$t('common.search')"
+                    filter-match-mode="contains"
+                    :filter-fields="['label']"
+                    :empty-filter-message="$t('common.info.noDataFound')"
+                    @change="selected($event)"
+                >
+                    <template #option="slotProps">
+                        <div :class="['kn-list-item', 'selected']">
+                            <div class="kn-list-item-text">{{ slotProps.option.imageName }}</div>
 
-                                <i v-if="!slotProps.option.label" v-tooltip="$t('documentExecution.dossier.designerDialog.noDocumentLinkedToThePlaceholder')" class="fa-solid fa-triangle-exclamation"></i>
+                            <i v-if="!slotProps.option.label" v-tooltip="$t('documentExecution.dossier.designerDialog.noDocumentLinkedToThePlaceholder')" class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </template>
+                </Listbox>
+            </div>
+            <div v-if="currentSelectedIndex == -1" class="p-col-8">
+                <KnHint class="kn-hint-sm" :title="$t('documentExecution.dossier.designerDialog.placeholders')" :hint="$t('documentExecution.dossier.designerDialog.noPlaceholdersHint')" data-test="hint"></KnHint>
+            </div>
+            <div v-else class="p-col-8">
+                <Message class="p-m-4" severity="info" :closable="false">
+                    {{ $t(`documentExecution.dossier.designerDialog.linkToDocumentHint`) }}
+                </Message>
+                <div class="p-col p-d-flex p-ai-center">
+                    <span class="p-float-label p-col-8">
+                        <InputText id="label" v-model="activeTemplate.placeholders[currentSelectedIndex].label" class="kn-material-input kn-width-full" type="text" :disabled="true" />
+                        <label for="label" class="kn-material-input-label"> {{ $t('common.label') }}</label>
+                    </span>
+                    <Button icon="pi pi-plus-circle" class="p-button-text p-button-rounded p-button-plain" @click="handleDocDialog"></Button>
+                    <span v-if="activeTemplate.placeholders[currentSelectedIndex].label && docHasDriversOrViews()" class="p-float-label p-col">
+                        <Dropdown v-model="activeTemplate.placeholders[currentSelectedIndex].source" class="kn-material-input kn-width-full" :options="getTypes()" option-label="label" option-value="code" />
+                        <label for="label" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.linkTo') }}</label>
+                    </span>
+
+                    <DocDialog :dialog-visible="docDialogVisible" :selected-doc="docId" :documents="documents" @close="docDialogVisible = false" @apply="handleDoc"></DocDialog>
+                </div>
+
+                <Message v-if="activeTemplate.placeholders[currentSelectedIndex].label && !docHasDriversOrViews()" class="p-m-4" severity="warn" :closable="false">
+                    {{ $t(`documentExecution.dossier.designerDialog.noViewsAvailable`) }}
+                </Message>
+
+                <div v-if="activeTemplate.placeholders[currentSelectedIndex].source">
+                    <Accordion :active-index="activeIndex" class="widget-editor-accordion kn-height-full">
+                        <AccordionTab :header="$t('common.settings')">
+                            <div class="p-grid kn-height-full p-pl-2 p-ml-2 p-pr-2 p-mr-2">
+                                <div class="p-col-4 p-d-flex">
+                                    <span class="p-float-label">
+                                        <InputNumber id="sheetHeight" v-model="activeTemplate.placeholders[currentSelectedIndex].sheetHeight" class="kn-material-input p-inputtext-sm kn-width-full kn-height-full" type="text" />
+                                        <label for="sheetHeight" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.sheetHeight') }}</label>
+                                    </span>
+                                </div>
+                                <div class="p-col-4 p-d-flex">
+                                    <span class="p-float-label">
+                                        <InputNumber id="sheetWidth" v-model="activeTemplate.placeholders[currentSelectedIndex].sheetWidth" class="kn-material-input p-inputtext-sm kn-width-full kn-height-full" type="text" />
+                                        <label for="sheetWidth" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.sheetWidth') }}</label>
+                                    </span>
+                                </div>
+                                <div class="p-col-4 p-d-flex">
+                                    <span class="p-float-label">
+                                        <InputNumber id="deviceScaleFactor" v-model="activeTemplate.placeholders[currentSelectedIndex].deviceScaleFactor" class="kn-material-input p-inputtext-sm kn-width-full kn-height-full" type="text" />
+                                        <label for="deviceScaleFactor" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.deviceScaleFactor') }}</label>
+                                    </span>
+                                </div>
                             </div>
-                        </template>
-                    </Listbox>
-                </div>
-                <div v-if="currentSelectedIndex == -1" class="p-col-8">
-                    <KnHint class="kn-hint-sm" :title="$t('documentExecution.dossier.designerDialog.placeholders')" :hint="$t('documentExecution.dossier.designerDialog.noPlaceholdersHint')" data-test="hint"></KnHint>
-                </div>
-                <div v-else class="p-col-8">
-                    <Message class="p-m-4" severity="info" :closable="false">
-                        {{ $t(`documentExecution.dossier.designerDialog.linkToDocumentHint`) }}
-                    </Message>
-                    <div class="p-col p-d-flex p-ai-center">
-                        <span class="p-float-label p-col-8">
-                            <InputText id="label" v-model="activeTemplate.placeholders[currentSelectedIndex].label" class="kn-material-input kn-width-full" type="text" :disabled="true" />
-                            <label for="label" class="kn-material-input-label"> {{ $t('common.label') }}</label>
-                        </span>
-                        <Button icon="pi pi-plus-circle" class="p-button-text p-button-rounded p-button-plain" @click="handleDocDialog"></Button>
-                        <span v-if="activeTemplate.placeholders[currentSelectedIndex].label && docHasDriversOrViews()" class="p-float-label p-col">
-                            <Dropdown v-model="activeTemplate.placeholders[currentSelectedIndex].source" class="kn-material-input kn-width-full" :options="getTypes()" option-label="label" option-value="code" />
-                            <label for="label" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.linkTo') }}</label>
-                        </span>
-
-                        <DocDialog :dialog-visible="docDialogVisible" :selected-doc="docId" :documents="documents" @close="docDialogVisible = false" @apply="handleDoc"></DocDialog>
-                    </div>
-
-                    <Message v-if="activeTemplate.placeholders[currentSelectedIndex].label && !docHasDriversOrViews()" class="p-m-4" severity="warn" :closable="false">
-                        {{ $t(`documentExecution.dossier.designerDialog.noViewsAvailable`) }}
-                    </Message>
-
-                    <div v-if="activeTemplate.placeholders[currentSelectedIndex].source">
-                        <Accordion :active-index="activeIndex" class="widget-editor-accordion">
-                            <AccordionTab :header="$t('common.settings')">
-                                <div class="p-grid kn-height-full p-pl-2 p-ml-2 p-pr-2 p-mr-2">
-                                    <div class="p-col-4 p-d-flex">
-                                        <span class="p-float-label">
-                                            <InputNumber id="sheetHeight" v-model="activeTemplate.placeholders[currentSelectedIndex].sheetHeight" class="kn-material-input p-inputtext-sm kn-width-full kn-height-full" type="text" />
-                                            <label for="sheetHeight" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.sheetHeight') }}</label>
-                                        </span>
-                                    </div>
-                                    <div class="p-col-4 p-d-flex">
-                                        <span class="p-float-label">
-                                            <InputNumber id="sheetWidth" v-model="activeTemplate.placeholders[currentSelectedIndex].sheetWidth" class="kn-material-input p-inputtext-sm kn-width-full kn-height-full" type="text" />
-                                            <label for="sheetWidth" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.sheetWidth') }}</label>
-                                        </span>
-                                    </div>
-                                    <div class="p-col-4 p-d-flex">
-                                        <span class="p-float-label">
-                                            <InputNumber id="deviceScaleFactor" v-model="activeTemplate.placeholders[currentSelectedIndex].deviceScaleFactor" class="kn-material-input p-inputtext-sm kn-width-full kn-height-full" type="text" />
-                                            <label for="deviceScaleFactor" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.deviceScaleFactor') }}</label>
-                                        </span>
-                                    </div>
-                                </div>
-                            </AccordionTab>
-                            <AccordionTab :header="activeTemplate.placeholders[currentSelectedIndex].source === 'VIEWS' ? $t('common.views') : $t('common.parameters')" class="accordionTab">
-                                <div v-if="activeTemplate.placeholders[currentSelectedIndex].label && !docHasDriversOrViews()">
-                                    <Message class="p-m-4" severity="warn" :closable="false">
-                                        {{ $t(`documentExecution.dossier.designerDialog.noDriversAndNoViewsForDocument`) }}
-                                    </Message>
-                                </div>
-                                <div v-if="activeTemplate.placeholders[currentSelectedIndex].source === 'VIEWS'">
-                                    <DataTable
-                                        ref="dt"
-                                        v-model:selection="activeTemplate.placeholders[currentSelectedIndex].views.selected"
-                                        v-model:filters="filters"
-                                        :value="activeTemplate.placeholders[currentSelectedIndex].views.availableViews"
-                                        class="p-datatable-sm kn-table"
-                                        data-key="id"
-                                        :paginator="true"
-                                        :rows="10"
-                                        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                                        :rows-per-page-options="[10, 15, 20]"
-                                        responsive-layout="stack"
-                                        breakpoint="960px"
-                                        :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
-                                        :global-filter-fields="['name', 'type', 'tags']"
-                                    >
-                                        <Column selection-mode="single" header-style="width: 3rem"></Column>
-                                        <Column v-for="col of viewColumns" :key="col.name" class="kn-truncated" :field="col.name" :header="col.header" :sortable="true">
-                                            <template #body="slotProps">
-                                                <span v-if="slotProps.field === 'time_in' && slotProps.data[slotProps.field]">
-                                                    {{ formatDateWithLocale(slotProps.data[slotProps.field]) }}
-                                                </span>
-                                                <span v-else>
-                                                    {{ slotProps.data[slotProps.field] }}
-                                                </span>
-                                            </template>
-                                        </Column>
-                                    </DataTable>
-                                </div>
-                                <div v-else-if="activeTemplate.placeholders[currentSelectedIndex].source === 'DRIVERS'">
-                                    <div v-for="driver in activeTemplate.placeholders[currentSelectedIndex].parameters" :key="driver.label" class="kn-card p-m-2 p-p-2">
-                                        <span class="p-text-bold p-text-italic">{{ driver.label }} </span>
-
-                                        <div class="p-grid p-mt-2">
-                                            <span class="p-float-label p-col-3">
-                                                <Dropdown id="driverLinkType" v-model="driver.type" class="kn-material-input kn-width-full" :options="driverTypes" option-label="label" option-value="code" />
-                                                <label for="driverLinkType" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.driverLinkType') }}</label>
+                        </AccordionTab>
+                        <AccordionTab :header="activeTemplate.placeholders[currentSelectedIndex].source === 'VIEWS' ? $t('common.views') : $t('common.parameters')" class="accordionTab">
+                            <div v-if="activeTemplate.placeholders[currentSelectedIndex].label && !docHasDriversOrViews()">
+                                <Message class="p-m-4" severity="warn" :closable="false">
+                                    {{ $t(`documentExecution.dossier.designerDialog.noDriversAndNoViewsForDocument`) }}
+                                </Message>
+                            </div>
+                            <div v-if="activeTemplate.placeholders[currentSelectedIndex].source === 'VIEWS'">
+                                <DataTable
+                                    ref="dt"
+                                    v-model:selection="activeTemplate.placeholders[currentSelectedIndex].views.selected"
+                                    v-model:filters="filters"
+                                    :value="activeTemplate.placeholders[currentSelectedIndex].views.availableViews"
+                                    class="p-datatable-sm kn-table kn-height-full"
+                                    data-key="id"
+                                    :paginator="true"
+                                    :rows="10"
+                                    paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                                    :rows-per-page-options="[10, 15, 20]"
+                                    responsive-layout="stack"
+                                    breakpoint="960px"
+                                    :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
+                                    :global-filter-fields="['name', 'type', 'tags']"
+                                >
+                                    <Column selection-mode="single" header-style="width: 3rem"></Column>
+                                    <Column v-for="col of viewColumns" :key="col.name" class="kn-truncated" :field="col.name" :header="col.header" :sortable="true">
+                                        <template #body="slotProps">
+                                            <span v-if="slotProps.field === 'time_in' && slotProps.data[slotProps.field]">
+                                                {{ formatDateWithLocale(slotProps.data[slotProps.field]) }}
                                             </span>
-                                            <div v-if="driver.type == 'static'" class="p-grid p-col">
-                                                <div class="p-field p-col p-mb-0">
-                                                    <span class="p-float-label">
-                                                        <InputText id="dossierUrlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" />
-                                                        <label for="dossierUrlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.dossierUrlName') }}</label>
-                                                    </span>
-                                                    <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName') }" />
-                                                </div>
-                                                <div class="p-field p-col p-mb-0">
-                                                    <span class="p-float-label">
-                                                        <InputText id="urlName" v-model="driver.urlName" class="kn-material-input" type="text" />
-                                                        <label for="urlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.urlName') }}</label>
-                                                    </span>
-                                                    <KnValidationMessages class="p-mt-1" :v-comp="driver.urlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
-                                                </div>
-                                                <div class="p-field p-col p-mb-0">
-                                                    <span class="p-float-label">
-                                                        <InputText id="value" v-model="driver.value" class="kn-material-input" type="text" />
-                                                        <label for="value" class="kn-material-input-label"> {{ $t('common.value') }}</label>
-                                                    </span>
-                                                    <KnValidationMessages class="p-mt-1" :v-comp="driver.value" :additional-translate-params="{ fieldName: $t('common.value') }" />
-                                                </div>
+                                            <span v-else>
+                                                {{ slotProps.data[slotProps.field] }}
+                                            </span>
+                                        </template>
+                                    </Column>
+                                </DataTable>
+                            </div>
+                            <div v-else-if="activeTemplate.placeholders[currentSelectedIndex].source === 'DRIVERS'">
+                                <div v-for="driver in activeTemplate.placeholders[currentSelectedIndex].parameters" :key="driver.label" class="kn-card p-m-2 p-p-2">
+                                    <span class="p-text-bold p-text-italic">{{ driver.label }} </span>
+
+                                    <div class="p-grid p-mt-2">
+                                        <span class="p-float-label p-col-3">
+                                            <Dropdown id="driverLinkType" v-model="driver.type" class="kn-material-input kn-width-full" :options="driverTypes" option-label="label" option-value="code" />
+                                            <label for="driverLinkType" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.driverLinkType') }}</label>
+                                        </span>
+                                        <div v-if="driver.type == 'static'" class="p-grid p-col">
+                                            <div class="p-field p-col p-mb-0">
+                                                <span class="p-float-label">
+                                                    <InputText id="dossierUrlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" />
+                                                    <label for="dossierUrlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.dossierUrlName') }}</label>
+                                                </span>
+                                                <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName') }" />
                                             </div>
-                                            <div v-else-if="driver.type == 'dynamic'" class="p-grid p-col">
-                                                <div class="p-field p-col p-mb-0">
-                                                    <span class="p-float-label">
-                                                        <Dropdown v-model="driver.dossierUrlName" class="kn-material-input kn-width-full" :options="document?.drivers" option-label="label" option-value="parameterUrlName" />
-                                                        <label for="dossierUrlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.dossierUrlName') }}</label>
-                                                    </span>
-                                                    <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName') }" />
-                                                </div>
-                                                <div class="p-field p-col p-mb-0">
-                                                    <span class="p-float-label">
-                                                        <InputText id="urlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" :disabled="true" />
-                                                        <label for="urlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.urlName') }}</label>
-                                                    </span>
-                                                    <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
-                                                </div>
+                                            <div class="p-field p-col p-mb-0">
+                                                <span class="p-float-label">
+                                                    <InputText id="urlName" v-model="driver.urlName" class="kn-material-input" type="text" />
+                                                    <label for="urlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.urlName') }}</label>
+                                                </span>
+                                                <KnValidationMessages class="p-mt-1" :v-comp="driver.urlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
                                             </div>
-                                            <div v-else-if="driver.type == 'inherit'" class="p-grid p-col">
-                                                <div class="p-field p-col p-mb-0">
-                                                    <span class="p-float-label">
-                                                        <InputText id="urlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" :disabled="true" :hidden="true" />
-                                                    </span>
-                                                    <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
-                                                </div>
+                                            <div class="p-field p-col p-mb-0">
+                                                <span class="p-float-label">
+                                                    <InputText id="value" v-model="driver.value" class="kn-material-input" type="text" />
+                                                    <label for="value" class="kn-material-input-label"> {{ $t('common.value') }}</label>
+                                                </span>
+                                                <KnValidationMessages class="p-mt-1" :v-comp="driver.value" :additional-translate-params="{ fieldName: $t('common.value') }" />
                                             </div>
                                         </div>
-
-                                        <Divider class="p-m-0 p-p-0 dividerCustomConfig" type="solid" />
+                                        <div v-else-if="driver.type == 'dynamic'" class="p-grid p-col">
+                                            <div class="p-field p-col p-mb-0">
+                                                <span class="p-float-label">
+                                                    <Dropdown v-model="driver.dossierUrlName" class="kn-material-input kn-width-full" :options="document?.drivers" option-label="label" option-value="parameterUrlName" />
+                                                    <label for="dossierUrlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.dossierUrlName') }}</label>
+                                                </span>
+                                                <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName') }" />
+                                            </div>
+                                            <div class="p-field p-col p-mb-0">
+                                                <span class="p-float-label">
+                                                    <InputText id="urlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" :disabled="true" />
+                                                    <label for="urlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.urlName') }}</label>
+                                                </span>
+                                                <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
+                                            </div>
+                                        </div>
+                                        <div v-else-if="driver.type == 'inherit'" class="p-grid p-col">
+                                            <div class="p-field p-col p-mb-0">
+                                                <span class="p-float-label">
+                                                    <InputText id="urlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" :disabled="true" :hidden="true" />
+                                                </span>
+                                                <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
+                                            </div>
+                                        </div>
                                     </div>
+
+                                    <Divider class="p-m-0 p-p-0 dividerCustomConfig" type="solid" />
                                 </div>
-                            </AccordionTab>
-                        </Accordion>
-                    </div>
+                            </div>
+                        </AccordionTab>
+                    </Accordion>
                 </div>
             </div>
-
-            <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDossier" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
         </div>
+
+        <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDossier" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
         <template #footer>
             <Button v-if="step >= 0 && step < 2" class="kn-button kn-button--secondary p-jc-start" @click="back"> {{ $t('common.back') }}</Button>
             <Button v-if="step == 0" class="kn-button kn-button--primary p-jc-end" :disabled="v$.$invalid" @click="next"> {{ $t('common.next') }}</Button>
@@ -673,15 +673,6 @@ export default defineComponent({
             }
         },
         async save() {
-            /*             if (this.fileHasBeenUploaded) {
-                const formData = new FormData()
-                formData.append('file', this.uploadedFile)
-                formData.append('documentId', '' + this.getDocument()?.id)
-                await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
-                    .catch(() => this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') }))
-                    .finally(() => (this.triggerUpload = false))
-            } */
             await this.saveTemplate()
         },
 
