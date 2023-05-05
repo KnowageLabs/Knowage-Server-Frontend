@@ -351,7 +351,7 @@ export default defineComponent({
             const docId = this.activeTemplate.placeholders[this.currentSelectedIndex]?.docId
 
             if (docId) {
-                await this.loadParameters(docId)
+                if (!this.isFromWorkspace) await this.loadParameters(docId)
                 await this.loadViews(docId)
             }
         }
@@ -609,7 +609,7 @@ export default defineComponent({
 
             this.activeTemplate.placeholders[this.currentSelectedIndex] = { ...this.activeTemplate.placeholders[this.currentSelectedIndex], label: doc.DOCUMENT_LABEL, source: '' }
 
-            await this.loadParameters(doc.DOCUMENT_ID)
+            if (!this.isFromWorkspace) await this.loadParameters(doc.DOCUMENT_ID)
             await this.loadViews(doc.DOCUMENT_ID)
         },
 
