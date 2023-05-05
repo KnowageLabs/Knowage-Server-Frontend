@@ -621,6 +621,7 @@ export default defineComponent({
                         return
                     }
 
+                    if (!this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters) this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
                     this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.push(par)
                 })
 
