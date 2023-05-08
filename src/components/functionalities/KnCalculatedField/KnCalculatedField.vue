@@ -83,6 +83,7 @@
             </template>
         </Card>
 
+        <Message v-if="isWarningVisible()" severity="warn" :closable="false">{{ $t('components.knCalculatedField.nullifWarning', { nullIfFunction: nullIfFunction }) }}</Message>
         <VCodeMirror ref="codeMirror" v-model:value="cf.formula" v-model="v$.cf.formula.$model" :class="['p-mt-2 codeMirrorClass', readOnly ? 'readOnly' : '', v$.cf.formula.$invalid ? 'p-invalid' : '']" :options="scriptOptions" @drop="drop" />
 
         <template #footer>
@@ -116,7 +117,8 @@ export default defineComponent({
         template: {} as any,
         valid: Boolean,
         source: String,
-        propCalcFieldFunctions: { type: Array as PropType<IKnCalculatedFieldFunction[]>, required: true }
+        propCalcFieldFunctions: { type: Array as PropType<IKnCalculatedFieldFunction[]>, required: true },
+        propNullifFunction: { type: Object, required: false }
     },
     emits: ['save', 'cancel', 'update:readOnly'],
     data() {
@@ -233,6 +235,9 @@ export default defineComponent({
         return {}
     },
     methods: {
+        isWarningVisible() {
+            return this.propNullifFunction && this.cf.formula && this.cf.formula != '' && this.cf.formula?.match('/')
+        },
         handleClick(af) {
             if (JSON.stringify(this.selectedFunction) === JSON.stringify(af)) {
                 this.selectedFunction = {}

@@ -39,7 +39,6 @@
  */
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IDashboardDataset, IVariable, IGalleryItem } from '../../Dashboard'
-import { AxiosResponse } from 'axios'
 import { createNewWidget, recreateKnowageChartModel } from './helpers/WidgetEditorHelpers'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import WidgetEditorPreview from './WidgetEditorPreview.vue'
@@ -71,10 +70,6 @@ export default defineComponent({
             descriptor,
             widget: {} as any,
             previewData: null as any,
-            datasetFunctions: {} as {
-                availableFunctions: string[]
-                nullifFunction: string[]
-            },
             selectedModelDatasets: [] as IDashboardDataset[],
             selectedDatasets: [] as IDataset[],
             selectedSetting: '',
@@ -126,17 +121,6 @@ export default defineComponent({
                         drivers: tempDataset.drivers ?? []
                     })
             }
-        },
-        onDatasetSelected(dataset: IDashboardDataset) {
-            this.loadAvailableFunctions(dataset)
-        },
-        async loadAvailableFunctions(dataset: IDashboardDataset) {
-            this.store.setLoading(true)
-            await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
-                .then((response: AxiosResponse<any>) => (this.datasetFunctions = response.data))
-                .catch(() => {})
-            this.store.setLoading(false)
         },
         save() {
             const tempWidget = deepcopy(this.widget)
