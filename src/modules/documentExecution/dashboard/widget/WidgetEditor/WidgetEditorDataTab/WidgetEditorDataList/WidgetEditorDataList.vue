@@ -102,7 +102,14 @@ export default defineComponent({
     methods: {
         async loadAvailableFunctions(dataset: IDashboardDataset) {
             this.store.setLoading(true)
-            this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions))
+
+            const datasetForType = this.datasets?.filter((x) => x.label == dataset.label)
+            if (datasetForType && datasetForType.length > 0) {
+                const datasetType = datasetForType[0].type
+                this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions)).filter((x) => !x.exclude?.includes(datasetType))
+            } else {
+                this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions))
+            }
             await this.$http
                 .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
                 .then((response: AxiosResponse<any>) => {
