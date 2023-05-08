@@ -282,6 +282,8 @@
             "fields": "Fields",
             "formula": "Formula",
             "functions": "Functions",
+            "noAvailableFields": "No fields available to use within a calculated field",
+            "nullifWarning": "A division has been detected. To avoid division by 0 please use the {nullIfFunction} function.",
             "officialDocumentation": "Official documentation ({function})",
             "title": "Calculated field",
             "type": "Type"

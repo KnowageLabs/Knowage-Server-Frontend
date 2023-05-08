@@ -29,10 +29,11 @@
         v-model:visibility="calcFieldDialogVisible"
         :fields="calcFieldColumns"
         :descriptor="calcFieldDescriptor"
-        :prop-calc-field-functions="calcFieldDescriptor.availableFunctions"
+        :prop-calc-field-functions="availableFunctions"
         :read-only="false"
         :valid="true"
         source="dashboard"
+        :prop-nullif-function="datasetFunctions.nullifFunction"
         @save="onCalcFieldSave"
         @cancel="calcFieldDialogVisible = false"
     >
@@ -52,6 +53,7 @@ import dataListDescriptor from '../../../../dataset/DatasetEditorDataTab/Dataset
 import KnCalculatedField from '@/components/functionalities/KnCalculatedField/KnCalculatedField.vue'
 import calcFieldDescriptor from './WidgetEditorCalcFieldDescriptor.json'
 import cryptoRandomString from 'crypto-random-string'
+import { AxiosResponse } from 'axios'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
@@ -74,7 +76,12 @@ export default defineComponent({
             calcFieldDialogVisible: false,
             calcFieldColumns: [] as any,
             selectedCalcField: null as any,
-            calcFieldFunctionsToShow: [] as any
+            calcFieldFunctionsToShow: [] as any,
+            datasetFunctions: {} as {
+                availableFunctions: string[]
+                nullifFunction: string[]
+            },
+            availableFunctions: [] as any
         }
     },
     watch: {
@@ -87,11 +94,36 @@ export default defineComponent({
         this.loadDatasets()
         this.loadModel()
         this.loadSelectedDataset()
+        if (this.selectedDataset) this.loadAvailableFunctions(this.selectedDataset)
     },
     unmounted() {
         this.removeEventListeners()
     },
     methods: {
+        async loadAvailableFunctions(dataset: IDashboardDataset) {
+            this.store.setLoading(true)
+
+            const datasetForType = this.datasets?.filter((x) => x.label == dataset.label)
+            if (datasetForType && datasetForType.length > 0) {
+                const datasetType = datasetForType[0].type
+                this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions)).filter((x) => !x.exclude?.includes(datasetType))
+            } else {
+                this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions))
+            }
+            await this.$http
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
+                .then((response: AxiosResponse<any>) => {
+                    this.datasetFunctions = response.data
+
+                    calcFieldDescriptor.additionalFunctions.forEach((x: any) => {
+                        if (this.datasetFunctions.availableFunctions.includes(x.name)) {
+                            this.availableFunctions.push(x)
+                        }
+                    })
+                })
+                .catch(() => {})
+            this.store.setLoading(false)
+        },
         setEventListeners() {
             emitter.on('editCalculatedField', this.editCalcField)
         },
@@ -176,7 +208,7 @@ export default defineComponent({
         createCalcFieldColumns() {
             this.calcFieldColumns = []
             this.model?.columns.forEach((field) => {
-                if (field.fieldType === 'MEASURE') this.calcFieldColumns.push({ fieldAlias: `$F{${field.alias}}`, fieldLabel: field.alias })
+                if (field.fieldType === 'MEASURE') this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
             })
         },
         onCalcFieldSave(calcFieldOutput) {

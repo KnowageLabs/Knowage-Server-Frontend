@@ -45,8 +45,8 @@
                                     <label class="kn-material-input-label" for="description">{{ $t('common.description') }}</label>
                                 </span>
                             </div>
-                            <div class="p-col-12">
-                                <span class="p-float-label kn-material-input">
+                            <div class="p-col-12 kn-truncated">
+                                <span class="p-float-label kn-material-input" :title="$t('managers.widgetGallery.tags.availableCharacters')">
                                     <Chips v-model="template.tags" :allow-duplicate="false" @add="setDirty" @remove="setDirty" />
                                     <label class="kn-material-input-label" for="tags">{{ $t('common.tags') }}</label>
                                 </span>
@@ -74,23 +74,22 @@
             </div>
         </div>
         <div v-if="template.type && windowWidth < windowWidthBreakPoint" class="p-grid p-m-2 flex">
-            <TabView class="tabview-custom" style="width: 100%" @tab-change="tabChange">
+            <TabView class="tabview-custom" style="width: 100%">
                 <TabPanel v-for="(allowedEditor, index) in galleryDescriptor.allowedEditors[template.type]" :key="allowedEditor">
                     <template #header>
                         <i :class="['icon', galleryDescriptor.editor[allowedEditor].icon]"></i>&nbsp;<span style="text-transform: uppercase">{{ $t('common.codingLanguages.' + allowedEditor) }}</span>
                     </template>
-                    <VCodeMirror :ref="'editor_' + index" v-model:value="template.code[allowedEditor]" class="flex" :options="galleryDescriptor.options[allowedEditor]" @update:value="onCmCodeChange" />
+                    <knMonaco v-model="template.code[allowedEditor]" :options="{}" :language="allowedEditor" @change="setDirty"></knMonaco>
                 </TabPanel>
             </TabView>
         </div>
         <div v-if="template.type && windowWidth >= windowWidthBreakPoint" class="p-grid p-m-0 flex">
-            <div v-for="allowedEditor in galleryDescriptor.allowedEditors[template.type]" :key="allowedEditor" :class="'p-col-' + 12 / galleryDescriptor.allowedEditors[template.type].length" style="height: 100%; display: flex; flex-direction: column">
+            <div v-for="allowedEditor in galleryDescriptor.allowedEditors[template.type]" :key="allowedEditor" class="multiViewer" :class="'p-col-' + 12 / galleryDescriptor.allowedEditors[template.type].length">
                 <h4>
                     <i :class="['icon', galleryDescriptor.editor[allowedEditor].icon]"></i>
                     {{ $t('common.codingLanguages.' + allowedEditor) }}
                 </h4>
-
-                <VCodeMirror v-model:value="template.code[allowedEditor]" class="flex" :options="galleryDescriptor.options[allowedEditor]" @update:value="onCmCodeChange" />
+                <knMonaco v-model="template.code[allowedEditor]" :options="{ theme: 'vs-dark' }" :language="allowedEditor" @change="setDirty"></knMonaco>
             </div>
         </div>
     </div>
@@ -98,8 +97,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-// eslint-disable-next-line
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
 import { AxiosResponse } from 'axios'
 import Chips from 'primevue/chips'
 import { downloadDirect } from '@/helpers/commons/fileHelper'
@@ -110,14 +107,15 @@ import TabPanel from 'primevue/tabpanel'
 import Textarea from 'primevue/textarea'
 import galleryDescriptor from './GalleryManagementDescriptor.json'
 import { IGalleryTemplate } from './GalleryManagement'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
     name: 'gallery-management-detail',
     components: {
         Chips,
-        VCodeMirror,
         Dropdown,
+        knMonaco,
         InputText,
         TabView,
         TabPanel,
@@ -193,9 +191,6 @@ export default defineComponent({
                 this.dirty = false
             }
         },
-        onCmCodeChange(): void {
-            this.setDirty()
-        },
         saveTemplate(): void {
             if (this.validateTags()) {
                 const postUrl = this.id ? '1.0/widgetgallery/' + this.id : '1.0/widgetgallery'
@@ -241,12 +236,6 @@ export default defineComponent({
                 }
             }
             return true
-        },
-        tabChange(e) {
-            const ref = 'editor_' + e.index
-            // eslint-disable-next-line
-            // @ts-ignore
-            this.$refs[ref].editor.refresh()
         }
     }
 })
@@ -288,6 +277,14 @@ export default defineComponent({
                     height: 100%;
                 }
             }
+        }
+    }
+    &:deep(.multiViewer) {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        .Codemirror {
+            max-width: 450px;
         }
     }
     &:deep(.CodeMirror) {
