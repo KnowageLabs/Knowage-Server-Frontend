@@ -3,8 +3,8 @@
         <template #start> Template {{ template.label }} </template>
         <template #end>
             <Button v-tooltip.bottom="$t('common.download')" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" :disabled="!template.id" @click="downloadTemplate" />
-            <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!dirty" @click="saveTemplate" />
-            <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplate($event)" />
+            <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="isSaveButtonDisabled" @click="saveTemplate" />
+            <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplateConfirm()" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
@@ -17,15 +17,17 @@
                         <div class="p-grid">
                             <div class="p-col-3">
                                 <span class="p-float-label">
-                                    <InputText id="label" v-model="template.label" class="kn-material-input" type="text" @change="setDirty" />
+                                    <InputText id="label" v-model="v$.template.label.$model" class="kn-material-input" type="text" @change="setDirty" />
                                     <label class="kn-material-input-label" for="label">{{ $t('common.label') }}</label>
                                 </span>
+                                <KnValidationMessages class="p-mt-1" :v-comp="v$.template.label" :additional-translate-params="{ fieldName: $t('common.label') }" />
                             </div>
                             <div class="p-col-3">
                                 <span class="p-float-label">
-                                    <InputText id="name" v-model="template.name" class="kn-material-input" type="text" @change="setDirty" />
+                                    <InputText id="name" v-model="v$.template.name.$model" class="kn-material-input" type="text" @change="setDirty" />
                                     <label class="kn-material-input-label" for="name">{{ $t('common.name') }}</label>
                                 </span>
+                                <KnValidationMessages class="p-mt-1" :v-comp="v$.template.name" :additional-translate-params="{ fieldName: $t('common.name') }" />
                             </div>
                             <div :class="template.type === 'python' ? 'p-col-3' : 'p-col-6'">
                                 <span class="p-float-label">
@@ -33,21 +35,21 @@
                                     <label class="kn-material-input-label" for="type">{{ $t('common.type') }}</label>
                                 </span>
                             </div>
-                            <div v-if="template.type === 'python'" class="p-col-3">
+                            <div v-if="v$.template.type === 'python'" class="p-col-3">
                                 <span class="p-float-label">
-                                    <Dropdown id="outputType" v-model="template.outputType" class="kn-material-input" :options="galleryDescriptor.outputTypes" option-label="name" option-value="value" @change="setDirty" />
+                                    <Dropdown id="outputType" v-model="v$.template.outputType.$model" class="kn-material-input" :options="galleryDescriptor.outputTypes" option-label="name" option-value="value" @change="setDirty" />
                                     <label class="kn-material-input-label" for="outputType">{{ $t('managers.widgetGallery.outputType') }}</label>
                                 </span>
                             </div>
                             <div class="p-col-12">
                                 <span class="p-float-label">
-                                    <Textarea id="description" v-model="template.description" class="kn-material-input" style="resize: none" rows="3" @change="setDirty" />
+                                    <Textarea id="description" v-model="v$.template.description.$model" class="kn-material-input" style="resize: none" rows="3" @change="setDirty" />
                                     <label class="kn-material-input-label" for="description">{{ $t('common.description') }}</label>
                                 </span>
                             </div>
                             <div class="p-col-12 kn-truncated">
                                 <span class="p-float-label kn-material-input" :title="$t('managers.widgetGallery.tags.availableCharacters')">
-                                    <Chips v-model="template.tags" :allow-duplicate="false" @add="setDirty" @remove="setDirty" />
+                                    <Chips v-model="v$.template.tags.$model" :allow-duplicate="false" @add="setDirty" @remove="setDirty" />
                                     <label class="kn-material-input-label" for="tags">{{ $t('common.tags') }}</label>
                                 </span>
                                 <small id="username1-help">{{ $t('managers.widgetGallery.tags.availableCharacters') }}</small>
@@ -109,6 +111,9 @@ import galleryDescriptor from './GalleryManagementDescriptor.json'
 import { IGalleryTemplate } from './GalleryManagement'
 import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import mainStore from '../../../App.store'
+import useValidate from '@vuelidate/core'
+import { createValidations } from '@/helpers/commons/validationHelper'
+import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 
 export default defineComponent({
     name: 'gallery-management-detail',
@@ -116,6 +121,7 @@ export default defineComponent({
         Chips,
         Dropdown,
         knMonaco,
+        KnValidationMessages,
         InputText,
         TabView,
         TabPanel,
@@ -139,7 +145,18 @@ export default defineComponent({
             template: {} as IGalleryTemplate,
             galleryDescriptor: galleryDescriptor,
             windowWidth: window.innerWidth,
-            windowWidthBreakPoint: 1500
+            windowWidthBreakPoint: 1500,
+            v$: useValidate() as any
+        }
+    },
+    validations() {
+        return {
+            template: createValidations('template', this.galleryDescriptor.validations.template)
+        }
+    },
+    computed: {
+        isSaveButtonDisabled(): any {
+            return this.v$.$invalid || !this.dirty
         }
     },
     watch: {
@@ -169,6 +186,21 @@ export default defineComponent({
                 downloadDirect(JSON.stringify(this.template), this.template.name, 'application/json')
             }
         },
+        closeTemplateConfirm(): void {
+            if (!this.dirty) {
+                this.closeTemplate()
+            } else {
+                this.$confirm.require({
+                    message: this.$t('common.toast.unsavedChangesMessage'),
+                    header: this.$t('common.toast.unsavedChangesHeader'),
+                    icon: 'pi pi-exclamation-triangle',
+                    accept: () => {
+                        this.dirty = false
+                        this.closeTemplate()
+                    }
+                })
+            }
+        },
         closeTemplate(): void {
             this.$router.push('/gallery-management')
         },
@@ -186,7 +218,7 @@ export default defineComponent({
                         this.dirty = false
                     })
             } else {
-                this.template = { type: 'html', code: { html: '', css: '', javascript: '', python: '' } } as IGalleryTemplate
+                this.template = { type: 'html', code: { html: '', css: '', javascript: '', python: '' }, label: '', name: '' } as IGalleryTemplate
                 this.loading = false
                 this.dirty = false
             }
@@ -194,6 +226,14 @@ export default defineComponent({
         saveTemplate(): void {
             if (this.validateTags()) {
                 const postUrl = this.id ? '1.0/widgetgallery/' + this.id : '1.0/widgetgallery'
+                const label = this.template.label
+                const name = this.template.name
+                if (!label && !name) {
+                    this.store.setError({ title: this.$t('common.error.uploading'), msg: this.$t('managers.widgetGallery.fieldIsMandatory', { field: this.$t('common.name') }) })
+                    return
+                }
+                if (!label && name) this.template.label = name
+                if (label && !name) this.template.name = label
                 this.$http
                     .post(import.meta.env.VITE_API_PATH + postUrl, this.template)
                     .then((response: AxiosResponse<any>) => {
