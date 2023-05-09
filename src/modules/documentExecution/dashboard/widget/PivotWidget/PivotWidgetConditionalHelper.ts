@@ -1,4 +1,4 @@
-import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle } from '../../Dashboard'
+import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver } from '../../Dashboard'
 
 export const getColumnGroup = (propWidget: IWidget, col: ITableWidgetColumnGroup) => {
     const modelGroups = propWidget.settings.configuration.columnGroups.groups
@@ -36,101 +36,90 @@ export const getWidgetStyleByTypeWithoutValidation = (propWidget: IWidget, style
     return styleString + ';'
 }
 
-export const getCellConditionalStyles = (cellParams: any) => {
-    let conditionalStypeProps = null as any
-    const cellConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => condition.target.includes(cellParams.colId) || condition.condition.formula) as ITableWidgetConditionalStyle[]
-    const brotherConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => !condition.target.includes(cellParams.colId) || condition.condition.formula) as ITableWidgetConditionalStyle[]
+export const getColumnConditionalStyles = (propWidget: IWidget, colId: string, valueToCompare: any, returnString?: boolean, variables?: IVariable[], drivers?: IDashboardDriver[]) => {
+    const conditionalStyles = propWidget.settings.conditionalStyles
+    let styleString = null as any
 
-    if (cellConditionalStyles.length > 0) conditionalStypeProps = getCellConditionalStyle(cellConditionalStyles, cellParams)
-    if (brotherConditionalStyles.length > 0 && conditionalStypeProps == null) conditionalStypeProps = getBrotherConditionalStyle(brotherConditionalStyles, cellParams)
+    const columnConditionalStyles = conditionalStyles.conditions.filter((condition) => condition.target.includes(colId) || condition.condition.formula)
+    const columnName = propWidget.columns.find((column) => column.id === colId)?.columnName
 
-    return conditionalStypeProps
-}
-
-const getCellConditionalStyle = (cellConditionalStyles: ITableWidgetConditionalStyle[], cellParams: any) => {
-    for (let i = 0; i < cellConditionalStyles.length; i++) {
-        const cellConditionalStyle = cellConditionalStyles[i]
-        if (isCellConditionMet(cellConditionalStyle, cellParams)) return cellConditionalStyle.properties
+    if (columnConditionalStyles.length > 0) {
+        for (let i = 0; i < columnConditionalStyles.length; i++) {
+            if (
+                (columnConditionalStyles[i].condition.formula && isFormulaConditionMet(columnConditionalStyles[i].condition.formula, valueToCompare, columnName, variables, drivers)) ||
+                (!columnConditionalStyles[i].condition.formula && isConditionMet(columnConditionalStyles[i].condition, valueToCompare))
+            ) {
+                if (columnConditionalStyles[i].applyToWholeRow && !returnString) {
+                    styleString = columnConditionalStyles[i].properties
+                } else if (returnString) {
+                    styleString = Object.entries(columnConditionalStyles[i].properties)
+                        .map(([k, v]) => `${k}:${v}`)
+                        .join(';')
+                } else if (!returnString) {
+                    styleString = columnConditionalStyles[i].properties
+                }
+                break
+            }
+        }
     }
+    return styleString
 }
 
-const isCellConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
-    if (cellConditionalStyle.condition.formula) {
-        // return isFormulaConditionMet(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers)
-        return eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
-    } else return !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.value, cellParams.dashboardVariables, cellParams.dashboardDrivers)
+const isFormulaConditionMet = (formula, valueToCompare, columnName, variables?: IVariable[], drivers?: IDashboardDriver[]) => {
+    const formattedFormula = replacePlaceholders(formula, valueToCompare, false, columnName, variables, drivers)
+    return eval(formattedFormula)
 }
 
-const getBrotherConditionalStyle = (brotherConditionalStyles: ITableWidgetConditionalStyle[], cellParams: any) => {
-    for (let i = 0; i < brotherConditionalStyles.length; i++) {
-        const brotherConditionalStyle = brotherConditionalStyles[i]
-        if (isBrotherConditionMet(brotherConditionalStyle, cellParams)) return brotherConditionalStyle.properties
-    }
-}
-
-const isBrotherConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
-    const columnDataMap = cellParams.columnDataMap
-
-    // if (cellConditionalStyle.condition.formula) return cellConditionalStyle.applyToWholeRow && isFormulaConditionMet(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers)
-    if (cellConditionalStyle.condition.formula) return cellConditionalStyle.applyToWholeRow && eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
-    else return cellConditionalStyle.applyToWholeRow && !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.data[columnDataMap[cellConditionalStyle.target]], cellParams.variables, cellParams.drivers)
-}
-
-const replacePlaceholders = (cellParams, formula, variables: IVariable[], drivers: IDashboardDriver[], skipAdapting: boolean) => {
+const replacePlaceholders = (text, data, skipAdapting, columnName, variables?: IVariable[], drivers?: IDashboardDriver[]) => {
     function adaptToType(value) {
         if (skipAdapting) return value
         else return isNaN(value) ? '"' + value + '"' : value
     }
     // variables
-    formula = formula.replace(/\$V\{([a-zA-Z0-9_\-.]+)\}/g, (match, variableName) => {
+    text = text.replace(/\$V\{([a-zA-Z0-9_\-.]+)\}/g, (match, variableName) => {
         if (variables && variables.length > 0) {
             const dashboardVariable = variables.find((variable) => variable.name === variableName)
             if (dashboardVariable) return adaptToType(dashboardVariable.value)
         }
     })
     // fields
-    formula = formula.replace(/\$F\{([a-zA-Z0-9_\-.]+)\}/g, (match, field) => {
-        const columnToCompareIndex = cellParams.propWidget.columns.findIndex((column) => column.columnName === field)
-        // if(colToCompare) return adaptToType(data)
-        return adaptToType(cellParams.data[`column_${columnToCompareIndex + 1}`])
+    text = text.replace(/\$F\{([a-zA-Z0-9_\-.]+)\}/g, (match, field) => {
+        if (field === columnName) return adaptToType(data)
     })
     // parameters/drivers
-    formula = formula.replace(/\$P\{([a-zA-Z0-9_\-.]+)\}/g, (match, parameterName) => {
+    text = text.replace(/\$P\{([a-zA-Z0-9_\-.]+)\}/g, (match, parameterName) => {
         if (drivers && drivers.length > 0) {
             const dashboardVariable = drivers.find((driver) => driver.urlName === parameterName)
             if (dashboardVariable) return adaptToType(dashboardVariable.value)
         }
     })
 
-    return formula
+    return text
 }
 
-export const isConditionMet = (condition, valueToCompare, variables?, drivers?) => {
+export const isConditionMet = (condition, valueToCompare) => {
     let fullfilledCondition = false
-    let comparer = condition.value
-    if (condition.type == 'variable' && variables) comparer = variables.find((i) => i.name === condition.variable).value
-    if (condition.type == 'parameter' && drivers) comparer = drivers.find((i) => i.name === condition.variable).value
     switch (condition.operator) {
         case '==':
-            fullfilledCondition = valueToCompare == comparer
+            fullfilledCondition = valueToCompare == condition.value
             break
         case '>=':
-            fullfilledCondition = valueToCompare >= comparer
+            fullfilledCondition = valueToCompare >= condition.value
             break
         case '<=':
-            fullfilledCondition = valueToCompare <= comparer
+            fullfilledCondition = valueToCompare <= condition.value
             break
         case 'IN':
-            fullfilledCondition = comparer.split(',').indexOf(valueToCompare) != -1
+            fullfilledCondition = condition.value.split(',').indexOf(valueToCompare) != -1
             break
         case '>':
-            fullfilledCondition = valueToCompare > comparer
+            fullfilledCondition = valueToCompare > condition.value
             break
         case '<':
-            fullfilledCondition = valueToCompare < comparer
+            fullfilledCondition = valueToCompare < condition.value
             break
         case '!=':
-            fullfilledCondition = valueToCompare != comparer
+            fullfilledCondition = valueToCompare != condition.value
             break
     }
     return fullfilledCondition
