@@ -3,11 +3,10 @@ import { iExporter } from './DocumentExecution'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import deepcopy from 'deepcopy'
 import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
+import { emitter } from '../dashboard/DashboardHelpers'
+import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 
-export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: {
-    filterStatus: iParameter[]
-    isReadyForExecution: boolean
-}) {
+export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) {
     const toolbarMenuItems = [] as any[]
 
     if (mode === 'dashboard') {
@@ -29,6 +28,13 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
         toolbarMenuItems.push({
             label: $t('common.export'),
             items: []
+        })
+    }
+
+    if (document.typeCode === 'DASHBOARD') {
+        toolbarMenuItems.push({
+            label: $t('documentExecution.main.views'),
+            items: [{ icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => emitter.emit('openSaveCurrentViewDialog', document.dashboardId) }, { icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => emitter.emit('openSavedViewsListDialog', document.dashboardId) }]
         })
     }
 
@@ -102,7 +108,7 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
         })
     }
 
-    if (filtersData.filterStatus.length > 0) toolbarMenuItems.push({ icon: 'fa fa-eraser', label: $t('documentExecution.main.resetParameters'), command: () => parameterSidebarEmitter.emit('resetAllParameters') })
+    if (filtersData && filtersData.filterStatus.length > 0) toolbarMenuItems.push({ icon: 'fa fa-eraser', label: $t('documentExecution.main.resetParameters'), command: () => parameterSidebarEmitter.emit('resetAllParameters') })
 
     removeEmptyToolbarItems(toolbarMenuItems)
 

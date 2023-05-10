@@ -44,6 +44,8 @@
         @widgetSaved="closeWidgetEditor"
         @widgetUpdated="closeWidgetEditor"
     ></WidgetEditor>
+
+    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" @close="savedViewsListDialogVisible = false"></DashboardSavedViewsDialog>
 </template>
 
 <script lang="ts">
@@ -71,6 +73,7 @@ import DashboardControllerSaveDialog from './DashboardControllerSaveDialog.vue'
 import SelectionsListDialog from './widget/SelectorWidget/SelectionsListDialog.vue'
 import DashboardGeneralSettings from './generalSettings/DashboardGeneralSettings.vue'
 import deepcopy from 'deepcopy'
+import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -81,7 +84,8 @@ export default defineComponent({
         WidgetEditor,
         DashboardControllerSaveDialog,
         SelectionsListDialog,
-        DashboardGeneralSettings
+        DashboardGeneralSettings,
+        DashboardSavedViewsDialog
     },
     props: {
         visible: { type: Boolean },
@@ -122,7 +126,8 @@ export default defineComponent({
             generalSettingsVisible: false,
             loading: false,
             htmlGallery: [] as IGalleryItem[],
-            customChartGallery: [] as IGalleryItem[]
+            customChartGallery: [] as IGalleryItem[],
+            savedViewsListDialogVisible: false
         }
     },
     computed: {
@@ -163,6 +168,8 @@ export default defineComponent({
             emitter.on('saveDashboard', this.onSaveDashboardClicked)
             emitter.on('openDashboardGeneralSettings', this.openGeneralSettings)
             emitter.on('executeCrossNavigation', this.executeCrossNavigation)
+            emitter.on('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
+            emitter.on('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
         },
         removeEventListeners() {
             emitter.off('openNewWidgetPicker', this.openNewWidgetPicker)
@@ -171,6 +178,8 @@ export default defineComponent({
             emitter.off('saveDashboard', this.onSaveDashboardClicked)
             emitter.off('openDashboardGeneralSettings', this.openGeneralSettings)
             emitter.off('executeCrossNavigation', this.executeCrossNavigation)
+            emitter.off('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
+            emitter.off('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
         },
         async getData() {
             this.loading = true
@@ -364,6 +373,16 @@ export default defineComponent({
             const crossNavigations = this.getCrossNavigations(this.dashboardId)
             payload.crossNavigations = crossNavigations
             this.$emit('executeCrossNavigation', payload)
+        },
+        onOpenSaveCurrentViewDialog(event: any) {
+            console.log('-------- onOpenSaveCurrentViewDialog!!!')
+            if (!this.document || event !== this.dashboardId) return
+        },
+        onOpenSavedViewsListDialog(event: any) {
+            console.log('-------- onOpenSavedViewsListDialog!!!', event)
+            if (!this.document || event !== this.dashboardId) return
+            console.log('-------- onOpenSavedViewsListDialog! 2!!')
+            this.savedViewsListDialogVisible = true
         }
     }
 })

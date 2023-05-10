@@ -726,3 +726,13 @@ export interface IMenuItem {
     command: Function
     visible: boolean
 }
+
+export interface IDashboardView {
+    label: string,
+    name: string,
+    description: string,
+    drivers: any,
+    settings: any,
+    biObjectId: string,
+    parentId: string
+}
