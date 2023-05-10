@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { getColumnConditionalStyles } from './TableWidgetHelper'
+import { getColumnConditionalStyles } from '../PivotWidget/PivotWidgetConditionalHelper'
 import helpersDecriptor from '../WidgetEditor/helpers/tableWidget/TableWidgetHelpersDescriptor.json'
 import moment from 'moment'
 import { getLocale } from '@/helpers/commons/localeHelper'

@@ -1,5 +1,5 @@
 <template>
-    <grid-item :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" drag-allow-from=".drag-handle" @resized="resizedEvent" :class="{ canEdit: canEditDashboard(document) }">
+    <grid-item :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) }" @resized="resizedEvent">
         <div v-if="initialized" class="drag-handle"></div>
         <ProgressSpinner v-if="loading || customChartLoading" class="kn-progress-spinner" />
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
@@ -14,8 +14,8 @@
             :prop-active-selections="activeSelections"
             :variables="variables"
             :widget-loading="widgetLoading"
-            @reloadData="reloadWidgetData"
-            @launchSelection="launchSelection"
+            @reload-data="reloadWidgetData"
+            @launch-selection="launchSelection"
             @mouseover="toggleFocus"
             @mouseleave="startUnfocusTimer(500)"
             @loading="customChartLoading = $event"
@@ -29,12 +29,14 @@
             :in-focus="inFocus"
             :menu-items="items"
             @edit-widget="toggleEditMode"
-            @unlockSelection="unlockSelection"
-            @launchSelection="launchSelection"
-            @changeFocus="changeFocus"
+            @unlock-selection="unlockSelection"
+            @launch-selection="launchSelection"
+            @change-focus="changeFocus"
         ></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
     </grid-item>
+
+    <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" />
 </template>
 
 <script lang="ts">
@@ -42,7 +44,7 @@
  * ! this component will be in charge of managing the widget behaviour related to data and interactions, not related to view elements.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDataset, ISelection, IVariable, IWidget } from '../Dashboard'
+import { IDataset, IMenuItem, ISelection, IVariable, IWidget } from '../Dashboard'
 import { emitter, canEditDashboard } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getWidgetData } from '../DataProxyHelper'
@@ -57,10 +59,11 @@ import { ISelectorWidgetSettings } from '../interfaces/DashboardSelectorWidget'
 import { datasetIsUsedInAssociations } from './interactionsHelpers/DatasetAssociationsHelper'
 import { loadAssociativeSelections } from './interactionsHelpers/InteractionHelper'
 import ContextMenu from 'primevue/contextmenu'
+import QuickWidgetDialog from './commonComponents/QuickWidgetDialog.vue'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner },
+    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -75,6 +78,7 @@ export default defineComponent({
     data() {
         return {
             loading: false,
+            showQuickDialog: false,
             initialized: true,
             widgetModel: null as any,
             widgetInitialData: {} as any,
@@ -95,17 +99,15 @@ export default defineComponent({
             customChartLoading: false,
             canEditDashboard,
             items: [
-                {
-                    label: 'Edit Widget',
-                    icon: 'fa-solid fa-pen-to-square',
-                    command: () => this.toggleEditMode()
-                },
-                {
-                    label: 'Delete Widget',
-                    icon: 'fa-solid fa-trash',
-                    command: () => this.deleteWidget(this.dashboardId, this.widget)
-                }
-            ]
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.cloneWidget(this.widget), visible: this.widget.type === 'highcharts' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'map' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'table' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: true }
+            ] as IMenuItem[]
         }
     },
     computed: {
@@ -155,8 +157,10 @@ export default defineComponent({
             emitter.off('setWidgetLoading', this.setWidgetLoading)
         },
         onWidgetRightClick(event) {
-            const contextMenu = this.$refs.contextMenu as any
-            contextMenu?.show(event)
+            console.log(event)
+            // TODO: I dont think we need this anymore, remove?
+            // const contextMenu = this.$refs.contextMenu as any
+            // contextMenu?.show(event)
         },
         loadWidget(widget: IWidget) {
             this.widgetModel = widget
@@ -277,6 +281,19 @@ export default defineComponent({
         },
         resizedEvent: function (newHPx) {
             emitter.emit('widgetResized', newHPx)
+        },
+        expandWidget(widget) {
+            const widgetElement = this.$refs[`widget${widget.id}`] as any
+            widgetElement.$el.requestFullscreen()
+        },
+        toggleQuickDialog() {
+            this.showQuickDialog = !this.showQuickDialog
+        },
+        searchOnWidget(widget) {
+            console.log('widget', widget)
+        },
+        cloneWidget(widget) {
+            console.log('widget', widget)
         }
     }
 })

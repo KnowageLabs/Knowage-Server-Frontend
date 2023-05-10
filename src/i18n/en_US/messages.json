@@ -874,6 +874,16 @@
                     "heatmap": "Heatmap",
                     "markers": "Markers",
                     "pies": "Pies"
+                },
+                "qMenu": {
+                    "edit": "Edit Widget",
+                    "expand": "Expand to Fullscreen",
+                    "changeType": "Chage Chart Type",
+                    "xor": "View One Layer",
+                    "quickWidget": "Add Quick Widget",
+                    "search": "Search on Widget",
+                    "clone": "Clone Widget",
+                    "delete": "Delete Widget"
                 }
             },
             "noData": {

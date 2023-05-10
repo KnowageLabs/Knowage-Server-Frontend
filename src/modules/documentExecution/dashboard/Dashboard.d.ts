@@ -418,7 +418,7 @@ export interface IWidgetColumn {
     formulaEditor?: string
     drillOrder?: IDrillOrderItem
     orderType?: string
-    sort?: string,
+    sort?: string
     serieType?: string
 }
 
@@ -711,4 +711,11 @@ interface IDashboardOutputParameterType {
     valueDescription: string
     valueId: number
     valueName: string
+}
+
+export interface IMenuItem {
+    label: string
+    icon: string
+    command: Function
+    visible: boolean
 }
