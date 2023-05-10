@@ -208,7 +208,7 @@ export default defineComponent({
         createCalcFieldColumns() {
             this.calcFieldColumns = []
             this.model?.columns.forEach((field) => {
-                if (field.fieldType === 'MEASURE') this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
             })
         },
         onCalcFieldSave(calcFieldOutput) {
