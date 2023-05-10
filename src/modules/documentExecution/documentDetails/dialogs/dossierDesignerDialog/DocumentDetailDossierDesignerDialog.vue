@@ -247,7 +247,7 @@ import { mapState, mapActions } from 'pinia'
 import Dialog from 'primevue/dialog'
 import ProgressSpinner from 'primevue/progressspinner'
 import mainStore from '../../../../../App.store'
-import { iDossierTemplate, iPlaceholder, iViews } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierTemplate'
+import { iDossierTemplate, iPlaceholder } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierTemplate'
 import useValidate from '@vuelidate/core'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
 import descriptor from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialogDescriptor.json'
@@ -444,6 +444,17 @@ export default defineComponent({
                             this.activeTemplate = response.data
                             this.uploadedFile.name = this.activeTemplate.name
                             this.activeTemplate.type = this.getDossierType(this.activeTemplate.name)
+                            this.activeTemplate.placeholders?.forEach((x: any) => {
+                                if (x.viewId) {
+                                    x.views = {
+                                        selected: { id: x.viewId },
+                                        availableViews: [],
+                                        source: 'VIEWS'
+                                    }
+
+                                    delete x.viewId
+                                }
+                            })
                         }
                     })
                     .finally(() => (this.loading = false))
@@ -633,12 +644,16 @@ export default defineComponent({
 
                     this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.splice(index)
                 })
+
+                this.activeTemplate.placeholders[this.currentSelectedIndex].source = 'DRIVERS'
             })
         },
         async loadViews(docId) {
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/document/${docId}`).then((response: AxiosResponse<any>) => {
-                this.activeTemplate.placeholders[this.currentSelectedIndex].views = {} as iViews
-                this.activeTemplate.placeholders[this.currentSelectedIndex].views.availableViews = response.data
+                const tmp = this.activeTemplate.placeholders[this.currentSelectedIndex]
+                tmp.views.availableViews = response.data
+                tmp.source = 'VIEWS'
+                if (tmp.views?.selected?.id?.match(descriptor.uuidRegex)) tmp.views.selected = tmp.views.availableViews.filter((x) => (x.id = tmp.views?.selected?.id))[0]
             })
         },
         handleDocDialog() {

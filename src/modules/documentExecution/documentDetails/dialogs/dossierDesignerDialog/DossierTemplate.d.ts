@@ -20,13 +20,14 @@ export interface iPlaceholder {
 }
 
 export interface iViews {
-    selected: iView
+    selected?: iView
     availableViews: iView[]
 }
 
 export interface iView {
-    name: string
-    creationDate: Date
+    id?: string
+    name?: string
+    creationDate?: Date
 }
 
 export interface iDossierDriver {
