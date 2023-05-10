@@ -188,7 +188,7 @@ export default defineComponent({
         createMenuItems() {
             this.menuButtons = []
             this.menuButtons.push({ key: '0', label: this.$t('workspace.myAnalysis.menuItems.edit'), icon: 'fas fa-edit', command: () => { this.editAnalysisDocument(this.selectedAnalysis) }, visible: this.isOwner })
-            this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.editTemplate'), icon: 'fas fa-edit', command: () => { this.editTemplateDocument(this.selectedAnalysis) }, visible: this.isOwner && this.selectedAnalysis.typeCode === 'DOSSIER'})
+            this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.editTemplate'), icon: 'fa-solid fa-wand-magic-sparkles', command: () => { this.editTemplateDocument(this.selectedAnalysis) }, visible: this.isOwner && this.selectedAnalysis.typeCode === 'DOSSIER'})
             this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.share'), icon: 'fas fa-share-alt', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: !this.isShared })
             this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.unshare'), icon: 'fas fa-times-circle', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: this.isShared })
             this.menuButtons.push({ key: '3', label: this.$t('workspace.myAnalysis.menuItems.clone'), icon: 'fas fa-clone', command: () => { this.cloneAnalysisDocument(this.selectedAnalysis) } })

@@ -3213,6 +3213,7 @@
                 "clone": "Clone Document",
                 "delete": "Delete Document",
                 "edit": "Edit Document",
+                "editTemplate": "Edit template",
                 "share": "Share Document",
                 "showDsDetails": "Show dataset details",
                 "unshare": "Unshare Document",
