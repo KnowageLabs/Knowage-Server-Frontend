@@ -732,6 +732,7 @@ export interface IDashboardView {
     name: string,
     description: string,
     drivers: any,
+    selections: any,
     settings: any,
     biObjectId: string,
     parentId: string,

@@ -73,6 +73,7 @@ export default defineComponent({
         ...mapActions(appStore, ['setLoading']),
         loadView() {
             this.view = this.propView
+            console.log('---------- LOADED VIEW: ', this.view)
         },
         async saveView() {
             console.log('------- SAVE VIEW: ', this.view)

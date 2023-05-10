@@ -166,7 +166,7 @@ export default defineComponent({
         clearAllDatasetIntervals()
     },
     methods: {
-        ...mapActions(dashboardStore, ['getDashboardDrivers', 'removeSelections', 'setAllDatasets', 'getSelections', 'setInternationalization', 'getInternationalization', 'setDashboardDocument', 'setDashboardDrivers', 'setProfileAttributes', 'getCrossNavigations']),
+        ...mapActions(dashboardStore, ['getDashboardDrivers', 'removeSelections', 'setAllDatasets', 'getSelections', 'setInternationalization', 'getInternationalization', 'setDashboardDocument', 'setDashboardDrivers', 'setProfileAttributes', 'getCrossNavigations', 'setCurrentDashboardView']),
         setEventListeners() {
             emitter.on('openNewWidgetPicker', this.openNewWidgetPicker)
             emitter.on('openDatasetManagement', this.openDatasetManagementDialog)
@@ -191,13 +191,17 @@ export default defineComponent({
             this.loading = true
             this.dashboardId = cryptoRandomString({ length: 16, type: 'base64' })
             this.$emit('dashboardIdSet', this.dashboardId)
-            if (this.filtersData) this.drivers = loadDrivers(this.filtersData, this.model)
+            if (this.filtersData) {
+                this.drivers = loadDrivers(this.filtersData, this.model)
+                this.currentView.drivers = this.filtersData
+            }
             await Promise.all([this.loadProfileAttributes(), this.loadModel(), this.loadInternationalization()])
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadHtmlGallery()
             this.loadCustomChartGallery()
             this.loadOutputParameters()
             await this.loadCrossNavigations()
+            this.setCurrentDashboardView(this.dashboardId, this.currentView)
             this.loading = false
         },
         async loadModel() {
@@ -382,7 +386,7 @@ export default defineComponent({
         },
         onOpenSaveCurrentViewDialog(event: any) {
             if (!this.document || event !== this.dashboardId) return
-            this.selectedView = { ...this.currentView, new: true }
+            this.selectedView = { ...this.currentView, selections: this.getSelections(this.dashboardId), new: true }
             this.saveViewDialogVisible = true
         },
         onSaveViewListDialogClose() {
