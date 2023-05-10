@@ -38,8 +38,8 @@ export const getWidgetStyleByTypeWithoutValidation = (propWidget: IWidget, style
 
 export const getCellConditionalStyles = (cellParams: any) => {
     let conditionalStypeProps = null as any
-    const cellConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => condition.target.includes(cellParams.colId) || condition.condition.formula) as ITableWidgetConditionalStyle[]
-    const brotherConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => !condition.target.includes(cellParams.colId) || condition.condition.formula) as ITableWidgetConditionalStyle[]
+    const cellConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => condition.target.includes(cellParams.colId)) as ITableWidgetConditionalStyle[]
+    const brotherConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => !condition.target.includes(cellParams.colId)) as ITableWidgetConditionalStyle[]
 
     if (cellConditionalStyles.length > 0) conditionalStypeProps = getCellConditionalStyle(cellConditionalStyles, cellParams)
     if (brotherConditionalStyles.length > 0 && conditionalStypeProps == null) conditionalStypeProps = getBrotherConditionalStyle(brotherConditionalStyles, cellParams)
@@ -55,10 +55,8 @@ const getCellConditionalStyle = (cellConditionalStyles: ITableWidgetConditionalS
 }
 
 const isCellConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
-    if (cellConditionalStyle.condition.formula) {
-        // return isFormulaConditionMet(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers)
-        return eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
-    } else return !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.value, cellParams.dashboardVariables, cellParams.dashboardDrivers)
+    if (cellConditionalStyle.condition.formula) return eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
+    else return !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.value, cellParams.dashboardVariables, cellParams.dashboardDrivers)
 }
 
 const getBrotherConditionalStyle = (brotherConditionalStyles: ITableWidgetConditionalStyle[], cellParams: any) => {
@@ -71,7 +69,6 @@ const getBrotherConditionalStyle = (brotherConditionalStyles: ITableWidgetCondit
 const isBrotherConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
     const columnDataMap = cellParams.columnDataMap
 
-    // if (cellConditionalStyle.condition.formula) return cellConditionalStyle.applyToWholeRow && isFormulaConditionMet(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers)
     if (cellConditionalStyle.condition.formula) return cellConditionalStyle.applyToWholeRow && eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
     else return cellConditionalStyle.applyToWholeRow && !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.data[columnDataMap[cellConditionalStyle.target]], cellParams.variables, cellParams.drivers)
 }
