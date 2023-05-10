@@ -104,33 +104,31 @@ export default class CellRenderer {
 
         if (visType.type) {
             if (visType.type.toLowerCase() === 'text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
-            if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}${getConditionalStyleIcon()}${visType.suffix}`
+            if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject.icon}" />${visType.suffix}`
+            if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject.icon} p-as-center" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'bar') {
-                const minValue = visType.min || 0
-                const maxValue = visType.max || 100
-                let percentage = Math.round(((params.value - minValue) / (maxValue - minValue)) * 100)
-                if (percentage < 0) percentage = 0
-                if (percentage > 100) percentage = 100
+                const percentage = getBarFillPercentage()
                 this.eGui.innerHTML = `<div class="barContainer" style="background-color:${visType['background-color']};justify-content:${visType['alignment']}">
                                         <div class="innerBar" style="width:${percentage}%;background-color:${visType.color}"></div>
                                       </div>`
-                // this.eGui.innerHTML = `<div class="barContainer" style="background-color:grey;justify-content:${visType['alignment']}">
-                //                         <div class="innerBar" style="width:${percentage}%;background-color:blue"></div>
-                //                       </div>`
+            }
+            if (visType.type.toLowerCase() === 'bar & text') {
+                const percentage = getBarFillPercentage()
+                this.eGui.innerHTML = `<div class="barContainer" style="background-color:${visType['background-color']};justify-content:${visType['alignment']}">
+                                        <div class="innerBar" style="width:${percentage}%;background-color:${visType.color};text-align:${visType['alignment']}">${setCellContent()}</div>
+                                      </div>`
             }
         } else this.eGui.innerHTML = setCellContent()
 
-        //CONDITIONAL STYLE
-        // if (params.propWidget.settings.conditionalStyles?.enabled && params.propWidget.settings.conditionalStyles.conditions) {
-        //     const columnConditions = params.propWidget.settings.conditionalStyles.conditions.filter((conditionalStyle) => conditionalStyle.target === params.colId)
-        //     if (columnConditions.length > 0) {
-        //         columnConditions.forEach((condition) => {
-        //             if (isConditionMet(condition.condition, params.value, params.dashboardVariable, params.dashboardDrivers)) {
-        //                 this.setStyle(condition.properties)
-        //             }
-        //         })
-        //     }
-        // }
+        function getBarFillPercentage() {
+            const minValue = visType.min || 0
+            const maxValue = visType.max || 100
+            let percentage = Math.round(((params.value - minValue) / (maxValue - minValue)) * 100)
+            if (percentage < 0) percentage = 0
+            if (percentage > 100) percentage = 100
+
+            return percentage
+        }
 
         function setCellContent() {
             if (isColumnOfType('date')) return dateFormatter(params.value)
@@ -138,10 +136,6 @@ export default class CellRenderer {
             else if (params.colId === 'iconColumn') return `ICON`
             else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') return params.value
             else return params.value
-        }
-
-        function getConditionalStyleIcon() {
-            return `<i class="fas fa-trash" />`
         }
 
         function isColumnOfType(columnType: string) {
