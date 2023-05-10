@@ -734,5 +734,7 @@ export interface IDashboardView {
     drivers: any,
     settings: any,
     biObjectId: string,
-    parentId: string
+    parentId: string,
+    visibility: string,
+    new?: boolean
 }

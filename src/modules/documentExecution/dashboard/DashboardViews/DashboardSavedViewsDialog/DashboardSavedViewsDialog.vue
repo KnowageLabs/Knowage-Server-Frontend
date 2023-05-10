@@ -1,5 +1,5 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="$t('dashboard.widgetEditor.thresholds')" :style="descriptor.dialogStyle" :closable="false" modal :breakpoints="descriptor.dialogBreakpoints">
+    <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="$t('documentExecution.main.savedViews')" :style="descriptor.dialogStyle" :closable="false" modal :breakpoints="descriptor.dialogBreakpoints">
         <DataTable class="p-datatable-sm kn-table p-mx-2" :value="savedViews" data-key="name" responsive-layout="stack" breakpoint="600px">
             <template #empty>
                 {{ $t('common.info.noDataFound') }}
@@ -7,7 +7,7 @@
             <Column v-for="col of descriptor.columns" :key="col.field" :field="col.field" :header="$t(col.header)" :sortable="true" />
             <Column class="icon-cell" :style="descriptor.iconColumnStyle">
                 <template #body="slotProps">
-                    <Button icon="fas fa-ellipsis-v" class="p-button-link" @click="moveView(slotProps.data)" />
+                    <Button icon="pi pi-copy" class="p-button-link" @click="moveView(slotProps.data)" />
                     <Button icon="fa fa-play-circle" class="p-button-link" @click="executeView(slotProps.data)" />
                     <Button icon="pi pi-trash" class="p-button-link" @click="deleteViewConfirm(slotProps.data)" />
                 </template>
@@ -37,7 +37,7 @@ export default defineComponent({
     name: 'dashboard-saved-views-dialog',
     components: { Column, DataTable, Dialog },
     props: { visible: { required: true, type: Boolean } },
-    emits: ['setRanges', 'close'],
+    emits: ['moveView', 'close'],
     data() {
         return {
             descriptor,
@@ -62,6 +62,7 @@ export default defineComponent({
         },
         moveView(view: IDashboardView) {
             console.log('------- MOVE VIEW: ', view)
+            this.$emit('moveView', view)
         },
         executeView(view: IDashboardView) {
             console.log('------- EXECUTE VIEW: ', view)
@@ -84,9 +85,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#add-range-button {
-    font-size: 0.8rem;
-}
-</style>

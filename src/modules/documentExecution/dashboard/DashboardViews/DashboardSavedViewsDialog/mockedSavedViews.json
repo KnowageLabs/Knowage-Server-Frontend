@@ -16,7 +16,8 @@
                 "b": {
                     "c": 1
                 }
-            }
+            },
+            "visibility": "public"
         },
         {
             "biObjectId": "2",
@@ -34,7 +35,8 @@
                 "b": {
                     "c": 1
                 }
-            }
+            },
+            "visibility": "public"
         },
         {
             "biObjectId": "3",
@@ -52,7 +54,8 @@
                 "b": {
                     "c": 1
                 }
-            }
+            },
+            "visibility": "private"
         }
     ]
 }

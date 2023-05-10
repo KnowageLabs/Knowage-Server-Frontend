@@ -7,7 +7,7 @@
             style="position: fixed; right: 0; z-index: 999; background-color: white; box-shadow: 0px 2px 3px #ccc"
             @click="selectionsDialogVisible = true"
         />
-        <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboardId="dashboardId" :documentDrivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
+        <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
 
         <Transition name="editorEnter" appear>
             <DatasetEditor v-if="datasetEditorVisible" :dashboard-id-prop="dashboardId" :available-datasets-prop="datasets" :filters-data-prop="filtersData" @closeDatasetEditor="closeDatasetEditor" @datasetEditorSaved="closeDatasetEditor" @allDatasetsLoaded="datasets = $event" />
@@ -45,7 +45,8 @@
         @widgetUpdated="closeWidgetEditor"
     ></WidgetEditor>
 
-    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" @close="savedViewsListDialogVisible = false"></DashboardSavedViewsDialog>
+    <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
+    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" @close="savedViewsListDialogVisible = false" @moveView="moveView"></DashboardSavedViewsDialog>
 </template>
 
 <script lang="ts">
@@ -55,7 +56,7 @@
 import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
-import { IDashboardDataset, ISelection, IGalleryItem, IDataset } from './Dashboard'
+import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView } from './Dashboard'
 import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { formatModel } from './helpers/DashboardBackwardCompatibilityHelper'
@@ -73,6 +74,7 @@ import DashboardControllerSaveDialog from './DashboardControllerSaveDialog.vue'
 import SelectionsListDialog from './widget/SelectorWidget/SelectionsListDialog.vue'
 import DashboardGeneralSettings from './generalSettings/DashboardGeneralSettings.vue'
 import deepcopy from 'deepcopy'
+import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 
 export default defineComponent({
@@ -85,6 +87,7 @@ export default defineComponent({
         DashboardControllerSaveDialog,
         SelectionsListDialog,
         DashboardGeneralSettings,
+        DashboardSaveViewDialog,
         DashboardSavedViewsDialog
     },
     props: {
@@ -127,6 +130,9 @@ export default defineComponent({
             loading: false,
             htmlGallery: [] as IGalleryItem[],
             customChartGallery: [] as IGalleryItem[],
+            currentView: { label: '', name: '', description: '', drivers: {}, settings: {}, visibility: 'public', new: true } as IDashboardView,
+            selectedView: null as IDashboardView | null,
+            saveViewDialogVisible: false,
             savedViewsListDialogVisible: false
         }
     },
@@ -375,14 +381,22 @@ export default defineComponent({
             this.$emit('executeCrossNavigation', payload)
         },
         onOpenSaveCurrentViewDialog(event: any) {
-            console.log('-------- onOpenSaveCurrentViewDialog!!!')
             if (!this.document || event !== this.dashboardId) return
+            this.selectedView = { ...this.currentView, new: true }
+            this.saveViewDialogVisible = true
+        },
+        onSaveViewListDialogClose() {
+            this.saveViewDialogVisible = false
+            this.selectedView = null
         },
         onOpenSavedViewsListDialog(event: any) {
-            console.log('-------- onOpenSavedViewsListDialog!!!', event)
             if (!this.document || event !== this.dashboardId) return
-            console.log('-------- onOpenSavedViewsListDialog! 2!!')
             this.savedViewsListDialogVisible = true
+        },
+        moveView(view: IDashboardView) {
+            this.savedViewsListDialogVisible = false
+            this.selectedView = view
+            this.saveViewDialogVisible = true
         }
     }
 })
