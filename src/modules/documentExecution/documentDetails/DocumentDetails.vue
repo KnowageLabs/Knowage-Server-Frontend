@@ -39,7 +39,7 @@
                         <span :class="{ 'details-warning-color': invalidDrivers }">{{ $t('documentExecution.documentDetails.drivers.title') }}</span>
                         <Badge v-if="invalidDrivers > 0" :value="invalidDrivers" class="p-ml-2" severity="danger"></Badge>
                     </template>
-                    <DriversTab :selected-document="selectedDocument" :available-drivers="drivers" :available-analytical-drivers="analyticalDrivers" />
+                    <DriversTab :selected-document="selectedDocument" :available-drivers="drivers" :available-analytical-drivers="analyticalDrivers" :refresh="refreshDrivers" />
                 </TabPanel>
                 <TabPanel v-if="selectedDocument?.id">
                     <template #header>
@@ -59,7 +59,7 @@
                     <template #header>
                         <span>{{ $t('documentExecution.documentDetails.history.title') }}</span>
                     </template>
-                    <HistoryTab :selected-document="selectedDocument" @openDesignerDialog="openDesignerDialog" />
+                    <HistoryTab :selected-document="selectedDocument" @openDesignerDialog="openDesignerDialog" :refresh="refreshHistory" />
                 </TabPanel>
                 <TabPanel v-if="selectedDocument?.id && selectedDocument?.typeCode == 'REPORT' && selectedDocument?.engine == 'knowagejasperreporte'">
                     <template #header>
@@ -72,7 +72,7 @@
         </div>
 
         <DocumentDetailOlapDesignerDialog v-if="designerDialogVisible" :visible="designerDialogVisible" :selected-document="selectedDocument" @close="designerDialogVisible = false" @designerStarted="onDesignerStart"></DocumentDetailOlapDesignerDialog>
-        <DocumentDetailDossierDesignerDialog v-if="user.enterprise && dossierDesignerDialogVisible" :visible="dossierDesignerDialogVisible" :selected-document="selectedDocument" @close="dossierDesignerDialogVisible = false"></DocumentDetailDossierDesignerDialog>
+        <DocumentDetailDossierDesignerDialog v-if="user.enterprise && dossierDesignerDialogVisible" :visible="dossierDesignerDialogVisible" :selected-document="selectedDocument" @close="closeDossierDesignerDialog($event)"></DocumentDetailDossierDesignerDialog>
     </div>
 </template>
 
@@ -148,7 +148,9 @@ export default defineComponent({
             savedSubreports: [] as any,
             selectedSubreports: [] as any,
             designerDialogVisible: false,
-            dossierDesignerDialogVisible: false
+            dossierDesignerDialogVisible: false,
+            refreshDrivers: false,
+            refreshHistory: false
         }
     },
     computed: {
@@ -434,6 +436,8 @@ export default defineComponent({
         openDesignerDialog() {
             if (this.selectedDocument.engine === 'knowagedossierengine') {
                 this.dossierDesignerDialogVisible = true
+                this.refreshDrivers = false
+                this.refreshHistory = false
                 this.designerDialogVisible = false
             } else {
                 this.designerDialogVisible = true
@@ -442,6 +446,13 @@ export default defineComponent({
         },
         onDesignerStart(document: any) {
             this.$router.push(`/olap-designer/${document.sbiExecutionId}?olapId=${document.id}&olapName=${document.name}&olapLabel=${document.label}&noTemplate=${true}&reference=${document.reference}&engine=${document.engine}&artifactId=${document.artifactId}`)
+        },
+        closeDossierDesignerDialog(refreshObj) {
+            this.dossierDesignerDialogVisible = false
+
+            if (refreshObj.refreshDrivers) this.refreshDrivers = true
+
+            if (refreshObj.refreshHistory) this.refreshHistory = true
         }
     }
 })

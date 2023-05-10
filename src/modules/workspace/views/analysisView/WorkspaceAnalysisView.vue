@@ -110,23 +110,6 @@ export default defineComponent({
     components: { DataTable, Column, DetailSidebar, WorkspaceCard, KnFabButton, Menu, Message, KnInputFile, WorkspaceAnalysisViewEditDialog, WorkspaceWarningDialog, WorkspaceAnalysisViewShareDialog, WorkspaceCockpitDialog, DocumentDetailDossierDesignerDialog },
     props: { toggleCardDisplay: { type: Boolean } },
     emits: ['showMenu', 'toggleDisplayView', 'execute'],
-    computed: {
-        isOwner(): any {
-            return (this.store.$state as any).user.userId === this.selectedAnalysis.creationUser
-        },
-        isShared(): any {
-            return this.selectedAnalysis.functionalities.length > 1
-        },
-        ...mapState(mainStore, {
-            user: 'user',
-            isEnterprise: 'isEnterprise'
-        }),
-        addButtonIsVisible(): boolean {
-            return (
-                this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)
-            )
-        }
-    },
     setup() {
         const store = mainStore()
         return { store }
@@ -154,6 +137,24 @@ export default defineComponent({
             selectedDocument: null
         }
     },
+    computed: {
+        isOwner(): any {
+            return (this.store.$state as any).user.userId === this.selectedAnalysis.creationUser
+        },
+        isShared(): any {
+            return this.selectedAnalysis.functionalities.length > 1
+        },
+        ...mapState(mainStore, {
+            user: 'user',
+            isEnterprise: 'isEnterprise'
+        }),
+        addButtonIsVisible(): boolean {
+            return (
+                this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)
+            )
+        }
+    },
+
     created() {
         this.getAnalysisDocs()
     },
@@ -187,12 +188,13 @@ export default defineComponent({
         createMenuItems() {
             this.menuButtons = []
             this.menuButtons.push({ key: '0', label: this.$t('workspace.myAnalysis.menuItems.edit'), icon: 'fas fa-edit', command: () => { this.editAnalysisDocument(this.selectedAnalysis) }, visible: this.isOwner })
-            this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.share'), icon: 'fas fa-share-alt', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: !this.isShared })
-            this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.unshare'), icon: 'fas fa-times-circle', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: this.isShared })
-            this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.clone'), icon: 'fas fa-clone', command: () => { this.cloneAnalysisDocument(this.selectedAnalysis) } })
+            this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.editTemplate'), icon: 'fas fa-edit', command: () => { this.editTemplateDocument(this.selectedAnalysis) }, visible: this.isOwner && this.selectedAnalysis.typeCode === 'DOSSIER'})
+            this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.share'), icon: 'fas fa-share-alt', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: !this.isShared })
+            this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.unshare'), icon: 'fas fa-times-circle', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: this.isShared })
+            this.menuButtons.push({ key: '3', label: this.$t('workspace.myAnalysis.menuItems.clone'), icon: 'fas fa-clone', command: () => { this.cloneAnalysisDocument(this.selectedAnalysis) } })
 
-            this.menuButtons.push({ key: '3', label: this.$t('workspace.myAnalysis.menuItems.upload'), icon: 'fas fa-upload', command: () => { this.uploadAnalysisPreviewFile(this.selectedAnalysis) } })
-            this.menuButtons.push({ key: '4', label: this.$t('workspace.myAnalysis.menuItems.delete'), icon: 'fas fa-trash', command: () => { this.deleteAnalysisDocumentConfirm(this.selectedAnalysis) } })
+            this.menuButtons.push({ key: '4', label: this.$t('workspace.myAnalysis.menuItems.upload'), icon: 'fas fa-upload', command: () => { this.uploadAnalysisPreviewFile(this.selectedAnalysis) } })
+            this.menuButtons.push({ key: '5', label: this.$t('workspace.myAnalysis.menuItems.delete'), icon: 'fas fa-trash', command: () => { this.deleteAnalysisDocumentConfirm(this.selectedAnalysis) } })
 
         },
         executeAnalysisDocument(document: any) {
@@ -207,6 +209,7 @@ export default defineComponent({
             this.selectedAnalysis = analysis
             this.editDialogVisible = true
         },
+
         async handleEditAnalysis(analysis: any) {
             const formatedAnalysis = {
                 document: {
@@ -393,7 +396,12 @@ export default defineComponent({
         openGeoRefCreation() {
             this.$router.push('/gis/new')
         },
+        editTemplateDocument(analysis: any) {
+            this.openDossierDesigner()
+            this.selectedDocument = analysis
+        },
         openDossierDesigner() {
+            this.selectedDocument = null
             this.cockpitDialogVisible = false
             this.dossierDesignerDialogVisible = true
         }

@@ -1013,7 +1013,7 @@
                 "dossierUrlName": "Dossier url name",
                 "downloadable": "Downloadable",
                 "driverLinkType": "Driver link type",
-                "driverNotHandled": "Placeholder {placeholderName} - Driver {driverName} is not handled",
+                "driverNotHandled": "Placeholder {placeholderName}: Driver {driverName} is not handled",
                 "errorDuringValidation": "The uploaded template is not valid for the dossier document",
                 "inherit": "Inherit",
                 "linkTo": "Link to",
