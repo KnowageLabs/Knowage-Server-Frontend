@@ -89,7 +89,10 @@ export default defineComponent({
         }
     },
     created() {
-        this.dataset = this.selectedDataset
+        this.deleteMultivalueDefault()
+    },
+    updated() {
+        this.deleteMultivalueDefault()
     },
     methods: {
         addNewParam() {
@@ -119,6 +122,13 @@ export default defineComponent({
             const newParam = { ...tableDescriptor.newParam }
             this.dataset.pars.push(newParam)
         },
+        deleteMultivalueDefault() {
+            if (this.dataset.pars.length > 0) {
+                this.dataset.pars.forEach((element) => {
+                    if (element.multiValue && element.defaultValue.length === 1 && element.defaultValue[0] === '') element.defaultValue.pop()
+                })
+            }
+        },
         deleteParam(removedParam) {
             this.$confirm.require({
                 message: this.$t('common.toast.deleteMessage'),
@@ -142,6 +152,14 @@ export default defineComponent({
 })
 </script>
 <style lang="scss" scoped>
+#scope {
+    width: 90%;
+    &:deep(span.p-dropdown-label) {
+        display: inline-flex;
+        align-items: center;
+        padding: 0;
+    }
+}
 .chipsContainer {
     width: 100%;
     &:deep(.p-chips) {

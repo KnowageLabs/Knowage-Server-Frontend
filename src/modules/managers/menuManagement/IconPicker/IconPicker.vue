@@ -1,7 +1,6 @@
 <template>
     <Dialog v-model:visible="modalShown" :header="$t('managers.menuManagement.chooseIcon')" :style="{ width: '50vw' }" :modal="true" :closable="false">
         <KnImageToBase64IconPicker @selectedImageBase64="onBase64ImageSelection" @wrongInput="toggleDisableChooseButton"></KnImageToBase64IconPicker>
-
         <div id="iconPicker">
             <div class="p-mt-2 p-field">
                 <div class="p-inputgroup">
@@ -15,8 +14,8 @@
             <div class="p-mt-4">
                 <div class="iconPicker__icons">
                     <p>fontawesome</p>
-                    <a v-for="icon in icons" :key="icon.value" href="#" :class="`item ${selected === icon.name ? 'selected' : ''}`" @click.stop.prevent="getIcon(icon)">
-                        <i :class="'fas fa-' + icon.name"></i>
+                    <a v-for="icon in localIcons" :key="icon.id" href="#" :class="`item ${selected === icon.id ? 'selected' : ''}`" :title="icon.id" @click.stop.prevent="getIcon(icon)">
+                        <i :class="`fa-${icon.membership?.free[0] || 'solid'} fa-${icon.id}`"></i>
                     </a>
                 </div>
             </div>
@@ -28,15 +27,15 @@
     </Dialog>
 </template>
 
-<script>
+<script lang="ts">
 import KnImageToBase64IconPicker from '@/components/UI/KnImageToBase64IconPicker.vue'
 import Dialog from 'primevue/dialog'
-import icons from './icons'
+import icons from './icons.json'
 import { defineComponent } from 'vue'
 export default defineComponent({
     name: 'icon-picker',
     components: { Dialog, KnImageToBase64IconPicker },
-    props: ['showModal'],
+    props: { showModal: { type: Boolean } },
     emits: ['chooseIcon', 'closeFontAwesomeModal'],
     data() {
         return {
@@ -44,19 +43,23 @@ export default defineComponent({
             disableChoosen: false,
             selected: '',
             chosenIcon: {},
-            icons
+            localIcons: [] as Array<any>
         }
     },
+
     watch: {
         showModal: {
-            handler: function(show) {
+            handler: function (show) {
                 this.modalShown = show
             }
         }
     },
+    mounted() {
+        this.localIcons = icons.icons.filter((i) => i.membership.free.length > 0)
+    },
     methods: {
         getIcon(icon) {
-            this.selected = icon.name
+            this.selected = icon.id
             this.chosenIcon = icon
             this.disableChoosen = false
         },
@@ -71,16 +74,16 @@ export default defineComponent({
         filterIcons(event) {
             const search = event.target.value.trim()
             let filter = []
-            if (search.length > 3) {
-                filter = icons.filter((item) => {
+            if (search.length > 1) {
+                filter = icons.icons.filter((item) => {
                     const regex = new RegExp(search, 'gi')
-                    return item.name.match(regex)
+                    return item.id.match(regex) && item.membership.free.length > 0
                 })
             } else if (search.length === 0) {
-                this.icons = icons
+                this.localIcons = icons.icons.filter((i) => i.membership.free.length > 0)
             }
             if (filter.length > 0) {
-                this.icons = filter
+                this.localIcons = filter
             }
         },
         toggleDisableChooseButton(value) {
