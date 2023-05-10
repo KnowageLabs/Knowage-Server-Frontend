@@ -107,7 +107,7 @@
             <DocumentExecutionSchedulationsTable v-if="schedulationsTableVisible" id="document-execution-schedulations-table" :prop-schedulations="schedulations" @deleteSchedulation="onDeleteSchedulation" @close="schedulationsTableVisible = false"></DocumentExecutionSchedulationsTable>
 
             <KnParameterSidebar
-                v-if="parameterSidebarVisible"
+                v-show="parameterSidebarVisible"
                 class="document-execution-parameter-sidebar kn-overflow-y"
                 :filters-data="filtersData"
                 :prop-document="document"
@@ -466,7 +466,8 @@ export default defineComponent({
                 this.isOrganizerEnabled(),
                 this.mode,
                 this.$t,
-                this.newDashboardMode
+                this.newDashboardMode,
+                this.filtersData
             )
         },
         print() {

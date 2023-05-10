@@ -1,15 +1,5 @@
 <template>
     <div class="kn-parameter-sidebar" :class="positionClass">
-        <Toolbar v-if="mode !== 'workspaceView' && mode !== 'qbeView' && mode !== 'datasetManagement'" id="kn-parameter-sidebar-toolbar" class="kn-toolbar kn-toolbar--secondary">
-            <template #start>
-                <div id="kn-parameter-sidebar-toolbar-icons-container" class="p-d-flex p-flex-row p-jc-around">
-                    <Button v-tooltip.top="$t('documentExecution.main.resetParametersTooltip')" icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="resetAllParameters"></Button>
-                    <Button v-tooltip.top="$t('documentExecution.main.savedParametersTooltip')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="openSavedParametersDialog"></Button>
-                    <Button v-tooltip.top="$t('documentExecution.main.saveParametersFromStateTooltip')" icon="fas fa-save" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="openSaveParameterDialog"></Button>
-                </div>
-            </template>
-        </Toolbar>
-
         <div class="p-fluid kn-parameter-sidebar-content kn-alternated-rows">
             <div v-if="user && (!sessionRole || sessionRole === $t('role.defaultRolePlaceholder')) && (mode === 'execution' || mode === 'qbeView' || (mode === 'workspaceView' && dataset?.drivers?.length > 0)) && availableRolesForExecution.length > 1" class="p-field p-my-1 p-p-2">
                 <div class="p-d-flex">
@@ -179,7 +169,6 @@
         </div>
         <KnParameterPopupDialog v-if="popupDialogVisible" :visible="popupDialogVisible" :selected-parameter="selectedParameter" :prop-loading="loading" :parameter-pop-up-data="parameterPopUpData" @close="popupDialogVisible = false" @save="onPopupSave"></KnParameterPopupDialog>
         <KnParameterTreeDialog v-if="treeDialogVisible" :visible="treeDialogVisible" :selected-parameter="selectedParameter" :formated-parameter-values="formatedParameterValues" :document="document" :mode="mode" :selected-role="role" @close="onTreeClose" @save="onTreeSave"></KnParameterTreeDialog>
-        <KnParameterSaveDialog :visible="parameterSaveDialogVisible" :prop-loading="loading" @close="parameterSaveDialogVisible = false" @saveViewpoint="saveViewpoint"></KnParameterSaveDialog>
         <KnParameterSavedParametersDialog :visible="savedParametersDialogVisible" :prop-viewpoints="viewpoints" @close="savedParametersDialogVisible = false" @fillForm="fillParameterForm" @executeViewpoint="executeViewpoint" @deleteViewpoint="deleteViewpoint"></KnParameterSavedParametersDialog>
     </div>
 </template>
@@ -198,7 +187,6 @@ import Checkbox from 'primevue/checkbox'
 import Dropdown from 'primevue/dropdown'
 import KnParameterPopupDialog from './dialogs/KnParameterPopupDialog.vue'
 import KnParameterTreeDialog from './dialogs/KnParameterTreeDialog.vue'
-import KnParameterSaveDialog from './dialogs/KnParameterSaveDialog.vue'
 import KnParameterSavedParametersDialog from './dialogs/KnParameterSavedParametersDialog.vue'
 import Menu from 'primevue/menu'
 import MultiSelect from 'primevue/multiselect'
@@ -206,10 +194,11 @@ import RadioButton from 'primevue/radiobutton'
 import ScrollPanel from 'primevue/scrollpanel'
 import mainStore from '../../../App.store'
 import { getCorrectRolesForExecutionForType } from '../../../helpers/commons/roleHelper'
+import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
 
 export default defineComponent({
     name: 'kn-parameter-sidebar',
-    components: { Calendar, Chip, Chips, Checkbox, Dropdown, KnParameterPopupDialog, KnParameterTreeDialog, KnParameterSaveDialog, KnParameterSavedParametersDialog, Menu, MultiSelect, RadioButton, ScrollPanel },
+    components: { Calendar, Chip, Chips, Checkbox, Dropdown, KnParameterPopupDialog, KnParameterTreeDialog, KnParameterSavedParametersDialog, Menu, MultiSelect, RadioButton, ScrollPanel },
     props: {
         filtersData: { type: Object },
         propDocument: { type: Object },
@@ -263,10 +252,15 @@ export default defineComponent({
             return this.document?.parametersRegion ? 'kn-parameter-sidebar-' + this.document.parametersRegion : 'kn-parameter-sidebar'
         }
     },
+
     watch: {
         sessionRole() {
             this.role = ''
             this.parameters = { isReadyForExecution: false, filterStatus: [] }
+        },
+        propDocument() {
+            this.loadDocument()
+            this.loadParameters()
         },
         filtersData() {
             this.loadDocument()
@@ -286,6 +280,7 @@ export default defineComponent({
         }
     },
     mounted() {
+        this.setEventListeners()
         this.loadMode()
         if (this.mode === 'qbeView' || this.mode === 'workspaceView' || this.mode === 'datasetManagement') this.loadQBEParameters()
 
@@ -295,7 +290,16 @@ export default defineComponent({
         this.loadParameters()
         this.userDateFormat = this.dateFormat as string
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            parameterSidebarEmitter.on('resetAllParameters', this.onResetAllParameters)
+        },
+        removeEventListeners() {
+            parameterSidebarEmitter.off('resetAllParameters', this.onResetAllParameters)
+        },
         applyFieldClass(cssClass: string): string {
             const cssCompleteClass = this.primary ? cssClass + ' fieldBackgroundColorPrimary' : cssClass + ' fieldBackgroundColorSecondary'
             this.primary = !this.primary
@@ -307,6 +311,7 @@ export default defineComponent({
         },
         loadDocument() {
             this.document = this.propDocument as iDocument
+            if (!this.document) return
 
             if (this.correctRolesForExecution) {
                 this.availableRolesForExecution = this.correctRolesForExecution
@@ -415,7 +420,7 @@ export default defineComponent({
             }
             this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el))
         },
-        resetAllParameters() {
+        onResetAllParameters() {
             this.parameters.filterStatus.forEach((el: any) => this.resetParameterValue(el))
             this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el))
         },
@@ -549,38 +554,6 @@ export default defineComponent({
             this.$emit('parametersChanged', { parameters: this.parameters, document: this.propDocument })
             this.loading = false
         },
-        openSaveParameterDialog() {
-            this.parameterSaveDialogVisible = true
-        },
-        async saveViewpoint(viewpoint: any) {
-            const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
-
-            if (!role) return
-
-            const postData = { ...viewpoint, OBJECT_LABEL: this.document?.label, ROLE: role, VIEWPOINT: this.getParameterValues() }
-            this.loading = true
-            await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentviewpoint/addViewpoint`, postData)
-                .then(() => {
-                    this.store.setInfo({
-                        title: this.$t('common.toast.createTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                    this.parameterSaveDialogVisible = false
-                })
-                .catch(() => {})
-            this.loading = false
-        },
-        async openSavedParametersDialog() {
-            const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
-            if (!role) return
-            this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentviewpoint/getViewpoints?label=${this.document?.label}&role=${role}`).then((response: AxiosResponse<any>) => {
-                this.viewpoints = response.data.viewpoints
-                this.savedParametersDialogVisible = true
-            })
-            this.loading = false
-        },
         fillParameterForm(viewpoint: any) {
             const tempParameters = this.decodeViewpointPrameterValues(viewpoint.vpValueParams)
 
@@ -678,12 +651,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-#kn-parameter-sidebar-toolbar .p-toolbar-group-left {
-    width: 100%;
-}
-#kn-parameter-sidebar-toolbar-icons-container {
-    width: 100%;
-}
 .kn-parameter-sidebar {
     z-index: 100;
     background-color: white;
