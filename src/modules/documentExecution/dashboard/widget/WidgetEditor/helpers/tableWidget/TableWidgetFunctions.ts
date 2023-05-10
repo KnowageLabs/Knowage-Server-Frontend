@@ -35,7 +35,8 @@ export const createNewTableWidgetSettings = () => {
             rows: tableWidgetDefaultValues.getDefaultRowsStyle(),
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             summary: tableWidgetDefaultValues.getDefualtSummryStyle(),
-            background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
+            background: widgetCommonDefaultValues.getDefaultBackgroundStyle(),
+            paginator: tableWidgetDefaultValues.getDefaultPaginatorStyle()
         },
         tooltips: tableWidgetDefaultValues.getDefaultTooltips(),
         visualization: tableWidgetDefaultValues.getDefaultVisualizations(),

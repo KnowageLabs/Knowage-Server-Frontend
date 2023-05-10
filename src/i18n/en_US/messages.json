@@ -861,6 +861,16 @@
                     "pies": "Pies",
                     "pies3d": "Pies 3D"
                 },
+                "qMenu": {
+                    "changeType": "Chage Chart Type",
+                    "clone": "Clone Widget",
+                    "delete": "Delete Widget",
+                    "edit": "Edit Widget",
+                    "expand": "Expand to Fullscreen",
+                    "quickWidget": "Add Quick Widget",
+                    "search": "Search on Widget",
+                    "xor": "View One Layer"
+                },
                 "range": "Range",
                 "rangeLabel": "Min size (%)/Max size (%)",
                 "south": "South",
@@ -874,16 +884,6 @@
                     "heatmap": "Heatmap",
                     "markers": "Markers",
                     "pies": "Pies"
-                },
-                "qMenu": {
-                    "edit": "Edit Widget",
-                    "expand": "Expand to Fullscreen",
-                    "changeType": "Chage Chart Type",
-                    "xor": "View One Layer",
-                    "quickWidget": "Add Quick Widget",
-                    "search": "Search on Widget",
-                    "clone": "Clone Widget",
-                    "delete": "Delete Widget"
                 }
             },
             "noData": {
@@ -905,6 +905,7 @@
                 "unlinkAllHint": "Unink all paddings"
             },
             "pagination": "Pagination",
+            "paginator": "Paginator",
             "percentage": "Percentage",
             "pivot": {
                 "configuration": {

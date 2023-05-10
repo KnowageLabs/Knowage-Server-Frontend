@@ -255,6 +255,10 @@
             {
                 "title": "dashboard.widgetEditor.shadows.title",
                 "type": "ShadowsStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.paginator",
+                "type": "PaginatorStyle"
             }
         ],
         "Tooltips": [

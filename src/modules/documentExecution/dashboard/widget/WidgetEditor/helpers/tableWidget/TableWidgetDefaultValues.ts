@@ -1,4 +1,4 @@
-import { ITableWidgetColumnGroups, ITableWidgetColumnStyles, ITableWidgetConditionalStyle, ITableWidgetConditionalStyles, ITableWidgetCustomMessages, IWidgetExports, ITableWidgetHeaders, ITableWidgetPagination, ITableWidgetRows, IWidgetRowsStyle, IWidgetSelection, ITableWidgetSummaryRows, ITableWidgetSummaryStyle, ITableWidgetTooltipStyle, ITableWidgetVisibilityCondition, ITableWidgetVisualization, ITableWidgetHeadersStyle } from "../../../../Dashboard"
+import { ITableWidgetColumnGroups, ITableWidgetColumnStyles, ITableWidgetConditionalStyle, ITableWidgetConditionalStyles, ITableWidgetCustomMessages, IWidgetExports, ITableWidgetHeaders, ITableWidgetPagination, ITableWidgetRows, IWidgetRowsStyle, IWidgetSelection, ITableWidgetSummaryRows, ITableWidgetSummaryStyle, ITableWidgetTooltipStyle, ITableWidgetVisibilityCondition, ITableWidgetVisualization, ITableWidgetHeadersStyle, ITableWidgetPaginatorStyle } from "../../../../Dashboard"
 import descriptor from './TableWidgetHelpersDescriptor.json'
 import deepcopy from 'deepcopy'
 
@@ -68,4 +68,8 @@ export const getDefaultVisibilityCondition = () => {
 
 export const getDefaultTooltips = () => {
     return deepcopy(descriptor.defaultTooltips) as ITableWidgetTooltipStyle[]
+}
+
+export const getDefaultPaginatorStyle = () => {
+    return deepcopy(descriptor.defaultPaginatorStyle) as ITableWidgetPaginatorStyle
 }

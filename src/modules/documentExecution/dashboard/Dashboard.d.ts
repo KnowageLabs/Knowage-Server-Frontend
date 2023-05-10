@@ -251,7 +251,8 @@ export interface ITableWidgetStyle {
     rows: IWidgetRowsStyle
     shadows: IWidgetShadowsStyle
     summary: ITableWidgetSummaryStyle
-    background: IWidgetBackgroundStyle
+    background: IWidgetBackgroundStyle,
+    paginator: ITableWidgetPaginatorStyle
 }
 
 export interface IWidgetBordersStyle {
@@ -333,6 +334,12 @@ export interface ITableWidgetSummaryStyle {
     'font-style': string
     'font-size': string
     'font-weight': string
+    color: string
+    'background-color': string
+    'justify-content': string
+}
+
+export interface ITableWidgetPaginatorStyle {
     color: string
     'background-color': string
     'justify-content': string
