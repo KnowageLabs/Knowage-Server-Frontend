@@ -914,7 +914,7 @@ export default defineComponent({
         checkIfHiddenColumnsExist() {
             if (this.qbe) {
                 this.hiddenColumnsExist = false
-                for (let i = 0; i < this.selectedQuery.fields.length; i) {
+                for (let i = 0; i < this.selectedQuery.fields.length; i++) {
                     if (!this.selectedQuery.fields[i].visible) {
                         this.hiddenColumnsExist = true
                         break
