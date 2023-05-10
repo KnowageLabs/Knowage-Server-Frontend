@@ -1,9 +1,5 @@
 <template>
     <div v-if="paginatorStyleModel" class="p-grid p-ai-center kn-flex p-p-4">
-        <div class="p-col-12">
-            {{ paginatorStyleModel }}
-        </div>
-
         <div class="p-col-12 p-py-4">
             <WidgetEditorStyleToolbar :options="descriptor.paginatorStyleSettings" :prop-model="paginatorStyleModel" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
         </div>
