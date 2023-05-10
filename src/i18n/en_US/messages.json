@@ -1050,6 +1050,7 @@
             "visualizationType": {
                 "alignment": "Alignment",
                 "bar": "Bar",
+                "barAndText": "Bar & Text",
                 "pinned": "Pinned",
                 "sparkline": "Sparkline",
                 "textAndIcon": "Text & Icon",

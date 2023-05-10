@@ -395,8 +395,8 @@
             "value": "Bar"
         },
         {
-            "label": "dashboard.widgetEditor.visualizationType.sparkline",
-            "value": "Sparkline"
+            "label": "dashboard.widgetEditor.visualizationType.barAndText",
+            "value": "Bar & Text"
         }
     ]
 }

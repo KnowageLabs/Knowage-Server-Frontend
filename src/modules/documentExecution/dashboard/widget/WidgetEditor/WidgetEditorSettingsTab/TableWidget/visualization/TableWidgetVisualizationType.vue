@@ -37,11 +37,11 @@
                 </div>
             </div>
             <div class="p-col-12 p-grid p-ai-center">
-                <div class="p-col-6 p-md-3 p-d-flex p-flex-column p-pr-2">
+                <div v-if="visualizationType.type && visualizationType.type !== 'Bar'" class="p-col-6 p-md-3 p-d-flex p-flex-column p-pr-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.prefix') }}</label>
                     <InputText v-model="visualizationType.prefix" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged" />
                 </div>
-                <div class="p-col-6 p-md-3 p-d-flex p-flex-column kn-flex p-pr-2">
+                <div v-if="visualizationType.type && visualizationType.type !== 'Bar'" class="p-col-6 p-md-3 p-d-flex p-flex-column kn-flex p-pr-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.suffix') }}</label>
                     <InputText v-model="visualizationType.suffix" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged" />
                 </div>
