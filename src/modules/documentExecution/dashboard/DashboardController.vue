@@ -386,7 +386,8 @@ export default defineComponent({
         },
         onOpenSaveCurrentViewDialog(event: any) {
             if (!this.document || event !== this.dashboardId) return
-            this.selectedView = { ...this.currentView, selections: this.getSelections(this.dashboardId), new: true }
+            this.currentView.settings.selections = this.getSelections(this.dashboardId)
+            this.selectedView = { ...this.currentView, new: true }
             this.saveViewDialogVisible = true
         },
         onSaveViewListDialogClose() {
