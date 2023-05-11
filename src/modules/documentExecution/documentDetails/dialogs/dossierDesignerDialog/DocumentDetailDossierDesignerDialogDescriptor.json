@@ -89,7 +89,11 @@
             },
             {
                 "header": "common.creationDate",
-                "name": "time_in"
+                "name": "created"
+            },
+            {
+                "header": "common.lastChangeDate",
+                "name": "updated"
             }
         ]
     }
