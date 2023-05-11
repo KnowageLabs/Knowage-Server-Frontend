@@ -80,7 +80,7 @@
 
     <KnInputFile v-if="!uploading" :change-function="uploadAnalysisFile" accept="image/*" :trigger-input="triggerUpload" />
     <WorkspaceCockpitDialog :visible="cockpitDialogVisible" @close="closeCockpitDialog"></WorkspaceCockpitDialog>
-    <DocumentDetailDossierDesignerDialog v-if="user.enterprise && dossierDesignerDialogVisible" :visible="dossierDesignerDialogVisible" :selected-document="selectedDocument" :is-from-workspace="true" @close="dossierDesignerDialogVisible = false"></DocumentDetailDossierDesignerDialog>
+    <DocumentDetailDossierDesignerDialog v-if="user.enterprise && dossierDesignerDialogVisible" :visible="dossierDesignerDialogVisible" :selected-document="selectedDocument" :is-from-workspace="true" @close="closeDossierDialog()"></DocumentDetailDossierDesignerDialog>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
@@ -404,6 +404,10 @@ export default defineComponent({
             this.selectedDocument = null
             this.cockpitDialogVisible = false
             this.dossierDesignerDialogVisible = true
+        },
+        closeDossierDialog() {
+            this.dossierDesignerDialogVisible = false
+            this.getAnalysisDocs()
         }
     }
 })
