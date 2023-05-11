@@ -10,108 +10,80 @@
             </div>
         </template>
     </Tree>
+    <WorkspaceNewFolderDialog :visible="newFolderDialogVisible" @close="newFolderDialogVisible = false" @create="createNewFolder"></WorkspaceNewFolderDialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { AxiosResponse } from 'axios'
 import { IFolder } from '../Workspace'
+import { mapActions } from 'pinia'
 import Tree from 'primevue/tree'
+import WorkspaceNewFolderDialog from './WorkspaceNewFolderDialog.vue'
 import workspaceDocumentTreeDescriptor from './WorkspaceDocumentTreeDescriptor.json'
+import cryptoRandomString from 'crypto-random-string'
+import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'workspace-document-tree',
-    components: { Tree },
-    props: { propFolders: { type: Array }, mode: { type: String }, selectedBreadcrumb: { type: Object } },
+    components: { Tree, WorkspaceNewFolderDialog },
+    props: { mode: { type: String }, selectedBreadcrumb: { type: Object } },
     emits: ['folderSelected', 'delete', 'createFolder'],
     data() {
         return {
             workspaceDocumentTreeDescriptor,
-            folders: [] as IFolder[],
+            folders: {} as IFolder,
             nodes: [] as any[],
             selectedFolderKey: {},
             selectedFolder: null as any,
-            buttonsVisible: []
+            buttonsVisible: [],
+            newFolderDialogVisible: false
         }
     },
     watch: {
-        propFolders() {
-            this.loadTree()
-        },
         selectedBreadcrumb() {
             this.onBreadcrumbSelected()
         }
     },
-    created() {
-        this.loadTree()
+    async created() {
+        await this.loadData()
     },
     methods: {
-        loadTree() {
-            this.loadFolders()
+        ...mapActions(mainStore, ['setInfo', 'setError', 'setLoading']),
+        async loadData() {
+            this.setLoading(true)
+            await this.getAllFolders()
             this.createNodeTree()
+            this.setLoading(false)
         },
-        loadFolders() {
-            this.folders = this.propFolders as IFolder[]
+        async getAllFolders() {
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`).then((response: AxiosResponse<any>) => {
+                this.folders = { ...response.data }
+            })
+            console.log('---------- LOADED FOLDERS: ', this.folders)
         },
         createNodeTree() {
             this.nodes = [] as any[]
-            const foldersWithMissingParent = [] as IFolder[]
-            this.folders?.forEach((folder: IFolder) => {
-                const node = {
-                    key: folder.name,
-                    icon: 'pi pi-folder',
-                    id: folder.functId,
-                    parentId: folder.parentFunct,
-                    label: folder.name,
-                    path: folder.path,
-                    prog: folder.prog,
-                    children: [] as IFolder[],
-                    data: { name: folder.name, hasDocuments: false },
-                    style: this.workspaceDocumentTreeDescriptor.node.style
+            this.nodes = this.formatNodes([this.folders], null)
+        },
+        formatNodes(tree: any, parent: any) {
+            return tree.map((node: any) => {
+                node = {
+                    key: cryptoRandomString({ length: 16, type: 'base64' }),
+                    id: node.id,
+                    label: node.name,
+                    children: node.children ?? [],
+                    data: node,
+                    style: { padding: 0 },
+                    leaf: node.children.length === 0,
+                    parent: parent,
+                    icon: 'pi pi-folder'
                 }
-                node.children = foldersWithMissingParent.filter((folder: any) => node.id === folder.parentId)
-                this.attachFolderToTree(node, foldersWithMissingParent)
+                if (node.children && node.children.length > 0) {
+                    node.children = this.formatNodes(node.children, node)
+                }
+                return node
             })
-        },
-        attachFolderToTree(folder: any, foldersWithMissingParent: any[]) {
-            if (folder.parentId) {
-                let parentFolder = null as any
-                for (let i = 0; i < foldersWithMissingParent.length; i++) {
-                    if (folder.parentId === foldersWithMissingParent[i].id) {
-                        folder.data.parentFolder = foldersWithMissingParent[i]
-                        foldersWithMissingParent[i].children?.push(folder)
-                        break
-                    }
-                }
-                for (let i = 0; i < this.nodes.length; i++) {
-                    parentFolder = this.findParentFolder(folder, this.nodes[i])
-                    if (parentFolder) {
-                        folder.data.parentFolder = parentFolder
-                        parentFolder.children?.push(folder)
-                        break
-                    }
-                }
-                if (!parentFolder) {
-                    foldersWithMissingParent.push(folder)
-                }
-            } else {
-                this.nodes.push(folder)
-            }
-        },
-        findParentFolder(folderToAdd: any, folderToSearch: any) {
-            if (folderToAdd.parentId === folderToSearch.id) {
-                return folderToSearch
-            } else {
-                let tempFolder = null as any | null
-                if (folderToSearch.children) {
-                    for (let i = 0; i < folderToSearch.children.length; i++) {
-                        tempFolder = this.findParentFolder(folderToAdd, folderToSearch.children[i])
-                        if (tempFolder) {
-                            break
-                        }
-                    }
-                }
-                return tempFolder
-            }
         },
         setOpenFolderIcon(node: any) {
             node.icon = 'pi pi-folder-open'
@@ -128,15 +100,47 @@ export default defineComponent({
             this.$emit('folderSelected', this.selectedFolder)
         },
         createFolder(folder: any) {
-            this.$emit('createFolder', folder)
+            this.selectedFolder = folder
+            this.newFolderDialogVisible = true
+        },
+        async createNewFolder(newFolder: any) {
+            console.log('----------- this.selectedFolder?: ', this.selectedFolder)
+            console.log('----------- newFolder: ', newFolder)
+            newFolder.parentId = this.selectedFolder?.id
+            newFolder.progr = this.selectedFolder.children.length + 1
+            this.setLoading(true)
+            await this.$http
+                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/repository', newFolder, { headers: { 'X-Disable-Errors': 'true' } })
+                .then(async () => {
+                    this.setInfo({ title: this.$t('workspace.myRepository.folderCreatedMessage') })
+                    await this.loadData()
+                })
+                .catch((response: any) => this.setError({ title: this.$t('common.error.generic'), msg: response }))
+                .finally(() => (this.newFolderDialogVisible = false))
+            this.setLoading(false)
         },
         deleteFolderConfirm(folder: any) {
             this.$confirm.require({
                 message: this.$t('common.toast.deleteMessage'),
                 header: this.$t('common.toast.deleteTitle'),
                 icon: 'pi pi-exclamation-triangle',
-                accept: () => this.$emit('delete', folder)
+                accept: async () => this.deleteFolder(folder)
             })
+        },
+        async deleteFolder(folder: any) {
+            this.setLoading(true)
+            await this.$http
+                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/${folder.id}`, { headers: { 'X-Disable-Errors': 'true' } })
+                .then(async () => {
+                    this.setInfo({
+                        title: this.$t('common.toast.deleteTitle'),
+                        msg: this.$t('common.toast.success')
+                    })
+                    await this.loadData()
+                    this.$router.push('/workspace')
+                })
+                .catch((response: any) => this.setError({ title: this.$t('common.toast.deleteTitle'), msg: response.message === 'sbi.workspace.organizer.folder.error.delete' ? this.$t('workspace.myRepository.folderDeleteError') : response.message }))
+            this.setLoading(false)
         },
         onBreadcrumbSelected() {
             this.selectedFolder = this.selectedBreadcrumb?.node

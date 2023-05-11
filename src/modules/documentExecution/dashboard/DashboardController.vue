@@ -45,7 +45,7 @@
         @widgetUpdated="closeWidgetEditor"
     ></WidgetEditor>
 
-    <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
+    <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" :document="document" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
     <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" @close="savedViewsListDialogVisible = false" @moveView="moveView"></DashboardSavedViewsDialog>
 </template>
 
