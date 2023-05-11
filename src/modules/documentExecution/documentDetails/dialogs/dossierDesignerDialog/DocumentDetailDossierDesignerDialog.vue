@@ -312,6 +312,7 @@ export default defineComponent({
             inheritedDrivers: false,
             uuid: '',
             uuidv4,
+            isToRun: false,
             filters: {
                 global: [filterDefault],
                 typeCode: {
@@ -561,7 +562,7 @@ export default defineComponent({
             this.loading = true
             await this.$http
                 .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/saveDocument/', formattedAnalysis, { headers: { 'X-Disable-Errors': 'true' } })
-                .then((response: any) => {
+                .then(async (response: any) => {
                     this.setInfo({
                         title: this.$t('common.toast.createTitle'),
                         msg: this.$t('common.toast.success')
@@ -570,7 +571,10 @@ export default defineComponent({
 
                     this.document = { ...response.data }
 
-                    this.save()
+                    if (this.isToRun) {
+                        this.isToRun = false
+                        await this.saveAndRun()
+                    } else await this.save()
                 })
                 .catch((response: any) => {
                     this.setError({
@@ -672,13 +676,16 @@ export default defineComponent({
             if (!template.views.availableViews) template.views.availableViews = []
         },
         handleDocDialog() {
-            this.docId = this.document?.id
+            const currentDocId = this.document?.id
+            // docId decreased just to trigger the document loading in the DocDialog
+            this.docId = currentDocId ? currentDocId : this.docId - 1
             this.docDialogVisible = true
         },
         async saveAndRun() {
             const documentId = this.getDocument()?.id
             if (!documentId) {
                 this.saveDialogVisible = true
+                this.isToRun = true
             } else {
                 await this.save().then(() => {
                     this.$router.push(`/dossier/${this.document?.label}`)
