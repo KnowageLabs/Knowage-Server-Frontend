@@ -22,6 +22,7 @@
             <template #filter="{ filterModel }">
                 <InputText v-model="filterModel.value" type="text" class="p-column-filter"></InputText>
             </template>
+            <Column field="typeCode" :header="$t('common.type').replace(/^./, $t('common.type')[0].toUpperCase())" :sortable="true" />
             <Column field="name" :header="$t('importExport.gallery.column.name')" :sortable="true" />
             <Column field="creationUser" :header="$t('kpi.targetDefinition.kpiAuthor')" :sortable="true" />
             <Column field="creationDate" :header="$t('kpi.targetDefinition.kpiDate')" :sortable="true">
