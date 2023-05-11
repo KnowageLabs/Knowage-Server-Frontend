@@ -18,6 +18,7 @@ export interface IDashboardConfiguration {
     variables: IVariable[]
     selections: ISelection[]
     themes: any
+    background: IBackground
 }
 
 export interface IDatasetParameter {
@@ -251,7 +252,7 @@ export interface ITableWidgetStyle {
     rows: IWidgetRowsStyle
     shadows: IWidgetShadowsStyle
     summary: ITableWidgetSummaryStyle
-    background: IWidgetBackgroundStyle,
+    background: IWidgetBackgroundStyle
     paginator: ITableWidgetPaginatorStyle
 }
 
@@ -573,6 +574,12 @@ interface IAssociation {
     }
 }
 
+interface IBackground {
+    sheetsBackgroundColor: string
+    imageBackgroundUrl: string
+    imageBackgroundSize: string
+}
+
 interface IAssociationField {
     column: string
     dataset: number
@@ -728,15 +735,15 @@ export interface IMenuItem {
 }
 
 export interface IDashboardView {
-    id?: string,
-    label: string,
-    name: string,
-    description: string,
-    drivers: any,
-    settings: any,
-    biObjectId: string,
-    parentId: string,
-    visibility: string,
-    type?: string,
+    id?: string
+    label: string
+    name: string
+    description: string
+    drivers: any
+    settings: any
+    biObjectId: string
+    parentId: string
+    visibility: string
+    type?: string
     new?: boolean
 }

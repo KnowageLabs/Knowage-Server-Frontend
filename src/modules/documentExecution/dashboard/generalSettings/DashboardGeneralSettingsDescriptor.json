@@ -9,6 +9,16 @@
     },
     "settingsList": [
         {
+            "icon": "fa-solid fa-circle-info",
+            "label": "common.information",
+            "value": "Information"
+        },
+        {
+            "icon": "fa-solid fa-image",
+            "label": "dashboard.widgetEditor.background",
+            "value": "Background"
+        },
+        {
             "icon": "fa-brands fa-diaspora",
             "label": "common.variables",
             "value": "Variables"
