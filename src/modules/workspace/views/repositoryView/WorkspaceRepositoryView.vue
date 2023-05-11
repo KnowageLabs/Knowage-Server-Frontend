@@ -21,7 +21,31 @@
             <template #filter="{ filterModel }">
                 <InputText v-model="filterModel.value" type="text" class="p-column-filter"></InputText>
             </template>
-            <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)" :sortable="true" />
+            <Column style="width: 5%">
+                <template #body="slotProps">
+                    <i :class="slotProps.data['type'] === 'VIEW' ? 'fa-solid fa-eye' : 'fa-solid fa-file'"></i>
+                </template>
+            </Column>
+            <Column :key="'type'" :header="$t('common.type')" :sortable="true">
+                <template #body="slotProps">
+                    <span class="kn-truncated">{{ slotProps.data['type'] ?? slotProps.data['documentType'] }}</span>
+                </template>
+            </Column>
+            <Column :key="'name'" :header="$t('common.name')" :sortable="true">
+                <template #body="slotProps">
+                    <span class="kn-truncated">{{ slotProps.data['name'] ?? slotProps.data['documentName'] }}</span>
+                </template>
+            </Column>
+            <Column :key="'description'" :header="$t('common.description')" :sortable="true">
+                <template #body="slotProps">
+                    <span class="kn-truncated">{{ slotProps.data['description'] ?? slotProps.data['documentDescription'] }}</span>
+                </template>
+            </Column>
+            <Column :key="'owner'" :header="$t('common.owner')" :sortable="true" style="width: 5%">
+                <template #body="slotProps">
+                    <span class="kn-truncated">{{ slotProps.data['owner'] }}</span>
+                </template>
+            </Column>
             <Column class="icon-cell" :style="mainDescriptor.style.iconColumn">
                 <template #body="slotProps">
                     <Button icon="fas fa-ellipsis-v" class="p-button-link" @click="showMenu($event, slotProps.data)" />
@@ -71,7 +95,6 @@ import mainDescriptor from '@/modules/workspace/WorkspaceDescriptor.json'
 import DetailSidebar from '@/modules/workspace/genericComponents/DetailSidebar.vue'
 import Message from 'primevue/message'
 import WorkspaceCard from '@/modules/workspace/genericComponents/WorkspaceCard.vue'
-import repositoryDescriptor from './WorkspaceRepositoryViewDescriptor.json'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Menu from 'primevue/contextmenu'
@@ -100,7 +123,6 @@ export default defineComponent({
             filteredDocuments: [] as (IDocument | IDashboardView)[],
             menuButtons: [] as any,
             selectedDocument: {} as IDocument,
-            columns: repositoryDescriptor.columns,
             searchWord: '' as string,
             folders: [] as IFolder[],
             moveDialogVisible: false,
@@ -149,12 +171,25 @@ export default defineComponent({
             // @ts-ignore
             this.$refs.optionsMenu.toggle(event)
         },
-        // prettier-ignore
         createMenuItems() {
             this.menuButtons = []
             this.menuButtons.push(
-                { key: '3', label: this.$t('workspace.myRepository.moveDocument'), icon: 'fas fa-share', command: () => { this.moveDocumentToFolder(this.selectedDocument) }},
-                { key: '4', label: this.$t('workspace.myAnalysis.menuItems.delete'), icon: 'fas fa-trash', command: () => { this.deleteDocumentConfirm(this.selectedDocument) }},
+                {
+                    key: '3',
+                    label: this.$t('workspace.myRepository.moveDocument'),
+                    icon: 'fas fa-share',
+                    command: () => {
+                        this.moveDocumentToFolder(this.selectedDocument)
+                    }
+                },
+                {
+                    key: '4',
+                    label: this.$t('workspace.myAnalysis.menuItems.delete'),
+                    icon: 'fas fa-trash',
+                    command: () => {
+                        this.deleteDocumentConfirm(this.selectedDocument)
+                    }
+                }
             )
         },
         toggleDisplayView() {
@@ -219,12 +254,12 @@ export default defineComponent({
                     this.filteredDocuments = [...this.documents] as IDocument[]
                 } else {
                     this.filteredDocuments = this.documents.filter((el: any) => {
-                        return (
-                            el.documentType?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                            el.documentLabel?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                            el.documentName?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                            el.documentDescription?.toLowerCase().includes(this.searchWord.toLowerCase())
-                        )
+                        return el.type === 'VIEW'
+                            ? el.type?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.name?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.description?.toLowerCase().includes(this.searchWord.toLowerCase())
+                            : el.documentType?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
+                                  el.documentLabel?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
+                                  el.documentName?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
+                                  el.documentDescription?.toLowerCase().includes(this.searchWord.toLowerCase())
                     })
                 }
             }, 250)
