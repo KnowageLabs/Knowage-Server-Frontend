@@ -81,6 +81,7 @@ import WorkspaceRepositoryBreadcrumb from './breadcrumbs/WorkspaceRepositoryBrea
 import { AxiosResponse } from 'axios'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../../App.store'
+import { IDashboardView } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export default defineComponent({
     components: { DataTable, Column, DetailSidebar, WorkspaceCard, Menu, Message, WorkspaceRepositoryMoveDialog, WorkspaceWarningDialog, WorkspaceRepositoryBreadcrumb },
@@ -95,8 +96,8 @@ export default defineComponent({
             mainDescriptor,
             loading: false,
             showDetailSidebar: false,
-            documents: [] as IDocument[],
-            filteredDocuments: [] as IDocument[],
+            documents: [] as (IDocument | IDashboardView)[],
+            filteredDocuments: [] as (IDocument | IDashboardView)[],
             menuButtons: [] as any,
             selectedDocument: {} as IDocument,
             columns: repositoryDescriptor.columns,
@@ -123,15 +124,16 @@ export default defineComponent({
         loadFolders() {
             this.folders = this.allFolders as IFolder[]
         },
-        getFolderDocuments() {
+        async getFolderDocuments() {
             this.loading = true
-            return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/${this.id}`)
+            await this.$http
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/${this.id}`)
                 .then((response: AxiosResponse<any>) => {
                     this.documents = [...response.data]
                     this.filteredDocuments = [...this.documents]
                 })
                 .finally(() => (this.loading = false))
+            console.log('------- DOCUMENTS: ', this.documents)
         },
         formatDate(date) {
             return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })

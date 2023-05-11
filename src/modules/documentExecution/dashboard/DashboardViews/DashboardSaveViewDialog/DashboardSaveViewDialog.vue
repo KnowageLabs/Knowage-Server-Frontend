@@ -52,7 +52,7 @@ import Message from 'primevue/message'
 export default defineComponent({
     name: 'dashboard-save-view-dialog',
     components: { Dialog, Dropdown, Message },
-    props: { visible: { required: true, type: Boolean }, propView: { type: Object as PropType<IDashboardView | null>, required: true } },
+    props: { visible: { required: true, type: Boolean }, propView: { type: Object as PropType<IDashboardView | null>, required: true }, document: { type: Object, required: true } },
     emits: ['setRanges', 'close'],
     data() {
         return {
@@ -76,9 +76,12 @@ export default defineComponent({
             console.log('---------- LOADED VIEW: ', this.view)
         },
         async saveView() {
+            if (!this.view) return
             console.log('------- SAVE VIEW: ', this.view)
+            console.log('------- document ', this.document)
             // TODO
             delete this.view?.new
+            this.view.biObjectId = this.document.id
             this.closeDialog()
         },
         closeDialog() {

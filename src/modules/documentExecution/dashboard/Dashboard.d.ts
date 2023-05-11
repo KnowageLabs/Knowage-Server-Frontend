@@ -735,14 +735,15 @@ export interface IMenuItem {
 }
 
 export interface IDashboardView {
+    id?: string
     label: string
     name: string
     description: string
     drivers: any
-    selections: any
     settings: any
     biObjectId: string
     parentId: string
     visibility: string
+    type?: string
     new?: boolean
 }
