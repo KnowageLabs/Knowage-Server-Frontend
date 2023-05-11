@@ -429,7 +429,7 @@ export default defineComponent({
             if (!this.isFromWorkspace) {
                 this.$emit('close', { refreshDrivers: refreshDrivers, refreshHistory: refreshHistory })
             } else {
-                this.$emit('close')
+                this.$emit('close', { refreshHistory: refreshHistory })
             }
         },
         async setActiveTemplate() {
