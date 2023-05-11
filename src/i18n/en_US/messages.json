@@ -2725,6 +2725,7 @@
             "templateSuccessfullySaved": "@:managers.widgetGallery.templateSuccessfully saved",
             "templateSuccessfullyUploaded": "@:managers.widgetGallery.templateSuccessfully uploaded",
             "title": "Gallery management",
+            "fieldIsMandatory": "{field} is mandatory",
             "uploadTemplate": "Upload template"
         },
         "workspaceManagement": {

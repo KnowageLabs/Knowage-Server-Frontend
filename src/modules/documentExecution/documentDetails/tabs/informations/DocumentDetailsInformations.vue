@@ -35,7 +35,7 @@
                                             type="text"
                                             max-length="100"
                                             :class="{
-                                                'p-invalid': v$.document.label.$invalid && v$.document.label.$dirty
+                                                'p-invalid': v$.document.label.$invalid
                                             }"
                                             @blur="v$.document.label.$touch()"
                                             @change="$emit('touched')"
@@ -53,7 +53,7 @@
                                             type="text"
                                             max-length="200"
                                             :class="{
-                                                'p-invalid': v$.document.name.$invalid && v$.document.name.$dirty
+                                                'p-invalid': v$.document.name.$invalid
                                             }"
                                             @blur="v$.document.name.$touch()"
                                             @change="$emit('touched')"
@@ -392,6 +392,7 @@ export default defineComponent({
     async created() {
         this.setData()
         await this.getAllTemplates()
+        await this.touchValidatedFields()
     },
     validations() {
         const validationObject = { document: createValidations('document', infoDescriptor.validations.document) }
@@ -524,6 +525,10 @@ export default defineComponent({
         },
         async getAllTemplates() {
             if (this.document && this.document.id) this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.document.id}/templates`).then((response: AxiosResponse<any>) => (this.listOfTemplates = response.data as iTemplate[]))
+        },
+        touchValidatedFields() {
+            this.v$.document.label.$touch()
+            this.v$.document.name.$touch()
         }
     }
 })

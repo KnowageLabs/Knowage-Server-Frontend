@@ -3,5 +3,8 @@
         {
             "value": "Python"
         }
-    ]
+    ],
+    "options": {
+        "theme": "vs-dark"
+    }
 }

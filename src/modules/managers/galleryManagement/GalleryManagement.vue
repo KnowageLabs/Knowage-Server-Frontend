@@ -125,6 +125,12 @@ export default defineComponent({
         },
         onReaderLoad(event) {
             const json = JSON.parse(event.target.result)
+
+            if (!json.label && !json.name) {
+                this.store.setError({ title: this.$t('common.error.uploading'), msg: this.$t('managers.widgetGallery.fieldIsMandatory', { field: this.$t('common.name') }) })
+                return
+            }
+
             if (json.id) {
                 this.importWidget(json)
             } else {
@@ -139,7 +145,16 @@ export default defineComponent({
                 })
             }
         },
+        adjustMandatoryFields(template) {
+            const label = template.label
+            const name = template.name
+
+            if (!label && name) template.label = name
+            if (label && !name) template.name = label
+        },
         importWidget(json: JSON) {
+            this.adjustMandatoryFields(json)
+
             this.$http.post(import.meta.env.VITE_API_PATH + '1.0/widgetgallery/import', json).then(() => {
                 this.store.setInfo({ title: this.$t('managers.widgetGallery.uploadTemplate'), msg: this.$t('managers.widgetGallery.templateSuccessfullyUploaded') })
 
