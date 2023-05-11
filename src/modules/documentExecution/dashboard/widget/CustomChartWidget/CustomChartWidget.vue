@@ -238,6 +238,7 @@ export default defineComponent({
         },
         onSetState(state: any) {
             console.log('----------- ON SET STATE: ', state)
+            this.datastore.state = state
             const currentState = this.getCurrentDashboardView(this.dashboardId)
             if (currentState && this.propWidget.id) currentState.settings[this.propWidget.id] = { type: this.propWidget.type, state: state }
             console.log('----------- currentState: ', currentState)
