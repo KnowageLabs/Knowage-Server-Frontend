@@ -32,7 +32,7 @@ export async function lovDependencyCheck(loadedParameters: { filterStatus: iPara
     } else {
         parameter.parameterValue = [{ value: '', description: '' }]
     }
-
+    console.log('git test')
     if (resetValue) return
 
     const postData = { label: document?.label, parameters: getFormattedParameters(loadedParameters, userDateFormat), paramId: parameter.urlName, role: sessionRole }
