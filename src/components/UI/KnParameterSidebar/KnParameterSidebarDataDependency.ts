@@ -28,6 +28,13 @@ export async function updateDataDependency(loadedParameters: { filterStatus: iPa
 
 export async function dataDependencyCheck(loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, parameter: iParameter, loading: boolean, document: any, sessionRole: string | null, $http: any, mode: string, resetValue: boolean, userDateFormat: string) {
     loading = true
+    if (parameter.parameterValue[0]) {
+        parameter.parameterValue[0] = { value: '', description: '' }
+    } else {
+        parameter.parameterValue = [{ value: '', description: '' }]
+    }
+
+    if (resetValue) return
 
     const postData = { label: document?.label, parameters: getFormattedParameters(loadedParameters, userDateFormat), paramId: parameter.urlName, role: sessionRole }
     let url = '2.0/documentExeParameters/admissibleValues'
@@ -39,13 +46,13 @@ export async function dataDependencyCheck(loadedParameters: { filterStatus: iPar
     await $http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData).then((response: AxiosResponse<any>) => {
         parameter.data = response.data.result.data
         parameter.metadata = response.data.result.metadata
-        formatParameterAfterDataDependencyCheck(parameter, resetValue)
+        formatParameterAfterDataDependencyCheck(parameter)
     })
     loading = false
 }
 
-export function formatParameterAfterDataDependencyCheck(parameter: any, resetValue: boolean) {
-    if (resetValue || !checkIfParameterDataContainsNewValue(parameter)) {
+export function formatParameterAfterDataDependencyCheck(parameter: any) {
+    if (!checkIfParameterDataContainsNewValue(parameter)) {
         parameter.parameterValue = parameter.multivalue ? [] : [{ value: '', description: '' }]
     }
 
