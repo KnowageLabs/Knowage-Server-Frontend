@@ -5,7 +5,7 @@
                 <span>{{ slotProps.node.label }}</span>
                 <div v-show="mode === 'select' && buttonsVisible[slotProps.node.id]" class="p-ml-2">
                     <Button icon="fa fa-plus" class="p-button-link p-button-sm p-p-0" @click.stop="createFolder(slotProps.node)" />
-                    <Button icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" @click.stop="deleteFolderConfirm(slotProps.node)" />
+                    <Button v-if="slotProps.node.label !== 'root'" icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" @click.stop="deleteFolderConfirm(slotProps.node)" />
                 </div>
             </div>
         </template>
@@ -35,7 +35,7 @@ export default defineComponent({
             nodes: [] as any[],
             selectedFolderKey: {},
             selectedFolder: null as any,
-            buttonsVisible: [],
+            buttonsVisible: {},
             newFolderDialogVisible: false
         }
     },
@@ -57,9 +57,7 @@ export default defineComponent({
             this.setLoading(false)
         },
         async getAllFolders() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`).then((response: AxiosResponse<any>) => {
-                this.folders = { ...response.data }
-            })
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
             console.log('---------- LOADED FOLDERS: ', this.folders)
         },
         createNodeTree() {

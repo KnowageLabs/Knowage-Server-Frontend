@@ -108,7 +108,9 @@ import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../../App.store'
 import { IDashboardView } from '@/modules/documentExecution/dashboard/Dashboard'
 import { deleteDashboardView } from '@/modules/documentExecution/dashboard/DashboardViews/DashboardViewsHelper'
+import { mapActions } from 'pinia'
 import DashboardSaveViewDialog from '@/modules/documentExecution/dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
+import appStore from '@/App.store'
 
 export default defineComponent({
     components: { DataTable, Column, DetailSidebar, WorkspaceCard, Menu, Message, WorkspaceRepositoryMoveDialog, WorkspaceWarningDialog, WorkspaceRepositoryBreadcrumb, DashboardSaveViewDialog },
@@ -149,6 +151,7 @@ export default defineComponent({
         this.getFolderDocuments()
     },
     methods: {
+        ...mapActions(appStore, ['setLoading']),
         loadFolders() {
             this.folders = this.allFolders as IFolder[]
         },
@@ -238,23 +241,26 @@ export default defineComponent({
                 message: this.$t('common.toast.deleteMessage'),
                 header: this.$t('common.toast.deleteTitle'),
                 icon: 'pi pi-exclamation-triangle',
-                accept: () => ((document as IDashboardView).type === 'VIEW' ? this.deleteView(document as IDashboardView) : this.deleteDocument(document as IDocument))
+                accept: async () => ((document as IDashboardView).type === 'VIEW' ? await this.deleteView(document as IDashboardView) : await this.deleteDocument(document as IDocument))
             })
         },
-        async deleteView(document: IDashboardView) {
-            this.loading = true
-
-            await deleteDashboardView(document, this.$http)
-                .then(() => {
+        async deleteView(view: IDashboardView) {
+            this.setLoading(true)
+            await deleteDashboardView(view, this.$http)
+                .then(async () => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
                         msg: this.$t('common.toast.success')
                     })
                     this.showDetailSidebar = false
-                    this.getFolderDocuments()
+                    await this.getFolderDocuments()
+                    if (this.selectedView?.id === view.id) {
+                        this.selectedView = null
+                        this.showDetailSidebar = false
+                    }
                 })
                 .catch(() => {})
-            this.loading = false
+            this.setLoading(false)
         },
         async deleteDocument(document: IDocument) {
             this.loading = true

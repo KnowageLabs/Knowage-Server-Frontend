@@ -27,6 +27,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { IDashboardView } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
+import { deleteDashboardView } from '../DashboardViewsHelper'
 import Dialog from 'primevue/dialog'
 import descriptor from './DashboardSavedViewsDialogDescriptor.json'
 import appStore from '@/App.store'
@@ -53,7 +54,7 @@ export default defineComponent({
         await this.loadSavedViews()
     },
     methods: {
-        ...mapActions(appStore, ['setLoading']),
+        ...mapActions(appStore, ['setLoading', 'setInfo']),
         async loadSavedViews() {
             this.setLoading(true)
             // TODO - Remove mocked/specific id for folder service, wait for proper service?
@@ -79,6 +80,21 @@ export default defineComponent({
         },
         async deleteView(view: IDashboardView) {
             console.log('------- DELETE VIEW: ', view)
+            this.setLoading(true)
+            await deleteDashboardView(view, this.$http)
+                .then(async () => {
+                    this.setInfo({
+                        title: this.$t('common.toast.deleteTitle'),
+                        msg: this.$t('common.toast.success')
+                    })
+                    this.removeViewFromSavedViews(view)
+                })
+                .catch(() => {})
+            this.setLoading(false)
+        },
+        removeViewFromSavedViews(view: IDashboardView) {
+            const index = this.savedViews.findIndex((tempView: IDashboardView) => tempView.id === view.id)
+            if (index !== -1) this.savedViews.splice(index, 1)
         },
         closeDialog() {
             this.savedViews = []
