@@ -71,6 +71,7 @@ export const formatDashboardForSave = (dashboard: IDashboard) => {
         dashboard.widgets[i] = formatWidgetForSave(dashboard.widgets[i]) as IWidget
     }
     formatVariablesForSave(dashboard.configuration)
+    delete dashboard.allDatasetsLoaded
 }
 
 const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration) => {
