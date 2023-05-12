@@ -8,12 +8,13 @@ import { IDataset, ISelection, IWidget, ITableWidgetColumnStyles, ITableWidgetCo
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import { getWidgetStyleByType, getColumnConditionalStyles, stringifyStyleProperties } from '@/modules/documentExecution/dashboard/widget/TableWidget/TableWidgetHelper'
+import { getWidgetStyleByType, stringifyStyleProperties } from '@/modules/documentExecution/dashboard/widget/TableWidget/TableWidgetHelper'
 import { IPivotTooltips } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget.d'
 import { getFormattedClickedValueForCrossNavigation, createPivotTableSelection } from './PivotWidgetHelpers'
 import { updateAllStoreSelections, executePivotTableWidgetCrossNavigation } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/InteractionHelper'
 import { mapActions } from 'pinia'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
+import { getColumnConditionalStyles } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
 
 export default defineComponent({
     name: 'table-widget',
