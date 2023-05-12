@@ -61,7 +61,6 @@ export default defineComponent({
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/536a71d6-9a18-45c9-b991-7c81410b36ee`).then((response: AxiosResponse<any>) => {
                 this.savedViews = [...response.data]
             })
-            console.log('------- savedViews: ', this.savedViews)
             this.setLoading(false)
         },
         moveView(view: IDashboardView) {
@@ -79,7 +78,6 @@ export default defineComponent({
             })
         },
         async deleteView(view: IDashboardView) {
-            console.log('------- DELETE VIEW: ', view)
             this.setLoading(true)
             await deleteDashboardView(view, this.$http)
                 .then(async () => {

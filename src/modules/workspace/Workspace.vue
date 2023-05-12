@@ -128,6 +128,7 @@ import { mapState } from 'pinia'
 import cryptoRandomString from 'crypto-random-string'
 import mainStore from '../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { IDashboardView } from '../documentExecution/dashboard/Dashboard'
 
 export default defineComponent({
     name: 'dataset-management',
@@ -234,13 +235,22 @@ export default defineComponent({
                 this.menuItems.push({ icon: 'fas fa-cogs', key: '6', label: 'workspace.menuLabels.advanced', value: 'advanced' })
             }
         },
-        executeDocument(document: any) {
-            console.log('------------ DOCUMENT FOR EXECUTE: ', document)
-            const routeType = document.type === 'VIEW' ? 'dashboard-view' : this.getRouteDocumentType(document)
+        async executeDocument(document: any) {
+            const isView = document.type === 'VIEW'
+            const routeType = isView && !document.executeAsDocument ? 'dashboard-view' : this.getRouteDocumentType(document)
             let label = ''
-            if (document.type === 'VIEW') label = document.name
+            if (isView) label = await this.getDocumentLabelFromView(document)
             else label = document.label ? document.label : document.documentLabel
-            this.$router.push(`/workspace/${routeType}/${label}`)
+            let route = `/workspace/${routeType}/${label}`
+            if (isView && !document.executeAsDocument) route += `?viewName=${document.name}`
+            this.$router.push(route)
+        },
+        async getDocumentLabelFromView(view: IDashboardView) {
+            this.loading = true
+            let label = ''
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documents/${view.biObjectId}`).then((response: AxiosResponse<any>) => (label = response.data ? response.data.label : ''))
+            this.loading = false
+            return label
         },
         getRouteDocumentType(item: any) {
             let routeDocumentType = ''

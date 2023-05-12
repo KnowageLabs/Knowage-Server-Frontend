@@ -41,7 +41,8 @@ export interface IWidget {
     settings: any
     new?: boolean
     fields?: IPivotFields
-    layers?: any
+    layers?: any,
+    state?: any
 }
 
 export interface ITableWidgetSettings {
@@ -741,7 +742,7 @@ export interface IDashboardView {
     description: string
     drivers: any
     settings: any
-    biObjectId: string
+    biObjectId: number
     parentId: string
     visibility: string
     type?: string

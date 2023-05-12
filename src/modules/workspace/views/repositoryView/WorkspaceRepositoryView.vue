@@ -164,7 +164,6 @@ export default defineComponent({
                     this.filteredDocuments = [...this.documents]
                 })
                 .finally(() => (this.loading = false))
-            console.log('------- DOCUMENTS: ', this.documents)
         },
         formatDate(date) {
             return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })
@@ -219,7 +218,7 @@ export default defineComponent({
             this.$emit('execute', view)
         },
         executeDocumentFromOrganizer(document: IDocument) {
-            this.$emit('execute', document)
+            this.$emit('execute', { ...document, executeAsDocument: true })
         },
         moveDocumentToFolder(document: IDocument | IDashboardView) {
             if ((document as IDashboardView).type === 'VIEW') {

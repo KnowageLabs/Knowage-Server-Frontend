@@ -93,7 +93,6 @@ export default defineComponent({
     methods: {
         loadSelectedFolder() {
             this.newFolder = this.selectedFolder
-            console.log('------------------ LOADED NEW FOLDER: ', this.newFolder)
         },
         setSelectedParentFolder(folder: any) {
             this.newFolder.parentId = folder.id

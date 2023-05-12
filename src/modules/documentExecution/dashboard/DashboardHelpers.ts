@@ -1,4 +1,4 @@
-import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDataset, IVariable, IWidget } from './Dashboard'
+import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardView, IDataset, IVariable, IWidget } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
 import mitt from 'mitt'
@@ -140,5 +140,17 @@ export const getFormattedOutputParameters = (documentOutputParameters: IDashboar
             name: documentOutputParameter.name,
             type: documentOutputParameter.type
         }
+    })
+}
+
+export const apllyDashboardViewToModel = (dashboardModel: IDashboard, view: IDashboardView | null) => {
+    if (!view) return
+    if (view.settings.selections) dashboardModel.configuration.selections = view.settings.selections
+    if (view.settings.states) setStatesForWidgets(dashboardModel, view.settings.states)
+}
+
+const setStatesForWidgets = (dashboardModel: IDashboard, states: any) => {
+    dashboardModel.widgets.forEach((widget: IWidget) => {
+        if (widget.id && states[widget.id]) widget.state = states[widget.id].state
     })
 }

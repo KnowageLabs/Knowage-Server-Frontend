@@ -5,6 +5,7 @@ import i18n from '@/App.i18n'
 import { AxiosResponse } from 'axios'
 import { loadNavigationInitialValuesFromDashboard } from './DocumentExecutionCrossNavigationHelper'
 import { getValidDate } from './DocumentExecutionHelpers'
+import { IDashboardView } from '../dashboard/Dashboard'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -151,4 +152,15 @@ const formatParameterDataOptions = (parameter: iParameter, data: any) => {
         value: valueIndex ? data[valueIndex] : '',
         description: descriptionIndex ? data[descriptionIndex] : ''
     }
+}
+
+
+export const formatDriversUsingDashboardView = (filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, dashboardView: IDashboardView) => {
+    if (!dashboardView.drivers || !dashboardView.drivers.filterStatus) return
+    filtersData.filterStatus.forEach((driver: iParameter) => {
+        const driverFromView = dashboardView.drivers.filterStatus.find((tempDriver: iParameter) => tempDriver.urlName === driver.urlName)
+        if (driverFromView) {
+            driver.parameterValue = driverFromView.parameterValue
+        }
+    })
 }

@@ -88,6 +88,7 @@
                             :filters-data="item.filtersData"
                             :new-dashboard-mode="newDashboardMode"
                             :mode="mode"
+                            :prop-view="dashboardView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
                             @executeCrossNavigation="onExecuteCrossNavigation"
@@ -158,8 +159,8 @@ import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
 import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentExecutionAngularCrossNavigationHelper'
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
-import { loadFilters } from './DocumentExecutionDirverHelpers'
-import { IDashboardCrossNavigation } from '../dashboard/Dashboard'
+import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDirverHelpers'
+import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import DocumentExecutionBreadcrumb from './breadcrumbs/DocumentExecutionBreadcrumb.vue'
 import DocumentExecutionHelpDialog from './dialogs/documentExecutionHelpDialog/DocumentExecutionHelpDialog.vue'
@@ -289,7 +290,8 @@ export default defineComponent({
             crossNavigationPopupDialogDocument: null as any,
             crossNavigationDialogVisible: false,
             loadingCrossNavigationDocument: false,
-            crossNavigationSourceDocumentName: ''
+            crossNavigationSourceDocumentName: '',
+            dashboardView: null as IDashboardView | null
         }
     },
     computed: {
@@ -377,6 +379,8 @@ export default defineComponent({
             }
             await this.loadDocument()
         }
+
+        if (this.$route.query.viewName) this.dashboardView = this.loadView()
 
         this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
         let invalidRole = false
@@ -557,6 +561,7 @@ export default defineComponent({
         async loadPage(initialLoading = false, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             this.loading = crossNavigationPopupMode ? false : true
             this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
+            if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
             if (this.filtersData?.isReadyForExecution) {
                 this.parameterSidebarVisible = false
                 await this.loadURL(null, documentLabel, crossNavigationPopupMode)
@@ -583,6 +588,275 @@ export default defineComponent({
                       label: this.document.name,
                       document: this.document
                   })
+        },
+        loadView() {
+            // TODO - Add Service for view
+            const mockedView = {
+                label: '',
+                name: 'Bojan Final Test',
+                description: 'Bojan Final Test',
+                drivers: {
+                    filterStatus: [
+                        {
+                            urlName: 'test',
+                            metadata: {},
+                            visible: true,
+                            valueSelection: 'man_in',
+                            showOnPanel: 'true',
+                            driverUseLabel: 'all',
+                            label: 'Test',
+                            driverDefaultValue: null,
+                            type: 'STRING',
+                            driverLabel: 'Manual Input String',
+                            mandatory: true,
+                            allowInternalNodeSelection: false,
+                            multivalue: false,
+                            dependencies: {
+                                data: [],
+                                visual: [],
+                                lov: []
+                            },
+                            selectionType: '',
+                            id: 8182,
+                            parameterValue: [
+                                {
+                                    value: 'Tesfdsfdsvsvbaf',
+                                    description: ''
+                                }
+                            ]
+                        },
+                        {
+                            urlName: 'combo',
+                            metadata: {
+                                colsMap: {
+                                    _col1: 'PRODUCT_FAMILY_DESC',
+                                    _col0: 'PRODUCT_FAMILY'
+                                },
+                                descriptionColumn: 'PRODUCT_FAMILY_DESC',
+                                invisibleColumns: [],
+                                valueColumn: 'PRODUCT_FAMILY',
+                                visibleColumns: ['PRODUCT_FAMILY', 'PRODUCT_FAMILY_DESC']
+                            },
+                            visible: true,
+                            data: [
+                                {
+                                    value: 'Car',
+                                    description: '0'
+                                },
+                                {
+                                    value: 'Drink',
+                                    description: '0'
+                                },
+                                {
+                                    value: 'Food',
+                                    description: '0'
+                                },
+                                {
+                                    value: 'Non-Consumable',
+                                    description: '0'
+                                }
+                            ],
+                            valueSelection: 'lov',
+                            showOnPanel: 'true',
+                            driverUseLabel: 'A',
+                            label: 'Combo',
+                            driverDefaultValue: [
+                                {
+                                    _col0: 'Car',
+                                    _col1: '0'
+                                },
+                                {
+                                    _col0: 'Drink',
+                                    _col1: '0'
+                                },
+                                {
+                                    _col0: 'Food',
+                                    _col1: '0'
+                                },
+                                {
+                                    _col0: 'Non-Consumable',
+                                    _col1: '0'
+                                }
+                            ],
+                            type: 'STRING',
+                            driverLabel: 'TEST_LINK_COMBO_4',
+                            mandatory: true,
+                            parameterValue: [
+                                {
+                                    value: 'Food',
+                                    description: '0'
+                                },
+                                {
+                                    value: 'Drink',
+                                    description: '0'
+                                },
+                                {
+                                    value: 'Food',
+                                    description: '0'
+                                },
+                                {
+                                    value: 'Non-Consumable',
+                                    description: '0'
+                                }
+                            ],
+                            allowInternalNodeSelection: false,
+                            multivalue: false,
+                            dependencies: {
+                                data: [],
+                                visual: [],
+                                lov: []
+                            },
+                            selectionType: 'COMBOBOX',
+                            id: 8184,
+                            parameterDescription: ['0', '0', '0', '0']
+                        }
+                    ],
+                    isReadyForExecution: true
+                },
+                settings: {
+                    states: {
+                        '1P46OsiZIi1MQn5e': {
+                            type: 'customchart',
+                            state: {
+                                test: 'test'
+                            }
+                        }
+                    },
+                    selections: [
+                        {
+                            datasetId: 168,
+                            datasetLabel: 'TEST_02',
+                            columnName: 'QUARTER',
+                            value: ['Q3'],
+                            aggregated: false,
+                            timestamp: 1683899162195
+                        }
+                    ],
+                    drivers: {
+                        filterStatus: [
+                            {
+                                urlName: 'test',
+                                metadata: {},
+                                visible: true,
+                                valueSelection: 'man_in',
+                                showOnPanel: 'true',
+                                driverUseLabel: 'all',
+                                label: 'Test',
+                                driverDefaultValue: null,
+                                type: 'STRING',
+                                driverLabel: 'Manual Input String',
+                                mandatory: true,
+                                allowInternalNodeSelection: false,
+                                multivalue: false,
+                                dependencies: {
+                                    data: [],
+                                    visual: [],
+                                    lov: []
+                                },
+                                selectionType: '',
+                                id: 8182,
+                                parameterValue: [
+                                    {
+                                        value: 'Tesfdsfdsvsvbaf',
+                                        description: ''
+                                    }
+                                ]
+                            },
+                            {
+                                urlName: 'combo',
+                                metadata: {
+                                    colsMap: {
+                                        _col1: 'PRODUCT_FAMILY_DESC',
+                                        _col0: 'PRODUCT_FAMILY'
+                                    },
+                                    descriptionColumn: 'PRODUCT_FAMILY_DESC',
+                                    invisibleColumns: [],
+                                    valueColumn: 'PRODUCT_FAMILY',
+                                    visibleColumns: ['PRODUCT_FAMILY', 'PRODUCT_FAMILY_DESC']
+                                },
+                                visible: true,
+                                data: [
+                                    {
+                                        value: 'Car',
+                                        description: '0'
+                                    },
+                                    {
+                                        value: 'Drink',
+                                        description: '0'
+                                    },
+                                    {
+                                        value: 'Food',
+                                        description: '0'
+                                    },
+                                    {
+                                        value: 'Non-Consumable',
+                                        description: '0'
+                                    }
+                                ],
+                                valueSelection: 'lov',
+                                showOnPanel: 'true',
+                                driverUseLabel: 'A',
+                                label: 'Combo',
+                                driverDefaultValue: [
+                                    {
+                                        _col0: 'Car',
+                                        _col1: '0'
+                                    },
+                                    {
+                                        _col0: 'Drink',
+                                        _col1: '0'
+                                    },
+                                    {
+                                        _col0: 'Food',
+                                        _col1: '0'
+                                    },
+                                    {
+                                        _col0: 'Non-Consumable',
+                                        _col1: '0'
+                                    }
+                                ],
+                                type: 'STRING',
+                                driverLabel: 'TEST_LINK_COMBO_4',
+                                mandatory: true,
+                                parameterValue: [
+                                    {
+                                        value: 'Food',
+                                        description: '0'
+                                    },
+                                    {
+                                        value: 'Drink',
+                                        description: '0'
+                                    },
+                                    {
+                                        value: 'Food',
+                                        description: '0'
+                                    },
+                                    {
+                                        value: 'Non-Consumable',
+                                        description: '0'
+                                    }
+                                ],
+                                allowInternalNodeSelection: false,
+                                multivalue: false,
+                                dependencies: {
+                                    data: [],
+                                    visual: [],
+                                    lov: []
+                                },
+                                selectionType: 'COMBOBOX',
+                                id: 8184,
+                                parameterDescription: ['0', '0', '0', '0']
+                            }
+                        ],
+                        isReadyForExecution: true
+                    }
+                },
+                visibility: 'public',
+                new: true,
+                biObjectId: 3816,
+                parentId: '536a71d6-9a18-45c9-b991-7c81410b36ee'
+            }
+            return mockedView as IDashboardView
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             let error = false

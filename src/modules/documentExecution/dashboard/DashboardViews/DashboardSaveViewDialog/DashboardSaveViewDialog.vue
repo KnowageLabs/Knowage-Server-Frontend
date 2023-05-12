@@ -84,17 +84,12 @@ export default defineComponent({
             this.view = this.propView
             // TODO - remove mocked parentId
             if (this.view?.name) this.view.parentId = '536a71d6-9a18-45c9-b991-7c81410b36ee'
-            console.log('---------- LOADED VIEW: ', this.view)
         },
         setSelectedFolder(folder: any) {
             this.selectedFolder = folder
         },
         async save() {
             if (!this.view) return
-
-            console.log('------- SAVE VIEW: ', this.view)
-            // console.log('------- document ', this.document)
-            //console.log('------- selectedFolder ', this.selectedFolder)
             this.setLoading(true)
             this.view.new ? await this.saveView() : await this.updateView()
             this.setLoading(false)

@@ -60,7 +60,6 @@ export default defineComponent({
         },
         async getAllFolders() {
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
-            console.log('---------- LOADED FOLDERS: ', this.folders)
         },
         createNodeTree() {
             this.nodes = [] as any[]
@@ -135,8 +134,6 @@ export default defineComponent({
             this.newFolderDialogVisible = true
         },
         async createNewFolder(newFolder: any) {
-            console.log('----------- this.selectedFolder?: ', this.selectedFolder)
-            console.log('----------- new folder: ', newFolder)
             newFolder.parentId = this.selectedFolder?.id
             newFolder.progr = this.selectedFolder.children.length + 1
             this.setLoading(true)
@@ -151,8 +148,6 @@ export default defineComponent({
             this.setLoading(false)
         },
         async onEditFolder(folder: any) {
-            console.log('----------- this.selectedFolder?: ', this.selectedFolder)
-            console.log('----------- updateFolder: ', folder)
             this.setLoading(true)
             const postData = { id: folder.id, name: folder.name, description: folder.description, parentId: folder.parentId, progr: folder.progr }
             await this.$http

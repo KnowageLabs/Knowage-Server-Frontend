@@ -7,7 +7,7 @@ export class CustomChartDatastore {
     globalTree: any[] = []
     variables: any = {}
     profile: any = {}
-    state: any = { testState: 'state' }
+    state: any = {}
 
     constructor(data) {
         this.data = data

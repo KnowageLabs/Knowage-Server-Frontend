@@ -1,5 +1,6 @@
 <template>
     <div v-show="model && visible && showDashboard" :id="`dashboard_${model?.configuration?.id}`" :class="mode === 'dashboard-popup' ? 'dashboard-container-popup' : 'dashboard-container'">
+        {{ viewName }}
         <Button
             v-if="store.dashboards[dashboardId]?.selections?.length > 0"
             icon="fas fa-square-check"
@@ -57,7 +58,7 @@ import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView } from './Dashboard'
-import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters } from './DashboardHelpers'
+import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters, apllyDashboardViewToModel } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { formatModel } from './helpers/DashboardBackwardCompatibilityHelper'
 import { setDatasetIntervals, clearAllDatasetIntervals } from './helpers/datasetRefresh/DatasetRefreshHelpers'
@@ -102,7 +103,8 @@ export default defineComponent({
             }>
         },
         newDashboardMode: { type: Boolean },
-        mode: { type: Object as PropType<string | null>, required: true }
+        mode: { type: Object as PropType<string | null>, required: true },
+        propView: { type: Object as PropType<IDashboardView | null> }
     },
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet'],
     setup() {
@@ -130,7 +132,7 @@ export default defineComponent({
             loading: false,
             htmlGallery: [] as IGalleryItem[],
             customChartGallery: [] as IGalleryItem[],
-            currentView: { label: '', name: '', description: '', drivers: {}, settings: {}, visibility: 'public', new: true } as IDashboardView,
+            currentView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedView: null as IDashboardView | null,
             saveViewDialogVisible: false,
             savedViewsListDialogVisible: false
@@ -218,6 +220,8 @@ export default defineComponent({
             this.datasets = this.newDashboardMode ? [] : await loadDatasets(tempModel, this.appStore, this.setAllDatasets, this.$http)
             this.model = (tempModel && this.newDashboardMode) || typeof tempModel.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
+            // TODO
+            if (this.propView) apllyDashboardViewToModel(this.model, this.propView)
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
@@ -262,7 +266,6 @@ export default defineComponent({
             const formattedOutputParameters = this.document ? getFormattedOutputParameters(this.document.outputParameters) : []
             this.store.setOutputParameters(this.dashboardId, formattedOutputParameters)
         },
-
         loadProfileAttributes() {
             this.profileAttributes = []
             const user = this.appStore.getUser()
@@ -387,6 +390,7 @@ export default defineComponent({
         onOpenSaveCurrentViewDialog(event: any) {
             if (!this.document || event !== this.dashboardId) return
             this.currentView.settings.selections = this.getSelections(this.dashboardId)
+            this.currentView.settings.drivers = this.filtersData
             this.selectedView = { ...this.currentView, new: true }
             this.saveViewDialogVisible = true
         },

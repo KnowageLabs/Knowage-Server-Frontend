@@ -55,6 +55,7 @@ export default defineComponent({
     mounted() {
         this.setEventListeners()
         this.loadActiveSelections()
+        this.loadWidgetState()
         this.loadDataToShow()
         this.loadProfileAttributesToDatastore()
         this.loadVariablesToDatastore()
@@ -86,6 +87,9 @@ export default defineComponent({
         },
         loadVariablesToDatastore() {
             this.datastore.setVariables(this.variables)
+        },
+        loadWidgetState() {
+            if (this.propWidget.state) this.datastore.state = this.propWidget.state
         },
         async loadDataToShow() {
             this.dataToShow = this.widgetData
@@ -237,11 +241,9 @@ export default defineComponent({
             return index !== -1 ? datasets[index].label : ''
         },
         onSetState(state: any) {
-            console.log('----------- ON SET STATE: ', state)
             this.datastore.state = state
             const currentState = this.getCurrentDashboardView(this.dashboardId)
-            if (currentState && this.propWidget.id) currentState.settings[this.propWidget.id] = { type: this.propWidget.type, state: state }
-            console.log('----------- currentState: ', currentState)
+            if (currentState && this.propWidget.id) currentState.settings.states[this.propWidget.id] = { type: this.propWidget.type, state: state }
         }
     }
 })
