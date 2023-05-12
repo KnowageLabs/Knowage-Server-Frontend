@@ -1325,10 +1325,10 @@ export default defineComponent({
         async onNewDashboardSaved(document: { name: string; label: string }) {
             if (this.breadcrumbs[0]) this.breadcrumbs[0].label = document.name
             this.document.label = document.label
+            this.newDashboardMode = false
             await this.loadDocument()
             this.userRole = this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
             this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
-            this.newDashboardMode = false
         },
         async onExecuteCrossNavigation(payload: { documentCrossNavigationOutputParameters: ICrossNavigationParameter[]; crossNavigationName: string | undefined; crossNavigations: IDashboardCrossNavigation[] }) {
             this.crossNavigationPayload = payload

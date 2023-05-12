@@ -401,7 +401,7 @@ export default defineComponent({
                     return { value: el.value, description: el.desc }
                 })
             } else if (parameter.selectionType === 'TREE' && parameter.showOnPanel === 'true' && !parameter.multivalue) {
-                parameter.parameterValue[0] = { value: parameter.driverDefaultValue[0].value, description: parameter.driverDefaultValue[0].desc }
+                parameter.parameterValue[0] = { value: parameter.driverDefaultValue[0][valueIndex], description: parameter.driverDefaultValue[0][descriptionIndex] }
             } else if ((parameter.selectionType === 'COMBOBOX' || parameter.selectionType === 'LOOKUP') && parameter.showOnPanel === 'true' && !parameter.multivalue) {
                 parameter.parameterValue[0] = { value: parameter.driverDefaultValue[0][valueIndex], description: parameter.driverDefaultValue[0][descriptionIndex] }
             } else if (parameter.selectionType === 'LOOKUP' && parameter.showOnPanel === 'true' && parameter.multivalue) {
@@ -550,7 +550,7 @@ export default defineComponent({
             const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
             this.updateVisualDependency(parameter)
             await updateDataDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, resetValue, this.userDateFormat)
-            await updateLovDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, this.userDateFormat)
+            await updateLovDependency(this.parameters, parameter, this.loading, this.document, role, this.$http, this.mode, resetValue, this.userDateFormat)
             this.$emit('parametersChanged', { parameters: this.parameters, document: this.propDocument })
             this.loading = false
         },

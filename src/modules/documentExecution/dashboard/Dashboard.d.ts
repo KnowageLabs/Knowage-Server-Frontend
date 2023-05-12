@@ -5,7 +5,8 @@ export interface IDashboard {
     sheets: []
     widgets: IWidget[]
     configuration: IDashboardConfiguration
-    version: string
+    version: string,
+    allDatasetsLoaded?: boolean
 }
 
 export interface IDashboardConfiguration {

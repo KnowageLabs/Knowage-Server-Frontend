@@ -37,7 +37,7 @@
                         />
                     </div>
                     <div class="p-field p-md-2">
-                        <Button class="kn-button p-button-text" :disabled="buttonDisabled" :label="$t('documentExecution.dossier.launchActivity')" data-test="input-button" @click="createNewActivity" />
+                        <Button class="kn-button p-button-text" :disabled="buttonDisabled || launchButtonDisabled || launchClicked" :label="$t('documentExecution.dossier.launchActivity')" data-test="input-button" @click="createNewActivity" />
                     </div>
                 </form>
             </template>
@@ -134,6 +134,7 @@ export default defineComponent({
             dossierDescriptor,
             activity: { activityName: '' } as any,
             loading: false,
+            launchClicked: false,
             triggerUpload: false,
             uploading: false,
             interval: null as any,
@@ -155,6 +156,13 @@ export default defineComponent({
         },
         buttonDisabled(): any {
             return this.v$.$invalid
+        },
+        launchButtonDisabled(): boolean {
+            const startedActivity = this.dossierActivities.find((activity) => {
+                return activity.status === 'STARTED'
+            })
+            if (startedActivity && this.timeDifference(startedActivity)) return true
+            else return false
         }
     },
     watch: {
@@ -187,6 +195,13 @@ export default defineComponent({
         },
         dateCheck(item): boolean {
             return Date.now() - item.creationDate < 86400000 && item.status === 'STARTED'
+        },
+        timeDifference(startedActivity) {
+            const startDate = startedActivity.creationDate
+            const currentDate = new Date()
+            const seconds = (currentDate.getTime() - startDate) / 1000
+
+            return seconds <= 600
         },
         async getDossierActivities() {
             this.loading = true
@@ -257,6 +272,9 @@ export default defineComponent({
             }
         },
         async createNewActivity() {
+            this.launchClicked = true
+            setTimeout(() => (this.launchClicked = false), 3000)
+
             const url = `/knowagedossierengine/api/dossier/run?activityName=${this.activity.activityName}&documentId=${this.id}`
             await this.$http.post(url, this.jsonTemplate, { headers: { Accept: 'application/json, text/plain, */*' } }).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {

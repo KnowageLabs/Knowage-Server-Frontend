@@ -3,19 +3,47 @@
         "role": [
             {
                 "fieldName": "name",
-                "validators": [{ "key": "required" }, { "key": "regex", "validator": { "type": "extendedAlphanumericRegex" } }]
+                "validators": [
+                    {
+                        "key": "required"
+                    },
+                    {
+                        "key": "regex",
+                        "validator": {
+                            "type": "extendedAlphanumericRegex81"
+                        }
+                    }
+                ]
             },
             {
                 "fieldName": "code",
-                "validators": [{ "key": "regex", "validator": { "type": "extendedAlphanumericRegex" } }]
+                "validators": [
+                    {
+                        "key": "regex",
+                        "validator": {
+                            "type": "extendedAlphanumericRegex81"
+                        }
+                    }
+                ]
             },
             {
                 "fieldName": "description",
-                "validators": [{ "key": "regex", "validator": { "type": "extendedAlphanumericRegex" } }]
+                "validators": [
+                    {
+                        "key": "regex",
+                        "validator": {
+                            "type": "extendedAlphanumericRegex81"
+                        }
+                    }
+                ]
             },
             {
                 "fieldName": "roleTypeID",
-                "validators": [{ "key": "required" }]
+                "validators": [
+                    {
+                        "key": "required"
+                    }
+                ]
             }
         ]
     }

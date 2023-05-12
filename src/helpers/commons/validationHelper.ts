@@ -1,5 +1,5 @@
 import { email, maxLength, maxValue, minLength, minValue, required } from '@vuelidate/validators'
-import { extendedAlphanumeric, alphanumericNoSpaces, fullnameRegex, alphanumeric } from './regexHelper'
+import { extendedAlphanumeric, alphanumericNoSpaces, fullnameRegex, alphanumeric, extendedAlphanumeric81 } from './regexHelper'
 import { ValidationRule } from '@vuelidate/core'
 
 export interface IValidator {
@@ -53,6 +53,8 @@ function getValidatorFunction(validatorName: string, customValidators: ICustomVa
             return maxValue(validator?.params.max)
         case 'extendedAlphanumericRegex':
             return testRegex(extendedAlphanumeric)
+        case 'extendedAlphanumericRegex81':
+            return testRegex(extendedAlphanumeric81)
         case 'alphanumericNoSpaces':
             return testRegex(alphanumericNoSpaces)
         case 'alphanumeric':
