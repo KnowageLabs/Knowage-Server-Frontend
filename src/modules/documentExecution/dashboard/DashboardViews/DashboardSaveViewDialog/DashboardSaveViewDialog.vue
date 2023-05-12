@@ -14,7 +14,7 @@
 
             <div class="p-col-12 p-lg-3 p-d-flex p-flex-row p-ai-center">
                 <span class="p-field p-float-label kn-flex">
-                    <Dropdown v-model="view.visibility" class="kn-material-input" :options="descriptor.visibilityTypes" option-value="value">
+                    <Dropdown v-model="view.visibility" class="kn-material-input" :options="descriptor.visibilityTypes" option-value="value" :disabled="!view.new">
                         <template #value="slotProps">
                             <span>{{ getTranslatedLabel(slotProps.value, descriptor.visibilityTypes, $t) }}</span>
                         </template>

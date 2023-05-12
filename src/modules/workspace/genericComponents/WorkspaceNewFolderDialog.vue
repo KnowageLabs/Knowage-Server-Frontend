@@ -3,7 +3,7 @@
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
                 <template #start>
-                    {{ $t('workspace.myRepository.newFolderTitle') }}
+                    {{ newFolder.id ? $t('common.edit') : $t('workspace.myRepository.newFolderTitle') }}
                 </template>
             </Toolbar>
         </template>
@@ -39,28 +39,32 @@
             </div>
         </form>
 
+        <WorkspaceFolderPickerTree v-if="newFolder.id" :prop-folders="propFolders ?? null" :selected-folder-id="newFolder.parentId" @folderSelected="setSelectedParentFolder"></WorkspaceFolderPickerTree>
+
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
                 <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-                <Button class="kn-button kn-button--primary" :disabled="buttonDisabled" @click="createFolder">{{ $t('common.save') }}</Button>
+                <Button class="kn-button kn-button--primary" :disabled="buttonDisabled" @click="onSave">{{ $t('common.save') }}</Button>
             </div>
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import { createValidations } from '@/helpers/commons/validationHelper'
+import { IFolder } from '../Workspace'
 import Dialog from 'primevue/dialog'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import workspaceNewFolderDialogDescriptor from './WorkspaceNewFolderDialogDescriptor.json'
 import useValidate from '@vuelidate/core'
+import WorkspaceFolderPickerTree from './WorkspaceFolderPickerTree.vue'
 
 export default defineComponent({
     name: 'workspace-repository-move-dialog',
-    components: { Dialog, KnValidationMessages },
-    props: { visible: { type: Boolean } },
-    emits: ['close', 'create'],
+    components: { Dialog, KnValidationMessages, WorkspaceFolderPickerTree },
+    props: { visible: { type: Boolean }, selectedFolder: { type: Object }, propFolders: { type: Object as PropType<IFolder> } },
+    emits: ['close', 'create', 'edit'],
     data() {
         return {
             v$: useValidate() as any,
@@ -78,17 +82,37 @@ export default defineComponent({
             return this.v$.$invalid
         }
     },
-    created() {},
+    watch: {
+        visible() {
+            this.loadSelectedFolder()
+        }
+    },
+    created() {
+        this.loadSelectedFolder()
+    },
     methods: {
+        loadSelectedFolder() {
+            this.newFolder = this.selectedFolder
+            console.log('------------------ LOADED NEW FOLDER: ', this.newFolder)
+        },
+        setSelectedParentFolder(folder: any) {
+            this.newFolder.parentId = folder.id
+        },
         closeDialog() {
             this.newFolder = {} as any
             this.v$.$reset()
             this.$emit('close')
         },
+        onSave() {
+            this.newFolder.id ? this.editFolder() : this.createFolder()
+        },
+        editFolder() {
+            this.$emit('edit', this.newFolder)
+            this.v$.$reset()
+        },
         createFolder() {
             this.$emit('create', this.newFolder)
             this.newFolder = {} as any
-            this.v$.$reset()
         }
     }
 })

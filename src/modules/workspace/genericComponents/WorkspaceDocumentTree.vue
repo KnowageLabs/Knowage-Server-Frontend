@@ -5,12 +5,13 @@
                 <span>{{ slotProps.node.label }}</span>
                 <div v-show="mode === 'select' && buttonsVisible[slotProps.node.id]" class="p-ml-2">
                     <Button icon="fa fa-plus" class="p-button-link p-button-sm p-p-0" @click.stop="createFolder(slotProps.node)" />
+                    <Button icon="fa fa-pencil" class="p-button-link p-button-sm p-p-0" @click.stop="editFolder(slotProps.node.data)" />
                     <Button v-if="slotProps.node.label !== 'root'" icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" @click.stop="deleteFolderConfirm(slotProps.node)" />
                 </div>
             </div>
         </template>
     </Tree>
-    <WorkspaceNewFolderDialog :visible="newFolderDialogVisible" @close="newFolderDialogVisible = false" @create="createNewFolder"></WorkspaceNewFolderDialog>
+    <WorkspaceNewFolderDialog :visible="newFolderDialogVisible" :selected-folder="selectedFolderForEdit" :propFolders="folders" @close="newFolderDialogVisible = false" @create="createNewFolder" @edit="onEditFolder"></WorkspaceNewFolderDialog>
 </template>
 
 <script lang="ts">
@@ -36,7 +37,8 @@ export default defineComponent({
             selectedFolderKey: {},
             selectedFolder: null as any,
             buttonsVisible: {},
-            newFolderDialogVisible: false
+            newFolderDialogVisible: false,
+            selectedFolderForEdit: null as any
         }
     },
     watch: {
@@ -87,7 +89,7 @@ export default defineComponent({
             if (!this.selectedFolderId) return
             this.selectedFolderKey = { [this.selectedFolderId]: true }
             const selectedFolder = this.findNodeInTree(this.selectedFolderId)
-            console.log('----- selectedFolder: ', selectedFolder)
+            if (selectedFolder) this.selectedFolder = selectedFolder
         },
         findNodeInTree(key: any) {
             let node = null as any
@@ -128,16 +130,35 @@ export default defineComponent({
             this.selectedFolder = folder
             this.newFolderDialogVisible = true
         },
+        editFolder(folder: any) {
+            this.selectedFolderForEdit = folder
+            this.newFolderDialogVisible = true
+        },
         async createNewFolder(newFolder: any) {
             console.log('----------- this.selectedFolder?: ', this.selectedFolder)
-            console.log('----------- newFolder: ', newFolder)
+            console.log('----------- new folder: ', newFolder)
             newFolder.parentId = this.selectedFolder?.id
             newFolder.progr = this.selectedFolder.children.length + 1
             this.setLoading(true)
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/repository', newFolder, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/repository', newFolder)
                 .then(async () => {
                     this.setInfo({ title: this.$t('workspace.myRepository.folderCreatedMessage') })
+                    await this.loadData()
+                })
+                .catch((response: any) => this.setError({ title: this.$t('common.error.generic'), msg: response }))
+                .finally(() => (this.newFolderDialogVisible = false))
+            this.setLoading(false)
+        },
+        async onEditFolder(folder: any) {
+            console.log('----------- this.selectedFolder?: ', this.selectedFolder)
+            console.log('----------- updateFolder: ', folder)
+            this.setLoading(true)
+            const postData = { id: folder.id, name: folder.name, description: folder.description, parentId: folder.parentId, progr: folder.progr }
+            await this.$http
+                .put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`, postData)
+                .then(async () => {
+                    this.setInfo({ title: this.$t('common.toast.updateTitle') })
                     await this.loadData()
                 })
                 .catch((response: any) => this.setError({ title: this.$t('common.error.generic'), msg: response }))
