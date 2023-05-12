@@ -24,12 +24,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { AxiosResponse } from 'axios'
 import { IDashboardView } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
 import Dialog from 'primevue/dialog'
 import descriptor from './DashboardSavedViewsDialogDescriptor.json'
 import appStore from '@/App.store'
-import mockedViews from './mockedSavedViews.json'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 
@@ -45,19 +45,22 @@ export default defineComponent({
         }
     },
     watch: {
-        visible() {
-            this.loadSavedViews()
+        async visible() {
+            await this.loadSavedViews()
         }
     },
-    created() {
-        this.loadSavedViews()
+    async created() {
+        await this.loadSavedViews()
     },
     methods: {
         ...mapActions(appStore, ['setLoading']),
-        loadSavedViews() {
-            // TODO - What service for Saved Views????
+        async loadSavedViews() {
             this.setLoading(true)
-            this.savedViews = [...mockedViews.data]
+            // TODO - Remove mocked/specific id for folder service, wait for proper service?
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/536a71d6-9a18-45c9-b991-7c81410b36ee`).then((response: AxiosResponse<any>) => {
+                this.savedViews = [...response.data]
+            })
+            console.log('------- savedViews: ', this.savedViews)
             this.setLoading(false)
         },
         moveView(view: IDashboardView) {

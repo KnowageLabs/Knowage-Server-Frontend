@@ -1,7 +1,6 @@
 <template>
     <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="view?.new ? $t('documentExecution.main.newSavedView') : $t('documentExecution.main.addToMyRepository')" :style="descriptor.dialogStyle" :closable="false" modal :breakpoints="descriptor.dialogBreakpoints">
         <Message class="p-text-center p-m-5" severity="info" :closable="false">{{ $t('documentExecution.main.saveViewHint') }}</Message>
-
         <div v-if="view" class="p-formgrid p-grid p-fluid p-m-4">
             <div class="p-float-label p-col-12 p-lg-3 kn-flex">
                 <InputText v-model="view.name" class="kn-material-input" :disabled="!view.new" />
@@ -29,10 +28,12 @@
             </div>
         </div>
 
+        <WorkspaceDocumentTree mode="select" @folderSelected="setSelectedFolder"></WorkspaceDocumentTree>
+
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
                 <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.close') }}</Button>
-                <Button class="kn-button kn-button--primary" @click="saveView"> {{ $t('common.save') }}</Button>
+                <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="save"> {{ $t('common.save') }}</Button>
             </div>
         </template>
     </Dialog>
@@ -43,22 +44,30 @@ import { defineComponent, PropType } from 'vue'
 import { IDashboardView } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { saveDashboardView } from '../DashboardViewsHelper'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
 import descriptor from './DashboardSaveViewDialogDescriptor.json'
 import appStore from '@/App.store'
 import Message from 'primevue/message'
+import WorkspaceDocumentTree from '@/modules/workspace/genericComponents/WorkspaceDocumentTree.vue'
 
 export default defineComponent({
     name: 'dashboard-save-view-dialog',
-    components: { Dialog, Dropdown, Message },
-    props: { visible: { required: true, type: Boolean }, propView: { type: Object as PropType<IDashboardView | null>, required: true }, document: { type: Object, required: true } },
+    components: { Dialog, Dropdown, Message, WorkspaceDocumentTree },
+    props: { visible: { required: true, type: Boolean }, propView: { type: Object as PropType<IDashboardView | null>, required: true }, document: { type: Object } },
     emits: ['setRanges', 'close'],
     data() {
         return {
             descriptor,
             view: null as IDashboardView | null,
+            selectedFolder: null as any,
             getTranslatedLabel
+        }
+    },
+    computed: {
+        saveButtonDisabled() {
+            return !this.selectedFolder
         }
     },
     watch: {
@@ -70,19 +79,36 @@ export default defineComponent({
         this.loadView()
     },
     methods: {
-        ...mapActions(appStore, ['setLoading']),
+        ...mapActions(appStore, ['setLoading', 'setInfo']),
         loadView() {
             this.view = this.propView
             console.log('---------- LOADED VIEW: ', this.view)
         },
-        async saveView() {
+        setSelectedFolder(folder: any) {
+            this.selectedFolder = folder
+        },
+        async save() {
             if (!this.view) return
+
             console.log('------- SAVE VIEW: ', this.view)
             console.log('------- document ', this.document)
-            // TODO
-            delete this.view?.new
-            this.view.biObjectId = this.document.id
-            this.closeDialog()
+            console.log('------- selectedFolder ', this.selectedFolder)
+            if (this.view.new) {
+                await this.saveView()
+            }
+        },
+        async saveView() {
+            if (!this.view) return
+            this.setLoading(true)
+            this.view.biObjectId = this.document?.id
+            this.view.parentId = this.selectedFolder ? this.selectedFolder.id : null
+            await saveDashboardView(this.view, this.$http)
+                .then(() => {
+                    this.closeDialog()
+                    this.setInfo({ title: this.$t('common.toast.createTitle'), msg: this.$t('common.toast.success') })
+                })
+                .catch(() => {})
+            this.setLoading(false)
         },
         closeDialog() {
             this.view = null

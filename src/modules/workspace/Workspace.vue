@@ -26,7 +26,7 @@
                                         <i v-if="!accordionIcon" class="pi pi-chevron-down menu-accordion-icon"></i>
                                     </div>
                                 </template>
-                                <WorkspaceDocumentTree :prop-folders="allFolders" mode="select" :selected-breadcrumb="selectedBreadcrumb" data-test="document-tree" @folderSelected="setSelectedFolder"></WorkspaceDocumentTree>
+                                <WorkspaceDocumentTree mode="select" :selected-breadcrumb="selectedBreadcrumb" data-test="document-tree" @folderSelected="setSelectedFolder"></WorkspaceDocumentTree>
                             </AccordionTab>
                         </Accordion>
                     </div>

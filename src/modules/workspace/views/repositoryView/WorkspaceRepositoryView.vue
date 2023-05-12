@@ -87,6 +87,8 @@
     <WorkspaceRepositoryMoveDialog :visible="moveDialogVisible" :prop-folders="folders" @close="moveDialogVisible = false" @move="handleDocumentMove"></WorkspaceRepositoryMoveDialog>
     <WorkspaceWarningDialog :visible="warningDialogVisbile" :warning-message="warningMessage" @close="closeWarningDialog"></WorkspaceWarningDialog>
     <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
+
+    <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
@@ -105,9 +107,11 @@ import { AxiosResponse } from 'axios'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../../App.store'
 import { IDashboardView } from '@/modules/documentExecution/dashboard/Dashboard'
+import { deleteDashboardView } from '@/modules/documentExecution/dashboard/DashboardViews/DashboardViewsHelper'
+import DashboardSaveViewDialog from '@/modules/documentExecution/dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 
 export default defineComponent({
-    components: { DataTable, Column, DetailSidebar, WorkspaceCard, Menu, Message, WorkspaceRepositoryMoveDialog, WorkspaceWarningDialog, WorkspaceRepositoryBreadcrumb },
+    components: { DataTable, Column, DetailSidebar, WorkspaceCard, Menu, Message, WorkspaceRepositoryMoveDialog, WorkspaceWarningDialog, WorkspaceRepositoryBreadcrumb, DashboardSaveViewDialog },
     props: { selectedFolder: { type: Object }, id: { type: String, required: false }, toggleCardDisplay: { type: Boolean }, breadcrumbs: { type: Array }, allFolders: { type: Array } },
     emits: ['showMenu', 'reloadRepositoryMenu', 'toggleDisplayView', 'breadcrumbClicked', 'execute'],
     setup() {
@@ -127,7 +131,9 @@ export default defineComponent({
             folders: [] as IFolder[],
             moveDialogVisible: false,
             warningDialogVisbile: false,
-            warningMessage: ''
+            warningMessage: '',
+            selectedView: null as IDashboardView | null,
+            saveViewDialogVisible: false
         }
     },
     watch: {
@@ -198,9 +204,15 @@ export default defineComponent({
         executeDocumentFromOrganizer(document: IDocument) {
             this.$emit('execute', document)
         },
-        moveDocumentToFolder(document: IDocument) {
-            this.selectedDocument = document
-            this.moveDialogVisible = true
+        moveDocumentToFolder(document: IDocument | IDashboardView) {
+            console.log('--------- MOVE DOCUMENT: ', document)
+            if ((document as IDashboardView).type === 'VIEW') {
+                this.selectedView = { ...(document as IDashboardView) }
+                this.saveViewDialogVisible = true
+            } else {
+                this.selectedDocument = document as IDocument
+                this.moveDialogVisible = true
+            }
         },
         async handleDocumentMove(folder: any) {
             this.loading = true
@@ -221,17 +233,33 @@ export default defineComponent({
                 })
             this.loading = false
         },
-        deleteDocumentConfirm(document: IDocument) {
+        deleteDocumentConfirm(document: IDocument | IDashboardView) {
             this.$confirm.require({
                 message: this.$t('common.toast.deleteMessage'),
                 header: this.$t('common.toast.deleteTitle'),
                 icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteDocument(document)
+                accept: () => ((document as IDashboardView).type === 'VIEW' ? this.deleteView(document as IDashboardView) : this.deleteDocument(document as IDocument))
             })
         },
-        deleteDocument(document: IDocument) {
+        async deleteView(document: IDashboardView) {
             this.loading = true
-            this.$http
+
+            await deleteDashboardView(document, this.$http)
+                .then(() => {
+                    this.store.setInfo({
+                        title: this.$t('common.toast.deleteTitle'),
+                        msg: this.$t('common.toast.success')
+                    })
+                    this.showDetailSidebar = false
+                    this.getFolderDocuments()
+                })
+                .catch(() => {})
+            this.loading = false
+        },
+        async deleteDocument(document: IDocument) {
+            this.loading = true
+
+            await this.$http
                 .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/${document.functId}/${document.biObjId}`)
                 .then(() => {
                     this.store.setInfo({
@@ -263,6 +291,10 @@ export default defineComponent({
                     })
                 }
             }, 250)
+        },
+        onSaveViewListDialogClose() {
+            this.saveViewDialogVisible = false
+            this.selectedView = null
         }
     }
 })
