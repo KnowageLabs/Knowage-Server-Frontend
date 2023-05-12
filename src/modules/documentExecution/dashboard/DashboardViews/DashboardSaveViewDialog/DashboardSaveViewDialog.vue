@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <WorkspaceDocumentTree mode="select" @folderSelected="setSelectedFolder"></WorkspaceDocumentTree>
+        <WorkspaceDocumentTree mode="select" :selected-folder-id="view?.parentId" @folderSelected="setSelectedFolder"></WorkspaceDocumentTree>
 
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
@@ -44,7 +44,7 @@ import { defineComponent, PropType } from 'vue'
 import { IDashboardView } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
-import { saveDashboardView } from '../DashboardViewsHelper'
+import { saveDashboardView, updateDashboardView } from '../DashboardViewsHelper'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
 import descriptor from './DashboardSaveViewDialogDescriptor.json'
@@ -56,7 +56,7 @@ export default defineComponent({
     name: 'dashboard-save-view-dialog',
     components: { Dialog, Dropdown, Message, WorkspaceDocumentTree },
     props: { visible: { required: true, type: Boolean }, propView: { type: Object as PropType<IDashboardView | null>, required: true }, document: { type: Object } },
-    emits: ['setRanges', 'close'],
+    emits: ['viewUpdated', 'close'],
     data() {
         return {
             descriptor,
@@ -82,6 +82,8 @@ export default defineComponent({
         ...mapActions(appStore, ['setLoading', 'setInfo']),
         loadView() {
             this.view = this.propView
+            // TODO - remove mocked parentId
+            if (this.view?.name) this.view.parentId = '536a71d6-9a18-45c9-b991-7c81410b36ee'
             console.log('---------- LOADED VIEW: ', this.view)
         },
         setSelectedFolder(folder: any) {
@@ -91,15 +93,15 @@ export default defineComponent({
             if (!this.view) return
 
             console.log('------- SAVE VIEW: ', this.view)
-            console.log('------- document ', this.document)
-            console.log('------- selectedFolder ', this.selectedFolder)
-            if (this.view.new) {
-                await this.saveView()
-            }
+            // console.log('------- document ', this.document)
+            //console.log('------- selectedFolder ', this.selectedFolder)
+            this.setLoading(true)
+            this.view.new ? await this.saveView() : await this.updateView()
+            this.setLoading(false)
         },
         async saveView() {
             if (!this.view) return
-            this.setLoading(true)
+
             this.view.biObjectId = this.document?.id
             this.view.parentId = this.selectedFolder ? this.selectedFolder.id : null
             await saveDashboardView(this.view, this.$http)
@@ -108,7 +110,16 @@ export default defineComponent({
                     this.setInfo({ title: this.$t('common.toast.createTitle'), msg: this.$t('common.toast.success') })
                 })
                 .catch(() => {})
-            this.setLoading(false)
+        },
+        async updateView() {
+            if (!this.view) return
+            this.view.parentId = this.selectedFolder ? this.selectedFolder.id : null
+            await updateDashboardView(this.view, this.$http)
+                .then(() => {
+                    this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.success') })
+                    this.$emit('viewUpdated')
+                })
+                .catch(() => {})
         },
         closeDialog() {
             this.view = null

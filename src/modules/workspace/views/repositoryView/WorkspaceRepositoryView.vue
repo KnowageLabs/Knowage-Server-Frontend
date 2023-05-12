@@ -88,7 +88,7 @@
     <WorkspaceWarningDialog :visible="warningDialogVisbile" :warning-message="warningMessage" @close="closeWarningDialog"></WorkspaceWarningDialog>
     <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
 
-    <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
+    <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" @close="onSaveViewListDialogClose" @viewUpdated="onViewUpdated"></DashboardSaveViewDialog>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
@@ -295,6 +295,9 @@ export default defineComponent({
         onSaveViewListDialogClose() {
             this.saveViewDialogVisible = false
             this.selectedView = null
+        },
+        onViewUpdated() {
+            this.getFolderDocuments()
         }
     }
 })

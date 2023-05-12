@@ -21,13 +21,12 @@ import { mapActions } from 'pinia'
 import Tree from 'primevue/tree'
 import WorkspaceNewFolderDialog from './WorkspaceNewFolderDialog.vue'
 import workspaceDocumentTreeDescriptor from './WorkspaceDocumentTreeDescriptor.json'
-import cryptoRandomString from 'crypto-random-string'
 import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'workspace-document-tree',
     components: { Tree, WorkspaceNewFolderDialog },
-    props: { mode: { type: String }, selectedBreadcrumb: { type: Object } },
+    props: { mode: { type: String }, selectedBreadcrumb: { type: Object }, selectedFolderId: { type: String } },
     emits: ['folderSelected', 'delete', 'createFolder'],
     data() {
         return {
@@ -54,6 +53,7 @@ export default defineComponent({
             this.setLoading(true)
             await this.getAllFolders()
             this.createNodeTree()
+            if (this.selectedFolderId) this.setSelectedFolderFromPropKey()
             this.setLoading(false)
         },
         async getAllFolders() {
@@ -69,7 +69,7 @@ export default defineComponent({
         formatNodes(tree: any, parent: any) {
             return tree.map((node: any) => {
                 node = {
-                    key: cryptoRandomString({ length: 16, type: 'base64' }),
+                    key: node.id,
                     id: node.id,
                     label: node.name,
                     children: node.children ?? [],
@@ -84,6 +84,33 @@ export default defineComponent({
                 }
                 return node
             })
+        },
+        setSelectedFolderFromPropKey() {
+            if (!this.selectedFolderId) return
+            this.selectedFolderKey = { [this.selectedFolderId]: true }
+            const selectedFolder = this.findNodeInTree(this.selectedFolderId)
+            console.log('----- selectedFolder: ', selectedFolder)
+        },
+        findNodeInTree(key: any) {
+            let node = null as any
+            for (let i = 0; i < this.nodes.length; i++) {
+                node = this.findNode(this.nodes[i], key)
+                if (node) break
+            }
+
+            return node
+        },
+        findNode(node: any, nodeKey: string) {
+            if (node.key === nodeKey) {
+                return node
+            } else if (node.children != null) {
+                let result = null as any
+                for (let i = 0; result == null && i < node.children.length; i++) {
+                    result = this.findNode(node.children[i], nodeKey)
+                }
+                return result
+            }
+            return null
         },
         setOpenFolderIcon(node: any) {
             node.icon = 'pi pi-folder-open'

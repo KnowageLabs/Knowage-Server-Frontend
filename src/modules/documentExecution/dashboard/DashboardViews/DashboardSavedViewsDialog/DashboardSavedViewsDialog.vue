@@ -64,7 +64,6 @@ export default defineComponent({
             this.setLoading(false)
         },
         moveView(view: IDashboardView) {
-            console.log('------- MOVE VIEW: ', view)
             this.$emit('moveView', view)
         },
         executeView(view: IDashboardView) {
