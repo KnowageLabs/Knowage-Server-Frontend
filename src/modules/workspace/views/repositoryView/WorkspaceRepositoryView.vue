@@ -175,17 +175,28 @@ export default defineComponent({
         },
         showMenu(event, clickedDocument) {
             this.selectedDocument = clickedDocument
-            this.createMenuItems()
+            this.createMenuItems(clickedDocument)
             // eslint-disable-next-line
             // @ts-ignore
             this.$refs.optionsMenu.toggle(event)
         },
-        createMenuItems() {
+        createMenuItems(clickedDocument: any) {
             this.menuButtons = []
+            const isView = clickedDocument.type == 'VIEW'
+            if (isView)
+                this.menuButtons.push({
+                    key: '2',
+                    label: this.$t('workspace.myRepository.executeView'),
+                    icon: 'fas fa-share',
+                    command: () => {
+                        this.executeView(clickedDocument)
+                    }
+                })
+
             this.menuButtons.push(
                 {
                     key: '3',
-                    label: this.$t('workspace.myRepository.moveDocument'),
+                    label: isView ? this.$t('workspace.myRepository.moveView') : this.$t('workspace.myRepository.moveDocument'),
                     icon: 'fas fa-share',
                     command: () => {
                         this.moveDocumentToFolder(this.selectedDocument)
@@ -193,7 +204,7 @@ export default defineComponent({
                 },
                 {
                     key: '4',
-                    label: this.$t('workspace.myAnalysis.menuItems.delete'),
+                    label: isView ? this.$t('workspace.myRepository.deleteView') : this.$t('workspace.myAnalysis.menuItems.delete'),
                     icon: 'fas fa-trash',
                     command: () => {
                         this.deleteDocumentConfirm(this.selectedDocument)
@@ -204,11 +215,13 @@ export default defineComponent({
         toggleDisplayView() {
             this.$emit('toggleDisplayView')
         },
+        executeView(view: IDashboardView) {
+            this.$emit('execute', view)
+        },
         executeDocumentFromOrganizer(document: IDocument) {
             this.$emit('execute', document)
         },
         moveDocumentToFolder(document: IDocument | IDashboardView) {
-            console.log('--------- MOVE DOCUMENT: ', document)
             if ((document as IDashboardView).type === 'VIEW') {
                 this.selectedView = { ...(document as IDashboardView) }
                 this.saveViewDialogVisible = true

@@ -178,7 +178,6 @@ export default defineComponent({
     },
     created() {
         this.uniqueID = cryptoRandomString({ length: 16, type: 'base64' })
-        // this.getAllRepositoryData()
     },
     mounted() {
         this.createMenuItems()
@@ -187,19 +186,6 @@ export default defineComponent({
         closeSidebar() {
             this.sidebarVisible = false
         },
-        // TODO
-        async getAllRepositoryData() {
-            this.loading = true
-            // await this.getAllFolders()
-            this.loading = false
-        },
-        // TODO
-        // async getAllFolders() {
-        //     return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`).then((response: AxiosResponse<any>) => {
-        //         this.allFolders = { ...response.data }
-        //         this.displayMenu = true
-        //     })
-        // },
         setActiveView(route) {
             this.$router.push(route)
             this.closeSidebar()
@@ -249,8 +235,11 @@ export default defineComponent({
             }
         },
         executeDocument(document: any) {
-            const routeType = this.getRouteDocumentType(document)
-            const label = document.label ? document.label : document.documentLabel
+            console.log('------------ DOCUMENT FOR EXECUTE: ', document)
+            const routeType = document.type === 'VIEW' ? 'dashboard-view' : this.getRouteDocumentType(document)
+            let label = ''
+            if (document.type === 'VIEW') label = document.name
+            else label = document.label ? document.label : document.documentLabel
             this.$router.push(`/workspace/${routeType}/${label}`)
         },
         getRouteDocumentType(item: any) {

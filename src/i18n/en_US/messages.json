@@ -394,15 +394,15 @@
         },
         "generalSettings": {
             "attribute": "Attribute",
-            "profile": "Profile",
-            "title": "General Settings",
-            "variableColumnHint": "If no column is defined the whole dataset will be used.",
-            "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them.",
             "background": {
                 "sheetsColor": "Sheets Background Color",
                 "sheetsImage": "Sheets Background Image URL",
                 "sheetsSize": "Sheets Background Size"
-            }
+            },
+            "profile": "Profile",
+            "title": "General Settings",
+            "variableColumnHint": "If no column is defined the whole dataset will be used.",
+            "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
         "saveCockpit": "Save Cockpit",
@@ -3483,10 +3483,13 @@
             "userRoleError": "User does not have valid roles for the execution of the selected model"
         },
         "myRepository": {
+            "deleteView": "Delete View",
             "destinationFolder": "Destination folder",
+            "executeView": "Execute View",
             "folderCreatedMessage": "Folder is created and added to the current path",
             "folderDeleteError": "Folder could not be deleted. It contains at least one subfolder or at least one document",
             "moveDocument": "Move Document",
+            "moveView": "Move View",
             "newFolderTitle": "Create new folder"
         },
         "recent": {
