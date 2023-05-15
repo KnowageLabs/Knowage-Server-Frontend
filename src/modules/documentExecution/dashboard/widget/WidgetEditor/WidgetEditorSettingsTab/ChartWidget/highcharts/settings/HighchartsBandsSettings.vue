@@ -1,8 +1,5 @@
 <template>
     <div v-if="model?.yAxis" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ model.yAxis }}
-        </div>
         <div v-if="model.yAxis.plotBands.length === 0" class="p-grid p-col-12 p-pl-2">
             <Message class="p-col-11" :closable="false">{{ bandsHint }}</Message>
             <div class="p-col-1 p-text-right">

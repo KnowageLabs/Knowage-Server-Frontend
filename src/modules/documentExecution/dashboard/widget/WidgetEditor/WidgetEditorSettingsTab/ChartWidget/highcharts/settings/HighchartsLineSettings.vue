@@ -1,8 +1,5 @@
 <template>
     <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ axisModel }}
-        </div>
         <div v-if="axisModel.plotLines.length === 0" class="p-grid p-col-12 p-pl-2">
             <Message class="p-col-11" :closable="false">{{ $t('dashboard.widgetEditor.highcharts.lines.linesHint') }}</Message>
             <div class="p-col-1 p-text-right">

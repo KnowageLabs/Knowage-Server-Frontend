@@ -102,7 +102,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
 
     createFormattedSerieFromColumn(column: IWidgetColumn, data: any, dateFormat: string, drilldownEnabled: boolean) {
         const serie = deepcopy(this.model.series.find((serie: any) => serie.name === column.columnName))
-        if (!serie) return null
+        if (!serie || !data.metaData.fields) return null
         serie.type = column.serieType === 'bar' ? 'column' : column.serieType
         serie.pointPlacement = "on"
         const index = data.metaData.fields.findIndex((field: any) => field.header?.startsWith(serie.name))
