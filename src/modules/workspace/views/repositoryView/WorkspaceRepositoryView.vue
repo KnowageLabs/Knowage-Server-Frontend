@@ -188,7 +188,7 @@ export default defineComponent({
                 this.menuButtons.push({
                     key: '2',
                     label: this.$t('workspace.myRepository.executeView'),
-                    icon: 'fas fa-share',
+                    icon: 'fas fa-play-circle',
                     command: () => {
                         this.executeView(clickedDocument)
                     }
