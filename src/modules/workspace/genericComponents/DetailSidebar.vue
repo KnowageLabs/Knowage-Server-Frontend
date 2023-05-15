@@ -27,7 +27,19 @@
                             })
                         }}
                     </p>
-                    <p v-if="field.type != 'date' && field.type != 'category'" class="p-m-0">{{ document[field.value] }}</p>
+                    <p v-if="field.type != 'date' && field.type != 'category' && field.type != 'parameters'" class="p-m-0">{{ document[field.value] }}</p>
+                    <p v-if="field.type === 'parameters'" class="p-m-0">
+                        <template v-if="document[field.value] && document[field.value].filterStatus">
+                            <div v-for="(parameter, parameterIndex) in document[field.value].filterStatus" :key="parameterIndex">
+                                <h5 class="p-m-0">{{ parameter.label }}</h5>
+                                <ul v-if="parameter.parameterValue" id="parameter-list">
+                                    <li v-for="(parmeterValue, parameterValueIndex) in parameter.parameterValue" :key="parameterValueIndex">
+                                        {{ parmeterValue.value }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </template>
+                    </p>
                 </div>
             </div>
         </div>
@@ -116,7 +128,7 @@ export default defineComponent({
                 case 'recent':
                     return descriptor.defaultViewFields
                 case 'repository':
-                    return descriptor.defaultViewFields
+                    return descriptor.repositoryViewFields
                 case 'dataset':
                     return descriptor.datasetViewFields
                 case 'analysis':
@@ -238,3 +250,14 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+#parameter-list {
+    list-style: none;
+    margin: 0;
+}
+
+#parameter-list li::before {
+    content: '+ ';
+}
+</style>

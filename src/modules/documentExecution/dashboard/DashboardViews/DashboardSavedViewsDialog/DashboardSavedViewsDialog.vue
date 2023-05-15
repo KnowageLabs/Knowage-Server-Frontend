@@ -38,7 +38,7 @@ export default defineComponent({
     name: 'dashboard-saved-views-dialog',
     components: { Column, DataTable, Dialog },
     props: { visible: { required: true, type: Boolean } },
-    emits: ['moveView', 'close'],
+    emits: ['moveView', 'close', 'executeView'],
     data() {
         return {
             descriptor,
@@ -68,6 +68,7 @@ export default defineComponent({
         },
         executeView(view: IDashboardView) {
             // TODO
+            this.$emit('executeView', view)
             console.log('------- EXECUTE VIEW: ', view)
         },
         deleteViewConfirm(view: IDashboardView) {
