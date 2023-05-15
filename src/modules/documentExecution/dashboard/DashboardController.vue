@@ -2,7 +2,7 @@
     <div v-show="model && visible && showDashboard" :id="`dashboard_${model?.configuration?.id}`" :class="mode === 'dashboard-popup' ? 'dashboard-container-popup' : 'dashboard-container'">
         {{ viewName }}
         <Button
-            v-if="store.dashboards[dashboardId]?.selections?.length > 0"
+            v-if="alwaysShowSelectionButton || store.dashboards[dashboardId]?.selections?.length > 0"
             icon="fas fa-square-check"
             class="p-m-3 p-button-rounded p-button-text p-button-plain"
             style="position: fixed; right: 0; z-index: 999; background-color: white; box-shadow: 0px 2px 3px #ccc"
@@ -144,6 +144,10 @@ export default defineComponent({
         }),
         showDashboard() {
             return ['dashboard', 'dashboard-popup'].includes('' + this.mode)
+        },
+        alwaysShowSelectionButton() {
+            if (!this.model?.configuration?.menuWidgets?.showSelectionButton) return false
+            else return this.model.configuration.menuWidgets.showSelectionButton
         }
     },
     watch: {
