@@ -5,7 +5,7 @@ export interface IDashboard {
     sheets: []
     widgets: IWidget[]
     configuration: IDashboardConfiguration
-    version: string,
+    version: string
     allDatasetsLoaded?: boolean
 }
 
@@ -20,6 +20,7 @@ export interface IDashboardConfiguration {
     selections: ISelection[]
     themes: any
     background: IBackground
+    menuWidgets: IMenuAndWidgets
 }
 
 export interface IDatasetParameter {
@@ -42,7 +43,7 @@ export interface IWidget {
     settings: any
     new?: boolean
     fields?: IPivotFields
-    layers?: any,
+    layers?: any
     state?: any
 }
 
@@ -580,6 +581,12 @@ interface IBackground {
     sheetsBackgroundColor: string
     imageBackgroundUrl: string
     imageBackgroundSize: string
+}
+
+interface IMenuAndWidgets {
+    showExcelExport: boolean
+    showScreenshot: boolean
+    showSelectionButton: boolean
 }
 
 interface IAssociationField {
