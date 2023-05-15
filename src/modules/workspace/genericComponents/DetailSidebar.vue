@@ -146,11 +146,17 @@ export default defineComponent({
                 case 'recent':
                     return [{ icon: 'fas fa-play-circle', class: 'p-button-text p-button-rounded', tooltip: this.$t('workspace.buttonsTooltips.executeDoc'), visible: true, command: () => this.emitEvent('executeRecent') }]
                 case 'repository':
-                    return [
-                        { icon: 'fas fa-play-circle', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.buttonsTooltips.executeDoc'), visible: true, command: () => this.emitEvent('executeDocumentFromOrganizer') },
-                        { icon: 'fas fa-share', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.buttonsTooltips.moveDoc'), visible: true, command: () => this.emitEvent('moveDocumentToFolder') },
-                        { icon: 'fas fa-trash', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.buttonsTooltips.deleteDoc'), visible: true, command: () => this.emitEvent('deleteDocumentFromOrganizer') }
-                    ]
+                    return this.document.type === 'VIEW'
+                        ? [
+                              { icon: 'fas fa-play-circle', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.myRepository.executeView'), visible: true, command: () => this.emitEvent('executeView') },
+                              { icon: 'fas fa-share', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.myRepository.moveView'), visible: true, command: () => this.emitEvent('moveView') },
+                              { icon: 'fas fa-trash', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.myRepository.deleteView'), visible: true, command: () => this.emitEvent('deleteDocumentFromOrganizer') }
+                          ]
+                        : [
+                              { icon: 'fas fa-play-circle', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.buttonsTooltips.executeDoc'), visible: true, command: () => this.emitEvent('executeDocumentFromOrganizer') },
+                              { icon: 'fas fa-share', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.buttonsTooltips.moveDoc'), visible: true, command: () => this.emitEvent('moveDocumentToFolder') },
+                              { icon: 'fas fa-trash', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.buttonsTooltips.deleteDoc'), visible: true, command: () => this.emitEvent('deleteDocumentFromOrganizer') }
+                          ]
                 case 'dataset':
                     return [
                         { icon: 'fas fa-eye', class: 'p-button-text p-button-rounded p-button-plain', tooltip: this.$t('workspace.buttonsTooltips.previewDs'), visible: this.canLoadData, command: () => this.emitEvent('previewDataset') },
@@ -242,7 +248,7 @@ export default defineComponent({
             return formatDateWithLocale(date, format)
         },
         emitEvent(event) {
-            return () => this.$emit(event, this.document)
+            this.$emit(event, this.document)
         },
         isOpenInQBEVisible(dataset: any) {
             return dataset.pars?.length == 0 && ((dataset.isPersisted && dataset.dsTypeCd == 'File') || dataset.dsTypeCd == 'Query' || dataset.dsTypeCd == 'Flat')

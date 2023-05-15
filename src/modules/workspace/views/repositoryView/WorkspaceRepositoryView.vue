@@ -78,6 +78,8 @@
         :view-type="'repository'"
         :document="selectedDocument"
         data-test="detail-sidebar"
+        @executeView="executeView"
+        @moveView="moveDocumentToFolder"
         @executeDocumentFromOrganizer="executeDocumentFromOrganizer"
         @moveDocumentToFolder="moveDocumentToFolder"
         @deleteDocumentFromOrganizer="deleteDocumentConfirm"
