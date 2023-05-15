@@ -70,8 +70,6 @@ const isHeatmapTimestampColumnIsTheFirstOne = (tempColumn: IWidgetColumn, rows: 
 
 const isRadarSplitInvalidForAttributes = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], widgetModel: IWidget) => {
     const splitEnabled = widgetModel.settings?.configuration?.splitting
-    console.log('--------------------------- splitEnabled: ', splitEnabled)
-    console.log('--------------------------- rows: ', rows)
     if (splitEnabled && (rows.length === 2 || tempColumn.type.includes('DATE') || tempColumn.type.includes('TIMESTAMP'))) return true
     return false
 }

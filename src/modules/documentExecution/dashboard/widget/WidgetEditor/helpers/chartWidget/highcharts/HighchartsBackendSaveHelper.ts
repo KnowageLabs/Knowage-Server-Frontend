@@ -12,6 +12,7 @@ export const formatHighchartsWidgetForSave = (widget: IWidget) => {
 
 const removeChartData = (chartModel: IHighchartsChartModel) => {
     chartModel.series = []
+    delete chartModel.seriesForRender
 }
 
 const formatPiePlotOptions = (chartModel: IHighchartsChartModel) => {

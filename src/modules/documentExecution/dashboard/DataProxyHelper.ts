@@ -514,11 +514,9 @@ export const getPieChartDrilldownData = async (widget: IWidget, datasets: IDashb
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
-    // Ovde formatiram ove likeSelections, likeSelections imae vrednost "parceta" koje je korisnik kliknuo i naziv kolone, od toga kreiram objekat, pozicija u nizu je drill nivo - 1 (trebalo bi :/)
     const formattedLikeSelections = {}
     likeSelections.forEach((likeSelection: any) => {
         const key = Object.keys(likeSelection)[0]
-        console.log(' !!!!!! key: ', key)
         formattedLikeSelections[key] = likeSelection[key]
     })
     const datasetLabel = selectedDataset.dsLabel as any
@@ -527,7 +525,6 @@ export const getPieChartDrilldownData = async (widget: IWidget, datasets: IDashb
     if (selectedDataset) {
         const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
         const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, {}, drillDownLevel)
-        // dodajem like selections
         postData.likeSelections = formattedSelections
         let tempResponse = null as any
 
@@ -680,8 +677,6 @@ const formatRadarChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDa
 
     addSelectionsToData(dataToSend, propWidget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
     dataToSend.aggregations.dataset = dataset.dsLabel
-
-    console.log('opoppoppopo', propWidget)
 
     propWidget.columns.forEach((measure) => {
         if (measure.fieldType == 'MEASURE') {

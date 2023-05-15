@@ -33,12 +33,11 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
 
     setData(data: any, widgetModel: IWidget) {
         // TODO
-        console.log('----------------------- DATA: ', data)
         if (!data || !data.metaData || !data.rows) return
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         const splitting = widgetModel.settings?.configuration?.splitting
         const drilldown = widgetModel?.settings?.interactions?.drilldown
-        console.log('----------------------- splitted: ', splitting)
+
         if (splitting?.enabled) {
             this.setSplitedData(splitting.groupedSerie, data)
         } else {
@@ -105,6 +104,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         const serie = deepcopy(this.model.series.find((serie: any) => serie.name === column.columnName))
         if (!serie) return null
         serie.type = column.serieType === 'bar' ? 'column' : column.serieType
+        serie.pointPlacement = "on"
         const index = data.metaData.fields.findIndex((field: any) => field.header?.startsWith(serie.name))
         const dataIndex = index !== -1 ? data.metaData.fields[index].dataIndex : ''
         const attribute = data.metaData.fields[1]
@@ -113,7 +113,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
             serie.data.push({
                 name: dateFormat && ['date', 'timestamp'].includes(attribute.type) ? this.getFormattedDateCategoryValue(row[attribute.dataIndex], dateFormat, attribute.type) : row[attribute.dataIndex],
                 y: row[dataIndex],
-                drilldown: drilldownEnabled // TODO 
+                drilldown: drilldownEnabled
             })
         })
         return serie
@@ -138,14 +138,12 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
                 name: dateFormat && ['date', 'timestamp'].includes(attribute.type) ? this.getFormattedDateCategoryValue(row[attribute.dataIndex], dateFormat, attribute.type) : row[attribute.dataIndex],
                 low: row[lowSerieIndexDataIndex],
                 high: row[highSerieIndexDataIndex],
-                drilldown: drilldownEnabled // TODO 
+                drilldown: drilldownEnabled
             })
         })
         lowSerie.name += ' / ' + highSerie.name
         return lowSerie
     }
-
-
 
     // TODO - Move to common?
     getFormattedDateCategoryValue(dateString: string, dateFormat: string, type: 'date' | 'timestamp') {
@@ -153,7 +151,6 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         const date = moment(dateString, type === 'date' ? 'DD/MM/YYYY' : 'DD/MM/YYYY HH:mm:ss.SSS')
         return date.isValid() ? date.format(dateFormat) : dateString
     }
-
 
     setHeatmapXAxis() {
         this.model.xAxis = highchartsDefaultValues.getDefaultHeatmapXAxis()
@@ -173,7 +170,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     setAllSeriesSettings(widgetModel: IWidget) {
         const allSeriesSettings = widgetModel.settings.series.seriesLabelsSettings[0]
         if (allSeriesSettings.label.enabled) {
-            this.model.series.forEach((serie: any) =>
+            this.model.seriesForRender?.forEach((serie: any) =>
                 this.updateSeriesDataWithSerieSettings(serie, allSeriesSettings))
         } else {
             this.resetSeriesSettings()
@@ -181,7 +178,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     resetSeriesSettings() {
-        this.model.series.forEach((serie: any) => serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' })
+        this.model.seriesForRender?.forEach((serie: any) => serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' })
     }
 
     setSpecificSeriesSettings(widgetModel: IWidget) {
@@ -192,27 +189,28 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     updateSpecificSeriesLabelSettings(serieName: string, seriesSettings: IHighchartsSeriesLabelsSetting) {
-        const index = this.model.series.findIndex((serie: any) => serie.name === serieName)
-        if (index !== -1) this.updateSeriesDataWithSerieSettings(this.model.series[index], seriesSettings)
-
+        if (!this.model.seriesForRender) return
+        const index = this.model.seriesForRender.findIndex((serie: any) => serie.name === serieName)
+        if (index !== undefined && index !== -1) this.updateSeriesDataWithSerieSettings(this.model.seriesForRender[index], seriesSettings)
     }
 
     updateSeriesDataWithSerieSettings(serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) {
-        serie.dataLabels = {
-            backgroundColor: seriesSettings.label.backgroundColor ?? '',
-            enabled: true,
-            position: '',
-            style: {
-                fontFamily: seriesSettings.label.style.fontFamily,
-                fontSize: seriesSettings.label.style.fontSize,
-                fontWeight: seriesSettings.label.style.fontWeight,
-                color: seriesSettings.label.style.color ?? ''
-            },
-            formatter: function () {
-                return KnowageHighchartsRadarChart.prototype.handleFormatter(this, seriesSettings.label)
+        serie.data.forEach((data: any) => {
+            data.dataLabels = {
+                backgroundColor: seriesSettings.label.backgroundColor ?? '',
+                enabled: true,
+                position: '',
+                style: {
+                    fontFamily: seriesSettings.label.style.fontFamily,
+                    fontSize: seriesSettings.label.style.fontSize,
+                    fontWeight: seriesSettings.label.style.fontWeight,
+                    color: seriesSettings.label.style.color ?? ''
+                },
+                formatter: function () {
+                    return KnowageHighchartsRadarChart.prototype.handleFormatter(this, seriesSettings.label)
+                }
             }
-        }
-
+        })
     }
 
 
@@ -221,8 +219,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     getFormattedSerieFromOtherChartTypeSerie(otherChartSerie: any) {
-        // TODO
-        const formattedSerie = { name: otherChartSerie.name, data: [], colorByPoint: true } as IHighchartsChartSerie
+        const formattedSerie = { name: otherChartSerie.name, data: [], colorByPoint: true, pointPlacement: "on" } as IHighchartsChartSerie
         if (otherChartSerie.accessibility) formattedSerie.accessibility
         return formattedSerie
     }

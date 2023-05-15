@@ -82,7 +82,7 @@ export default defineComponent({
         ...mapActions(appStore, ['setLoading', 'setInfo']),
         loadView() {
             this.view = this.propView
-            // TODO - remove mocked parentId
+            // TODO BE - remove mocked parentId, the service for geting all views is always returing parentId as null
             if (this.view?.name) this.view.parentId = '536a71d6-9a18-45c9-b991-7c81410b36ee'
         },
         setSelectedFolder(folder: any) {

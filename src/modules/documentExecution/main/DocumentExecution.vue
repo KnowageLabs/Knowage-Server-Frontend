@@ -595,7 +595,7 @@ export default defineComponent({
                   })
         },
         loadView() {
-            // TODO - Add Service for view
+            // TODO BE - Add Service for loading GET ONE view
             return mockedView as IDashboardView
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {

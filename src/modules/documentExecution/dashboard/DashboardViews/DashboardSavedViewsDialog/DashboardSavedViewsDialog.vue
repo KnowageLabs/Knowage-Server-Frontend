@@ -57,7 +57,7 @@ export default defineComponent({
         ...mapActions(appStore, ['setLoading', 'setInfo']),
         async loadSavedViews() {
             this.setLoading(true)
-            // TODO - Remove mocked/specific id for folder service, wait for proper service?
+            // TODO BE - Remove mocked/specific id for folder service, wait for proper service for getting all views related to the document
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/536a71d6-9a18-45c9-b991-7c81410b36ee`).then((response: AxiosResponse<any>) => {
                 this.savedViews = [...response.data]
             })

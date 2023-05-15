@@ -143,7 +143,6 @@ export default defineComponent({
             workspaceDescriptor,
             sidebarVisible: false,
             toggleCardDisplay: false,
-            // allFolders: [] as IFolder[], // TODO
             selectedFolder: {} as any,
             items: [] as IFolder[],
             breadcrumbs: [] as any[],
