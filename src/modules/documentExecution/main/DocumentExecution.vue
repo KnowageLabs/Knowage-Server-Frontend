@@ -132,6 +132,7 @@
             <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :parameters="linkParameters" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
             <DocumentExecutionSelectCrossNavigationDialog :visible="destinationSelectDialogVisible" :cross-navigation-documents="crossNavigationDocuments" @close="destinationSelectDialogVisible = false" @selected="onCrossNavigationSelected"></DocumentExecutionSelectCrossNavigationDialog>
             <DocumentExecutionCNContainerDialog v-if="angularData && crossNavigationContainerData" :visible="crossNavigationContainerVisible" :data="crossNavigationContainerData" @close="onCrossNavigationContainerClose"></DocumentExecutionCNContainerDialog>
+            <WorkspaceFolderPickerDialog v-if="workspaceFolderPickerDialogVisible" :visible="workspaceFolderPickerDialogVisible" :document="document" @close="workspaceFolderPickerDialogVisible = false"></WorkspaceFolderPickerDialog>
             <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="descriptor.popupDialog.style" :visible="crossNavigationDialogVisible" :modal="true" :show-header="false" :closable="false">
                 <DocumentExecution
                     v-if="crossNavigationPopupDialogDocument"
@@ -183,6 +184,7 @@ import DashboardController from '../dashboard/DashboardController.vue'
 import Dialog from 'primevue/dialog'
 import descriptor from './DocumentExecutionDescriptor.json'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/WorkspaceFolderPickerDialog.vue'
 
 // @ts-ignore
 // eslint-disable-next-line
@@ -219,7 +221,8 @@ export default defineComponent({
         DocumentExecutionSelectCrossNavigationDialog,
         DocumentExecutionCNContainerDialog,
         DashboardController,
-        Dialog
+        Dialog,
+        WorkspaceFolderPickerDialog
     },
     props: {
         id: { type: String },
@@ -291,7 +294,8 @@ export default defineComponent({
             crossNavigationDialogVisible: false,
             loadingCrossNavigationDocument: false,
             crossNavigationSourceDocumentName: '',
-            dashboardView: null as IDashboardView | null
+            dashboardView: null as IDashboardView | null,
+            workspaceFolderPickerDialogVisible: false
         }
     },
     computed: {
@@ -1247,23 +1251,8 @@ export default defineComponent({
         isOrganizerEnabled() {
             return this.user.isSuperadmin || this.user.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.user.functionalities.includes(UserFunctionalitiesConstants.SAVE_INTO_FOLDER_FUNCTIONALITY)
         },
-        async addToWorkspace() {
-            this.loading = true
-            await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/${this.document.id}`, {}, { headers: { 'X-Disable-Errors': 'true' } })
-                .then(() =>
-                    this.setInfo({
-                        title: this.$t('common.toast.updateTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                )
-                .catch((error) =>
-                    this.setError({
-                        title: this.$t('common.toast.updateTitle'),
-                        msg: error.message === 'sbi.workspace.organizer.document.addtoorganizer.error.duplicateentry' ? this.$t('documentExecution.main.addToWorkspaceError') : error.message
-                    })
-                )
-            this.loading = false
+        addToWorkspace() {
+            this.workspaceFolderPickerDialogVisible = true
         },
         async loadUserConfig() {
             this.sessionEnabled = this.configurations['SPAGOBI.SESSION_PARAMETERS_MANAGER.enabled'] === 'false' ? false : true
