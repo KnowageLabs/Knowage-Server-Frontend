@@ -3,7 +3,7 @@
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
                 <template #start>
-                    {{ newFolder.id ? $t('common.edit') : $t('workspace.myRepository.newFolderTitle') }}
+                    {{ newFolder?.id ? $t('common.edit') : $t('workspace.myRepository.newFolderTitle') }}
                 </template>
             </Toolbar>
         </template>
@@ -39,7 +39,7 @@
             </div>
         </form>
 
-        <WorkspaceFolderPickerTree v-if="newFolder.id" :prop-folders="propFolders ?? null" :selected-folder-id="newFolder.parentId" @folderSelected="setSelectedParentFolder"></WorkspaceFolderPickerTree>
+        <WorkspaceFolderPickerTree v-if="newFolder?.id" :prop-folders="propFolders ?? null" :selected-folder-id="newFolder.parentId" @folderSelected="setSelectedParentFolder"></WorkspaceFolderPickerTree>
 
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
@@ -92,15 +92,15 @@ export default defineComponent({
     },
     methods: {
         loadSelectedFolder() {
-            this.newFolder = this.selectedFolder
+            this.newFolder = this.selectedFolder ?? {}
         },
         setSelectedParentFolder(folder: any) {
             this.newFolder.parentId = folder.id
         },
         closeDialog() {
+            this.$emit('close')
             this.newFolder = {} as any
             this.v$.$reset()
-            this.$emit('close')
         },
         onSave() {
             this.newFolder.id ? this.editFolder() : this.createFolder()
