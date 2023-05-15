@@ -28,17 +28,17 @@
             </Column>
             <Column :key="'type'" :header="$t('common.type')" :sortable="true">
                 <template #body="slotProps">
-                    <span class="kn-truncated">{{ slotProps.data['type'] ?? slotProps.data['documentType'] }}</span>
+                    <span class="kn-truncated">{{ slotProps.data['type'] }}</span>
                 </template>
             </Column>
             <Column :key="'name'" :header="$t('common.name')" :sortable="true">
                 <template #body="slotProps">
-                    <span class="kn-truncated">{{ slotProps.data['name'] ?? slotProps.data['documentName'] }}</span>
+                    <span class="kn-truncated">{{ slotProps.data['name'] }}</span>
                 </template>
             </Column>
             <Column :key="'description'" :header="$t('common.description')" :sortable="true">
                 <template #body="slotProps">
-                    <span class="kn-truncated">{{ slotProps.data['description'] ?? slotProps.data['documentDescription'] }}</span>
+                    <span class="kn-truncated">{{ slotProps.data['description'] }}</span>
                 </template>
             </Column>
             <Column :key="'owner'" :header="$t('common.owner')" :sortable="true" style="width: 5%">
@@ -92,7 +92,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { IDocument, IFolder } from '@/modules/workspace/Workspace'
+import { IFolder } from '@/modules/workspace/Workspace'
 import mainDescriptor from '@/modules/workspace/WorkspaceDescriptor.json'
 import DetailSidebar from '@/modules/workspace/genericComponents/DetailSidebar.vue'
 import Message from 'primevue/message'
@@ -125,10 +125,10 @@ export default defineComponent({
             mainDescriptor,
             loading: false,
             showDetailSidebar: false,
-            documents: [] as (IDocument | IDashboardView)[],
-            filteredDocuments: [] as (IDocument | IDashboardView)[],
+            documents: [] as IDashboardView[],
+            filteredDocuments: [] as IDashboardView[],
             menuButtons: [] as any,
-            selectedDocument: {} as IDocument,
+            selectedDocument: {} as IDashboardView,
             searchWord: '' as string,
             folders: [] as IFolder[],
             moveDialogVisible: false,
@@ -217,22 +217,23 @@ export default defineComponent({
         executeView(view: IDashboardView) {
             this.$emit('execute', view)
         },
-        executeDocumentFromOrganizer(document: IDocument) {
+        executeDocumentFromOrganizer(document: IDashboardView) {
             this.$emit('execute', { ...document, executeAsDocument: true })
         },
-        moveDocumentToFolder(document: IDocument | IDashboardView) {
-            if ((document as IDashboardView).type === 'VIEW') {
-                this.selectedView = { ...(document as IDashboardView) }
+        moveDocumentToFolder(document: IDashboardView) {
+            if (document.type === 'VIEW') {
+                this.selectedView = { ...document }
                 this.saveViewDialogVisible = true
             } else {
-                this.selectedDocument = document as IDocument
+                this.selectedDocument = document
                 this.moveDialogVisible = true
             }
         },
         async handleDocumentMove(folder: any) {
+            if (!this.selectedDocument || !folder) return
             this.loading = true
             await this.$http
-                .put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documentsee/${this.selectedDocument.biObjId}/${this.selectedDocument.functId}/${folder.id}`)
+                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/document`, { biObjectId: this.selectedDocument.biObjectId, parentId: folder.id })
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -248,12 +249,12 @@ export default defineComponent({
                 })
             this.loading = false
         },
-        deleteDocumentConfirm(document: IDocument | IDashboardView) {
+        deleteDocumentConfirm(document: IDashboardView) {
             this.$confirm.require({
                 message: this.$t('common.toast.deleteMessage'),
                 header: this.$t('common.toast.deleteTitle'),
                 icon: 'pi pi-exclamation-triangle',
-                accept: async () => ((document as IDashboardView).type === 'VIEW' ? await this.deleteView(document as IDashboardView) : await this.deleteDocument(document as IDocument))
+                accept: async () => (document.type === 'VIEW' ? await this.deleteView(document as IDashboardView) : await this.deleteDocument(document))
             })
         },
         async deleteView(view: IDashboardView) {
@@ -274,11 +275,10 @@ export default defineComponent({
                 .catch(() => {})
             this.setLoading(false)
         },
-        async deleteDocument(document: IDocument) {
+        async deleteDocument(document: IDashboardView) {
             this.loading = true
-
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/${document.functId}/${document.biObjId}`)
+                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/document/${document.id}`)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
@@ -297,16 +297,9 @@ export default defineComponent({
         searchItems() {
             setTimeout(() => {
                 if (!this.searchWord.trim().length) {
-                    this.filteredDocuments = [...this.documents] as IDocument[]
+                    this.filteredDocuments = [...this.documents] as IDashboardView[]
                 } else {
-                    this.filteredDocuments = this.documents.filter((el: any) => {
-                        return el.type === 'VIEW'
-                            ? el.type?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.name?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.description?.toLowerCase().includes(this.searchWord.toLowerCase())
-                            : el.documentType?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                                  el.documentLabel?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                                  el.documentName?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                                  el.documentDescription?.toLowerCase().includes(this.searchWord.toLowerCase())
-                    })
+                    this.filteredDocuments = this.documents.filter((el: any) => el.type?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.name?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.description?.toLowerCase().includes(this.searchWord.toLowerCase()))
                 }
             }, 250)
         },
