@@ -70,33 +70,8 @@ import cryptoRandomString from 'crypto-random-string'
 export default defineComponent({
     name: 'document-drivers',
     components: { KnListBox, KnInputFile, VCodeMirror, InlineMessage },
-    props: { selectedDocument: { type: Object as PropType<iDocument>, required: true } },
-    computed: {
-        showTemplateContent(): any {
-            switch (this.selectedTemplateFileType) {
-                case 'xml':
-                    return true
-                case 'xls':
-                    return true
-                case 'rptdesign':
-                    return true
-                case 'sbicockpit':
-                    return true
-                case 'json':
-                    return true
-                case 'sbigeoreport':
-                    return true
-                default:
-                    return false
-            }
-        },
-        designerButtonVisible(): boolean {
-            return this.selectedDocument.typeCode == 'OLAP' || this.selectedDocument.typeCode == 'KPI' || this.selectedDocument.engine == 'knowagegisengine'
-        },
-        ...mapState(mainStore, {
-            user: 'user'
-        })
-    },
+    props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, refresh: { type: Boolean, required: false } },
+
     setup() {
         const store = mainStore()
         return { store }
@@ -124,6 +99,39 @@ export default defineComponent({
                 autofocus: true,
                 theme: 'eclipse',
                 lineNumbers: true
+            }
+        }
+    },
+    computed: {
+        showTemplateContent(): any {
+            switch (this.selectedTemplateFileType) {
+                case 'xml':
+                    return true
+                case 'xls':
+                    return true
+                case 'rptdesign':
+                    return true
+                case 'sbicockpit':
+                    return true
+                case 'json':
+                    return true
+                case 'sbigeoreport':
+                    return true
+                default:
+                    return false
+            }
+        },
+        designerButtonVisible(): boolean {
+            return this.selectedDocument.typeCode == 'OLAP' || this.selectedDocument.typeCode == 'KPI' || this.selectedDocument.engine == 'knowagegisengine'
+        },
+        ...mapState(mainStore, {
+            user: 'user'
+        })
+    },
+    watch: {
+        refresh(newValue) {
+            if (newValue && newValue == true) {
+                this.getAllTemplates()
             }
         }
     },
