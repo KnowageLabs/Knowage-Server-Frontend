@@ -37,6 +37,7 @@
     </grid-item>
 
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" />
+    <WidgetSearchDialog v-if="searchDialogVisible" :visible="searchDialogVisible" :widget="widget" :prop-search="search" @close="searchDialogVisible = false" @search="onSearch"></WidgetSearchDialog>
 </template>
 
 <script lang="ts">
@@ -60,10 +61,11 @@ import { datasetIsUsedInAssociations } from './interactionsHelpers/DatasetAssoci
 import { loadAssociativeSelections } from './interactionsHelpers/InteractionHelper'
 import ContextMenu from 'primevue/contextmenu'
 import QuickWidgetDialog from './commonComponents/QuickWidgetDialog.vue'
+import WidgetSearchDialog from './WidgetSearchDialog/WidgetSearchDialog.vue'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog },
+    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -107,7 +109,9 @@ export default defineComponent({
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: true },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: true }
-            ] as IMenuItem[]
+            ] as IMenuItem[],
+            searchDialogVisible: false,
+            search: { searchText: '', searchColumns: [] } as { searchText: string; searchColumns: string[] }
         }
     },
     computed: {
@@ -291,9 +295,15 @@ export default defineComponent({
         },
         searchOnWidget(widget) {
             console.log('widget', widget)
+            this.searchDialogVisible = true
         },
         cloneWidget(widget) {
             console.log('widget', widget)
+        },
+        onSearch(payload: { searchText: string; searchColumns: string[] }) {
+            this.search = payload
+            console.log('-------- ON SEARCH PAYLOAD: ', this.search)
+            this.searchDialogVisible = false
         }
     }
 })
