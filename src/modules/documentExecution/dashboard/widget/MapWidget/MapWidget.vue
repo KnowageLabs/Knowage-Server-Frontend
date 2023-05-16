@@ -1,5 +1,5 @@
 <template>
-    <KnMonaco v-model="widgetModel" :options="{ theme: 'vs-dark' }" language="json">{{ widgetModel }}</KnMonaco>
+    <div id="map" ref="map" class="mapContainer"></div>
 </template>
 
 <script lang="ts">
@@ -7,12 +7,15 @@ import { mapActions } from 'pinia'
 import { IDashboardDataset, ISelection, IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
-import KnMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import 'leaflet/dist/leaflet.css'
+import { map } from 'leaflet/src/map'
+import { tileLayer } from 'leaflet/src/layer/tile/TileLayer'
+import { Marker } from 'leaflet/src/layer/marker/Marker'
 
 export default defineComponent({
     name: 'map-widget',
-    components: { KnMonaco },
+    components: {},
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         editorMode: { type: Boolean, required: false },
@@ -26,7 +29,9 @@ export default defineComponent({
     data() {
         return {
             widgetModel: {} as string,
-            activeSelections: [] as ISelection[]
+            activeSelections: [] as ISelection[],
+            zoom: 2 as number,
+            Lmap: undefined as any
         }
     },
     watch: {
@@ -44,6 +49,18 @@ export default defineComponent({
         this.loadWidgetModel()
         this.loadActiveSelections()
     },
+    mounted() {
+        console.log(this.$refs.map)
+        this.Lmap = map(this.$refs.map).setView([51.505, -0.09], 13)
+        tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(this.Lmap)
+        const marker = new Marker([51.5, -0.09]).addTo(this.Lmap)
+    },
+    updated() {
+        this.Lmap.invalidateSize()
+    },
     unmounted() {},
     methods: {
         ...mapActions(mainStore, ['setSelections']),
@@ -57,4 +74,9 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss"></style>
+<style lang="scss">
+.mapContainer {
+    width: 100%;
+    height: 100%;
+}
+</style>
