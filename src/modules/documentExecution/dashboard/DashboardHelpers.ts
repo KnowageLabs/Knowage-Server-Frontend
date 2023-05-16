@@ -152,6 +152,9 @@ export const apllyDashboardViewToModel = (dashboardModel: IDashboard, view: IDas
 
 const setStatesForWidgets = (dashboardModel: IDashboard, states: any) => {
     dashboardModel.widgets.forEach((widget: IWidget) => {
-        if (widget.id && states[widget.id]) widget.state = states[widget.id].state
+        if (widget.id && states[widget.id]) {
+            widget.state = states[widget.id].state
+            widget.search = states[widget.id].search
+        }
     })
 }

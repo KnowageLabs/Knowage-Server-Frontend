@@ -70,12 +70,12 @@ export default defineComponent({
             if (!this.dashboardModel.configuration) return ''
 
             const backgroundConfig = this.dashboardModel.configuration.background as IBackground
-            const backgroundStyle = { 'background-size': backgroundConfig.imageBackgroundSize || '100%', 'background-position': 'center', 'background-repeat': 'no-repeat', 'min-height': '100%' }
+            const backgroundStyle = { 'background-size': backgroundConfig?.imageBackgroundSize || '100%', 'background-position': 'center', 'background-repeat': 'no-repeat', 'min-height': '100%' }
 
-            if (backgroundConfig.imageBackgroundUrl) backgroundStyle['background-image'] = `url('${backgroundConfig.imageBackgroundUrl}')`
-            if (backgroundConfig.sheetsBackgroundColor) backgroundStyle['background-color'] = backgroundConfig.sheetsBackgroundColor
-            backgroundStyle['background-size'] = backgroundConfig.imageBackgroundSize || 'contain'
-            console.log('backgroundStyle', backgroundStyle)
+            if (backgroundConfig?.imageBackgroundUrl) backgroundStyle['background-image'] = `url('${backgroundConfig.imageBackgroundUrl}')`
+            if (backgroundConfig?.sheetsBackgroundColor) backgroundStyle['background-color'] = backgroundConfig.sheetsBackgroundColor
+            backgroundStyle['background-size'] = backgroundConfig?.imageBackgroundSize || 'contain'
+
             return backgroundStyle
         }
     },

@@ -968,6 +968,8 @@
                 "showIndexesColumn": "Show indexes column",
                 "title": "Rows"
             },
+            "searchInTableWidget": "Search in Table Widget",
+            "searchInTableWidgetHint": "Select the values and the column to search",
             "selectDataset": "Select Dataset",
             "selectedColumns": "Selected Columns",
             "selectorType": {

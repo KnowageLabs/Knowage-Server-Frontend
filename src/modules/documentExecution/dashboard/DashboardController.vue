@@ -1,6 +1,5 @@
 <template>
     <div v-show="model && visible && showDashboard" :id="`dashboard_${model?.configuration?.id}`" :class="mode === 'dashboard-popup' ? 'dashboard-container-popup' : 'dashboard-container'">
-        {{ viewName }}
         <Button
             v-if="alwaysShowSelectionButton || store.dashboards[dashboardId]?.selections?.length > 0"
             icon="fas fa-square-check"
@@ -405,7 +404,7 @@ export default defineComponent({
         onOpenSaveCurrentViewDialog(event: any) {
             if (!this.document || event !== this.dashboardId) return
             this.currentView.settings.selections = this.getSelections(this.dashboardId)
-            this.currentView.settings.drivers = this.filtersData
+            this.currentView.drivers = this.filtersData
             this.selectedView = { ...this.currentView, new: true }
             this.saveViewDialogVisible = true
         },
