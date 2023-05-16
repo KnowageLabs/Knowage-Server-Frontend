@@ -143,7 +143,6 @@ export default defineComponent({
             workspaceDescriptor,
             sidebarVisible: false,
             toggleCardDisplay: false,
-            // allFolders: [] as IFolder[], // TODO
             selectedFolder: {} as any,
             items: [] as IFolder[],
             breadcrumbs: [] as any[],
@@ -237,10 +236,13 @@ export default defineComponent({
         },
         async executeDocument(document: any) {
             const isView = document.type === 'VIEW'
-            const routeType = isView && !document.executeAsDocument ? 'dashboard-view' : this.getRouteDocumentType(document)
+            let routeType = ''
+            if (isView) routeType = isView && !document.executeAsDocument ? 'dashboard-view' : 'dashboard'
+            else routeType = this.getRouteDocumentType(document)
             let label = ''
-            if (isView) label = await this.getDocumentLabelFromView(document)
+            if (['VIEW', 'IMPORTED_DOC'].includes(document.type)) label = await this.getDocumentLabelFromView(document)
             else label = document.label ? document.label : document.documentLabel
+            if (!label) return
             let route = `/workspace/${routeType}/${label}`
             if (isView && !document.executeAsDocument) route += `?viewName=${document.name}`
             this.$router.push(route)
@@ -248,7 +250,10 @@ export default defineComponent({
         async getDocumentLabelFromView(view: IDashboardView) {
             this.loading = true
             let label = ''
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documents/${view.biObjectId}`).then((response: AxiosResponse<any>) => (label = response.data ? response.data.label : ''))
+            await this.$http
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documents/${view.biObjectId}`)
+                .then((response: AxiosResponse<any>) => (label = response.data ? response.data.label : ''))
+                .catch(() => {})
             this.loading = false
             return label
         },

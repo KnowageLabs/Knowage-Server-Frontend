@@ -80,6 +80,28 @@
             "value": "dateIn"
         }
     ],
+    "repositoryViewFields": [
+        {
+            "translation": "importExport.gallery.column.name",
+            "type": "text",
+            "value": "name"
+        },
+        {
+            "translation": "common.description",
+            "type": "text",
+            "value": "description"
+        },
+        {
+            "translation": "common.type",
+            "type": "text",
+            "value": "type"
+        },
+        {
+            "translation": "common.parameters",
+            "type": "parameters",
+            "value": "drivers"
+        }
+    ],
     "defaultViewFields": [
         {
             "translation": "importExport.gallery.column.name",

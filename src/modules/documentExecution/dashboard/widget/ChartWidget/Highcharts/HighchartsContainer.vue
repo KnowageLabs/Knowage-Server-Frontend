@@ -113,10 +113,8 @@ export default defineComponent({
             console.log('-------- MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
-                console.log('--------this.highchartsInstance : ', this.highchartsInstance)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
-                console.log('--------- EROR: ', error)
                 this.setError({ title: this.$t('common.toast.errorTitle'), msg: error ? error.message : '' })
             }
         },
@@ -156,22 +154,16 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            console.log('--------- event ', event)
             if (!['pie', 'heatmap', 'radar'].includes(this.chartModel.chart.type)) return
 
             // TODO - refactor
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
-                // console.log(' this.datasets: ', dashboardDatasets)
-                // console.log(' event: ', event)
-                // console.log(' event.point.name: ', event.point.name)
                 this.drillLevel++
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })
-                console.log(' likeSelections ', this.likeSelections)
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
                 const temp = await getPieChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
-                console.log(' resp: ', temp)
 
                 const tempSeries = [] as any[]
                 temp?.rows?.forEach((row: any) => {
@@ -184,7 +176,6 @@ export default defineComponent({
                     serieElement.drilldown = true
                     tempSeries.push(serieElement)
                 })
-                console.log('--------- TEMP SERIES: ', tempSeries)
                 this.highchartsInstance.hideLoading()
                 this.highchartsInstance.addSeriesAsDrilldown(event.point, { data: tempSeries, name: event.point.name })
                 this.setSeriesEvents()

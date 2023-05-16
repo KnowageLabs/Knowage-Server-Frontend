@@ -1,6 +1,6 @@
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { createSerie, createGaugeSerie } from './updater/KnowageHighchartsCommonUpdater'
+import { createSerie, createGaugeSerie, createPolarSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import Highcharts from 'highcharts'
 
@@ -78,8 +78,10 @@ export class KnowageHighcharts {
     addSerie(column: IWidgetColumn, type: 'pie' | 'gauge' | 'radar') {
         switch (type) {
             case 'pie':
-            case 'radar':
                 this.model.series.push(createSerie(column.columnName, column.aggregation, true, column.serieType))
+                break
+            case 'radar':
+                this.model.series.push(createPolarSerie(column.columnName, column.serieType ?? 'line'))
                 break
             case 'gauge':
                 this.model.series.push(createGaugeSerie(column.columnName))

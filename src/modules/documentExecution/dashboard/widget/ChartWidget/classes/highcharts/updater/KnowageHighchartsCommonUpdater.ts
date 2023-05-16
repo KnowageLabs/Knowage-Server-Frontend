@@ -12,8 +12,13 @@ export const createGaugeSerie = (serieName: string) => {
     return { name: serieName, data: [], colorByPoint: false, accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() }
 }
 
+
 export const createHeatMapSerie = (serieName: string) => {
     return { name: serieName, data: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() }
+}
+
+export const createPolarSerie = (serieName: string, serieType: string) => {
+    return { name: serieName, data: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings(), pointPlacement: "on", serieType: serieType }
 }
 
 export const getFormattedNoDataConfiguration = (oldModel: any, newModel: IHighchartsChartModel) => {

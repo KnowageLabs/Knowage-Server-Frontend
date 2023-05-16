@@ -47,7 +47,7 @@
     ></WidgetEditor>
 
     <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" :document="document" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
-    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" @close="savedViewsListDialogVisible = false" @moveView="moveView"></DashboardSavedViewsDialog>
+    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
 </template>
 
 <script lang="ts">
@@ -77,6 +77,7 @@ import DashboardGeneralSettings from './generalSettings/DashboardGeneralSettings
 import deepcopy from 'deepcopy'
 import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
+import mockedView from '../main/mockedView.json'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -135,7 +136,8 @@ export default defineComponent({
             currentView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedView: null as IDashboardView | null,
             saveViewDialogVisible: false,
-            savedViewsListDialogVisible: false
+            savedViewsListDialogVisible: false,
+            selectedViewForExecution: null as IDashboardView | null
         }
     },
     computed: {
@@ -226,7 +228,10 @@ export default defineComponent({
                 (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
             // TODO
-            if (this.propView) apllyDashboardViewToModel(this.model, this.propView)
+            if (this.propView) {
+                this.loadSelectedViewForExecution(this.propView)
+                apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
+            }
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
@@ -283,6 +288,11 @@ export default defineComponent({
                 )
             }
             this.setProfileAttributes(this.profileAttributes)
+        },
+        loadSelectedViewForExecution(view: IDashboardView) {
+            // TODO - Remove mocked view
+            this.selectedViewForExecution = mockedView
+            // this.selectedViewForExecution = view
         },
         openNewWidgetPicker(event: any) {
             if (event !== this.dashboardId) return
@@ -411,6 +421,12 @@ export default defineComponent({
             this.savedViewsListDialogVisible = false
             this.selectedView = view
             this.saveViewDialogVisible = true
+        },
+        executeView(view: IDashboardView) {
+            this.savedViewsListDialogVisible = false
+            this.loadSelectedViewForExecution(view)
+            apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
+            this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
         }
     }
 })
