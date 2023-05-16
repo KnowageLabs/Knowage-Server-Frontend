@@ -19,6 +19,11 @@
             "value": "Background"
         },
         {
+            "icon": "fa-solid fa-bars",
+            "label": "dashboard.generalSettings.menuWidgets.title",
+            "value": "MenuWidgets"
+        },
+        {
             "icon": "fa-brands fa-diaspora",
             "label": "common.variables",
             "value": "Variables"

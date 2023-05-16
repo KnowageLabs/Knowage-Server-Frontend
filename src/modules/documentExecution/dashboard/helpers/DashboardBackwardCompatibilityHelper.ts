@@ -2,7 +2,7 @@ import { formatVegaChartsWidget } from './chartWidget/vega/VegaChartsCompatibili
 import { formatMapWidget } from './mapWidget/MapCompatibilityHelper'
 import { formatTableWidget } from './tableWidget/TableWidgetCompatibilityHelper'
 import { formatSelectorWidget } from '@/modules/documentExecution/dashboard/helpers/selectorWidget/SelectorWidgetCompatibilityHelper'
-import { IAssociation, IDashboard, IDashboardConfiguration, IDataset, IDatasetParameter, ISelection, IVariable, IWidget, IWidgetColumn, IWidgetColumnFilter, IDashboardDataset, IDashboardDriver, IBackground } from '../Dashboard'
+import { IAssociation, IDashboard, IDashboardConfiguration, IDataset, IDatasetParameter, ISelection, IVariable, IWidget, IWidgetColumn, IWidgetColumnFilter, IDashboardDataset, IDashboardDriver, IBackground, IMenuAndWidgets } from '../Dashboard'
 import { formatSelectionWidget } from './selectionWidget/SelectionsWidgetCompatibilityHelper'
 import { setVariableValueFromDataset } from '../generalSettings/VariablesHelper'
 import deepcopy from 'deepcopy'
@@ -60,14 +60,14 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
         variables: await getFormattedVariables(model, drivers, profileAttributes, datasets, $http),
         selections: getFormattedSelections(model),
         themes: {},
-        background: getFormattedSheetBackground(model)
+        background: getFormattedSheetBackground(model),
+        menuWidgets: getFormattedMenuAndWidgets(model)
     } as IDashboardConfiguration
 
     return formattedConfiguration
 }
 
 const getFormattedSheetBackground = (model: any) => {
-    console.log('BACKGROUND MODEL', model)
     const modelStyle = model.configuration.style
 
     const formattedBackground = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '' } as IBackground
@@ -76,6 +76,14 @@ const getFormattedSheetBackground = (model: any) => {
     if (modelStyle.imageBackgroundSize) formattedBackground.imageBackgroundSize = modelStyle.imageBackgroundSize
 
     return formattedBackground
+}
+
+const getFormattedMenuAndWidgets = (model: any) => {
+    console.log('MENU WIDGET MODEL', model)
+    const modelConfig = model.configuration
+    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true } as IMenuAndWidgets
+
+    return formattedMenuAndWIdgets
 }
 
 const getFormattedAssociations = (model: any) => {

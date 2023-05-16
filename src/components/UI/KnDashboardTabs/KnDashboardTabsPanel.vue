@@ -208,6 +208,7 @@ export default defineComponent({
         list-style: none;
         display: inline-flex;
         order: 0;
+        background-color: white;
         &.bottom {
             order: 2;
             border-top: 1px solid #ccc;
