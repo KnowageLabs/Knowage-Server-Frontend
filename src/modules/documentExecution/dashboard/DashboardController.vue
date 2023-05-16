@@ -1,6 +1,5 @@
 <template>
     <div v-show="model && visible && showDashboard" :id="`dashboard_${model?.configuration?.id}`" :class="mode === 'dashboard-popup' ? 'dashboard-container-popup' : 'dashboard-container'">
-        {{ viewName }}
         <Button
             v-if="store.dashboards[dashboardId]?.selections?.length > 0"
             icon="fas fa-square-check"
