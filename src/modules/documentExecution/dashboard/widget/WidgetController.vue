@@ -143,7 +143,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget']),
+        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -168,6 +168,11 @@ export default defineComponent({
         },
         loadWidget(widget: IWidget) {
             this.widgetModel = widget
+            this.loadWidgetSearch()
+        },
+        loadWidgetSearch() {
+            if (this.widgetModel.search) this.search = { ...this.widgetModel.search }
+            delete this.widgetModel.search
         },
         setWidgetLoading(loading: any) {
             this.loading = loading
@@ -304,6 +309,8 @@ export default defineComponent({
             this.search = payload
             console.log('-------- ON SEARCH PAYLOAD: ', this.search)
             this.searchDialogVisible = false
+            const currentState = this.getCurrentDashboardView(this.dashboardId)
+            if (currentState && this.widgetModel.id) currentState.settings.states[this.widgetModel.id] = { type: this.widgetModel.type, search: this.search }
         }
     }
 })

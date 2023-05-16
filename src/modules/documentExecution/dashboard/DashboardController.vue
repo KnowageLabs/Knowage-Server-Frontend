@@ -404,7 +404,7 @@ export default defineComponent({
         onOpenSaveCurrentViewDialog(event: any) {
             if (!this.document || event !== this.dashboardId) return
             this.currentView.settings.selections = this.getSelections(this.dashboardId)
-            this.currentView.settings.drivers = this.filtersData
+            this.currentView.drivers = this.filtersData
             this.selectedView = { ...this.currentView, new: true }
             this.saveViewDialogVisible = true
         },
