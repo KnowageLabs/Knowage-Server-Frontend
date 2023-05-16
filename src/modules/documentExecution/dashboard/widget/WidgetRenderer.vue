@@ -36,6 +36,7 @@
             <ImageWidget v-if="widget.type === 'image'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" />
             <CustomChartWidget v-if="widget.type == 'customchart'" :prop-widget="widget" :widget-data="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables" @loading="$emit('loading', $event)"></CustomChartWidget>
             <PivotWidget v-if="widget.type == 'static-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
+            <MapWidget v-if="widget.type == 'map' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             <DiscoveryWidget
                 v-if="widget.type === 'discovery'"
                 :prop-widget="widget"
@@ -72,12 +73,13 @@ import PivotWidget from '@/workspaces/PivotWidget/PivotWidget.vue'
 import CustomChartWidget from '../widget/CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../widget/DiscoveryWidget/DiscoveryWidget.vue'
 import VegaContainer from '../widget/ChartWidget/Vega/VegaContainer.vue'
+import MapWidget from '../widget/MapWidget/MapWidget.vue'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'widget-renderer',
-    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, VegaContainer },
+    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, VegaContainer, MapWidget },
     props: {
         widget: { required: true, type: Object as any },
         widgetLoading: { required: true, type: Boolean as any },
