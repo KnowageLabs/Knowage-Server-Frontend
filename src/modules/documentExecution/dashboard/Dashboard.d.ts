@@ -14,6 +14,7 @@ export interface IDashboardConfiguration {
     name: string
     label: string
     description: string
+    cssToRender: string
     associations: IAssociation[]
     datasets: IDashboardDataset[]
     variables: IVariable[]

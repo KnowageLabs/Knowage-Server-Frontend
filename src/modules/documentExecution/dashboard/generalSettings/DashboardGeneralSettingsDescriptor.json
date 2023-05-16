@@ -24,6 +24,11 @@
             "value": "MenuWidgets"
         },
         {
+            "icon": "fa-brands fa-css3-alt",
+            "label": "dashboard.generalSettings.css",
+            "value": "CSS"
+        },
+        {
             "icon": "fa-brands fa-diaspora",
             "label": "common.variables",
             "value": "Variables"

@@ -33,11 +33,10 @@
  */
 import { defineComponent, PropType } from 'vue'
 import { IMenuItem, IWidget } from '../Dashboard'
-import Menu from 'primevue/menu'
 
 export default defineComponent({
     name: 'widget-button-bar',
-    components: { Menu },
+    components: {},
     props: {
         widget: { type: Object as PropType<IWidget>, required: true },
         playSelectionButtonVisible: { type: Boolean, required: true },
