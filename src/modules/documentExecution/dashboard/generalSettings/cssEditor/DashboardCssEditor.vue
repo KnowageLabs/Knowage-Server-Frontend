@@ -1,9 +1,6 @@
 <template>
     <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
         <label class="kn-material-input-label p-m-3"> {{ $t('dashboard.generalSettings.css') }}</label>
-        {{ dashboardModelProp.configuration.cssToRender }}
-        <br />
-        {{ dashboardConfig.cssToRender }}
         <KnMonaco v-model="dashboardConfig.cssToRender" :options="{ theme: 'vs-light' }" :language="'css'" />
     </div>
 </template>
@@ -33,7 +30,6 @@ export default defineComponent({
     watch: {},
     created() {
         this.dashboardConfig = this.dashboardModelProp.configuration
-        console.log('dashboardModel', this.dashboardModelProp)
     },
     methods: {}
 })
