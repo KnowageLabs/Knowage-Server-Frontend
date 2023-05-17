@@ -247,7 +247,7 @@ export default defineComponent({
             }
         },
         addColumnCheckboxRendererProps(el) {
-            if (el.editorType == 'TEXT' && el.columnInfo.type === 'boolean') {
+            if (el.editorType == 'TEXT' && el.columnInfo?.type === 'boolean') {
                 el.cellRenderer = (params) => {
                     return `<i class="fas fa-${params.value ? 'check' : 'times'}"/>`
                 }
@@ -264,7 +264,7 @@ export default defineComponent({
                 el.valueFormatter = (params) => {
                     return this.getFormattedDateTime(params.value, { dateStyle: 'short', timeStyle: 'medium' }, true)
                 }
-            } else if (['int', 'float', 'decimal', 'long'].includes(el.columnInfo.type)) {
+            } else if (['int', 'float', 'decimal', 'long'].includes(el.columnInfo?.type)) {
                 el.valueFormatter = (params: any) => {
                     let configuration = { useGrouping: false, minFractionDigits: 0, maxFractionDigits: 0 } as { useGrouping: boolean; minFractionDigits: number; maxFractionDigits: number } | null
                     configuration = formatRegistryNumber(el)
@@ -403,7 +403,7 @@ export default defineComponent({
                 tempRow.isNew = true
                 delete tempRow.id
                 if (this.keyColumnName) tempRow[this.keyColumnName] = ''
-				this.columns.filter((x) => x.isAudit).forEach((column) => delete tempRow[column.field])
+                this.columns.filter((x) => x.isAudit).forEach((column) => delete tempRow[column.field])
                 this.addRowToFirstPosition(tempRow)
                 this.$emit('rowChanged', tempRow)
             })
@@ -578,7 +578,7 @@ export default defineComponent({
             this.setInfo({ title: this.$t('common.error.generic'), msg: message })
         },
         getCellType(colDef) {
-            if (colDef.editorType == 'TEXT' && colDef.columnInfo.type === 'boolean') return 'checkbox'
+            if (colDef.editorType == 'TEXT' && colDef.columnInfo?.type === 'boolean') return 'checkbox'
             if (colDef.editorType !== 'COMBO' && colDef.columnInfo?.type !== 'date' && colDef.columnInfo?.type !== 'timestamp' && setInputDataType(colDef.columnInfo?.type) === 'text') return 'text'
             if (colDef.editorType !== 'COMBO' && colDef.columnInfo?.type !== 'date' && colDef.columnInfo?.type !== 'timestamp' && setInputDataType(colDef.columnInfo?.type) === 'number') return 'number'
             if (colDef.editorType === 'COMBO') return 'dropdown'
