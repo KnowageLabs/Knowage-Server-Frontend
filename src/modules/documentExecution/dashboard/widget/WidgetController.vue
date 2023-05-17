@@ -187,7 +187,7 @@ export default defineComponent({
 
             this.setWidgetLoading(true)
 
-            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections)
+            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections, this.search)
             this.widgetData = this.widgetInitialData
             await this.loadActiveSelections()
 
@@ -219,9 +219,11 @@ export default defineComponent({
             return widgetUsesSelection
         },
         async reloadWidgetData(associativeResponseSelections: any) {
+            this.loading = true
             this.widgetLoading = true
-            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, associativeResponseSelections)
+            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, associativeResponseSelections)
             this.widgetLoading = false
+            this.loading = false
         },
         widgetUsesSelections(selections: ISelection[]) {
             let widgetUsesSelection = false
@@ -311,6 +313,7 @@ export default defineComponent({
             this.searchDialogVisible = false
             const currentState = this.getCurrentDashboardView(this.dashboardId)
             if (currentState && this.widgetModel.id) currentState.settings.states[this.widgetModel.id] = { type: this.widgetModel.type, search: this.search }
+            this.reloadWidgetData(null)
         }
     }
 })

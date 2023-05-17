@@ -25,10 +25,10 @@ export const getData = (item) =>
         }, 1000)
     })
 
-export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: any, associativeResponseSelections?: any) => {
     switch (widget.type) {
         case 'table':
-            return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections)
         case 'selector':
             return await getSelectorWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'html':
@@ -228,9 +228,14 @@ const getVariableDatasetLabel = (variable: IVariable, datasets: IDataset[]) => {
 //#endregion ================================================================================================
 
 //#region ===================== Table Widget ====================================================
-export const getTableWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getTableWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: any, associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
+
+    console.log('searchParams', searchParams)
+    const datasetLabel = selectedDataset.dsLabel as any
+    const formattedLikeSelections = searchParams.searchColumns.toString()
+    const formattedSelections = { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }
 
     if (selectedDataset) {
         let url = ''
@@ -240,6 +245,7 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
         } else url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatWidgetModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+        if (searchParams.searchText != '' && searchParams.searchColumns.length > 0) postData.likeSelections = formattedSelections
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
