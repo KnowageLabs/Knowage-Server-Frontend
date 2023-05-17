@@ -1,7 +1,7 @@
 <template>
     <grid-item :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) }" @resized="resizedEvent">
         <div v-if="initialized" class="drag-handle"></div>
-        <ProgressSpinner v-if="loading || customChartLoading" class="kn-progress-spinner" />
+        <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
         <WidgetRenderer
             v-if="!loading"
@@ -160,8 +160,7 @@ export default defineComponent({
             emitter.off('datasetRefreshed', this.onDatasetRefresh)
             emitter.off('setWidgetLoading', this.setWidgetLoading)
         },
-        onWidgetRightClick(event) {
-            console.log(event)
+        onWidgetRightClick() {
             // TODO: I dont think we need this anymore, remove?
             // const contextMenu = this.$refs.contextMenu as any
             // contextMenu?.show(event)
@@ -219,11 +218,9 @@ export default defineComponent({
             return widgetUsesSelection
         },
         async reloadWidgetData(associativeResponseSelections: any) {
-            this.loading = true
             this.widgetLoading = true
             this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, associativeResponseSelections)
             this.widgetLoading = false
-            this.loading = false
         },
         widgetUsesSelections(selections: ISelection[]) {
             let widgetUsesSelection = false
@@ -300,8 +297,7 @@ export default defineComponent({
         toggleQuickDialog() {
             this.showQuickDialog = !this.showQuickDialog
         },
-        searchOnWidget(widget) {
-            console.log('widget', widget)
+        searchOnWidget() {
             this.searchDialogVisible = true
         },
         cloneWidget(widget) {
@@ -309,7 +305,6 @@ export default defineComponent({
         },
         onSearch(payload: { searchText: string; searchColumns: string[] }) {
             this.search = payload
-            console.log('-------- ON SEARCH PAYLOAD: ', this.search)
             this.searchDialogVisible = false
             const currentState = this.getCurrentDashboardView(this.dashboardId)
             if (currentState && this.widgetModel.id) currentState.settings.states[this.widgetModel.id] = { type: this.widgetModel.type, search: this.search }

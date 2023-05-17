@@ -1,11 +1,14 @@
 <template>
+    {{ paginatorCss }}
     <Paginator
         v-if="propWidgetPagination && propWidgetPagination.properties"
         v-model:first="pagination.properties.offset"
         class="kn-table-widget-paginator"
+        :style="paginatorCss"
         :rows="propWidgetPagination.properties.itemsNumber"
         :total-records="propWidgetPagination.properties.totalItems"
         template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        style="color: red !important"
         @page="onPage($event)"
     />
 </template>
@@ -20,13 +23,29 @@ export default defineComponent({
         Paginator
     },
     props: {
+        propWidget: { type: Object as any, required: true },
         propWidgetPagination: { type: Object as PropType<ITableWidgetPagination>, required: true }
     },
-
     emits: ['pageChanged'],
     data() {
         return {
             pagination: {} as any
+        }
+    },
+    computed: {
+        paginatorCss() {
+            if (this.propWidget.settings.style.paginator)
+                return {
+                    '--color': this.propWidget.settings.style.paginator.color,
+                    '--background-color': this.propWidget.settings.style.paginator['background-color'],
+                    '--justify-content': this.propWidget.settings.style.paginator['justify-content']
+                }
+            else
+                return {
+                    '--color': 'gray',
+                    '--background-color': 'white',
+                    '--justify-content': 'flex-end'
+                }
         }
     },
     watch: {
@@ -44,3 +63,19 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss" scoped>
+.kn-table-widget-paginator {
+    background-color: var(--background-color);
+    justify-content: var(--justify-content);
+    .p-paginator-element,
+    .p-paginator-current {
+        color: var(--color);
+    }
+    &:deep(.p-paginator-element) {
+        color: var(--color);
+    }
+    &:deep(.p-paginator-current) {
+        color: var(--color);
+    }
+}
+</style>

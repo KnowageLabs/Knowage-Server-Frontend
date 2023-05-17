@@ -232,7 +232,6 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
-    console.log('searchParams', searchParams)
     const datasetLabel = selectedDataset.dsLabel as any
     const formattedLikeSelections = searchParams.searchColumns.toString()
     const formattedSelections = { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }

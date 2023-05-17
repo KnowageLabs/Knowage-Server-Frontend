@@ -5,7 +5,7 @@
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context"></ag-grid-vue>
-        <PaginatorRenderer v-if="showPaginator" :prop-widget-pagination="widgetModel.settings.pagination" @pageChanged="$emit('pageChanged')" />
+        <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @pageChanged="$emit('pageChanged')" />
     </div>
 </template>
 
@@ -90,6 +90,7 @@ export default defineComponent({
         dataToShow() {
             this.tableData = this.dataToShow
             this.refreshGridConfiguration(true)
+            this.updatePagination()
         },
         propActiveSelections() {
             this.loadActiveSelections()
@@ -105,6 +106,7 @@ export default defineComponent({
         this.setupDatatableOptions()
         this.loadActiveSelectionValue()
         this.tableData = this.dataToShow
+        this.updatePagination()
     },
     unmounted() {
         this.removeEventListeners()
@@ -567,6 +569,12 @@ export default defineComponent({
             this.widgetModel.settings.sortingColumn = updatedSorting.colId
             this.widgetModel.settings.sortingOrder = updatedSorting.order
             this.$emit('sortingChanged')
+        },
+        updatePagination() {
+            const pagination = this.propWidget.settings.pagination
+            if (pagination.enabled) {
+                this.widgetModel.settings.pagination.properties.totalItems = this.dataToShow.results
+            }
         }
     }
 })
