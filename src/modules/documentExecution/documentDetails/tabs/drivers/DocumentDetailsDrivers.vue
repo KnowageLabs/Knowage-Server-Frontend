@@ -165,7 +165,12 @@ import mainStore from '../../../../../App.store'
 export default defineComponent({
     name: 'document-drivers',
     components: { DataConditions, VisibilityConditions, KnListBox, KnValidationMessages, InputSwitch, Dropdown, InlineMessage },
-    props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, availableDrivers: { type: Array as PropType<iDriver[]>, required: true }, availableAnalyticalDrivers: { type: Array as PropType<iAnalyticalDriver[]>, required: true } },
+    props: {
+        selectedDocument: { type: Object as PropType<iDocument>, required: true },
+        availableDrivers: { type: Array as PropType<iDriver[]>, required: true },
+        availableAnalyticalDrivers: { type: Array as PropType<iAnalyticalDriver[]>, required: true },
+        refresh: { type: Boolean, required: false }
+    },
     emits: ['driversChanged'],
     setup() {
         const store = mainStore()
@@ -191,9 +196,12 @@ export default defineComponent({
     },
     watch: {
         selectedDocument() {
-            this.getDocumentDrivers()
-            this.document = this.selectedDocument
-            this.selectedDriver = {} as iDriver
+            this.update()
+        },
+        refresh(newValue) {
+            if (newValue && newValue == true) {
+                this.update()
+            }
         }
     },
     created() {
@@ -312,6 +320,11 @@ export default defineComponent({
                 this.document.drivers.splice(deletedDriver, 1)
                 this.selectedDriver = {} as iDriver
             }
+        },
+        update() {
+            this.getDocumentDrivers()
+            this.document = this.selectedDocument
+            this.selectedDriver = {} as iDriver
         }
     }
 })
