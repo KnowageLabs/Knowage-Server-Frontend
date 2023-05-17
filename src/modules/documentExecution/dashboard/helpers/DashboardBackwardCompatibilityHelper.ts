@@ -55,6 +55,7 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
         name: document.name,
         label: document.label,
         description: document.description,
+        cssToRender: model.configuration.cssToRender,
         associations: getFormattedAssociations(model),
         datasets: getFormattedDatasets(model),
         variables: await getFormattedVariables(model, drivers, profileAttributes, datasets, $http),

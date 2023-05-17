@@ -1,5 +1,6 @@
 <template>
     <KnDashboardTabsPanel :style="backgroundStyle" class="test" v-model:sheets="dashboardModel.sheets" label-position="bottom" @sheet-change="sheetChange">
+        <div id="dashboard-css" v-html="dashboardCss" />
         <KnDashboardTab v-for="(sheet, index) in dashboardModel.sheets" :key="index" :index="index">
             <grid-layout
                 v-model:layout="sheet.widgets['lg']"
@@ -77,6 +78,9 @@ export default defineComponent({
             backgroundStyle['background-size'] = backgroundConfig?.imageBackgroundSize || 'contain'
 
             return backgroundStyle
+        },
+        dashboardCss(): any {
+            return `<style>${this.dashboardModel?.configuration?.cssToRender}</style>`
         }
     },
     mounted() {
@@ -86,7 +90,6 @@ export default defineComponent({
 
         console.log(this.dashboardModel.configuration.background)
     },
-
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
         activeSheet(index) {

@@ -400,6 +400,7 @@
                 "sheetsImage": "Sheets Background Image URL",
                 "sheetsSize": "Sheets Background Size"
             },
+            "css": "CSS Editor",
             "menuWidgets": {
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
