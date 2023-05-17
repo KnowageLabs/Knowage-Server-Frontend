@@ -312,7 +312,6 @@ export default defineComponent({
         },
         onSearch(payload: { searchText: string; searchColumns: string[] }) {
             this.search = payload
-            console.log('-------- ON SEARCH PAYLOAD: ', this.search)
             this.searchDialogVisible = false
             const currentState = this.getCurrentDashboardView(this.dashboardId)
             if (currentState && this.widgetModel.id) currentState.settings.states[this.widgetModel.id] = { type: this.widgetModel.type, search: this.search }
