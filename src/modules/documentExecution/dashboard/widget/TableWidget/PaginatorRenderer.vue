@@ -1,5 +1,4 @@
 <template>
-    {{ paginatorCss }}
     <Paginator
         v-if="propWidgetPagination && propWidgetPagination.properties"
         v-model:first="pagination.properties.offset"
