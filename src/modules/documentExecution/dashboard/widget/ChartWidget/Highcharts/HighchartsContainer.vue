@@ -156,28 +156,30 @@ export default defineComponent({
         async executeInteractions(event: any) {
             if (!['pie', 'heatmap', 'radar'].includes(this.chartModel.chart.type)) return
 
-            // TODO - refactor
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
+                console.log('------ EVENT: ', event)
+                console.log('------ event.point name: ', event.point?.name)
+                if (!event.point) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
                 this.drillLevel++
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
-                const temp = await getPieChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
-
-                const tempSeries = [] as any[]
-                temp?.rows?.forEach((row: any) => {
-                    const serieElement = {
-                        id: row.id,
-                        name: row['column_1'],
-                        y: row['column_2'],
-                        drilldown: false
-                    }
-                    serieElement.drilldown = true
-                    tempSeries.push(serieElement)
-                })
+                const tempData = await getPieChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
+                const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
+                console.log('------ newSeries: ', newSeries)
                 this.highchartsInstance.hideLoading()
-                this.highchartsInstance.addSeriesAsDrilldown(event.point, { data: tempSeries, name: event.point.name })
+                newSeries.forEach((serie: any) => {
+                    console.log('------ test: ', {
+                        data: serie.data,
+                        name: event.point.name
+                    })
+                    this.highchartsInstance.addSeriesAsDrilldown(event.point, {
+                        data: serie.data,
+                        name: event.point.name
+                    })
+                })
+
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)

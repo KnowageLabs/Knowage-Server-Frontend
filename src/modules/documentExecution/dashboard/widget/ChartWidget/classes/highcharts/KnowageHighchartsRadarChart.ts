@@ -32,7 +32,6 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setData(data: any, widgetModel: IWidget) {
-        // TODO
         if (!data || !data.metaData || !data.rows) return
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         const splitting = widgetModel.settings?.configuration?.splitting
@@ -44,7 +43,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
             this.setNormalData(data, widgetModel, dateFormat, drilldown?.enabled)
         }
 
-        return this.model.series
+        return this.model.seriesForRender
     }
 
     setSplitedData(splitingColumn: string, data: any) {
@@ -145,7 +144,6 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         return lowSerie
     }
 
-    // TODO - Move to common?
     getFormattedDateCategoryValue(dateString: string, dateFormat: string, type: 'date' | 'timestamp') {
         if (!dateFormat) return dateString
         const date = moment(dateString, type === 'date' ? 'DD/MM/YYYY' : 'DD/MM/YYYY HH:mm:ss.SSS')
