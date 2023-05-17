@@ -67,9 +67,7 @@ export default defineComponent({
             this.$emit('moveView', view)
         },
         executeView(view: IDashboardView) {
-            // TODO
             this.$emit('executeView', view)
-            console.log('------- EXECUTE VIEW: ', view)
         },
         deleteViewConfirm(view: IDashboardView) {
             this.$confirm.require({
