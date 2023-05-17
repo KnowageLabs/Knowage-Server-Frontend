@@ -1,154 +1,154 @@
 {
-  "label": "",
-  "name": "Search Bojan",
-  "description": "",
-  "drivers": {
-    "filterStatus": [
-      {
-        "urlName": "test",
-        "metadata": {},
-        "visible": true,
-        "valueSelection": "man_in",
-        "showOnPanel": "true",
-        "driverUseLabel": "all",
-        "label": "Test",
-        "driverDefaultValue": null,
-        "type": "STRING",
-        "driverLabel": "Manual Input String",
-        "mandatory": true,
-        "allowInternalNodeSelection": false,
-        "multivalue": false,
-        "dependencies": {
-          "data": [],
-          "visual": [],
-          "lov": []
-        },
-        "selectionType": "",
-        "id": 8182,
-        "parameterValue": [
-          {
-            "value": "vxvc",
-            "description": ""
-          }
-        ]
-      },
-      {
-        "urlName": "combo",
-        "metadata": {
-          "colsMap": {
-            "_col1": "PRODUCT_FAMILY_DESC",
-            "_col0": "PRODUCT_FAMILY"
-          },
-          "descriptionColumn": "PRODUCT_FAMILY_DESC",
-          "invisibleColumns": [],
-          "valueColumn": "PRODUCT_FAMILY",
-          "visibleColumns": ["PRODUCT_FAMILY", "PRODUCT_FAMILY_DESC"]
-        },
-        "visible": true,
-        "data": [
-          {
-            "value": "Car",
-            "description": "0"
-          },
-          {
-            "value": "Drink",
-            "description": "0"
-          },
-          {
-            "value": "Food",
-            "description": "0"
-          },
-          {
-            "value": "Non-Consumable",
-            "description": "0"
-          }
+    "biObjectId": 3816,
+    "description": "",
+    "drivers": {
+        "filterStatus": [
+            {
+                "allowInternalNodeSelection": false,
+                "dependencies": {
+                    "data": [],
+                    "lov": [],
+                    "visual": []
+                },
+                "driverDefaultValue": null,
+                "driverLabel": "Manual Input String",
+                "driverUseLabel": "all",
+                "id": 8182,
+                "label": "Test",
+                "mandatory": true,
+                "metadata": {},
+                "multivalue": false,
+                "parameterValue": [
+                    {
+                        "description": "",
+                        "value": "fdsfs"
+                    }
+                ],
+                "selectionType": "",
+                "showOnPanel": "true",
+                "type": "STRING",
+                "urlName": "test",
+                "valueSelection": "man_in",
+                "visible": true
+            },
+            {
+                "allowInternalNodeSelection": false,
+                "data": [
+                    {
+                        "description": "0",
+                        "value": "Car"
+                    },
+                    {
+                        "description": "0",
+                        "value": "Drink"
+                    },
+                    {
+                        "description": "0",
+                        "value": "Food"
+                    },
+                    {
+                        "description": "0",
+                        "value": "Non-Consumable"
+                    }
+                ],
+                "dependencies": {
+                    "data": [],
+                    "lov": [],
+                    "visual": []
+                },
+                "driverDefaultValue": [
+                    {
+                        "_col0": "Car",
+                        "_col1": "0"
+                    },
+                    {
+                        "_col0": "Drink",
+                        "_col1": "0"
+                    },
+                    {
+                        "_col0": "Food",
+                        "_col1": "0"
+                    },
+                    {
+                        "_col0": "Non-Consumable",
+                        "_col1": "0"
+                    }
+                ],
+                "driverLabel": "TEST_LINK_COMBO_4",
+                "driverUseLabel": "A",
+                "id": 8184,
+                "label": "Combo",
+                "mandatory": true,
+                "metadata": {
+                    "colsMap": {
+                        "_col0": "PRODUCT_FAMILY",
+                        "_col1": "PRODUCT_FAMILY_DESC"
+                    },
+                    "descriptionColumn": "PRODUCT_FAMILY_DESC",
+                    "invisibleColumns": [],
+                    "valueColumn": "PRODUCT_FAMILY",
+                    "visibleColumns": ["PRODUCT_FAMILY", "PRODUCT_FAMILY_DESC"]
+                },
+                "multivalue": false,
+                "parameterDescription": ["0", "0", "0", "0"],
+                "parameterValue": [
+                    {
+                        "description": "0",
+                        "value": "Car"
+                    },
+                    {
+                        "description": "0",
+                        "value": "Drink"
+                    },
+                    {
+                        "description": "0",
+                        "value": "Food"
+                    },
+                    {
+                        "description": "0",
+                        "value": "Non-Consumable"
+                    }
+                ],
+                "selectionType": "COMBOBOX",
+                "showOnPanel": "true",
+                "type": "STRING",
+                "urlName": "combo",
+                "valueSelection": "lov",
+                "visible": true
+            }
         ],
-        "valueSelection": "lov",
-        "showOnPanel": "true",
-        "driverUseLabel": "A",
-        "label": "Combo",
-        "driverDefaultValue": [
-          {
-            "_col0": "Car",
-            "_col1": "0"
-          },
-          {
-            "_col0": "Drink",
-            "_col1": "0"
-          },
-          {
-            "_col0": "Food",
-            "_col1": "0"
-          },
-          {
-            "_col0": "Non-Consumable",
-            "_col1": "0"
-          }
-        ],
-        "type": "STRING",
-        "driverLabel": "TEST_LINK_COMBO_4",
-        "mandatory": true,
-        "parameterValue": [
-          {
-            "value": "Car",
-            "description": "0"
-          },
-          {
-            "value": "Drink",
-            "description": "0"
-          },
-          {
-            "value": "Food",
-            "description": "0"
-          },
-          {
-            "value": "Non-Consumable",
-            "description": "0"
-          }
-        ],
-        "allowInternalNodeSelection": false,
-        "multivalue": false,
-        "dependencies": {
-          "data": [],
-          "visual": [],
-          "lov": []
-        },
-        "selectionType": "COMBOBOX",
-        "id": 8184,
-        "parameterDescription": ["0", "0", "0", "0"]
-      }
-    ],
-    "isReadyForExecution": true
-  },
-  "settings": {
-    "states": {
-      "1P46OsiZIi1MQn5e": {
-        "type": "customchart",
-        "state": {
-          "test": "new test"
-        }
-      },
-      "XXJmbJ6FtM8H7fYM": {
-        "type": "table",
-        "search": {
-          "searchText": "Test Search",
-          "searchColumns": ["QUARTER"]
-        }
-      }
+        "isReadyForExecution": true
     },
-    "selections": [
-      {
-        "datasetId": 168,
-        "datasetLabel": "TEST_02",
-        "columnName": "QUARTER",
-        "value": ["Q3"],
-        "aggregated": false,
-        "timestamp": 1683899162195
-      }
-    ]
-  },
-  "visibility": "public",
-  "new": true,
-  "biObjectId": 3816,
-  "parentId": "536a71d6-9a18-45c9-b991-7c81410b36ee"
+    "id": "5ffd6220-3908-42d7-a388-47c73e4c54df",
+    "label": "",
+    "name": "sdavfaffafas",
+    "parentId": null,
+    "settings": {
+        "selections": [
+            {
+                "aggregated": false,
+                "columnName": "QUARTER",
+                "datasetId": 168,
+                "datasetLabel": "TEST_02",
+                "timestamp": 1684327283364,
+                "value": ["Q1"]
+            }
+        ],
+        "states": {
+            "1P46OsiZIi1MQn5e": {
+                "state": {
+                    "test": "new test"
+                },
+                "type": "customchart"
+            },
+            "XXJmbJ6FtM8H7fYM": {
+                "search": {
+                    "searchColumns": ["QUARTER"],
+                    "searchText": "Q2"
+                },
+                "type": "table"
+            }
+        }
+    },
+    "type": "VIEW"
 }

@@ -30,15 +30,15 @@ export default defineComponent({
     methods: {
         loadPaginatorStyleModel() {
             if (!this.widgetModel) return
+            console.log('------ this.widgetModel: ', this.widgetModel)
             if (this.widgetModel.settings?.style?.paginator) this.paginatorStyleModel = this.widgetModel.settings.style.paginator
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.paginatorStyleModel) return
-            this.paginatorStyleModel = {
-                'background-color': model['background-color'] ?? '',
-                color: model.color ?? '',
-                'justify-content': model['justify-content'] ?? ''
-            }
+            this.paginatorStyleModel['background-color'] = model['background-color'] ?? ''
+            this.paginatorStyleModel.color = model.color ?? ''
+            this.paginatorStyleModel['justify-content'] = model['justify-content'] ?? ''
+            console.log('--- AAAAAAA: ', this.paginatorStyleModel)
         }
     }
 })

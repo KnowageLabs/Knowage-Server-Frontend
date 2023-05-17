@@ -171,7 +171,10 @@ export default defineComponent({
             this.loadWidgetSearch()
         },
         loadWidgetSearch() {
-            if (this.widgetModel.search) this.search = { ...this.widgetModel.search }
+            if (this.widgetModel.search) {
+                this.search = { ...this.widgetModel.search }
+                this.reloadWidgetData(null)
+            }
             delete this.widgetModel.search
         },
         setWidgetLoading(loading: any) {
