@@ -106,7 +106,6 @@ export default class CellRenderer {
         }
 
         if (visType.type) {
-            if (applyConditionalStyleToBar) console.log('STYLE OBJECT', styleObject)
             if (visType.type.toLowerCase() === 'text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
             if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject.icon}" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject.icon} p-as-center" />${visType.suffix}`
