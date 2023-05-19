@@ -303,8 +303,7 @@ export default defineComponent({
         toggleQuickDialog() {
             this.showQuickDialog = !this.showQuickDialog
         },
-        searchOnWidget(widget) {
-            console.log('widget', widget)
+        searchOnWidget() {
             this.searchDialogVisible = true
         },
         cloneWidget(widget) {

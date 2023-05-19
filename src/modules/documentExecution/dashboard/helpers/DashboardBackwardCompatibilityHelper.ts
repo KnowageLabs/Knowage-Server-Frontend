@@ -80,7 +80,6 @@ const getFormattedSheetBackground = (model: any) => {
 }
 
 const getFormattedMenuAndWidgets = (model: any) => {
-    console.log('MENU WIDGET MODEL', model)
     const modelConfig = model.configuration
     const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true } as IMenuAndWidgets
 

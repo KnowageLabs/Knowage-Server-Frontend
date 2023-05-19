@@ -4,14 +4,12 @@ import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chart
 import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers'
 
 export const updateRadarChartModel = (oldModel: any, newModel: IHighchartsChartModel) => {
-    console.log('   ----- OLD CHART MODEL: ', oldModel)
     getFormattedNoDataConfiguration(oldModel, newModel)
     getFormattedAxisSettings(oldModel, newModel, 'x')
     getFormattedAxisSettings(oldModel, newModel, 'y')
     getFormattedLegend(oldModel, newModel)
     getFormattedSeries(oldModel, newModel, null)
 
-    console.log('   ----- NEW CHART MODEL: ', newModel)
     return newModel
 }
 

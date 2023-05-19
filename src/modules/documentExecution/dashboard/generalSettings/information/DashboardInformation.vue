@@ -73,7 +73,6 @@ export default defineComponent({
     created() {
         this.dashboardModel = this.dashboardModelProp
         this.document = this.dashboardModelProp.document
-        console.log('dashboardModel', this.dashboardModel)
     },
     validations() {
         const validationObject = { document: createValidations('document', informationDescriptor.validations.document) }

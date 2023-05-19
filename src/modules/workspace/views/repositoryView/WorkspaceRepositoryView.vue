@@ -162,8 +162,12 @@ export default defineComponent({
             await this.$http
                 .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/${this.id}`)
                 .then((response: AxiosResponse<any>) => {
-                    this.documents = [...response.data]
+                    this.documents = [...response.data.content]
                     this.filteredDocuments = [...this.documents]
+                })
+                .catch(() => {
+                    this.documents = []
+                    this.filteredDocuments = []
                 })
                 .finally(() => (this.loading = false))
         },

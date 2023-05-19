@@ -110,7 +110,6 @@ export default defineComponent({
             modelToRender.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
             modelToRender.chart.backgroundColor = null
 
-            console.log('-------- MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
@@ -157,8 +156,6 @@ export default defineComponent({
             if (!['pie', 'heatmap', 'radar'].includes(this.chartModel.chart.type)) return
 
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
-                console.log('------ EVENT: ', event)
-                console.log('------ event.point name: ', event.point?.name)
                 if (!event.point) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
                 this.drillLevel++
@@ -167,13 +164,8 @@ export default defineComponent({
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
                 const tempData = await getPieChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
                 const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
-                console.log('------ newSeries: ', newSeries)
                 this.highchartsInstance.hideLoading()
                 newSeries.forEach((serie: any) => {
-                    console.log('------ test: ', {
-                        data: serie.data,
-                        name: event.point.name
-                    })
                     this.highchartsInstance.addSeriesAsDrilldown(event.point, {
                         data: serie.data,
                         name: event.point.name
