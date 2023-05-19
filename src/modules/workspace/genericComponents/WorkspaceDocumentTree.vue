@@ -11,7 +11,7 @@
             </div>
         </template>
     </Tree>
-    <WorkspaceNewFolderDialog :visible="newFolderDialogVisible" :selected-folder="selectedFolderForEdit" :propFolders="folders" @close="newFolderDialogVisible = false" @create="createNewFolder" @edit="onEditFolder"></WorkspaceNewFolderDialog>
+    <WorkspaceNewFolderDialog :visible="newFolderDialogVisible" :selected-folder="selectedFolderForEdit" :propFolders="folders" @close="onNewFolderDialogClose" @create="createNewFolder" @edit="onEditFolder"></WorkspaceNewFolderDialog>
 </template>
 
 <script lang="ts">
@@ -144,7 +144,7 @@ export default defineComponent({
                     await this.loadData()
                 })
                 .catch((response: any) => this.setError({ title: this.$t('common.error.generic'), msg: response }))
-                .finally(() => (this.newFolderDialogVisible = false))
+                .finally(() => this.onNewFolderDialogClose())
             this.setLoading(false)
         },
         async onEditFolder(folder: any) {
@@ -157,7 +157,7 @@ export default defineComponent({
                     await this.loadData()
                 })
                 .catch((response: any) => this.setError({ title: this.$t('common.error.generic'), msg: response }))
-                .finally(() => (this.newFolderDialogVisible = false))
+                .finally(() => this.onNewFolderDialogClose())
             this.setLoading(false)
         },
         deleteFolderConfirm(folder: any) {
@@ -187,6 +187,10 @@ export default defineComponent({
             this.selectedFolder = this.selectedBreadcrumb?.node
             this.selectedFolderKey = {}
             this.selectedFolderKey[this.selectedFolder.key] = true
+        },
+        onNewFolderDialogClose() {
+            this.newFolderDialogVisible = false
+            this.selectedFolderForEdit = null
         }
     }
 })
