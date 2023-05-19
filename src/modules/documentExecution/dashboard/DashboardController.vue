@@ -226,7 +226,6 @@ export default defineComponent({
             this.model =
                 (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
-            // TODO
             if (this.propView) {
                 this.loadSelectedViewForExecution(this.propView)
                 apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
