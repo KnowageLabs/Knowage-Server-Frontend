@@ -223,7 +223,7 @@ export default defineComponent({
             })
         },
         downloadTheme(): void {
-            let themeToDownload = { ...this.selectedTheme }
+            const themeToDownload = { ...this.selectedTheme }
             if (themeToDownload.id) delete themeToDownload.id
             downloadDirect(JSON.stringify(themeToDownload), themeToDownload.themeName, 'application/json')
         }
