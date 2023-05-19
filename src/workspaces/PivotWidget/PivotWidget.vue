@@ -45,7 +45,6 @@ export default defineComponent({
     },
     computed: {
         dataFields() {
-            // return this.dataSource.fields().filter((field) => field.area == 'data')
             return []
         },
         pivotFields() {
@@ -76,16 +75,18 @@ export default defineComponent({
 
         setEventListeners() {
             emitter.on('widgetResized', this.resizePivot)
+            emitter.on('savePivotStates', this.saveState)
+            emitter.on('loadPivotStates', this.loadState)
         },
         removeEventListeners() {
             emitter.on('widgetResized', this.resizePivot)
+            emitter.on('savePivotStates', this.saveState)
+            emitter.on('loadPivotStates', this.loadState)
         },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
         },
-        resizePivot() {
-            this.gridInstance.repaint()
-        },
+        resizePivot() {},
 
         setPivotConfiguration() {
             const widgetConfig = this.propWidget.settings.configuration
@@ -312,7 +313,12 @@ export default defineComponent({
                 const selections = createPivotTableSelection(cellEvent, this.propWidget, this.datasets)
                 if (selections) updateAllStoreSelections(selections, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
             }
-        }
+        },
+        //#endregion ===============================================================================================
+
+        //#region ===================== State Management For Views ====================================================
+        saveState() {},
+        loadState() {}
         //#endregion ===============================================================================================
     }
 })

@@ -226,10 +226,10 @@ export default defineComponent({
             this.model =
                 (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
-            // TODO
             if (this.propView) {
                 this.loadSelectedViewForExecution(this.propView)
                 apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
+                emitter.emit('loadPivotStates', this.selectedViewForExecution)
             }
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
@@ -403,6 +403,7 @@ export default defineComponent({
         },
         onOpenSaveCurrentViewDialog(event: any) {
             if (!this.document || event !== this.dashboardId) return
+            emitter.emit('savePivotStates')
             this.currentView.settings.selections = this.getSelections(this.dashboardId)
             this.currentView.drivers = this.filtersData
             this.selectedView = { ...this.currentView, new: true }
@@ -426,6 +427,7 @@ export default defineComponent({
             this.loadSelectedViewForExecution(view)
             apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
+            emitter.emit('loadPivotStates', this.selectedViewForExecution)
         }
     }
 })
