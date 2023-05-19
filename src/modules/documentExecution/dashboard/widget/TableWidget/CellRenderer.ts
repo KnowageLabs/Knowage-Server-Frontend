@@ -115,7 +115,7 @@ export default class CellRenderer {
             if (visType.type.toLowerCase() === 'bar & text') {
                 const percentage = getBarFillPercentage()
                 this.eGui.innerHTML = `<div class="barContainer" style="background-color:${visType['background-color']};justify-content:${visType['alignment']}">
-                                        <div class="innerBar" style="width:${percentage}%;background-color:${visType.color};text-align:${visType['alignment']}">${setCellContent()}</div>
+                                        <div class="innerBar" style="width:${percentage}%;background-color:${visType.color};text-align:${visType['alignment']}">${visType.prefix}${setCellContent()}${visType.suffix}</div>
                                       </div>`
             }
         } else this.eGui.innerHTML = setCellContent()
