@@ -41,11 +41,6 @@
                     <span class="kn-truncated">{{ slotProps.data['description'] }}</span>
                 </template>
             </Column>
-            <Column :key="'owner'" :header="$t('common.owner')" :sortable="true" style="width: 5%">
-                <template #body="slotProps">
-                    <span class="kn-truncated">{{ slotProps.data['owner'] }}</span>
-                </template>
-            </Column>
             <Column class="icon-cell" :style="mainDescriptor.style.iconColumn">
                 <template #body="slotProps">
                     <Button icon="fas fa-ellipsis-v" class="p-button-link" @click="showMenu($event, slotProps.data)" />

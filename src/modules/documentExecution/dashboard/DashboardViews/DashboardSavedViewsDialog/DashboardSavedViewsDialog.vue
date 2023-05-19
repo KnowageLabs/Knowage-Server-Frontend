@@ -37,7 +37,7 @@ import DataTable from 'primevue/datatable'
 export default defineComponent({
     name: 'dashboard-saved-views-dialog',
     components: { Column, DataTable, Dialog },
-    props: { visible: { required: true, type: Boolean } },
+    props: { visible: { required: true, type: Boolean }, document: { type: Object } },
     emits: ['moveView', 'close', 'executeView'],
     data() {
         return {
@@ -56,10 +56,10 @@ export default defineComponent({
     methods: {
         ...mapActions(appStore, ['setLoading', 'setInfo']),
         async loadSavedViews() {
+            if (!this.document || !this.document.id) return
             this.setLoading(true)
-            // TODO BE - Remove mocked/specific id for folder service, wait for proper service for getting all views related to the document
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/536a71d6-9a18-45c9-b991-7c81410b36ee`).then((response: AxiosResponse<any>) => {
-                this.savedViews = [...response.data.content]
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/document/${this.document.id}`).then((response: AxiosResponse<any>) => {
+                this.savedViews = [...response.data]
             })
             this.setLoading(false)
         },

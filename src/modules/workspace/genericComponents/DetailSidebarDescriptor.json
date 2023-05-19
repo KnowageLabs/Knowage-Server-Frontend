@@ -80,28 +80,6 @@
             "value": "dateIn"
         }
     ],
-    "repositoryViewFields": [
-        {
-            "translation": "importExport.gallery.column.name",
-            "type": "text",
-            "value": "name"
-        },
-        {
-            "translation": "common.description",
-            "type": "text",
-            "value": "description"
-        },
-        {
-            "translation": "common.type",
-            "type": "text",
-            "value": "type"
-        },
-        {
-            "translation": "common.parameters",
-            "type": "parameters",
-            "value": "drivers"
-        }
-    ],
     "defaultViewFields": [
         {
             "translation": "importExport.gallery.column.name",
@@ -143,6 +121,33 @@
     ],
     "imgPath": "/knowage/servlet/AdapterHTTP?ACTION_NAME=MANAGE_PREVIEW_FILE_ACTION&SBI_ENVIRONMENT=DOCBROWSER&LIGHT_NAVIGATOR_DISABLED=TRUE&operation=DOWNLOAD&fileName=",
     "imgSource": "82300081364511eca64e159ee59cd4dc.jpg",
+    "repositoryViewFields": [
+        {
+            "translation": "importExport.gallery.column.name",
+            "type": "text",
+            "value": "name"
+        },
+        {
+            "translation": "common.description",
+            "type": "text",
+            "value": "description"
+        },
+        {
+            "translation": "common.type",
+            "type": "text",
+            "value": "type"
+        },
+        {
+            "translation": "managers.mondrianSchemasManagement.headers.creationDate",
+            "type": "date",
+            "value": "creationDate"
+        },
+        {
+            "translation": "common.parameters",
+            "type": "parameters",
+            "value": "drivers"
+        }
+    ],
     "style": {
         "menuItems": {
             "min-width": "200px"
