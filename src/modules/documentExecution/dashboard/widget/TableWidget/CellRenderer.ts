@@ -17,7 +17,7 @@ export default class CellRenderer {
         this.eGui.classList.add('p-d-flex')
         this.eGui.classList.add('kn-height-full')
 
-        // console.log('params ---------- \n', params)
+        let applyConditionalStyleToBar = false
 
         const getMultiselectStyle = () => {
             if (params.colDef.colId === 'indexColumn') return null
@@ -71,7 +71,10 @@ export default class CellRenderer {
             if (multiselectStyle) return multiselectStyle
 
             const conditionalStyle = getConditionalStyle()
-            if (conditionalStyle) return conditionalStyle
+            if (conditionalStyle) {
+                applyConditionalStyleToBar = true
+                return conditionalStyle
+            }
 
             const columnStyle = getColumnStyle()
             if (columnStyle) return columnStyle
@@ -103,19 +106,20 @@ export default class CellRenderer {
         }
 
         if (visType.type) {
+            if (applyConditionalStyleToBar) console.log('STYLE OBJECT', styleObject)
             if (visType.type.toLowerCase() === 'text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
             if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject.icon}" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject.icon} p-as-center" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'bar') {
                 const percentage = getBarFillPercentage()
-                this.eGui.innerHTML = `<div class="barContainer" style="background-color:${visType['background-color']};justify-content:${visType['alignment']}">
-                                        <div class="innerBar" style="width:${percentage}%;background-color:${visType.color}"></div>
+                this.eGui.innerHTML = `<div class="barContainer" style="background-color:${applyConditionalStyleToBar ? styleObject['background-color'] : visType['background-color']};justify-content:${visType['alignment']}">
+                                        <div class="innerBar" style="width:${percentage}%;background-color:${applyConditionalStyleToBar ? styleObject.color : visType.color}"></div>
                                       </div>`
             }
             if (visType.type.toLowerCase() === 'bar & text') {
                 const percentage = getBarFillPercentage()
-                this.eGui.innerHTML = `<div class="barContainer" style="background-color:${visType['background-color']};justify-content:${visType['alignment']}">
-                                        <div class="innerBar" style="width:${percentage}%;background-color:${visType.color};text-align:${visType['alignment']}">${visType.prefix}${setCellContent()}${visType.suffix}</div>
+                this.eGui.innerHTML = `<div class="barContainer" style="background-color:${applyConditionalStyleToBar ? styleObject['background-color'] : visType['background-color']};justify-content:${visType['alignment']}">
+                                        <div class="innerBar" style="color: black;width:${percentage}%;background-color:${applyConditionalStyleToBar ? styleObject.color : visType.color};text-align:${visType['alignment']}">${visType.prefix}${setCellContent()}${visType.suffix}</div>
                                       </div>`
             }
         } else this.eGui.innerHTML = setCellContent()
