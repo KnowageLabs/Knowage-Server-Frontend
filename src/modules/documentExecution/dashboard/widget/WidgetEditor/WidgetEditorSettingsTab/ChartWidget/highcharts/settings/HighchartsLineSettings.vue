@@ -9,20 +9,37 @@
 
         <template v-else>
             <div v-for="(plotLine, index) in axisModel.plotLines" :key="index" class="p-grid p-col-12 p-ai-center p-ai-center p-pt-2">
-                <div class="p-col-12 p-md-3 p-lg-3 p-d-flex p-flex-column kn-flex">
+                <div class="p-col-12 p-md-3 p-lg-2 p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
                     <div class="p-d-flex p-flex-row p-ai-center">
                         <InputNumber v-model="plotLine.value" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                         <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.lines.valueHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                     </div>
                 </div>
-                <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex">
+                <div class="p-col-12 p-md-3 p-lg-2 p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.width') }}</label>
                     <div class="p-d-flex p-flex-row p-ai-center">
                         <InputNumber v-model="plotLine.width" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                         <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.lines.widthHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                     </div>
                 </div>
+
+                <div class="p-col-12 p-md-3 p-lg-2 p-d-flex p-flex-column p-p-2">
+                    <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
+                    <Dropdown v-model="plotLine.dashStyle" class="kn-material-input" :options="descriptor.lineTypeOptions" option-value="value">
+                        <template #value="slotProps">
+                            <div>
+                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.lineTypeOptions, $t) }}</span>
+                            </div>
+                        </template>
+                        <template #option="slotProps">
+                            <div>
+                                <span>{{ $t(slotProps.option.label) }}</span>
+                            </div>
+                        </template>
+                    </Dropdown>
+                </div>
+
                 <div class="p-col-12 p-md-6 p-lg-6 p-px-2 p-pt-4">
                     <WidgetEditorColorPicker :initial-value="plotLine.color" :label="$t('dashboard.widgetEditor.highcharts.tick.tickColor')" @change="onSelectionColorChanged($event, plotLine)"></WidgetEditorColorPicker>
                 </div>
@@ -41,19 +58,22 @@ import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
-import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
+import settingsDescriptor from '../HighchartsWidgetSettingsDescriptor.json'
+import descriptor from './HighchartsLineSettingsDescriptor.json'
 import InputNumber from 'primevue/inputnumber'
 import Message from 'primevue/message'
 import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue'
+import Dropdown from 'primevue/dropdown'
 import * as highchartsDefaultValues from '../../../../helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export default defineComponent({
     name: 'hihgcharts-line-settings',
-    components: { InputNumber, Message, WidgetEditorColorPicker },
+    components: { InputNumber, Message, WidgetEditorColorPicker, Dropdown },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
             descriptor,
+            settingsDescriptor,
             axisModel: null as any,
             getTranslatedLabel
         }

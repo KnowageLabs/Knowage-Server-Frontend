@@ -262,6 +262,7 @@
     },
     "defaultPlotLinesSetting": {
         "color": "",
+        "dashStyle": "Solid",
         "value": 0,
         "width": 2
     },
