@@ -76,7 +76,6 @@ import DashboardGeneralSettings from './generalSettings/DashboardGeneralSettings
 import deepcopy from 'deepcopy'
 import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
-import mockedView from '../main/mockedView.json'
 
 export default defineComponent({
     name: 'dashboard-controller',
