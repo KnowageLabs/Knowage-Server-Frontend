@@ -9,12 +9,9 @@
         </template>
 
         <div class="p-m-2">
-            <div v-if="linkInfo && !linkInfo.isPublic" class="p-m-2">
-                <p>
-                    <i class="fa fa-exclamation-triangle p-mr-2"></i>
-                    <span>{{ $t('documentExecution.main.publicUrlExecutionDisabled') }}</span>
-                </p>
-            </div>
+            <Message v-if="linkInfo && !linkInfo.isPublic" class="kn-flex p-m-2" severity="info" :closable="false">
+                {{ $t('documentExecution.main.publicUrlExecutionDisabled') }}
+            </Message>
             <div class="p-m-2">
                 <p>{{ $t('documentExecution.main.copyLinkAndShare') }}</p>
             </div>
@@ -23,6 +20,29 @@
                 <div class="p-field p-col-12">
                     <Textarea v-if="embedHTML" v-model="publicUrl" class="kn-material-input" :rows="6"></Textarea>
                     <InputText v-else v-model="publicUrl" class="kn-material-input p-inputtext-sm" />
+                </div>
+            </div>
+
+            <div class="p-fluid p-formgrid p-grid p-m-2">
+                <div v-if="embedHTML" class="p-field p-col-12">
+                    <div class="p-d-flex p-flex-column p-m-2">
+                        <label class="kn-material-input-label p-mr-2">{{ $t('common.width') }}</label>
+                        <InputNumber v-model="iframeWidth" class="kn-material-input p-inputtext-sm" />
+                    </div>
+                    <div class="p-d-flex p-flex-column p-m-2">
+                        <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
+                        <InputNumber v-model="iframeHeight" class="kn-material-input p-inputtext-sm" />
+                    </div>
+                </div>
+                <div v-else class="p-col-12">
+                    <div class="kn-flex p-m-2">
+                        <label class="kn-material-input-label p-mr-2">{{ $t('documentExecution.main.showMenu') }}</label>
+                        <InputSwitch v-model="showMenu" />
+                    </div>
+                    <div class="kn-flex p-m-2">
+                        <label class="kn-material-input-label p-mr-2">{{ $t('documentExecution.main.showToolbar') }}</label>
+                        <InputSwitch v-model="showToolbar" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -37,14 +57,18 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
+import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import Dialog from 'primevue/dialog'
 import documentExecutionLinkDialogDescriptor from './DocumentExecutionLinkDialogDescriptor.json'
 import Textarea from 'primevue/textarea'
-import mainStore from '../.././../../../App.store'
+import mainStore from '@/App.store'
+import Message from 'primevue/message'
+import InputNumber from 'primevue/inputnumber'
+import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'document-execution-link-dialog',
-    components: { Dialog, Textarea },
+    components: { Dialog, Message, Textarea, InputNumber, InputSwitch },
     props: {
         visible: { type: Boolean },
         linkInfo: {
@@ -55,7 +79,12 @@ export default defineComponent({
         },
         embedHTML: { type: Boolean },
         propDocument: { type: Object },
-        parameters: { type: Object }
+        filtersData: {
+            type: Object as PropType<{
+                filterStatus: iParameter[]
+                isReadyForExecution: boolean
+            }>
+        }
     },
     emits: ['close'],
     setup() {
@@ -67,7 +96,10 @@ export default defineComponent({
             documentExecutionLinkDialogDescriptor,
             publicUrl: '',
             document: null as any,
-            linkParameters: '' as string
+            showMenu: false,
+            showToolbar: false,
+            iframeWidth: null as number | null,
+            iframeHeight: null as number | null
         }
     },
     watch: {
@@ -87,25 +119,10 @@ export default defineComponent({
     methods: {
         loadLink() {
             this.loadDocument()
-            this.loadParameters()
             this.getPublicUrl()
         },
         loadDocument() {
             this.document = this.propDocument
-        },
-        loadParameters() {
-            if (this.parameters)
-                this.linkParameters = Object.keys(this.parameters)
-                    .map((key) => {
-                        if (this.parameters && this.parameters[key] && Array.isArray(this.parameters[key])) {
-                            let string = ''
-                            this.parameters[key].forEach((item, index) => {
-                                string += `${index !== 0 ? '&' : ''}${key}=${item}`
-                            })
-                            return string
-                        } else return key + '=' + (this.parameters && this.parameters[key] ? this.parameters[key] : '')
-                    })
-                    .join('&')
         },
         getPublicUrl() {
             const tenet = (this.store.$state as any).user.organization
@@ -122,11 +139,9 @@ export default defineComponent({
                 if (this.embedHTML) {
                     this.publicUrl = `<iframe width="600" height="600" src="${location.origin}/knowage${this.linkInfo?.isPublic ? '/public' : ''}/servlet/AdapterHTTP?ACTION_NAME=EXECUTE_DOCUMENT_ACTION&OBJECT_LABEL=${
                         this.document.label
-                    }&TOOLBAR_VISIBLE=true&ORGANIZATION=${tenet}&NEW_SESSION=true&PARAMETERS=${encodeURIComponent(this.linkParameters)} frameborder="0"></iframe>`
+                    }&TOOLBAR_VISIBLE=true&ORGANIZATION=${tenet}&NEW_SESSION=true&PARAMETERS= frameborder="0"></iframe>`
                 } else {
-                    this.publicUrl =
-                        location.origin +
-                        `/knowage${this.linkInfo?.isPublic ? '/public' : ''}/servlet/AdapterHTTP?ACTION_NAME=EXECUTE_DOCUMENT_ACTION&OBJECT_LABEL=${this.document.label}&TOOLBAR_VISIBLE=true&ORGANIZATION=${tenet}&NEW_SESSION=true&PARAMETERS=${encodeURIComponent(this.linkParameters)}`
+                    this.publicUrl = location.origin + `/knowage${this.linkInfo?.isPublic ? '/public' : ''}/servlet/AdapterHTTP?ACTION_NAME=EXECUTE_DOCUMENT_ACTION&OBJECT_LABEL=${this.document.label}&TOOLBAR_VISIBLE=true&ORGANIZATION=${tenet}&NEW_SESSION=true&PARAMETERS=`
                 }
             }
         },
