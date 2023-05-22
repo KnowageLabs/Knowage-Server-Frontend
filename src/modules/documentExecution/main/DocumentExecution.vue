@@ -185,7 +185,6 @@ import Dialog from 'primevue/dialog'
 import descriptor from './DocumentExecutionDescriptor.json'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/WorkspaceFolderPickerDialog.vue'
-import mockedView from './mockedView.json'
 
 // @ts-ignore
 // eslint-disable-next-line
