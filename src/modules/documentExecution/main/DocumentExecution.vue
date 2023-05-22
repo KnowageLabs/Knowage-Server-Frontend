@@ -385,7 +385,7 @@ export default defineComponent({
             await this.loadDocument()
         }
 
-        if (this.$route.query.viewName) this.dashboardView = this.loadView()
+        if (this.$route.query.viewName) await this.loadView()
 
         this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
         let invalidRole = false
@@ -594,9 +594,13 @@ export default defineComponent({
                       document: this.document
                   })
         },
-        loadView() {
-            // TODO BE - Add Service for loading GET ONE view
-            return mockedView as IDashboardView
+        async loadView() {
+            this.loading = true
+            await this.$http
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/${this.$route.query.viewId}`)
+                .then((response: AxiosResponse<any>) => (this.dashboardView = response.data))
+                .catch(() => {})
+            this.loading = false
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             let error = false

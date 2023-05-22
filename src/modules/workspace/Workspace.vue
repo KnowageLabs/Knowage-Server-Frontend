@@ -244,7 +244,7 @@ export default defineComponent({
             else label = document.label ? document.label : document.documentLabel
             if (!label) return
             let route = `/workspace/${routeType}/${label}`
-            if (isView && !document.executeAsDocument) route += `?viewName=${document.name}`
+            if (isView && !document.executeAsDocument) route += `?viewName=${document.name}&viewId=${document.id}`
             this.$router.push(route)
         },
         async getDocumentLabelFromView(view: IDashboardView) {
