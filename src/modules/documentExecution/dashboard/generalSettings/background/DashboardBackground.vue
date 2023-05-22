@@ -45,8 +45,6 @@ export default defineComponent({
     watch: {},
     created() {
         this.background = this.dashboardModelProp.configuration.background as IBackground
-        console.log('dashboardModel', this.dashboardModelProp)
-        console.log('background', this.background)
     },
     methods: {
         onSelectionColorChanged(event: string | null) {

@@ -87,8 +87,6 @@ export default defineComponent({
         this.dashboardModel = this.model ?? {}
         if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
         if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
-
-        console.log(this.dashboardModel.configuration.background)
     },
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),

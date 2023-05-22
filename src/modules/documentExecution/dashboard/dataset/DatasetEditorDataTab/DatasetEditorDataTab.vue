@@ -66,8 +66,6 @@ export default defineComponent({
                 .catch(() => {})
         },
         async previewSelectedDataset() {
-            console.log(this.selectedDataset)
-
             await this.loadDataset(this.selectedDataset.label)
             this.datasetToPreview.drivers = [...this.selectedDataset.modelDrivers]
             this.datasetToPreview.pars = [...this.selectedDataset.parameters]
@@ -75,8 +73,6 @@ export default defineComponent({
             setTimeout(() => {
                 this.previewShown = !this.previewShown
             }, 200)
-
-            console.log(this.datasetToPreview)
         }
     }
 })

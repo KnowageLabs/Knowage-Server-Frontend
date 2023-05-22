@@ -57,7 +57,7 @@ import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView } from './Dashboard'
-import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters, apllyDashboardViewToModel } from './DashboardHelpers'
+import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters, applyDashboardViewToModel } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { formatModel } from './helpers/DashboardBackwardCompatibilityHelper'
 import { setDatasetIntervals, clearAllDatasetIntervals } from './helpers/datasetRefresh/DatasetRefreshHelpers'
@@ -227,7 +227,7 @@ export default defineComponent({
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
             if (this.propView) {
                 this.loadSelectedViewForExecution(this.propView)
-                apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
+                applyDashboardViewToModel(this.model, this.selectedViewForExecution)
                 emitter.emit('loadPivotStates', this.selectedViewForExecution)
             }
             this.store.setDashboard(this.dashboardId, this.model)
@@ -288,9 +288,7 @@ export default defineComponent({
             this.setProfileAttributes(this.profileAttributes)
         },
         loadSelectedViewForExecution(view: IDashboardView) {
-            // TODO - Remove mocked view
-            this.selectedViewForExecution = mockedView
-            // this.selectedViewForExecution = view
+            this.selectedViewForExecution = view
         },
         openNewWidgetPicker(event: any) {
             if (event !== this.dashboardId) return
@@ -424,7 +422,7 @@ export default defineComponent({
         executeView(view: IDashboardView) {
             this.savedViewsListDialogVisible = false
             this.loadSelectedViewForExecution(view)
-            apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
+            applyDashboardViewToModel(this.model, this.selectedViewForExecution)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             emitter.emit('loadPivotStates', this.selectedViewForExecution)
         }
