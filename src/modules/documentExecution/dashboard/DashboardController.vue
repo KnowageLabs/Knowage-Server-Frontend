@@ -227,7 +227,7 @@ export default defineComponent({
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
             if (this.propView) {
                 this.loadSelectedViewForExecution(this.propView)
-                apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
+                applyDashboardViewToModel(this.model, this.selectedViewForExecution)
                 emitter.emit('loadPivotStates', this.selectedViewForExecution)
             }
             this.store.setDashboard(this.dashboardId, this.model)
