@@ -20,11 +20,11 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { formatDate } from '@/helpers/commons/localeHelper'
-import descriptor from './HighchartsHeatmapAxisSettingsDescriptor.json'
+import descriptor from './HighchartsConfigurationDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
-    name: 'highcharts-heatmap-datetype-settings',
+    name: 'highcharts-datetype-settings',
     components: { Dropdown },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {

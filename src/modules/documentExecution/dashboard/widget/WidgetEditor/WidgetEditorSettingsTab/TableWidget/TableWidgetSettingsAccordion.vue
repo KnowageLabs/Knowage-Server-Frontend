@@ -30,6 +30,7 @@
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                <TableWidgetPaginator v-else-if="accordion.type === 'PaginatorStyle'" :widget-model="widgetModel"></TableWidgetPaginator>
             </AccordionTab>
         </Accordion>
     </div>
@@ -67,6 +68,7 @@ import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import TableWidgetSettingsAccordionHeader from './TableWidgetSettingsAccordionHeader.vue'
+import TableWidgetPaginator from './style/TableWidgetPaginator.vue'
 
 export default defineComponent({
     name: 'table-widget-configuration-container',
@@ -97,7 +99,8 @@ export default defineComponent({
         WidgetCrossNavigation,
         WidgetInteractionsLinks,
         WidgetPreview,
-        TableWidgetSettingsAccordionHeader
+        TableWidgetSettingsAccordionHeader,
+        TableWidgetPaginator
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

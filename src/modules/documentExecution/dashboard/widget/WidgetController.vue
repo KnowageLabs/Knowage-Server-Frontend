@@ -1,7 +1,7 @@
 <template>
-    <grid-item :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" drag-allow-from=".drag-handle" @resized="resizedEvent" :class="{ canEdit: canEditDashboard(document) }">
+    <grid-item :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) }" @resized="resizedEvent">
         <div v-if="initialized" class="drag-handle"></div>
-        <ProgressSpinner v-if="loading || customChartLoading" class="kn-progress-spinner" />
+        <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
         <WidgetRenderer
             v-if="!loading"
@@ -14,12 +14,11 @@
             :prop-active-selections="activeSelections"
             :variables="variables"
             :widget-loading="widgetLoading"
-            @reloadData="reloadWidgetData"
-            @launchSelection="launchSelection"
+            @reload-data="reloadWidgetData"
+            @launch-selection="launchSelection"
             @mouseover="toggleFocus"
             @mouseleave="startUnfocusTimer(500)"
             @loading="customChartLoading = $event"
-            @contextmenu="onWidgetRightClick"
         ></WidgetRenderer>
         <WidgetButtonBar
             :widget="widget"
@@ -29,12 +28,15 @@
             :in-focus="inFocus"
             :menu-items="items"
             @edit-widget="toggleEditMode"
-            @unlockSelection="unlockSelection"
-            @launchSelection="launchSelection"
-            @changeFocus="changeFocus"
+            @unlock-selection="unlockSelection"
+            @launch-selection="launchSelection"
+            @change-focus="changeFocus"
         ></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
     </grid-item>
+
+    <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" />
+    <WidgetSearchDialog v-if="searchDialogVisible" :visible="searchDialogVisible" :widget="widget" :prop-search="search" @close="searchDialogVisible = false" @search="onSearch"></WidgetSearchDialog>
 </template>
 
 <script lang="ts">
@@ -42,7 +44,7 @@
  * ! this component will be in charge of managing the widget behaviour related to data and interactions, not related to view elements.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDataset, ISelection, IVariable, IWidget } from '../Dashboard'
+import { IDataset, IMenuItem, ISelection, IVariable, IWidget } from '../Dashboard'
 import { emitter, canEditDashboard } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getWidgetData } from '../DataProxyHelper'
@@ -57,10 +59,12 @@ import { ISelectorWidgetSettings } from '../interfaces/DashboardSelectorWidget'
 import { datasetIsUsedInAssociations } from './interactionsHelpers/DatasetAssociationsHelper'
 import { loadAssociativeSelections } from './interactionsHelpers/InteractionHelper'
 import ContextMenu from 'primevue/contextmenu'
+import QuickWidgetDialog from './commonComponents/QuickWidgetDialog.vue'
+import WidgetSearchDialog from './WidgetSearchDialog/WidgetSearchDialog.vue'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner },
+    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -75,6 +79,7 @@ export default defineComponent({
     data() {
         return {
             loading: false,
+            showQuickDialog: false,
             initialized: true,
             widgetModel: null as any,
             widgetInitialData: {} as any,
@@ -95,17 +100,17 @@ export default defineComponent({
             customChartLoading: false,
             canEditDashboard,
             items: [
-                {
-                    label: 'Edit Widget',
-                    icon: 'fa-solid fa-pen-to-square',
-                    command: () => this.toggleEditMode()
-                },
-                {
-                    label: 'Delete Widget',
-                    icon: 'fa-solid fa-trash',
-                    command: () => this.deleteWidget(this.dashboardId, this.widget)
-                }
-            ]
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.cloneWidget(this.widget), visible: this.widget.type === 'highcharts' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'map' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'table' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: true }
+            ] as IMenuItem[],
+            searchDialogVisible: false,
+            search: { searchText: '', searchColumns: [] } as { searchText: string; searchColumns: string[] }
         }
     },
     computed: {
@@ -137,7 +142,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget']),
+        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -154,12 +159,16 @@ export default defineComponent({
             emitter.off('datasetRefreshed', this.onDatasetRefresh)
             emitter.off('setWidgetLoading', this.setWidgetLoading)
         },
-        onWidgetRightClick(event) {
-            const contextMenu = this.$refs.contextMenu as any
-            contextMenu?.show(event)
-        },
         loadWidget(widget: IWidget) {
             this.widgetModel = widget
+            this.loadWidgetSearch()
+        },
+        loadWidgetSearch() {
+            if (this.widgetModel.search) {
+                this.search = { ...this.widgetModel.search }
+                this.reloadWidgetData(null)
+            }
+            delete this.widgetModel.search
         },
         setWidgetLoading(loading: any) {
             this.loading = loading
@@ -174,7 +183,7 @@ export default defineComponent({
 
             this.setWidgetLoading(true)
 
-            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections)
+            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections, this.search)
             this.widgetData = this.widgetInitialData
             await this.loadActiveSelections()
 
@@ -207,7 +216,7 @@ export default defineComponent({
         },
         async reloadWidgetData(associativeResponseSelections: any) {
             this.widgetLoading = true
-            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, associativeResponseSelections)
+            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, associativeResponseSelections)
             this.widgetLoading = false
         },
         widgetUsesSelections(selections: ISelection[]) {
@@ -277,6 +286,26 @@ export default defineComponent({
         },
         resizedEvent: function (newHPx) {
             emitter.emit('widgetResized', newHPx)
+        },
+        expandWidget(widget) {
+            const widgetElement = this.$refs[`widget${widget.id}`] as any
+            widgetElement.$el.requestFullscreen()
+        },
+        toggleQuickDialog() {
+            this.showQuickDialog = !this.showQuickDialog
+        },
+        searchOnWidget() {
+            this.searchDialogVisible = true
+        },
+        cloneWidget(widget) {
+            console.log('widget', widget)
+        },
+        onSearch(payload: { searchText: string; searchColumns: string[] }) {
+            this.search = payload
+            this.searchDialogVisible = false
+            const currentState = this.getCurrentDashboardView(this.dashboardId)
+            if (currentState && this.widgetModel.id) currentState.settings.states[this.widgetModel.id] = { type: this.widgetModel.type, search: this.search }
+            this.reloadWidgetData(null)
         }
     }
 })

@@ -21,7 +21,26 @@
             <template #filter="{ filterModel }">
                 <InputText v-model="filterModel.value" type="text" class="p-column-filter"></InputText>
             </template>
-            <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)" :sortable="true" />
+            <Column style="width: 5%">
+                <template #body="slotProps">
+                    <i :class="slotProps.data['type'] === 'VIEW' ? 'fa-solid fa-eye' : 'fa-solid fa-file'"></i>
+                </template>
+            </Column>
+            <Column :key="'type'" :header="$t('common.type')" :sortable="true">
+                <template #body="slotProps">
+                    <span class="kn-truncated">{{ slotProps.data['type'] }}</span>
+                </template>
+            </Column>
+            <Column :key="'name'" :header="$t('common.name')" :sortable="true">
+                <template #body="slotProps">
+                    <span class="kn-truncated">{{ slotProps.data['name'] }}</span>
+                </template>
+            </Column>
+            <Column :key="'description'" :header="$t('common.description')" :sortable="true">
+                <template #body="slotProps">
+                    <span class="kn-truncated">{{ slotProps.data['description'] }}</span>
+                </template>
+            </Column>
             <Column class="icon-cell" :style="mainDescriptor.style.iconColumn">
                 <template #body="slotProps">
                     <Button icon="fas fa-ellipsis-v" class="p-button-link" @click="showMenu($event, slotProps.data)" />
@@ -54,6 +73,8 @@
         :view-type="'repository'"
         :document="selectedDocument"
         data-test="detail-sidebar"
+        @executeView="executeView"
+        @moveView="moveDocumentToFolder"
         @executeDocumentFromOrganizer="executeDocumentFromOrganizer"
         @moveDocumentToFolder="moveDocumentToFolder"
         @deleteDocumentFromOrganizer="deleteDocumentConfirm"
@@ -63,15 +84,16 @@
     <WorkspaceRepositoryMoveDialog :visible="moveDialogVisible" :prop-folders="folders" @close="moveDialogVisible = false" @move="handleDocumentMove"></WorkspaceRepositoryMoveDialog>
     <WorkspaceWarningDialog :visible="warningDialogVisbile" :warning-message="warningMessage" @close="closeWarningDialog"></WorkspaceWarningDialog>
     <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
+
+    <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" @close="onSaveViewListDialogClose" @viewUpdated="onViewUpdated"></DashboardSaveViewDialog>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { IDocument, IFolder } from '@/modules/workspace/Workspace'
+import { IFolder } from '@/modules/workspace/Workspace'
 import mainDescriptor from '@/modules/workspace/WorkspaceDescriptor.json'
 import DetailSidebar from '@/modules/workspace/genericComponents/DetailSidebar.vue'
 import Message from 'primevue/message'
 import WorkspaceCard from '@/modules/workspace/genericComponents/WorkspaceCard.vue'
-import repositoryDescriptor from './WorkspaceRepositoryViewDescriptor.json'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Menu from 'primevue/contextmenu'
@@ -81,9 +103,14 @@ import WorkspaceRepositoryBreadcrumb from './breadcrumbs/WorkspaceRepositoryBrea
 import { AxiosResponse } from 'axios'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../../App.store'
+import { IDashboardView } from '@/modules/documentExecution/dashboard/Dashboard'
+import { deleteDashboardView } from '@/modules/documentExecution/dashboard/DashboardViews/DashboardViewsHelper'
+import { mapActions } from 'pinia'
+import DashboardSaveViewDialog from '@/modules/documentExecution/dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
+import appStore from '@/App.store'
 
 export default defineComponent({
-    components: { DataTable, Column, DetailSidebar, WorkspaceCard, Menu, Message, WorkspaceRepositoryMoveDialog, WorkspaceWarningDialog, WorkspaceRepositoryBreadcrumb },
+    components: { DataTable, Column, DetailSidebar, WorkspaceCard, Menu, Message, WorkspaceRepositoryMoveDialog, WorkspaceWarningDialog, WorkspaceRepositoryBreadcrumb, DashboardSaveViewDialog },
     props: { selectedFolder: { type: Object }, id: { type: String, required: false }, toggleCardDisplay: { type: Boolean }, breadcrumbs: { type: Array }, allFolders: { type: Array } },
     emits: ['showMenu', 'reloadRepositoryMenu', 'toggleDisplayView', 'breadcrumbClicked', 'execute'],
     setup() {
@@ -95,16 +122,17 @@ export default defineComponent({
             mainDescriptor,
             loading: false,
             showDetailSidebar: false,
-            documents: [] as IDocument[],
-            filteredDocuments: [] as IDocument[],
+            documents: [] as IDashboardView[],
+            filteredDocuments: [] as IDashboardView[],
             menuButtons: [] as any,
-            selectedDocument: {} as IDocument,
-            columns: repositoryDescriptor.columns,
+            selectedDocument: {} as IDashboardView,
             searchWord: '' as string,
             folders: [] as IFolder[],
             moveDialogVisible: false,
             warningDialogVisbile: false,
-            warningMessage: ''
+            warningMessage: '',
+            selectedView: null as IDashboardView | null,
+            saveViewDialogVisible: false
         }
     },
     watch: {
@@ -120,16 +148,21 @@ export default defineComponent({
         this.getFolderDocuments()
     },
     methods: {
+        ...mapActions(appStore, ['setLoading']),
         loadFolders() {
             this.folders = this.allFolders as IFolder[]
         },
-        getFolderDocuments() {
+        async getFolderDocuments() {
             this.loading = true
-            return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/${this.id}`)
+            await this.$http
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/${this.id}`)
                 .then((response: AxiosResponse<any>) => {
-                    this.documents = [...response.data]
+                    this.documents = [...response.data.content]
                     this.filteredDocuments = [...this.documents]
+                })
+                .catch(() => {
+                    this.documents = []
+                    this.filteredDocuments = []
                 })
                 .finally(() => (this.loading = false))
         },
@@ -142,33 +175,66 @@ export default defineComponent({
         },
         showMenu(event, clickedDocument) {
             this.selectedDocument = clickedDocument
-            this.createMenuItems()
+            this.createMenuItems(clickedDocument)
             // eslint-disable-next-line
             // @ts-ignore
             this.$refs.optionsMenu.toggle(event)
         },
-        // prettier-ignore
-        createMenuItems() {
+        createMenuItems(clickedDocument: any) {
             this.menuButtons = []
+            const isView = clickedDocument.type == 'VIEW'
+            if (isView)
+                this.menuButtons.push({
+                    key: '2',
+                    label: this.$t('workspace.myRepository.executeView'),
+                    icon: 'fas fa-play-circle',
+                    command: () => {
+                        this.executeView(clickedDocument)
+                    }
+                })
+
             this.menuButtons.push(
-                { key: '3', label: this.$t('workspace.myRepository.moveDocument'), icon: 'fas fa-share', command: () => { this.moveDocumentToFolder(this.selectedDocument) }},
-                { key: '4', label: this.$t('workspace.myAnalysis.menuItems.delete'), icon: 'fas fa-trash', command: () => { this.deleteDocumentConfirm(this.selectedDocument) }},
+                {
+                    key: '3',
+                    label: isView ? this.$t('workspace.myRepository.moveView') : this.$t('workspace.myRepository.moveDocument'),
+                    icon: 'fas fa-share',
+                    command: () => {
+                        this.moveDocumentToFolder(this.selectedDocument)
+                    }
+                },
+                {
+                    key: '4',
+                    label: isView ? this.$t('workspace.myRepository.deleteView') : this.$t('workspace.myAnalysis.menuItems.delete'),
+                    icon: 'fas fa-trash',
+                    command: () => {
+                        this.deleteDocumentConfirm(this.selectedDocument)
+                    }
+                }
             )
         },
         toggleDisplayView() {
             this.$emit('toggleDisplayView')
         },
-        executeDocumentFromOrganizer(document: IDocument) {
-            this.$emit('execute', document)
+        executeView(view: IDashboardView) {
+            this.$emit('execute', view)
         },
-        moveDocumentToFolder(document: IDocument) {
-            this.selectedDocument = document
-            this.moveDialogVisible = true
+        executeDocumentFromOrganizer(document: IDashboardView) {
+            this.$emit('execute', { ...document, executeAsDocument: true })
+        },
+        moveDocumentToFolder(document: IDashboardView) {
+            if (document.type === 'VIEW') {
+                this.selectedView = { ...document }
+                this.saveViewDialogVisible = true
+            } else {
+                this.selectedDocument = document
+                this.moveDialogVisible = true
+            }
         },
         async handleDocumentMove(folder: any) {
+            if (!this.selectedDocument || !folder) return
             this.loading = true
             await this.$http
-                .put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documentsee/${this.selectedDocument.biObjId}/${this.selectedDocument.functId}/${folder.id}`)
+                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/document`, { biObjectId: this.selectedDocument.biObjectId, parentId: folder.id })
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -184,18 +250,36 @@ export default defineComponent({
                 })
             this.loading = false
         },
-        deleteDocumentConfirm(document: IDocument) {
+        deleteDocumentConfirm(document: IDashboardView) {
             this.$confirm.require({
                 message: this.$t('common.toast.deleteMessage'),
                 header: this.$t('common.toast.deleteTitle'),
                 icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteDocument(document)
+                accept: async () => (document.type === 'VIEW' ? await this.deleteView(document as IDashboardView) : await this.deleteDocument(document))
             })
         },
-        deleteDocument(document: IDocument) {
+        async deleteView(view: IDashboardView) {
+            this.setLoading(true)
+            await deleteDashboardView(view, this.$http)
+                .then(async () => {
+                    this.store.setInfo({
+                        title: this.$t('common.toast.deleteTitle'),
+                        msg: this.$t('common.toast.success')
+                    })
+                    this.showDetailSidebar = false
+                    await this.getFolderDocuments()
+                    if (this.selectedView?.id === view.id) {
+                        this.selectedView = null
+                        this.showDetailSidebar = false
+                    }
+                })
+                .catch(() => {})
+            this.setLoading(false)
+        },
+        async deleteDocument(document: IDashboardView) {
             this.loading = true
-            this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/${document.functId}/${document.biObjId}`)
+            await this.$http
+                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/document/${document.id}`)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
@@ -214,18 +298,18 @@ export default defineComponent({
         searchItems() {
             setTimeout(() => {
                 if (!this.searchWord.trim().length) {
-                    this.filteredDocuments = [...this.documents] as IDocument[]
+                    this.filteredDocuments = [...this.documents] as IDashboardView[]
                 } else {
-                    this.filteredDocuments = this.documents.filter((el: any) => {
-                        return (
-                            el.documentType?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                            el.documentLabel?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                            el.documentName?.toLowerCase().includes(this.searchWord.toLowerCase()) ||
-                            el.documentDescription?.toLowerCase().includes(this.searchWord.toLowerCase())
-                        )
-                    })
+                    this.filteredDocuments = this.documents.filter((el: any) => el.type?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.name?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.description?.toLowerCase().includes(this.searchWord.toLowerCase()))
                 }
             }, 250)
+        },
+        onSaveViewListDialogClose() {
+            this.saveViewDialogVisible = false
+            this.selectedView = null
+        },
+        onViewUpdated() {
+            this.getFolderDocuments()
         }
     }
 })

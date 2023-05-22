@@ -255,6 +255,10 @@
             {
                 "title": "dashboard.widgetEditor.shadows.title",
                 "type": "ShadowsStyle"
+            },
+            {
+                "title": "dashboard.widgetEditor.paginator",
+                "type": "PaginatorStyle"
             }
         ],
         "Tooltips": [
@@ -391,8 +395,8 @@
             "value": "Bar"
         },
         {
-            "label": "dashboard.widgetEditor.visualizationType.sparkline",
-            "value": "Sparkline"
+            "label": "dashboard.widgetEditor.visualizationType.barAndText",
+            "value": "Bar & Text"
         }
     ]
 }

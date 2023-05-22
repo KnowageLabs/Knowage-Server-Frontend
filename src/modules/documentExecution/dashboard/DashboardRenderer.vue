@@ -1,5 +1,6 @@
 <template>
-    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" label-position="bottom" @sheet-change="sheetChange">
+    <KnDashboardTabsPanel :style="backgroundStyle" class="test" v-model:sheets="dashboardModel.sheets" label-position="bottom" @sheet-change="sheetChange">
+        <div id="dashboard-css" v-html="dashboardCss" />
         <KnDashboardTab v-for="(sheet, index) in dashboardModel.sheets" :key="index" :index="index">
             <grid-layout
                 v-model:layout="sheet.widgets['lg']"
@@ -35,7 +36,7 @@
  * ! this component will be in charge of creating the dashboard visualizazion, specifically to manage responsive structure and sheets.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IVariable } from './Dashboard'
+import { IBackground, IDataset, IVariable } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import WidgetController from './widget/WidgetController.vue'
@@ -65,14 +66,28 @@ export default defineComponent({
         ...mapState(dashboardStore, {
             dashboard: 'dashboards',
             selectedSheetIndex: 'selectedSheetIndex'
-        })
+        }),
+        backgroundStyle(): any {
+            if (!this.dashboardModel.configuration) return ''
+
+            const backgroundConfig = this.dashboardModel.configuration.background as IBackground
+            const backgroundStyle = { 'background-size': backgroundConfig?.imageBackgroundSize || '100%', 'background-position': 'center', 'background-repeat': 'no-repeat', 'min-height': '100%' }
+
+            if (backgroundConfig?.imageBackgroundUrl) backgroundStyle['background-image'] = `url('${backgroundConfig.imageBackgroundUrl}')`
+            if (backgroundConfig?.sheetsBackgroundColor) backgroundStyle['background-color'] = backgroundConfig.sheetsBackgroundColor
+            backgroundStyle['background-size'] = backgroundConfig?.imageBackgroundSize || 'contain'
+
+            return backgroundStyle
+        },
+        dashboardCss(): any {
+            return `<style>${this.dashboardModel?.configuration?.cssToRender}</style>`
+        }
     },
     mounted() {
         this.dashboardModel = this.model ?? {}
         if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
         if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
     },
-
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
         activeSheet(index) {

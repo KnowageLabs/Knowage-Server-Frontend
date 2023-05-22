@@ -5,7 +5,7 @@
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context"></ag-grid-vue>
-        <PaginatorRenderer v-if="showPaginator" :prop-widget-pagination="widgetModel.settings.pagination" @pageChanged="$emit('pageChanged')" />
+        <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @pageChanged="$emit('pageChanged')" />
     </div>
 </template>
 
@@ -15,14 +15,14 @@ import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { IDashboardDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, getColumnConditionalStyles, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import mainStore from '../../../../../App.store'
 import dashboardStore from '../../Dashboard.store'
 import descriptor from '../../dataset/DatasetEditorDescriptor.json'
 import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
 import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
-import CellRenderer from './CellRenderer.vue'
+import CellRenderer from './CellRenderer'
 import HeaderRenderer from './HeaderRenderer.vue'
 import TooltipRenderer from './TooltipRenderer.vue'
 import SummaryRowRenderer from './SummaryRowRenderer.vue'
@@ -90,6 +90,7 @@ export default defineComponent({
         dataToShow() {
             this.tableData = this.dataToShow
             this.refreshGridConfiguration(true)
+            this.updatePagination()
         },
         propActiveSelections() {
             this.loadActiveSelections()
@@ -105,6 +106,7 @@ export default defineComponent({
         this.setupDatatableOptions()
         this.loadActiveSelectionValue()
         this.tableData = this.dataToShow
+        this.updatePagination()
     },
     unmounted() {
         this.removeEventListeners()
@@ -146,7 +148,6 @@ export default defineComponent({
         setupDatatableOptions() {
             this.gridOptions = {
                 // PROPERTIES
-                rowData: this.rowData,
                 columnDefs: this.columnDefs,
                 tooltipShowDelay: 100,
                 tooltipMouseTrack: true,
@@ -161,7 +162,7 @@ export default defineComponent({
                 suppressRowClickSelection: true,
                 suppressCellFocus: true,
                 suppressMultiRangeSelection: true,
-                suppressRowVirtualisation: true,
+                suppressRowVirtualisation: false,
                 rowHeight: 25,
 
                 // EVENTS
@@ -211,6 +212,14 @@ export default defineComponent({
             const dashboardVariables = this.propVariables
             const dataset = { type: 'SbiFileDataSet' }
 
+            const conditionalStyles = this.propWidget.settings.conditionalStyles
+            const columnDataMap = Object.fromEntries(this.propWidget.columns.map((column, index) => [column.id, `column_${index + 1}`]))
+            // const selectedColumnsIds = this.propWidget.columns.map((currElement) => {
+            //     return currElement.id
+            // })
+            // const columnsWithConditionalStyles = conditionalStyles.conditions.filter((condition) => selectedColumnsIds.includes(condition.target))
+            const columnsWithConditionalStyles = conditionalStyles.conditions
+
             if (this.widgetModel.settings.configuration.rows.indexColumn) {
                 columns.push({
                     colId: 'indexColumn',
@@ -223,7 +232,7 @@ export default defineComponent({
                     headerComponent: HeaderRenderer,
                     headerComponentParams: { propWidget: this.widgetModel },
                     cellRenderer: CellRenderer,
-                    cellRendererParams: { colId: 'indexColumn', propWidget: this.widgetModel }
+                    cellRendererParams: { colId: 'indexColumn', propWidget: this.widgetModel, columnDataMap, columnsWithConditionalStyles }
                 })
             }
 
@@ -249,7 +258,9 @@ export default defineComponent({
                                 multiSelectedCells: this.multiSelectedCells,
                                 selectedColumnArray: this.selectedColumnArray,
                                 dashboardDrivers: dashboardDrivers,
-                                dashboardVariables: dashboardVariables
+                                dashboardVariables: dashboardVariables,
+                                columnDataMap,
+                                columnsWithConditionalStyles
                             }
                         } as any
                         if (tempCol.measure === 'MEASURE') tempCol.aggregationSelected = this.widgetModel.columns[datasetColumn].aggregation
@@ -404,13 +415,6 @@ export default defineComponent({
         },
         getRowStyle(params) {
             const rowStyles = this.widgetModel.settings.style.rows
-            const rowData = Object.entries(params.data).filter((row) => row[0].includes('column_'))
-            if (this.widgetModel.settings.conditionalStyles.enabled) {
-                for (let i = 0; i < rowData.length; i++) {
-                    const conditionalColumnStyle = getColumnConditionalStyles(this.widgetModel, this.widgetModel.columns[i].id!, rowData[i][1], false)
-                    if (conditionalColumnStyle) return conditionalColumnStyle
-                }
-            }
 
             if (rowStyles.alternatedRows && rowStyles.alternatedRows.enabled) {
                 if (rowStyles.alternatedRows.oddBackgroundColor && params.node.rowIndex % 2 === 0) {
@@ -565,16 +569,33 @@ export default defineComponent({
             this.widgetModel.settings.sortingColumn = updatedSorting.colId
             this.widgetModel.settings.sortingOrder = updatedSorting.order
             this.$emit('sortingChanged')
+        },
+        updatePagination() {
+            const pagination = this.propWidget.settings.pagination
+            if (pagination.enabled) {
+                this.widgetModel.settings.pagination.properties.totalItems = this.dataToShow.results
+            }
         }
     }
 })
 </script>
 <style lang="scss">
 .cell-span {
-    border-left: 1px solid lightgrey !important;
-    border-right: 1px solid lightgrey !important;
-    border-bottom: 1px solid lightgrey !important;
+    // border-left: 1px solid lightgrey !important;
+    // border-right: 1px solid lightgrey !important;
+    // border-bottom: 1px solid lightgrey !important;
     background-color: white;
+}
+.ag-cell {
+    .barContainer {
+        width: 100%;
+        height: 100%;
+        display: inline-flex;
+        .innerBar {
+            height: 100%;
+            margin: 1px;
+        }
+    }
 }
 .multiselect-overlay {
     display: flex;

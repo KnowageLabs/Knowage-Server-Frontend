@@ -55,6 +55,7 @@ export default defineComponent({
     mounted() {
         this.setEventListeners()
         this.loadActiveSelections()
+        this.loadWidgetState()
         this.loadDataToShow()
         this.loadProfileAttributesToDatastore()
         this.loadVariablesToDatastore()
@@ -66,7 +67,7 @@ export default defineComponent({
         this.loadedScriptsCount = 0
     },
     methods: {
-        ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes']),
+        ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes', 'getCurrentDashboardView']),
         ...mapActions(appStore, ['setError']),
         setEventListeners() {
             window.addEventListener('message', this.iframeEventsListener)
@@ -78,6 +79,7 @@ export default defineComponent({
             if (event.data.type === 'error' && event.data.editorMode === this.editorMode) {
                 this.setError({ title: this.$t('common.error.generic'), msg: event.data.error?.message ?? '' })
             } else if (event.data.type === 'clickManager') this.onClickManager(event.data.payload.columnName, event.data.payload.columnValue)
+            else if (event.data.type === 'setState') this.onSetState(event.data.payload)
         },
         loadProfileAttributesToDatastore() {
             const profileAttributes = this.getProfileAttributes()
@@ -85,6 +87,9 @@ export default defineComponent({
         },
         loadVariablesToDatastore() {
             this.datastore.setVariables(this.variables)
+        },
+        loadWidgetState() {
+            if (this.propWidget.state) this.datastore.state = this.propWidget.state
         },
         async loadDataToShow() {
             this.dataToShow = this.widgetData
@@ -234,6 +239,11 @@ export default defineComponent({
             const datasets = this.getAllDatasets()
             const index = datasets.findIndex((dataset: IDataset) => dataset.id.dsId == datasetId)
             return index !== -1 ? datasets[index].label : ''
+        },
+        onSetState(state: any) {
+            this.datastore.state = state
+            const currentState = this.getCurrentDashboardView(this.dashboardId)
+            if (currentState && this.propWidget.id) currentState.settings.states[this.propWidget.id] = { type: this.propWidget.type, state: state }
         }
     }
 })

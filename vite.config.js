@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue'
 import builtins from 'rollup-plugin-node-builtins'
 import forwardToTrailingSlashPlugin from './forward-to-trailing-slash-plugin.js'
 import { VitePWA } from 'vite-plugin-pwa'
+import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 
 const path = require('path')
 
@@ -21,7 +22,9 @@ export default defineConfig((command, mode) => {
     const env = loadEnv(mode, process.cwd())
     return {
         plugins: [
-            vue(),
+            vue({
+                template: { transformAssetUrls }
+            }),
             builtinsPlugin,
             forwardToTrailingSlashPlugin(Object.keys(build.rollupOptions.input)),
             VitePWA({
@@ -73,7 +76,8 @@ export default defineConfig((command, mode) => {
                         }
                     ]
                 }
-            })
+            }),
+            quasar()
         ],
         define: {
             _KNOWAGE_VERSION: JSON.stringify(process.env.npm_package_version)

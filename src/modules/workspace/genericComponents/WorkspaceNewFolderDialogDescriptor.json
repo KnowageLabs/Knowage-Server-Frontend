@@ -7,20 +7,6 @@
     "validations": {
         "newFolder": [
             {
-                "fieldName": "code",
-                "validators": [
-                    {
-                        "key": "required"
-                    },
-                    {
-                        "key": "regex",
-                        "validator": {
-                            "type": "extendedAlphanumericRegex"
-                        }
-                    }
-                ]
-            },
-            {
                 "fieldName": "name",
                 "validators": [
                     {

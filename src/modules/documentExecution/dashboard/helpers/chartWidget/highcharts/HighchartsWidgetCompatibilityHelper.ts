@@ -1,4 +1,3 @@
-import { KnowageHighchartsHeatmapChart } from './../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart';
 import { IWidget, IWidgetExports, IWidgetInteractions } from '../../../Dashboard'
 import { IHighchartsWidgetConfiguration, IHighchartsWidgetSettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { KnowageHighchartsPieChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsPieChart'
@@ -10,6 +9,8 @@ import { KnowageHighchartsGaugeSeriesChart } from '../../../widget/ChartWidget/c
 import { KnowageHighchartsSolidGaugeChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSolidGaugeChart'
 import { KnowageHighchartsActivityGaugeChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsActivityGaugeChart'
 import { getFormattedSerieLabelsSettings } from './HighchartsSeriesSettingsCompatibilityHelper'
+import { KnowageHighchartsHeatmapChart } from './../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart';
+import { KnowageHighchartsRadarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsRadarChart';
 import * as widgetCommonDefaultValues from '../../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
@@ -51,7 +52,8 @@ const getFormattedWidgetSettings = (widget: any, chartType: string) => {
 
 const getFormattedConfiguration = (widget: any, chartType: string) => {
     const formattedConfiguration = { exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports } as IHighchartsWidgetConfiguration
-    if (chartType === 'HEATMAP') formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
+    if (['HEATMAP', 'RADAR'].includes(chartType)) formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
+    if (['RADAR'].includes(chartType)) formattedConfiguration.splitting = getFormmatedSplittingSettings(widget)
     return formattedConfiguration
 }
 
@@ -63,6 +65,16 @@ const getFormmatedDatetypeSettings = (widget: any) => {
         formattedDatetypeSettings.format = getProperDateTimeFormat(oldChartModel.dateFormat)
     }
     return formattedDatetypeSettings
+}
+
+const getFormmatedSplittingSettings = (widget: any) => {
+    const splittingSettings = { enabled: false, groupedSerie: '' }
+    const oldChartModel = widget.content?.chartTemplate?.CHART
+    if (oldChartModel) {
+        splittingSettings.enabled = oldChartModel.groupSeriesCateg
+        splittingSettings.groupedSerie = oldChartModel.groupedSerie
+    }
+    return splittingSettings
 }
 
 const getProperDateTimeFormat = (oldDateFormat: string) => {
@@ -107,6 +119,8 @@ const createChartModel = (widget: any, chartType: string) => {
             return createGaugeChartInstance(widgetContentChartTemplate)
         case 'HEATMAP':
             return new KnowageHighchartsHeatmapChart(widgetContentChartTemplate)
+        case "RADAR":
+            return new KnowageHighchartsRadarChart(widgetContentChartTemplate)
         default:
             return null
     }

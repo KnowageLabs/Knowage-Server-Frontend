@@ -15,18 +15,13 @@ export interface IDocument {
 }
 
 export interface IFolder {
-    id?: string
-    code: string
-    descr?: string
-    name: string
-    path: string
-    userIn: string
-    functId: number
-    parentFunct?: number
-    prog: number
-    timeIn: number
-    data?: { name: string; hasDocuments: boolean }
-    items?: IFolder[]
+    id: string | null,
+    parentId: string | null,
+    name: string,
+    description: string,
+    progr: number,
+    created: string,
+    children: IFolder[]
 }
 
 export interface IPackage {

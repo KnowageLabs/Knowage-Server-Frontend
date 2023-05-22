@@ -1,0 +1,7 @@
+{
+    "dialogStyle": {
+        "max-width": "600px",
+        "min-width": "300px",
+        "width": "40%"
+    }
+}

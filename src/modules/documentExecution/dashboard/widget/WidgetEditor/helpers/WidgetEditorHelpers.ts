@@ -116,6 +116,8 @@ export function formatWidgetForSave(tempWidget: IWidget) {
 
             formatVegaForSave(widget)
     }
+    delete widget.state
+    delete widget.search
     return widget
 }
 

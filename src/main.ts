@@ -5,6 +5,7 @@ import router from './App.routes.js'
 import store from './App.store.js'
 import { createPinia } from 'pinia'
 import { GlobalCmComponent } from 'codemirror-editor-vue3'
+import { Quasar } from 'quasar'
 
 import VueAxios from 'vue-axios'
 import interceptor from './axios.js'
@@ -34,6 +35,8 @@ import '@fortawesome/fontawesome-free/css/all.css'
 import 'primeflex/primeflex.css'
 import '@/assets/css/dialects-icons.css'
 import 'material-icons/iconfont/material-icons.css'
+import '@quasar/extras/material-icons/material-icons.css'
+import 'quasar/dist/quasar.css'
 
 import ToastService from 'primevue/toastservice'
 import Button from 'primevue/button'
@@ -74,6 +77,7 @@ app.use(VueAxios, interceptor)
     .use(GlobalCmComponent)
     .use(VueGridLayout)
     .use(ResizeObserver)
+    .use(Quasar)
 
     .directive('badge', BadgeDirective)
     .directive('tooltip', Tooltip)

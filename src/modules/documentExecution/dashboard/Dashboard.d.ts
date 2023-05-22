@@ -5,7 +5,7 @@ export interface IDashboard {
     sheets: []
     widgets: IWidget[]
     configuration: IDashboardConfiguration
-    version: string,
+    version: string
     allDatasetsLoaded?: boolean
 }
 
@@ -14,11 +14,14 @@ export interface IDashboardConfiguration {
     name: string
     label: string
     description: string
+    cssToRender: string
     associations: IAssociation[]
     datasets: IDashboardDataset[]
     variables: IVariable[]
     selections: ISelection[]
     themes: any
+    background: IBackground
+    menuWidgets: IMenuAndWidgets
 }
 
 export interface IDatasetParameter {
@@ -42,6 +45,8 @@ export interface IWidget {
     new?: boolean
     fields?: IPivotFields
     layers?: any
+    state?: any,
+    search?: any
 }
 
 export interface ITableWidgetSettings {
@@ -253,6 +258,7 @@ export interface ITableWidgetStyle {
     shadows: IWidgetShadowsStyle
     summary: ITableWidgetSummaryStyle
     background: IWidgetBackgroundStyle
+    paginator: ITableWidgetPaginatorStyle
 }
 
 export interface IWidgetBordersStyle {
@@ -339,6 +345,12 @@ export interface ITableWidgetSummaryStyle {
     'justify-content': string
 }
 
+export interface ITableWidgetPaginatorStyle {
+    color: string
+    'background-color': string
+    'justify-content': string
+}
+
 export interface ITableWidgetTooltipStyle {
     target: string | string[]
     enabled: boolean
@@ -420,6 +432,7 @@ export interface IWidgetColumn {
     drillOrder?: IDrillOrderItem
     orderType?: string
     sort?: string
+    serieType?: string
 }
 
 export interface IWidgetColumnFilter {
@@ -564,6 +577,18 @@ interface IAssociation {
         isValid: boolean
         msg: string
     }
+}
+
+interface IBackground {
+    sheetsBackgroundColor: string
+    imageBackgroundUrl: string
+    imageBackgroundSize: string
+}
+
+interface IMenuAndWidgets {
+    showExcelExport: boolean
+    showScreenshot: boolean
+    showSelectionButton: boolean
 }
 
 interface IAssociationField {
@@ -711,4 +736,25 @@ interface IDashboardOutputParameterType {
     valueDescription: string
     valueId: number
     valueName: string
+}
+
+export interface IMenuItem {
+    label: string
+    icon: string
+    command: Function
+    visible: boolean
+}
+
+export interface IDashboardView {
+    id?: string
+    label: string
+    name: string
+    description: string
+    drivers: any
+    settings: any
+    biObjectId: number
+    parentId: string
+    visibility: string
+    type?: string
+    new?: boolean
 }

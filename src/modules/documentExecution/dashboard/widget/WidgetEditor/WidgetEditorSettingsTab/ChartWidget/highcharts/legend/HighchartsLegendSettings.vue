@@ -1,5 +1,8 @@
 <template>
     <div v-if="model?.legend" class="p-grid p-jc-center p-ai-center p-p-4">
+        <div class="p-col-12">
+            {{ model?.legend }}
+        </div>
         <div class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column kn-flex p-m-2">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center">

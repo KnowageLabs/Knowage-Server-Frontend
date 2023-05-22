@@ -37,6 +37,18 @@
             "measuresOnly": true
         }
     ],
+    "radarColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.radar.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.radar.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "solidgaugeChartColumnTableSettings": [
         {
             "hint": "dashboard.widgetEditor.highcharts.solidGauge.valuesTableHint",

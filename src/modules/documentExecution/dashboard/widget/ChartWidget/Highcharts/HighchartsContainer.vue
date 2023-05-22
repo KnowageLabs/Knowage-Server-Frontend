@@ -9,8 +9,9 @@ import { ISelection, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
-import { formatActivityGauge, formatHeatmap } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation } from './HighchartsContainerHelpers'
+import { getPieChartDrilldownData } from '../../../DataProxyHelper'
 import Highcharts from 'highcharts'
 import Highcharts3D from 'highcharts/highcharts-3d'
 import HighchartsMore from 'highcharts/highcharts-more'
@@ -19,6 +20,7 @@ import Accessibility from 'highcharts/modules/accessibility'
 import NoDataToDisplay from 'highcharts/modules/no-data-to-display'
 import SeriesLabel from 'highcharts/modules/series-label'
 import HighchartsHeatmap from 'highcharts/modules/heatmap'
+import Drilldown from 'highcharts/modules/drilldown'
 import cryptoRandomString from 'crypto-random-string'
 import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
@@ -31,6 +33,7 @@ Accessibility(Highcharts)
 NoDataToDisplay(Highcharts)
 SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
+Drilldown(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -43,14 +46,17 @@ export default defineComponent({
         propActiveSelections: {
             type: Array as PropType<ISelection[]>,
             required: true
-        }
+        },
+        datasets: { type: Array as any, required: true }
     },
     data() {
         return {
             chartID: cryptoRandomString({ length: 16, type: 'base64' }),
             chartModel: {} as IHighchartsChartModel,
             error: false,
-            highchartsInstance: {} as any
+            highchartsInstance: {} as any,
+            drillLevel: 0,
+            likeSelections: [] as any[]
         }
     },
     watch: {
@@ -66,7 +72,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['setSelections', 'getDatasetLabel']),
+        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('refreshChart', this.onRefreshChart)
@@ -89,7 +95,8 @@ export default defineComponent({
 
             this.widgetModel.settings.chartModel.updateSeriesAccessibilitySettings(this.widgetModel)
             if (this.chartModel.chart.type !== 'heatmap') this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
-            this.chartModel.chart.type === 'heatmap' ? this.updateAxisLabels() : this.updateDataLabels()
+            if (this.chartModel.chart.type === 'heatmap') this.updateAxisLabels()
+            else if (this.chartModel.chart.type !== 'radar') this.updateDataLabels()
             this.error = this.updateLegendSettings()
             if (this.error) return
             this.error = this.updateTooltipSettings()
@@ -100,13 +107,14 @@ export default defineComponent({
             this.setSeriesEvents()
 
             const modelToRender = this.getModelForRender()
+            modelToRender.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
             modelToRender.chart.backgroundColor = null
 
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
-            } catch (error) {
-                this.setError({ title: this.$t('common.toast.errorTitle'), msg: error })
+            } catch (error: any) {
+                this.setError({ title: this.$t('common.toast.errorTitle'), msg: error ? error.message : '' })
             }
         },
         updateLegendSettings() {
@@ -136,21 +144,39 @@ export default defineComponent({
         },
 
         setSeriesEvents() {
-            if (this.chartModel.plotOptions.series) {
-                this.chartModel.plotOptions.series.events = {
-                    click: this.executeInteractions
-                }
-            } else
-                this.chartModel.plotOptions.series = {
-                    events: { click: this.executeInteractions }
-                }
+            this.chartModel.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
+            if (this.chartModel.plotOptions.series) this.chartModel.plotOptions.series = { events: { click: this.executeInteractions } }
         },
-        executeInteractions(event: any) {
-            if (this.chartModel.chart.type !== 'pie' && this.chartModel.chart.type !== 'heatmap') return
-            if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
+        onDrillUp(event: any) {
+            this.drillLevel = event.seriesOptions._levelNumber
+            this.likeSelections = this.likeSelections.slice(0, this.drillLevel)
+            this.setSeriesEvents()
+        },
+        async executeInteractions(event: any) {
+            if (!['pie', 'heatmap', 'radar'].includes(this.chartModel.chart.type)) return
+
+            if (this.widgetModel.settings.interactions.drilldown?.enabled) {
+                if (!event.point) return
+                const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
+                this.drillLevel++
+                const category = this.widgetModel.columns[this.drillLevel - 1]
+                this.likeSelections.push({ [category.columnName]: event.point.name })
+                this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
+                const tempData = await getPieChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
+                const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
+                this.highchartsInstance.hideLoading()
+                newSeries.forEach((serie: any) => {
+                    this.highchartsInstance.addSeriesAsDrilldown(event.point, {
+                        data: serie.data,
+                        name: event.point.name
+                    })
+                })
+
+                this.setSeriesEvents()
+            } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-            } else if (this.chartModel.chart.type === 'pie') {
+            } else if (['pie', 'radar'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
@@ -183,6 +209,8 @@ export default defineComponent({
                 formatActivityGauge(formattedChartModel, this.widgetModel)
             } else if (formattedChartModel.chart.type === 'heatmap') {
                 formatHeatmap(formattedChartModel)
+            } else if (formattedChartModel.chart.type === 'radar') {
+                formatRadar(formattedChartModel)
             }
             return formattedChartModel
         }

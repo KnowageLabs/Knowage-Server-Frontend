@@ -88,6 +88,7 @@
                             :filters-data="item.filtersData"
                             :new-dashboard-mode="newDashboardMode"
                             :mode="mode"
+                            :prop-view="dashboardView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
                             @executeCrossNavigation="onExecuteCrossNavigation"
@@ -107,7 +108,7 @@
             <DocumentExecutionSchedulationsTable v-if="schedulationsTableVisible" id="document-execution-schedulations-table" :prop-schedulations="schedulations" @deleteSchedulation="onDeleteSchedulation" @close="schedulationsTableVisible = false"></DocumentExecutionSchedulationsTable>
 
             <KnParameterSidebar
-                v-if="parameterSidebarVisible"
+                v-show="parameterSidebarVisible"
                 class="document-execution-parameter-sidebar kn-overflow-y"
                 :filters-data="filtersData"
                 :prop-document="document"
@@ -131,6 +132,7 @@
             <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :parameters="linkParameters" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
             <DocumentExecutionSelectCrossNavigationDialog :visible="destinationSelectDialogVisible" :cross-navigation-documents="crossNavigationDocuments" @close="destinationSelectDialogVisible = false" @selected="onCrossNavigationSelected"></DocumentExecutionSelectCrossNavigationDialog>
             <DocumentExecutionCNContainerDialog v-if="angularData && crossNavigationContainerData" :visible="crossNavigationContainerVisible" :data="crossNavigationContainerData" @close="onCrossNavigationContainerClose"></DocumentExecutionCNContainerDialog>
+            <WorkspaceFolderPickerDialog v-if="workspaceFolderPickerDialogVisible" :visible="workspaceFolderPickerDialogVisible" :document="document" @close="workspaceFolderPickerDialogVisible = false"></WorkspaceFolderPickerDialog>
             <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="descriptor.popupDialog.style" :visible="crossNavigationDialogVisible" :modal="true" :show-header="false" :closable="false">
                 <DocumentExecution
                     v-if="crossNavigationPopupDialogDocument"
@@ -158,8 +160,8 @@ import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
 import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentExecutionAngularCrossNavigationHelper'
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
-import { loadFilters } from './DocumentExecutionDirverHelpers'
-import { IDashboardCrossNavigation } from '../dashboard/Dashboard'
+import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDirverHelpers'
+import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import DocumentExecutionBreadcrumb from './breadcrumbs/DocumentExecutionBreadcrumb.vue'
 import DocumentExecutionHelpDialog from './dialogs/documentExecutionHelpDialog/DocumentExecutionHelpDialog.vue'
@@ -182,6 +184,7 @@ import DashboardController from '../dashboard/DashboardController.vue'
 import Dialog from 'primevue/dialog'
 import descriptor from './DocumentExecutionDescriptor.json'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/WorkspaceFolderPickerDialog.vue'
 
 // @ts-ignore
 // eslint-disable-next-line
@@ -218,7 +221,8 @@ export default defineComponent({
         DocumentExecutionSelectCrossNavigationDialog,
         DocumentExecutionCNContainerDialog,
         DashboardController,
-        Dialog
+        Dialog,
+        WorkspaceFolderPickerDialog
     },
     props: {
         id: { type: String },
@@ -289,7 +293,9 @@ export default defineComponent({
             crossNavigationPopupDialogDocument: null as any,
             crossNavigationDialogVisible: false,
             loadingCrossNavigationDocument: false,
-            crossNavigationSourceDocumentName: ''
+            crossNavigationSourceDocumentName: '',
+            dashboardView: null as IDashboardView | null,
+            workspaceFolderPickerDialogVisible: false
         }
     },
     computed: {
@@ -377,6 +383,8 @@ export default defineComponent({
             }
             await this.loadDocument()
         }
+
+        if (this.$route.query.viewName) await this.loadView()
 
         this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
         let invalidRole = false
@@ -466,7 +474,8 @@ export default defineComponent({
                 this.isOrganizerEnabled(),
                 this.mode,
                 this.$t,
-                this.newDashboardMode
+                this.newDashboardMode,
+                this.filtersData
             )
         },
         print() {
@@ -556,6 +565,7 @@ export default defineComponent({
         async loadPage(initialLoading = false, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             this.loading = crossNavigationPopupMode ? false : true
             this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
+            if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
             if (this.filtersData?.isReadyForExecution) {
                 this.parameterSidebarVisible = false
                 await this.loadURL(null, documentLabel, crossNavigationPopupMode)
@@ -582,6 +592,14 @@ export default defineComponent({
                       label: this.document.name,
                       document: this.document
                   })
+        },
+        async loadView() {
+            this.loading = true
+            await this.$http
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/${this.$route.query.viewId}`)
+                .then((response: AxiosResponse<any>) => (this.dashboardView = response.data))
+                .catch(() => {})
+            this.loading = false
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             let error = false
@@ -972,23 +990,8 @@ export default defineComponent({
         isOrganizerEnabled() {
             return this.user.isSuperadmin || this.user.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.user.functionalities.includes(UserFunctionalitiesConstants.SAVE_INTO_FOLDER_FUNCTIONALITY)
         },
-        async addToWorkspace() {
-            this.loading = true
-            await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/${this.document.id}`, {}, { headers: { 'X-Disable-Errors': 'true' } })
-                .then(() =>
-                    this.setInfo({
-                        title: this.$t('common.toast.updateTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                )
-                .catch((error) =>
-                    this.setError({
-                        title: this.$t('common.toast.updateTitle'),
-                        msg: error.message === 'sbi.workspace.organizer.document.addtoorganizer.error.duplicateentry' ? this.$t('documentExecution.main.addToWorkspaceError') : error.message
-                    })
-                )
-            this.loading = false
+        addToWorkspace() {
+            this.workspaceFolderPickerDialogVisible = true
         },
         async loadUserConfig() {
             this.sessionEnabled = this.configurations['SPAGOBI.SESSION_PARAMETERS_MANAGER.enabled'] === 'false' ? false : true

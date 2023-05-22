@@ -1,13 +1,13 @@
 <template>
     <div v-show="model && visible && showDashboard" :id="`dashboard_${model?.configuration?.id}`" :class="mode === 'dashboard-popup' ? 'dashboard-container-popup' : 'dashboard-container'">
         <Button
-            v-if="store.dashboards[dashboardId]?.selections?.length > 0"
+            v-if="alwaysShowSelectionButton || store.dashboards[dashboardId]?.selections?.length > 0"
             icon="fas fa-square-check"
             class="p-m-3 p-button-rounded p-button-text p-button-plain"
             style="position: fixed; right: 0; z-index: 999; background-color: white; box-shadow: 0px 2px 3px #ccc"
             @click="selectionsDialogVisible = true"
         />
-        <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboardId="dashboardId" :documentDrivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
+        <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
 
         <Transition name="editorEnter" appear>
             <DatasetEditor v-if="datasetEditorVisible" :dashboard-id-prop="dashboardId" :available-datasets-prop="datasets" :filters-data-prop="filtersData" @closeDatasetEditor="closeDatasetEditor" @datasetEditorSaved="closeDatasetEditor" @allDatasetsLoaded="datasets = $event" />
@@ -44,6 +44,9 @@
         @widgetSaved="closeWidgetEditor"
         @widgetUpdated="closeWidgetEditor"
     ></WidgetEditor>
+
+    <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" :document="document" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
+    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
 </template>
 
 <script lang="ts">
@@ -53,8 +56,8 @@
 import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
-import { IDashboardDataset, ISelection, IGalleryItem, IDataset } from './Dashboard'
-import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters } from './DashboardHelpers'
+import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView } from './Dashboard'
+import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters, apllyDashboardViewToModel } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { formatModel } from './helpers/DashboardBackwardCompatibilityHelper'
 import { setDatasetIntervals, clearAllDatasetIntervals } from './helpers/datasetRefresh/DatasetRefreshHelpers'
@@ -71,6 +74,8 @@ import DashboardControllerSaveDialog from './DashboardControllerSaveDialog.vue'
 import SelectionsListDialog from './widget/SelectorWidget/SelectionsListDialog.vue'
 import DashboardGeneralSettings from './generalSettings/DashboardGeneralSettings.vue'
 import deepcopy from 'deepcopy'
+import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
+import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -81,7 +86,9 @@ export default defineComponent({
         WidgetEditor,
         DashboardControllerSaveDialog,
         SelectionsListDialog,
-        DashboardGeneralSettings
+        DashboardGeneralSettings,
+        DashboardSaveViewDialog,
+        DashboardSavedViewsDialog
     },
     props: {
         visible: { type: Boolean },
@@ -95,7 +102,8 @@ export default defineComponent({
             }>
         },
         newDashboardMode: { type: Boolean },
-        mode: { type: Object as PropType<string | null>, required: true }
+        mode: { type: Object as PropType<string | null>, required: true },
+        propView: { type: Object as PropType<IDashboardView | null> }
     },
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet'],
     setup() {
@@ -122,7 +130,12 @@ export default defineComponent({
             generalSettingsVisible: false,
             loading: false,
             htmlGallery: [] as IGalleryItem[],
-            customChartGallery: [] as IGalleryItem[]
+            customChartGallery: [] as IGalleryItem[],
+            currentView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
+            selectedView: null as IDashboardView | null,
+            saveViewDialogVisible: false,
+            savedViewsListDialogVisible: false,
+            selectedViewForExecution: null as IDashboardView | null
         }
     },
     computed: {
@@ -131,6 +144,10 @@ export default defineComponent({
         }),
         showDashboard() {
             return ['dashboard', 'dashboard-popup'].includes('' + this.mode)
+        },
+        alwaysShowSelectionButton() {
+            if (!this.model?.configuration?.menuWidgets?.showSelectionButton) return false
+            else return this.model.configuration.menuWidgets.showSelectionButton
         }
     },
     watch: {
@@ -155,7 +172,7 @@ export default defineComponent({
         clearAllDatasetIntervals()
     },
     methods: {
-        ...mapActions(dashboardStore, ['getDashboardDrivers', 'removeSelections', 'setAllDatasets', 'getSelections', 'setInternationalization', 'getInternationalization', 'setDashboardDocument', 'setDashboardDrivers', 'setProfileAttributes', 'getCrossNavigations']),
+        ...mapActions(dashboardStore, ['getDashboardDrivers', 'removeSelections', 'setAllDatasets', 'getSelections', 'setInternationalization', 'getInternationalization', 'setDashboardDocument', 'setDashboardDrivers', 'setProfileAttributes', 'getCrossNavigations', 'setCurrentDashboardView']),
         setEventListeners() {
             emitter.on('openNewWidgetPicker', this.openNewWidgetPicker)
             emitter.on('openDatasetManagement', this.openDatasetManagementDialog)
@@ -163,6 +180,8 @@ export default defineComponent({
             emitter.on('saveDashboard', this.onSaveDashboardClicked)
             emitter.on('openDashboardGeneralSettings', this.openGeneralSettings)
             emitter.on('executeCrossNavigation', this.executeCrossNavigation)
+            emitter.on('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
+            emitter.on('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
         },
         removeEventListeners() {
             emitter.off('openNewWidgetPicker', this.openNewWidgetPicker)
@@ -171,18 +190,24 @@ export default defineComponent({
             emitter.off('saveDashboard', this.onSaveDashboardClicked)
             emitter.off('openDashboardGeneralSettings', this.openGeneralSettings)
             emitter.off('executeCrossNavigation', this.executeCrossNavigation)
+            emitter.off('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
+            emitter.off('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
         },
         async getData() {
             this.loading = true
             this.dashboardId = cryptoRandomString({ length: 16, type: 'base64' })
             this.$emit('dashboardIdSet', this.dashboardId)
-            if (this.filtersData) this.drivers = loadDrivers(this.filtersData, this.model)
+            if (this.filtersData) {
+                this.drivers = loadDrivers(this.filtersData, this.model)
+                this.currentView.drivers = this.filtersData
+            }
             await Promise.all([this.loadProfileAttributes(), this.loadModel(), this.loadInternationalization()])
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadHtmlGallery()
             this.loadCustomChartGallery()
             this.loadOutputParameters()
             await this.loadCrossNavigations()
+            this.setCurrentDashboardView(this.dashboardId, this.currentView)
             this.loading = false
         },
         async loadModel() {
@@ -200,6 +225,11 @@ export default defineComponent({
             this.model =
                 (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
+            if (this.propView) {
+                this.loadSelectedViewForExecution(this.propView)
+                apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
+                emitter.emit('loadPivotStates', this.selectedViewForExecution)
+            }
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
@@ -244,7 +274,6 @@ export default defineComponent({
             const formattedOutputParameters = this.document ? getFormattedOutputParameters(this.document.outputParameters) : []
             this.store.setOutputParameters(this.dashboardId, formattedOutputParameters)
         },
-
         loadProfileAttributes() {
             this.profileAttributes = []
             const user = this.appStore.getUser()
@@ -257,6 +286,11 @@ export default defineComponent({
                 )
             }
             this.setProfileAttributes(this.profileAttributes)
+        },
+        loadSelectedViewForExecution(view: IDashboardView) {
+            // TODO - Remove mocked view
+            this.selectedViewForExecution = mockedView
+            // this.selectedViewForExecution = view
         },
         openNewWidgetPicker(event: any) {
             if (event !== this.dashboardId) return
@@ -365,6 +399,34 @@ export default defineComponent({
             const crossNavigations = this.getCrossNavigations(this.dashboardId)
             payload.crossNavigations = crossNavigations
             this.$emit('executeCrossNavigation', payload)
+        },
+        onOpenSaveCurrentViewDialog(event: any) {
+            if (!this.document || event !== this.dashboardId) return
+            emitter.emit('savePivotStates')
+            this.currentView.settings.selections = this.getSelections(this.dashboardId)
+            this.currentView.drivers = this.filtersData
+            this.selectedView = { ...this.currentView, new: true }
+            this.saveViewDialogVisible = true
+        },
+        onSaveViewListDialogClose() {
+            this.saveViewDialogVisible = false
+            this.selectedView = null
+        },
+        onOpenSavedViewsListDialog(event: any) {
+            if (!this.document || event !== this.dashboardId) return
+            this.savedViewsListDialogVisible = true
+        },
+        moveView(view: IDashboardView) {
+            this.savedViewsListDialogVisible = false
+            this.selectedView = view
+            this.saveViewDialogVisible = true
+        },
+        executeView(view: IDashboardView) {
+            this.savedViewsListDialogVisible = false
+            this.loadSelectedViewForExecution(view)
+            apllyDashboardViewToModel(this.model, this.selectedViewForExecution)
+            this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
+            emitter.emit('loadPivotStates', this.selectedViewForExecution)
         }
     }
 })

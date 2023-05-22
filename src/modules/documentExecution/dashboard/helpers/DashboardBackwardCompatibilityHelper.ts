@@ -1,8 +1,8 @@
-import { formatVegaChartsWidget } from './chartWidget/vega/VegaChartsCompatibilityHelper';
-import { formatMapWidget } from './mapWidget/MapCompatibilityHelper';
+import { formatVegaChartsWidget } from './chartWidget/vega/VegaChartsCompatibilityHelper'
+import { formatMapWidget } from './mapWidget/MapCompatibilityHelper'
 import { formatTableWidget } from './tableWidget/TableWidgetCompatibilityHelper'
 import { formatSelectorWidget } from '@/modules/documentExecution/dashboard/helpers/selectorWidget/SelectorWidgetCompatibilityHelper'
-import { IAssociation, IDashboard, IDashboardConfiguration, IDataset, IDatasetParameter, ISelection, IVariable, IWidget, IWidgetColumn, IWidgetColumnFilter, IDashboardDataset, IDashboardDriver } from '../Dashboard'
+import { IAssociation, IDashboard, IDashboardConfiguration, IDataset, IDatasetParameter, ISelection, IVariable, IWidget, IWidgetColumn, IWidgetColumnFilter, IDashboardDataset, IDashboardDriver, IBackground, IMenuAndWidgets } from '../Dashboard'
 import { formatSelectionWidget } from './selectionWidget/SelectionsWidgetCompatibilityHelper'
 import { setVariableValueFromDataset } from '../generalSettings/VariablesHelper'
 import deepcopy from 'deepcopy'
@@ -55,14 +55,35 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
         name: document.name,
         label: document.label,
         description: document.description,
+        cssToRender: model.configuration.cssToRender,
         associations: getFormattedAssociations(model),
         datasets: getFormattedDatasets(model),
         variables: await getFormattedVariables(model, drivers, profileAttributes, datasets, $http),
         selections: getFormattedSelections(model),
-        themes: {}
+        themes: {},
+        background: getFormattedSheetBackground(model),
+        menuWidgets: getFormattedMenuAndWidgets(model)
     } as IDashboardConfiguration
 
     return formattedConfiguration
+}
+
+const getFormattedSheetBackground = (model: any) => {
+    const modelStyle = model.configuration.style
+
+    const formattedBackground = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '' } as IBackground
+    if (modelStyle.sheetsBackgroundColor) formattedBackground.sheetsBackgroundColor = modelStyle.sheetsBackgroundColor
+    if (modelStyle.imageBackgroundUrl) formattedBackground.imageBackgroundUrl = modelStyle.imageBackgroundUrl
+    if (modelStyle.imageBackgroundSize) formattedBackground.imageBackgroundSize = modelStyle.imageBackgroundSize
+
+    return formattedBackground
+}
+
+const getFormattedMenuAndWidgets = (model: any) => {
+    const modelConfig = model.configuration
+    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true } as IMenuAndWidgets
+
+    return formattedMenuAndWIdgets
 }
 
 const getFormattedAssociations = (model: any) => {
@@ -229,7 +250,6 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
             break
         case 'map':
             formattedWidget = formatMapWidget(widget, formattedModel, drivers)
-
     }
 
     return formattedWidget

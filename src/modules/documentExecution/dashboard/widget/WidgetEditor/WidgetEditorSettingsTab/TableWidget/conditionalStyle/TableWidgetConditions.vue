@@ -21,16 +21,16 @@
                             <div class="p-col-1 p-d-flex p-jc-center p-ai-center">
                                 <i v-tooltip="$t('dashboard.widgetEditor.conditions.useAdvancedFormula')" class="fa fa-code kn-cursor-pointer p-mr-2" :class="[conditionalStylesDisabled ? 'icon-disabled' : '']" @click="onFormulaIconClicked(conditionalStyle)"></i>
                             </div>
-                            <div v-if="conditionalStyle.condition.formula || conditionalStyle.condition.formula === ''" class="p-col-11 p-d-flex p-flex-column">
+                            <div class="p-sm-12 p-md-6 p-lg-3 p-d-flex p-flex-column p-p-2">
+                                <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
+                                <Dropdown v-model="conditionalStyle.target" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="conditionalStylesDisabled" @change="conditionalStylesChanged"> </Dropdown>
+                            </div>
+                            <div v-if="conditionalStyle.condition.formula || conditionalStyle.condition.formula === ''" class="p-col-8 p-d-flex p-flex-column">
                                 <label class="kn-material-input-label">{{ $t('common.formula') }}</label>
                                 <InputText v-model="conditionalStyle.condition.formula" class="kn-material-input p-inputtext-sm" :disabled="conditionalStylesDisabled" @change="conditionalStylesChanged" />
                                 <small> {{ $t('dashboard.widgetEditor.conditions.formulaHint') }}</small>
                             </div>
-                            <div v-else class="p-grid p-col-11 p-ai-center">
-                                <div class="p-sm-12 p-md-6 p-lg-3 p-d-flex p-flex-column p-p-2">
-                                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                                    <Dropdown v-model="conditionalStyle.target" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="conditionalStylesDisabled" @change="conditionalStylesChanged"> </Dropdown>
-                                </div>
+                            <div v-else class="p-grid p-col-8 p-ai-center">
                                 <div class="p-sm-12 p-md-6 p-lg-2 p-d-flex p-flex-column p-p-2 operator-dropdown-container">
                                     <label class="kn-material-input-label"> {{ $t('common.operator') }}</label>
                                     <Dropdown v-model="conditionalStyle.condition.operator" class="kn-material-input" :options="descriptor.columnConditionOptions" option-label="label" option-value="value" :disabled="conditionalStylesDisabled" @change="conditionalStylesChanged"> </Dropdown>

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { deleteWidgetHelper, emitter, updateWidgetHelper } from './DashboardHelpers'
-import { IDashboardDriver, IDataset, ISelection, IWidget } from './Dashboard'
+import { IDashboardDriver, IDashboardView, IDataset, ISelection, IWidget } from './Dashboard'
 import { selectionsUseDatasetWithAssociation } from './widget/interactionsHelpers/DatasetAssociationsHelper'
 import { loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
 import { recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
@@ -106,6 +106,9 @@ const store = defineStore('dashboardStore', {
             })
             if (removedSelections.length > 0) emitter.emit('selectionsDeleted', removedSelections)
         },
+        getDashboardDatasets(dashboardId: number) {
+            return this.dashboards[dashboardId]?.configuration?.datasets
+        },
         getAllDatasets() {
             return this.allDatasets
         },
@@ -136,6 +139,12 @@ const store = defineStore('dashboardStore', {
         },
         setProfileAttributes(profileAttributes: { name: string; value: string }[]) {
             this.profileAttributes = profileAttributes
+        },
+        getCurrentDashboardView(dashboardId: string) {
+            if (this.dashboards[dashboardId]) return this.dashboards[dashboardId].currentView
+        },
+        setCurrentDashboardView(dashboardId: string, currentDashboardView: IDashboardView) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].currentView = currentDashboardView
         }
     }
 })

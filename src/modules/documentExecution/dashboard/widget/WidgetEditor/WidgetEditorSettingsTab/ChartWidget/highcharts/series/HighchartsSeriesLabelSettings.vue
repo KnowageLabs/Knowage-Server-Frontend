@@ -48,10 +48,11 @@
                 </div>
             </div>
 
-            <div v-if="formattingSectionAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
+            <div v-if="percentageAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.percentage') }}</label>
                 <InputSwitch v-model="serieSetting.label.percentage" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
             </div>
+
             <div v-if="formattingSectionAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.absolute') }}</label>
                 <InputSwitch v-model="serieSetting.label.absolute" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
@@ -74,7 +75,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
@@ -126,19 +127,22 @@ export default defineComponent({
             return this.model && this.model.chart.type !== 'pie' && this.model.chart.type !== 'solidgauge'
         },
         formattingSectionAvailable() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar'].includes(this.model.chart.type)
+        },
+        percentageAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
         },
         advancedSectionAvailable() {
             return this.model?.chart.type === 'gauge'
         },
         styleToolbarVisible() {
-            return this.model && ['pie', 'gauge'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'radar'].includes(this.model.chart.type)
         },
         serieColorPickerVisible() {
             return this.model?.chart.type === 'activitygauge'
         },
         labelOptionsVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar'].includes(this.model.chart.type)
         }
     },
     watch: {
@@ -148,6 +152,10 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
+        this.loadModel()
+    },
+    mounted() {
         this.loadWidgetModel()
         this.loadModel()
     },
@@ -204,9 +212,9 @@ export default defineComponent({
         },
         loadSeriesOptions() {
             this.availableSeriesOptions = []
-            if (!this.model) return
-            this.model.series.forEach((serie: IHighchartsChartSerie) => {
-                this.availableSeriesOptions.push(serie.name)
+            if (!this.widgetModel) return
+            this.widgetModel.columns.forEach((column: IWidgetColumn) => {
+                if (column.fieldType === 'MEASURE') this.availableSeriesOptions.push(column.columnName)
             })
         },
         addFirstSeriesSetting() {

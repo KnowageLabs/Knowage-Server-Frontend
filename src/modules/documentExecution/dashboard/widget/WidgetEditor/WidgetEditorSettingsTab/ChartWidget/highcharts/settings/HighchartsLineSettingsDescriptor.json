@@ -1,0 +1,16 @@
+{
+    "lineTypeOptions": [
+        {
+            "label": "dashboard.widgetEditor.borders.solid",
+            "value": "Solid"
+        },
+        {
+            "label": "dashboard.widgetEditor.borders.dashed",
+            "value": "Dash"
+        },
+        {
+            "label": "dashboard.widgetEditor.borders.dotted",
+            "value": "Dot"
+        }
+    ]
+}

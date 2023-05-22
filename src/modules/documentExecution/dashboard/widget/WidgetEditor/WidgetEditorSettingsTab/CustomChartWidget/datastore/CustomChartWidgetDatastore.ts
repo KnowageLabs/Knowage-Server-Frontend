@@ -7,6 +7,7 @@ export class CustomChartDatastore {
     globalTree: any[] = []
     variables: any = {}
     profile: any = {}
+    state: any = {}
 
     constructor(data) {
         this.data = data
@@ -281,6 +282,14 @@ export class CustomChartDatastore {
 
     clickManager(columnName: string, columnValue: string | number) {
         window?.parent?.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, '*')
+    }
+
+    getState() {
+        return this.state
+    }
+
+    setState(state: any) {
+        window?.parent?.postMessage({ type: 'setState', payload: state }, '*')
     }
 }
 

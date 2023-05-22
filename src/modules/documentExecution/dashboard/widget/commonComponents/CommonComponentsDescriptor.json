@@ -1,0 +1,19 @@
+{
+    "quickWidgets": [
+        {
+            "class": "fas fa-circle",
+            "name": "bar",
+            "tooltip": "dashboard.widgetEditor.map.markerTypes.default"
+        },
+        {
+            "class": "fas fa-location-dot",
+            "name": "line",
+            "tooltip": "dashboard.widgetEditor.map.markerTypes.icon"
+        },
+        {
+            "class": "fas fa-image",
+            "name": "pie",
+            "tooltip": "dashboard.widgetEditor.map.markerTypes.image"
+        }
+    ]
+}

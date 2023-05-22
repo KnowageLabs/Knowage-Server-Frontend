@@ -23,6 +23,7 @@ export interface IDrillOrderItem {
 
 export interface IHighchartsWidgetConfiguration {
     datetypeSettings?: any
+    splitting?: any
     exports: IWidgetExports
 }
 
@@ -45,7 +46,8 @@ export interface IHighchartsSeriesLabelsSetting {
     dial?: any,
     pivot?: any,
     serieColor?: string,
-    serieColorEnabled?: boolean
+    serieColorEnabled?: boolean,
+    type?: string
 }
 
 export interface IHighchartsSerieLabelSettings {
@@ -81,7 +83,9 @@ export interface IHighchartsChartModel {
     chart: {
         options3d: IHighchartsOptions3D
         type: string,
-        backgroundColor?: any
+        backgroundColor?: any,
+        polar?: boolean,
+        events?: any
     },
     noData: IHighchartsNoDataConfiguration,
     accessibility: IHighchartsAccessibilitySettings,
@@ -103,7 +107,8 @@ export interface IHighchartsChartModel {
     pane?: any,
     xAxis?: any
     yAxis?: any,
-    colorAxis?: { stops: any[] }
+    colorAxis?: { stops: any[] },
+    seriesForRender?: any[]
 }
 
 export interface IHighchartsChartPlotOptions {

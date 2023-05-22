@@ -1,16 +1,8 @@
 {
-    "descriptionMaxLength": 160,
-    "dialog": {
-        "style": {
-            "width": "40vw"
-        }
-    },
-    "nameMaxLength": 40,
-    "scopeOptions": ["PUBLIC", "PRIVATE"],
     "validations": {
-        "viewpoint": [
+        "document": [
             {
-                "fieldName": "NAME",
+                "fieldName": "name",
                 "validators": [
                     {
                         "key": "required"
@@ -24,24 +16,13 @@
                 ]
             },
             {
-                "fieldName": "DESCRIPTION",
+                "fieldName": "description",
                 "validators": [
-                    {
-                        "key": "required"
-                    },
                     {
                         "key": "regex",
                         "validator": {
                             "type": "extendedAlphanumericRegex"
                         }
-                    }
-                ]
-            },
-            {
-                "fieldName": "SCOPE",
-                "validators": [
-                    {
-                        "key": "required"
                     }
                 ]
             }

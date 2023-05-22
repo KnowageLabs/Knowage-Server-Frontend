@@ -174,7 +174,7 @@
         "max": null,
         "min": null,
         "title": {
-            "align": "center",
+            "align": "middle",
             "enabled": true,
             "style": {
                 "color": "",
@@ -200,7 +200,7 @@
         "max": null,
         "min": null,
         "title": {
-            "align": "center",
+            "align": "middle",
             "enabled": true,
             "style": {
                 "color": "",
@@ -259,6 +259,68 @@
         },
         "depth": 100,
         "showInLegend": true
+    },
+    "defaultPlotLinesSetting": {
+        "color": "",
+        "dashStyle": "Solid",
+        "value": 0,
+        "width": 2
+    },
+    "defaultRadarXAxis": {
+        "labels": {
+            "align": "center",
+            "rotation": null,
+            "style": {
+                "color": "",
+                "fontFamily": "",
+                "fontSize": "14px",
+                "fontWeight": ""
+            }
+        },
+        "title": {
+            "align": "middle",
+            "enabled": true,
+            "style": {
+                "color": "",
+                "fontFamily": "",
+                "fontSize": "14px",
+                "fontWeight": ""
+            },
+            "text": ""
+        },
+        "type": "category"
+    },
+    "defaultRadarYAxis": {
+        "gridLineColor": "",
+        "gridLineDashStyle": "",
+        "labels": {
+            "align": "center",
+            "rotation": null,
+            "style": {
+                "color": "",
+                "fontFamily": "",
+                "fontSize": "14px",
+                "fontWeight": ""
+            }
+        },
+        "min": 0,
+        "minorGridLineColor": "",
+        "minorGridLineDashStyle": "",
+        "minorTickInterval": null,
+        "plotBands": [],
+        "plotLines": [],
+        "tickInterval": null,
+        "title": {
+            "align": "middle",
+            "enabled": true,
+            "style": {
+                "color": "",
+                "fontFamily": "",
+                "fontSize": "14px",
+                "fontWeight": ""
+            },
+            "text": ""
+        }
     },
     "defaultSerieAccessibilitySetting": {
         "description": "",

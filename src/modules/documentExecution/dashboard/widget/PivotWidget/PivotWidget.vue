@@ -8,9 +8,7 @@ import { IDataset, ISelection, IWidget, ITableWidgetColumnStyles, ITableWidgetCo
 import { defineComponent, PropType } from 'vue'
 import mainStore from '../../../../../App.store'
 import dashboardStore from '../../Dashboard.store'
-import { getColumnConditionalStyles } from '../TableWidget/TableWidgetHelper'
-
-import { getWidgetStyleByType, stringifyStyleProperties } from '../TableWidget/TableWidgetHelper'
+import { getColumnConditionalStyles, getWidgetStyleByType, stringifyStyleProperties } from './PivotWidgetConditionalHelper'
 import { IPivotTooltips } from '../../interfaces/pivotTable/DashboardPivotTableWidget'
 import { getFormattedClickedValueForCrossNavigation, createPivotTableSelection } from './PivotWidgetHelpers'
 import { updateAllStoreSelections, executePivotTableWidgetCrossNavigation } from '../interactionsHelpers/InteractionHelper'

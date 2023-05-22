@@ -9,8 +9,12 @@
         </Toolbar>
 
         <div class="datasetEditor-container kn-overflow">
-            <DashboardGeneralSettingsList @selectedOption="setSelectedOption"></DashboardGeneralSettingsList>
-            <DashboardVariables v-if="selectedOption === 'Variables'" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes"></DashboardVariables>
+            <DashboardGeneralSettingsList @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
+            <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
+            <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
+            <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
+            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :dashboard-model-prop="dashboardModel" />
+            <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
         </div>
     </div>
 </template>
@@ -19,6 +23,10 @@ import { defineComponent, PropType } from 'vue'
 import { IVariable, IDataset } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
 import DashboardGeneralSettingsList from './DashboardGeneralSettingsList.vue'
+import DashboardInformation from './information/DashboardInformation.vue'
+import DashboardBackground from './background/DashboardBackground.vue'
+import CssEditor from './cssEditor/DashboardCssEditor.vue'
+import MenuWidgets from './menu&widgets/Menu&Widgets.vue'
 import DashboardVariables from './DashboardVariables.vue'
 import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
@@ -27,7 +35,7 @@ import { setVariableValueFromDataset } from './VariablesHelper'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },

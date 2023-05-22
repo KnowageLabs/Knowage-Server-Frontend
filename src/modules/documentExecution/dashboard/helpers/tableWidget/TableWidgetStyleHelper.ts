@@ -14,7 +14,8 @@ export const getFormattedStyle = (widget: any) => {
         rows: getFormattedRowsStyle(widget),
         shadows: getFormattedShadowsStyle(widget),
         summary: getFormattedSummaryStyle(widget),
-        background: getFormattedBackgroundStyle(widget)
+        background: getFormattedBackgroundStyle(widget),
+        paginator: tableWidgetDefaultValues.getDefaultPaginatorStyle()
     } as ITableWidgetStyle
 }
 
