@@ -144,7 +144,7 @@ export const getFormattedOutputParameters = (documentOutputParameters: IDashboar
     })
 }
 
-export const apllyDashboardViewToModel = (dashboardModel: IDashboard, view: IDashboardView | null) => {
+export const applyDashboardViewToModel = (dashboardModel: IDashboard, view: IDashboardView | null) => {
     if (!view) return
     if (view.settings.selections) dashboardModel.configuration.selections = view.settings.selections
     if (view.settings.states) setStatesForWidgets(dashboardModel, view.settings.states)
