@@ -514,7 +514,6 @@ const getPieChartData = async (widget: IWidget, datasets: IDashboardDataset[], $
     }
 }
 
-// TODO - Darko
 export const getPieChartDrilldownData = async (widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], likeSelections: any, drillDownLevel: number) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]

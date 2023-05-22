@@ -19,7 +19,6 @@
             @mouseover="toggleFocus"
             @mouseleave="startUnfocusTimer(500)"
             @loading="customChartLoading = $event"
-            @contextmenu="onWidgetRightClick"
         ></WidgetRenderer>
         <WidgetButtonBar
             :widget="widget"
@@ -159,11 +158,6 @@ export default defineComponent({
             emitter.off('associativeSelectionsLoaded', this.onAssociativeSelectionsLoaded)
             emitter.off('datasetRefreshed', this.onDatasetRefresh)
             emitter.off('setWidgetLoading', this.setWidgetLoading)
-        },
-        onWidgetRightClick() {
-            // TODO: I dont think we need this anymore, remove?
-            // const contextMenu = this.$refs.contextMenu as any
-            // contextMenu?.show(event)
         },
         loadWidget(widget: IWidget) {
             this.widgetModel = widget
