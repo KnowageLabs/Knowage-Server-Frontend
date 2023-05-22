@@ -27,21 +27,21 @@
                 <div v-if="embedHTML" class="p-field p-col-12">
                     <div class="p-d-flex p-flex-column p-m-2">
                         <label class="kn-material-input-label p-mr-2">{{ $t('common.width') }}</label>
-                        <InputNumber v-model="iframeWidth" class="kn-material-input p-inputtext-sm" />
+                        <InputNumber v-model="iframeWidth" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                     </div>
                     <div class="p-d-flex p-flex-column p-m-2">
                         <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
-                        <InputNumber v-model="iframeHeight" class="kn-material-input p-inputtext-sm" />
+                        <InputNumber v-model="iframeHeight" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                     </div>
                 </div>
-                <div v-else class="p-col-12">
+                <div v-else class="p-d-flex p-jc-around p-col-12">
                     <div class="kn-flex p-m-2">
-                        <label class="kn-material-input-label p-mr-2">{{ $t('documentExecution.main.showMenu') }}</label>
-                        <InputSwitch v-model="showMenu" />
+                        <label class="kn-material-input-label p-mr-4">{{ $t('documentExecution.main.showMenu') }}</label>
+                        <InputSwitch v-model="showMenu" @change="createLink" />
                     </div>
                     <div class="kn-flex p-m-2">
-                        <label class="kn-material-input-label p-mr-2">{{ $t('documentExecution.main.showToolbar') }}</label>
-                        <InputSwitch v-model="showToolbar" />
+                        <label class="kn-material-input-label p-mr-4">{{ $t('documentExecution.main.showToolbar') }}</label>
+                        <InputSwitch v-model="showToolbar" @change="createLink" />
                     </div>
                 </div>
             </div>
@@ -58,6 +58,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
+import { mapState } from 'pinia'
 import Dialog from 'primevue/dialog'
 import documentExecutionLinkDialogDescriptor from './DocumentExecutionLinkDialogDescriptor.json'
 import Textarea from 'primevue/textarea'
@@ -71,20 +72,10 @@ export default defineComponent({
     components: { Dialog, Message, Textarea, InputNumber, InputSwitch },
     props: {
         visible: { type: Boolean },
-        linkInfo: {
-            type: Object as PropType<{
-                isPublic: boolean
-                noPublicRoleError: boolean
-            } | null>
-        },
+        linkInfo: { type: Object as PropType<{ isPublic: boolean; noPublicRoleError: boolean } | null> },
         embedHTML: { type: Boolean },
         propDocument: { type: Object },
-        filtersData: {
-            type: Object as PropType<{
-                filterStatus: iParameter[]
-                isReadyForExecution: boolean
-            }>
-        }
+        filtersData: { type: Object as PropType<{ filterStatus: iParameter[]; isReadyForExecution: boolean }> }
     },
     emits: ['close'],
     setup() {
@@ -101,6 +92,11 @@ export default defineComponent({
             iframeWidth: null as number | null,
             iframeHeight: null as number | null
         }
+    },
+    computed: {
+        ...mapState(mainStore, {
+            user: 'user'
+        })
     },
     watch: {
         visible() {
@@ -125,25 +121,48 @@ export default defineComponent({
             this.document = this.propDocument
         },
         getPublicUrl() {
-            const tenet = (this.store.$state as any).user.organization
+            //  const tenet = (this.store.$state as any).user.organization
 
             if (!this.document) return
 
-            if (this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER') {
-                if (this.embedHTML) {
-                    this.publicUrl = `<iframe width="600" height="600" src="${location.origin}${this.$route.fullPath}" frameborder="0"></iframe>`
-                } else {
-                    this.publicUrl = location.origin + this.$route.fullPath
-                }
-            } else {
-                if (this.embedHTML) {
-                    this.publicUrl = `<iframe width="600" height="600" src="${location.origin}/knowage${this.linkInfo?.isPublic ? '/public' : ''}/servlet/AdapterHTTP?ACTION_NAME=EXECUTE_DOCUMENT_ACTION&OBJECT_LABEL=${
-                        this.document.label
-                    }&TOOLBAR_VISIBLE=true&ORGANIZATION=${tenet}&NEW_SESSION=true&PARAMETERS= frameborder="0"></iframe>`
-                } else {
-                    this.publicUrl = location.origin + `/knowage${this.linkInfo?.isPublic ? '/public' : ''}/servlet/AdapterHTTP?ACTION_NAME=EXECUTE_DOCUMENT_ACTION&OBJECT_LABEL=${this.document.label}&TOOLBAR_VISIBLE=true&ORGANIZATION=${tenet}&NEW_SESSION=true&PARAMETERS=`
-                }
+            this.createLink()
+
+            // if (this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER') {
+            //     if (this.embedHTML) {
+            //         this.publicUrl = `<iframe width="600" height="600" src="${location.origin}${this.$route.fullPath}" frameborder="0"></iframe>`
+            //     } else {
+            //         this.publicUrl = location.origin + this.$route.fullPath
+            //     }
+            // } else {
+            //     if (this.embedHTML) {
+            //         this.publicUrl = `<iframe width="600" height="600" src="${location.origin}/knowage${this.linkInfo?.isPublic ? '/public' : ''}/servlet/AdapterHTTP?ACTION_NAME=EXECUTE_DOCUMENT_ACTION&OBJECT_LABEL=${
+            //             this.document.label
+            //         }&TOOLBAR_VISIBLE=true&ORGANIZATION=${tenet}&NEW_SESSION=true&PARAMETERS= frameborder="0"></iframe>`
+            //     } else {
+            //         this.publicUrl = location.origin + `/knowage${this.linkInfo?.isPublic ? '/public' : ''}/servlet/AdapterHTTP?ACTION_NAME=EXECUTE_DOCUMENT_ACTION&OBJECT_LABEL=${this.document.label}&TOOLBAR_VISIBLE=true&ORGANIZATION=${tenet}&NEW_SESSION=true&PARAMETERS=`
+            //     }
+            // }
+        },
+        createLink() {
+            if (!this.document || !this.user) return
+            console.log('----------- DOCUMENT: ', this.document)
+            console.log('----------- USER: ', this.user)
+            const documentType = this.getocumentType()
+            this.publicUrl = import.meta.env.VITE_HOST_URL + import.meta.env.VITE_PUBLIC_PATH + `${documentType}/${this.document.label}?toolbar=${this.showToolbar}&menu=${this.showMenu}&role='${this.user.sessionRole}'`
+            console.log('---------- CREATED LINK: ', this.publicUrl)
+        },
+        getocumentType() {
+            switch (this.document?.typeCode) {
+                case 'DOCUMENT_COMPOSITE':
+                    return 'document-composite'
+                case 'DASHBOARD':
+                    return 'dashboard'
+                default:
+                    return ''
             }
+        },
+        onInputNumberChanged() {
+            setTimeout(() => this.createLink(), 250)
         },
         closeDialog() {
             this.$emit('close')
