@@ -600,7 +600,6 @@ const formatChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDataset
             dataToSend.aggregations.measures.push(measureToPush)
         })
     } else {
-        //MEASURE LOGIC - will ALWAYS HAVE ONE MEASURE
         const measureIndex = propWidget.columns.findIndex((column: any) => column.fieldType === 'MEASURE')
         const measure = propWidget.columns[measureIndex]
 
@@ -608,7 +607,6 @@ const formatChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDataset
         measure.formula ? (measureToPush.formula = measure.formula) : ''
         dataToSend.aggregations.measures.push(measureToPush)
 
-        //HEATMAP CATEGORY LOGIC - TODO: Grab all attributes/categories, not only 1st one, there can be 2 max.
         if (chartType == 'heatmap') {
             propWidget.columns.forEach((column: any) => {
                 if (column.fieldType !== 'MEASURE') {
@@ -617,9 +615,6 @@ const formatChartWidgetForGet = (propWidget: IWidget, dataset: IDashboardDataset
                 }
             })
         } else {
-            //FIRST CATEGORY LOGIC - TODO: Make it grab the drilldown Category instead of the first one.
-            // TODO - Darko Drill down level
-            // uzimam kategoriju na osnovu drill nivoa, ako ga nema (pocetno stanje) uzimam ovako kako smo radili, ali bi to TREBALO da je uvek prva kolona
             const categoryIndex = propWidget.columns.findIndex((column: any) => column.fieldType !== 'MEASURE')
             const category = propWidget.columns[drillDownLevel ?? categoryIndex]
             const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderType: '', funct: 'NONE' } as any
