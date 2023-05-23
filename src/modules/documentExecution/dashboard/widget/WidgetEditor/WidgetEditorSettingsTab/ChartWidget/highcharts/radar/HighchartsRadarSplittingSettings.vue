@@ -1,5 +1,9 @@
 <template>
     <div v-if="splittingSettings" class="p-grid p-jc-center p-ai-center p-p-4">
+        <div class="p-col-12">
+            {{ splittingSettings }}
+        </div>
+
         <Message class="p-col-12 p-mx-4" severity="info" :closable="false">
             {{ $t('dashboard.widgetEditor.highcharts.splitting.hint') }}
         </Message>

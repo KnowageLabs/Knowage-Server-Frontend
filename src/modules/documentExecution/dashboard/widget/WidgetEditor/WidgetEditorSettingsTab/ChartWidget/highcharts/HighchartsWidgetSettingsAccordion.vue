@@ -46,6 +46,7 @@
                 <HighchartsRadarSplittingSettings v-else-if="accordion.type === 'SplittingSettings'" :widget-model="widgetModel"></HighchartsRadarSplittingSettings>
                 <HighchartsConditionalStyles v-else-if="accordion.type === 'ConditionalStyles'" :widget-model="widgetModel"></HighchartsConditionalStyles>
                 <HighchartsSonificationSettings v-else-if="accordion.type === 'SonificationSettings'" :widget-model="widgetModel"></HighchartsSonificationSettings>
+                <HighchartsGroupingSettings v-else-if="accordion.type === 'GroupingSettings'" :widget-model="widgetModel"></HighchartsGroupingSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -95,6 +96,7 @@ import HighchartsAxisGridSettings from './axis/HighchartsAxisGridSettings.vue'
 import HighchartsRadarSplittingSettings from './radar/HighchartsRadarSplittingSettings.vue'
 import HighchartsConditionalStyles from './series/HighchartsConditionalStyles.vue'
 import HighchartsSonificationSettings from './accessibility/HighchartsSonificationSettings.vue'
+import HighchartsGroupingSettings from './configuration/HighchartsGroupingSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -138,7 +140,8 @@ export default defineComponent({
         HighchartsAxisGridSettings,
         HighchartsRadarSplittingSettings,
         HighchartsConditionalStyles,
-        HighchartsSonificationSettings
+        HighchartsSonificationSettings,
+        HighchartsGroupingSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

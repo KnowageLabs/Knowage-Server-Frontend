@@ -619,7 +619,11 @@
                     "title": "bands",
                     "toHint": "The end position of the plot band in axis units."
                 },
-                "dateType": "Date Type",
+                "barchart": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories. The item that precedes should have a lower granularity. If you enable grouping categories, you need to define exactly two categories. If you enable splitting serie using second category, you need to define exactly two categories and one serie. If you enable splitting serie using second serie, you need to define exactly one category and two series.",
+                    "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second serie, you need to define exactly two series. If you enable splitting serie using second category, you need to define exactly one serie."
+                },
+                "datetype": "Date Type",
                 "dial": {
                     "dialBaseWitdh": "Dial Base Width",
                     "dialColor": "Dial Color",
@@ -630,6 +634,13 @@
                     "valuesTableHint": "Measures only."
                 },
                 "grouping": {
+                    "groupByCategories": "Group by categories",
+                    "groupByCategoriesHint": "Option available only if you are not using datetime, splitting functions and 3d option.",
+                    "secondCategory": "Second Category",
+                    "secondCategoryHint": "Option available only if you are not using datetime and group by categories. You can use only one splitting function.",
+                    "secondCategoryToUse": "Series to use on second category options",
+                    "secondSerie": "Second Serie",
+                    "secondSerieHint": "Option available only if you are not using datetime and group by categories. You can use only one splitting function.",
                     "title": "Grouping"
                 },
                 "heatmap": {

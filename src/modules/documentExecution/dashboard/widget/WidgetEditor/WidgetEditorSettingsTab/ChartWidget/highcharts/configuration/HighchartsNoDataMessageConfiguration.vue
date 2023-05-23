@@ -1,5 +1,8 @@
 <template>
     <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
+        <div class="p-col-12">
+            {{ model?.noData }}
+        </div>
         <div v-if="model.lang" class="p-col-12">
             <label class="kn-material-input-label">{{ $t('common.message') }}</label>
             <Textarea v-model="model.lang.noData" class="kn-material-input kn-width-full" rows="4" :auto-resize="true" maxlength="250" @change="modelChanged" />

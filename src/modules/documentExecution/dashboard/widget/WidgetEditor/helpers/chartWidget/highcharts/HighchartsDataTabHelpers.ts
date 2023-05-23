@@ -12,6 +12,7 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'solidgauge':
         case 'heatmap':
         case 'radar':
+        case 'column':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }

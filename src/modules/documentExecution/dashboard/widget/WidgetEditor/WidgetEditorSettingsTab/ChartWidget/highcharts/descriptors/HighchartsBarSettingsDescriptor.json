@@ -30,10 +30,6 @@
                 "type": "GroupingSettings"
             },
             {
-                "title": "dashboard.widgetEditor.highcharts.splitting.title",
-                "type": "SplittingSettings"
-            },
-            {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
             },

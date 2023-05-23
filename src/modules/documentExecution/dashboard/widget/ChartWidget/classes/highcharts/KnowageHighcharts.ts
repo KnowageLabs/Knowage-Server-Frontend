@@ -75,9 +75,10 @@ export class KnowageHighcharts {
         }
     }
 
-    addSerie(column: IWidgetColumn, type: 'pie' | 'gauge' | 'radar') {
+    addSerie(column: IWidgetColumn, type: 'pie' | 'gauge' | 'radar' | 'column') {
         switch (type) {
             case 'pie':
+            case 'column':
                 this.model.series.push(createSerie(column.columnName, column.aggregation, true, column.serieType))
                 break
             case 'radar':
