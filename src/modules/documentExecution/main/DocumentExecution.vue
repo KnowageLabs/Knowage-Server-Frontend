@@ -1,6 +1,6 @@
 <template>
     <div class="kn-height-full detail-page-container">
-        <Toolbar v-if="!embed && !olapDesignerMode && !managementOpened && !dashboardGeneralSettingsOpened" class="kn-toolbar kn-toolbar--primary p-col-12">
+        <Toolbar v-if="!embed && !olapDesignerMode && !managementOpened && !dashboardGeneralSettingsOpened && $route.query.toolbar !== 'false'" class="kn-toolbar kn-toolbar--primary p-col-12">
             <template #start>
                 <DocumentExecutionBreadcrumb v-if="breadcrumbs.length > 1" :breadcrumbs="breadcrumbs" @breadcrumbClicked="onBreadcrumbClick"></DocumentExecutionBreadcrumb>
                 <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
@@ -129,7 +129,7 @@
             <DocumentExecutionNotesDialog :visible="notesDialogVisible" :prop-document="document" @close="notesDialogVisible = false"></DocumentExecutionNotesDialog>
             <DocumentExecutionMetadataDialog :visible="metadataDialogVisible" :prop-document="document" :prop-metadata="metadata" :prop-loading="loading" @close="metadataDialogVisible = false" @saveMetadata="onMetadataSave"></DocumentExecutionMetadataDialog>
             <DocumentExecutionMailDialog :visible="mailDialogVisible" @close="mailDialogVisible = false" @sendMail="onMailSave"></DocumentExecutionMailDialog>
-            <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :filtersData="filtersData" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
+            <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :prop-filters-data="filtersData" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
             <DocumentExecutionSelectCrossNavigationDialog :visible="destinationSelectDialogVisible" :cross-navigation-documents="crossNavigationDocuments" @close="destinationSelectDialogVisible = false" @selected="onCrossNavigationSelected"></DocumentExecutionSelectCrossNavigationDialog>
             <DocumentExecutionCNContainerDialog v-if="angularData && crossNavigationContainerData" :visible="crossNavigationContainerVisible" :data="crossNavigationContainerData" @close="onCrossNavigationContainerClose"></DocumentExecutionCNContainerDialog>
             <WorkspaceFolderPickerDialog v-if="workspaceFolderPickerDialogVisible" :visible="workspaceFolderPickerDialogVisible" :document="document" @close="workspaceFolderPickerDialogVisible = false"></WorkspaceFolderPickerDialog>
@@ -271,7 +271,7 @@ export default defineComponent({
             breadcrumbs: [] as ICrossNavigationBreadcrumb[],
             embed: false,
             olapCustomViewVisible: false,
-            userRole: null,
+            userRole: null as string | null,
             loading: false,
             olapDesignerMode: false,
             sessionEnabled: false,
@@ -384,8 +384,9 @@ export default defineComponent({
         }
 
         if (this.$route.query.viewName) await this.loadView()
+        if (this.$route.query.role) this.userRole = '' + this.$route.query.role
+        else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
 
-        this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
         let invalidRole = false
         getCorrectRolesForExecution(this.document).then(async (response: any) => {
             const correctRolesForExecution = response
@@ -767,6 +768,7 @@ export default defineComponent({
                         parameters[parameter.urlName] = parameter.type === 'NUM' && parameter.parameterValue[0].value ? +parameter.parameterValue[0].value : parameter.parameterValue[0].value
                         parameters[parameter.urlName + '_field_visible_description'] = parameter.type === 'NUM' && parameter.parameterValue[0].description ? +parameter.parameterValue[0].description : parameter.parameterValue[0].description
                     } else if (parameter.selectionType === 'TREE' || parameter.selectionType === 'LOOKUP' || parameter.multivalue) {
+                        console.log('PARMAETER: ', parameter)
                         parameters[parameter.urlName] = parameter.parameterValue.map((el: any) => el.value)
                         let tempString = ''
                         for (let i = 0; i < parameter.parameterValue.length; i++) {
