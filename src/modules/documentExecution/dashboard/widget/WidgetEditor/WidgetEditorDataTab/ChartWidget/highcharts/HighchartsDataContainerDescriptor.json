@@ -6,6 +6,30 @@
             "measuresOnly": true
         }
     ],
+    "barChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.barchart.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.barchart.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "bubbleChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.bubblechart.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.bubblechart.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "gaugeChartColumnTableSettings": [
         {
             "hint": "dashboard.widgetEditor.highcharts.gauge.valuesTableHint",
@@ -21,6 +45,18 @@
         },
         {
             "hint": "dashboard.widgetEditor.highcharts.heatmap.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "lineChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.linechart.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.linechart.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }
@@ -49,9 +85,45 @@
             "measuresOnly": true
         }
     ],
+    "scatterChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.scatterchart.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.scatterchart.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "solidgaugeChartColumnTableSettings": [
         {
             "hint": "dashboard.widgetEditor.highcharts.solidGauge.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "sunburstChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.sunburstchart.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.sunburstchart.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "treemapChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.treemapchart.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.treemapchart.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }

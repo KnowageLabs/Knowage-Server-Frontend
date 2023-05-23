@@ -1,7 +1,7 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
         <WidgetEditorColumnTable
-            v-if="['pie', 'heatmap', 'radar'].includes(chartType)"
+            v-if="['pie', 'heatmap', 'radar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
             class="p-m-2 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
@@ -67,6 +67,18 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[0] }
                 case 'radar':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.radarColumnTableSettings[0] }
+                case 'column':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.barChartColumnTableSettings[0] }
+                case 'bubble':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[0] }
+                case 'scatter':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[0] }
+                case 'line':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.lineChartColumnTableSettings[0] }
+                case 'treemap':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.treemapChartColumnTableSettings[0] }
+                case 'sunburst':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[0] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }
@@ -85,8 +97,20 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[1] }
                 case 'radar':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.radarColumnTableSettings[1] }
+                case 'column':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.barChartColumnTableSettings[1] }
+                case 'bubble':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[1] }
+                case 'scatter':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[1] }
+                case 'line':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.lineChartColumnTableSettings[1] }
+                case 'treemap':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.treemapChartColumnTableSettings[1] }
+                case 'sunburst':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[1] }
                 default:
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
             }
         }
     },

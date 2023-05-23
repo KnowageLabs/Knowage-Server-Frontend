@@ -173,6 +173,11 @@ import HighchartsSolidGaugeSettingsDescriptor from './ChartWidget/highcharts/des
 import HighchartsHeatmapSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsHeatmapSettingsDescriptor.json'
 import HighchartsRadarSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsRadarSettingsDescriptor.json'
 import HighchartsBarSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsBarSettingsDescriptor.json'
+import HighchartsBubbleSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsBubbleSettingsDescriptor.json'
+import HighchartsScatterSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsScatterSettingsDescriptor.json'
+import HighchartsLineSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsLineSettingsDescriptor.json'
+import HighchartsSunburstSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSunburstSettingsDescriptor.json'
+import HighchartsTreemapSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsTreemapSettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -205,8 +210,14 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
+        htmlGalleryProp: {
+            type: Array as PropType<IGalleryItem[]>,
+            required: true
+        },
+        customChartGalleryProp: {
+            type: Array as PropType<IGalleryItem[]>,
+            required: true
+        },
         dashboardId: { type: String, required: true },
         layers: { type: Array as PropType<ILayer[]>, required: true }
     },
@@ -292,8 +303,18 @@ export default defineComponent({
                     return HighchartsHeatmapSettingsDescriptor
                 case 'radar':
                     return HighchartsRadarSettingsDescriptor
-                case 'bar':
+                case 'column':
                     return HighchartsBarSettingsDescriptor
+                case 'bubble':
+                    return HighchartsBubbleSettingsDescriptor
+                case 'scatter':
+                    return HighchartsScatterSettingsDescriptor
+                case 'line':
+                    return HighchartsLineSettingsDescriptor
+                case 'treemap':
+                    return HighchartsTreemapSettingsDescriptor
+                case 'sunburst':
+                    return HighchartsSunburstSettingsDescriptor
             }
         },
         onItemClicked(item: any) {

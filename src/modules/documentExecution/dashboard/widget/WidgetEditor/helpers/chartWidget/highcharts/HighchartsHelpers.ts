@@ -64,6 +64,21 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             break
         case 'column':
             widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            break
+        case 'bubble':
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            break
+        case 'scatter':
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            break
+        case 'line':
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            break
+        case 'treemap':
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            break
+        case 'sunburst':
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
 
     }
 
@@ -84,6 +99,16 @@ export const createNewHighchartsModel = (chartType: string, model: IHighchartsCh
         case 'radar':
             return new KnowageHighchartsRadarChart(model)
         case 'column':
+            return new KnowageHighchartsBarChart(model)
+        case 'bubble':
+            return new KnowageHighchartsBarChart(model)
+        case 'scatter':
+            return new KnowageHighchartsBarChart(model)
+        case 'line':
+            return new KnowageHighchartsBarChart(model)
+        case 'treemap':
+            return new KnowageHighchartsBarChart(model)
+        case 'sunburst':
             return new KnowageHighchartsBarChart(model)
         default:
             return null

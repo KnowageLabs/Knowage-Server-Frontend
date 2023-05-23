@@ -14,6 +14,11 @@ import { KnowageHighchartsRadarChart } from '../../../widget/ChartWidget/classes
 import { KnowageHighchartsBarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsBarChart'
 import * as widgetCommonDefaultValues from '../../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
+import { KnowageHighchartsBubbleChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart'
+import { KnowageHighchartsLineChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsLineChart'
+import { KnowageHighchartsScatterChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsScatterChart'
+import { KnowageHighchartsTreemapChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart'
+import { KnowageHighchartsSunburstChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart'
 
 const columnNameIdMap = {}
 
@@ -128,6 +133,16 @@ const createChartModel = (widget: any, chartType: string) => {
             return new KnowageHighchartsRadarChart(widgetContentChartTemplate)
         case "BAR":
             return new KnowageHighchartsBarChart(widgetContentChartTemplate)
+        case "BUBBLE":
+            return new KnowageHighchartsBubbleChart(widgetContentChartTemplate)
+        case "SCATTER":
+            return new KnowageHighchartsScatterChart(widgetContentChartTemplate)
+        case "LINE":
+            return new KnowageHighchartsLineChart(widgetContentChartTemplate)
+        case "TREEMAP":
+            return new KnowageHighchartsTreemapChart(widgetContentChartTemplate)
+        case "SUNBURST":
+            return new KnowageHighchartsSunburstChart(widgetContentChartTemplate)
         default:
             return null
     }
