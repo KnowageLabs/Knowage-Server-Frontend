@@ -117,6 +117,64 @@
         "thickness": 10,
         "to": 0
     },
+    "defaultBarXAxis": {
+        "labels": {
+            "align": "center",
+            "rotation": null,
+            "style": {
+                "color": "",
+                "fontFamily": "",
+                "fontSize": "14px",
+                "fontWeight": ""
+            }
+        },
+        "plotBands": [],
+        "plotLines": [],
+        "title": {
+            "align": "middle",
+            "enabled": true,
+            "style": {
+                "color": "",
+                "fontFamily": "",
+                "fontSize": "14px",
+                "fontWeight": ""
+            },
+            "text": ""
+        },
+        "type": "category"
+    },
+    "defaultBarYAxis": {
+        "gridLineColor": "",
+        "gridLineDashStyle": "",
+        "labels": {
+            "align": "center",
+            "rotation": null,
+            "style": {
+                "color": "",
+                "fontFamily": "",
+                "fontSize": "14px",
+                "fontWeight": ""
+            }
+        },
+        "min": 0,
+        "minorGridLineColor": "",
+        "minorGridLineDashStyle": "",
+        "minorTickInterval": null,
+        "plotBands": [],
+        "plotLines": [],
+        "tickInterval": null,
+        "title": {
+            "align": "middle",
+            "enabled": true,
+            "style": {
+                "color": "",
+                "fontFamily": "",
+                "fontSize": "14px",
+                "fontWeight": ""
+            },
+            "text": ""
+        }
+    },
     "defaultDateTypeSettings": {
         "enabled": false,
         "format": ""

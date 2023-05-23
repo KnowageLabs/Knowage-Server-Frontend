@@ -66,7 +66,7 @@ export class KnowageHighcharts {
                 categories: []
             },
             plotOptions: {
-                series: { events: {} }
+                series: { events: {}, cursor: "pointer" }
             },
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),

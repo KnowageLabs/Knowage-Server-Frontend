@@ -11,12 +11,15 @@ import { KnowageHighchartsActivityGaugeChart } from '../../../widget/ChartWidget
 import { getFormattedSerieLabelsSettings } from './HighchartsSeriesSettingsCompatibilityHelper'
 import { KnowageHighchartsHeatmapChart } from './../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart';
 import { KnowageHighchartsRadarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsRadarChart';
+import { KnowageHighchartsBarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsBarChart'
 import * as widgetCommonDefaultValues from '../../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 const columnNameIdMap = {}
 
 export const formatHighchartsWidget = (widget: any) => {
+    console.log('---------- ORIGINAL WIDGET: ', widget)
+
     const chartType = widget.content?.chartTemplate?.CHART?.type ?? ''
     const formattedWidget = {
         id: widget.id,
@@ -30,6 +33,8 @@ export const formatHighchartsWidget = (widget: any) => {
     formattedWidget.settings = getFormattedWidgetSettings(widget, chartType) as IHighchartsWidgetSettings
     getFiltersForColumns(formattedWidget, widget)
     formattedWidget.settings.chartModel = createChartModel(widget, chartType)
+
+    console.log('---------- FORMATTED WIDGET: ', formattedWidget)
 
     return formattedWidget
 }
@@ -121,6 +126,8 @@ const createChartModel = (widget: any, chartType: string) => {
             return new KnowageHighchartsHeatmapChart(widgetContentChartTemplate)
         case "RADAR":
             return new KnowageHighchartsRadarChart(widgetContentChartTemplate)
+        case "BAR":
+            return new KnowageHighchartsBarChart(widgetContentChartTemplate)
         default:
             return null
     }

@@ -466,6 +466,7 @@ export const getHighchartsWidgetData = async (widget: IWidget, datasets: IDashbo
     const chartType = widget.settings.chartModel?.model?.chart.type
     switch (chartType) {
         case 'pie':
+        case 'column': // TODO Bojan
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'gauge':
             return await getGaugeChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)

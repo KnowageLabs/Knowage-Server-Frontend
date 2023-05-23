@@ -6,6 +6,7 @@ import { KnowageHighchartsSolidGaugeChart } from "../../../../ChartWidget/classe
 import { KnowageHighchartsGaugeSeriesChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsGaugeSeriesChart"
 import { KnowageHighchartsHeatmapChart } from './../../../../ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart';
 import { KnowageHighchartsRadarChart } from './../../../../ChartWidget/classes/highcharts/KnowageHighchartsRadarChart';
+import { KnowageHighchartsBarChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsBarChart"
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
 import * as  highchartsDefaultValues from "../highcharts/HighchartsDefaultValues"
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
@@ -61,6 +62,9 @@ export const formatHighchartsWidget = (widget: IWidget) => {
         case 'radar':
             widget.settings.chartModel = new KnowageHighchartsRadarChart(chartModel)
             break
+        case 'column':
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+
     }
 
 }
@@ -79,6 +83,8 @@ export const createNewHighchartsModel = (chartType: string, model: IHighchartsCh
             return new KnowageHighchartsHeatmapChart(model)
         case 'radar':
             return new KnowageHighchartsRadarChart(model)
+        case 'column':
+            return new KnowageHighchartsBarChart(model)
         default:
             return null
     }

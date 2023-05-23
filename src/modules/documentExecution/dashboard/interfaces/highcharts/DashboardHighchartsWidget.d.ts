@@ -92,11 +92,12 @@ export interface IHighchartsChartModel {
     series: any[],
     settings: IHighchartsChartModelSettings,
     plotOptions: {
-        pie?: IHighchartsChartPlotOptions,
-        gauge?: IHighchartsChartPlotOptions,
-        solidgauge?: IHighchartsChartPlotOptions
-        heatmap?: IHighchartsChartPlotOptions
-        series?: { events: any }
+        pie?: any,
+        gauge?: any,
+        solidgauge?: any
+        heatmap?: any
+        line?: any,
+        series?: any
     },
     legend: any,
     tooltip: any,
@@ -109,16 +110,6 @@ export interface IHighchartsChartModel {
     yAxis?: any,
     colorAxis?: { stops: any[] },
     seriesForRender?: any[]
-}
-
-export interface IHighchartsChartPlotOptions {
-    showInLegend: boolean,
-    depth: number,
-    allowPointSelect: boolean,
-    cursor: string,
-    connectNulls?: boolean,
-    nullColor?: string,
-    dataLabels: IHighchartsChartDataLabels,
 }
 
 export interface IHighchartsOptions3D {

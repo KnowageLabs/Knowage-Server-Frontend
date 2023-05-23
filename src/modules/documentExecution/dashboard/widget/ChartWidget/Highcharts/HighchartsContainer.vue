@@ -110,6 +110,7 @@ export default defineComponent({
             modelToRender.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
             modelToRender.chart.backgroundColor = null
 
+            console.log('-------------- MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
@@ -145,7 +146,7 @@ export default defineComponent({
 
         setSeriesEvents() {
             this.chartModel.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
-            if (this.chartModel.plotOptions.series) this.chartModel.plotOptions.series = { events: { click: this.executeInteractions } }
+            if (this.chartModel.plotOptions.series) this.chartModel.plotOptions.series.events = { click: this.executeInteractions }
         },
         onDrillUp(event: any) {
             this.drillLevel = event.seriesOptions._levelNumber

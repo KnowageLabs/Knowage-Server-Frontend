@@ -137,3 +137,11 @@ export const getDefaultRadarYAxis = () => {
 export const getDefaultPlotLinesSetting = () => {
     return deepcopy(descriptor.defaultPlotLinesSetting)
 }
+
+export const getDefaultBarXAxis = () => {
+    return deepcopy(descriptor.defaultBarXAxis)
+}
+
+export const getDefaultBarYAxis = () => {
+    return deepcopy(descriptor.defaultBarYAxis)
+}
