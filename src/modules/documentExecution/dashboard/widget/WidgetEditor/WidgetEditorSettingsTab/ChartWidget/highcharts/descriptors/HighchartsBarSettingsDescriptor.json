@@ -8,6 +8,10 @@
             {
                 "title": "dashboard.widgetEditor.seriesAccessibility.title",
                 "type": "SeriesAccessibilitySettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.sonification.title",
+                "type": "SonificationSettings"
             }
         ],
         "Colors": [
@@ -18,8 +22,12 @@
         ],
         "Configuration": [
             {
-                "title": "dashboard.widgetEditor.highcharts.heatmap.datetype",
+                "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.grouping.title",
+                "type": "GroupingSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.splitting.title",
@@ -62,6 +70,10 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
+            },
+            {
+                "title": "dashboard.widgetEditor.conditionalStyles.title",
+                "type": "ConditionalStyles"
             }
         ],
         "Style": [
@@ -100,6 +112,14 @@
             {
                 "title": "common.title",
                 "type": "HeatmapXAxisTitleSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.bands.title",
+                "type": "BandsSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.lines.title",
+                "type": "LinesSettings"
             }
         ],
         "YAxis": [

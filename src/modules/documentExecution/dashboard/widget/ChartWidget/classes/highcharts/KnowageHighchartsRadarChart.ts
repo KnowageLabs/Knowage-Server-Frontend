@@ -27,8 +27,8 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setSpecificOptionsDefaultValues() {
-        this.setHeatmapXAxis()
-        this.setHeatmapYAxis()
+        this.setRadarXAxis()
+        this.setRadarYAxis()
     }
 
     setData(data: any, widgetModel: IWidget) {
@@ -150,12 +150,12 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         return date.isValid() ? date.format(dateFormat) : dateString
     }
 
-    setHeatmapXAxis() {
-        this.model.xAxis = highchartsDefaultValues.getDefaultHeatmapXAxis()
+    setRadarXAxis() {
+        this.model.xAxis = highchartsDefaultValues.getDefaultRadarXAxis()
     }
 
-    setHeatmapYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultHeatmapYAxis()
+    setRadarYAxis() {
+        this.model.yAxis = highchartsDefaultValues.getDefaultRadarYAxis()
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {

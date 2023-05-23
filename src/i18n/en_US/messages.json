@@ -35,6 +35,7 @@
         },
         "collapse": "collapse",
         "color": "Color",
+        "colors": "Colors",
         "column": "Column",
         "columns": "Columns",
         "comment": "Comment",
@@ -55,9 +56,9 @@
         "detail": "Detail",
         "details": "Details",
         "development": "Development",
+        "dialog": "Dialog",
         "documentDetails": "Document Details",
         "documents": "Documents",
-        "dossier": "Dossier",
         "download": "download",
         "downloading": "Downloading",
         "dragAndDropFileHere": "Drag and drop file here.",
@@ -96,10 +97,10 @@
         "formula": "Formula",
         "from": "From",
         "general": "General",
-        "generalSettings": "General settings",
         "generate": "Generate",
         "group": "Group",
         "height": "Height",
+        "high": "High",
         "home": "Home",
         "horizontal": "Horizontal",
         "horizontalAlign": "Horizontal Align",
@@ -118,6 +119,7 @@
         },
         "information": "information",
         "input": "Input",
+        "json": "JSON",
         "key": "Key",
         "kpi": "KPI",
         "label": "label",
@@ -125,6 +127,8 @@
         "language": "Language",
         "large": "Large",
         "lastChangeDate": "Last change date",
+        "layer": "Layer",
+        "layers": "Layers",
         "layout": "Layout",
         "left": "Left",
         "library": "Library",
@@ -133,6 +137,7 @@
         "locked": "Locked",
         "loggedUser": "logged user",
         "login": "Login",
+        "low": "Low",
         "max": "Max",
         "medium": "Medium",
         "menu": "Menu",
@@ -140,6 +145,7 @@
         "metadata": "Metadata",
         "middle": "Middle",
         "min": "Min",
+        "modal": "Modal",
         "modify": "modify",
         "move": "Move",
         "name": "name",
@@ -209,6 +215,7 @@
         "state": "State",
         "static": "Static",
         "status": "Status",
+        "string": "String",
         "style": "Style",
         "suspended": "Suspended",
         "table": {
@@ -268,7 +275,6 @@
         "vertical": "Vertical",
         "verticalAlign": "Vertical Align",
         "view": "View",
-        "views": "Views",
         "visibility": "Visibility",
         "visible": "Visible",
         "warning": "Warning",
@@ -285,7 +291,6 @@
             "formula": "Formula",
             "functions": "Functions",
             "noAvailableFields": "No fields available to use within a calculated field",
-            "nullifWarning": "A division has been detected. To avoid division by 0 please use the {nullIfFunction} function.",
             "officialDocumentation": "Official documentation ({function})",
             "title": "Calculated field",
             "type": "Type"
@@ -394,13 +399,6 @@
                 "sheetsImage": "Sheets Background Image URL",
                 "sheetsSize": "Sheets Background Size"
             },
-            "css": "CSS Editor",
-            "menuWidgets": {
-                "showExcelExport": "Show excel export functionality on widgets",
-                "showScreenshot": "Enable screenshot functionality on widgets",
-                "showSelectionButton": "Always show selection button",
-                "title": "Menu & Widgets"
-            },
             "profile": "Profile",
             "title": "General Settings",
             "variableColumnHint": "If no column is defined the whole dataset will be used.",
@@ -434,7 +432,9 @@
             "aggregation": "Aggregation",
             "area": "Area",
             "ascending": "Ascending",
+            "axis": "Axis",
             "background": "Background",
+            "blur": "Blur",
             "borders": {
                 "borderRadiusBottomLeft": "Border radius bottom left",
                 "borderRadiusBottomRight": "Border radius bottom right",
@@ -468,6 +468,7 @@
                 "donutChart": "Donut Chart",
                 "funnelChart": "Funnel Chart",
                 "gauge": "Gauge",
+                "heatmap": "Heatmap",
                 "lineChart": "Line Chart",
                 "parallelChart": "Parallel Chart",
                 "pieChart": "Pie Chart",
@@ -475,7 +476,8 @@
                 "scatterChart": "Scatter Chart",
                 "solidgauge": "Solid Gauge",
                 "stackedColumnsChart": "Stacked Columns Chart",
-                "treemap": "Treemap"
+                "treemap": "Treemap",
+                "wordcloud": "Wordcloud"
             },
             "chips": "Chips",
             "colors": {
@@ -617,6 +619,7 @@
                     "title": "bands",
                     "toHint": "The end position of the plot band in axis units."
                 },
+                "dateType": "Date Type",
                 "dial": {
                     "dialBaseWitdh": "Dial Base Width",
                     "dialColor": "Dial Color",
@@ -625,6 +628,23 @@
                 },
                 "gauge": {
                     "valuesTableHint": "Measures only."
+                },
+                "grouping": {
+                    "title": "Grouping"
+                },
+                "heatmap": {
+                    "axisMaxHint": "The minimum value of the axis. If null the min value is automatically calculated.",
+                    "axisMinHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
+                    "datetype": "Datetype",
+                    "dimensionsTableHint": "Exactly two attributes to define categories. If the attribute is of type Date (Timestamp) it must be the first one. You are not able to reorder categories.",
+                    "labelRotation": "Label Rotation",
+                    "nullValues": {
+                        "connectNulls": "Connect Nulls",
+                        "nullColor": "Null Color",
+                        "title": "Null Values"
+                    },
+                    "rotation": "Rotation",
+                    "valuesTableHint": "Exactly one measure only to define series"
                 },
                 "labels": {
                     "distance": "Distance",
@@ -740,8 +760,11 @@
                 "analyticalDriver": "Analytical Driver",
                 "basicUrl": "Basic Url",
                 "chartDynamicOptions": {
+                    "categoryId": "Category Id",
                     "categoryName": "Category name",
                     "categoryValue": "Category value",
+                    "groupingName": "Grouping name",
+                    "groupingValue": "Grouping value",
                     "serieName": "Serie name",
                     "serieValue": "Serie value"
                 },
@@ -916,8 +939,10 @@
             "pivotData": "Data",
             "pivotFilters": "Filters",
             "pivotRows": "Rows",
+            "position": "Position",
             "precision": "Precision",
             "prefix": "Prefix",
+            "radius": "Radius",
             "recentlyUsed": "Recently Used",
             "responsive": {
                 "extraLargeDevices": "Show On Extra Large Devices",
@@ -939,8 +964,6 @@
                 "showIndexesColumn": "Show indexes column",
                 "title": "Rows"
             },
-            "searchInTableWidget": "Search in Table Widget",
-            "searchInTableWidgetHint": "Select the values and the column to search",
             "selectDataset": "Select Dataset",
             "selectedColumns": "Selected Columns",
             "selectorType": {
@@ -971,7 +994,17 @@
                 "pinnedColumnsOnly": "Pinned columns only",
                 "title": "Summary rows"
             },
+            "textConfiguration": {
+                "font": "Font",
+                "maximumFontSize": "Maximum Font Size",
+                "maximumWords": "Maximum Words",
+                "minimumFontSize": "Minimum Font Size",
+                "wordAngle": "Word Angle",
+                "wordAngleHint": "Word Angle Hint Placeholder",
+                "wordPadding": "Word Padding"
+            },
             "textParsingError": "Text Parsing Error",
+            "thresholds": "Thresholds",
             "title": "Widget Editor",
             "titles": {
                 "title": "Title"
@@ -997,6 +1030,19 @@
                 "wrapText": "Wrap Text",
                 "wrapTextHint": "Wrap text hint placeholder"
             },
+            "vega": {
+                "fontOptions": {
+                    "calibri": "Calibri",
+                    "cambria": "Cambria",
+                    "georgia": "Georiga",
+                    "gungsuh": "Gungsuh",
+                    "impact": "Impact"
+                },
+                "wordcloud": {
+                    "dimensionsTableHint": "Attributes only.",
+                    "valuesTableHint": "Measures only."
+                }
+            },
             "visibilityConditions": {
                 "always": "Always",
                 "hideColumn": "Hide Column",
@@ -1019,6 +1065,66 @@
                 "sparkline": "Sparkline",
                 "textAndIcon": "Text & Icon",
                 "title": "Visualization Type"
+            },
+            "xAxis": "X Axis",
+            "yAxis": "Y Axis"
+        },
+        "widgets": {
+            "chart": {
+                "description": "Custom chart with binding to datasources data. Pie chart, bar chart and scatter chart available.",
+                "title": "chart"
+            },
+            "customchart": {
+                "description": "Custom chart with binding to datasources data. Custom javascript and external libraries are available.",
+                "title": "custom"
+            },
+            "discovery": {
+                "description": "Advanced faceted table to interact with Solr datasets",
+                "title": "discovery"
+            },
+            "document": {
+                "description": "Custom document upload as databind or datasource.",
+                "title": "document"
+            },
+            "html": {
+                "description": "Custom HTML code editor with shortcodes to embed dynamic content.",
+                "title": "html"
+            },
+            "image": {
+                "description": "Custom static or dynamic web/uploaded image.",
+                "title": "image"
+            },
+            "map": {
+                "description": "Interactive map with multiple layers representation.",
+                "title": "map"
+            },
+            "python": {
+                "description": "Write your own python code and create your visualization.",
+                "title": "python"
+            },
+            "r": {
+                "description": "Write your own R script and create your custom visualization.",
+                "title": "r"
+            },
+            "selection": {
+                "description": "View current selections on widgets.",
+                "title": "active selections"
+            },
+            "selector": {
+                "description": "Selector widget to easily filter categories.",
+                "title": "selector"
+            },
+            "static-pivot-table": {
+                "description": "Pivot or cross table with datasource binding.",
+                "title": "pivot"
+            },
+            "table": {
+                "description": "Standard table with datasource binding.",
+                "title": "table"
+            },
+            "text": {
+                "description": "Static or dynamic widget text. Uses a WYSIWYG editor and shortcodes to embed dynamic content.",
+                "title": "text"
             }
         },
         "wizard": {
@@ -1152,50 +1258,6 @@
             "deleteConfirm": "Are you sure you want to delete the selected activity?",
             "deleteSuccess": "Successfully deleted selected activity.",
             "deleteTitle": "Delete dossier activity",
-            "designerDialog": {
-                "deviceScaleFactor": "Device scale factor",
-                "dossierUrlName": "Dossier url name",
-                "downloadable": "Downloadable",
-                "downloadableHint": "Enable the flag if you want the docx/pptx template to be downloadable from the dossier execution interface",
-                "driverLinkType": "Driver link type",
-                "driverNotHandled": "Placeholder {placeholderName}: Driver {driverName} is not handled",
-                "driversHelp": {
-                    "dynamic": "2) Dynamic: you will link a document driver to one of the dossier",
-                    "hint": "Select a mode for each document driver. ",
-                    "inherit": "3) Inherit: the document driver will be linked to an existing one in the dossier (if any) or imported as a new one",
-                    "static": "1) Static: you will manually set all the parameter configuration"
-                },
-                "errorDuringValidation": "The uploaded template is not valid for the dossier document",
-                "inherit": "Inherit",
-                "linkTo": "Link to",
-                "linkToDocumentDriverPart": " or setting values for the driver parameters",
-                "linkToDocumentHint": "Select the document to attach it to the placeholder. Then choose the link type and proceed using a saved view ",
-                "noDocumentLinkedToThePlaceholder": "No document linked to the placeholder",
-                "noDriversAndNoViewsForDocument": "No driver and no views found for the document",
-                "noPlaceholdersFound": "The uploaded document doesn't contain placeholders accordingly to the prefix. Please, try again with another document",
-                "noPlaceholdersHint": "No placeholder seleted. Click on a list element to select one.",
-                "noViewsAvailable": "No views available",
-                "placeholders": "Placeholders",
-                "prefixHint": "This prefix will be used case sensitive to search for images within the template",
-                "resetPlaceholder": "Reset placeholder",
-                "saveAndRun": "Save and run",
-                "sheetHeight": "Sheet Height",
-                "sheetWidth": "Sheet width",
-                "step0": {
-                    "info": "Upload the template for the dossier and set the prefix to use to search for images within",
-                    "title": "Dossier designer - Upload file and choose the prefix for images"
-                },
-                "step1": {
-                    "title": "Dossier designer - Hook placeholders to documents"
-                },
-                "templateFile": "Template file",
-                "uploadable": "Uploadable",
-                "uploadableHint": "Enable the flag if you want the docx/pptx template to be uploadable from the dossier execution interface",
-                "urlName": "Url name",
-                "viewsHelp": {
-                    "hint": "Select a saved view from the table. All its configuration will be applied to the document before taking the screenshots."
-                }
-            },
             "downloadMissingError": "Download ERROR - Document is missing",
             "downloadTemplate": "Download document template",
             "headers": {
@@ -2878,7 +2940,6 @@
         "widgetGallery": {
             "deleteTemplate": "Delete template",
             "downloadTemplate": "Download template",
-            "fieldIsMandatory": "{field} is mandatory",
             "hint": "The templates allow you to access ready-made elements to proceed more quickly to the creation of dashboards. To view the details of a template, select one of those on the side, or press the \"+\" button to add or import one.",
             "importTemplate": "Import template",
             "newTemplate": "New template",
@@ -3336,6 +3397,7 @@
                 "emptyInfo": "Add a dataset",
                 "layerFilters": "Layer Filters",
                 "layerList": "Layer List",
+                "layers": "Layers",
                 "layersDialogEmpty": "No available layers",
                 "layersTableEmpty": "Add a layer",
                 "openMapWarning": "Opening the map will undo all unsaved modifications, are you sure you want to continue?"
@@ -3384,7 +3446,6 @@
                 "clone": "Clone Document",
                 "delete": "Delete Document",
                 "edit": "Edit Document",
-                "editTemplate": "Edit template",
                 "share": "Share Document",
                 "showDsDetails": "Show dataset details",
                 "unshare": "Unshare Document",
@@ -3426,13 +3487,10 @@
             "userRoleError": "User does not have valid roles for the execution of the selected model"
         },
         "myRepository": {
-            "deleteView": "Delete View",
             "destinationFolder": "Destination folder",
-            "executeView": "Execute View",
             "folderCreatedMessage": "Folder is created and added to the current path",
             "folderDeleteError": "Folder could not be deleted. It contains at least one subfolder or at least one document",
             "moveDocument": "Move Document",
-            "moveView": "Move View",
             "newFolderTitle": "Create new folder"
         },
         "recent": {
