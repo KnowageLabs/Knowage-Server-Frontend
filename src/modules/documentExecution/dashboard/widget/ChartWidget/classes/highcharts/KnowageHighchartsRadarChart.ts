@@ -11,7 +11,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model) {
+        else if (model && model.plotOption) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'radar') {
                 this.formatSeriesFromOtherChartTypeSeries()
