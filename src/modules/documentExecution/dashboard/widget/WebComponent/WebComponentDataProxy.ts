@@ -3,16 +3,16 @@ import { IDashboardDataset, IWidget, ISelection } from '../../Dashboard'
 import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, showGetDataError, getAggregationsModel } from '../../DashboardDataProxy'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 
-export const getHtmlWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
-    if (selectedDataset && widget.settings.editor.html) {
-        const html = widget.settings.editor.html
+    if (selectedDataset && widget.settings.editor[widgetType]) {
+        const valueToParse = widget.settings.editor[widgetType]
         const numOfRowsToGet = maxRow(widget)
         const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=${numOfRowsToGet}&nearRealtime=true&limit=${numOfRowsToGet}`
 
-        const aggregationsModel = getAggregationsModel(widget, html)
+        const aggregationsModel = getAggregationsModel(widget, valueToParse)
         let aggregationDataset = null as any
         if (aggregationsModel) {
             const aggregationsPostData = formatWebComponentModelForService(dashboardId, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)

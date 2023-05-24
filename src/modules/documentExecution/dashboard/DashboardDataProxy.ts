@@ -15,7 +15,7 @@ import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './he
 import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch } from './Dashboard'
 import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
-import { getHtmlWidgetData } from './widget/WebComponent/WebComponentDataProxy'
+import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -45,7 +45,9 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
         case 'selector':
             return await getSelectorWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'html':
-            return await getHtmlWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getWebComponentWidgetData('html', dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'text':
+            return await getWebComponentWidgetData('text', dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
