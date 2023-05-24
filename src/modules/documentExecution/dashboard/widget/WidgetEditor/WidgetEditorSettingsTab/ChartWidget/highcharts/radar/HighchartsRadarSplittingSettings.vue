@@ -58,7 +58,7 @@ export default defineComponent({
                 for (let i = 0; i < this.model.columns.length; i++) {
                     if (this.model.columns[i].fieldType === 'ATTRIBUTE') {
                         attributesFound++
-                        if (attributesFound === 3) this.model.columns.splice(i, 0)
+                        if (attributesFound === 3) this.model.columns.splice(i, 1)
                     }
                 }
             }
