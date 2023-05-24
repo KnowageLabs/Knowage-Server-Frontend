@@ -15,6 +15,7 @@ import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './he
 import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch } from './Dashboard'
 import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
+import { getHtmlWidgetData } from './widget/WebComponent/WebComponentDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -43,6 +44,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections)
         case 'selector':
             return await getSelectorWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'html':
+            return await getHtmlWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
@@ -152,4 +155,46 @@ const addFilterToSelection = (selection: any, filter: any) => {
             selection[key] = filter[key]
         }
     })
+}
+
+export const maxRow = (widgetModel) => {
+    if (!widgetModel) return
+
+    const str = widgetModel.type == 'html' ? widgetModel.settings.editor.css + widgetModel.settings.editor.html : widgetModel.settings.editor.text
+    let tempMaxRow = 1
+    const repeaters = str.replace(limitRegex, function (match: string, p1: any) {
+        if (parseInt(p1) == -1) tempMaxRow = -1
+        else if (p1 > tempMaxRow) tempMaxRow = parseInt(p1) + 1
+    })
+    const occurrencies = str.replace(rowsRegex, function (match: string, p1: any, p2: any) {
+        if (p2 >= tempMaxRow) tempMaxRow = parseInt(p2) + 1
+    })
+    return tempMaxRow
+}
+
+export const getAggregationsModel = (widgetModel, rawHtml) => {
+    const aggregationsReg = rawHtml.match(aggregationsRegex)
+    if (aggregationsReg) {
+        const modelToSend = deepcopy(widgetModel)
+        const tempModel = deepcopy(widgetModel)
+        delete modelToSend.settings
+        modelToSend.columns = []
+
+        for (const a in aggregationsReg) {
+            const aggregationReg = aggregationRegex.exec(aggregationsReg[a])
+            for (const m in tempModel.columns) {
+                if (aggregationReg && aggregationReg[1] && tempModel.columns[m].columnName == aggregationReg[1]) {
+                    tempModel.columns[m].alias = aggregationReg[1] + '_' + aggregationReg[3]
+                    tempModel.columns[m].fieldType = 'MEASURE'
+                    tempModel.columns[m].aggregation = aggregationReg[3]
+                    let exists = false
+                    for (const c in modelToSend.columns) {
+                        if (modelToSend.columns[c].alias == aggregationReg[1] + '_' + aggregationReg[3]) exists = true
+                    }
+                    if (!exists) modelToSend.columns.push(deepcopy(tempModel.columns[m]))
+                }
+            }
+        }
+        return modelToSend
+    } else return null
 }
