@@ -768,7 +768,6 @@ export default defineComponent({
                         parameters[parameter.urlName] = parameter.type === 'NUM' && parameter.parameterValue[0].value ? +parameter.parameterValue[0].value : parameter.parameterValue[0].value
                         parameters[parameter.urlName + '_field_visible_description'] = parameter.type === 'NUM' && parameter.parameterValue[0].description ? +parameter.parameterValue[0].description : parameter.parameterValue[0].description
                     } else if (parameter.selectionType === 'TREE' || parameter.selectionType === 'LOOKUP' || parameter.multivalue) {
-                        console.log('PARMAETER: ', parameter)
                         parameters[parameter.urlName] = parameter.parameterValue.map((el: any) => el.value)
                         let tempString = ''
                         for (let i = 0; i < parameter.parameterValue.length; i++) {

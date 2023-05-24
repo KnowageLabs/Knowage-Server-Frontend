@@ -154,7 +154,7 @@ export default defineComponent({
 
             this.publicUrl = this.embedHTML ? `<iframe width="${this.iframeWidth}" height="${this.iframeHeight}" src="` : ''
             this.publicUrl += import.meta.env.VITE_HOST_URL + import.meta.env.VITE_PUBLIC_PATH + `${documentType}/${this.document.label}?toolbar=${this.showToolbar}&menu=${this.showMenu}&role=${role}&params=${params}`
-            if (this.embedHTML) this.publicUrl += '></iframe>`'
+            if (this.embedHTML) this.publicUrl += '"></iframe>`'
         },
         getDocumentType() {
             switch (this.document?.typeCode) {
