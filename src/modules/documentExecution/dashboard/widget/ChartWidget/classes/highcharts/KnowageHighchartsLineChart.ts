@@ -9,6 +9,7 @@ import deepcopy from 'deepcopy'
 export class KnowageHighchartsLineChart extends KnowageHighcharts {
     constructor(model: any) {
         super()
+        console.log('------ CREATED: !')
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
         else if (model) {

@@ -707,6 +707,7 @@
                     "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
                     "minHint": "The minimum value of the axis. If null the min value is automatically calculated."
                 },
+                "showChekboxes": "Show Checkboxes",
                 "solidGauge": {
                     "valuesTableHint": "Measures only."
                 },

@@ -290,6 +290,7 @@ export default defineComponent({
             }
         },
         getHighchartsDescriptor() {
+            console.log(' >>> WidgetEditorSettingsTab - chart type: ', this.chartType)
             switch (this.chartType) {
                 case 'pie':
                     return HighchartsPieSettingsDescriptor

@@ -72,7 +72,7 @@ export default defineComponent({
         },
         bandsHint() {
             let commonHint = this.$t('dashboard.widgetEditor.highcharts.bands.bandsHint')
-            if (!['radar', 'column'].includes(this.chartType)) commonHint += this.$t('dashboard.widgetEditor.highcharts.bands.bandsGaugeHint')
+            if (!['radar', 'column', 'line'].includes(this.chartType)) commonHint += this.$t('dashboard.widgetEditor.highcharts.bands.bandsGaugeHint')
             return commonHint
         }
     },

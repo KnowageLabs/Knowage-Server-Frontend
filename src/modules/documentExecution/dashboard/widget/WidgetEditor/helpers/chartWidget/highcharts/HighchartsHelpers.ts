@@ -10,6 +10,11 @@ import { KnowageHighchartsBarChart } from "../../../../ChartWidget/classes/highc
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
 import * as  highchartsDefaultValues from "../highcharts/HighchartsDefaultValues"
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
+import { KnowageHighchartsLineChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsLineChart"
+import { KnowageHighchartsScatterChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsScatterChart"
+import { KnowageHighchartsTreemapChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart"
+import { KnowageHighchartsSunburstChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart"
+import { KnowageHighchartsBubbleChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart"
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -66,19 +71,19 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
             break
         case 'bubble':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsBubbleChart(chartModel)
             break
         case 'scatter':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsScatterChart(chartModel)
             break
         case 'line':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsLineChart(chartModel)
             break
         case 'treemap':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsTreemapChart(chartModel)
             break
         case 'sunburst':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsSunburstChart(chartModel)
 
     }
 
