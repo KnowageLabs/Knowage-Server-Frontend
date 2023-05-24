@@ -45,7 +45,7 @@ export interface IWidget {
     new?: boolean
     fields?: IPivotFields
     layers?: any
-    state?: any,
+    state?: any
     search?: any
 }
 
@@ -757,4 +757,9 @@ export interface IDashboardView {
     visibility: string
     type?: string
     new?: boolean
+}
+
+export interface IWidgetSearch {
+    searchText: string
+    searchColumns: string[]
 }

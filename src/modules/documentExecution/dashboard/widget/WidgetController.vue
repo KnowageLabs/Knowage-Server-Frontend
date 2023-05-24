@@ -44,10 +44,12 @@
  * ! this component will be in charge of managing the widget behaviour related to data and interactions, not related to view elements.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IMenuItem, ISelection, IVariable, IWidget } from '../Dashboard'
+import { IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
 import { emitter, canEditDashboard } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
-import { getWidgetData } from '../DataProxyHelper'
+// IN PROGRESS DATA PROXY : ako treba stari proxy, samo zameniti 2 importa
+// import { getWidgetData } from '../DataProxyHelper'
+import { getWidgetData } from '../DashboardDataProxy'
 import store from '../Dashboard.store'
 import mainStore from '@/App.store'
 import WidgetRenderer from './WidgetRenderer.vue'
@@ -110,7 +112,7 @@ export default defineComponent({
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: true }
             ] as IMenuItem[],
             searchDialogVisible: false,
-            search: { searchText: '', searchColumns: [] } as { searchText: string; searchColumns: string[] }
+            search: { searchText: '', searchColumns: [] } as IWidgetSearch
         }
     },
     computed: {
