@@ -14,6 +14,7 @@ import { setDatasetInterval, clearDatasetInterval } from './helpers/datasetRefre
 import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './helpers/common/DashboardRegexHelper'
 import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch } from './Dashboard'
 import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
+import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -40,6 +41,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
     switch (widget.type) {
         case 'table':
             return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections)
+        case 'selector':
+            return await getSelectorWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
