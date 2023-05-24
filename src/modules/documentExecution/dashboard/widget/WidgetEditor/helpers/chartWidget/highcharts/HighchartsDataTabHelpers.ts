@@ -59,6 +59,8 @@ const areAdditionalAttributesConstraintsInvalid = (tempColumn: IWidgetColumn, ro
             return isHeatmapTimestampColumnIsTheFirstOne(tempColumn, rows)
         case 'radar':
             return isRadarSplitInvalidForAttributes(tempColumn, rows, widgetModel)
+        case 'bar':
+            return isBarGroupingInvalidForAttributes(rows, widgetModel)
         default:
             return false
     }
@@ -75,10 +77,23 @@ const isRadarSplitInvalidForAttributes = (tempColumn: IWidgetColumn, rows: IWidg
     return false
 }
 
+const isBarGroupingInvalidForAttributes = (rows: IWidgetColumn[], widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.configuration || !widgetModel.settings.configuration.grouping) return false
+    const groupingEnabled = widgetModel.settings.configuration.grouping.enabled
+    const categorySplittingEnabled = widgetModel.settings.configuration.grouping.secondSeries.enabled
+    console.log('-------- CONSTAINT 1: ', (groupingEnabled || categorySplittingEnabled) && rows.length === 2)
+    if ((groupingEnabled || categorySplittingEnabled) && rows.length === 2) return true
+    const seriesSplittingEnabled = widgetModel.settings.configuration.grouping.secondDimension.enabled
+    console.log('-------- CONSTAINT 2: ', seriesSplittingEnabled && rows.length === 1)
+    if (seriesSplittingEnabled && rows.length === 1) return true
+    return false
+}
+
+
 
 const addMeasureColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, widgetModel: IWidget) => {
     const maxValues = getMaxValuesNumber(chartType)
-    if (maxValues && maxValues !== 1 && rows.length >= maxValues) return
+    if (maxValues && maxValues !== 1 && rows.length >= maxValues || areAdditionalMeasuresConstraintsInvalid(rows, chartType, widgetModel)) return
     convertColumnToMeasure(tempColumn)
     if (rows.length === 1 && maxValues === 1) {
         removeSerieFromWidgetModel(widgetModel, rows[0], chartType)
@@ -88,6 +103,24 @@ const addMeasureColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetCol
     addColumnToRows(rows, tempColumn)
     widgetModel.settings.chartModel.addSerie(tempColumn, chartType)
     emitter.emit('seriesAdded', tempColumn)
+}
+
+
+const areAdditionalMeasuresConstraintsInvalid = (rows: IWidgetColumn[], chartType: string | undefined, widgetModel: IWidget) => {
+    switch (chartType) {
+        case 'bar':
+            return isBarGroupingInvalidForMeasures(rows, widgetModel)
+        default:
+            return false
+    }
+}
+
+const isBarGroupingInvalidForMeasures = (rows: IWidgetColumn[], widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.configuration || !widgetModel.settings.configuration.grouping) return false
+    const categorySplittingEnabled = widgetModel.settings.configuration.grouping.secondSeries.enabled
+    console.log('-------- CONSTAINT 1: ', (categorySplittingEnabled && rows.length === 1))
+    if (categorySplittingEnabled && rows.length === 1) return true
+    return false
 }
 
 

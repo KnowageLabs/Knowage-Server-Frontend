@@ -997,6 +997,9 @@
                 "title": "Shadows"
             },
             "showLabel": "Show Label",
+            "sonification": {
+                "title": "Sonification"
+            },
             "sortingColumn": "Sorting column",
             "sortingOrder": "Sorting order",
             "suffix": "Suffix",

@@ -1,6 +1,6 @@
 <template>
     <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-               <div class="p-col-12">
+        <div class="p-col-12">
             {{ axisModel }}
         </div>
         <div v-if="chartType === 'heatmap'" class="p-col-12 p-md-3 p-d-flex p-flex-column">
@@ -17,11 +17,11 @@
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMaxHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
-        <div class="p-col-12 p-d-flex p-flex-column" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': chartType === 'radar' }">
+        <div class="p-col-12 p-d-flex p-flex-column" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'column'].includes(chartType) }">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.heatmap.labelRotation') }}</label>
             <InputNumber v-model="axisModel.labels.rotation" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
         </div>
-        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': chartType === 'radar' }">
+        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'column'].includes(chartType) }">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
             <Dropdown v-model="axisModel.labels.align" class="kn-material-input" :options="settingsDescriptor.alignmentOptions" option-value="value" @change="modelChanged">
                 <template #value="slotProps">

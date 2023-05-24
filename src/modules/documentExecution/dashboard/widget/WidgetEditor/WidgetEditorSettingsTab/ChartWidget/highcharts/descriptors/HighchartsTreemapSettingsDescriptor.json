@@ -113,11 +113,11 @@
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "BandsSettings"
+                "type": "YAxisBandsSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "LinesSettings"
+                "type": "YAxisLinesSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.majorGridDetails",

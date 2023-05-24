@@ -20,7 +20,8 @@
                 <HighchartsGaugeScaleSettings v-else-if="accordion.type === 'ScaleSettings'" :widget-model="widgetModel"></HighchartsGaugeScaleSettings>
                 <HighchartsGaugeTickSettings v-else-if="accordion.type === 'TickSettings'" :widget-model="widgetModel"></HighchartsGaugeTickSettings>
                 <HighchartsStopsSettings v-else-if="accordion.type === 'StopsSettings'" :widget-model="widgetModel"></HighchartsStopsSettings>
-                <HighchartsBandsSettings v-else-if="accordion.type === 'BandsSettings'" :widget-model="widgetModel"></HighchartsBandsSettings>
+                <HighchartsBandsSettings v-else-if="accordion.type === 'XAxisBandsSettings'" :widget-model="widgetModel" axis="x"></HighchartsBandsSettings>
+                <HighchartsBandsSettings v-else-if="accordion.type === 'YAxisBandsSettings'" :widget-model="widgetModel" axis="y"></HighchartsBandsSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
@@ -40,7 +41,8 @@
                 <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HeatmapYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
                 <HighchartsHeatmapNullSettings v-else-if="accordion.type === 'HeatmapNullSettings'" :widget-model="widgetModel"></HighchartsHeatmapNullSettings>
                 <HighchartsDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsDatetypeSettings>
-                <HighchartsLineSettings v-else-if="accordion.type === 'LinesSettings'" :widget-model="widgetModel"></HighchartsLineSettings>
+                <HighchartsLineSettings v-else-if="accordion.type === 'XAxisLinesSettings'" :widget-model="widgetModel" axis="x"></HighchartsLineSettings>
+                <HighchartsLineSettings v-else-if="accordion.type === 'YAxisLinesSettings'" :widget-model="widgetModel" axis="y"></HighchartsLineSettings>
                 <HighchartsAxisGridSettings v-else-if="accordion.type === 'MajorGridSettings'" :widget-model="widgetModel" type="major"></HighchartsAxisGridSettings>
                 <HighchartsAxisGridSettings v-else-if="accordion.type === 'MinorGridSettings'" :widget-model="widgetModel" type="minor"></HighchartsAxisGridSettings>
                 <HighchartsRadarSplittingSettings v-else-if="accordion.type === 'SplittingSettings'" :widget-model="widgetModel"></HighchartsRadarSplittingSettings>

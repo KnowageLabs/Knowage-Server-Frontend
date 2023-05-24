@@ -1,7 +1,7 @@
 <template>
     <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
         <div class="p-col-12">
-            {{ model }}
+            {{ model?.tooltip }}
         </div>
         <div v-if="chartType === 'heatmap'" class="p-col-12 p-d-flex p-flex-row">
             <div class="p-col-12 p-md-4 p-d-flex p-flex-column kn-flex">
