@@ -123,7 +123,7 @@ export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: a
 
 const getDatasetIdsFromDashboardModel = (dashboardModel: IDashboard | any) => {
     const datasetIds = [] as string[]
-    dashboardModel.configuration?.datasets?.forEach((dataset: any) => (dashboardModel.hasOwnProperty('id') ? datasetIds.push(dataset.id) : datasetIds.push(dataset.dsId)))
+    dashboardModel.configuration?.datasets?.forEach((dataset: any) => datasetIds.push(dataset.id ?? dataset.dsId))
 
     return datasetIds.join(',')
 }
