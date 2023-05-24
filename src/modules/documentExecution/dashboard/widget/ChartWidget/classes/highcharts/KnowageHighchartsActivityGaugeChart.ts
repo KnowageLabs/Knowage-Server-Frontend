@@ -11,7 +11,7 @@ export class KnowageHighchartsActivityGaugeChart extends KnowageHighchartsGaugeC
         this.setSpecificOptionsDefaultValues()
         this.setTooltipSettings()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model) {
+        else if (model && model.plotOption) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'activitygauge') {
                 this.formatSeriesFromOtherChartTypeSeries()
