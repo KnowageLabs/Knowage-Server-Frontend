@@ -126,6 +126,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
             }
             formattedSeries.push(serie)
         })
+        console.log('------- formattedSeries ', formattedSeries)
 
     }
 
