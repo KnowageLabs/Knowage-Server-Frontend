@@ -43,15 +43,15 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
     }
 
     setBarXAxis() {
-        this.model.xAxis = highchartsDefaultValues.getDefaultBarXAxis()
+        this.model.xAxis = [highchartsDefaultValues.getDefaultBarXAxis()]
     }
 
     setBarYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultBarYAxis()
+        this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
     }
 
     setData(data: any, widgetModel: IWidget) {
-        // console.log('---------- data: ', data)
+        console.log('---------- data: ', data)
         // console.log('---------- WIDGET MODEL COLUMNS: ', widgetModel.columns)
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
@@ -66,7 +66,6 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         if (widgetModel.settings.configuration?.grouping?.enabled) {
             this.setGroupedCategoriesData(data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
         } else {
-
             this.setRegularData(data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
         }
 
@@ -99,7 +98,35 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
     }
 
     setGroupedCategoriesData(data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) {
-        console.log('------- setGroupedCategoriesData ')
+        console.log('THIS MODEL AXIS: ', this.model.xAxis)
+        console.log('------- setGroupedCategoriesData ', data)
+        const distinctFirstAttributeValues = data.stats[1].distinct
+        console.log('------- distinctFirstAttributeValues ', distinctFirstAttributeValues)
+        const distinctValues = data.stats[2].distinct
+        console.log('------- distinctValues ', distinctValues)
+        const distinctValuesMap = {}
+        distinctValues?.forEach((value: string) => {
+            distinctValuesMap[value] = { data: [] }
+            distinctFirstAttributeValues.forEach((firstAttributeValue: string) => distinctValuesMap[value].data.push({ name: firstAttributeValue, datetype: 'string' }))
+        })
+        console.log('------- distinctValuesMap ', distinctValuesMap)
+        data.rows.forEach((row: any) => {
+            distinctValuesMap[row['column_2']]?.data?.push({
+                "y": row['column_3'],
+                "name": row['column_1'],
+                "datetype": "string"
+            })
+        })
+        const formattedSeries = [] as any[]
+        Object.keys(distinctValuesMap).forEach((key: string) => {
+            const serie = {
+                name: key,
+                data: distinctValuesMap[key].data,
+                label: { enabled: false }
+            }
+            formattedSeries.push(serie)
+        })
+
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {

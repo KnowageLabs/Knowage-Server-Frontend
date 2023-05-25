@@ -50,7 +50,7 @@
         },
         {
             "disabled": false,
-            "label": "dashboard.widgetEditor.chartTypes.columnsChart",
+            "label": "dashboard.widgetEditor.chartTypes.barChart",
             "value": "column"
         },
         {

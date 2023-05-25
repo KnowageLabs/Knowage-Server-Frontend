@@ -25,7 +25,7 @@ const getFormattedAxisSettings = (oldModel: any, newModel: IHighchartsChartModel
     setAxisGridSettings(oldAxis, newModelAxis)
 
     axis === 'x' ? setXAxisSpecificValues(newModelAxis) : setYAxisSpecificValues(newModelAxis)
-    axis === 'x' ? newModel.xAxis = newModelAxis : newModel.yAxis = newModelAxis
+    axis === 'x' ? newModel.xAxis[0] = newModelAxis : newModel.yAxis[0] = newModelAxis
 }
 
 const setXAxisSpecificValues = (newModelAxis: any) => {

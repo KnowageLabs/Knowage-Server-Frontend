@@ -109,7 +109,7 @@ export default defineComponent({
     methods: {
         loadModel() {
             if (!this.widgetModel.settings.chartModel || !this.widgetModel.settings.chartModel.model) return
-            this.axisModel = this.axis === 'x' ? this.widgetModel.settings.chartModel.model.xAxis : this.widgetModel.settings.chartModel.model.yAxis
+            this.axisModel = this.axis === 'x' ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
             this.loadToolbarModel()
         },
         loadToolbarModel() {
