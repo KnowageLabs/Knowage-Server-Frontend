@@ -25,6 +25,7 @@ import cryptoRandomString from 'crypto-random-string'
 import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
+// import HighchartsGroupedCategories from 'highcharts-grouped-categories'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -34,6 +35,7 @@ NoDataToDisplay(Highcharts)
 SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
 Drilldown(Highcharts)
+// HighchartsGroupedCategories(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -107,7 +109,10 @@ export default defineComponent({
             this.setSeriesEvents()
 
             const modelToRender = this.getModelForRender()
-            modelToRender.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
+            modelToRender.chart.events = {
+                drillup: this.onDrillUp,
+                click: this.executeInteractions
+            }
             modelToRender.chart.backgroundColor = null
 
             console.log('-------------- MODEL TO RENDER: ', modelToRender)
@@ -115,7 +120,11 @@ export default defineComponent({
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
-                this.setError({ title: this.$t('common.toast.errorTitle'), msg: error ? error.message : '' })
+                console.log('---------- EROR: ', error)
+                this.setError({
+                    title: this.$t('common.toast.errorTitle'),
+                    msg: error ? error.message : ''
+                })
             }
         },
         updateLegendSettings() {
@@ -145,8 +154,14 @@ export default defineComponent({
         },
 
         setSeriesEvents() {
-            this.chartModel.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
-            if (this.chartModel.plotOptions.series) this.chartModel.plotOptions.series.events = { click: this.executeInteractions }
+            this.chartModel.chart.events = {
+                drillup: this.onDrillUp,
+                click: this.executeInteractions
+            }
+            if (this.chartModel.plotOptions.series)
+                this.chartModel.plotOptions.series.events = {
+                    click: this.executeInteractions
+                }
         },
         onDrillUp(event: any) {
             this.drillLevel = event.seriesOptions._levelNumber

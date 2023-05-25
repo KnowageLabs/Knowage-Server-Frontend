@@ -51,6 +51,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
     }
 
     setData(data: any, widgetModel: IWidget) {
+        this.model.series = []
         console.log('---------- data: ', data)
         // console.log('---------- WIDGET MODEL COLUMNS: ', widgetModel.columns)
 
@@ -76,7 +77,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         const attributeColumn = attributeColumns[0]
         //  console.log('--------- ATTRIBUTE COLUMN: ', attributeColumn)
         if (!attributeColumn || !attributeColumn.metadata) return
-        this.model.series = []
+
         measureColumns.forEach((measureColumn: any, index: number) => {
             const column = measureColumn.column as IWidgetColumn
             const metadata = measureColumn.metadata as any
@@ -100,34 +101,41 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
     setGroupedCategoriesData(data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) {
         console.log('THIS MODEL AXIS: ', this.model.xAxis)
         console.log('------- setGroupedCategoriesData ', data)
-        const distinctFirstAttributeValues = data.stats[1].distinct
-        console.log('------- distinctFirstAttributeValues ', distinctFirstAttributeValues)
-        const distinctValues = data.stats[2].distinct
-        console.log('------- distinctValues ', distinctValues)
-        const distinctValuesMap = {}
-        distinctValues?.forEach((value: string) => {
-            distinctValuesMap[value] = { data: [] }
-            distinctFirstAttributeValues.forEach((firstAttributeValue: string) => distinctValuesMap[value].data.push({ name: firstAttributeValue, datetype: 'string' }))
-        })
-        console.log('------- distinctValuesMap ', distinctValuesMap)
+        if (!data || !measureColumns[0] || attributeColumns.length < 2) return
+        const measureColumn = measureColumns[0]
+        const firstAttributeColumn = attributeColumns[0]
+        const secondAttributeColumn = attributeColumns[1]
+        const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], connectNulls: true }
+        console.log('------- serieElement ', serieElement)
+
+        const categoryValuesMap = {}
         data.rows.forEach((row: any) => {
-            distinctValuesMap[row['column_2']]?.data?.push({
-                "y": row['column_3'],
-                "name": row['column_1'],
-                "datetype": "string"
+            serieElement.data.push({
+                name: dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, row[firstAttributeColumn]) : row[firstAttributeColumn.metadata.dataIndex],
+                y: row[measureColumn.metadata.dataIndex],
+                drilldown: false
+            })
+            const firstAttributeValue = row[firstAttributeColumn.metadata.dataIndex]
+            const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
+            if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
+            if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
+        })
+
+        const axis = this.model.xAxis[0]
+        axis.categories = []
+        axis.index = 0
+        Object.keys(categoryValuesMap).forEach((key: string) => {
+            axis.categories.push({
+                name: key,
+                categories: categoryValuesMap[key].categories ? categoryValuesMap[key].categories : []
             })
         })
-        const formattedSeries = [] as any[]
-        Object.keys(distinctValuesMap).forEach((key: string) => {
-            const serie = {
-                name: key,
-                data: distinctValuesMap[key].data,
-                label: { enabled: false }
-            }
-            formattedSeries.push(serie)
-        })
-        console.log('------- formattedSeries ', formattedSeries)
 
+        this.model.xAxis.push({ ...axis, index: 1 })
+        this.model.series.push(serieElement)
+
+        console.log("___________ AAAAAAAAAAAAA: ", categoryValuesMap)
+        console.log("___________ axis: ", axis)
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
