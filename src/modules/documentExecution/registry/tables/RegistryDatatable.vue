@@ -95,10 +95,10 @@ export default defineComponent({
             return (column) => (column.isEditable ? column.format || primeVueDate() : localeDate())
         },
         deleteButtonEnabled(): boolean {
-            return this.buttons.enableButtons && this.buttons.enableDeleteRecords
+            return this.buttons.enableButtons || this.buttons.enableDeleteRecords
         },
         addButtonEnabled(): boolean {
-            return this.buttons.enableButtons && this.buttons.enableAddRecords
+            return this.buttons.enableButtons || this.buttons.enableAddRecords
         }
     },
     watch: {
