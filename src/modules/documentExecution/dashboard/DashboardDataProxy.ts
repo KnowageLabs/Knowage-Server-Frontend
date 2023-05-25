@@ -17,6 +17,8 @@ import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
 import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
 import { getHighchartsWidgetData } from './widget/ChartWidget/Highcharts/HighchartsDataProxy'
+import { getPivotData } from '@/workspaces/PivotWidget/PivotWidgetDataProxy'
+import { getDiscoveryWidgetData } from './widget/DiscoveryWidget/DiscoveryWidgetDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -50,6 +52,16 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
         case 'text':
             return await getWebComponentWidgetData('text', dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'highcharts':
+            return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'chartJS': //TODO: CHANGE METHOD
+            return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'customchart': //TODO: CHANGE METHOD
+            return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'static-pivot-table':
+            return await getPivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'discovery':
+            return await getDiscoveryWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'vega': //TODO: CHANGE METHOD
             return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
@@ -202,4 +214,11 @@ export const getAggregationsModel = (widgetModel, rawHtml) => {
         }
         return modelToSend
     } else return null
+}
+
+export const hasFields = (propWidget: IWidget) => {
+    const fields = propWidget.fields || ({} as any)
+
+    if (fields.columns.length > 0 && fields.rows.length > 0 && fields.data.length > 0) return true
+    else return false
 }
