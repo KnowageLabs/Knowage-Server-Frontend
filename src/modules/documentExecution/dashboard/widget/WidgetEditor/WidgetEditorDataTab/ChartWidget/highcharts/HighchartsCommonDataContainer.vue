@@ -1,5 +1,6 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
+        {{ columnTableItems['ATTRIBUTES'] }}
         <WidgetEditorColumnTable
             v-if="['pie', 'heatmap', 'radar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
             class="p-m-2 p-order-1"
@@ -26,6 +27,7 @@
             @itemDeleted="onColumnDelete"
         ></WidgetEditorColumnTable>
         <ChartWidgetColumnForm class="p-m-2" :style="{ order: formFlexOrder }" :widget-model="widgetModel" :selected-column="selectedColumn" :chart-type="chartType"></ChartWidgetColumnForm>
+        {{ columnTableItems['MEASURES'] }}
     </div>
 </template>
 
@@ -122,14 +124,24 @@ export default defineComponent({
             this.selectedColumn = null
         }
     },
-    async created() {
+    created() {
+        this.setEventListeners()
         this.loadWidgetModel()
-        this.$watch('widgetModel.columns', () => this.loadColumnTableItems())
         this.loadColumnTableItems()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('reloadChartColumns', this.loadColumnTableItems)
+        },
+        removeEventListeners() {
+            emitter.off('reloadChartColumns', this.loadColumnTableItems)
+        },
         loadWidgetModel() {
             this.widgetModel = this.propWidgetModel
+            this.loadColumnTableItems()
         },
         loadColumnTableItems() {
             this.columnTableItems = []

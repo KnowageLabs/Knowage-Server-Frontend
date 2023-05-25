@@ -52,6 +52,12 @@
                 "type": "Preview"
             }
         ],
+        "Legend": [
+            {
+                "title": "dashboard.widgetEditor.legend.title",
+                "type": "Legend"
+            }
+        ],
         "Responsive": [
             {
                 "title": "dashboard.widgetEditor.responsive.title",
@@ -100,6 +106,14 @@
             {
                 "title": "common.title",
                 "type": "HeatmapXAxisTitleSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.bands.title",
+                "type": "XAxisBandsSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.lines.title",
+                "type": "XAxisLinesSettings"
             }
         ],
         "YAxis": [
@@ -113,11 +127,11 @@
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "BandsSettings"
+                "type": "YAxisBandsSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "LinesSettings"
+                "type": "YAxisLinesSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
@@ -144,6 +158,11 @@
             "icon": "fa fa-paint-brush",
             "label": "common.style",
             "value": "Style"
+        },
+        {
+            "icon": "pi pi-table",
+            "label": "dashboard.widgetEditor.legend.title",
+            "value": "Legend"
         },
         {
             "icon": "fa-solid fa-arrow-up",

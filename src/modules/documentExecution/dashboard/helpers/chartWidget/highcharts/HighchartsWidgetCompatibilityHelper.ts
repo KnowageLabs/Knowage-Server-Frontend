@@ -62,9 +62,9 @@ const getFormattedWidgetSettings = (widget: any, chartType: string) => {
 
 const getFormattedConfiguration = (widget: any, chartType: string) => {
     const formattedConfiguration = { exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports } as IHighchartsWidgetConfiguration
-    if (['HEATMAP', 'RADAR'].includes(chartType)) formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
+    if (['HEATMAP', 'RADAR', 'BAR', 'LINE', 'BUBBLE', "SCATTER", "TREEMAP", "SUNBURST"].includes(chartType)) formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
     if (['RADAR'].includes(chartType)) formattedConfiguration.splitting = getFormmatedSplittingSettings(widget)
-    if (['BAR'].includes(chartType)) formattedConfiguration.grouping = getFormmatedGroupingSettings(widget)
+    if (['BAR', "LINE"].includes(chartType)) formattedConfiguration.grouping = getFormmatedGroupingSettings(widget)
     return formattedConfiguration
 }
 
@@ -136,6 +136,7 @@ export const getColumnId = (widgetColumnName: string) => {
 
 const createChartModel = (widget: any, chartType: string) => {
     const widgetContentChartTemplate = widget.content.chartTemplate
+    console.log('---------- CHART TYPE: ', chartType)
     switch (chartType) {
         case 'PIE':
             return new KnowageHighchartsPieChart(widgetContentChartTemplate)

@@ -62,11 +62,6 @@ export default defineComponent({
             return this.widgetModel.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE')
         }
     },
-    watch: {
-        groupingSettingsDisabled() {
-            this.ongroupingSettingsEnabledChanged()
-        }
-    },
     created() {
         this.loadModel()
     },
@@ -74,17 +69,6 @@ export default defineComponent({
         loadModel() {
             this.model = this.widgetModel
             if (this.model?.settings?.configuration) this.groupingSettings = this.model.settings.configuration.grouping
-        },
-        ongroupingSettingsEnabledChanged() {
-            if (this.groupingSettings?.enabled && this.model) {
-                let attributesFound = 0
-                for (let i = 0; i < this.model.columns.length; i++) {
-                    if (this.model.columns[i].fieldType === 'ATTRIBUTE') {
-                        attributesFound++
-                        if (attributesFound === 3) this.model.columns.splice(i, 0)
-                    }
-                }
-            }
         }
     }
 })

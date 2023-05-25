@@ -707,6 +707,7 @@
                     "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
                     "minHint": "The minimum value of the axis. If null the min value is automatically calculated."
                 },
+                "showChekboxes": "Show Checkboxes",
                 "solidGauge": {
                     "valuesTableHint": "Measures only."
                 },
@@ -997,6 +998,9 @@
                 "title": "Shadows"
             },
             "showLabel": "Show Label",
+            "sonification": {
+                "title": "Sonification"
+            },
             "sortingColumn": "Sorting column",
             "sortingOrder": "Sorting order",
             "suffix": "Suffix",
@@ -1317,9 +1321,12 @@
             "rankSaveSucces": "Rating Saved.Thanks for your feedback",
             "replyToHint": "Enter \"reply to\" if you want to set the sender.",
             "resetParameters": "Reset Parameters",
+            "resetParametersTooltip": "Reset parameters form to default values",
             "saveCurrentView": "Save Current View",
+            "saveParametersFromStateTooltip": "Save parameters form state as viewpoint",
             "saveViewHint": "Saved views will save your current parameters, selection and widget settings in order to easily reopen the same result. They will be saved in the \"My Analysis space\" of your workspace",
             "savedParameters": "Saved parameters",
+            "savedParametersTooltip": "Open saved parameters window",
             "savedViews": "Saved Views",
             "savedViewsList": "Saved Views List",
             "scheduledExecutions": "Scheduled executions",

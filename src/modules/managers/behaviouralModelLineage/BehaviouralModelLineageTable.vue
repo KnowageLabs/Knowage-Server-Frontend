@@ -54,8 +54,8 @@ export default defineComponent({
             descriptor,
             filterFields: ['name', 'label'],
             columns: [
-                { field: 'name', header: 'common.label' },
-                { field: 'label', header: 'common.name' }
+                { field: 'name', header: 'common.name' },
+                { field: 'label', header: 'common.label' }
             ],
             filters: { global: [filterDefault] } as Object,
             selectedRow: {} as any

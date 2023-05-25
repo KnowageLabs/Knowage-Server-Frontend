@@ -76,7 +76,7 @@ export default defineComponent({
     },
     methods: {
         loadModel() {
-            this.axisModel = this.widgetModel.settings.chartModel.model.yAxis
+            this.axisModel = this.widgetModel.settings.chartModel.model.yAxis[0]
         },
         onSelectionColorChanged(event: string | null) {
             if (!event || !this.axisModel) return
