@@ -52,20 +52,22 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
 
     setData(data: any, widgetModel: IWidget) {
         this.model.series = []
-        console.log('---------- data: ', data)
+        // console.log('---------- data: ', data)
         // console.log('---------- WIDGET MODEL COLUMNS: ', widgetModel.columns)
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
-        console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
+        //console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
-        console.log('---------- MEASURE COLUMNS: ', measureColumns)
+        // console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
         // console.log('------- drilldownEnabled: ', drilldownEnabled)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         // console.log('------- dateFormat: ', dateFormat)
 
         if (widgetModel.settings.configuration?.grouping?.enabled) {
-            this.setGroupedCategoriesData(data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+            this.setGroupedCategoriesData(data, attributeColumns, measureColumns, dateFormat)
+        } else if (widgetModel.settings.configuration?.grouping?.secondSeries.enabled) {
+            this.setGroupedGroupedBySeriesData(data, attributeColumns, measureColumns)
         } else {
             this.setRegularData(data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
         }
@@ -75,7 +77,6 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
 
     setRegularData(data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) {
         const attributeColumn = attributeColumns[0]
-        //  console.log('--------- ATTRIBUTE COLUMN: ', attributeColumn)
         if (!attributeColumn || !attributeColumn.metadata) return
 
         measureColumns.forEach((measureColumn: any, index: number) => {
@@ -98,16 +99,13 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         })
     }
 
-    setGroupedCategoriesData(data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) {
-        console.log('THIS MODEL AXIS: ', this.model.xAxis)
-        console.log('------- setGroupedCategoriesData ', data)
+
+    setGroupedCategoriesData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
         const firstAttributeColumn = attributeColumns[0]
         const secondAttributeColumn = attributeColumns[1]
         const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], connectNulls: true }
-        console.log('------- serieElement ', serieElement)
-
         const categoryValuesMap = {}
         data.rows.forEach((row: any) => {
             serieElement.data.push({
@@ -134,9 +132,34 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         })
 
         this.model.series.push(serieElement)
+    }
 
-        console.log("___________ AAAAAAAAAAAAA: ", categoryValuesMap)
-        console.log("___________ axis: ", axis)
+
+    setGroupedGroupedBySeriesData(data: any, attributeColumns: any[], measureColumns: any[]) {
+        console.log('------- setGroupedGroupedBySeriesData ', data)
+        if (!data || !attributeColumns[0] || measureColumns.length < 2) return
+        const attributeColumn = attributeColumns[0]
+        const firstMeasureColumn = measureColumns[0]
+        const secondMeasureColumn = measureColumns[1]
+        const categoryValueMap = {}
+        const measureNames = [] as string[]
+        data.rows.forEach((row: any) => {
+            const attributeValue = row[attributeColumn.metadata.dataIndex]
+            const firstMeasureValue = row[firstMeasureColumn.metadata.dataIndex]
+            const secondMeasureValue = row[secondMeasureColumn.metadata.dataIndex]
+            measureNames.push("" + firstMeasureValue)
+            if (!categoryValueMap[attributeValue]) categoryValueMap[attributeValue] = { y: secondMeasureValue, name: "" + firstMeasureValue }
+        })
+
+        Object.keys(categoryValueMap).forEach((key: string, index: number) => {
+            const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
+            measureNames.forEach((measureName: string) => {
+                const temp = { name: measureName } as { name: string, y?: number }
+                if (categoryValueMap[key] && categoryValueMap[key].name === measureName) temp.y = categoryValueMap[key].y
+                serieElement.data.push(temp)
+            })
+            this.model.series.push(serieElement)
+        })
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
