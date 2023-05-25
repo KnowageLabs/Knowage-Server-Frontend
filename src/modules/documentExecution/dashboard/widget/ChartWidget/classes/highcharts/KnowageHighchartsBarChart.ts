@@ -55,21 +55,27 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         // console.log('---------- WIDGET MODEL COLUMNS: ', widgetModel.columns)
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
-        // console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
+        console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
-        // console.log('---------- MEASURE COLUMNS: ', measureColumns)
+        console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
         // console.log('------- drilldownEnabled: ', drilldownEnabled)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         // console.log('------- dateFormat: ', dateFormat)
-        this.setRegularData(data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+
+        if (widgetModel.settings.configuration?.grouping?.enabled) {
+            this.setGroupedCategoriesData(data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+        } else {
+
+            this.setRegularData(data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+        }
 
         return this.model.series
     }
 
     setRegularData(data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) {
         const attributeColumn = attributeColumns[0]
-        // console.log('--------- ATTRIBUTE COLUMN: ', attributeColumn)
+        //  console.log('--------- ATTRIBUTE COLUMN: ', attributeColumn)
         if (!attributeColumn || !attributeColumn.metadata) return
         this.model.series = []
         measureColumns.forEach((measureColumn: any, index: number) => {
@@ -90,6 +96,10 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
             })
             this.model.series.push(serieElement)
         })
+    }
+
+    setGroupedCategoriesData(data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) {
+        console.log('------- setGroupedCategoriesData ')
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
