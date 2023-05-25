@@ -18,6 +18,7 @@ import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDat
 import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
 import { getHighchartsWidgetData } from './widget/ChartWidget/Highcharts/HighchartsDataProxy'
 import { getPivotData } from '@/workspaces/PivotWidget/PivotWidgetDataProxy'
+import { getDiscoveryWidgetData } from './widget/DiscoveryWidget/DiscoveryWidgetDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -54,6 +55,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'static-pivot-table':
             return await getPivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'discovery':
+            return await getDiscoveryWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
