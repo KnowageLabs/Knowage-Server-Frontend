@@ -16,6 +16,7 @@ import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboard
 import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
 import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
+import { getHighchartsWidgetData } from './widget/ChartWidget/Highcharts/HighchartsDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -48,6 +49,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getWebComponentWidgetData('html', dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'text':
             return await getWebComponentWidgetData('text', dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'highcharts':
+            return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
