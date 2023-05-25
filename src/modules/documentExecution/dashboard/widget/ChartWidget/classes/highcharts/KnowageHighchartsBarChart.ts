@@ -125,13 +125,14 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         axis.categories = []
         axis.index = 0
         Object.keys(categoryValuesMap).forEach((key: string) => {
-            axis.categories.push({
-                name: key,
-                categories: categoryValuesMap[key].categories ? categoryValuesMap[key].categories : []
-            })
+            categoryValuesMap[key].categories?.forEach((category: string) => axis.categories.push(key + ' - ' + category))
+            // TODO PR - Problem with grouping lib
+            // axis.categories.push({
+            //     name: key,
+            //     categories: categoryValuesMap[key].categories ? categoryValuesMap[key].categories : []
+            // })
         })
 
-        this.model.xAxis.push({ ...axis, index: 1 })
         this.model.series.push(serieElement)
 
         console.log("___________ AAAAAAAAAAAAA: ", categoryValuesMap)
