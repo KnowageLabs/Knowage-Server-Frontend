@@ -1,20 +1,18 @@
 <template>
-    <i class="fa-solid fa-grip-vertical drag-handle drag-widget-icon"></i>
     <div v-if="(selectionIsLocked || playSelectionButtonVisible) && inFocus" class="lockButtonContainer" @mouseover="$emit('changeFocus', true)" @mouseleave="$emit('changeFocus', false)">
         <i v-if="selectionIsLocked" class="fas fa-lock kn-cursor-pointer" @click="$emit('unlockSelection')" />
         <i v-if="playSelectionButtonVisible" class="fas fa-play kn-cursor-pointer" @click="$emit('launchSelection')" />
     </div>
 
     <div class="widgetButtonBarContainer">
-        <!-- <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="toggle" /> -->
-        <!-- <Menu ref="widgetmenu" label="Toggle" :model="menuItems" :popup="true" @click="toggle" /> -->
+        <i class="fa-solid fa-grip-vertical drag-handle drag-widget-icon"></i>
         <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
     </div>
 
     <div class="qmenu-anchor">
         <q-menu v-model:model-value="qMenuShown" anchor="top right" self="top left" no-parent-event>
             <q-list style="min-width: 100px">
-                <q-item v-for="(item, index) in menuItems" :key="index" v-ripple dense clickable @click="closeMenu(item.command)" :style="{ display: item.visible ? 'flex' : 'none' }">
+                <q-item v-for="(item, index) in menuItems" :key="index" v-ripple dense clickable :style="{ display: item.visible ? 'flex' : 'none' }" @click="closeMenu(item.command)">
                     <q-item-section>
                         <div>
                             <i class="p-mr-3" :class="item.icon" />
@@ -106,10 +104,7 @@ export default defineComponent({
 }
 
 .drag-widget-icon {
-    position: absolute;
     display: none;
-    top: 0;
-    left: 0;
     height: 26px;
     width: 26px;
     text-align: center;
