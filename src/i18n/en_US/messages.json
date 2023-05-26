@@ -35,6 +35,7 @@
         },
         "collapse": "collapse",
         "color": "Color",
+        "colors": "Colors",
         "column": "Column",
         "columns": "Columns",
         "comment": "Comment",
@@ -55,6 +56,7 @@
         "detail": "Detail",
         "details": "Details",
         "development": "Development",
+        "dialog": "Dialog",
         "documentDetails": "Document Details",
         "documents": "Documents",
         "dossier": "Dossier",
@@ -100,6 +102,7 @@
         "generate": "Generate",
         "group": "Group",
         "height": "Height",
+        "high": "High",
         "home": "Home",
         "horizontal": "Horizontal",
         "horizontalAlign": "Horizontal Align",
@@ -118,6 +121,7 @@
         },
         "information": "information",
         "input": "Input",
+        "json": "JSON",
         "key": "Key",
         "kpi": "KPI",
         "label": "label",
@@ -125,6 +129,8 @@
         "language": "Language",
         "large": "Large",
         "lastChangeDate": "Last change date",
+        "layer": "Layer",
+        "layers": "Layers",
         "layout": "Layout",
         "left": "Left",
         "library": "Library",
@@ -133,6 +139,7 @@
         "locked": "Locked",
         "loggedUser": "logged user",
         "login": "Login",
+        "low": "Low",
         "max": "Max",
         "medium": "Medium",
         "menu": "Menu",
@@ -140,6 +147,7 @@
         "metadata": "Metadata",
         "middle": "Middle",
         "min": "Min",
+        "modal": "Modal",
         "modify": "modify",
         "move": "Move",
         "name": "name",
@@ -209,6 +217,7 @@
         "state": "State",
         "static": "Static",
         "status": "Status",
+        "string": "String",
         "style": "Style",
         "suspended": "Suspended",
         "table": {
@@ -434,7 +443,9 @@
             "aggregation": "Aggregation",
             "area": "Area",
             "ascending": "Ascending",
+            "axis": "Axis",
             "background": "Background",
+            "blur": "Blur",
             "borders": {
                 "borderRadiusBottomLeft": "Border radius bottom left",
                 "borderRadiusBottomRight": "Border radius bottom right",
@@ -468,6 +479,7 @@
                 "donutChart": "Donut Chart",
                 "funnelChart": "Funnel Chart",
                 "gauge": "Gauge",
+                "heatmap": "Heatmap",
                 "lineChart": "Line Chart",
                 "parallelChart": "Parallel Chart",
                 "pieChart": "Pie Chart",
@@ -475,7 +487,8 @@
                 "scatterChart": "Scatter Chart",
                 "solidgauge": "Solid Gauge",
                 "stackedColumnsChart": "Stacked Columns Chart",
-                "treemap": "Treemap"
+                "treemap": "Treemap",
+                "wordcloud": "Wordcloud"
             },
             "chips": "Chips",
             "colors": {
@@ -626,6 +639,20 @@
                 "gauge": {
                     "valuesTableHint": "Measures only."
                 },
+                "heatmap": {
+                    "axisMaxHint": "The minimum value of the axis. If null the min value is automatically calculated.",
+                    "axisMinHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
+                    "datetype": "Datetype",
+                    "dimensionsTableHint": "Exactly two attributes to define categories. If the attribute is of type Date (Timestamp) it must be the first one. You are not able to reorder categories.",
+                    "labelRotation": "Label Rotation",
+                    "nullValues": {
+                        "connectNulls": "Connect Nulls",
+                        "nullColor": "Null Color",
+                        "title": "Null Values"
+                    },
+                    "rotation": "Rotation",
+                    "valuesTableHint": "Exactly one measure only to define series"
+                },
                 "labels": {
                     "distance": "Distance",
                     "distanceHint": "The distance of the data label from the pie's edge. Negative numbers put the data label on top of the pie slices. Can also be defined as a percentage of pie's radius. Connectors are only shown for data labels outside the pie.",
@@ -740,8 +767,11 @@
                 "analyticalDriver": "Analytical Driver",
                 "basicUrl": "Basic Url",
                 "chartDynamicOptions": {
+                    "categoryId": "Category Id",
                     "categoryName": "Category name",
                     "categoryValue": "Category value",
+                    "groupingName": "Grouping name",
+                    "groupingValue": "Grouping value",
                     "serieName": "Serie name",
                     "serieValue": "Serie value"
                 },
@@ -916,8 +946,10 @@
             "pivotData": "Data",
             "pivotFilters": "Filters",
             "pivotRows": "Rows",
+            "position": "Position",
             "precision": "Precision",
             "prefix": "Prefix",
+            "radius": "Radius",
             "recentlyUsed": "Recently Used",
             "responsive": {
                 "extraLargeDevices": "Show On Extra Large Devices",
@@ -971,7 +1003,17 @@
                 "pinnedColumnsOnly": "Pinned columns only",
                 "title": "Summary rows"
             },
+            "textConfiguration": {
+                "font": "Font",
+                "maximumFontSize": "Maximum Font Size",
+                "maximumWords": "Maximum Words",
+                "minimumFontSize": "Minimum Font Size",
+                "wordAngle": "Word Angle",
+                "wordAngleHint": "Word Angle Hint Placeholder",
+                "wordPadding": "Word Padding"
+            },
             "textParsingError": "Text Parsing Error",
+            "thresholds": "Thresholds",
             "title": "Widget Editor",
             "titles": {
                 "title": "Title"
@@ -997,6 +1039,19 @@
                 "wrapText": "Wrap Text",
                 "wrapTextHint": "Wrap text hint placeholder"
             },
+            "vega": {
+                "fontOptions": {
+                    "calibri": "Calibri",
+                    "cambria": "Cambria",
+                    "georgia": "Georiga",
+                    "gungsuh": "Gungsuh",
+                    "impact": "Impact"
+                },
+                "wordcloud": {
+                    "dimensionsTableHint": "Attributes only.",
+                    "valuesTableHint": "Measures only."
+                }
+            },
             "visibilityConditions": {
                 "always": "Always",
                 "hideColumn": "Hide Column",
@@ -1019,6 +1074,66 @@
                 "sparkline": "Sparkline",
                 "textAndIcon": "Text & Icon",
                 "title": "Visualization Type"
+            },
+            "xAxis": "X Axis",
+            "yAxis": "Y Axis"
+        },
+        "widgets": {
+            "chart": {
+                "description": "Custom chart with binding to datasources data. Pie chart, bar chart and scatter chart available.",
+                "title": "chart"
+            },
+            "customchart": {
+                "description": "Custom chart with binding to datasources data. Custom javascript and external libraries are available.",
+                "title": "custom"
+            },
+            "discovery": {
+                "description": "Advanced faceted table to interact with Solr datasets",
+                "title": "discovery"
+            },
+            "document": {
+                "description": "Custom document upload as databind or datasource.",
+                "title": "document"
+            },
+            "html": {
+                "description": "Custom HTML code editor with shortcodes to embed dynamic content.",
+                "title": "html"
+            },
+            "image": {
+                "description": "Custom static or dynamic web/uploaded image.",
+                "title": "image"
+            },
+            "map": {
+                "description": "Interactive map with multiple layers representation.",
+                "title": "map"
+            },
+            "python": {
+                "description": "Write your own python code and create your visualization.",
+                "title": "python"
+            },
+            "r": {
+                "description": "Write your own R script and create your custom visualization.",
+                "title": "r"
+            },
+            "selection": {
+                "description": "View current selections on widgets.",
+                "title": "active selections"
+            },
+            "selector": {
+                "description": "Selector widget to easily filter categories.",
+                "title": "selector"
+            },
+            "static-pivot-table": {
+                "description": "Pivot or cross table with datasource binding.",
+                "title": "pivot"
+            },
+            "table": {
+                "description": "Standard table with datasource binding.",
+                "title": "table"
+            },
+            "text": {
+                "description": "Static or dynamic widget text. Uses a WYSIWYG editor and shortcodes to embed dynamic content.",
+                "title": "text"
             }
         },
         "wizard": {
@@ -1244,9 +1359,12 @@
             "rankSaveSucces": "Rating Saved.Thanks for your feedback",
             "replyToHint": "Enter \"reply to\" if you want to set the sender.",
             "resetParameters": "Reset Parameters",
+            "resetParametersTooltip": "Reset parameters form to default values",
             "saveCurrentView": "Save Current View",
+            "saveParametersFromStateTooltip": "Save parameters form state as viewpoint",
             "saveViewHint": "Saved views will save your current parameters, selection and widget settings in order to easily reopen the same result. They will be saved in the \"My Analysis space\" of your workspace",
             "savedParameters": "Saved parameters",
+            "savedParametersTooltip": "Open saved parameters window",
             "savedViews": "Saved Views",
             "savedViewsList": "Saved Views List",
             "scheduledExecutions": "Scheduled executions",
@@ -3338,6 +3456,7 @@
                 "emptyInfo": "Add a dataset",
                 "layerFilters": "Layer Filters",
                 "layerList": "Layer List",
+                "layers": "Layers",
                 "layersDialogEmpty": "No available layers",
                 "layersTableEmpty": "Add a layer",
                 "openMapWarning": "Opening the map will undo all unsaved modifications, are you sure you want to continue?"

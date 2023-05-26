@@ -5,13 +5,14 @@ import { updateRadarChartModel } from './updater/KnowageHighchartsRadarChartUpda
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 import moment from 'moment'
+import { createPolarSerie } from './updater/KnowageHighchartsCommonUpdater'
 
 export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     constructor(model: any) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model) {
+        else if (model && model.plotOption) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'radar') {
                 this.formatSeriesFromOtherChartTypeSeries()
@@ -27,8 +28,8 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setSpecificOptionsDefaultValues() {
-        this.setHeatmapXAxis()
-        this.setHeatmapYAxis()
+        this.setRadarXAxis()
+        this.setRadarYAxis()
     }
 
     setData(data: any, widgetModel: IWidget) {
@@ -100,7 +101,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     createFormattedSerieFromColumn(column: IWidgetColumn, data: any, dateFormat: string, drilldownEnabled: boolean) {
-        const serie = deepcopy(this.model.series.find((serie: any) => serie.name === column.columnName))
+        const serie = createPolarSerie(column.columnName, column.serieType ?? 'line')
         if (!serie || !data.metaData.fields) return null
         serie.type = column.serieType === 'bar' ? 'column' : column.serieType
         serie.pointPlacement = "on"
@@ -150,12 +151,12 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         return date.isValid() ? date.format(dateFormat) : dateString
     }
 
-    setHeatmapXAxis() {
-        this.model.xAxis = highchartsDefaultValues.getDefaultHeatmapXAxis()
+    setRadarXAxis() {
+        this.model.xAxis = highchartsDefaultValues.getDefaultRadarXAxis()
     }
 
-    setHeatmapYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultHeatmapYAxis()
+    setRadarYAxis() {
+        this.model.yAxis = highchartsDefaultValues.getDefaultRadarYAxis()
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {

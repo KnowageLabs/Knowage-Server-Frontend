@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <WorkspaceDocumentTree mode="select" :selected-folder-id="view?.parentId" @folderSelected="setSelectedFolder"></WorkspaceDocumentTree>
+        <WorkspaceDocumentTree mode="move" :selected-folder-id="view?.parentId" @folderSelected="setSelectedFolder"></WorkspaceDocumentTree>
 
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
