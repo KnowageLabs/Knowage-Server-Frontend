@@ -19,6 +19,7 @@ import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDat
 import { getHighchartsWidgetData } from './widget/ChartWidget/Highcharts/HighchartsDataProxy'
 import { getPivotData } from '@/workspaces/PivotWidget/PivotWidgetDataProxy'
 import { getDiscoveryWidgetData } from './widget/DiscoveryWidget/DiscoveryWidgetDataProxy'
+import { getHighchartsBarData } from './widget/ChartWidget/Highcharts/dataProxy/HighchartsBarDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -32,16 +33,16 @@ export const getData = (item) =>
     })
 
 export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any) => {
-    console.group('getWidgetData ---------------------')
-    console.log('dashboardId', dashboardId)
-    console.log('widget', widget)
-    console.log('datasets', datasets)
-    // console.log('$http', $http)
-    console.log('initialCall', initialCall)
-    console.log('selections', selections)
-    console.log('searchParams', searchParams)
-    console.log('associativeResponseSelections', associativeResponseSelections)
-    console.groupEnd()
+    // console.group('getWidgetData ---------------------')
+    // console.log('dashboardId', dashboardId)
+    // console.log('widget', widget)
+    // console.log('datasets', datasets)
+    // // console.log('$http', $http)
+    // console.log('initialCall', initialCall)
+    // console.log('selections', selections)
+    // console.log('searchParams', searchParams)
+    // console.log('associativeResponseSelections', associativeResponseSelections)
+    // console.groupEnd()
     switch (widget.type) {
         case 'table':
             return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections)
