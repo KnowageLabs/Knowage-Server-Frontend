@@ -57,6 +57,6 @@ const formatHeatmapColors = (formattedChartModel: IHighchartsChartModel) => {
 }
 
 export const formatRadar = (formattedChartModel: IHighchartsChartModel) => {
-    formattedChartModel.chart.type = ''
+    formattedChartModel.chart.type = 'line'
     formattedChartModel.series = formattedChartModel.seriesForRender ? deepcopy(formattedChartModel.seriesForRender) : []
 }

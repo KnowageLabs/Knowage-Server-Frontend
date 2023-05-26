@@ -1,5 +1,5 @@
 <template>
-    <KnDashboardTabsPanel :style="backgroundStyle" class="test" v-model:sheets="dashboardModel.sheets" label-position="bottom" @sheet-change="sheetChange">
+    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" @sheet-change="sheetChange">
         <div id="dashboard-css" v-html="dashboardCss" />
         <KnDashboardTab v-for="(sheet, index) in dashboardModel.sheets" :key="index" :index="index">
             <grid-layout

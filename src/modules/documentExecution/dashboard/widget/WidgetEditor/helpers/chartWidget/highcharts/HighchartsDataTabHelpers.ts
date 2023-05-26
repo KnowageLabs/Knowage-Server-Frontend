@@ -183,7 +183,7 @@ const removeColumnFromSubmodel = (column: IWidgetColumn, array: any[], allSeries
 }
 
 export const updateWidgetModelColumnsAfterChartTypeChange = (widget: IWidget, chartType: string) => {
-    const maxAttributeColumns = getMaxCategoriesNumber(chartType) ?? 0
+    const maxAttributeColumns = getMaxCategoriesNumber(chartType) ?? widget.columns.length
     const maxMeasureColumns = getMaxValuesNumber(chartType) ?? widget.columns.length
     const updatedColumns = [] as IWidgetColumn[]
     let attributesAdded = 0
