@@ -46,7 +46,7 @@ export const loadFilters = async (initialLoading: boolean, filtersData: { filter
 const getFormattedDriversFromURL = (driversFromUrl: IURLDriver[], filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) => {
     driversFromUrl.forEach((driver: IURLDriver) => {
         const index = filtersData.filterStatus.findIndex((parameter: iParameter) => driver.urlName === parameter.urlName)
-        if (index !== -1) filtersData.filterStatus[index].parameterValue = driver.parameterValue
+        if (index !== -1) filtersData.filterStatus[index].parameterValue = driver.value
     })
     updateFiltersDataIsReadyForExecution(filtersData)
     return filtersData

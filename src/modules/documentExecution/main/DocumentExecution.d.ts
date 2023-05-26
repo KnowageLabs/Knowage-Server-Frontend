@@ -96,7 +96,7 @@ export interface ICrossNavigationBreadcrumb {
 }
 
 export interface IURLDriver {
-    parameterValue: { value: string | number | Date | null; description: string }[];
+    value: { value: string | number | Date | null; description: string }[];
     urlName: string;
     multivalue: boolean
 }

@@ -137,7 +137,7 @@ export default defineComponent({
             if (!this.propFiltersData) return
             this.params = []
             this.propFiltersData.filterStatus?.forEach((parameter: iParameter) => {
-                const tempParameter = { parameterValue: [...parameter.parameterValue], urlName: parameter.urlName, multivalue: parameter.multivalue }
+                const tempParameter = { value: [...parameter.parameterValue], urlName: parameter.urlName, multivalue: parameter.multivalue }
                 this.params.push(tempParameter)
             })
         },
@@ -150,11 +150,17 @@ export default defineComponent({
 
             const documentType = this.getDocumentType()
             const params = btoa(JSON.stringify(this.params))
-            const role = this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : ''
+            const role = this.getUserRole()
 
             this.publicUrl = this.embedHTML ? `<iframe width="${this.iframeWidth}" height="${this.iframeHeight}" src="` : ''
-            this.publicUrl += import.meta.env.VITE_HOST_URL + import.meta.env.VITE_PUBLIC_PATH + `${documentType}/${this.document.label}?toolbar=${this.showToolbar}&menu=${this.showMenu}&role=${role}&params=${params}`
+            this.publicUrl += import.meta.env.VITE_HOST_URL + import.meta.env.VITE_PUBLIC_PATH + `${documentType}/${this.document.label}?toolbar=${this.showToolbar}&menu=${this.showMenu}&params=${params}`
+            if (role) this.publicUrl += `&role=${role}`
             if (this.embedHTML) this.publicUrl += '"></iframe>`'
+        },
+        getUserRole() {
+            if (this.user.sessionRole && this.user.sessionRole !== this.$t('role.defaultRolePlaceholder')) return this.user.sessionRole
+            else if (this.user.roles?.length > 1) return this.user.roles[0]
+            else return null
         },
         getDocumentType() {
             switch (this.document?.typeCode) {
