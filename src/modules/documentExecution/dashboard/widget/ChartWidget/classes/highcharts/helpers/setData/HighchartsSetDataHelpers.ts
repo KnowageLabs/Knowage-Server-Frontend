@@ -27,12 +27,7 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
-        const serieElement = {
-            id: index,
-            name: column.columnName,
-            data: [] as any[],
-            connectNulls: true
-        }
+        const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true }
         data?.rows?.forEach((row: any) => {
             serieElement.data.push({
                 name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
@@ -43,6 +38,7 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
         model.series.push(serieElement)
     })
 }
+
 // TODO - We take exactly 2 attributes, first measure
 export const setGroupedCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
@@ -63,6 +59,11 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
         if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
     })
 
+    updateXAxisForGroupingCategoriesData(model, categoryValuesMap)
+    model.series.push(serieElement)
+}
+
+const updateXAxisForGroupingCategoriesData = (model: any, categoryValuesMap: any) => {
     const axis = model.xAxis[0]
     axis.categories = []
     axis.index = 0
@@ -74,14 +75,11 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
         //     categories: categoryValuesMap[key].categories ? categoryValuesMap[key].categories : []
         // })
     })
-
-    model.series.push(serieElement)
 }
 
 
 // TODO - We take exactly 1 attribute, exactly 2 measures
 export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[]) => {
-    console.log('------- setGroupedGroupedBySeriesData ', data)
     if (!data || !attributeColumns[0] || measureColumns.length < 2) return
     const attributeColumn = attributeColumns[0]
     const firstMeasureColumn = measureColumns[0]
@@ -96,6 +94,10 @@ export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: 
         if (!categoryValueMap[attributeValue]) categoryValueMap[attributeValue] = { y: secondMeasureValue, name: "" + firstMeasureValue }
     })
 
+    addSeriesFromCategoryValuesMapForGroupedBySeriesData(model, categoryValueMap, measureNames)
+}
+
+const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, categoryValueMap: any, measureNames: string[]) => {
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         measureNames.forEach((measureName: string) => {
@@ -109,10 +111,7 @@ export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: 
 
 // TODO - We take exactly 2 attributes, exactly 1 measure (chosen from dropdown)
 export const setGroupedByCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], serieForGroupingName: string) => {
-    console.log('------- setGroupedByCategoriesData ', data)
-    console.log('------- serieForGroupingName ', serieForGroupingName)
     const measureForGrouping = measureColumns.find((measureColumn: any) => measureColumn.column.columnName === serieForGroupingName)
-    console.log('------- measureForGrouping ', measureForGrouping)
     if (!data || attributeColumns.length < 2 || !measureForGrouping) return
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
@@ -124,23 +123,25 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
         const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
         const measureForGroupingValue = row[measureForGrouping.metadata.dataIndex]
         if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = {}
-        // const tempData = { name: firstAttributeValue } as { name: string, y?: number }
         if (!categoryValueMap[secondAttributeValue][firstAttributeValue]) categoryValueMap[secondAttributeValue][firstAttributeValue] = {}
         if (measureForGroupingValue) categoryValueMap[secondAttributeValue][firstAttributeValue] = measureForGroupingValue
-
-        //categoryValueMap[secondAttributeValue].data.push(tempData)
     })
+    setUniqueCategoriesValuesFromCategoryValueMap(uniqueCategoryValues, categoryValueMap)
 
-    console.log('------- uniqueCategoryValues ', uniqueCategoryValues)
+    const measureSerieElementValueMap = {} as any
+    createSeriesForGroupedByCategoriesData(model, categoryValueMap, measureSerieElementValueMap)
+    createMeasureSerieForGroupedByCategoriesData(model, measureForGrouping, measureSerieElementValueMap)
+}
 
+const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: string[], categoryValueMap: any) => {
     uniqueCategoryValues.forEach((categoryValue: string) => {
         Object.keys(categoryValueMap).forEach((key: string) => {
             if (!categoryValueMap[key][categoryValue]) categoryValueMap[key][categoryValue] = null
         })
     })
-    console.log('------- categoryValueMap ', categoryValueMap)
-    const temp = {} as any
+}
 
+const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: any, measureSerieElementValueMap: any) => {
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
@@ -150,16 +151,17 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
             }
             serieElement.data.push(tempData)
 
-            if (!temp[tempKey]) temp[tempKey] = 0
-            temp[tempKey] += categoryValueMap[key][tempKey] ?? 0
+            if (!measureSerieElementValueMap[tempKey]) measureSerieElementValueMap[tempKey] = 0
+            measureSerieElementValueMap[tempKey] += categoryValueMap[key][tempKey] ?? 0
         })
         model.series.push(serieElement)
     })
-    console.log('------- temp ', temp)
+}
 
+const createMeasureSerieForGroupedByCategoriesData = (model: any, measureForGrouping: any, measureSerieElementValueMap: any) => {
     const measureSerieElement = { id: model.series.length, name: measureForGrouping.column.columnName, data: [] as any[], connectNulls: true }
-    Object.keys(temp).forEach((key: string) => {
-        measureSerieElement.data.push({ name: key, y: temp[key] })
+    Object.keys(measureSerieElementValueMap).forEach((key: string) => {
+        measureSerieElement.data.push({ name: key, y: measureSerieElementValueMap[key] })
     })
     model.series.push(measureSerieElement)
 }

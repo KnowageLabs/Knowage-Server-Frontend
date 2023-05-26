@@ -1,11 +1,10 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartSerie, IHighchartsChartSerieData } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { updateBarChartModel } from './updater/KnowageHighchartsBarChartUpdater'
-import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
-import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue, setRegularData, setGroupedCategoriesData, setGroupedBySeriesData, setGroupedByCategoriesData } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularData, setGroupedCategoriesData, setGroupedBySeriesData, setGroupedByCategoriesData } from './helpers/setData/HighchartsSetDataHelpers'
 
 export class KnowageHighchartsBarChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -56,9 +55,9 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         // console.log('---------- WIDGET MODEL COLUMNS: ', widgetModel.columns)
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
-        console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
+        // console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
-        console.log('---------- MEASURE COLUMNS: ', measureColumns)
+        // console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
         // console.log('------- drilldownEnabled: ', drilldownEnabled)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
