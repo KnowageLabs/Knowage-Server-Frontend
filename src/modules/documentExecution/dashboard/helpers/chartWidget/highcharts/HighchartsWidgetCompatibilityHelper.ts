@@ -19,15 +19,13 @@ import { KnowageHighchartsLineChart } from '../../../widget/ChartWidget/classes/
 import { KnowageHighchartsScatterChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsScatterChart'
 import { KnowageHighchartsTreemapChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart'
 import { KnowageHighchartsSunburstChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart'
-import { KnowageHighchartsAreaChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsAreaChart'
-import { KnowageHighchartsColumnChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsColumnChart'
 
 const columnNameIdMap = {}
 
 export const formatHighchartsWidget = (widget: any) => {
     console.log('---------- ORIGINAL WIDGET: ', widget)
 
-    const chartType = widget.content?.chartTemplate?.CHART?.type ?? ''
+    const oldChart = widget.content?.chartTemplate?.CHART
     const formattedWidget = {
         id: widget.id,
         dataset: widget.dataset.dsId ?? null,
@@ -37,9 +35,9 @@ export const formatHighchartsWidget = (widget: any) => {
         settings: {} as IHighchartsWidgetSettings
     } as IWidget
 
-    formattedWidget.settings = getFormattedWidgetSettings(widget, chartType) as IHighchartsWidgetSettings
+    formattedWidget.settings = getFormattedWidgetSettings(widget, oldChart?.type) as IHighchartsWidgetSettings
     getFiltersForColumns(formattedWidget, widget)
-    formattedWidget.settings.chartModel = createChartModel(widget, chartType)
+    formattedWidget.settings.chartModel = createChartModel(widget, oldChart?.type, oldChart?.seriesStacking)
 
     console.log('---------- FORMATTED WIDGET: ', formattedWidget)
 
@@ -136,7 +134,7 @@ export const getColumnId = (widgetColumnName: string) => {
     return columnNameIdMap[widgetColumnName]
 }
 
-const createChartModel = (widget: any, chartType: string) => {
+const createChartModel = (widget: any, chartType: string, isStacking: boolean) => {
     const widgetContentChartTemplate = widget.content.chartTemplate
     console.log('---------- CHART TYPE: ', chartType)
     switch (chartType) {
@@ -149,11 +147,11 @@ const createChartModel = (widget: any, chartType: string) => {
         case "RADAR":
             return new KnowageHighchartsRadarChart(widgetContentChartTemplate)
         case "AREA":
-            return new KnowageHighchartsAreaChart(widgetContentChartTemplate)
+            return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'area', isStacking)
         case "BAR":
-            return new KnowageHighchartsBarChart(widgetContentChartTemplate)
+            return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'bar', isStacking)
         case "COLUMN":
-            return new KnowageHighchartsColumnChart(widgetContentChartTemplate)
+            return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'column', isStacking)
         case "BUBBLE":
             return new KnowageHighchartsBubbleChart(widgetContentChartTemplate)
         case "SCATTER":

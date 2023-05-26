@@ -7,16 +7,15 @@ import { KnowageHighchartsGaugeSeriesChart } from "../../../../ChartWidget/class
 import { KnowageHighchartsHeatmapChart } from './../../../../ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart';
 import { KnowageHighchartsRadarChart } from './../../../../ChartWidget/classes/highcharts/KnowageHighchartsRadarChart';
 import { KnowageHighchartsBarChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsBarChart"
-import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
-import * as  highchartsDefaultValues from "../highcharts/HighchartsDefaultValues"
-import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 import { KnowageHighchartsLineChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsLineChart"
 import { KnowageHighchartsScatterChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsScatterChart"
 import { KnowageHighchartsTreemapChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart"
 import { KnowageHighchartsSunburstChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart"
 import { KnowageHighchartsBubbleChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart"
-import { KnowageHighchartsAreaChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsAreaChart"
-import { KnowageHighchartsColumnChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsColumnChart"
+import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
+import * as  highchartsDefaultValues from "../highcharts/HighchartsDefaultValues"
+import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
+
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -50,6 +49,7 @@ export const createNewHighchartsSettings = () => {
 export const formatHighchartsWidget = (widget: IWidget) => {
     const chartModel = widget.settings.chartModel.model ?? widget.settings.chartModel
     const chartType = chartModel.chart.type
+    // TODO add for stacking
     switch (chartType) {
         case 'pie':
             widget.settings.chartModel = new KnowageHighchartsPieChart(chartModel)
@@ -70,13 +70,13 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             widget.settings.chartModel = new KnowageHighchartsRadarChart(chartModel)
             break
         case 'area':
-            widget.settings.chartModel = new KnowageHighchartsAreaChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'area', false)
             break
         case 'bar':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'bar', false)
             break
         case 'column':
-            widget.settings.chartModel = new KnowageHighchartsColumnChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'column', false)
             break
         case 'bubble':
             widget.settings.chartModel = new KnowageHighchartsBubbleChart(chartModel)
@@ -97,7 +97,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
 
 }
 
-export const createNewHighchartsModel = (chartType: string, model: IHighchartsChartModel | null = null) => {
+export const createNewHighchartsModel = (chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean) => {
     switch (chartType) {
         case 'pie':
             return new KnowageHighchartsPieChart(model)
@@ -112,21 +112,21 @@ export const createNewHighchartsModel = (chartType: string, model: IHighchartsCh
         case 'radar':
             return new KnowageHighchartsRadarChart(model)
         case 'area':
-            return new KnowageHighchartsAreaChart(model)
+            return new KnowageHighchartsBarChart(model, 'area', isStacked)
         case 'bar':
-            return new KnowageHighchartsBarChart(model)
+            return new KnowageHighchartsBarChart(model, 'bar', isStacked)
         case 'column':
-            return new KnowageHighchartsColumnChart(model)
+            return new KnowageHighchartsBarChart(model, 'column', isStacked)
         case 'bubble':
-            return new KnowageHighchartsBarChart(model)
+            return new KnowageHighchartsBubbleChart(model)
         case 'scatter':
-            return new KnowageHighchartsBarChart(model)
+            return new KnowageHighchartsScatterChart(model)
         case 'line':
-            return new KnowageHighchartsBarChart(model)
+            return new KnowageHighchartsLineChart(model)
         case 'treemap':
-            return new KnowageHighchartsBarChart(model)
+            return new KnowageHighchartsTreemapChart(model)
         case 'sunburst':
-            return new KnowageHighchartsBarChart(model)
+            return new KnowageHighchartsSunburstChart(model)
         default:
             return null
     }
