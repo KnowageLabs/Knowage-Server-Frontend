@@ -22,6 +22,10 @@
         ],
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.highcharts.stacking.title",
+                "type": "StackingSettings"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },

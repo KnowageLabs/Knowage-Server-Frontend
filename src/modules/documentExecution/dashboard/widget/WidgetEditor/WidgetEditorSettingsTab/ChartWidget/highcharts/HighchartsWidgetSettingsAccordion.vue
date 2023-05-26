@@ -1,7 +1,7 @@
 <template>
     <div v-show="widgetModel">
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
-            <AccordionTab v-for="(accordion, index) in settings" :key="index">
+            <AccordionTab v-for="(accordion, index) in filteredSettings" :key="index">
                 <template #header>
                     <HighchartsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></HighchartsWidgetSettingsAccordionHeader>
                 </template>
@@ -49,6 +49,7 @@
                 <HighchartsConditionalStyles v-else-if="accordion.type === 'ConditionalStyles'" :widget-model="widgetModel"></HighchartsConditionalStyles>
                 <HighchartsSonificationSettings v-else-if="accordion.type === 'SonificationSettings'" :widget-model="widgetModel"></HighchartsSonificationSettings>
                 <HighchartsGroupingSettings v-else-if="accordion.type === 'GroupingSettings'" :widget-model="widgetModel"></HighchartsGroupingSettings>
+                <HighchartsStackingSettings v-else-if="accordion.type === 'StackingSettings' && isStacked" :widget-model="widgetModel"></HighchartsStackingSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -99,6 +100,7 @@ import HighchartsRadarSplittingSettings from './radar/HighchartsRadarSplittingSe
 import HighchartsConditionalStyles from './series/HighchartsConditionalStyles.vue'
 import HighchartsSonificationSettings from './accessibility/HighchartsSonificationSettings.vue'
 import HighchartsGroupingSettings from './configuration/HighchartsGroupingSettings.vue'
+import HighchartsStackingSettings from './configuration/HighchartsStackingSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -143,7 +145,8 @@ export default defineComponent({
         HighchartsRadarSplittingSettings,
         HighchartsConditionalStyles,
         HighchartsSonificationSettings,
-        HighchartsGroupingSettings
+        HighchartsGroupingSettings,
+        HighchartsStackingSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -157,19 +160,38 @@ export default defineComponent({
     data() {
         return {
             settingsTabDescriptor,
+            filteredSettings: [] as { title: string; type: string }[],
             activeIndex: -1
+        }
+    },
+    computed: {
+        isStacked() {
+            if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.series?.stacking) return true
+            return false
         }
     },
     watch: {
         settings() {
             this.activeIndex = -1
-            this.setActiveAccordion()
+            this.loadSettings()
+        },
+        isStacked() {
+            this.loadSettings()
         }
     },
     created() {
-        this.setActiveAccordion()
+        this.loadSettings()
     },
     methods: {
+        loadSettings() {
+            this.filteredSettings = this.settings ? [...this.settings] : []
+            if (!this.isStacked) this.removeStackedFromOptions()
+            this.setActiveAccordion()
+        },
+        removeStackedFromOptions() {
+            const index = this.filteredSettings.findIndex((setting: { title: string; type: string }) => setting.type === 'StackingSettings')
+            if (index !== -1) this.filteredSettings.splice(index, 1)
+        },
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
         }

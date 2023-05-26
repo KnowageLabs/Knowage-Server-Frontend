@@ -74,7 +74,7 @@ export default defineComponent({
         onChartTypeChanged(chartType: string) {
             if (!this.widget) return
 
-            console.log('---------- CHART TYPE: ', chartType)
+            console.log('---------- onChartTypeChanged: ', chartType)
 
             // TODO widgetChange
             if (chartType === 'wordcloud') {

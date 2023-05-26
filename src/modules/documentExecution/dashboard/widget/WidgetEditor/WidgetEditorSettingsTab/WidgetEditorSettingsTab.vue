@@ -304,6 +304,8 @@ export default defineComponent({
                     return HighchartsHeatmapSettingsDescriptor
                 case 'radar':
                     return HighchartsRadarSettingsDescriptor
+                case 'area':
+                case 'bar':
                 case 'column':
                     return HighchartsBarSettingsDescriptor
                 case 'bubble':

@@ -17,8 +17,12 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
                 this.formatSeriesFromOtherChartTypeSeries()
                 this.setSpecificOptionsDefaultValues()
             }
-            if (isStacked) this.model.plotOptions.series.stacking = 'normal'
+
         }
+        if (isStacked && this.model.plotOptions) this.model.plotOptions.series.stacking = 'normal'
+        else delete this.model.plotOptions.series.stacking
+        console.log('------------ isSTacked: ', isStacked)
+        console.log('------------ this.model.plotOptions.series: ', this.model.plotOptions.series)
         this.model.chart.type = type
     }
 
