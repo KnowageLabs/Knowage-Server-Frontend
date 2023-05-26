@@ -1,11 +1,12 @@
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { loadNavigationParamsInitialValue } from './DocumentExecutionAngularCrossNavigationHelper'
-import store from '@/App.store.js'
-import i18n from '@/App.i18n'
 import { AxiosResponse } from 'axios'
 import { loadNavigationInitialValuesFromDashboard } from './DocumentExecutionCrossNavigationHelper'
 import { getValidDate } from './DocumentExecutionHelpers'
 import { IDashboardView } from '../dashboard/Dashboard'
+import { IURLDriver } from './DocumentExecution'
+import store from '@/App.store.js'
+import i18n from '@/App.i18n'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -17,6 +18,8 @@ export const loadFilters = async (initialLoading: boolean, filtersData: { filter
         if (filtersFromSession.filterStatus) return filtersFromSession
     }
 
+
+
     if (route.query.crossNavigationParameters) {
         document.formattedCrossNavigationParameters = JSON.parse(route.query.crossNavigationParameters)
         document.navigationFromDashboard = true
@@ -25,7 +28,10 @@ export const loadFilters = async (initialLoading: boolean, filtersData: { filter
     filtersData = await getFilters(document, userRole, $http)
     formatDrivers(filtersData)
 
-    if (document.navigationParams || document.formattedCrossNavigationParameters) {
+    if (route.query.params) {
+        const driversFromUrl = JSON.parse(atob(route.query.params))
+        filtersData = getFormattedDriversFromURL(driversFromUrl, filtersData)
+    } else if (document.navigationParams || document.formattedCrossNavigationParameters) {
         if (document.navigationFromDashboard) loadNavigationInitialValuesFromDashboard(document, filtersData, dateFormat)
         else {
             vueComponenet.filtersData = filtersData
@@ -35,6 +41,28 @@ export const loadFilters = async (initialLoading: boolean, filtersData: { filter
     setFiltersForBreadcrumbItem(breadcrumbs, filtersData, document)
 
     return filtersData
+}
+
+const getFormattedDriversFromURL = (driversFromUrl: IURLDriver[], filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) => {
+    driversFromUrl.forEach((driver: IURLDriver) => {
+        const index = filtersData.filterStatus.findIndex((parameter: iParameter) => driver.urlName === parameter.urlName)
+        if (index !== -1) filtersData.filterStatus[index].parameterValue = driver.parameterValue
+    })
+    updateFiltersDataIsReadyForExecution(filtersData)
+    return filtersData
+}
+
+const updateFiltersDataIsReadyForExecution = (filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) => {
+    filtersData.isReadyForExecution = true
+    for (let i = 0; i < filtersData.filterStatus.length; i++) {
+        const tempParameter = filtersData.filterStatus[i]
+        const isMultivalueDriverMissingValue = tempParameter.multivalue && tempParameter.parameterValue.length === 0
+        const isSinglevalueDriverMissingValue = !tempParameter.multivalue && (!tempParameter.parameterValue[0] || !tempParameter.parameterValue[0].value)
+        if (tempParameter.mandatory && (isMultivalueDriverMissingValue || isSinglevalueDriverMissingValue)) {
+            filtersData.isReadyForExecution = false
+            break
+        }
+    }
 }
 
 const loadFiltersFromParametersMap = (parameterValuesMap: any, document: any, tabKey: string, filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, breadcrumbs: any) => {

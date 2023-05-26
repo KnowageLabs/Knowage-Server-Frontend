@@ -1,6 +1,6 @@
 <template>
     <div class="kn-height-full detail-page-container">
-        <Toolbar v-if="!embed && !olapDesignerMode && !managementOpened && !dashboardGeneralSettingsOpened" class="kn-toolbar kn-toolbar--primary p-col-12">
+        <Toolbar v-if="!embed && !olapDesignerMode && !managementOpened && !dashboardGeneralSettingsOpened && $route.query.toolbar !== 'false'" class="kn-toolbar kn-toolbar--primary p-col-12">
             <template #start>
                 <DocumentExecutionBreadcrumb v-if="breadcrumbs.length > 1" :breadcrumbs="breadcrumbs" @breadcrumbClicked="onBreadcrumbClick"></DocumentExecutionBreadcrumb>
                 <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
@@ -129,7 +129,7 @@
             <DocumentExecutionNotesDialog :visible="notesDialogVisible" :prop-document="document" @close="notesDialogVisible = false"></DocumentExecutionNotesDialog>
             <DocumentExecutionMetadataDialog :visible="metadataDialogVisible" :prop-document="document" :prop-metadata="metadata" :prop-loading="loading" @close="metadataDialogVisible = false" @saveMetadata="onMetadataSave"></DocumentExecutionMetadataDialog>
             <DocumentExecutionMailDialog :visible="mailDialogVisible" @close="mailDialogVisible = false" @sendMail="onMailSave"></DocumentExecutionMailDialog>
-            <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :parameters="linkParameters" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
+            <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :prop-filters-data="filtersData" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
             <DocumentExecutionSelectCrossNavigationDialog :visible="destinationSelectDialogVisible" :cross-navigation-documents="crossNavigationDocuments" @close="destinationSelectDialogVisible = false" @selected="onCrossNavigationSelected"></DocumentExecutionSelectCrossNavigationDialog>
             <DocumentExecutionCNContainerDialog v-if="angularData && crossNavigationContainerData" :visible="crossNavigationContainerVisible" :data="crossNavigationContainerData" @close="onCrossNavigationContainerClose"></DocumentExecutionCNContainerDialog>
             <WorkspaceFolderPickerDialog v-if="workspaceFolderPickerDialogVisible" :visible="workspaceFolderPickerDialogVisible" :document="document" @close="workspaceFolderPickerDialogVisible = false"></WorkspaceFolderPickerDialog>
@@ -160,7 +160,7 @@ import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
 import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentExecutionAngularCrossNavigationHelper'
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
-import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDirverHelpers'
+import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDriverHelpers'
 import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import DocumentExecutionBreadcrumb from './breadcrumbs/DocumentExecutionBreadcrumb.vue'
@@ -269,10 +269,9 @@ export default defineComponent({
             embedHTML: false,
             reloadTrigger: false,
             breadcrumbs: [] as ICrossNavigationBreadcrumb[],
-            linkParameters: [],
             embed: false,
             olapCustomViewVisible: false,
-            userRole: null,
+            userRole: null as string | null,
             loading: false,
             olapDesignerMode: false,
             sessionEnabled: false,
@@ -385,8 +384,9 @@ export default defineComponent({
         }
 
         if (this.$route.query.viewName) await this.loadView()
+        if (this.$route.query.role) this.userRole = '' + this.$route.query.role
+        else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
 
-        this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
         let invalidRole = false
         getCorrectRolesForExecution(this.document).then(async (response: any) => {
             const correctRolesForExecution = response
@@ -523,7 +523,6 @@ export default defineComponent({
         },
         async copyLink(embedHTML: boolean) {
             this.loading = true
-            this.linkParameters = this.getFormattedParameters()
             await this.$http
                 .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecution/canHavePublicExecutionUrl`, { label: this.document.label })
                 .then((response: AxiosResponse<any>) => {
