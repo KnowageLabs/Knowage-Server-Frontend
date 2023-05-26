@@ -15,6 +15,8 @@ import { KnowageHighchartsScatterChart } from "../../../../ChartWidget/classes/h
 import { KnowageHighchartsTreemapChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart"
 import { KnowageHighchartsSunburstChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart"
 import { KnowageHighchartsBubbleChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart"
+import { KnowageHighchartsAreaChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsAreaChart"
+import { KnowageHighchartsColumnChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsColumnChart"
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -67,8 +69,14 @@ export const formatHighchartsWidget = (widget: IWidget) => {
         case 'radar':
             widget.settings.chartModel = new KnowageHighchartsRadarChart(chartModel)
             break
-        case 'column':
+        case 'area':
+            widget.settings.chartModel = new KnowageHighchartsAreaChart(chartModel)
+            break
+        case 'bar':
             widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel)
+            break
+        case 'column':
+            widget.settings.chartModel = new KnowageHighchartsColumnChart(chartModel)
             break
         case 'bubble':
             widget.settings.chartModel = new KnowageHighchartsBubbleChart(chartModel)
@@ -103,8 +111,12 @@ export const createNewHighchartsModel = (chartType: string, model: IHighchartsCh
             return new KnowageHighchartsHeatmapChart(model)
         case 'radar':
             return new KnowageHighchartsRadarChart(model)
-        case 'column':
+        case 'area':
+            return new KnowageHighchartsAreaChart(model)
+        case 'bar':
             return new KnowageHighchartsBarChart(model)
+        case 'column':
+            return new KnowageHighchartsColumnChart(model)
         case 'bubble':
             return new KnowageHighchartsBarChart(model)
         case 'scatter':

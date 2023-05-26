@@ -1,28 +1,28 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartSerie, IHighchartsChartSerieData } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { updateBarChartModel } from './updater/KnowageHighchartsBarChartUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularData, setGroupedCategoriesData, setGroupedBySeriesData, setGroupedByCategoriesData } from './helpers/setData/HighchartsSetDataHelpers'
+import { updateAreaChartModel } from './updater/KnowageHighchartsAreaChartUpdater'
 
-export class KnowageHighchartsBarChart extends KnowageHighcharts {
+export class KnowageHighchartsAreaChart extends KnowageHighcharts {
     constructor(model: any) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
         else if (model) {
             this.model = deepcopy(model)
-            if (model.chart.type !== 'bar') {
+            if (model.chart.type !== 'area') {
                 this.formatSeriesFromOtherChartTypeSeries()
                 this.setSpecificOptionsDefaultValues()
             }
         }
-        this.model.chart.type = 'bar'
+        this.model.chart.type = 'area'
     }
 
     updateModel(oldModel: any) {
-        updateBarChartModel(oldModel, this.model)
+        updateAreaChartModel(oldModel, this.model)
     }
 
     setSpecificOptionsDefaultValues() {
@@ -96,7 +96,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
                         color: seriesLabelSetting.label.style.color ?? ''
                     },
                     formatter: function () {
-                        return KnowageHighchartsBarChart.prototype.handleFormatter(this, seriesLabelSetting.label)
+                        return KnowageHighchartsAreaChart.prototype.handleFormatter(this, seriesLabelSetting.label)
                     }
                 }
             })

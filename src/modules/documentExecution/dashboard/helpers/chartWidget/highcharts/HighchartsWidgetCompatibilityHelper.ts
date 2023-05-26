@@ -19,6 +19,8 @@ import { KnowageHighchartsLineChart } from '../../../widget/ChartWidget/classes/
 import { KnowageHighchartsScatterChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsScatterChart'
 import { KnowageHighchartsTreemapChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart'
 import { KnowageHighchartsSunburstChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart'
+import { KnowageHighchartsAreaChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsAreaChart'
+import { KnowageHighchartsColumnChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsColumnChart'
 
 const columnNameIdMap = {}
 
@@ -146,8 +148,12 @@ const createChartModel = (widget: any, chartType: string) => {
             return new KnowageHighchartsHeatmapChart(widgetContentChartTemplate)
         case "RADAR":
             return new KnowageHighchartsRadarChart(widgetContentChartTemplate)
+        case "AREA":
+            return new KnowageHighchartsAreaChart(widgetContentChartTemplate)
         case "BAR":
             return new KnowageHighchartsBarChart(widgetContentChartTemplate)
+        case "COLUMN":
+            return new KnowageHighchartsColumnChart(widgetContentChartTemplate)
         case "BUBBLE":
             return new KnowageHighchartsBubbleChart(widgetContentChartTemplate)
         case "SCATTER":
