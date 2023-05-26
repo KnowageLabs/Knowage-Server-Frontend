@@ -71,8 +71,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         } else if (widgetModel.settings.configuration?.grouping?.secondDimension.enabled) {
             const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
             this.setGroupedByCategoriesData(data, attributeColumns, measureColumns, serieName)
-        }
-        else {
+        } else {
             this.setRegularData(data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
         }
 
