@@ -183,23 +183,45 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
             if (!uniqueCategoryValues.includes(firstAttributeValue)) uniqueCategoryValues.push(firstAttributeValue)
             const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
             const measureForGroupingValue = row[measureForGrouping.metadata.dataIndex]
-            if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = { data: [] }
-            const tempData = { name: firstAttributeValue } as { name: string, y?: number }
-            if (measureForGroupingValue) tempData.y = measureForGroupingValue
-            categoryValueMap[secondAttributeValue].data.push(tempData)
+            if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = {}
+            // const tempData = { name: firstAttributeValue } as { name: string, y?: number }
+            if (!categoryValueMap[secondAttributeValue][firstAttributeValue]) categoryValueMap[secondAttributeValue][firstAttributeValue] = {}
+            if (measureForGroupingValue) categoryValueMap[secondAttributeValue][firstAttributeValue] = measureForGroupingValue
+
+            //categoryValueMap[secondAttributeValue].data.push(tempData)
         })
 
-        console.log('------- categoryValueMap ', categoryValueMap)
+        console.log('------- uniqueCategoryValues ', uniqueCategoryValues)
 
-        // Object.keys(categoryValueMap).forEach((key: string, index: number) => {
-        //     const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
-        //     measureNames.forEach((measureName: string) => {
-        //         const temp = { name: measureName } as { name: string, y?: number }
-        //         if (categoryValueMap[key] && categoryValueMap[key].name === measureName) temp.y = categoryValueMap[key].y
-        //         serieElement.data.push(temp)
-        //     })
-        //     this.model.series.push(serieElement)
-        // })
+        uniqueCategoryValues.forEach((categoryValue: string) => {
+            Object.keys(categoryValueMap).forEach((key: string) => {
+                if (!categoryValueMap[key][categoryValue]) categoryValueMap[key][categoryValue] = null
+            })
+        })
+        console.log('------- categoryValueMap ', categoryValueMap)
+        const temp = {} as any
+
+        Object.keys(categoryValueMap).forEach((key: string, index: number) => {
+            const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
+            Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
+                const tempData = { name: tempKey } as { name: string, y?: number }
+                if (categoryValueMap[key][tempKey]) {
+                    tempData.y = categoryValueMap[key][tempKey]
+                }
+                serieElement.data.push(tempData)
+
+                if (!temp[tempKey]) temp[tempKey] = 0
+                temp[tempKey] += categoryValueMap[key][tempKey] ?? 0
+            })
+            this.model.series.push(serieElement)
+        })
+        console.log('------- temp ', temp)
+
+        const measureSerieElement = { id: this.model.series.length, name: measureForGrouping.column.columnName, data: [] as any[], connectNulls: true }
+        Object.keys(temp).forEach((key: string) => {
+            measureSerieElement.data.push({ name: key, y: temp[key] })
+        })
+        this.model.series.push(measureSerieElement)
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
