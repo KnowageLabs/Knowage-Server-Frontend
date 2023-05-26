@@ -18,7 +18,7 @@ export const createHeatMapSerie = (serieName: string) => {
 }
 
 export const createPolarSerie = (serieName: string, serieType: string) => {
-    return { name: serieName, data: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings(), pointPlacement: "on", serieType: serieType }
+    return { name: serieName, data: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings(), pointPlacement: "on", serieType: serieType } as any
 }
 
 export const getFormattedNoDataConfiguration = (oldModel: any, newModel: IHighchartsChartModel) => {

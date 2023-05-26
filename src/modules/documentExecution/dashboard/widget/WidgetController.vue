@@ -328,7 +328,7 @@ export default defineComponent({
             }
         }
         .widgetButtonBarContainer {
-            display: block;
+            display: flex;
         }
     }
 }

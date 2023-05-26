@@ -5,8 +5,8 @@
                 <span>{{ slotProps.node.label }}</span>
                 <div v-show="mode === 'select' && buttonsVisible[slotProps.node.id]" class="p-ml-2">
                     <Button icon="fa fa-plus" class="p-button-link p-button-sm p-p-0" @click.stop="createFolder(slotProps.node)" />
-                    <Button icon="fa fa-pencil" class="p-button-link p-button-sm p-p-0" @click.stop="editFolder(slotProps.node.data)" />
-                    <Button v-if="slotProps.node.label !== 'root'" icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" @click.stop="deleteFolderConfirm(slotProps.node)" />
+                    <Button v-if="slotProps.node.id" icon="fa fa-pencil" class="p-button-link p-button-sm p-p-0" @click.stop="editFolder(slotProps.node.data)" />
+                    <Button v-if="slotProps.node.id" icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" @click.stop="deleteFolderConfirm(slotProps.node)" />
                 </div>
             </div>
         </template>
@@ -64,6 +64,7 @@ export default defineComponent({
         createNodeTree() {
             this.nodes = [] as any[]
             this.nodes = this.formatNodes([this.folders], null)
+            if (this.mode === 'move') this.nodes = this.nodes[0].children
         },
         formatNodes(tree: any, parent: any) {
             return tree.map((node: any) => {

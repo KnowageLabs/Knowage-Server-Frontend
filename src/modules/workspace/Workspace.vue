@@ -196,7 +196,8 @@ export default defineComponent({
         setSelectedFolder(folder: any) {
             this.selectedFolder = folder
             this.createBreadcrumbs()
-            this.$router.push(`/workspace/repository/${folder.id}`)
+            const route = folder.id ? `/workspace/repository/${folder.id}` : `/workspace`
+            this.$router.push(route)
         },
         createBreadcrumbs() {
             let currentFolder = this.selectedFolder as any
