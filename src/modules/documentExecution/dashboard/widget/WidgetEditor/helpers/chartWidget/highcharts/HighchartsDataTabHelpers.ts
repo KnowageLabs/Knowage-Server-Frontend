@@ -13,6 +13,7 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'heatmap':
         case 'radar':
         case 'column':
+        case 'line':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }
@@ -59,7 +60,8 @@ const areAdditionalAttributesConstraintsInvalid = (tempColumn: IWidgetColumn, ro
             return isHeatmapTimestampColumnIsTheFirstOne(tempColumn, rows)
         case 'radar':
             return isRadarSplitInvalidForAttributes(tempColumn, rows, widgetModel)
-        case 'bar':
+        case 'column':
+        case 'line':
             return isBarGroupingInvalidForAttributes(rows, widgetModel)
         default:
             return false
@@ -108,7 +110,8 @@ const addMeasureColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetCol
 
 const areAdditionalMeasuresConstraintsInvalid = (rows: IWidgetColumn[], chartType: string | undefined, widgetModel: IWidget) => {
     switch (chartType) {
-        case 'bar':
+        case 'column':
+        case 'line':
             return isBarGroupingInvalidForMeasures(rows, widgetModel)
         default:
             return false

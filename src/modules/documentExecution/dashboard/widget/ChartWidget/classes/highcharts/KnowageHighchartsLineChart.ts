@@ -5,6 +5,7 @@ import { updateLineChartModel } from './updater/KnowageHighchartsLineChartUpdate
 import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
+import { getAllColumnsOfSpecificTypeFromDataResponse, setGroupedByCategoriesData, setGroupedBySeriesData, setGroupedCategoriesData, setRegularData } from './helpers/setData/HighchartsSetDataHelpers'
 
 export class KnowageHighchartsLineChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -41,23 +42,30 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
     }
 
     setData(data: any, widgetModel: IWidget) {
-        if (this.model.series.length === 0) this.getSeriesFromWidgetModel(widgetModel)
+        this.model.series = []
+        // console.log('---------- data: ', data)
+        // console.log('---------- WIDGET MODEL COLUMNS: ', widgetModel.columns)
 
-        this.model.series.map((item, serieIndex) => {
-            this.range[serieIndex] = { serie: item.name }
-            item.data = []
-            data?.rows?.forEach((row: any) => {
-                const serieElement = {
-                    id: row.id,
-                    name: row['column_1'],
-                    y: row['column_2'],
-                    drilldown: false
-                }
-                // TODO
-                // if (this.model.settings.drilldown) serieElement.drilldown = true
-                item.data.push(serieElement)
-            })
-        })
+        const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
+        // console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
+        const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
+        // console.log('---------- MEASURE COLUMNS: ', measureColumns)
+        const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
+        // console.log('------- drilldownEnabled: ', drilldownEnabled)
+        const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
+        // console.log('------- dateFormat: ', dateFormat)
+
+        if (widgetModel.settings.configuration?.grouping?.enabled) {
+            setGroupedCategoriesData(this.model, data, attributeColumns, measureColumns, dateFormat)
+        } else if (widgetModel.settings.configuration?.grouping?.secondSeries.enabled) {
+            setGroupedBySeriesData(this.model, data, attributeColumns, measureColumns)
+        } else if (widgetModel.settings.configuration?.grouping?.secondDimension.enabled) {
+            const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
+            setGroupedByCategoriesData(this.model, data, attributeColumns, measureColumns, serieName)
+        } else {
+            setRegularData(this.model, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+        }
+
         return this.model.series
     }
 
