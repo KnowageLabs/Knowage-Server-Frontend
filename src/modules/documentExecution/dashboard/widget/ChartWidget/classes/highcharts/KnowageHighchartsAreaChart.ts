@@ -7,18 +7,20 @@ import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularData, setGrouped
 import { updateAreaChartModel } from './updater/KnowageHighchartsAreaChartUpdater'
 
 export class KnowageHighchartsAreaChart extends KnowageHighcharts {
-    constructor(model: any) {
+    constructor(model: any, isStacked: boolean) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model) {
+        else if (model && model.plotOption) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'area') {
                 this.formatSeriesFromOtherChartTypeSeries()
                 this.setSpecificOptionsDefaultValues()
             }
+            if (isStacked) this.model.plotOptions.series.stacking = 'normal'
         }
         this.model.chart.type = 'area'
+
     }
 
     updateModel(oldModel: any) {

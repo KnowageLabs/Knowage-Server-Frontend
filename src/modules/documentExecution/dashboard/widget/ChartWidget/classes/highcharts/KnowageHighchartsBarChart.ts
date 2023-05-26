@@ -7,16 +7,17 @@ import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularData, setGroupedCategoriesData, setGroupedBySeriesData, setGroupedByCategoriesData } from './helpers/setData/HighchartsSetDataHelpers'
 
 export class KnowageHighchartsBarChart extends KnowageHighcharts {
-    constructor(model: any) {
+    constructor(model: any, isStacked: boolean) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model) {
+        else if (model && model.plotOption) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'bar') {
                 this.formatSeriesFromOtherChartTypeSeries()
                 this.setSpecificOptionsDefaultValues()
             }
+            if (isStacked) this.model.plotOptions.series.stacking = 'normal'
         }
         this.model.chart.type = 'bar'
     }
