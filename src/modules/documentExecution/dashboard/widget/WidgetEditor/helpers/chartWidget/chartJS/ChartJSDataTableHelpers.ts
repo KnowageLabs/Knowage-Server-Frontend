@@ -2,6 +2,7 @@ import { IWidgetColumn } from "@/modules/documentExecution/dashboard/Dashboard";
 
 export const addChartJSColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, attributesOnly: boolean, measuresOnly: boolean) => {
     let mode = ''
+    console.log('chartType;', chartType)
     if (attributesOnly) mode = 'attributesOnly'
     else if (measuresOnly) mode = 'measuresOnly'
     switch (chartType) {
