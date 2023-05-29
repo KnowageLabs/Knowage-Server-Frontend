@@ -165,3 +165,20 @@ const createMeasureSerieForGroupedByCategoriesData = (model: any, measureForGrou
     })
     model.series.push(measureSerieElement)
 }
+
+
+
+
+
+
+export const getAllColumnsOfSpecificAxisTypeFromDataResponse = (data: any, widgetModel: IWidget, axis: 'X' | 'Y' | 'Z') => {
+    if (!data || !widgetModel.columns) return []
+    const formattedColumns = [] as { column: IWidgetColumn, metadata: any }[]
+    widgetModel.columns.forEach((column: IWidgetColumn) => {
+        if (column.axis === axis) {
+            const metadata = data.metaData.fields.find((field: any) => field.header?.startsWith(column.columnName))
+            if (metadata) formattedColumns.push({ column: column, metadata: metadata })
+        }
+    })
+    return formattedColumns
+}
