@@ -57,16 +57,14 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
                     },
                     {
                         "name": "column_2",
-                        "header": "UNITS_ORDERED_SUM",
+                        "header": "PRODUCT_FAMILY",
                         "dataIndex": "column_2",
-                        "type": "float",
-                        "precision": 54,
-                        "scale": 0,
+                        "type": "string",
                         "multiValue": false
                     },
                     {
                         "name": "column_3",
-                        "header": "UNITS_SHIPPED_SUM",
+                        "header": "UNITS_ORDERED_SUM",
                         "dataIndex": "column_3",
                         "type": "float",
                         "precision": 54,
@@ -75,58 +73,152 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
                     },
                     {
                         "name": "column_4",
-                        "header": "WAREHOUSE_COST_SUM",
+                        "header": "UNITS_SHIPPED_SUM",
                         "dataIndex": "column_4",
+                        "type": "float",
+                        "precision": 54,
+                        "scale": 0,
+                        "multiValue": false
+                    },
+                    {
+                        "name": "column_5",
+                        "header": "WAREHOUSE_COST_SUM",
+                        "dataIndex": "column_5",
                         "type": "float",
                         "precision": 54,
                         "scale": 4,
                         "multiValue": false
                     },
                     {
-                        "name": "column_5",
+                        "name": "column_6",
                         "header": "SUPPLY_TIME_SUM",
-                        "dataIndex": "column_5",
+                        "dataIndex": "column_6",
                         "type": "float",
                         "precision": 31,
                         "scale": 4,
                         "multiValue": false
                     }
                 ],
-                "cacheDate": "2023-05-29 11:12:06.937"
+                "cacheDate": "2023-05-29 12:17:59.564"
             },
-            "results": 4,
+            "results": 13,
             "rows": [
                 {
                     "id": 1,
                     "column_1": "Q2",
-                    "column_2": 1665964,
-                    "column_3": 1517603,
-                    "column_4": 710180.1995,
-                    "column_5": 298.7387
+                    "column_2": "Food",
+                    "column_3": 930864,
+                    "column_4": 825899,
+                    "column_5": 381572.4702,
+                    "column_6": 164.6676
                 },
                 {
                     "id": 2,
                     "column_1": "Q3",
-                    "column_2": 2.08226E+6,
-                    "column_3": 1.90871E+6,
-                    "column_4": 831461.175,
-                    "column_5": 318.0512
+                    "column_2": "Food",
+                    "column_3": 1147708,
+                    "column_4": 1.03311E+6,
+                    "column_5": 423227.9038,
+                    "column_6": 167.8025
                 },
                 {
                     "id": 3,
                     "column_1": "Q1",
-                    "column_2": 1744587,
-                    "column_3": 1616511,
-                    "column_4": 739653.4604,
-                    "column_5": 287.2794
+                    "column_2": "Food",
+                    "column_3": 1047654,
+                    "column_4": 952575,
+                    "column_5": 450841.7237,
+                    "column_6": 152.2484
                 },
                 {
                     "id": 4,
                     "column_1": "Q4",
-                    "column_2": 1646594,
-                    "column_3": 1473639,
-                    "column_4": 643147.8198,
-                    "column_5": 259.8922
+                    "column_2": "Food",
+                    "column_3": 965621,
+                    "column_4": 892838,
+                    "column_5": 406493.3295,
+                    "column_6": 154.0932
+                },
+                {
+                    "id": 5,
+                    "column_1": "Q2",
+                    "column_2": "Drink",
+                    "column_3": 194835,
+                    "column_4": 175571,
+                    "column_5": 73330.7702,
+                    "column_6": 36
+                },
+                {
+                    "id": 6,
+                    "column_1": "Q1",
+                    "column_2": "Drink",
+                    "column_3": 128144,
+                    "column_4": 127451,
+                    "column_5": 45428.9849,
+                    "column_6": 4E+1
+                },
+                {
+                    "id": 7,
+                    "column_1": "Q3",
+                    "column_2": "Drink",
+                    "column_3": 202356,
+                    "column_4": 201344,
+                    "column_5": 74386.1514,
+                    "column_6": 29.4747
+                },
+                {
+                    "id": 8,
+                    "column_1": "Q1",
+                    "column_2": "Non-Consumable",
+                    "column_3": 568789,
+                    "column_4": 536485,
+                    "column_5": 243382.7518,
+                    "column_6": 95.031
+                },
+                {
+                    "id": 9,
+                    "column_1": "Q2",
+                    "column_2": "Non-Consumable",
+                    "column_3": 540265,
+                    "column_4": 516133,
+                    "column_5": 255276.9591,
+                    "column_6": 98.0711
+                },
+                {
+                    "id": 10,
+                    "column_1": "Q4",
+                    "column_2": "Non-Consumable",
+                    "column_3": 578788,
+                    "column_4": 478616,
+                    "column_5": 199965.9219,
+                    "column_6": 91.799
+                },
+                {
+                    "id": 11,
+                    "column_1": "Q3",
+                    "column_2": "Non-Consumable",
+                    "column_3": 714384,
+                    "column_4": 656444,
+                    "column_5": 325631.713,
+                    "column_6": 116.774
+                },
+                {
+                    "id": 12,
+                    "column_1": "Q4",
+                    "column_2": "Drink",
+                    "column_3": 102185,
+                    "column_4": 102185,
+                    "column_5": 36688.5684,
+                    "column_6": 14
+                },
+                {
+                    "id": 13,
+                    "column_1": "Q3",
+                    "column_2": "Car",
+                    "column_3": 17812,
+                    "column_4": 17812,
+                    "column_5": 8215.4068,
+                    "column_6": 4
                 }
             ],
             "stats": {
@@ -142,48 +234,95 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
                     "cardinality": 4
                 },
                 "2": {
-                    "max": 2.08226E+6,
-                    "min": 1646594,
+                    "max": "Non-Consumable",
+                    "min": "Car",
                     "distinct": [
-                        1646594,
-                        1665964,
-                        1744587,
-                        2.08226E+6
+                        "Car",
+                        "Drink",
+                        "Food",
+                        "Non-Consumable"
                     ],
                     "cardinality": 4
                 },
                 "3": {
-                    "max": 1.90871E+6,
-                    "min": 1473639,
+                    "max": 1147708,
+                    "min": 17812,
                     "distinct": [
-                        1473639,
-                        1517603,
-                        1616511,
-                        1.90871E+6
+                        17812,
+                        102185,
+                        128144,
+                        194835,
+                        202356,
+                        540265,
+                        568789,
+                        578788,
+                        714384,
+                        930864,
+                        965621,
+                        1047654,
+                        1147708
                     ],
-                    "cardinality": 4
+                    "cardinality": 13
                 },
                 "4": {
-                    "max": 831461.175,
-                    "min": 643147.8198,
+                    "max": 1.03311E+6,
+                    "min": 17812,
                     "distinct": [
-                        643147.8198,
-                        710180.1995,
-                        739653.4604,
-                        831461.175
+                        17812,
+                        102185,
+                        127451,
+                        175571,
+                        201344,
+                        478616,
+                        516133,
+                        536485,
+                        656444,
+                        825899,
+                        892838,
+                        952575,
+                        1.03311E+6
                     ],
-                    "cardinality": 4
+                    "cardinality": 13
                 },
                 "5": {
-                    "max": 318.0512,
-                    "min": 259.8922,
+                    "max": 450841.7237,
+                    "min": 8215.4068,
                     "distinct": [
-                        259.8922,
-                        287.2794,
-                        298.7387,
-                        318.0512
+                        8215.4068,
+                        36688.5684,
+                        45428.9849,
+                        73330.7702,
+                        74386.1514,
+                        199965.9219,
+                        243382.7518,
+                        255276.9591,
+                        325631.713,
+                        381572.4702,
+                        406493.3295,
+                        423227.9038,
+                        450841.7237
                     ],
-                    "cardinality": 4
+                    "cardinality": 13
+                },
+                "6": {
+                    "max": 167.8025,
+                    "min": 4,
+                    "distinct": [
+                        4,
+                        14,
+                        29.4747,
+                        36,
+                        4E+1,
+                        91.799,
+                        95.031,
+                        98.0711,
+                        116.774,
+                        152.2484,
+                        154.0932,
+                        164.6676,
+                        167.8025
+                    ],
+                    "cardinality": 13
                 }
             }
         }
@@ -198,10 +337,74 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         const ZAxisColumns = getAllColumnsOfSpecificAxisTypeFromDataResponse(mockedData, widgetModel, 'Z')
         console.log('---------- Z AXIS COLUMNS: ', ZAxisColumns)
 
-        this.setRegularData(mockedData, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
+        const splitting = widgetModel.settings?.configuration?.splitting
+        if (splitting?.enabled) {
+            this.setSplittedData(mockedData, splitting, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
+        } else {
+
+            this.setRegularData(mockedData, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
+        }
 
         return this.model.series
     }
+
+    setSplittedData(data: any, splitting: any, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
+        console.log('----- DATA: ', data)
+        console.log('----- splitting: ', splitting)
+        const measureForGrouping = YAxisColumns.find((measureColumn: any) => measureColumn.column.columnName === splitting.groupedSerie)
+        if (!data || attributeColumns.length < 2 || !measureForGrouping) return
+        const firstAttributeColumn = attributeColumns[0]
+        const secondAttributeColumn = attributeColumns[1]
+        const categoryValueMap = {}
+        const uniqueCategoryValues = [] as string[]
+        const XColumn = XAxisColumns[0]
+        const ZColumn = ZAxisColumns[0]
+        data.rows.forEach((row: any) => {
+            const firstAttributeValue = row[firstAttributeColumn.metadata.dataIndex]
+            if (!uniqueCategoryValues.includes(firstAttributeValue)) uniqueCategoryValues.push(firstAttributeValue)
+            const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
+
+            if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = {}
+            if (!categoryValueMap[secondAttributeValue][firstAttributeValue]) categoryValueMap[secondAttributeValue][firstAttributeValue] = {}
+            categoryValueMap[secondAttributeValue][firstAttributeValue] = { x: row[XColumn.metadata.dataIndex], y: row[measureForGrouping.metadata.dataIndex], z: row[ZColumn.metadata.dataIndex] }
+        })
+
+        console.log('------ categoryValueMap: ', categoryValueMap)
+        console.log('------ uniqueCategoryValues: ', uniqueCategoryValues)
+        const measureSerieElementValueMap = {}
+        this.createSeriesForGroupedByCategoriesData(categoryValueMap, measureSerieElementValueMap)
+        this.createMeasureSerieForGroupedByCategoriesData(measureForGrouping, measureSerieElementValueMap)
+    }
+
+    createSeriesForGroupedByCategoriesData(categoryValueMap: any, measureSerieElementValueMap: any) {
+        Object.keys(categoryValueMap).forEach((key: string, index: number) => {
+            const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
+            Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
+                const tempData = { name: tempKey } as { name: string, x?: number, y?: number, z?: number }
+                if (categoryValueMap[key][tempKey]) {
+                    tempData.x = categoryValueMap[key][tempKey].x
+                    tempData.y = categoryValueMap[key][tempKey].y
+                    tempData.z = categoryValueMap[key][tempKey].z
+                }
+                serieElement.data.push(tempData)
+
+                if (!measureSerieElementValueMap[tempKey]) measureSerieElementValueMap[tempKey] = { x: 0, y: 0, z: 0 }
+                measureSerieElementValueMap[tempKey].x += categoryValueMap[key][tempKey].x ?? 0
+                measureSerieElementValueMap[tempKey].y += categoryValueMap[key][tempKey].y ?? 0
+                measureSerieElementValueMap[tempKey].z += categoryValueMap[key][tempKey].z ?? 0
+            })
+            this.model.series.push(serieElement)
+        })
+    }
+
+    createMeasureSerieForGroupedByCategoriesData(measureForGrouping: any, measureSerieElementValueMap: any) {
+        const measureSerieElement = { id: this.model.series.length, name: measureForGrouping.column.columnName, data: [] as any[], connectNulls: true }
+        Object.keys(measureSerieElementValueMap).forEach((key: string) => {
+            measureSerieElement.data.push({ name: key, x: measureSerieElementValueMap[key].x, y: measureSerieElementValueMap[key].y, z: measureSerieElementValueMap[key].z })
+        })
+        this.model.series.push(measureSerieElement)
+    }
+
 
     setRegularData(data: any, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
         if (!data || !attributeColumns[0] || !XAxisColumns[0] || !YAxisColumns[0] || !ZAxisColumns[0]) return

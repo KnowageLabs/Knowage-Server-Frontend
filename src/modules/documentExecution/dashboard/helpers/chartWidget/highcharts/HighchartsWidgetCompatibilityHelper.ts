@@ -63,7 +63,7 @@ const getFormattedWidgetSettings = (widget: any, chartType: string) => {
 const getFormattedConfiguration = (widget: any, chartType: string) => {
     const formattedConfiguration = { exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports } as IHighchartsWidgetConfiguration
     if (['HEATMAP', 'RADAR', 'BAR', 'LINE', 'BUBBLE', "SCATTER", "TREEMAP", "SUNBURST"].includes(chartType)) formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
-    if (['RADAR'].includes(chartType)) formattedConfiguration.splitting = getFormmatedSplittingSettings(widget)
+    if (['RADAR', 'BUBBLE'].includes(chartType)) formattedConfiguration.splitting = getFormmatedSplittingSettings(widget)
     if (['BAR', "LINE"].includes(chartType)) formattedConfiguration.grouping = getFormmatedGroupingSettings(widget)
     return formattedConfiguration
 }
@@ -79,11 +79,12 @@ const getFormmatedDatetypeSettings = (widget: any) => {
 }
 
 const getFormmatedSplittingSettings = (widget: any) => {
-    const splittingSettings = { enabled: false, groupedSerie: '' }
+    const splittingSettings = { enabled: false, groupedSerie: '' } as any
     const oldChartModel = widget.content?.chartTemplate?.CHART
     if (oldChartModel) {
         splittingSettings.enabled = oldChartModel.groupSeriesCateg
         splittingSettings.groupedSerie = oldChartModel.groupedSerie
+        splittingSettings.coloredCategory = oldChartModel.coloredCategory  // TODO
     }
     return splittingSettings
 }
