@@ -26,7 +26,17 @@
         },
         {
             "hint": "dashboard.widgetEditor.highcharts.bubblechart.valuesTableHint",
-            "label": "common.values",
+            "label": "Y",
+            "measuresOnly": true
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.bubblechart.valuesTableHint",
+            "label": "X",
+            "measuresOnly": true
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.bubblechart.valuesTableHint",
+            "label": "Z",
             "measuresOnly": true
         }
     ],

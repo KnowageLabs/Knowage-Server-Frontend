@@ -627,6 +627,10 @@
                     "dimensionsTableHint": "Click on at least one attribute to define categories. The item that precedes should have a lower granularity. If you enable grouping categories, you need to define exactly two categories. If you enable splitting serie using second category, you need to define exactly two categories and one serie. If you enable splitting serie using second serie, you need to define exactly one category and two series.",
                     "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second serie, you need to define exactly two series. If you enable splitting serie using second category, you need to define exactly one serie."
                 },
+                "bubblechart": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories. If you want to use split function, you can select maximum 2 categories",
+                    "valuesTableHint": "Click on at least one measure to define series."
+                },
                 "datetype": "Date Type",
                 "dial": {
                     "dialBaseWitdh": "Dial Base Width",

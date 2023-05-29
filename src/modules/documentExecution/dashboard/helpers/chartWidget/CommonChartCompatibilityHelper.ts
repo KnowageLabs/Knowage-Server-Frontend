@@ -108,6 +108,7 @@ export const addSerieColumn = (serie: any, widgetColumNameMap: any, formattedCol
     tempColumn.aggregation = serie.groupingFunction
     if (serie.orderType) tempColumn.orderType = serie.orderType.toUpperCase()
     if (serie.type) tempColumn.serieType = serie.type
+    if (serie.axis) tempColumn.axis = serie.axis
     formattedColumns.push(tempColumn)
 }
 

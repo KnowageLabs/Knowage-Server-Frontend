@@ -432,7 +432,8 @@ export interface IWidgetColumn {
     drillOrder?: IDrillOrderItem
     orderType?: string
     sort?: string
-    serieType?: string
+    serieType?: string,
+    axis?: string
 }
 
 export interface IWidgetColumnFilter {
