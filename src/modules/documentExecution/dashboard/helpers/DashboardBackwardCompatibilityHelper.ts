@@ -257,9 +257,12 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
 
 const getFormattedChartWidget = (widget: any, user: any) => {
     // TODO widgetChange
-    if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return formatVegaChartsWidget(widget)
-    else if (user?.enterprise) return formatHighchartsWidget(widget)
-    else return formatChartJSWidget(widget)
+    // if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return formatVegaChartsWidget(widget)
+    // else if (user?.enterprise) return formatHighchartsWidget(widget)
+    // else return formatChartJSWidget(widget)
+
+    // TODO widgetChange - Darko
+    return formatChartJSWidget(widget)
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {

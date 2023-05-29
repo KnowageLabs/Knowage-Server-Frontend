@@ -53,8 +53,11 @@ const getFormattedChartSelection = (widget: any) => {
     const store = mainStore()
     const user = store.getUser()
     // TODO widgetChange
-    if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return chartJSDefaultValues.getDefaultChartJSSelections()
-    return user?.enterprise ? highchartsDefaultValues.getDefaultHighchartsSelections() : chartJSDefaultValues.getDefaultChartJSSelections()
+    // if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return chartJSDefaultValues.getDefaultChartJSSelections()
+    // return user?.enterprise ? highchartsDefaultValues.getDefaultHighchartsSelections() : chartJSDefaultValues.getDefaultChartJSSelections()
+
+    // TODO widgetChange - Darko
+    return chartJSDefaultValues.getDefaultChartJSSelections()
 }
 
 const getFormattedCommonSelection = () => {
