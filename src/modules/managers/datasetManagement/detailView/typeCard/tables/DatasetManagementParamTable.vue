@@ -123,7 +123,7 @@ export default defineComponent({
             this.dataset.pars.push(newParam)
         },
         deleteMultivalueDefault() {
-            if (this.dataset.pars.length > 0) {
+            if (this.dataset?.pars?.length > 0) {
                 this.dataset.pars.forEach((element) => {
                     if (element.multiValue && element.defaultValue.length === 1 && element.defaultValue[0] === '') element.defaultValue.pop()
                 })
