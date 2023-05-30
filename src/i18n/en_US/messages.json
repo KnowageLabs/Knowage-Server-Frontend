@@ -3157,6 +3157,7 @@
         }
     },
     "menu": {
+        "Categories": "Categories",
         "ThemeManagement": "Themes",
         "group": {
             "ImportExport": "Import/Export",
