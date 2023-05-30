@@ -68,12 +68,12 @@ export const getFormattedLegend = (oldModel: any, newModel: IHighchartsChartMode
             layout: 'horizontal',
             verticalAlign: ['top', 'bottom'].includes(oldModel.CHART.LEGEND.position) ? oldModel.CHART.LEGEND.position : 'bottom',
             itemStyle: {
-                fontFamily: oldModel.CHART.LEGEND.style.fontFamily ?? '',
-                fontSize: oldModel.CHART.LEGEND.style.fontSize ?? '',
-                fontWeight: oldModel.CHART.LEGEND.style.fontWeight ?? '',
-                color: oldModel.CHART.LEGEND.style.color ? hexToRgba(oldModel.CHART.LEGEND.style.color) : ''
+                fontFamily: oldModel.CHART.LEGEND.style?.fontFamily ?? '',
+                fontSize: oldModel.CHART.LEGEND.style?.fontSize ?? '',
+                fontWeight: oldModel.CHART.LEGEND.style?.fontWeight ?? '',
+                color: oldModel.CHART.LEGEND.style?.color ? hexToRgba(oldModel.CHART.LEGEND.style.color) : ''
             },
-            backgroundColor: oldModel.CHART.LEGEND.style.backgroundColor ? hexToRgba(oldModel.CHART.LEGEND.style.backgroundColor) : '',
+            backgroundColor: oldModel.CHART.LEGEND.style?.backgroundColor ? hexToRgba(oldModel.CHART.LEGEND.style.backgroundColor) : '',
             borderWidth: 1,
             borderColor: ''
         }

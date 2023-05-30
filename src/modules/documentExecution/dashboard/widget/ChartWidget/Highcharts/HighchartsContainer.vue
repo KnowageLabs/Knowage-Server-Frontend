@@ -26,11 +26,13 @@ import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
 import HighchartsTreemap from 'highcharts/modules/treemap'
+import HighchartsSunburst from 'highcharts/modules/sunburst'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
 HighchartsHeatmap(Highcharts)
 HighchartsTreemap(Highcharts)
+HighchartsSunburst(Highcharts)
 Accessibility(Highcharts)
 NoDataToDisplay(Highcharts)
 SeriesLabel(Highcharts)
