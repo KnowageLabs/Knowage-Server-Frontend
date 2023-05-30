@@ -25,17 +25,17 @@ import cryptoRandomString from 'crypto-random-string'
 import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
-// import HighchartsGroupedCategories from 'highcharts-grouped-categories'
+import HighchartsTreemap from 'highcharts/modules/treemap'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
 HighchartsHeatmap(Highcharts)
+HighchartsTreemap(Highcharts)
 Accessibility(Highcharts)
 NoDataToDisplay(Highcharts)
 SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
 Drilldown(Highcharts)
-// HighchartsGroupedCategories(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',

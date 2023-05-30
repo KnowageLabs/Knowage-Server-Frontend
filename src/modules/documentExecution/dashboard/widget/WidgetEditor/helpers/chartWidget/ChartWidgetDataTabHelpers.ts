@@ -8,12 +8,12 @@ import useStore from '@/App.store'
 export const addChartColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, attributesOnly: boolean, measuresOnly: boolean, widgetModel: IWidget) => {
     const store = useStore()
     // TODO widgetChange
-    // if (widgetModel.type === 'vega') addVegaColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
-    // else {
-    //     store.user.enterprise ? addHighchartsColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly, widgetModel) : addChartJSColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
-    // }
+    if (widgetModel.type === 'vega') addVegaColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
+    else {
+        store.user.enterprise ? addHighchartsColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly, widgetModel) : addChartJSColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
+    }
 
 
     // TODO widgetChange - Darko
-    addChartJSColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
+    // addChartJSColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
 }

@@ -77,28 +77,28 @@ export default defineComponent({
             console.log('---------- onChartTypeChanged: ', chartType)
 
             // TODO widgetChange
-            // if (chartType === 'wordcloud') {
-            //     this.widget.type = 'vega'
-            //     this.widget.settings = createNewVegaSettings()
-            //     updateVegaModelColumnsAfterChartTypeChange(this.widget, chartType)
-            //     this.widget.settings.chartModel = createVegaModel(this.widget, chartType)
-            // } else if (this.isEnterprise) {
-            //     const oldChartModel = this.widget.settings.chartModel?.model
-            //     const type = chartType.replace('Stacked', '')
-            //     this.widget.type = 'highcharts'
-            //     this.widget.settings = createNewHighchartsSettings()
-            //     updateWidgetModelColumnsAfterChartTypeChange(this.widget, type)
-            //     this.widget.settings.chartModel = createNewHighchartsModel(type, oldChartModel, chartType.endsWith('Stacked'))
-            // } else {
-            //     this.widget.type = 'chartJS'
-            //     this.widget.settings = createNewChartJSSettings()
-            //     this.widget.settings.chartModel = createChartJSModel(chartType)
-            // }
+            if (chartType === 'wordcloud') {
+                this.widget.type = 'vega'
+                this.widget.settings = createNewVegaSettings()
+                updateVegaModelColumnsAfterChartTypeChange(this.widget, chartType)
+                this.widget.settings.chartModel = createVegaModel(this.widget, chartType)
+            } else if (this.isEnterprise) {
+                const oldChartModel = this.widget.settings.chartModel?.model
+                const type = chartType.replace('Stacked', '')
+                this.widget.type = 'highcharts'
+                this.widget.settings = createNewHighchartsSettings()
+                updateWidgetModelColumnsAfterChartTypeChange(this.widget, type)
+                this.widget.settings.chartModel = createNewHighchartsModel(type, oldChartModel, chartType.endsWith('Stacked'))
+            } else {
+                this.widget.type = 'chartJS'
+                this.widget.settings = createNewChartJSSettings()
+                this.widget.settings.chartModel = createChartJSModel(chartType)
+            }
 
             // TODO widgetChange - Darko
-            this.widget.type = 'chartJS'
-            this.widget.settings = createNewChartJSSettings()
-            this.widget.settings.chartModel = createChartJSModel(chartType)
+            // this.widget.type = 'chartJS'
+            // this.widget.settings = createNewChartJSSettings()
+            // this.widget.settings.chartModel = createChartJSModel(chartType)
             emitter.emit('chartTypeChanged', this.widget.id)
             emitter.emit('refreshWidgetWithData', this.widget.id)
         }

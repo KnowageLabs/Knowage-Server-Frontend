@@ -98,6 +98,7 @@ export interface IHighchartsChartModel {
         solidgauge?: any
         heatmap?: any
         line?: any,
+        scatter?: any,
         series?: any
     },
     legend: any,
