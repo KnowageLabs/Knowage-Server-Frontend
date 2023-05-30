@@ -38,6 +38,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
             }
         }
         this.model.plotOptions.series.showCheckbox = true
+        this.model.plotOptions.series.turboThreshold = 15000
     }
 
     setData(data: any, widgetModel: IWidget) {
@@ -1236,14 +1237,20 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     setRegularData(data: any, attributeColumns: any[], measureColumns: any[]) {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
-        const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[] }
+        const serieElement = {
+            id: 0, name: measureColumn.column.columnName, data: [] as any[], layoutAlgorithm: 'squarified',
+            allowDrillToNode: true,
+            animationLimit: 1000,
+        }
         const hierarchy = {}
+        let id = 0;
         data.rows?.forEach((row: any) => {
             const formattedRow = {}
             for (let i = 0; i < attributeColumns.length; i++) {
                 formattedRow['column_' + (i + 1)] = row[attributeColumns[i].metadata.dataIndex]
             }
             formattedRow['column_' + (attributeColumns.length + 1)] = row[measureColumn.metadata.dataIndex]
+
             let currentItem = hierarchy as any;
 
             Object.entries(formattedRow).forEach(([key, value]) => {
@@ -1253,22 +1260,64 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
                     return;
                 }
 
-                // TODO
-                if (!currentItem[value]) currentItem[value] = {};
-                currentItem = currentItem[value];
+                // // TODO
+                // if (!currentItem[value]) currentItem[value] = {};
+                // currentItem = currentItem[value];
+
+                if (!currentItem.children) {
+                    // Create a children array if it doesn't exist
+                    currentItem.children = [];
+                }
+
+                // Check if the child item already exists
+                const childItem = currentItem.children.find(child => child.name === value);
+                if (childItem) {
+                    currentItem = childItem;
+                } else {
+                    // Create a new child item and assign an ID
+                    id++;
+                    const newChildItem = {
+                        id: '' + id,
+                        name: value,
+                        parent: '' + currentItem.id || null,
+                        value: 0
+                    };
+                    currentItem.children.push(newChildItem);
+                    currentItem = newChildItem;
+                }
             });
         });
 
-        this.createTreeSeriesStructureFromHierarchy(hierarchy)
+        const treemapArray = this.createTreeSeriesStructureFromHierarchy(hierarchy)
+        treemapArray.forEach((el: any) => {
+            if (el.value === 0) delete el.value
+        })
 
-        console.log('-------      serieElement.data: ', serieElement.data)
+        console.log('-------      hierarchy: ', hierarchy)
+        console.log('-------      treemapArray: ', treemapArray)
+        treemapArray.splice(0, 1)
+        serieElement.data = treemapArray
 
 
         this.model.series = [serieElement]
     }
 
-    createTreeSeriesStructureFromHierarchy(hierarchy: any) {
-        console.log('--------- hierarchy: ', hierarchy)
+    createTreeSeriesStructureFromHierarchy(node: any, parentId = null, result = [] as any[]) {
+        const { children, ...rest } = node;
+        const flattenedNode = {
+            ...rest,
+            parent: parentId
+        };
+
+        result.push(flattenedNode);
+
+        if (children) {
+            children.forEach(child => {
+                this.createTreeSeriesStructureFromHierarchy(child, node.id, result);
+            });
+        }
+
+        return result;
     }
 
     getSeriesFromWidgetModel(widgetModel: IWidget) {
