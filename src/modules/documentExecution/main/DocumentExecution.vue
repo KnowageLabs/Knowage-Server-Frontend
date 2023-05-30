@@ -838,7 +838,7 @@ export default defineComponent({
             this.rankDialogVisible = false
         },
         async onMetadataSave(metadata: any) {
-            this.loading = true
+            this.metadataLoading = true
             const jsonMeta = [] as any[]
             const properties = ['shortText', 'longText', 'file']
             properties.forEach((property: string) =>
@@ -859,7 +859,7 @@ export default defineComponent({
                     this.metadataDialogVisible = false
                 })
                 .catch(() => {})
-            this.loading = false
+            this.metadataLoading = false
         },
         async onMailSave(mail: any) {
             this.loading = true
