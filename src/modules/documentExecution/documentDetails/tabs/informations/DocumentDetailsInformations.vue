@@ -217,7 +217,7 @@
                                     <Dropdown id="attributes" v-model="document.parametersRegion" class="kn-material-input kn-width-full" :options="driversPositions" :option-label="translatedLabel" option-value="value">
                                         <template #option="slotProps">
                                             <div class="p-dropdown-option">
-                                                <span class="kn-capitalize">{{ $t(slotProps.option.label) }}</span>
+                                                <span>{{ $t(slotProps.option.label) }}</span>
                                             </div>
                                         </template>
                                     </Dropdown>
@@ -534,9 +534,6 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
-.p-dropdown-label {
-    text-transform: capitalize;
-}
 .card-0-padding .p-card-body,
 .card-0-padding .p-card-content {
     padding: 0px;
