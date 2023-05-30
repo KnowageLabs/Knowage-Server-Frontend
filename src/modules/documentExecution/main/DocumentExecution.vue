@@ -127,7 +127,7 @@
 
             <DocumentExecutionRankDialog :visible="rankDialogVisible" :prop-document-rank="documentRank" @close="rankDialogVisible = false" @saveRank="onSaveRank"></DocumentExecutionRankDialog>
             <DocumentExecutionNotesDialog :visible="notesDialogVisible" :prop-document="document" @close="notesDialogVisible = false"></DocumentExecutionNotesDialog>
-            <DocumentExecutionMetadataDialog :visible="metadataDialogVisible" :prop-document="document" :prop-metadata="metadata" :prop-loading="loading" @close="metadataDialogVisible = false" @saveMetadata="onMetadataSave"></DocumentExecutionMetadataDialog>
+            <DocumentExecutionMetadataDialog :visible="metadataDialogVisible" :prop-document="document" :prop-metadata="metadata" :prop-loading="metadataLoading" @close="metadataDialogVisible = false" @saveMetadata="onMetadataSave"></DocumentExecutionMetadataDialog>
             <DocumentExecutionMailDialog :visible="mailDialogVisible" @close="mailDialogVisible = false" @sendMail="onMailSave"></DocumentExecutionMailDialog>
             <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :prop-filters-data="filtersData" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
             <DocumentExecutionSelectCrossNavigationDialog :visible="destinationSelectDialogVisible" :cross-navigation-documents="crossNavigationDocuments" @close="destinationSelectDialogVisible = false" @selected="onCrossNavigationSelected"></DocumentExecutionSelectCrossNavigationDialog>
@@ -294,7 +294,8 @@ export default defineComponent({
             loadingCrossNavigationDocument: false,
             crossNavigationSourceDocumentName: '',
             dashboardView: null as IDashboardView | null,
-            workspaceFolderPickerDialogVisible: false
+            workspaceFolderPickerDialogVisible: false,
+            metadataLoading: false
         }
     },
     computed: {
@@ -502,10 +503,10 @@ export default defineComponent({
             this.mailDialogVisible = true
         },
         async openMetadata() {
-            this.loading = true
+            this.metadataLoading = true
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecutionee/${this.document.id}/documentMetadata`).then((response: AxiosResponse<any>) => (this.metadata = response.data))
             this.metadataDialogVisible = true
-            this.loading = false
+            this.metadataLoading = false
         },
         async openRank() {
             await this.getRank()
