@@ -8,6 +8,13 @@ export const updatePieChartModel = (oldModel: any, newModel: IChartJSChartModel)
     return newModel
 }
 
+export const updateBarChartModel = (oldModel: any, newModel: IChartJSChartModel) => {
+    getFormattedLegend(oldModel, newModel)
+    getFormattedTooltipSettings(oldModel, newModel)
+
+    return newModel
+}
+
 const getFormattedLegend = (oldModel: any, newModel: IChartJSChartModel) => {
     if (oldModel.CHART.LEGEND) {
         newModel.options.plugins.legend = {

@@ -1,12 +1,14 @@
 <template>
-    <Pie :style="myStyles" :chart-options="chartOptions" :chart-data="chartData" :chart-id="'pie-chart'" :dataset-id-key="'label'" />
+    CHART MODEL: {{ chartType }}
+    <Pie v-if="chartType === 'pie'" :style="myStyles" :chart-options="chartOptions" :chart-data="chartData" :chart-id="'pie-chart'" :dataset-id-key="'label'" />
+    <Bar v-if="chartType === 'bar'" :style="myStyles" :chart-options="chartOptions" :chart-data="chartData" :chart-id="'bar-chart'" :dataset-id-key="'label'" />
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { Pie } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js'
+import { Pie, Bar } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale, BarElement } from 'chart.js'
 import { IWidget, IWidgetColumn, ISelection } from '../../../Dashboard'
 import { IChartJSChartModel, IChartJSData, IChartJSOptions } from '../../../interfaces/chartJS/DashboardChartJSWidget'
 import { mapActions } from 'pinia'
@@ -14,11 +16,11 @@ import { updateStoreSelections, executeChartCrossNavigation } from '../../intera
 import store from '../../../Dashboard.store'
 import { formatForCrossNavigation } from './ChartJSContainerHelper'
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
+ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale, BarElement)
 
 export default defineComponent({
     name: 'chart-js-container',
-    components: { Pie },
+    components: { Pie, Bar },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -44,6 +46,9 @@ export default defineComponent({
                 height: this.editorMode ? '100%' : `${this.chartHeight}px`,
                 position: 'relative'
             }
+        },
+        chartType(): string {
+            return this.widgetModel.settings.chartModel.model.chart.type
         }
     },
     watch: {

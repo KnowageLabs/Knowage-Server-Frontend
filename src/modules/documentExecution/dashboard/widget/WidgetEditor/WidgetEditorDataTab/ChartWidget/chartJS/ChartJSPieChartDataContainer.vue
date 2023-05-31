@@ -5,7 +5,6 @@
             :widget-model="widget"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[0] }"
-            chart-type="chartJSPieChart"
             @rowReorder="onColumnsReorder"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -17,7 +16,6 @@
             :widget-model="widget"
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[1] }"
-            chart-type="chartJSPieChart"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
             @itemSelected="setSelectedColumn($event, 4)"
@@ -72,7 +70,8 @@ export default defineComponent({
             this.columnTableItems['MEASURES'] = []
             this.widget.columns.forEach((column: IWidgetColumn) => {
                 const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
-                if ((type === 'MEASURES' && this.columnTableItems['MEASURES'].length === 1) || (type === 'ATTRIBUTES' && this.columnTableItems['ATTRIBUTES'].length === 1)) return
+                //TODO BOJAN CONSTRAINTS
+                // if ((type === 'MEASURES' && this.columnTableItems['MEASURES'].length === 1) || (type === 'ATTRIBUTES' && this.columnTableItems['ATTRIBUTES'].length === 1)) return
                 this.columnTableItems[type].push(column)
             })
         },

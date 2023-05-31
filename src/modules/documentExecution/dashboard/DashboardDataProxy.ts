@@ -20,6 +20,7 @@ import { getHighchartsWidgetData } from './widget/ChartWidget/Highcharts/Highcha
 import { getPivotData } from '@/workspaces/PivotWidget/PivotWidgetDataProxy'
 import { getDiscoveryWidgetData } from './widget/DiscoveryWidget/DiscoveryWidgetDataProxy'
 import { getHighchartsBarData } from './widget/ChartWidget/Highcharts/dataProxy/HighchartsBarDataProxy'
+import { getChartJSWidgetData } from './widget/ChartWidget/ChartJS/ChartJSDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -55,7 +56,7 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
         case 'highcharts':
             return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'chartJS': //TODO: CHANGE METHOD
-            return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getChartJSWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'customchart': //TODO: CHANGE METHOD
             return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'static-pivot-table':

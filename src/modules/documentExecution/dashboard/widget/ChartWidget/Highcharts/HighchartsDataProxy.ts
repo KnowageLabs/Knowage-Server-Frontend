@@ -13,6 +13,7 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
         case 'area':
         case 'bar':
         case 'column':
+        case 'pie':
             return await getHighchartsBarData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
