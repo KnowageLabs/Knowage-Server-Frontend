@@ -488,8 +488,10 @@ export default defineComponent({
             } else if (this.document.typeCode === 'REPORT') {
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
             } else {
+                const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
-                let tempFrame = window.frames[tempIndex]
+
+                let tempFrame = filteredFrames[tempIndex]
                 while (tempFrame && tempFrame.name !== 'documentFrame' + tempIndex) tempFrame = tempFrame[0].frames
 
                 tempFrame.postMessage({ type: 'export', format: type.toLowerCase() }, '*')
