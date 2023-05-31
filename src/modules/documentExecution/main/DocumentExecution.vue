@@ -1043,9 +1043,9 @@ export default defineComponent({
         onDashboardGeneralSettingsClosed() {
             this.dashboardGeneralSettingsOpened = false
         },
-        openDashboardGeneralSettings() {
+        openDashboardGeneralSettings(mode: string) {
             this.dashboardGeneralSettingsOpened = true
-            emitter.emit('openDashboardGeneralSettings', this.document.dashboardId)
+            emitter.emit('openDashboardGeneralSettings', { dashboardId: this.document.dashboardId, mode: mode })
         },
         saveDashboard() {
             emitter.emit('saveDashboard', this.document.dashboardId)

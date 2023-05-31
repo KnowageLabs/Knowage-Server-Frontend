@@ -20,6 +20,7 @@
                 :datasets="datasets"
                 :document-drivers="drivers"
                 :profile-attributes="profileAttributes"
+                :general-settings-mode="generalSettingsMode"
                 @closeGeneralSettings="closeGeneralSettings"
                 @saveGeneralSettings="generalSettingsVisible = false"
             ></DashboardGeneralSettings>
@@ -135,7 +136,8 @@ export default defineComponent({
             selectedView: null as IDashboardView | null,
             saveViewDialogVisible: false,
             savedViewsListDialogVisible: false,
-            selectedViewForExecution: null as IDashboardView | null
+            selectedViewForExecution: null as IDashboardView | null,
+            generalSettingsMode: 'General' as string
         }
     },
     computed: {
@@ -386,11 +388,13 @@ export default defineComponent({
             this.removeSelections(selections, this.dashboardId)
         },
         openGeneralSettings(event) {
-            if (event !== this.dashboardId) return
+            if (event.dashboardId !== this.dashboardId) return
             this.generalSettingsVisible = true
+            this.generalSettingsMode = event.mode ?? 'General'
         },
         closeGeneralSettings() {
             this.generalSettingsVisible = false
+            this.generalSettingsMode = 'General'
             emitter.emit('dashboardGeneralSettingsClosed')
         },
         executeCrossNavigation(payload: any) {

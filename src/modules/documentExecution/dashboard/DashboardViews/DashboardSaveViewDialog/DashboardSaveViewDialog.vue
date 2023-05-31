@@ -97,6 +97,7 @@ export default defineComponent({
 
             this.view.biObjectId = this.document?.id
             this.view.parentId = this.selectedFolder ? this.selectedFolder.id : null
+            this.view.label = this.view.name
             await saveDashboardView(this.view, this.$http)
                 .then(() => {
                     this.closeDialog()
@@ -107,6 +108,7 @@ export default defineComponent({
         async updateView() {
             if (!this.view) return
             this.view.parentId = this.selectedFolder ? this.selectedFolder.id : null
+            this.view.label = this.view.name
             await updateDashboardView(this.view, this.$http)
                 .then(() => {
                     this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.success') })
