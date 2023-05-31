@@ -8,6 +8,7 @@
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="columnTableSettings"
             :chart-type="chartType"
+            :error="isAttributesTableInvalid"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -24,6 +25,7 @@
             :settings="getValuesAxisSettings(axis)"
             :chart-type="chartType"
             :axis="axis"
+            :error="isAxisTableInvalid(axis)"
             @rowReorder="onColumnsReorder($event, axis)"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -71,6 +73,15 @@ export default defineComponent({
             return {
                 ...commonDescriptor.columnTableSettings,
                 ...highchartDescriptor.bubbleChartColumnTableSettings[0]
+            }
+        },
+        isAttributesTableInvalid() {
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) return true
+            switch (this.chartType) {
+                case 'bubble':
+                    return this.widgetModel.settings?.configuration?.splitting && this.columnTableItems['ATTRIBUTES'].length !== 2
+                default:
+                    return false
             }
         }
     },
@@ -179,6 +190,39 @@ export default defineComponent({
             const type = column.axis ? column.axis : 'ATTRIBUTES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
+        },
+        isAxisTableInvalid(axis: string) {
+            switch (axis) {
+                case 'X':
+                    return this.isXAxisTableInvalid()
+                case 'Y':
+                    return this.isYAxisTableInvalid()
+                case 'Z':
+                    return this.isZAxisTableInvalid()
+                default:
+                    return false
+            }
+        },
+        isXAxisTableInvalid() {
+            if (this.columnTableItems['X'].length === 0) return true
+            switch (this.chartType) {
+                case 'bubble':
+                    return this.columnTableItems['X'].length !== 1
+                default:
+                    return false
+            }
+        },
+        isYAxisTableInvalid() {
+            return this.columnTableItems['Y'].length === 0
+        },
+        isZAxisTableInvalid() {
+            if (this.columnTableItems['Z'].length === 0) return true
+            switch (this.chartType) {
+                case 'bubble':
+                    return this.columnTableItems['Z'].length !== 1
+                default:
+                    return false
+            }
         }
     }
 })

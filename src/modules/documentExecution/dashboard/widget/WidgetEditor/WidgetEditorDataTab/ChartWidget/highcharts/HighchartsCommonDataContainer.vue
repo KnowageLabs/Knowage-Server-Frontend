@@ -1,13 +1,17 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
+        {{ 'CHART TYPE' }}
+        {{ chartType }}
+        <br />
         {{ columnTableItems['ATTRIBUTES'] }}
         <WidgetEditorColumnTable
-            v-if="['pie', 'heatmap', 'radar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
+            v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
             class="p-m-2 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="columnTableSettings"
             :chart-type="chartType"
+            :error="isAttributesTableInvalid"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -20,6 +24,7 @@
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="valuesColumnSettings"
             :chart-type="chartType"
+            :error="isMeasureTableInvalid"
             @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -117,6 +122,49 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[1] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
+            }
+        },
+        isAttributesTableInvalid() {
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) return true
+            switch (this.chartType) {
+                case 'area':
+                case 'bar':
+                case 'column':
+                case 'line':
+                    return (
+                        (this.widgetModel.settings.configuration?.grouping?.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2) ||
+                        (this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['ATTRIBUTES'].length !== 1) ||
+                        (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
+                    )
+                case 'scatter':
+                    return this.columnTableItems['ATTRIBUTES'].length !== 1
+                case 'sunburst':
+                case 'treemap':
+                case 'heatmap':
+                    return this.columnTableItems['ATTRIBUTES'].length !== 2
+                case 'radar':
+                    return this.widgetModel.settings?.configuration?.splitting && this.columnTableItems['ATTRIBUTES'].length !== 2
+                default:
+                    return false
+            }
+        },
+        isMeasureTableInvalid() {
+            if (this.columnTableItems['MEASURES'].length === 0) return true
+            switch (this.chartType) {
+                case 'area':
+                case 'bar':
+                case 'column':
+                case 'line':
+                    return this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length > 2
+                case 'solidgauge':
+                case 'heatmap':
+                    return this.columnTableItems['MEASURES'].length !== 1
+                case 'pie':
+                case 'gauge':
+                case 'activitygauge':
+                    return this.columnTableItems['MEASURES'].length > 4
+                default:
+                    return false
             }
         }
     },

@@ -1,5 +1,5 @@
 <template>
-    <div class="widget-editor-card p-p-2">
+    <div class="widget-editor-card p-p-2" :class="{ ['widget-editor-column-table-invalid']: error }">
         <div class="p-d-flex p-flex-column">
             <label v-if="settings.label" class="kn-material-input-label">{{ $t(settings.label) }}</label>
             <small v-if="settings.hint"> {{ $t(settings.hint) }}</small>
@@ -74,7 +74,7 @@ import commonDescriptor from '../common/WidgetCommonDescriptor.json'
 export default defineComponent({
     name: 'widget-editor-column-table',
     components: { Column, DataTable, Dropdown },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Object } },
     emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {
@@ -192,5 +192,9 @@ export default defineComponent({
 .column-aggregation-dropdown {
     min-width: 200px;
     max-width: 400px;
+}
+
+.widget-editor-column-table-invalid {
+    border: 1.5px solid red;
 }
 </style>

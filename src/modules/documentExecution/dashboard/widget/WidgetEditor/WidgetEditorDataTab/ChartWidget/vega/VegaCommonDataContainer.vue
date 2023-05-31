@@ -7,6 +7,7 @@
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...highchartDescriptor.wordcloudColumnTableSettings[0] }"
             :chart-type="chartType"
+            :error="isAttributesTableInvalid"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -19,6 +20,7 @@
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...highchartDescriptor.wordcloudColumnTableSettings[1] }"
             :chart-type="chartType"
+            :error="isMeasureTableInvalid"
             @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -57,6 +59,24 @@ export default defineComponent({
     computed: {
         chartType() {
             return this.widgetModel?.settings.chartModel?.model?.chart.type
+        },
+        isAttributesTableInvalid() {
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) return true
+            switch (this.chartType) {
+                case 'wordcloud':
+                    return this.columnTableItems['ATTRIBUTES'].length !== 1
+                default:
+                    return false
+            }
+        },
+        isMeasureTableInvalid() {
+            if (this.columnTableItems['MEASURES'].length === 0) return true
+            switch (this.chartType) {
+                case 'wordcloud':
+                    return this.columnTableItems['MEASURES'].length !== 1
+                default:
+                    return false
+            }
         }
     },
     watch: {
@@ -82,8 +102,6 @@ export default defineComponent({
             this.columnTableItems['MEASURES'] = []
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
                 const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
-                const maxNumberOfDimensions = this.chartType === 'wordcloud' ? 1 : null
-                if (type === 'MEASURES' && maxNumberOfDimensions && this.columnTableItems['MEASURES'].length === maxNumberOfDimensions) return
                 this.columnTableItems[type].push(column)
             })
         },

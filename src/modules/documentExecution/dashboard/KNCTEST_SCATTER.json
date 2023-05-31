@@ -1,0 +1,976 @@
+{
+    "configuration": {
+        "aggregations": [],
+        "associations": [],
+        "datasets": [
+            {
+                "dsId": 213,
+                "dsLabel": "TEST_09_SCATTER",
+                "frequency": 0,
+                "name": "TEST_09_SCATTER",
+                "parameters": {},
+                "useCache": false
+            }
+        ],
+        "documents": [],
+        "filters": {},
+        "showExcelExport": true,
+        "showMenuOnView": true,
+        "showScreenshot": true,
+        "showSelectionButton": true,
+        "style": {
+            "titles": true
+        },
+        "variables": []
+    },
+    "knowageVersion": "8.2.0-S",
+    "selections": [],
+    "sheets": [
+        {
+            "index": 0,
+            "label": "New Sheet",
+            "widgets": [
+                {
+                    "cliccable": true,
+                    "col": 11,
+                    "content": {
+                        "chartTemplate": {
+                            "CHART": {
+                                "AXES_LIST": {
+                                    "AXIS": [
+                                        {
+                                            "LABELS": {
+                                                "precision": 0,
+                                                "scaleFactor": "empty"
+                                            },
+                                            "MAJORGRID": {
+                                                "interval": "",
+                                                "style": {
+                                                    "color": "",
+                                                    "typeLine": ""
+                                                }
+                                            },
+                                            "MINORGRID": {
+                                                "interval": "",
+                                                "style": {
+                                                    "color": "",
+                                                    "typeLine": ""
+                                                }
+                                            },
+                                            "TITLE": {
+                                                "style": {
+                                                    "align": "",
+                                                    "color": "",
+                                                    "fontFamily": "",
+                                                    "fontSize": "11px",
+                                                    "fontWeight": "bold"
+                                                },
+                                                "text": "unit sales"
+                                            },
+                                            "alias": "Y",
+                                            "plotBands": [
+                                                {
+                                                    "color": "",
+                                                    "from": 0,
+                                                    "label": {
+                                                        "align": "center",
+                                                        "text": ""
+                                                    },
+                                                    "to": 0
+                                                }
+                                            ],
+                                            "plotLines": [
+                                                {
+                                                    "color": "",
+                                                    "dashStyle": "",
+                                                    "label": {
+                                                        "align": "center",
+                                                        "text": ""
+                                                    },
+                                                    "value": 0,
+                                                    "width": 0
+                                                }
+                                            ],
+                                            "position": "",
+                                            "style": {
+                                                "align": "",
+                                                "color": "",
+                                                "fontFamily": "",
+                                                "fontSize": "",
+                                                "fontWeight": "",
+                                                "rotate": ""
+                                            },
+                                            "type": "Serie"
+                                        },
+                                        {
+                                            "TITLE": {
+                                                "style": {
+                                                    "align": "",
+                                                    "color": "",
+                                                    "fontFamily": "",
+                                                    "fontSize": "11px",
+                                                    "fontWeight": "bold"
+                                                },
+                                                "text": "store cost"
+                                            },
+                                            "alias": "X",
+                                            "endOnTick": true,
+                                            "plotBands": [
+                                                {
+                                                    "color": "",
+                                                    "from": 0,
+                                                    "label": {
+                                                        "align": "center",
+                                                        "text": ""
+                                                    },
+                                                    "to": 0
+                                                }
+                                            ],
+                                            "plotLines": [
+                                                {
+                                                    "color": "",
+                                                    "dashStyle": "",
+                                                    "label": {
+                                                        "align": "center",
+                                                        "text": ""
+                                                    },
+                                                    "value": 0,
+                                                    "width": 0
+                                                }
+                                            ],
+                                            "position": "",
+                                            "showLastLabel": true,
+                                            "startOnTick": true,
+                                            "step": "",
+                                            "style": {
+                                                "align": "",
+                                                "color": "",
+                                                "fontFamily": "",
+                                                "fontSize": "",
+                                                "fontWeight": "",
+                                                "rotate": ""
+                                            },
+                                            "type": "Category"
+                                        }
+                                    ]
+                                },
+                                "COLORPALETTE": {
+                                    "COLOR": [
+                                        {
+                                            "gradient": "",
+                                            "name": "ffeb3b",
+                                            "order": "1",
+                                            "value": "#ffeb3b"
+                                        }
+                                    ]
+                                },
+                                "EMPTYMESSAGE": {
+                                    "position": {
+                                        "align": "",
+                                        "verticalAlign": ""
+                                    },
+                                    "style": {
+                                        "color": "",
+                                        "fontFamily": "",
+                                        "fontSize": "",
+                                        "fontWeight": ""
+                                    },
+                                    "text": ""
+                                },
+                                "LEGEND": {
+                                    "TITLE": {
+                                        "style": {
+                                            "align": "",
+                                            "color": "",
+                                            "fontFamily": "",
+                                            "fontSize": "",
+                                            "fontWeight": ""
+                                        },
+                                        "text": ""
+                                    },
+                                    "layout": "",
+                                    "position": "",
+                                    "show": false,
+                                    "style": {
+                                        "align": "",
+                                        "backgroundColor": "",
+                                        "borderWidth": "",
+                                        "color": "",
+                                        "fontFamily": "",
+                                        "fontSize": "",
+                                        "fontWeight": ""
+                                    },
+                                    "x": 0,
+                                    "y": 0
+                                },
+                                "SUBTITLE": {
+                                    "style": {
+                                        "align": "",
+                                        "color": "",
+                                        "fontFamily": "",
+                                        "fontSize": "",
+                                        "fontWeight": ""
+                                    },
+                                    "text": ""
+                                },
+                                "TITLE": {
+                                    "style": {
+                                        "align": "",
+                                        "color": "",
+                                        "fontFamily": "",
+                                        "fontSize": "",
+                                        "fontWeight": ""
+                                    },
+                                    "text": ""
+                                },
+                                "TOOLTIP": {
+                                    "backgroundColor": "#D6D6D6",
+                                    "borderRadius": 15,
+                                    "borderWidth": 3
+                                },
+                                "VALUES": {
+                                    "CATEGORY": [
+                                        {
+                                            "column": "store_cost",
+                                            "fakeCategory": false,
+                                            "groupby": "",
+                                            "groupbyNames": "",
+                                            "name": "store_cost",
+                                            "orderColumn": "store_cost",
+                                            "orderType": "desc",
+                                            "stacked": "",
+                                            "stackedType": ""
+                                        },
+                                        {
+                                            "column": "product_family",
+                                            "fakeCategory": true,
+                                            "groupby": "",
+                                            "groupbyNames": "",
+                                            "name": "product_family",
+                                            "orderColumn": "",
+                                            "orderType": "",
+                                            "stacked": "",
+                                            "stackedType": ""
+                                        },
+                                        {
+                                            "column": "product_department",
+                                            "fakeCategory": true,
+                                            "groupby": "",
+                                            "groupbyNames": "",
+                                            "name": "product_department",
+                                            "orderColumn": "",
+                                            "orderType": "",
+                                            "stacked": "",
+                                            "stackedType": ""
+                                        },
+                                        {
+                                            "column": "product_name",
+                                            "fakeCategory": true,
+                                            "groupby": "",
+                                            "groupbyNames": "",
+                                            "name": "product_name",
+                                            "orderColumn": "",
+                                            "orderType": "",
+                                            "stacked": "",
+                                            "stackedType": ""
+                                        }
+                                    ],
+                                    "SERIE": [
+                                        {
+                                            "TOOLTIP": {
+                                                "backgroundColor": "#F6F67B",
+                                                "style": {
+                                                    "align": "center",
+                                                    "color": "#459B4F",
+                                                    "fontFamily": "Gungsuh",
+                                                    "fontSize": "18px",
+                                                    "fontWeight": "italic",
+                                                    "rotate": ""
+                                                },
+                                                "tooltipExpression": "\"product family: \"+this.point[\"product_family\"] + \"; product depertment:\" + this.point[\"product_department\"] + \"; product name:\" + this.point[\"product_name\"] + \";unit sales: \" + this.point[\"unit_sales\"] + \"; store cost: \" + this.point[\"store_cost\"]"
+                                            },
+                                            "axis": "Y",
+                                            "color": "",
+                                            "column": "unit_sales",
+                                            "dataLabels": {
+                                                "style": {
+                                                    "color": "",
+                                                    "fontFamily": "",
+                                                    "fontSize": "",
+                                                    "fontStyle": "",
+                                                    "fontWeight": ""
+                                                }
+                                            },
+                                            "fakeSerie": false,
+                                            "groupingFunction": "NONE",
+                                            "name": "unit_sales",
+                                            "orderType": "",
+                                            "postfixChar": "",
+                                            "precision": 0,
+                                            "prefixChar": "",
+                                            "scaleFactor": "empty",
+                                            "showAbsValue": false,
+                                            "showPercentage": false,
+                                            "showValue": "",
+                                            "type": ""
+                                        }
+                                    ]
+                                },
+                                "borderVisible": false,
+                                "categoryDate": "",
+                                "dateFormat": "day",
+                                "dateTime": false,
+                                "height": 100,
+                                "heightDimType": "percentage",
+                                "isCockpitEngine": true,
+                                "orientation": "",
+                                "outcomingEventsEnabled": true,
+                                "seriesStacking": false,
+                                "style": {
+                                    "backgroundColor": "rgba(76, 175, 80, 0.1)",
+                                    "fontFamily": "",
+                                    "fontSize": "",
+                                    "fontWeight": ""
+                                },
+                                "styleName": "default",
+                                "type": "SCATTER",
+                                "width": 100,
+                                "widthDimType": "percentage",
+                                "zoomType": ""
+                            }
+                        },
+                        "columnSelectedOfDataset": [
+                            {
+                                "aggregationSelected": "NONE",
+                                "alias": "unit_sales_NONE",
+                                "aliasToShow": "unit_sales_NONE",
+                                "fieldType": "MEASURE",
+                                "name": "unit_sales",
+                                "orderColumn": "unit_sales",
+                                "orderType": ""
+                            },
+                            {
+                                "alias": "store_cost",
+                                "aliasToShow": "store_cost",
+                                "fieldType": "ATTRIBUTE",
+                                "name": "store_cost",
+                                "orderColumn": "store_cost",
+                                "orderType": "desc"
+                            },
+                            {
+                                "alias": "product_family",
+                                "aliasToShow": "product_family",
+                                "fieldType": "ATTRIBUTE",
+                                "name": "product_family",
+                                "orderColumn": "",
+                                "orderType": ""
+                            },
+                            {
+                                "alias": "product_department",
+                                "aliasToShow": "product_department",
+                                "fieldType": "ATTRIBUTE",
+                                "name": "product_department",
+                                "orderColumn": "",
+                                "orderType": ""
+                            },
+                            {
+                                "alias": "product_name",
+                                "aliasToShow": "product_name",
+                                "fieldType": "ATTRIBUTE",
+                                "name": "product_name",
+                                "orderColumn": "",
+                                "orderType": ""
+                            }
+                        ],
+                        "columnSelectedOfDatasetAggregations": [
+                            {
+                                "alias": "product_family",
+                                "aliasToShow": "product_family",
+                                "decrypt": false,
+                                "fieldType": "ATTRIBUTE",
+                                "isAttribute": true,
+                                "multiValue": false,
+                                "name": "product_family",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.lang.String"
+                            },
+                            {
+                                "alias": "product_department",
+                                "aliasToShow": "product_department",
+                                "decrypt": false,
+                                "fieldType": "ATTRIBUTE",
+                                "isAttribute": true,
+                                "multiValue": false,
+                                "name": "product_department",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.lang.String"
+                            },
+                            {
+                                "alias": "product_name",
+                                "aliasToShow": "product_name",
+                                "decrypt": false,
+                                "fieldType": "ATTRIBUTE",
+                                "isAttribute": true,
+                                "multiValue": false,
+                                "name": "product_name",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.lang.String"
+                            },
+                            {
+                                "aggregationSelected": "NONE",
+                                "alias": "unit_sales",
+                                "aliasToShow": "unit_sales",
+                                "decrypt": false,
+                                "fieldType": "MEASURE",
+                                "funcSummary": "SUM",
+                                "multiValue": false,
+                                "name": "unit_sales",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.math.BigDecimal"
+                            },
+                            {
+                                "alias": "store_cost",
+                                "aliasToShow": "store_cost",
+                                "decrypt": false,
+                                "fieldType": "ATTRIBUTE",
+                                "isAttribute": true,
+                                "multiValue": false,
+                                "name": "store_cost",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.math.BigDecimal"
+                            }
+                        ],
+                        "cross": {},
+                        "dataset": {
+                            "dsId": 213,
+                            "dsLabel": "TEST_09_SCATTER",
+                            "label": "TEST_09_SCATTER"
+                        },
+                        "datasetId": 213,
+                        "datasetLabel": "TEST_09_SCATTER",
+                        "designer": "Chart Engine Designer",
+                        "filters": [],
+                        "limitRows": {
+                            "enable": false,
+                            "rows": 10
+                        },
+                        "name": "KNCTEST30",
+                        "preview": {},
+                        "wtype": "chart"
+                    },
+                    "cross": {},
+                    "dataset": {
+                        "dsId": 213,
+                        "dsLabel": "TEST_09_SCATTER",
+                        "label": "TEST_09_SCATTER"
+                    },
+                    "drillable": false,
+                    "id": 1559643087420,
+                    "knowageVersion": "7.0.0-S",
+                    "menuOpened": false,
+                    "row": 0,
+                    "sizeX": 25,
+                    "sizeY": 15,
+                    "style": {
+                        "title": {
+                            "font": {},
+                            "label": "KNCTEST30"
+                        }
+                    },
+                    "type": "chart",
+                    "updateble": true
+                },
+                {
+                    "cliccable": true,
+                    "col": 11,
+                    "content": {
+                        "chartTemplate": {
+                            "CHART": {
+                                "AXES_LIST": {
+                                    "AXIS": [
+                                        {
+                                            "LABELS": {
+                                                "precision": 0,
+                                                "scaleFactor": "empty"
+                                            },
+                                            "MAJORGRID": {
+                                                "interval": "",
+                                                "style": {
+                                                    "color": "",
+                                                    "typeLine": ""
+                                                }
+                                            },
+                                            "MINORGRID": {
+                                                "interval": "",
+                                                "style": {
+                                                    "color": "",
+                                                    "typeLine": ""
+                                                }
+                                            },
+                                            "TITLE": {
+                                                "style": {
+                                                    "align": "",
+                                                    "color": "",
+                                                    "fontFamily": "",
+                                                    "fontSize": "11px",
+                                                    "fontWeight": "bold"
+                                                },
+                                                "text": "unit_sales"
+                                            },
+                                            "alias": "Y",
+                                            "plotBands": [
+                                                {
+                                                    "color": "",
+                                                    "from": 0,
+                                                    "label": {
+                                                        "align": "center",
+                                                        "text": ""
+                                                    },
+                                                    "to": 0
+                                                }
+                                            ],
+                                            "plotLines": [
+                                                {
+                                                    "color": "",
+                                                    "dashStyle": "",
+                                                    "label": {
+                                                        "align": "center",
+                                                        "text": ""
+                                                    },
+                                                    "value": 0,
+                                                    "width": 0
+                                                }
+                                            ],
+                                            "position": "",
+                                            "style": {
+                                                "align": "",
+                                                "color": "",
+                                                "fontFamily": "",
+                                                "fontSize": "",
+                                                "fontWeight": "",
+                                                "rotate": ""
+                                            },
+                                            "type": "Serie"
+                                        },
+                                        {
+                                            "TITLE": {
+                                                "style": {
+                                                    "align": "",
+                                                    "color": "",
+                                                    "fontFamily": "",
+                                                    "fontSize": "11px",
+                                                    "fontWeight": "bold"
+                                                },
+                                                "text": "Store cost"
+                                            },
+                                            "alias": "X",
+                                            "endOnTick": true,
+                                            "plotBands": [
+                                                {
+                                                    "color": "",
+                                                    "from": 0,
+                                                    "label": {
+                                                        "align": "center",
+                                                        "text": ""
+                                                    },
+                                                    "to": 0
+                                                }
+                                            ],
+                                            "plotLines": [
+                                                {
+                                                    "color": "",
+                                                    "dashStyle": "",
+                                                    "label": {
+                                                        "align": "center",
+                                                        "text": ""
+                                                    },
+                                                    "value": 0,
+                                                    "width": 0
+                                                }
+                                            ],
+                                            "position": "",
+                                            "showLastLabel": true,
+                                            "startOnTick": true,
+                                            "step": "",
+                                            "style": {
+                                                "align": "",
+                                                "color": "",
+                                                "fontFamily": "",
+                                                "fontSize": "",
+                                                "fontWeight": "",
+                                                "rotate": ""
+                                            },
+                                            "type": "Category"
+                                        }
+                                    ]
+                                },
+                                "COLORPALETTE": {
+                                    "COLOR": [
+                                        {
+                                            "gradient": "",
+                                            "name": "ffc107",
+                                            "order": "1",
+                                            "value": "#ffc107"
+                                        }
+                                    ]
+                                },
+                                "EMPTYMESSAGE": {
+                                    "position": {
+                                        "align": "",
+                                        "verticalAlign": ""
+                                    },
+                                    "style": {
+                                        "color": "",
+                                        "fontFamily": "",
+                                        "fontSize": "",
+                                        "fontWeight": ""
+                                    },
+                                    "text": ""
+                                },
+                                "LEGEND": {
+                                    "TITLE": {
+                                        "style": {
+                                            "align": "",
+                                            "color": "",
+                                            "fontFamily": "",
+                                            "fontSize": "",
+                                            "fontWeight": ""
+                                        },
+                                        "text": ""
+                                    },
+                                    "layout": "",
+                                    "position": "",
+                                    "show": false,
+                                    "style": {
+                                        "align": "",
+                                        "backgroundColor": "",
+                                        "borderWidth": "",
+                                        "color": "",
+                                        "fontFamily": "",
+                                        "fontSize": "",
+                                        "fontWeight": ""
+                                    },
+                                    "x": 0,
+                                    "y": 0
+                                },
+                                "SUBTITLE": {
+                                    "style": {
+                                        "align": "",
+                                        "color": "",
+                                        "fontFamily": "",
+                                        "fontSize": "",
+                                        "fontWeight": ""
+                                    },
+                                    "text": ""
+                                },
+                                "TITLE": {
+                                    "style": {
+                                        "align": "",
+                                        "color": "",
+                                        "fontFamily": "",
+                                        "fontSize": "",
+                                        "fontWeight": ""
+                                    },
+                                    "text": ""
+                                },
+                                "TOOLTIP": {
+                                    "backgroundColor": "#D6D6D6",
+                                    "borderRadius": 15,
+                                    "borderWidth": 3
+                                },
+                                "VALUES": {
+                                    "CATEGORY": [
+                                        {
+                                            "column": "store_cost",
+                                            "fakeCategory": false,
+                                            "groupby": "",
+                                            "groupbyNames": "",
+                                            "name": "store_cost",
+                                            "orderColumn": "",
+                                            "orderType": "",
+                                            "stacked": "",
+                                            "stackedType": ""
+                                        },
+                                        {
+                                            "column": "product_family",
+                                            "fakeCategory": true,
+                                            "groupby": "",
+                                            "groupbyNames": "",
+                                            "name": "product_family",
+                                            "orderColumn": "",
+                                            "orderType": "",
+                                            "stacked": "",
+                                            "stackedType": ""
+                                        },
+                                        {
+                                            "column": "product_department",
+                                            "fakeCategory": true,
+                                            "groupby": "",
+                                            "groupbyNames": "",
+                                            "name": "product_department",
+                                            "orderColumn": "",
+                                            "orderType": "",
+                                            "stacked": "",
+                                            "stackedType": ""
+                                        },
+                                        {
+                                            "column": "product_name",
+                                            "fakeCategory": true,
+                                            "groupby": "",
+                                            "groupbyNames": "",
+                                            "name": "product_name",
+                                            "orderColumn": "",
+                                            "orderType": "",
+                                            "stacked": "",
+                                            "stackedType": ""
+                                        }
+                                    ],
+                                    "SERIE": [
+                                        {
+                                            "TOOLTIP": {
+                                                "backgroundColor": "#F6F67B",
+                                                "style": {
+                                                    "align": "center",
+                                                    "color": "#459B4F",
+                                                    "fontFamily": "Gungsuh",
+                                                    "fontSize": "18px",
+                                                    "fontWeight": "italic",
+                                                    "rotate": ""
+                                                },
+                                                "tooltipExpression": "\"product family: \"+this.point[\"product_family\"] + \"; product depertment:\" + this.point[\"product_department\"] + \"; product name:\" + this.point[\"product_name\"] + \";unit sales: \" + this.point[\"unit sales\"] + \"; store cost: \" + this.point[\"store_cost\"]"
+                                            },
+                                            "axis": "Y",
+                                            "color": "",
+                                            "column": "unit_sales",
+                                            "dataLabels": {
+                                                "style": {
+                                                    "color": "",
+                                                    "fontFamily": "",
+                                                    "fontSize": "",
+                                                    "fontStyle": "",
+                                                    "fontWeight": ""
+                                                }
+                                            },
+                                            "fakeSerie": false,
+                                            "groupingFunction": "NONE",
+                                            "name": "unit sales",
+                                            "orderType": "",
+                                            "postfixChar": "",
+                                            "precision": 0,
+                                            "prefixChar": "",
+                                            "scaleFactor": "empty",
+                                            "showAbsValue": false,
+                                            "showPercentage": false,
+                                            "showValue": "",
+                                            "type": ""
+                                        }
+                                    ]
+                                },
+                                "borderVisible": false,
+                                "categoryDate": "",
+                                "dateFormat": "day",
+                                "dateTime": false,
+                                "height": 100,
+                                "heightDimType": "percentage",
+                                "isCockpitEngine": true,
+                                "orientation": "",
+                                "outcomingEventsEnabled": true,
+                                "seriesStacking": false,
+                                "style": {
+                                    "backgroundColor": "rgba(76, 175, 80, 0.1)",
+                                    "fontFamily": "",
+                                    "fontSize": "",
+                                    "fontWeight": ""
+                                },
+                                "styleName": "default",
+                                "type": "SCATTER",
+                                "width": 100,
+                                "widthDimType": "percentage",
+                                "zoomType": ""
+                            }
+                        },
+                        "columnSelectedOfDataset": [
+                            {
+                                "aggregationSelected": "NONE",
+                                "alias": "unit sales_NONE",
+                                "aliasToShow": "unit sales_NONE",
+                                "fieldType": "MEASURE",
+                                "name": "unit_sales",
+                                "orderColumn": "unit_sales",
+                                "orderType": ""
+                            },
+                            {
+                                "alias": "store_cost",
+                                "aliasToShow": "store_cost",
+                                "fieldType": "ATTRIBUTE",
+                                "name": "store_cost",
+                                "orderColumn": "",
+                                "orderType": ""
+                            },
+                            {
+                                "alias": "product_family",
+                                "aliasToShow": "product_family",
+                                "fieldType": "ATTRIBUTE",
+                                "name": "product_family",
+                                "orderColumn": "",
+                                "orderType": ""
+                            },
+                            {
+                                "alias": "product_department",
+                                "aliasToShow": "product_department",
+                                "fieldType": "ATTRIBUTE",
+                                "name": "product_department",
+                                "orderColumn": "",
+                                "orderType": ""
+                            },
+                            {
+                                "alias": "product_name",
+                                "aliasToShow": "product_name",
+                                "fieldType": "ATTRIBUTE",
+                                "name": "product_name",
+                                "orderColumn": "",
+                                "orderType": ""
+                            }
+                        ],
+                        "columnSelectedOfDatasetAggregations": [
+                            {
+                                "alias": "product_family",
+                                "aliasToShow": "product_family",
+                                "decrypt": false,
+                                "fieldType": "ATTRIBUTE",
+                                "isAttribute": true,
+                                "multiValue": false,
+                                "name": "product_family",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.lang.String"
+                            },
+                            {
+                                "alias": "product_department",
+                                "aliasToShow": "product_department",
+                                "decrypt": false,
+                                "fieldType": "ATTRIBUTE",
+                                "isAttribute": true,
+                                "multiValue": false,
+                                "name": "product_department",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.lang.String"
+                            },
+                            {
+                                "alias": "product_name",
+                                "aliasToShow": "product_name",
+                                "decrypt": false,
+                                "fieldType": "ATTRIBUTE",
+                                "isAttribute": true,
+                                "multiValue": false,
+                                "name": "product_name",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.lang.String"
+                            },
+                            {
+                                "aggregationSelected": "NONE",
+                                "alias": "unit_sales",
+                                "aliasToShow": "unit_sales",
+                                "decrypt": false,
+                                "fieldType": "MEASURE",
+                                "funcSummary": "SUM",
+                                "multiValue": false,
+                                "name": "unit_sales",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.math.BigDecimal"
+                            },
+                            {
+                                "alias": "store_cost",
+                                "aliasToShow": "store_cost",
+                                "decrypt": false,
+                                "fieldType": "ATTRIBUTE",
+                                "isAttribute": true,
+                                "multiValue": false,
+                                "name": "store_cost",
+                                "personal": false,
+                                "precision": 0,
+                                "properties": {},
+                                "scale": 0,
+                                "subjectId": false,
+                                "type": "java.math.BigDecimal"
+                            }
+                        ],
+                        "cross": {},
+                        "dataset": {
+                            "dsId": 213,
+                            "dsLabel": "TEST_09_SCATTER",
+                            "label": "TEST_09_SCATTER"
+                        },
+                        "datasetId": 213,
+                        "datasetLabel": "TEST_09_SCATTER",
+                        "designer": "Chart Engine Designer",
+                        "filters": [],
+                        "limitRows": {
+                            "enable": false,
+                            "rows": 10
+                        },
+                        "name": "KNCTEST31",
+                        "preview": {},
+                        "wtype": "chart"
+                    },
+                    "cross": {},
+                    "dataset": {
+                        "dsId": 213,
+                        "dsLabel": "TEST_09_SCATTER",
+                        "label": "TEST_09_SCATTER"
+                    },
+                    "drillable": false,
+                    "id": 1560261903185,
+                    "knowageVersion": "7.0.0-S",
+                    "menuOpened": false,
+                    "row": 16,
+                    "sizeX": 25,
+                    "sizeY": 15,
+                    "style": {
+                        "title": {
+                            "font": {},
+                            "label": "KNCTEST31"
+                        }
+                    },
+                    "type": "chart",
+                    "updateble": true
+                }
+            ]
+        }
+    ]
+}
