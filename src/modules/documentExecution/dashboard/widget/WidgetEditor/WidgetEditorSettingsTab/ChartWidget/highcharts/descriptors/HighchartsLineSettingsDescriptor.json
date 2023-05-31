@@ -8,6 +8,10 @@
             {
                 "title": "dashboard.widgetEditor.seriesAccessibility.title",
                 "type": "SeriesAccessibilitySettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.sonification.title",
+                "type": "SonificationSettings"
             }
         ],
         "Colors": [
@@ -17,6 +21,10 @@
             }
         ],
         "Configuration": [
+            {
+                "title": "dashboard.widgetEditor.highcharts.stacking.title",
+                "type": "StackingSettings"
+            },
             {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
@@ -68,6 +76,10 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
+            },
+            {
+                "title": "dashboard.widgetEditor.conditionalStyle",
+                "type": "ConditionalStyles"
             }
         ],
         "Style": [

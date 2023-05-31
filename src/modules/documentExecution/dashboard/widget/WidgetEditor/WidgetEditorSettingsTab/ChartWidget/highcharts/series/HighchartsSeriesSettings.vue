@@ -7,7 +7,7 @@
             <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-p-2">
                 <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.series.title') }}</label>
                 <Dropdown v-if="index === 0 && allSeriesOptionEnabled" v-model="serieSetting.names[0]" class="kn-material-input" :options="descriptor.allSerieOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                <MultiSelect v-else :value="serieSetting.names" :options="availableColumnOptions" option-label="columnName" option-value="columnName" :disabled="!allSeriesOptionEnabled" @change="onSeriesSelected($event, serieSetting)"> </MultiSelect>
+                <MultiSelect v-else v-model="serieSetting.names" :options="availableColumnOptions" :disabled="!allSeriesOptionEnabled" @change="onSeriesSelected($event, serieSetting)"> </MultiSelect>
             </div>
 
             <div v-if="labelOptionsVisible" class="p-col-5 p-pt-4 p-px-4">

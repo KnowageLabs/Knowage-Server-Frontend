@@ -39,6 +39,7 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
             }
         }
         this.model.plotOptions.series.showCheckbox = true
+        this.model.plotOptions.series.turboThreshold = 200000
     }
 
     setData(data: any, widgetModel: IWidget) {
