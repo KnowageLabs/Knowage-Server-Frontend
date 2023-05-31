@@ -38,7 +38,7 @@ export interface ISerieAccessibilitySetting {
 }
 
 export interface IHighchartsSeriesSetting {
-    seriesLabelsSettings: IHighchartsSeriesLabelsSetting[]
+    seriesSettings: IHighchartsSeriesLabelsSetting[]
 }
 
 export interface IHighchartsSeriesLabelsSetting {

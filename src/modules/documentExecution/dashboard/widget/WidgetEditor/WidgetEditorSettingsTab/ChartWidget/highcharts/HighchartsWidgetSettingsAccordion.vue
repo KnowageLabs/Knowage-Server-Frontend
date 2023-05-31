@@ -14,7 +14,7 @@
                 <HighchartsLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></HighchartsLegendSettings>
                 <HighchartsTooltipSettings v-else-if="accordion.type === 'Tooltip'" :widget-model="widgetModel"></HighchartsTooltipSettings>
                 <HighchartsActivityGaugeTooltipSettings v-else-if="accordion.type === 'ActivityGaugeTooltip'" :widget-model="widgetModel"></HighchartsActivityGaugeTooltipSettings>
-                <HighchartsSeriesLabelSettings v-else-if="accordion.type === 'SeriesLabel'" :prop-widget-model="widgetModel"></HighchartsSeriesLabelSettings>
+                <HighchartsSeriesSettings v-else-if="accordion.type === 'SeriesLabel'" :prop-widget-model="widgetModel"></HighchartsSeriesSettings>
                 <HighchartsDrilldownSettings v-else-if="accordion.type === 'Drilldown'" :widget-model="widgetModel"></HighchartsDrilldownSettings>
                 <HighchartsGaugeGeneralSettings v-else-if="accordion.type === 'GaugeSettings'" :widget-model="widgetModel"></HighchartsGaugeGeneralSettings>
                 <HighchartsGaugeScaleSettings v-else-if="accordion.type === 'ScaleSettings'" :widget-model="widgetModel"></HighchartsGaugeScaleSettings>
@@ -81,7 +81,7 @@ import HighchartsLabelsSettings from '../highcharts/labels/HighchartsLabelsSetti
 import HighchartsLegendSettings from '../highcharts/legend/HighchartsLegendSettings.vue'
 import HighchartsTooltipSettings from '../highcharts/tooltip/HighchartsTooltipSettings.vue'
 import HighchartsActivityGaugeTooltipSettings from '../highcharts/tooltip/HighchartsActivityGaugeTooltipSettings.vue'
-import HighchartsSeriesLabelSettings from '../highcharts/series/HighchartsSeriesLabelSettings.vue'
+import HighchartsSeriesSettings from '../highcharts/series/HighchartsSeriesSettings.vue'
 import ChartColorSettings from '../common/ChartColorSettings.vue'
 import HighchartsDrilldownSettings from './interactions/HighchartsDrilldownSettings.vue'
 import HighchartsGaugeGeneralSettings from './gauge/settings/HighchartsGaugeGeneralSettings.vue'
@@ -126,7 +126,7 @@ export default defineComponent({
         HighchartsLegendSettings,
         HighchartsTooltipSettings,
         HighchartsActivityGaugeTooltipSettings,
-        HighchartsSeriesLabelSettings,
+        HighchartsSeriesSettings,
         ChartColorSettings,
         HighchartsDrilldownSettings,
         WidgetSelection,

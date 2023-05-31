@@ -1,6 +1,7 @@
 // import { AxiosResponse } from 'axios'
 // import { clearDatasetInterval } from '../../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IDashboardDataset, IWidget, ISelection } from '../../../Dashboard'
+import { getPieChartData } from '../../../DataProxyHelper'
 // import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../../DashboardDataProxy'
 import { getHighchartsBarData } from './dataProxy/HighchartsBarDataProxy'
 
@@ -13,6 +14,8 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
         case 'bar':
         case 'column':
             return await getHighchartsBarData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'pie':
+            return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             return ''
     }
