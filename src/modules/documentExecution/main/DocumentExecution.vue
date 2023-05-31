@@ -639,7 +639,7 @@ export default defineComponent({
         async loadExporters() {
             if (!this.urlData || !this.urlData.engineLabel) return
             if (!this.urlData || !this.urlData.engineLabel) return
-            const engineLabel = 'knowagedashboardengine' === this.urlData.engineLabel ? 'knowagecockpitengine' : this.urlData.engineLabel
+            const engineLabel = this.urlData.engineLabel
             await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
         },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
