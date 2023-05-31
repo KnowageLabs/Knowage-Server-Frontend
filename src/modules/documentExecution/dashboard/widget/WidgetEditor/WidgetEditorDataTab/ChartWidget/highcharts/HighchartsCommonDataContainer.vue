@@ -125,6 +125,7 @@ export default defineComponent({
             }
         },
         isAttributesTableInvalid() {
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) return true
             switch (this.chartType) {
                 case 'area':
                 case 'bar':
@@ -135,22 +136,36 @@ export default defineComponent({
                         (this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['ATTRIBUTES'].length !== 1) ||
                         (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
                     )
+                case 'scatter':
+                    return this.columnTableItems['ATTRIBUTES'].length !== 1
+                case 'sunburst':
+                case 'treemap':
+                case 'heatmap':
+                    return this.columnTableItems['ATTRIBUTES'].length !== 2
+                case 'radar':
+                    return this.widgetModel.settings?.configuration?.splitting && this.columnTableItems['ATTRIBUTES'].length !== 2
                 default:
-                    false
+                    return false
             }
-            return false
         },
         isMeasureTableInvalid() {
+            if (this.columnTableItems['MEASURES'].length === 0) return true
             switch (this.chartType) {
                 case 'area':
                 case 'bar':
                 case 'column':
                 case 'line':
                     return this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length > 2
+                case 'solidgauge':
+                case 'heatmap':
+                    return this.columnTableItems['MEASURES'].length !== 1
+                case 'pie':
+                case 'gauge':
+                case 'activitygauge':
+                    return this.columnTableItems['MEASURES'].length > 4
                 default:
-                    false
+                    return false
             }
-            return false
         }
     },
     watch: {
