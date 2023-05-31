@@ -1,9 +1,10 @@
-import { IWidget } from "@/modules/documentExecution/dashboard/Dashboard"
-import { IChartJSWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/chartJS/DashboardChartJSWidget"
-import { KnowageChartJSPieChart } from "../../../../ChartWidget/classes/chartJS/KnowageChartJSPieChart"
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IChartJSWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/chartJS/DashboardChartJSWidget'
+import { KnowageChartJSPieChart } from '../../../../ChartWidget/classes/chartJS/KnowageChartJSPieChart'
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
-import * as  chartJSDefaultValues from "../chartJS/ChartJSDefaultValues"
+import * as chartJSDefaultValues from '../chartJS/ChartJSDefaultValues'
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
+import { KnowageChartJSBarChart } from '../../../../ChartWidget/classes/chartJS/KnowageChartJSBarChart'
 
 export const createNewChartJSSettings = () => {
     const settings = {
@@ -15,7 +16,7 @@ export const createNewChartJSSettings = () => {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
             link: widgetCommonDefaultValues.getDefaultLinks(),
             preview: widgetCommonDefaultValues.getDefaultPreview(),
-            selection: chartJSDefaultValues.getDefaultChartJSSelections(),
+            selection: chartJSDefaultValues.getDefaultChartJSSelections()
         },
         chart: { colors: descriptor.defaultColors },
         style: {
@@ -31,14 +32,31 @@ export const createNewChartJSSettings = () => {
     return settings
 }
 
+// export const formatChartJSWidget = (widget: IWidget) => {
+//     let chartJSType = widget.settings.
+//     widget.settings.chartModel = new KnowageChartJSPieChart(widget.settings.chartModel.model ?? widget.settings.chartModel)
+// }
+
 export const formatChartJSWidget = (widget: IWidget) => {
-    widget.settings.chartModel = new KnowageChartJSPieChart(widget.settings.chartModel.model ?? widget.settings.chartModel)
+    const chartModel = widget.settings.chartModel.model ?? widget.settings.chartModel
+    const chartType = chartModel.chart.type
+
+    switch (chartType) {
+        case 'pie':
+            widget.settings.chartModel = new KnowageChartJSPieChart(chartModel)
+            break
+        case 'bar':
+            widget.settings.chartModel = new KnowageChartJSBarChart(chartModel)
+            break
+    }
 }
 
 export const createChartJSModel = (chartType: string) => {
     switch (chartType) {
         case 'pie':
             return new KnowageChartJSPieChart(null)
+        case 'bar':
+            return new KnowageChartJSBarChart(null)
         default:
             return null
     }
