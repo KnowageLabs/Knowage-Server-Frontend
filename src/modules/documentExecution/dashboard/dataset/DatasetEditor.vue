@@ -62,7 +62,7 @@ import deepcopy from 'deepcopy'
 export default defineComponent({
     name: 'dataset-editor',
     components: { TabView, TabPanel, DataTab, AssociationsTab, DriverWarningDialog },
-    props: { availableDatasetsProp: { required: true, type: Array as PropType<IDataset[]> }, filtersDataProp: { type: Object }, dashboardIdProp: { type: String, required: true } },
+    props: { availableDatasetsProp: { required: true, type: Array as PropType<IDataset[]> }, filtersDataProp: { type: Object }, dashboardIdProp: { type: String, required: true }, datasetsLoaded: { type: Boolean } },
     emits: ['closeDatasetEditor', 'datasetEditorSaved', 'allDatasetsLoaded'],
     setup() {
         const store = mainStore()
@@ -103,7 +103,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapActions(dashStore, ['setAllDatasets', 'getAllDatasetLoadedFlag', 'setAllDatasetLoadedFlag']),
+        ...mapActions(dashStore, ['setAllDatasets']),
         async setDatasetsData() {
             await this.loadAvailableDatasets()
             this.dashboardDatasets = deepcopy(this.dashboardStore.$state.dashboards[this.dashboardIdProp].configuration.datasets)
@@ -114,10 +114,9 @@ export default defineComponent({
         },
         async loadAvailableDatasets() {
             this.availableDatasets = deepcopy(this.availableDatasetsProp)
-            if (this.getAllDatasetLoadedFlag(this.dashboardIdProp)) return
+            if (this.datasetsLoaded === true) return
             this.availableDatasets = await loadDatasets(null, this.store, this.setAllDatasets, this.$http)
             this.$emit('allDatasetsLoaded', this.availableDatasets)
-            this.setAllDatasetLoadedFlag(this.dashboardIdProp, true)
         },
         selectModelDatasetsFromAvailable() {
             return this.availableDatasets?.filter((responseDataset) => {

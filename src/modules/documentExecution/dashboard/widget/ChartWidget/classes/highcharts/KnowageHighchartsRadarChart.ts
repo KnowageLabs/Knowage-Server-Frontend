@@ -12,7 +12,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'radar') {
                 this.formatSeriesFromOtherChartTypeSeries()
@@ -28,8 +28,8 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setSpecificOptionsDefaultValues() {
-        this.setRadarXAxis()
-        this.setRadarYAxis()
+        if (!this.model.xAxis) this.setRadarXAxis()
+        if (!this.model.yAxis) this.setRadarYAxis()
     }
 
     setData(data: any, widgetModel: IWidget) {
