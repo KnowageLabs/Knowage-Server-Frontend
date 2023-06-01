@@ -105,7 +105,7 @@ export default defineComponent({
             this.$emit('update:sheets', [...this.sheets, { label: 'new sheet', widgets: { lg: [] } }])
         },
         renameSheet(index): void {
-            if (this.editMode) {
+            if (this.edit) {
                 if (this.sheetToRenameIndex && this.sheetToRenameIndex === index) this.sheetToRenameIndex = null
                 else {
                     this.sheetToRenameIndex = index
