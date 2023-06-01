@@ -8,7 +8,7 @@
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="columnTableSettings"
             :chart-type="chartType"
-            :error="isAttributesTableInvalid"
+            :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -73,15 +73,6 @@ export default defineComponent({
             return {
                 ...commonDescriptor.columnTableSettings,
                 ...highchartDescriptor.bubbleChartColumnTableSettings[0]
-            }
-        },
-        isAttributesTableInvalid() {
-            if (this.columnTableItems['ATTRIBUTES'].length === 0) return true
-            switch (this.chartType) {
-                case 'bubble':
-                    return this.widgetModel.settings?.configuration?.splitting && this.columnTableItems['ATTRIBUTES'].length !== 2
-                default:
-                    return false
             }
         }
     },
@@ -191,17 +182,38 @@ export default defineComponent({
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
         },
+        isAttributesTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'bubble':
+                        invalid = this.widgetModel.settings?.configuration?.splitting && this.columnTableItems['ATTRIBUTES'].length !== 2
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            this.widgetModel.invalid = invalid
+            return invalid
+        },
         isAxisTableInvalid(axis: string) {
+            let invalid = false
             switch (axis) {
                 case 'X':
-                    return this.isXAxisTableInvalid()
+                    invalid = this.isXAxisTableInvalid()
+                    break
                 case 'Y':
-                    return this.isYAxisTableInvalid()
+                    invalid = this.isYAxisTableInvalid()
+                    break
                 case 'Z':
-                    return this.isZAxisTableInvalid()
+                    invalid = this.isZAxisTableInvalid()
+                    break
                 default:
-                    return false
+                    invalid = false
             }
+            this.widgetModel.invalid = invalid
+            return invalid
         },
         isXAxisTableInvalid() {
             if (this.columnTableItems['X'].length === 0) return true

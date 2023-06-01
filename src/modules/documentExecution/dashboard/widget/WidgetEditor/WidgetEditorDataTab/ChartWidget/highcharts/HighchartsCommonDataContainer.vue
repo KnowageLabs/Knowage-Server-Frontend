@@ -220,7 +220,6 @@ export default defineComponent({
         },
         isAttributesTableInvalid() {
             let invalid = false
-            console.log('------- invalied: ', invalid)
             if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
             else {
                 switch (this.chartType) {
@@ -249,27 +248,34 @@ export default defineComponent({
                 }
             }
             this.widgetModel.invalid = invalid
-            console.log('------- invalied: ', invalid)
             return invalid
         },
         isMeasureTableInvalid() {
+            let invalid = false
             if (this.columnTableItems['MEASURES'].length === 0) return true
-            switch (this.chartType) {
-                case 'area':
-                case 'bar':
-                case 'column':
-                case 'line':
-                    return this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length > 2
-                case 'solidgauge':
-                case 'heatmap':
-                    return this.columnTableItems['MEASURES'].length !== 1
-                case 'pie':
-                case 'gauge':
-                case 'activitygauge':
-                    return this.columnTableItems['MEASURES'].length > 4
-                default:
-                    return false
+            else {
+                switch (this.chartType) {
+                    case 'area':
+                    case 'bar':
+                    case 'column':
+                    case 'line':
+                        invalid = this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length > 2
+                        break
+                    case 'solidgauge':
+                    case 'heatmap':
+                        invalid = this.columnTableItems['MEASURES'].length !== 1
+                        break
+                    case 'pie':
+                    case 'gauge':
+                    case 'activitygauge':
+                        invalid = this.columnTableItems['MEASURES'].length > 4
+                        break
+                    default:
+                        invalid = false
+                }
             }
+            this.widgetModel.invalid = invalid
+            return invalid
         }
     }
 })
