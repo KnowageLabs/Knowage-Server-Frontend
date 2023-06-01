@@ -66,7 +66,6 @@ export default defineComponent({
     },
     methods: {
         loadModel() {
-            console.log('------------------- AAAAAAAAAAA MODEL: ', this.widgetModel)
             if (this.widgetModel?.settings?.configuration) this.groupingSettings = this.widgetModel.settings.configuration.grouping
         }
     }
