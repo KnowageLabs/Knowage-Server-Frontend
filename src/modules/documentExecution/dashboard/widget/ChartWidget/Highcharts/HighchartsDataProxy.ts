@@ -5,6 +5,7 @@ import { getPieChartData } from '../../../DataProxyHelper'
 // import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../../DashboardDataProxy'
 import { getHighchartsBarData } from './dataProxy/HighchartsBarDataProxy'
 import { getHighchartsScatterData } from './dataProxy/HighchartsScatterDataProxy'
+import { getHighchartsSunburstData } from './dataProxy/HighchartsSunburstDataProxy'
 
 export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const chartType = widget.settings.chartModel?.model?.chart.type
@@ -17,6 +18,9 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
             return await getHighchartsBarData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'scatter':
             return await getHighchartsScatterData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'sunburst':
+        case 'treemap':
+            return await getHighchartsSunburstData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
