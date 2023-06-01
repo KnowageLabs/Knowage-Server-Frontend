@@ -67,7 +67,6 @@ export const formatHighchartsWidget = (widget: IWidget) => {
 }
 
 export const createNewHighchartsModel = (chartType: string, model: IHighchartsChartModel | null = null) => {
-    console.log('-----CAAAAAAALED FROM createNewHighchartsModel: ', model)
     switch (chartType) {
         case 'pie':
             return new KnowageHighchartsPieChart(model)
