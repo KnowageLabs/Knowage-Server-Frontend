@@ -241,7 +241,7 @@ export default defineComponent({
                         invalid = this.columnTableItems['ATTRIBUTES'].length !== 2
                         break
                     case 'radar':
-                        invalid = this.widgetModel.settings?.configuration?.splitting && this.columnTableItems['ATTRIBUTES'].length !== 2
+                        invalid = this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2
                         break
                     default:
                         invalid = false

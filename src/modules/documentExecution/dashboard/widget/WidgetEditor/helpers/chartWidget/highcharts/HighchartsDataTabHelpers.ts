@@ -16,7 +16,10 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'bar':
         case 'column':
         case 'line':
+        case 'scatter':
         case 'bubble':
+        case 'sunburst':
+        case 'treemap':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }
@@ -66,7 +69,7 @@ const addColumnToRows = (rows: IWidgetColumn[], tempColumn: IWidgetColumn) => {
 const updateSerieInWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
     if (chartType === 'pie' || chartType === 'solidgauge') {
         updateFirstSeriesOption(widgetModel.settings.accesssibility.seriesAccesibilitySettings, column)
-        updateFirstSeriesOption(widgetModel.settings.series.seriesLabelsSettings, column)
+        updateFirstSeriesOption(widgetModel.settings.series.seriesSettings, column)
     }
 }
 
@@ -80,7 +83,7 @@ export const removeSerieFromWidgetModel = (widgetModel: IWidget, column: IWidget
     widgetModel.settings.chartModel.removeSerie(column)
     const allSeriesOption = chartType !== 'pie' && chartType !== 'solidgauge'
     removeColumnFromSubmodel(column, widgetModel.settings.accesssibility.seriesAccesibilitySettings, allSeriesOption)
-    removeColumnFromSubmodel(column, widgetModel.settings.series.seriesLabelsSettings, allSeriesOption)
+    removeColumnFromSubmodel(column, widgetModel.settings.series.seriesSettings, allSeriesOption)
     emitter.emit('seriesRemoved', column)
 }
 

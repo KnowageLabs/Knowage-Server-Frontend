@@ -57,13 +57,13 @@ export class KnowageHighchartsActivityGaugeChart extends KnowageHighchartsGaugeC
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesLabelsSettings) return
+        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings) return
         this.setAllSeriesSettings(widgetModel)
         this.setSpecificSeriesSettings(widgetModel)
     }
 
     setAllSeriesSettings(widgetModel: IWidget) {
-        const allSeriesSettings = widgetModel.settings.series.seriesLabelsSettings[0]
+        const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
         if (allSeriesSettings?.serieColorEnabled) {
             this.model.series.forEach((serie: any) => {
                 this.updateSeriesDataWithSerieSettings(serie, allSeriesSettings)
@@ -82,8 +82,8 @@ export class KnowageHighchartsActivityGaugeChart extends KnowageHighchartsGaugeC
         })
     }
     setSpecificSeriesSettings(widgetModel: IWidget) {
-        for (let i = 1; i < widgetModel.settings.series.seriesLabelsSettings.length; i++) {
-            const seriesSettings = widgetModel.settings.series.seriesLabelsSettings[i] as IHighchartsSeriesLabelsSetting
+        for (let i = 1; i < widgetModel.settings.series.seriesSettings.length; i++) {
+            const seriesSettings = widgetModel.settings.series.seriesSettings[i] as IHighchartsSeriesLabelsSetting
             if (seriesSettings.serieColorEnabled) seriesSettings.names.forEach((serieName: string) => this.updateSpecificSeriesSettings(serieName, seriesSettings))
         }
     }

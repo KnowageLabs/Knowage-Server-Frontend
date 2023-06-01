@@ -62,8 +62,8 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesLabelsSettings || !widgetModel.settings.series.seriesLabelsSettings[0]) return
-        const seriesLabelSetting = widgetModel.settings.series.seriesLabelsSettings[0]
+        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
+        const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
         if (!seriesLabelSetting.label.enabled) return
         this.model.series.forEach((serie: IHighchartsChartSerie) => {
             serie.data.forEach((data: IHighchartsChartSerieData) => {

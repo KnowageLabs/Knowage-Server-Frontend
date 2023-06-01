@@ -45,7 +45,6 @@
                 <HighchartsLineSettings v-else-if="accordion.type === 'YAxisLinesSettings'" :widget-model="widgetModel" axis="y"></HighchartsLineSettings>
                 <HighchartsAxisGridSettings v-else-if="accordion.type === 'MajorGridSettings'" :widget-model="widgetModel" type="major"></HighchartsAxisGridSettings>
                 <HighchartsAxisGridSettings v-else-if="accordion.type === 'MinorGridSettings'" :widget-model="widgetModel" type="minor"></HighchartsAxisGridSettings>
-                <HighchartsRadarSplittingSettings v-else-if="accordion.type === 'SplittingSettings'" :widget-model="widgetModel"></HighchartsRadarSplittingSettings>
                 <HighchartsConditionalStyles v-else-if="accordion.type === 'ConditionalStyles'" :widget-model="widgetModel"></HighchartsConditionalStyles>
                 <HighchartsSonificationSettings v-else-if="accordion.type === 'SonificationSettings'" :widget-model="widgetModel"></HighchartsSonificationSettings>
                 <HighchartsGroupingSettings v-else-if="accordion.type === 'GroupingSettings'" :widget-model="widgetModel"></HighchartsGroupingSettings>
@@ -96,7 +95,6 @@ import HighchartsHeatmapNullSettings from './heatmap/HighchartsHeatmapNullSettin
 import HighchartsDatetypeSettings from './configuration/HighchartsDatetypeSettings.vue'
 import HighchartsLineSettings from './settings/HighchartsLineSettings.vue'
 import HighchartsAxisGridSettings from './axis/HighchartsAxisGridSettings.vue'
-import HighchartsRadarSplittingSettings from './radar/HighchartsRadarSplittingSettings.vue'
 import HighchartsConditionalStyles from './series/HighchartsConditionalStyles.vue'
 import HighchartsSonificationSettings from './accessibility/HighchartsSonificationSettings.vue'
 import HighchartsGroupingSettings from './configuration/HighchartsGroupingSettings.vue'
@@ -142,7 +140,6 @@ export default defineComponent({
         HighchartsDatetypeSettings,
         HighchartsLineSettings,
         HighchartsAxisGridSettings,
-        HighchartsRadarSplittingSettings,
         HighchartsConditionalStyles,
         HighchartsSonificationSettings,
         HighchartsGroupingSettings,

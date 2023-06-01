@@ -24,6 +24,8 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
+    console.log('----- attributeColumn: ', attributeColumn)
+
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any

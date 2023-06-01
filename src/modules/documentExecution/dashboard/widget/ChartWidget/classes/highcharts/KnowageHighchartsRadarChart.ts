@@ -6,13 +6,14 @@ import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWid
 import deepcopy from 'deepcopy'
 import moment from 'moment'
 import { createPolarSerie } from './updater/KnowageHighchartsCommonUpdater'
+import { getAllColumnsOfSpecificTypeFromDataResponse, setGroupedByCategoriesData, setRegularData } from './helpers/setData/HighchartsSetDataHelpers'
 
 export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     constructor(model: any) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'radar') {
                 this.formatSeriesFromOtherChartTypeSeries()
@@ -33,18 +34,25 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setData(data: any, widgetModel: IWidget) {
-        if (!data || !data.metaData || !data.rows) return
+        const mockedData = { "metaData": { "totalProperty": "results", "root": "rows", "id": "id", "fields": ["recNo", { "name": "column_1", "header": "QUARTER", "dataIndex": "column_1", "type": "string", "multiValue": false }, { "name": "column_2", "header": "UNIT_SALES_SUM", "dataIndex": "column_2", "type": "float", "precision": 54, "scale": 4, "multiValue": false }, { "name": "column_3", "header": "UNITS_ORDERED_SUM", "dataIndex": "column_3", "type": "float", "precision": 54, "scale": 0, "multiValue": false }], "cacheDate": "2023-06-01 16:57:10.449" }, "results": 4, "rows": [{ "id": 1, "column_1": "Q1", "column_2": 104893.2241, "column_3": 1744587 }, { "id": 2, "column_1": "Q2", "column_2": 102115.586, "column_3": 1665964 }, { "id": 3, "column_1": "Q3", "column_2": 121873.7686, "column_3": 2.08226E+6 }, { "id": 4, "column_1": "Q4", "column_2": 96443.6608, "column_3": 1646594 }], "stats": { "1": { "max": "Q4", "min": "Q1", "distinct": ["Q1", "Q2", "Q3", "Q4"], "cardinality": 4 }, "2": { "max": 121873.7686, "min": 96443.6608, "distinct": [96443.6608, 102115.586, 104893.2241, 121873.7686], "cardinality": 4 }, "3": { "max": 2.08226E+6, "min": 1646594, "distinct": [1646594, 1665964, 1744587, 2.08226E+6], "cardinality": 4 } } }
+        this.model.series = []
+        const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'ATTRIBUTE')
+        console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
+        const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
+        console.log('---------- MEASURE COLUMNS: ', measureColumns)
+        const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
+        console.log('------- drilldownEnabled: ', drilldownEnabled)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        const splitting = widgetModel.settings?.configuration?.splitting
-        const drilldown = widgetModel?.settings?.interactions?.drilldown
+        // console.log('------- dateFormat: ', dateFormat)
 
-        if (splitting?.enabled) {
-            this.setSplitedData(splitting.groupedSerie, data)
+        if (widgetModel.settings.configuration?.grouping?.secondDimension.enabled) {
+            const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
+            setGroupedByCategoriesData(this.model, mockedData, attributeColumns, measureColumns, serieName)
         } else {
-            this.setNormalData(data, widgetModel, dateFormat, drilldown?.enabled)
+            setRegularData(this.model, mockedData, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
         }
 
-        return this.model.seriesForRender
+        return this.model.series
     }
 
     setSplitedData(splitingColumn: string, data: any) {
@@ -152,22 +160,22 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setRadarXAxis() {
-        this.model.xAxis = highchartsDefaultValues.getDefaultRadarXAxis()
+        this.model.xAxis = [highchartsDefaultValues.getDefaultRadarXAxis()]
     }
 
     setRadarYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultRadarYAxis()
+        this.model.yAxis = [highchartsDefaultValues.getDefaultRadarYAxis()]
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesLabelsSettings) return
+        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings) return
         this.setAllSeriesSettings(widgetModel)
         this.setSpecificSeriesSettings(widgetModel)
     }
 
 
     setAllSeriesSettings(widgetModel: IWidget) {
-        const allSeriesSettings = widgetModel.settings.series.seriesLabelsSettings[0]
+        const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
         if (allSeriesSettings.label.enabled) {
             this.model.seriesForRender?.forEach((serie: any) =>
                 this.updateSeriesDataWithSerieSettings(serie, allSeriesSettings))
@@ -181,8 +189,8 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setSpecificSeriesSettings(widgetModel: IWidget) {
-        for (let i = 1; i < widgetModel.settings.series.seriesLabelsSettings.length; i++) {
-            const seriesSettings = widgetModel.settings.series.seriesLabelsSettings[i] as IHighchartsSeriesLabelsSetting
+        for (let i = 1; i < widgetModel.settings.series.seriesSettings.length; i++) {
+            const seriesSettings = widgetModel.settings.series.seriesSettings[i] as IHighchartsSeriesLabelsSetting
             if (seriesSettings.label.enabled) seriesSettings.names.forEach((serieName: string) => this.updateSpecificSeriesLabelSettings(serieName, seriesSettings))
         }
     }
