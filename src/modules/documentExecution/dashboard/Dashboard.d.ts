@@ -46,7 +46,8 @@ export interface IWidget {
     fields?: IPivotFields
     layers?: any
     state?: any
-    search?: any
+    search?: any,
+    invalid?: any
 }
 
 export interface ITableWidgetSettings {

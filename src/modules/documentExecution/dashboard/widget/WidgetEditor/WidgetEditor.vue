@@ -4,7 +4,7 @@
             <Toolbar class="kn-toolbar kn-toolbar--primary">
                 <template #start> {{ widget.type }} Widget Editor </template>
                 <template #end>
-                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" @click="save" />
+                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="widget.invalid" @click="save" />
                     <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="close" />
                 </template>
             </Toolbar>

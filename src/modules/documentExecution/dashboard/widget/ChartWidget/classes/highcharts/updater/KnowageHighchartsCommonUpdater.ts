@@ -1,5 +1,5 @@
 import { hexToRgba } from "@/modules/documentExecution/dashboard/helpers/FormattingHelpers"
-import { IHighchartsChartModel } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
+import { IHighchartsChartModel, IHighchartsOptions3D } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const createSerie = (serieName: string, groupingFunction: string, colorByPoint: boolean, serieType?: string) => {
@@ -151,5 +151,17 @@ const getFormattedTitleAlign = (oldAxisTitleAlign: 'left' | 'center' | 'right') 
             return 'high'
         default:
             return 'middle'
+    }
+}
+
+export const getFormatted3DConfiguration = (oldModel: any, newModel: IHighchartsChartModel) => {
+    if (oldModel.CHART.show3D) {
+        if (newModel.plotOptions.pie) newModel.plotOptions.pie.depth = oldModel.CHART.depth
+        newModel.chart.options3d = {
+            enabled: oldModel.CHART.show3D,
+            alpha: oldModel.CHART.alpha,
+            beta: oldModel.CHART.beta,
+            viewDistance: oldModel.CHART.viewDistance ?? 25
+        } as IHighchartsOptions3D
     }
 }

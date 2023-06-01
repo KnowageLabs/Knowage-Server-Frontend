@@ -51,7 +51,7 @@ const getFormattedWidgetSettings = (widget: any, chartType: string) => {
         chartModel: null,
         configuration: getFormattedConfiguration(widget, chartType),
         accesssibility: { seriesAccesibilitySettings: getFormattedSeriesAccesibilitySettings(widget) },
-        series: { seriesLabelsSettings: getFormattedSerieLabelsSettings(widget) },
+        series: { seriesSettings: getFormattedSerieLabelsSettings(widget) },
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget),
         chart: { colors: getFormattedColorSettings(widget) as any },

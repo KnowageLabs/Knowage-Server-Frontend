@@ -466,8 +466,12 @@ export const getHighchartsWidgetData = async (widget: IWidget, datasets: IDashbo
     const chartType = widget.settings.chartModel?.model?.chart.type
     switch (chartType) {
         case 'pie':
-        case 'column': // TODO Bojan
+
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'area':
+        case 'bar':
+        case 'column':
+        case 'line': // TODO Bojan
         case 'gauge':
             return await getGaugeChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'activitygauge':
@@ -484,7 +488,7 @@ export const getHighchartsWidgetData = async (widget: IWidget, datasets: IDashbo
 }
 
 //#region ===================== Chart Widget ====================================================
-const getPieChartData = async (widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getPieChartData = async (widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 

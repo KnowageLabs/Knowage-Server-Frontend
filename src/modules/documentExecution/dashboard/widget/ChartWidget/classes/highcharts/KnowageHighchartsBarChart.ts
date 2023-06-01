@@ -13,16 +13,10 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         if (model && model.CHART) this.updateModel(deepcopy(model))
         else if (model && model.plotOption) {
             this.model = deepcopy(model)
-            if (!['area', 'bar', 'column'].includes(model.chart.type)) {
-                this.formatSeriesFromOtherChartTypeSeries()
-                this.setSpecificOptionsDefaultValues()
-            }
-
+            if (!['area', 'bar', 'column'].includes(model.chart.type)) this.setSpecificOptionsDefaultValues()
         }
         if (isStacked && this.model.plotOptions) this.model.plotOptions.series.stacking = 'normal'
         else delete this.model.plotOptions.series.stacking
-        console.log('------------ isSTacked: ', isStacked)
-        console.log('------------ this.model.plotOptions.series: ', this.model.plotOptions.series)
         this.model.chart.type = type
     }
 
@@ -38,12 +32,10 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
 
     setPlotOptions() {
         this.model.plotOptions.line = {
-            marker: {
-                symbol: "circle",
-                lineWidth: 2
-            }
+            marker: { symbol: "circle", lineWidth: 2 }
         }
         this.model.plotOptions.series.showCheckbox = true
+        this.model.plotOptions.series.turboThreshold = 200000
     }
 
     setBarXAxis() {
@@ -56,17 +48,10 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
 
     setData(data: any, widgetModel: IWidget) {
         this.model.series = []
-        // console.log('---------- data: ', data)
-        // console.log('---------- WIDGET MODEL COLUMNS: ', widgetModel.columns)
-
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
-        // console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
-        // console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
-        // console.log('------- drilldownEnabled: ', drilldownEnabled)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        // console.log('------- dateFormat: ', dateFormat)
 
         if (widgetModel.settings.configuration?.grouping?.enabled) {
             setGroupedCategoriesData(this.model, data, attributeColumns, measureColumns, dateFormat)
@@ -106,15 +91,5 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
                 }
             })
         })
-    }
-
-    formatSeriesFromOtherChartTypeSeries() {
-        this.model.series = this.model.series.map((serie: any) => { return this.getFormattedSerieFromOtherChartTypeSerie(serie) })
-    }
-
-    getFormattedSerieFromOtherChartTypeSerie(otherChartSerie: any) {
-        const formattedSerie = { name: otherChartSerie.name, data: [], colorByPoint: true } as IHighchartsChartSerie
-        if (otherChartSerie.accessibility) formattedSerie.accessibility
-        return formattedSerie
     }
 }

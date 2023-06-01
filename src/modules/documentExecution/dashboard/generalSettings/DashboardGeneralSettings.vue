@@ -39,7 +39,8 @@ export default defineComponent({
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
-        profileAttributes: { type: Array as PropType<{ name: string; value: string }[]>, required: true }
+        profileAttributes: { type: Array as PropType<{ name: string; value: string }[]>, required: true },
+        generalSettingsMode: { type: String, default: 'General' }
     },
     emits: ['closeGeneralSettings'],
     data() {
@@ -54,6 +55,7 @@ export default defineComponent({
     computed: {},
     watch: {},
     created() {
+        this.setSelectedOption(this.generalSettingsMode)
         this.loadDashboardModel()
         this.loadVariables()
         this.loadSelectedDatasets()

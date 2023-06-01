@@ -7,7 +7,7 @@
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...highchartDescriptor.wordcloudColumnTableSettings[0] }"
             :chart-type="chartType"
-            :error="isAttributesTableInvalid"
+            :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -20,7 +20,7 @@
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...highchartDescriptor.wordcloudColumnTableSettings[1] }"
             :chart-type="chartType"
-            :error="isMeasureTableInvalid"
+            :error="isMeasureTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -59,24 +59,6 @@ export default defineComponent({
     computed: {
         chartType() {
             return this.widgetModel?.settings.chartModel?.model?.chart.type
-        },
-        isAttributesTableInvalid() {
-            if (this.columnTableItems['ATTRIBUTES'].length === 0) return true
-            switch (this.chartType) {
-                case 'wordcloud':
-                    return this.columnTableItems['ATTRIBUTES'].length !== 1
-                default:
-                    return false
-            }
-        },
-        isMeasureTableInvalid() {
-            if (this.columnTableItems['MEASURES'].length === 0) return true
-            switch (this.chartType) {
-                case 'wordcloud':
-                    return this.columnTableItems['MEASURES'].length !== 1
-                default:
-                    return false
-            }
         }
     },
     watch: {
@@ -148,6 +130,36 @@ export default defineComponent({
             const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
+        },
+        isAttributesTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'wordcloud':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            this.widgetModel.invalid = invalid
+            return invalid
+        },
+        isMeasureTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['MEASURES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'wordcloud':
+                        invalid = this.columnTableItems['MEASURES'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            this.widgetModel.invalid = invalid
+            return invalid
         }
     }
 })

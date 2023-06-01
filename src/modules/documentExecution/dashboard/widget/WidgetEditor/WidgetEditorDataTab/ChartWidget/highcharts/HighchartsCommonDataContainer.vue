@@ -11,7 +11,7 @@
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="columnTableSettings"
             :chart-type="chartType"
-            :error="isAttributesTableInvalid"
+            :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -24,7 +24,7 @@
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="valuesColumnSettings"
             :chart-type="chartType"
-            :error="isMeasureTableInvalid"
+            :error="isMeasureTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -123,49 +123,6 @@ export default defineComponent({
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
             }
-        },
-        isAttributesTableInvalid() {
-            if (this.columnTableItems['ATTRIBUTES'].length === 0) return true
-            switch (this.chartType) {
-                case 'area':
-                case 'bar':
-                case 'column':
-                case 'line':
-                    return (
-                        (this.widgetModel.settings.configuration?.grouping?.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2) ||
-                        (this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['ATTRIBUTES'].length !== 1) ||
-                        (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
-                    )
-                case 'scatter':
-                    return this.columnTableItems['ATTRIBUTES'].length !== 1
-                case 'sunburst':
-                case 'treemap':
-                case 'heatmap':
-                    return this.columnTableItems['ATTRIBUTES'].length !== 2
-                case 'radar':
-                    return this.widgetModel.settings?.configuration?.splitting && this.columnTableItems['ATTRIBUTES'].length !== 2
-                default:
-                    return false
-            }
-        },
-        isMeasureTableInvalid() {
-            if (this.columnTableItems['MEASURES'].length === 0) return true
-            switch (this.chartType) {
-                case 'area':
-                case 'bar':
-                case 'column':
-                case 'line':
-                    return this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length > 2
-                case 'solidgauge':
-                case 'heatmap':
-                    return this.columnTableItems['MEASURES'].length !== 1
-                case 'pie':
-                case 'gauge':
-                case 'activitygauge':
-                    return this.columnTableItems['MEASURES'].length > 4
-                default:
-                    return false
-            }
         }
     },
     watch: {
@@ -260,6 +217,65 @@ export default defineComponent({
             const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
+        },
+        isAttributesTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'area':
+                    case 'bar':
+                    case 'column':
+                    case 'line':
+                        invalid =
+                            (this.widgetModel.settings.configuration?.grouping?.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2) ||
+                            (this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['ATTRIBUTES'].length !== 1) ||
+                            (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
+                        break
+                    case 'scatter':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
+                        break
+                    case 'sunburst':
+                    case 'treemap':
+                    case 'heatmap':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 2
+                        break
+                    case 'radar':
+                        invalid = this.widgetModel.settings?.configuration?.splitting && this.columnTableItems['ATTRIBUTES'].length !== 2
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            this.widgetModel.invalid = invalid
+            return invalid
+        },
+        isMeasureTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['MEASURES'].length === 0) return true
+            else {
+                switch (this.chartType) {
+                    case 'area':
+                    case 'bar':
+                    case 'column':
+                    case 'line':
+                        invalid = this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length > 2
+                        break
+                    case 'solidgauge':
+                    case 'heatmap':
+                        invalid = this.columnTableItems['MEASURES'].length !== 1
+                        break
+                    case 'pie':
+                    case 'gauge':
+                    case 'activitygauge':
+                        invalid = this.columnTableItems['MEASURES'].length > 4
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            this.widgetModel.invalid = invalid
+            return invalid
         }
     }
 })
