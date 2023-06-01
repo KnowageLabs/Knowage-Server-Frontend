@@ -81,7 +81,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfM
     console.groupEnd()
 
     const categories = widget.columns.filter((column) => column.fieldType !== 'MEASURE')
-    const categoryLength = noOfCategories == -1 ? measures.length : noOfCategories
+    const categoryLength = noOfCategories == -1 ? categories.length : noOfCategories
 
     if (categories.length >= categoryLength) {
         for (let index = 0; index < categoryLength; index++) {
