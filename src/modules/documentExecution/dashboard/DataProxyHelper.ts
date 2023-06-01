@@ -47,6 +47,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getDiscoveryChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'vega':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'map':
+            return await getMapWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
@@ -822,5 +824,36 @@ const formatPivotModelForGet = (dashboardId: any, propWidget: IWidget, dataset: 
     }
 
     return dataToSend
+}
+//#endregion ================================================================================================
+
+//#region ===================== Table Widget ====================================================
+export const getMapWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+    const tempResponse = {}
+
+    const datasetsInWidget = widget.layers.map((e) => e.dataset.label)
+    const usedDatasets = datasets.filter((e) => datasetsInWidget.includes(e.dsLabel))
+
+    for (const selectedDataset of usedDatasets) {
+        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
+
+        const postData = formatWidgetModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+
+        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
+        await $http
+            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .then((response: AxiosResponse<any>) => {
+                tempResponse[selectedDataset.dsLabel] = response.data
+            })
+            .catch((error: any) => {
+                showGetDataError(error, selectedDataset.dsLabel)
+            })
+            .finally(() => {
+                // TODO - uncomment when realtime dataset example is ready
+                // resetDatasetInterval(widget)
+            })
+    }
+
+    return tempResponse
 }
 //#endregion ================================================================================================
