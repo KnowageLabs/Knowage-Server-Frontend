@@ -55,7 +55,7 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getWebComponentWidgetData('text', dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'highcharts':
             return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
-        case 'chartJS': //TODO: CHANGE METHOD
+        case 'chartJS':
             return await getChartJSWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'customchart': //TODO: CHANGE METHOD
             return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
@@ -63,7 +63,7 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getPivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'discovery':
             return await getDiscoveryWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
-        case 'vega': //TODO: CHANGE METHOD
+        case 'vega': //TODO: CHANGE METHOD - WORDCLOUD
             return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break

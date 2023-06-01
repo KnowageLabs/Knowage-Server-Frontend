@@ -9,11 +9,10 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
     const chartType = widget.settings.chartModel?.model?.chart.type
     console.log('chartType', chartType)
     switch (chartType) {
-        case 'line':
         case 'area':
         case 'bar':
         case 'column':
-        case 'pie':
+        case 'line':
             return await getHighchartsBarData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)

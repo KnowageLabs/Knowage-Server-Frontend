@@ -51,27 +51,23 @@ const formatChartWidgetForGet = (dashboardId: any, widget: IWidget, dataset: IDa
     addParametersToData(dataset, dashboardId, dataToSend)
 
     if (widget.settings.configuration?.grouping?.enabled) {
-        // We take first measure, exactly 2 attribute/category
         console.log('COND 1 ---------------- first measure, exactly 2 attribute/category')
-        addMeasuresAndCategoriesByCount(widget, dataToSend, 1, 2, false)
+        addMeasuresAndCategoriesByCount(widget, dataToSend, 2, -1, false)
     } else if (widget.settings.configuration?.grouping?.secondSeries.enabled) {
-        console.log('COND 2 ---------------- exactly 2 measures, exactly 1 attribute/category')
-        // We take exactly 2 measures, exactly 1 attribute/category
-        addMeasuresAndCategoriesByCount(widget, dataToSend, 2, 1, false)
+        console.log('COND 2 ---------------- exactly 2 measures/dimensions, exactly 1 attribute/category/series')
+        addMeasuresAndCategoriesByCount(widget, dataToSend, 1, 2, false)
     } else if (widget.settings.configuration?.grouping?.secondDimension.enabled) {
         console.log('COND 3 ---------------- exactly 1 measure (chosen from dropdown), exactly 2 attribute/category')
-        // TODO - We take exactly 1 measure (chosen from dropdown), exactly 2 attribute/category
-        addMeasuresAndCategoriesByCount(widget, dataToSend, 1, 2, true)
+        addMeasuresAndCategoriesByCount(widget, dataToSend, 1, -1, true)
     } else {
-        console.log('COND 4 ---------------- all measures, first attribute/category')
-        // TODO - We take all measures, first attribute/category
-        addMeasuresAndCategoriesByCount(widget, dataToSend, -1, 1, false)
+        console.log('COND 4 ---------------- all measures and categories')
+        addMeasuresAndCategoriesByCount(widget, dataToSend, -1, -1, false)
     }
 
     return dataToSend
 }
 
-const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfMeasures: number, noOfCategories: number, specificMeasure: boolean) => {
+const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfCategories: number, noOfMeasures: number, specificMeasure: boolean) => {
     const measures = widget.columns.filter((column) => column.fieldType === 'MEASURE')
     const measureLength = noOfMeasures == -1 ? measures.length : noOfMeasures
 
@@ -92,10 +88,6 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfM
         }
     }
 
-    console.group(`%c MEASURES `, 'background: #222; color: #bada55')
-    console.log(dataToSend.aggregations.measures)
-    console.groupEnd()
-
     const categories = widget.columns.filter((column) => column.fieldType !== 'MEASURE')
     const categoryLength = noOfCategories == -1 ? measures.length : noOfCategories
 
@@ -107,7 +99,11 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfM
         }
     }
 
-    console.group(`%c CATEGORIES `, 'background: #222; color: #bada55')
+    console.group(`%c ATTRIBUTES - CATEGORIES - DIMENSIONS `, 'background: #222; color: #bada55')
     console.log(dataToSend.aggregations.categories)
+    console.groupEnd()
+
+    console.group(`%c MEASURES - SERIES `, 'background: #222; color: #bada55')
+    console.log(dataToSend.aggregations.measures)
     console.groupEnd()
 }
