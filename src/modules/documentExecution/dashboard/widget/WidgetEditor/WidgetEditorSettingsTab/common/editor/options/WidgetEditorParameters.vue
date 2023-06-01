@@ -25,7 +25,9 @@ export default defineComponent({
             drivers: [] as IDashboardDriver[]
         }
     },
-    created() {},
+    created() {
+        this.loadDrivers()
+    },
     methods: {
         ...mapActions(dashboardStore, ['getDashboardDrivers']),
         loadDrivers() {
