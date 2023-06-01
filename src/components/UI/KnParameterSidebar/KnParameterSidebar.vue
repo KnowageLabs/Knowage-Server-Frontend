@@ -156,7 +156,7 @@
                     <div class="p-d-flex p-flex-row">
                         <i class="pi pi-external-link kn-cursor-pointer p-mr-2" @click="openTreeDialog(parameter)"></i>
                         <div>
-                            <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index">{{ parameterValue.description ?? parameterValue.value }}</Chip>
+                            <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index">{{ parameterValue.description ?? parameterValue.value }} </Chip>
                         </div>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
             <Menu ref="executeButtonMenu" :model="executeMenuItems" :popup="true" />
         </div>
         <KnParameterPopupDialog v-if="popupDialogVisible" :visible="popupDialogVisible" :selected-parameter="selectedParameter" :prop-loading="loading" :parameter-pop-up-data="parameterPopUpData" @close="popupDialogVisible = false" @save="onPopupSave"></KnParameterPopupDialog>
-        <KnParameterTreeDialog v-if="treeDialogVisible" :visible="treeDialogVisible" :selected-parameter="selectedParameter" :formated-parameter-values="formatedParameterValues" :document="document" :mode="mode" :selected-role="role" @close="onTreeClose" @save="onTreeSave"></KnParameterTreeDialog>
+        <KnParameterTreeDialog v-if="treeDialogVisible" :visible="treeDialogVisible" :selected-parameter="selectedParameter" :formated-parameter-values="formatedParameterValues" :document="document" :mode="mode" :selected-role="role" @close="onTreeClose" @save="onTreeSave"> </KnParameterTreeDialog>
         <KnParameterSavedParametersDialog :visible="savedParametersDialogVisible" :prop-viewpoints="viewpoints" @close="savedParametersDialogVisible = false" @fillForm="fillParameterForm" @executeViewpoint="executeViewpoint" @deleteViewpoint="deleteViewpoint"></KnParameterSavedParametersDialog>
     </div>
 </template>
@@ -327,13 +327,15 @@ export default defineComponent({
                     id = this.document.federation_id
                 }
 
-                getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
-                    this.availableRolesForExecution = response
-                    if (!this.role && this.availableRolesForExecution.length == 1) {
-                        this.role = this.availableRolesForExecution[0]
-                        this.setNewSessionRole()
-                    }
-                })
+                if (id || this.document.label) {
+                    getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
+                        this.availableRolesForExecution = response
+                        if (!this.role && this.availableRolesForExecution.length == 1) {
+                            this.role = this.availableRolesForExecution[0]
+                            this.setNewSessionRole()
+                        }
+                    })
+                }
             }
         },
         loadParameters() {
@@ -664,53 +666,65 @@ export default defineComponent({
     flex-direction: column;
     font-size: 0.9rem;
     border-left: 1px solid var(--kn-color-borders);
+
     .kn-parameter-sidebar-content {
         min-height: 0;
         flex: 1;
         overflow: auto;
         position: relative;
+
         .p-field {
             label {
                 padding: 4px 0;
             }
+
             display: flex;
             flex-direction: column;
             min-height: 70px;
+
             .inputScrollPanel {
                 height: 150px;
             }
+
             .lookupScrollPanel {
                 height: 50px;
             }
+
             .p-flex-row {
                 min-height: 0;
                 flex: 1;
             }
         }
     }
+
     &.kn-parameter-sidebar-west {
         right: unset;
         border-left: unset;
         border-right: 1px solid var(--kn-color-borders);
     }
+
     &.kn-parameter-sidebar-north {
         right: unset;
         border-left: unset;
         border-bottom: 1px solid var(--kn-color-borders);
         width: 100%;
         height: 200px;
+
         .kn-parameter-sidebar-content {
             display: flex;
             flex-direction: row;
             overflow-y: clip;
+
             .p-field {
                 margin: 0 !important;
                 min-width: 300px;
                 max-width: 300px;
+
                 .inputScrollPanel,
                 .lookupScrollPanel {
                     height: 75px;
                 }
+
                 .p-flex-row,
                 .p-flex-column {
                     overflow-y: auto;
@@ -722,11 +736,13 @@ export default defineComponent({
 
         .kn-parameter-sidebar-buttons {
             justify-content: flex-end;
+
             .kn-button {
                 width: auto;
             }
         }
     }
+
     &.kn-parameter-sidebar-south {
         right: unset;
         top: unset;
@@ -735,18 +751,22 @@ export default defineComponent({
         border-top: 1px solid var(--kn-color-borders);
         width: 100%;
         height: 200px;
+
         .kn-parameter-sidebar-content {
             display: flex;
             flex-direction: row;
             overflow-y: clip;
+
             .p-field {
                 margin: 0 !important;
                 min-width: 300px;
                 max-width: 300px;
+
                 .inputScrollPanel,
                 .lookupScrollPanel {
                     height: 75px;
                 }
+
                 .p-flex-row,
                 .p-flex-column {
                     overflow-y: auto;
@@ -756,39 +776,49 @@ export default defineComponent({
             }
         }
     }
+
     .parameter-clear-icon {
         margin-left: auto;
         line-height: 22px;
     }
+
     .p-calendar {
         background-color: transparent;
     }
+
     .p-field-radiobutton {
         font-size: 1rem;
         margin: 0.1rem;
         width: calc(100% - 3px);
         height: 15px;
+
         .p-radiobutton {
             width: 15px;
             height: 15px;
+
             .p-radiobutton-box {
                 width: 15px;
                 height: 15px;
+
                 .p-radiobutton-icon {
                     width: 5px;
                     height: 5px;
                 }
             }
         }
+
         .p-checkbox {
             width: 15px;
             height: 15px;
+
             .p-checkbox-box {
                 width: 15px;
                 height: 15px;
+
                 .p-checkbox-icon {
                     width: 5px;
                     height: 5px;
+
                     &.pi-check::before {
                         top: 4px;
                         left: -1px;
@@ -797,17 +827,21 @@ export default defineComponent({
             }
         }
     }
+
     .p-dropdown {
         background-color: transparent;
         font-size: 0.9rem;
     }
+
     .p-inputtext {
         padding: 0.5rem 0.5rem;
         background-color: transparent;
+
         &.p-inputtext-sm {
             padding: 0.5rem 0.5rem;
         }
     }
+
     .parameterValueChip {
         font-size: 0.9rem;
         margin: 2px;

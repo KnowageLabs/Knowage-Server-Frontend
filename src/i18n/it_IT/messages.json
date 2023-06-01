@@ -304,6 +304,16 @@
         "year": "Year",
         "yearly": "annuale"
     },
+    "dashboard": {
+        "sheets": {
+            "add": "Aggiungi Foglio",
+            "confirmDeleteMessage": "Confermi di voler eliminare il foglio selezionato? ",
+            "delete": "Elimina foglio",
+            "moveLeft": "Sposta foglio a sinistra",
+            "moveRight": "Sposta foglio a destra",
+            "rename": "Rinomina foglio"
+        }
+    },
     "documentBrowser": {
         "changeStateMessage": "sei sicuro di voler cambiare lo stato del documento?",
         "changeStateTitle": "cambia stato",

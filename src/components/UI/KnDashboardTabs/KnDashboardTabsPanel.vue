@@ -1,16 +1,52 @@
 <template>
     <div class="sheets-container">
-        <!-- <div class="sheets-list" :class="labelPosition" role="tablist" v-if="sheets && sheets.length > 1"> -->
         <div v-if="sheets && sheets.length >= 1" class="sheets-list" :class="labelPosition" role="tablist">
-            <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index }" @touchstart.passive="setPage(index)" @click="setPage(index)">
+            <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index }" @touchstart.passive="setPage(index)" @click="setPage(index)" @dblclick.stop="renameSheet(index)">
                 <slot name="label" v-bind="sheet">
                     <i v-if="sheet.icon" :class="sheet.icon" class="p-mr-1"></i>
-                    <span>{{ sheet.label }} </span>
-                    <Button icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" @click="toggleMenu" />
-                    <Menu id="buttons_menu" ref="buttons_menu" :model="menuButtons" :popup="true"> </Menu>
+                    <input v-if="index === sheetToRenameIndex" v-model="tempLabel" type="text" @click.stop="" @blur="saveRename(index)" @keyup.enter="saveRename(index)" />
+                    <span v-else>{{ sheet.label }} </span>
+                    <Button v-if="editMode" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
+                    <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`">
+                        <q-list style="min-width: 100px" dense>
+                            <q-item clickable v-close-popup @click="renameSheet(index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-edit" />
+                                        <label>{{ $t('dashboard.sheets.rename') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                            <q-item v-if="sheets.length > 1 && index !== sheets.length - 1" clickable v-close-popup @click="move('right', index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-arrow-right" />
+                                        <label>{{ $t('dashboard.sheets.moveRight') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                            <q-item v-if="sheets.length > 1 && index !== 0" clickable v-close-popup @click="move('left', index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-arrow-left" />
+                                        <label>{{ $t('dashboard.sheets.moveLeft') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                            <q-separator v-if="sheets.length > 1" />
+                            <q-item v-if="sheets.length > 1" clickable v-close-popup @click="deleteSheet(index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-trash" />
+                                        <label>{{ $t('dashboard.sheets.delete') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-menu>
                 </slot>
             </a>
-            <a class="sheet-label" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
+            <a v-if="editMode" class="sheet-label" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
         </div>
 
         <div class="sheets-wrapper" @touchstart.passive="onTouchStart($event)" @touchmove.passive="onTouchMove($event)" @touchend.passive="onTouchEnd($event)">
@@ -31,6 +67,7 @@ export default defineComponent({
     name: 'kn-dashboard-tabs-panel',
     components: { Menu },
     props: {
+        editMode: { type: Boolean },
         sheets: {
             type: Array as PropType<Array<ISheet>>,
             required: true
@@ -52,30 +89,16 @@ export default defineComponent({
                 left: 0,
                 top: 0
             },
-            menuButtons: [
-                {
-                    label: 'Options',
-                    items: [
-                        { label: 'New', icon: 'pi pi-fw pi-plus', command: () => {} },
-                        { label: 'Delete', icon: 'pi pi-fw pi-trash', url: 'http://primetek.com.tr' }
-                    ]
-                },
-                {
-                    label: 'Account',
-                    items: [
-                        { label: 'Options', icon: 'pi pi-fw pi-cog', to: '/options' },
-                        { label: 'Sign Out', icon: 'pi pi-fw pi-power-off', to: '/logout' }
-                    ]
-                }
-            ],
             touchPoint: {
                 startLeft: 0,
                 startTop: 0,
                 startTime: 0
             },
+            sheetToRenameIndex: null,
             startTranslateX: 0,
             startTime: 0,
-            swipeType: 'init'
+            swipeType: 'init',
+            tempLabel: ''
         }
     },
     mounted() {
@@ -84,6 +107,41 @@ export default defineComponent({
     methods: {
         addSheet(): void {
             this.$emit('update:sheets', [...this.sheets, { label: 'new sheet', widgets: { lg: [] } }])
+        },
+        renameSheet(index): void {
+            if (this.editMode) {
+                if (this.sheetToRenameIndex && this.sheetToRenameIndex === index) this.sheetToRenameIndex = null
+                else {
+                    this.sheetToRenameIndex = index
+                    this.tempLabel = this.sheets[index].label
+                }
+            }
+        },
+        saveRename(index): void {
+            if (this.editMode) {
+                const tempSheets = [...this.sheets]
+                tempSheets[index].label = this.tempLabel
+                this.$emit('update:sheets', tempSheets)
+                this.renameSheet(index)
+            }
+        },
+        deleteSheet(index): void {
+            this.$confirm.require({
+                message: this.$t('dashboard.sheets.confirmDeleteMessage'),
+                header: this.$t('dashboard.sheets.delete'),
+                icon: 'pi pi-exclamation-triangle',
+                accept: () => {
+                    const tempSheet = [...this.sheets]
+                    tempSheet.splice(index, 1)
+                    this.$emit('update:sheets', tempSheet)
+                }
+            })
+        },
+        move(direction, index) {
+            const tempSheets = [...this.sheets]
+            const tempSheet = tempSheets.splice(index, 1)
+            tempSheets.splice(direction == 'right' ? index + 1 : index - 1, 0, tempSheet[0])
+            this.$emit('update:sheets', tempSheets)
         },
         setPage(index): void {
             this.$refs
@@ -168,12 +226,12 @@ export default defineComponent({
                 this.dpr = 1
             }
         },
-        toggleMenu(e) {
+        toggleMenu(e, index) {
             e.preventDefault()
             e.stopImmediatePropagation()
             // eslint-disable-next-line
             // @ts-ignore
-            this.$refs.buttons_menu.toggle(e)
+            this.$refs[`menu_${index}`][0].show()
         }
     }
 })

@@ -39,19 +39,19 @@
                             <KnValidationMessages class="p-mt-1" :v-comp="v$.activeTemplate.prefix" :additional-translate-params="{ fieldName: $t('dashboard.widgetEditor.prefix') }" />
                         </div>
 
-                        <div v-if="!isFromWorkspace" class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
+                        <div class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
                             <div class="p-col-5 p-float-label">
                                 <InputSwitch v-model="activeTemplate.uploadable" class="p-mr-2" />
                                 <span>{{ $t('documentExecution.dossier.designerDialog.uploadable') }}</span>
                             </div>
-                            <i v-tooltip.bottom="$t('documentExecution.dossier.designerDialog.uploadableHint')" class="p-col-1 fa fa-info-circle endIcon"></i>
+                            <i v-tooltip.bottom="$t('documentExecution.dossier.designerDialog.uploadableHint')" class="p-col-1 pi pi-question-circle endIcon"></i>
                         </div>
-                        <div v-if="!isFromWorkspace" class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
+                        <div class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
                             <div class="p-col-5 p-float-label">
                                 <InputSwitch v-model="activeTemplate.downloadable" class="p-mr-2" />
                                 <span>{{ $t('documentExecution.dossier.designerDialog.downloadable') }}</span>
                             </div>
-                            <i v-tooltip.bottom="$t('documentExecution.dossier.designerDialog.downloadableHint')" class="p-col-1 fa fa-info-circle endIcon"></i>
+                            <i v-tooltip.bottom="$t('documentExecution.dossier.designerDialog.downloadableHint')" class="p-col-1 pi pi-question-circle endIcon"></i>
                         </div>
                     </div> </AccordionTab
             ></Accordion>

@@ -1,5 +1,5 @@
 <template>
-    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" @sheet-change="sheetChange">
+    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" @sheet-change="sheetChange($event)" :edit-mode="canEditDashboard(document)">
         <div id="dashboard-css" v-html="dashboardCss" />
         <KnDashboardTab v-for="(sheet, index) in dashboardModel.sheets" :key="index" :index="index">
             <grid-layout
@@ -92,7 +92,7 @@ export default defineComponent({
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
         activeSheet(index) {
             // @ts-ignore
-            if ((!this.dashboard[this.dHash] && index === 0) || this.dashboard[this.dHash] === index) return true
+            if ((!this.dashboard[this.dashboardId] && index === 0) || this.dashboard[this.dashboardId] === index) return true
             return false
         },
         breakpointChangedEvent: function () {
@@ -103,8 +103,9 @@ export default defineComponent({
             return this.dashboardModel.widgets.find((item) => item.id === id)
         },
         sheetChange(index) {
+            console.log(this)
             this.setSelectedSheetIndex(index)
-            this.setDashboardSheet({ id: (this as any).dHash as any, sheet: index })
+            this.setDashboardSheet({ id: (this as any).dashboardId as any, sheet: index })
         },
         addDataset() {
             this.$emit('addDataset')

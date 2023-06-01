@@ -94,3 +94,9 @@ export interface ICrossNavigationBreadcrumb {
     hiddenFormData?: any,
     urlData?: any
 }
+
+export interface IURLDriver {
+    value: { value: string | number | Date | null; description: string }[];
+    urlName: string;
+    multivalue: boolean
+}
