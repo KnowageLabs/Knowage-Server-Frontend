@@ -419,6 +419,14 @@
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
         "selectionsList": "Selections List",
+        "sheets": {
+            "add": "Add Sheet",
+            "confirmDeleteMessage": "Are you sure you want to delete the selected sheet? ",
+            "delete": "Delete Sheet",
+            "moveLeft": "Move Sheet to Left",
+            "moveRight": "Move Sheet to Right",
+            "rename": "Rename Sheet"
+        },
         "tableWidget": {
             "launchSelection": "LAUNCH SELECTION"
         },
