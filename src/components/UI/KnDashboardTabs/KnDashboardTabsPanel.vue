@@ -1,12 +1,12 @@
 <template>
     <div class="sheets-container">
-        <div v-if="sheets && sheets.length >= 1" class="sheets-list" :class="labelPosition" role="tablist">
+        <div v-if="(edit && sheets && sheets.length >= 1) || (!editMode && sheets && sheets.length > 1)" class="sheets-list" :class="labelPosition" role="tablist">
             <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index }" @touchstart.passive="setPage(index)" @click="setPage(index)" @dblclick.stop="renameSheet(index)">
                 <slot name="label" v-bind="sheet">
                     <i v-if="sheet.icon" :class="sheet.icon" class="p-mr-1"></i>
                     <input v-if="index === sheetToRenameIndex" v-model="tempLabel" type="text" @click.stop="" @blur="saveRename(index)" @keyup.enter="saveRename(index)" />
                     <span v-else>{{ sheet.label }} </span>
-                    <Button v-if="editMode" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
+                    <Button v-if="edit" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
                     <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`">
                         <q-list style="min-width: 100px" dense>
                             <q-item clickable v-close-popup @click="renameSheet(index)">
@@ -46,7 +46,7 @@
                     </q-menu>
                 </slot>
             </a>
-            <a v-if="editMode" class="sheet-label" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
+            <a v-if="edit" class="sheet-label" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
         </div>
 
         <div class="sheets-wrapper" @touchstart.passive="onTouchStart($event)" @touchmove.passive="onTouchMove($event)" @touchend.passive="onTouchEnd($event)">
@@ -60,23 +60,19 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
-import Menu from 'primevue/menu'
 import type { ISheet } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export default defineComponent({
     name: 'kn-dashboard-tabs-panel',
-    components: { Menu },
     props: {
-        editMode: { type: Boolean },
+        edit: { type: Boolean, default: false },
         sheets: {
             type: Array as PropType<Array<ISheet>>,
             required: true
         },
-        indexTab: {
-            type: String
-        },
         labelPosition: {
-            type: String
+            type: String,
+            default: 'bottom'
         }
     },
     emits: ['sheetChange', 'update:sheets'],
@@ -118,7 +114,7 @@ export default defineComponent({
             }
         },
         saveRename(index): void {
-            if (this.editMode) {
+            if (this.edit) {
                 const tempSheets = [...this.sheets]
                 tempSheets[index].label = this.tempLabel
                 this.$emit('update:sheets', tempSheets)
