@@ -22,9 +22,9 @@ export const createNewHighchartsSettings = () => {
         updatable: true,
         clickable: true,
         chartModel: null,
-        configuration: { exports: { showExcelExport: true, showScreenshot: true }, datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(), splitting: { enabled: false, groupedSerie: '' } },
+        configuration: { exports: { showExcelExport: true, showScreenshot: true }, datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(), splitting: { enabled: false, groupedSerie: '' }, grouping: { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } } },
         accesssibility: { seriesAccesibilitySettings: getSeriesAccesibilitySettings() },
-        series: { seriesLabelsSettings: getSerieLabelsSettings() },
+        series: { seriesSettings: getSerieSettings() },
         interactions: {
             drilldown: { enabled: false },
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
@@ -136,7 +136,7 @@ const getSeriesAccesibilitySettings = () => {
     return [{ names: ['all'], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() }]
 }
 
-const getSerieLabelsSettings = () => {
+const getSerieSettings = () => {
     const serieLabelSettings = { names: ['all'], label: { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), enabled: true }, dial: highchartsDefaultValues.getDefaultSerieDialSettings(), pivot: highchartsDefaultValues.getDefaultSeriePivotSettings() }
     return [serieLabelSettings]
 }

@@ -252,7 +252,7 @@ export default defineComponent({
         },
         isMeasureTableInvalid() {
             let invalid = false
-            if (this.columnTableItems['MEASURES'].length === 0) return true
+            if (this.columnTableItems['MEASURES'].length === 0) invalid = true
             else {
                 switch (this.chartType) {
                     case 'area':

@@ -11,7 +11,7 @@ import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { formatActivityGauge, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation } from './HighchartsContainerHelpers'
-import { getPieChartDrilldownData } from '../../../DataProxyHelper'
+import { getChartDrilldownData } from '../../../DataProxyHelper'
 import Highcharts from 'highcharts'
 import Highcharts3D from 'highcharts/highcharts-3d'
 import HighchartsMore from 'highcharts/highcharts-more'
@@ -171,8 +171,8 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar'].includes(this.chartModel.chart.type)) return
-
+            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line'].includes(this.chartModel.chart.type)) return
+            console.log('--------- EVENT: ', event)
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 if (!event.point) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
@@ -180,7 +180,7 @@ export default defineComponent({
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
-                const tempData = await getPieChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
+                const tempData = await getChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
                 const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
                 this.highchartsInstance.hideLoading()
                 newSeries.forEach((serie: any) => {

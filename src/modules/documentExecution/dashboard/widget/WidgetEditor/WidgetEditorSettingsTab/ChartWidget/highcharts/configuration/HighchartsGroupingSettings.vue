@@ -41,7 +41,6 @@ export default defineComponent({
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
-            model: null as IWidget | null,
             groupingSettings: null as any
         }
     },
@@ -67,8 +66,8 @@ export default defineComponent({
     },
     methods: {
         loadModel() {
-            this.model = this.widgetModel
-            if (this.model?.settings?.configuration) this.groupingSettings = this.model.settings.configuration.grouping
+            console.log('------------------- AAAAAAAAAAA MODEL: ', this.widgetModel)
+            if (this.widgetModel?.settings?.configuration) this.groupingSettings = this.widgetModel.settings.configuration.grouping
         }
     }
 })

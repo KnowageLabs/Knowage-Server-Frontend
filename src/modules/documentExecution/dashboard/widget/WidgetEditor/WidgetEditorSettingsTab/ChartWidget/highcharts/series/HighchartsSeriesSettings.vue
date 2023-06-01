@@ -238,6 +238,7 @@ export default defineComponent({
             }
         },
         removeColumnsFromAvailableOptions() {
+            console.log('------- removeColumnsFromAvailableOptions - this.widgetModel.settings: ', this.widgetModel.settings)
             for (let i = 1; i < this.widgetModel.settings.series.seriesSettings.length; i++) {
                 for (let j = 0; j < this.widgetModel.settings.series.seriesSettings[i].names.length; j++) {
                     this.removeSerieFromAvailableOptions(this.widgetModel.settings.series.seriesSettings[i].names[j])
