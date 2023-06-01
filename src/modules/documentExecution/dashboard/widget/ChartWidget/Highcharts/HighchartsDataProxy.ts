@@ -4,6 +4,7 @@ import { IDashboardDataset, IWidget, ISelection } from '../../../Dashboard'
 import { getPieChartData } from '../../../DataProxyHelper'
 // import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../../DashboardDataProxy'
 import { getHighchartsBarData } from './dataProxy/HighchartsBarDataProxy'
+import { getHighchartsGaugeData } from './dataProxy/HighchartsGaugeDataProxy copy 2'
 import { getHighchartsScatterData } from './dataProxy/HighchartsScatterDataProxy'
 import { getHighchartsSunburstData } from './dataProxy/HighchartsSunburstDataProxy'
 
@@ -23,6 +24,8 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
             return await getHighchartsSunburstData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'gauge':
+            return await getHighchartsGaugeData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             return ''
     }
