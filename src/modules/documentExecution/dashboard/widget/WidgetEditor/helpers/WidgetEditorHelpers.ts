@@ -116,8 +116,7 @@ export function formatWidgetForSave(tempWidget: IWidget) {
 
             formatVegaForSave(widget)
     }
-    delete widget.state
-    delete widget.search
+    ['state', 'search', 'invalid'].forEach((property: string) => delete widget[property])
     return widget
 }
 

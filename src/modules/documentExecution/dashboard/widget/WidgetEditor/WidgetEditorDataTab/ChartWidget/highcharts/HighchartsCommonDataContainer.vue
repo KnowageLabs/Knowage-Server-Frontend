@@ -247,7 +247,8 @@ export default defineComponent({
                         invalid = false
                 }
             }
-            this.widgetModel.invalid = invalid
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.attributesInvalid = invalid
             return invalid
         },
         isMeasureTableInvalid() {
@@ -274,7 +275,8 @@ export default defineComponent({
                         invalid = false
                 }
             }
-            this.widgetModel.invalid = invalid
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.measuresInvalid = invalid
             return invalid
         }
     }

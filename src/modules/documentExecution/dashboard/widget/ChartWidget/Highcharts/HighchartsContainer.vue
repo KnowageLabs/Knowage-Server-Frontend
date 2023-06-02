@@ -194,6 +194,7 @@ export default defineComponent({
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
+                console.log('--------- formattedOutputParameters: ', formattedOutputParameters)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
             } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)

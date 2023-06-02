@@ -179,12 +179,12 @@ export const getAllColumnsOfSpecificAxisTypeFromDataResponse = (data: any, widge
     return formattedColumns
 }
 
-export const setRegularTreeData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], selectionsEnabled = false) => {
+export const setRegularTreeData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], interactionsEnabled = false) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
     const measureColumn = measureColumns[0]
     const serieElement = {
         id: 0, name: measureColumn.column.columnName, data: [] as any[], layoutAlgorithm: 'squarified',
-        allowDrillToNode: !selectionsEnabled,
+        allowDrillToNode: !interactionsEnabled,
         animationLimit: 1000,
     }
     const hierarchy = {}

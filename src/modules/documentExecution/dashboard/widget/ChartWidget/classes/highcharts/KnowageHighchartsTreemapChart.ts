@@ -1230,8 +1230,9 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         // console.log('------- dateFormat: ', dateFormat)
-        const selectionsEnabled = widgetModel.settings?.interactions?.selection?.enabled
-        setRegularTreeData(this.model, mockedData, attributeColumns, measureColumns, selectionsEnabled)
+        const interactions = widgetModel.settings?.interactions
+        const interactionsEnabled = interactions.selection.enabled || interactions.crossNavigation.enabled
+        setRegularTreeData(this.model, mockedData, attributeColumns, measureColumns, interactionsEnabled)
         return this.model.series
     }
 

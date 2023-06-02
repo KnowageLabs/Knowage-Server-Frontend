@@ -194,11 +194,13 @@ export default defineComponent({
                         invalid = false
                 }
             }
-            this.widgetModel.invalid = invalid
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.attributesInvalid = invalid
             return invalid
         },
         isAxisTableInvalid(axis: string) {
             let invalid = false
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
             switch (axis) {
                 case 'X':
                     invalid = this.isXAxisTableInvalid()
@@ -212,29 +214,42 @@ export default defineComponent({
                 default:
                     invalid = false
             }
-            this.widgetModel.invalid = invalid
             return invalid
         },
         isXAxisTableInvalid() {
-            if (this.columnTableItems['X'].length === 0) return true
-            switch (this.chartType) {
-                case 'bubble':
-                    return this.columnTableItems['X'].length !== 1
-                default:
-                    return false
+            let invalid = false
+            if (this.columnTableItems['X'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'bubble':
+                        invalid = this.columnTableItems['X'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
             }
+            this.widgetModel.invalid.xAxisInvalid = invalid
+            return invalid
         },
         isYAxisTableInvalid() {
-            return this.columnTableItems['Y'].length === 0
+            const invalid = this.columnTableItems['Y'].length === 0
+            this.widgetModel.invalid.yAxisInvalid = invalid
+            return invalid
         },
         isZAxisTableInvalid() {
-            if (this.columnTableItems['Z'].length === 0) return true
-            switch (this.chartType) {
-                case 'bubble':
-                    return this.columnTableItems['Z'].length !== 1
-                default:
-                    return false
+            let invalid = false
+            if (this.columnTableItems['Z'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'bubble':
+                        invalid = this.columnTableItems['Z'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
             }
+            this.widgetModel.invalid.zAxisInvalid = invalid
+            return invalid
         }
     }
 })
