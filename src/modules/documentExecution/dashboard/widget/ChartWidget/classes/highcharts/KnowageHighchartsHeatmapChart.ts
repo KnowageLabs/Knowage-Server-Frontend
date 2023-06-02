@@ -11,7 +11,7 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'heatmap') {
                 this.formatSeriesFromOtherChartTypeSeries()
@@ -27,9 +27,9 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setHeatmapPlotOptions()
-        this.setHeatmapLegend()
-        this.setHeatmapXAxis()
-        this.setHeatmapYAxis()
+        if (!this.model.legend) this.setHeatmapLegend()
+        if (!this.model.xAxis) this.setHeatmapXAxis()
+        if (!this.model.yAxis) this.setHeatmapYAxis()
     }
 
     setHeatmapPlotOptions() {
