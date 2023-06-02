@@ -29,6 +29,8 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
+        this.setLineXAxis()
+        this.setLineYAxis()
     }
 
     setPlotOptions() {
@@ -40,6 +42,14 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
         }
         this.model.plotOptions.series.showCheckbox = true
         this.model.plotOptions.series.turboThreshold = 200000
+    }
+
+    setLineXAxis() {
+        this.model.xAxis = [highchartsDefaultValues.getDefaultBarXAxis()]
+    }
+
+    setLineYAxis() {
+        this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
     }
 
     setData(data: any, widgetModel: IWidget) {

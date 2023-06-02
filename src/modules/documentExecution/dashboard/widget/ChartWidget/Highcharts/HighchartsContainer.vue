@@ -171,7 +171,8 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line'].includes(this.chartModel.chart.type)) return
+            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.chartModel.chart.type)) return
+            console.log('--------- CHART TYPE: ', this.chartModel.chart.type)
             console.log('--------- EVENT: ', event)
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 if (!event.point) return
@@ -194,7 +195,7 @@ export default defineComponent({
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-            } else if (['pie', 'radar'].includes(this.chartModel.chart.type)) {
+            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },

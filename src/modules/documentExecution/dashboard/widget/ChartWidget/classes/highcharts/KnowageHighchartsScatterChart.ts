@@ -34238,7 +34238,7 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     setPlotOptions() {
         this.model.plotOptions.scatter = {
             "marker": {
-                "radius": 3,
+                "radius": 1,
                 "states": {
                     "hover": {
                         "enabled": true,

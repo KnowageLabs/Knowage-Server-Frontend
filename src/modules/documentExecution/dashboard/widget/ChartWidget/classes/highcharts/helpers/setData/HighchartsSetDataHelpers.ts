@@ -24,8 +24,6 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
-    console.log('----- attributeColumn: ', attributeColumn)
-
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
@@ -181,12 +179,12 @@ export const getAllColumnsOfSpecificAxisTypeFromDataResponse = (data: any, widge
     return formattedColumns
 }
 
-export const setRegularTreeData = (model: any, data: any, attributeColumns: any[], measureColumns: any[]) => {
+export const setRegularTreeData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], selectionsEnabled = false) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
     const measureColumn = measureColumns[0]
     const serieElement = {
         id: 0, name: measureColumn.column.columnName, data: [] as any[], layoutAlgorithm: 'squarified',
-        allowDrillToNode: true,
+        allowDrillToNode: !selectionsEnabled,
         animationLimit: 1000,
     }
     const hierarchy = {}

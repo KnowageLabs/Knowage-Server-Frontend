@@ -5,7 +5,7 @@ import { updateTreemapChartModel } from './updater/KnowageHighchartsTreemapChart
 import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
-import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue, setRegularTreeData } from './helpers/setData/HighchartsSetDataHelpers'
 
 export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -1230,16 +1230,19 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         // console.log('------- dateFormat: ', dateFormat)
-        this.setRegularData(mockedData, attributeColumns, measureColumns)
+        const selectionsEnabled = widgetModel.settings?.interactions?.selection?.enabled
+        setRegularTreeData(this.model, mockedData, attributeColumns, measureColumns, selectionsEnabled)
         return this.model.series
     }
 
-    setRegularData(data: any, attributeColumns: any[], measureColumns: any[]) {
+
+    // TODO - remove
+    setRegularData(data: any, attributeColumns: any[], measureColumns: any[], selectionsEnabled = false) {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
         const serieElement = {
             id: 0, name: measureColumn.column.columnName, data: [] as any[], layoutAlgorithm: 'squarified',
-            allowDrillToNode: true,
+            allowDrillToNode: !selectionsEnabled,
             animationLimit: 1000,
         }
         const hierarchy = {}
@@ -1301,7 +1304,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
 
         this.model.series = [serieElement]
     }
-
+    // TODO - remove
     createTreeSeriesStructureFromHierarchy(node: any, parentId = null, result = [] as any[]) {
         const { children, ...rest } = node;
         const flattenedNode = {
@@ -1318,13 +1321,6 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         }
 
         return result;
-    }
-
-    getSeriesFromWidgetModel(widgetModel: IWidget) {
-        // TODO
-        const measureColumn = widgetModel.columns.find((column: IWidgetColumn) => column.fieldType === 'MEASURE')
-        if (!measureColumn) return
-        this.model.series = [createSerie(measureColumn.columnName, measureColumn.aggregation, true)]
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
@@ -1346,7 +1342,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
                         color: seriesLabelSetting.label.style.color ?? ''
                     },
                     formatter: function () {
-                        return KnowageHighchartsBarChart.prototype.handleFormatter(this, seriesLabelSetting.label)
+                        return KnowageHighchartsTreemapChart.prototype.handleFormatter(this, seriesLabelSetting.label)
                     }
                 }
             })

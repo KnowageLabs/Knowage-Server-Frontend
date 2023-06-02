@@ -1510,7 +1510,8 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
         console.log('---------- MEASURE COLUMNS: ', measureColumns)
-        setRegularTreeData(this.model, mockedData, attributeColumns, measureColumns)
+        const selectionsEnabled = widgetModel.settings?.interactions?.selection?.enabled
+        setRegularTreeData(this.model, mockedData, attributeColumns, measureColumns, selectionsEnabled)
         return this.model.series
     }
 
