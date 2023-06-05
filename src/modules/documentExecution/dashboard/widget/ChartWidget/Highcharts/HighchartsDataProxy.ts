@@ -21,10 +21,16 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
             return await getHighchartsScatterData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'sunburst':
         case 'treemap':
+        case 'heatmap':
+        case 'radar':
+        case 'wordcloud':
             return await getHighchartsSunburstData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        //TODO: Dal da pravim za svaki gauge poseban uslov?
         case 'gauge':
+        case 'activitygauge':
+        case 'solidgauge':
             return await getHighchartsGaugeData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             return ''
