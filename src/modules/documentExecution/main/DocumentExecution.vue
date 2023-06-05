@@ -89,6 +89,7 @@
                             :new-dashboard-mode="newDashboardMode"
                             :mode="mode"
                             :prop-view="dashboardView"
+                            @executeView="onExecuteView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
                             @executeCrossNavigation="onExecuteCrossNavigation"
@@ -1112,6 +1113,10 @@ export default defineComponent({
         onSetDashboardId(event: any, breadcrumb: ICrossNavigationBreadcrumb) {
             breadcrumb.document.dashboardId = event
             this.document.dashboardId = event
+        },
+        async onExecuteView(view: IDashboardView) {
+            this.dashboardView = view
+            await this.loadPage()
         }
     }
 })

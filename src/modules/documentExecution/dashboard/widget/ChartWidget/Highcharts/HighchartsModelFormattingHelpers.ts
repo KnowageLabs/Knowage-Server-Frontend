@@ -1,4 +1,3 @@
-import deepcopy from "deepcopy"
 import { IWidget } from "../../../Dashboard"
 import { hexToRgba } from "../../../helpers/FormattingHelpers"
 import { IHighchartsChartModel } from "../../../interfaces/highcharts/DashboardHighchartsWidget"
@@ -58,5 +57,4 @@ const formatHeatmapColors = (formattedChartModel: IHighchartsChartModel) => {
 
 export const formatRadar = (formattedChartModel: IHighchartsChartModel) => {
     formattedChartModel.chart.type = 'line'
-    formattedChartModel.series = formattedChartModel.seriesForRender ? deepcopy(formattedChartModel.seriesForRender) : []
 }

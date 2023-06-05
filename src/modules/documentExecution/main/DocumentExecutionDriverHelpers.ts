@@ -191,4 +191,5 @@ export const formatDriversUsingDashboardView = (filtersData: { filterStatus: iPa
             driver.parameterValue = driverFromView.parameterValue
         }
     })
+    updateFiltersDataIsReadyForExecution(filtersData)
 }

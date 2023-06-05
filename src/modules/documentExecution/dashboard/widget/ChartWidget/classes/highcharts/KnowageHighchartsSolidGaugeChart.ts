@@ -47,8 +47,8 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesLabelsSettings) return
-        const seriesSettings = widgetModel.settings.series.seriesLabelsSettings[0]
+        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings) return
+        const seriesSettings = widgetModel.settings.series.seriesSettings[0]
         this.updateSeriesDataWithSerieSettings(this.model.series[0], seriesSettings)
     }
 

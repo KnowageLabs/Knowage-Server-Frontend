@@ -10,7 +10,16 @@
         <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
 
         <Transition name="editorEnter" appear>
-            <DatasetEditor v-if="datasetEditorVisible" :dashboard-id-prop="dashboardId" :available-datasets-prop="datasets" :filters-data-prop="filtersData" @closeDatasetEditor="closeDatasetEditor" @datasetEditorSaved="closeDatasetEditor" @allDatasetsLoaded="datasets = $event" />
+            <DatasetEditor
+                v-if="datasetEditorVisible"
+                :dashboard-id-prop="dashboardId"
+                :available-datasets-prop="datasets"
+                :filters-data-prop="filtersData"
+                :datasets-loaded="datasetsLoaded"
+                @closeDatasetEditor="closeDatasetEditor"
+                @datasetEditorSaved="closeDatasetEditor"
+                @allDatasetsLoaded="onAllDatasetsLoaded"
+            />
         </Transition>
 
         <Transition name="editorEnter" appear>
@@ -107,7 +116,7 @@ export default defineComponent({
         mode: { type: Object as PropType<string | null>, required: true },
         propView: { type: Object as PropType<IDashboardView | null> }
     },
-    emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet'],
+    emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
     setup() {
         const store = dashboardStore()
         const appStore = mainStore()
@@ -138,7 +147,8 @@ export default defineComponent({
             saveViewDialogVisible: false,
             savedViewsListDialogVisible: false,
             selectedViewForExecution: null as IDashboardView | null,
-            generalSettingsMode: 'General' as string
+            generalSettingsMode: 'General' as string,
+            datasetsLoaded: false
         }
     },
     computed: {
@@ -429,9 +439,11 @@ export default defineComponent({
         executeView(view: IDashboardView) {
             this.savedViewsListDialogVisible = false
             this.loadSelectedViewForExecution(view)
-            applyDashboardViewToModel(this.model, this.selectedViewForExecution)
-            this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
-            emitter.emit('loadPivotStates', this.selectedViewForExecution)
+            this.$emit('executeView', view)
+        },
+        onAllDatasetsLoaded(event: any) {
+            this.datasets = event
+            this.datasetsLoaded = true
         }
     }
 })

@@ -1,5 +1,5 @@
 <template>
-    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" @sheet-change="sheetChange($event)" :edit-mode="canEditDashboard(document)">
+    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
         <div id="dashboard-css" v-html="dashboardCss" />
         <KnDashboardTab v-for="(sheet, index) in dashboardModel.sheets" :key="index" :index="index">
             <grid-layout
@@ -18,11 +18,11 @@
                 <WidgetController v-for="item in sheet.widgets['lg']" :key="item.i" :active-sheet="activeSheet(index)" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
                 <div v-if="canEditDashboard(document)" class="emptyDashboardWizard">
                     <div v-if="dashboardModel?.configuration?.datasets.length === 0" class="dashboardWizardContainer" @click="addDataset">
-                        <img src="/images/dashboard/common/databaseWizardDashboard.svg" />
+                        <img :src="getImageSource('images/dashboard/common/databaseWizardDashboard.svg')" />
                         <span>{{ $t('dashboard.wizard.addDataset') }}</span>
                     </div>
                     <div v-if="sheet.widgets?.lg?.length === 0" class="dashboardWizardContainer" @click="addWidget">
-                        <img src="/images/dashboard/common/widgetWizardDashboard.svg" />
+                        <img :src="getImageSource('images/dashboard/common/widgetWizardDashboard.svg')" />
                         <span>{{ $t('dashboard.wizard.addWidget') }}</span>
                     </div>
                 </div>
@@ -98,6 +98,9 @@ export default defineComponent({
         breakpointChangedEvent: function () {
             // breakpointChangedEvent: function(newBreakpoint, newLayout) {
             // console.log('BREAKPOINT CHANGED breakpoint=', newBreakpoint, ', layout: ', newLayout)
+        },
+        getImageSource(chartValue: string) {
+            return `${import.meta.env.VITE_PUBLIC_PATH}${chartValue}`
         },
         currentWidget(id) {
             return this.dashboardModel.widgets.find((item) => item.id === id)

@@ -1510,7 +1510,9 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
         console.log('---------- MEASURE COLUMNS: ', measureColumns)
-        setRegularTreeData(this.model, mockedData, attributeColumns, measureColumns)
+        const interactions = widgetModel.settings?.interactions
+        const interactionsEnabled = interactions.selection.enabled || interactions.crossNavigation.enabled
+        setRegularTreeData(this.model, mockedData, attributeColumns, measureColumns, interactionsEnabled)
         return this.model.series
     }
 
@@ -1523,8 +1525,8 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
         // TODO
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesLabelsSettings || !widgetModel.settings.series.seriesLabelsSettings[0]) return
-        const seriesLabelSetting = widgetModel.settings.series.seriesLabelsSettings[0]
+        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
+        const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
         if (!seriesLabelSetting.label.enabled) return
         this.model.series.forEach((serie: IHighchartsChartSerie) => {
             serie.data.forEach((data: IHighchartsChartSerieData) => {

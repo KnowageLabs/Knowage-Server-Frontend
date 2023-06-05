@@ -34238,7 +34238,7 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     setPlotOptions() {
         this.model.plotOptions.scatter = {
             "marker": {
-                "radius": 3,
+                "radius": 1,
                 "states": {
                     "hover": {
                         "enabled": true,
@@ -34312,8 +34312,8 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
         // TODO
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesLabelsSettings || !widgetModel.settings.series.seriesLabelsSettings[0]) return
-        const seriesLabelSetting = widgetModel.settings.series.seriesLabelsSettings[0]
+        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
+        const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
         if (!seriesLabelSetting.label.enabled) return
         this.model.series.forEach((serie: IHighchartsChartSerie) => {
             serie.data.forEach((data: IHighchartsChartSerieData) => {

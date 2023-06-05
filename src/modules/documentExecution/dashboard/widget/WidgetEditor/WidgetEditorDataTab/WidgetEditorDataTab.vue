@@ -73,6 +73,7 @@ export default defineComponent({
             if (!this.widget) return
 
             console.log('---------- onChartTypeChanged: ', chartType)
+            delete this.widget.invalid
 
             // TODO widgetChange
             if (chartType === 'wordcloud') {

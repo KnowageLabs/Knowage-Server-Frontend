@@ -23,7 +23,7 @@
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.splitting.title",
-                "type": "SplittingSettings"
+                "type": "GroupingSettings"
             },
             {
                 "title": "dashboard.widgetEditor.export.title",
