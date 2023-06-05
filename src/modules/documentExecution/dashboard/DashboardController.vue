@@ -115,7 +115,7 @@ export default defineComponent({
         mode: { type: Object as PropType<string | null>, required: true },
         propView: { type: Object as PropType<IDashboardView | null> }
     },
-    emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet'],
+    emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
     setup() {
         const store = dashboardStore()
         const appStore = mainStore()
@@ -436,9 +436,7 @@ export default defineComponent({
         executeView(view: IDashboardView) {
             this.savedViewsListDialogVisible = false
             this.loadSelectedViewForExecution(view)
-            applyDashboardViewToModel(this.model, this.selectedViewForExecution)
-            this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
-            emitter.emit('loadPivotStates', this.selectedViewForExecution)
+            this.$emit('executeView', view)
         },
         onAllDatasetsLoaded(event: any) {
             this.datasets = event

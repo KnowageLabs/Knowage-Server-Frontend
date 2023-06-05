@@ -113,6 +113,7 @@ export default defineComponent({
                 .then(() => {
                     this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.success') })
                     this.$emit('viewUpdated')
+                    this.closeDialog()
                 })
                 .catch(() => {})
         },
