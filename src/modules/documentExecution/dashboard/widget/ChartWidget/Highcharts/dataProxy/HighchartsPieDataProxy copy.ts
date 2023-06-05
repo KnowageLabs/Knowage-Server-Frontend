@@ -3,7 +3,7 @@ import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/help
 import { IDashboardDataset, IWidget, ISelection } from '@/modules/documentExecution/dashboard/Dashboard'
 import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 
-export const getHighchartsBarData = async (dashboardId, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getHighchartsPieData = async (dashboardId, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
@@ -50,19 +50,7 @@ const formatChartWidgetForGet = (dashboardId: any, widget: IWidget, dataset: IDa
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend)
 
-    if (widget.settings.configuration?.grouping?.enabled) {
-        console.log('COND 1 ---------------- first measure, exactly 2 attribute/category')
-        addMeasuresAndCategoriesByCount(widget, dataToSend, 2, -1, false)
-    } else if (widget.settings.configuration?.grouping?.secondSeries.enabled) {
-        console.log('COND 2 ---------------- exactly 2 measures/dimensions, exactly 1 attribute/category/series')
-        addMeasuresAndCategoriesByCount(widget, dataToSend, 1, 2, false)
-    } else if (widget.settings.configuration?.grouping?.secondDimension.enabled) {
-        console.log('COND 3 ---------------- exactly 1 measure (chosen from dropdown), exactly 2 attribute/category')
-        addMeasuresAndCategoriesByCount(widget, dataToSend, 1, -1, true)
-    } else {
-        console.log('COND 4 ---------------- all measures and categories')
-        addMeasuresAndCategoriesByCount(widget, dataToSend, -1, -1, false)
-    }
+    addMeasuresAndCategoriesByCount(widget, dataToSend, -1, 4, false)
 
     return dataToSend
 }
