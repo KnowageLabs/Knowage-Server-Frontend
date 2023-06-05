@@ -1,17 +1,17 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IHighchartsChartSerie, IHighchartsChartSerieData } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { updateBarChartModel } from './updater/KnowageHighchartsBarChartUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularData, setGroupedCategoriesData, setGroupedBySeriesData, setGroupedByCategoriesData } from './helpers/setData/HighchartsSetDataHelpers'
+import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 export class KnowageHighchartsBarChart extends KnowageHighcharts {
     constructor(model: any, type: 'area' | 'bar' | 'column', isStacked: boolean) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (!['area', 'bar', 'column'].includes(model.chart.type)) this.setSpecificOptionsDefaultValues()
         }
@@ -26,15 +26,15 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        this.setBarXAxis()
-        this.setBarYAxis()
+        if (!this.model.xAxis) this.setBarXAxis()
+        if (!this.model.yAxis) this.setBarYAxis()
     }
 
     setPlotOptions() {
         this.model.plotOptions.line = {
             marker: { symbol: "circle", lineWidth: 2 }
         }
-        this.model.plotOptions.series.showCheckbox = true
+        this.model.plotOptions.series.showCheckbox = this.model.plotOptions.series.showCheckbox ?? true
         this.model.plotOptions.series.turboThreshold = 200000
     }
 
@@ -68,28 +68,6 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        // TODO
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
-        const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
-        if (!seriesLabelSetting.label.enabled) return
-        this.model.series.forEach((serie: IHighchartsChartSerie) => {
-            serie.data.forEach((data: IHighchartsChartSerieData) => {
-                data.dataLabels = {
-                    backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
-                    distance: 30,
-                    enabled: true,
-                    position: '',
-                    style: {
-                        fontFamily: seriesLabelSetting.label.style.fontFamily,
-                        fontSize: seriesLabelSetting.label.style.fontSize,
-                        fontWeight: seriesLabelSetting.label.style.fontWeight,
-                        color: seriesLabelSetting.label.style.color ?? ''
-                    },
-                    formatter: function () {
-                        return KnowageHighchartsBarChart.prototype.handleFormatter(this, seriesLabelSetting.label)
-                    }
-                }
-            })
-        })
+        updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
     }
 }

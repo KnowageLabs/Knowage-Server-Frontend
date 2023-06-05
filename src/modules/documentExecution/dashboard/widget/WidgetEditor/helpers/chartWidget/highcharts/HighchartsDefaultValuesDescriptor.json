@@ -118,6 +118,7 @@
         "to": 0
     },
     "defaultBarXAxis": {
+        "gridLineWidth": 1,
         "labels": {
             "align": "center",
             "rotation": null,

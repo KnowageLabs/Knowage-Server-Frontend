@@ -27,7 +27,9 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
-        const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true }
+        console.log('------ COLUMN: ', column)
+        const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true } as any
+        if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
         data?.rows?.forEach((row: any) => {
             serieElement.data.push({
                 name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],

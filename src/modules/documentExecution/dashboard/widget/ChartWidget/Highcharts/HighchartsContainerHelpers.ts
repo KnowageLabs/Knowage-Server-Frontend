@@ -2,6 +2,7 @@ import { IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Da
 import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardChartJSWidget";
 
 export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions: IWidgetCrossNavigation, dataToShow: any, chartType: string) => {
+    if (!chartEvent.point) return []
     const formattedChartValues = getFormattedChartValues(chartEvent, dataToShow, chartType)
     console.log('---------------- formattedChartValues: ', formattedChartValues)
     const formattedOutputParameters = getFormattedOutputParameters(formattedChartValues, crossNavigationOptions.parameters)
@@ -12,6 +13,7 @@ export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions
 const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartType: string) => {
     const categoryName = dataToShow?.metaData?.fields[1] ? dataToShow.metaData.fields[1].header : ''
     const chartPoint = chartEvent.point
+
     console.log('-------- chartPoint ', chartPoint)
     console.log('-------- chartPoint.options.value ', chartPoint.options.value)
     const formattedChartValues = { serieName: chartPoint.series.name, serieValue: ['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble'].includes(chartType) ? chartPoint.options.y : chartPoint.options.value, categoryName: categoryName, categoryValue: chartPoint.options.name } as IChartInteractionValues

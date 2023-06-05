@@ -171,7 +171,7 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.chartModel.chart.type)) return
+            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.chartModel.chart.type) || this.editorMode) return
             console.log('--------- CHART TYPE: ', this.chartModel.chart.type)
             console.log('--------- EVENT: ', event)
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
