@@ -39,14 +39,20 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            dashboard: {} as any,
             background: {} as IBackground
         }
     },
     watch: {},
     created() {
-        this.background = this.dashboardModelProp.configuration.background as IBackground
+        this.loadProps()
     },
     methods: {
+        loadProps() {
+            this.dashboard = this.dashboardModelProp
+            if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '' } as IBackground
+            this.background = this.dashboard.configuration.background as IBackground
+        },
         onSelectionColorChanged(event: string | null) {
             if (!event || !this.background.sheetsBackgroundColor) return
             else this.background.sheetsBackgroundColor = event
