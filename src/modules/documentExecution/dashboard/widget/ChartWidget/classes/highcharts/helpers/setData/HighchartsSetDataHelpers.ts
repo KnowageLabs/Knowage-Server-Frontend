@@ -24,21 +24,52 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
+    const areaRangeColumns = [] as any[]
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
+        console.log('------ model type: ', model.chart.type)
         console.log('------ COLUMN: ', column)
-        const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true } as any
-        if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
-        data?.rows?.forEach((row: any) => {
-            serieElement.data.push({
-                name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
-                y: row[metadata.dataIndex],
-                drilldown: drilldownEnabled && attributeColumns.length > 1
+
+        if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
+            const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true } as any
+            if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
+            data?.rows?.forEach((row: any) => {
+                serieElement.data.push({
+                    name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
+                    y: row[metadata.dataIndex],
+                    drilldown: drilldownEnabled && attributeColumns.length > 1
+                })
             })
-        })
-        model.series.push(serieElement)
+            model.series.push(serieElement)
+        } else {
+            areaRangeColumns.push((measureColumn))
+        }
     })
+    if (areaRangeColumns.length > 1) setRegularAreaRangeData(model, data, attributeColumn, areaRangeColumns, dateFormat)
+}
+
+const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, areaRangeColumns: any[], dateFormat: string) => {
+    if (!attributeColumn || !attributeColumn.metadata) return
+
+    const lowAreaRangeColumn = areaRangeColumns.find((areaRangeColumn: any) => areaRangeColumn.column.serieType === 'arearangelow')
+    const highAreaRangeColumn = areaRangeColumns.find((areaRangeColumn: any) => areaRangeColumn.column.serieType === 'arearangehigh')
+
+    console.log('------- lowAreaRangeColumn: ', lowAreaRangeColumn)
+    console.log('------- highAreaRangeColumn: ', highAreaRangeColumn)
+    if (!lowAreaRangeColumn || !highAreaRangeColumn) return
+    const serieElement = { id: model.series.length, name: lowAreaRangeColumn.column.columnName + ' / ' + highAreaRangeColumn.column.columnName, data: [] as any[], connectNulls: true } as any
+    serieElement.type = 'arearange'
+    data?.rows?.forEach((row: any) => {
+        serieElement.data.push({
+            name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
+            low: row[lowAreaRangeColumn.metadata.dataIndex],
+            high: row[highAreaRangeColumn.metadata.dataIndex],
+            drilldown: false
+        })
+    })
+    model.series.push(serieElement)
+
 }
 
 // TODO - We take exactly 2 attributes, first measure

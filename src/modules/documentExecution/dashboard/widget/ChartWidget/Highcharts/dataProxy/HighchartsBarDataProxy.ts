@@ -61,7 +61,9 @@ const formatChartWidgetForGet = (dashboardId: any, widget: IWidget, dataset: IDa
         addMeasuresAndCategoriesByCount(widget, dataToSend, 1, -1, true)
     } else {
         console.log('COND 4 ---------------- all measures and categories')
-        addMeasuresAndCategoriesByCount(widget, dataToSend, -1, -1, false)
+        // TODO Bojan
+        // addMeasuresAndCategoriesByCount(widget, dataToSend, -1, -1, false)
+        addMeasuresAndCategoriesByCount(widget, dataToSend, 1, -1, false)
     }
 
     return dataToSend
