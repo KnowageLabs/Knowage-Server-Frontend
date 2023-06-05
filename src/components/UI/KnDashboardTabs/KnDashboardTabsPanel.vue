@@ -1,10 +1,10 @@
 <template>
     <div class="sheets-container">
-        <div v-if="(edit && sheets && sheets.length >= 1) || (!editMode && sheets && sheets.length > 1)" class="sheets-list" :class="labelPosition" role="tablist">
+        <div v-if="(edit && sheets && sheets.length >= 1) || (!edit && sheets && sheets.length > 1)" class="sheets-list" :class="labelPosition" role="tablist">
             <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index }" @touchstart.passive="setPage(index)" @click="setPage(index)" @dblclick.stop="renameSheet(index)">
                 <slot name="label" v-bind="sheet">
                     <i v-if="sheet.icon" :class="sheet.icon" class="p-mr-1"></i>
-                    <input v-if="index === sheetToRenameIndex" v-model="tempLabel" type="text" @click.stop="" @blur="saveRename(index)" @keyup.enter="saveRename(index)" />
+                    <input v-if="index === sheetToRenameIndex" v-model="tempLabel" :ref="`input_${index}`" type="text" @click.stop="" @blur="saveRename(index, $event)" @keyup.enter="saveRename(index, $event)" />
                     <span v-else>{{ sheet.label }} </span>
                     <Button v-if="edit" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
                     <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`">
@@ -106,19 +106,19 @@ export default defineComponent({
         },
         renameSheet(index): void {
             if (this.edit) {
-                if (this.sheetToRenameIndex && this.sheetToRenameIndex === index) this.sheetToRenameIndex = null
-                else {
-                    this.sheetToRenameIndex = index
-                    this.tempLabel = this.sheets[index].label
-                }
+                this.sheetToRenameIndex = index
+                this.tempLabel = this.sheets[index].label
+                setTimeout(() => {
+                    this.$refs[`input_${index}`][0].focus()
+                }, 100)
             }
         },
-        saveRename(index): void {
+        saveRename(index, event): void {
             if (this.edit) {
                 const tempSheets = [...this.sheets]
                 tempSheets[index].label = this.tempLabel
                 this.$emit('update:sheets', tempSheets)
-                this.renameSheet(index)
+                this.sheetToRenameIndex = null
             }
         },
         deleteSheet(index): void {
