@@ -186,6 +186,7 @@ import Dialog from 'primevue/dialog'
 import descriptor from './DocumentExecutionDescriptor.json'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/WorkspaceFolderPickerDialog.vue'
+import EnginesConstants from '@/EnginesConstants.json'
 
 // @ts-ignore
 // eslint-disable-next-line
@@ -238,6 +239,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            EnginesConstants,
             managementOpened: false,
             document: null as any,
             hiddenFormData: {} as any,
@@ -641,7 +643,9 @@ export default defineComponent({
             if (!this.urlData || !this.urlData.engineLabel) return
             if (!this.urlData || !this.urlData.engineLabel) return
             const engineLabel = this.urlData.engineLabel
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
+            if (engineLabel !== EnginesConstants.DOSSIER_ENGINE) {
+                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
+            }
         },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
             const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name) as any
