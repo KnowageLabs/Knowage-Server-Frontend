@@ -24,13 +24,20 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            dashboard: {} as any,
             dashboardConfig: null as any
         }
     },
     watch: {},
     created() {
-        this.dashboardConfig = this.dashboardModelProp.configuration
+        this.loadProps()
     },
-    methods: {}
+    methods: {
+        loadProps() {
+            this.dashboard = this.dashboardModelProp
+            if (!this.dashboard.configuration?.cssToRender) this.dashboard.configuration.cssToRender = ''
+            this.dashboardConfig = this.dashboard.configuration
+        }
+    }
 })
 </script>
