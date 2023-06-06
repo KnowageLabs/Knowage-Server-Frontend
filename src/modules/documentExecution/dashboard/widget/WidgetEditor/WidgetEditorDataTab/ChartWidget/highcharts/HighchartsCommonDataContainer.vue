@@ -260,7 +260,7 @@ export default defineComponent({
                     case 'bar':
                     case 'column':
                     case 'line':
-                        invalid = this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length > 2
+                        invalid = this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length !== 2
                         break
                     case 'solidgauge':
                     case 'heatmap':

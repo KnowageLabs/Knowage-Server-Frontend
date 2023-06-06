@@ -49,7 +49,8 @@ export const createNewHighchartsSettings = () => {
 export const formatHighchartsWidget = (widget: IWidget) => {
     const chartModel = widget.settings.chartModel.model ?? widget.settings.chartModel
     const chartType = chartModel.chart.type
-    // TODO add for stacking
+    const isStacking = chartModel.plotOptions?.series?.stacking
+
     switch (chartType) {
         case 'pie':
             widget.settings.chartModel = new KnowageHighchartsPieChart(chartModel)
@@ -70,13 +71,13 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             widget.settings.chartModel = new KnowageHighchartsRadarChart(chartModel)
             break
         case 'area':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'area', false)
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'area', isStacking)
             break
         case 'bar':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'bar', false)
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'bar', isStacking)
             break
         case 'column':
-            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'column', false)
+            widget.settings.chartModel = new KnowageHighchartsBarChart(chartModel, 'column', isStacking)
             break
         case 'bubble':
             widget.settings.chartModel = new KnowageHighchartsBubbleChart(chartModel)

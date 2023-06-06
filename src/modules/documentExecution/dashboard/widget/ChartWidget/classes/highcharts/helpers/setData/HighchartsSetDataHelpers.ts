@@ -28,11 +28,9 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
-        console.log('------ model type: ', model.chart.type)
-        console.log('------ COLUMN: ', column)
 
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
-            const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true } as any
+            const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
             data?.rows?.forEach((row: any) => {
                 serieElement.data.push({
@@ -55,8 +53,6 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
     const lowAreaRangeColumn = areaRangeColumns.find((areaRangeColumn: any) => areaRangeColumn.column.serieType === 'arearangelow')
     const highAreaRangeColumn = areaRangeColumns.find((areaRangeColumn: any) => areaRangeColumn.column.serieType === 'arearangehigh')
 
-    console.log('------- lowAreaRangeColumn: ', lowAreaRangeColumn)
-    console.log('------- highAreaRangeColumn: ', highAreaRangeColumn)
     if (!lowAreaRangeColumn || !highAreaRangeColumn) return
     const serieElement = { id: model.series.length, name: lowAreaRangeColumn.column.columnName + ' / ' + highAreaRangeColumn.column.columnName, data: [] as any[], connectNulls: true } as any
     serieElement.type = 'arearange'
@@ -242,17 +238,13 @@ export const setRegularTreeData = (model: any, data: any, attributeColumns: any[
             // if (!currentItem[value]) currentItem[value] = {};
             // currentItem = currentItem[value];
 
-            if (!currentItem.children) {
-                // Create a children array if it doesn't exist
-                currentItem.children = [];
-            }
+            if (!currentItem.children) currentItem.children = [];
 
-            // Check if the child item already exists
+
             const childItem = currentItem.children.find(child => child.name === value);
             if (childItem) {
                 currentItem = childItem;
             } else {
-                // Create a new child item and assign an ID
                 id++;
                 const newChildItem = {
                     id: '' + id,
@@ -271,8 +263,6 @@ export const setRegularTreeData = (model: any, data: any, attributeColumns: any[
         if (el.value === 0) delete el.value
     })
 
-    console.log('-------      hierarchy: ', hierarchy)
-    console.log('-------      treemapArray: ', treemapArray)
     treemapArray.splice(0, 1)
     serieElement.data = treemapArray
 

@@ -24,10 +24,10 @@
                 <i v-tooltip.top="$t('dashboard.widgetEditor.configurationOf3D.viewDistanceHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
-        <div v-if="model.plotOptions?.pie" class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex">
+        <div v-if="model.chart.options3d.depth" class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.configurationOf3D.totalDepth') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center">
-                <InputNumber v-model="model.plotOptions.pie.depth" class="kn-material-input p-inputtext-sm" :disabled="configurationDisabled" @blur="modelChanged" />
+                <InputNumber v-model="model.chart.options3d.depth" class="kn-material-input p-inputtext-sm" :disabled="configurationDisabled" @blur="modelChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.configurationOf3D.totalDepthHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
@@ -61,6 +61,7 @@ export default defineComponent({
     methods: {
         loadModel() {
             this.model = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
+            if (this.model && !this.model.chart.options3d.depth) this.model.chart.options3d.depth = 100
         },
         modelChanged() {
             emitter.emit('refreshChart', this.widgetModel.id)

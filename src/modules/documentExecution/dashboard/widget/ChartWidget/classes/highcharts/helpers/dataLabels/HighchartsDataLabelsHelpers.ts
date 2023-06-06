@@ -13,7 +13,7 @@ export const updateSeriesLabelSettingsWhenAllOptionIsAvailable = (model: any, wi
 const setAllSeriesSettings = (model: any, widgetModel: IWidget) => {
     const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
     if (allSeriesSettings.label.enabled) {
-        model.seriesForRender?.forEach((serie: any) =>
+        model.series?.forEach((serie: any) =>
             updateSeriesDataWithSerieSettings(serie, allSeriesSettings))
     } else {
         resetSeriesSettings(model)
@@ -21,7 +21,7 @@ const setAllSeriesSettings = (model: any, widgetModel: IWidget) => {
 }
 
 const resetSeriesSettings = (model: any) => {
-    model.seriesForRender?.forEach((serie: any) => serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' })
+    model.series?.forEach((serie: any) => serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' })
 }
 
 const setSpecificSeriesSettings = (model: any, widgetModel: IWidget) => {
@@ -32,9 +32,9 @@ const setSpecificSeriesSettings = (model: any, widgetModel: IWidget) => {
 }
 
 const updateSpecificSeriesLabelSettings = (model: any, serieName: string, seriesSettings: IHighchartsSeriesLabelsSetting) => {
-    if (!model.seriesForRender) return
-    const index = model.seriesForRender.findIndex((serie: any) => serie.name === serieName)
-    if (index !== undefined && index !== -1) updateSeriesDataWithSerieSettings(model.seriesForRender[index], seriesSettings)
+    if (!model.series) return
+    const index = model.series.findIndex((serie: any) => serie.name === serieName)
+    if (index !== undefined && index !== -1) updateSeriesDataWithSerieSettings(model.series[index], seriesSettings)
 }
 
 const updateSeriesDataWithSerieSettings = (serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) => {
