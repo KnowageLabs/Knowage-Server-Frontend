@@ -113,7 +113,8 @@ export default defineComponent({
             const modelToRender = this.getModelForRender()
             modelToRender.chart.events = {
                 drillup: this.onDrillUp,
-                click: this.executeInteractions
+                click: this.executeInteractions,
+                checkboxClick: this.onCheckboxClicked
             }
             modelToRender.chart.backgroundColor = null
 
@@ -154,15 +155,16 @@ export default defineComponent({
             hasError = this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.tooltip, null, 'pointFormatter', 'pointFormatterText', 'pointFormatterError')
             return hasError
         },
-
         setSeriesEvents() {
             this.chartModel.chart.events = {
                 drillup: this.onDrillUp,
-                click: this.executeInteractions
+                click: this.executeInteractions,
+                checkboxClick: this.onCheckboxClicked
             }
             if (this.chartModel.plotOptions.series)
                 this.chartModel.plotOptions.series.events = {
-                    click: this.executeInteractions
+                    click: this.executeInteractions,
+                    checkboxClick: this.onCheckboxClicked
                 }
         },
         onDrillUp(event: any) {
@@ -233,6 +235,14 @@ export default defineComponent({
                 formatRadar(formattedChartModel)
             }
             return formattedChartModel
+        },
+        onCheckboxClicked(event: any) {
+            this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
+                const dataLabelOptions = point.options.dataLabels
+                dataLabelOptions.enabled = event.checked
+                point.update(dataLabelOptions)
+            }, false)
+            this.highchartsInstance.redraw()
         }
     }
 })

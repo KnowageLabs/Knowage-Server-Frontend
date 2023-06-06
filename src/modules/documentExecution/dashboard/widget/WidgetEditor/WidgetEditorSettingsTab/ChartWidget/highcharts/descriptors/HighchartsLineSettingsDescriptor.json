@@ -22,8 +22,8 @@
         ],
         "Configuration": [
             {
-                "title": "dashboard.widgetEditor.highcharts.stacking.title",
-                "type": "StackingSettings"
+                "title": "dashboard.widgetEditor.configurationOf3D.title",
+                "type": "ConfigurationOf3D"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.datetype",

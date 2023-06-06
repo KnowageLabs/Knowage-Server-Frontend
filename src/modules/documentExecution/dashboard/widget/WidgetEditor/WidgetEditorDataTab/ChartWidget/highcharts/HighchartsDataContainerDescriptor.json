@@ -62,11 +62,11 @@
     "lineChartColumnTableSettings": [
         {
             "attributesOnly": true,
-            "hint": "dashboard.widgetEditor.highcharts.linechart.dimensionsTableHint",
+            "hint": "dashboard.widgetEditor.highcharts.barchart.dimensionsTableHint",
             "label": "dashboard.widgetEditor.dimensions"
         },
         {
-            "hint": "dashboard.widgetEditor.highcharts.linechart.valuesTableHint",
+            "hint": "dashboard.widgetEditor.highcharts.barchart.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }

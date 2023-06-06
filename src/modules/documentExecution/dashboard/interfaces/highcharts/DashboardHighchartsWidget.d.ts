@@ -118,7 +118,8 @@ export interface IHighchartsOptions3D {
     enabled: boolean,
     alpha: number,
     beta: number,
-    viewDistance: number
+    viewDistance: number,
+    depth: number
 }
 
 
