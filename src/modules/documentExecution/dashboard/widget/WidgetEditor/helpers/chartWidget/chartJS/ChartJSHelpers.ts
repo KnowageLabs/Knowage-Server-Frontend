@@ -5,6 +5,7 @@ import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValu
 import * as chartJSDefaultValues from '../chartJS/ChartJSDefaultValues'
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 import { KnowageChartJSBarChart } from '../../../../ChartWidget/classes/chartJS/KnowageChartJSBarChart'
+import { KnowageChartJSLineChart } from '../../../../ChartWidget/classes/chartJS/KnowageChartJSLineChart'
 
 export const createNewChartJSSettings = () => {
     const settings = {
@@ -48,6 +49,9 @@ export const formatChartJSWidget = (widget: IWidget) => {
         case 'bar':
             widget.settings.chartModel = new KnowageChartJSBarChart(chartModel)
             break
+        case 'line':
+            widget.settings.chartModel = new KnowageChartJSLineChart(chartModel)
+            break
     }
 }
 
@@ -57,6 +61,8 @@ export const createChartJSModel = (chartType: string) => {
             return new KnowageChartJSPieChart(null)
         case 'bar':
             return new KnowageChartJSBarChart(null)
+        case 'line':
+            return new KnowageChartJSLineChart(null)
         default:
             return null
     }

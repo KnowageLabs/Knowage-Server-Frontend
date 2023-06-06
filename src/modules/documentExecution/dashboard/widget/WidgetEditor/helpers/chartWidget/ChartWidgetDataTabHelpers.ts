@@ -13,5 +13,5 @@ export const addChartColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetCo
     }
 
     // TODO widgetChange - Darko
-    // addChartJSColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
+    // addChartJSColumnToTable(tempColumn, rows, attributesOnly, measuresOnly, widgetModel)
 }
