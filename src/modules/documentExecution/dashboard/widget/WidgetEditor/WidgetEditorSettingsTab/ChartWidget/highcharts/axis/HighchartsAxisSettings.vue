@@ -17,11 +17,11 @@
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMaxHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
-        <div class="p-col-12 p-d-flex p-flex-column" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line'].includes(chartType) }">
+        <div class="p-col-12 p-d-flex p-flex-column" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter'].includes(chartType) }">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.heatmap.labelRotation') }}</label>
             <InputNumber v-model="axisModel.labels.rotation" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
         </div>
-        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line'].includes(chartType) }">
+        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter'].includes(chartType) }">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
             <Dropdown v-model="axisModel.labels.align" class="kn-material-input" :options="settingsDescriptor.alignmentOptions" option-value="value" @change="modelChanged">
                 <template #value="slotProps">
@@ -39,6 +39,24 @@
 
         <div class="p-col-12 p-px-2 p-pt-4">
             <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
+        </div>
+
+        <div v-if="['scatter'].includes(chartType)" class="p-grid p-col-12 p-ai-center p-mt-3">
+            <div class="p-col-4">
+                <InputSwitch v-model="axisModel.startOnTick"></InputSwitch>
+                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.startOnTick') }}</label>
+                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.axisTickSettings.startOnTickHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            </div>
+            <div class="p-col-4">
+                <InputSwitch v-model="axisModel.endOnTick"></InputSwitch>
+                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.endOnTick') }}</label>
+                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.axisTickSettings.endOnTickkHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            </div>
+            <div class="p-col-4">
+                <InputSwitch v-model="axisModel.showLastLabel"></InputSwitch>
+                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.showLastLabel') }}</label>
+                <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.axisTickSettings.showLastLabelHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+            </div>
         </div>
 
         <div class="p-col-12 p-py-4">
@@ -84,9 +102,11 @@ import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorS
 import HighchartsFormatterCodeMirror from '../common/HighchartsFormatterCodeMirror.vue'
 import Textarea from 'primevue/textarea'
 import Message from 'primevue/message'
+import InputSwitch from 'primevue/inputswitch'
+
 export default defineComponent({
     name: 'highcharts-axis-settings',
-    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, HighchartsFormatterCodeMirror, Textarea, Message },
+    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, HighchartsFormatterCodeMirror, Textarea, Message, InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, axis: { type: String, required: true } },
     data() {
         return {

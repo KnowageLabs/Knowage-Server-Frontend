@@ -145,3 +145,11 @@ export const getDefaultBarXAxis = () => {
 export const getDefaultBarYAxis = () => {
     return deepcopy(descriptor.defaultBarYAxis)
 }
+
+export const getDefaultScatterXAxis = () => {
+    return deepcopy(descriptor.defaultScatterXAxis)
+}
+
+export const getDefaultScatterYAxis = () => {
+    return deepcopy(descriptor.defaultScatterYAxis)
+}

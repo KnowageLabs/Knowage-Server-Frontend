@@ -22,10 +22,6 @@
                 "type": "DatetypeSettings"
             },
             {
-                "title": "dashboard.widgetEditor.highcharts.splitting.title",
-                "type": "GroupingSettings"
-            },
-            {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
             },

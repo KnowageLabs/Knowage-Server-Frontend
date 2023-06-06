@@ -154,6 +154,39 @@ const getFormattedTitleAlign = (oldAxisTitleAlign: 'left' | 'center' | 'right') 
     }
 }
 
+export const setAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
+    if (oldAxis.MAJORGRID) {
+        newModelAxis.tickInterval = oldAxis.MAJORGRID.interval && oldAxis.MAJORGRID.interval !== '' ? oldAxis.MAJORGRID.interval : null
+        newModelAxis.gridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
+        newModelAxis.gridLineColor = oldAxis.MAJORGRID.style?.color ? hexToRgba(oldAxis.MAJORGRID.style.color) : ''
+    }
+
+    if (oldAxis.MINORGRID) {
+        newModelAxis.minorTickInterval = oldAxis.MINORGRID.interval && oldAxis.MINORGRID.interval !== '' ? oldAxis.MINORGRID.interval : null
+        newModelAxis.minorGridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
+        newModelAxis.minorGridLineColor = oldAxis.MINORGRID.style?.color ? hexToRgba(oldAxis.MINORGRID.style.color) : ''
+    }
+}
+
+const getFormattedGridLineStyle = (type: string) => {
+    switch (type) {
+        case 'solid':
+            return 'Solid';
+        case "dashed":
+            return 'Dash'
+        case "dotted":
+            return 'Dot';
+        default:
+            return ''
+    }
+}
+
+export const setAxisTickSettings = (oldAxis: any, newModelAxis: any) => {
+    newModelAxis.startOnTick = oldAxis.startOnTick ?? true
+    newModelAxis.endOnTick = oldAxis.endOnTick ?? true
+    newModelAxis.showLastLabel = oldAxis.showLastLabel ?? true
+}
+
 export const getFormatted3DConfiguration = (oldModel: any, newModel: IHighchartsChartModel) => {
     if (oldModel.CHART.show3D) {
         if (newModel.plotOptions.pie) newModel.plotOptions.pie.depth = oldModel.CHART.depth

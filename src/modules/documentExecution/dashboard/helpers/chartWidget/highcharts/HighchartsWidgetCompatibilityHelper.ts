@@ -126,7 +126,6 @@ export const getColumnId = (widgetColumnName: string) => {
 
 const createChartModel = (widget: any, chartType: string, isStacking: boolean) => {
     const widgetContentChartTemplate = widget.content.chartTemplate
-    console.log('---------- CHART TYPE: ', chartType)
     switch (chartType) {
         case 'PIE':
             return new KnowageHighchartsPieChart(widgetContentChartTemplate)

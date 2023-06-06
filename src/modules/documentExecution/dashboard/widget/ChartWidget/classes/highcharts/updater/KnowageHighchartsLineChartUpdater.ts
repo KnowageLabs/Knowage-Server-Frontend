@@ -1,6 +1,5 @@
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { getFormattedLabels, getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, getFormattedTooltipSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
-import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers'
+import { getFormattedLabels, getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, getFormattedTooltipSettings, setAxisGridSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const updateLineChartModel = (oldModel: any, newModel: IHighchartsChartModel) => {
@@ -38,32 +37,4 @@ const setYAxisSpecificValues = (newModelAxis: any) => {
     newModelAxis.min = 0
     newModelAxis.plotBands = []
     newModelAxis.plotLines = []
-}
-
-
-const setAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
-    if (oldAxis.MAJORGRID) {
-        newModelAxis.tickInterval = oldAxis.MAJORGRID.interval && oldAxis.MAJORGRID.interval !== '' ? oldAxis.MAJORGRID.interval : null
-        newModelAxis.gridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
-        newModelAxis.gridLineColor = oldAxis.MAJORGRID.style?.color ? hexToRgba(oldAxis.MAJORGRID.style.color) : ''
-    }
-
-    if (oldAxis.MINORGRID) {
-        newModelAxis.minorTickInterval = oldAxis.MINORGRID.interval && oldAxis.MINORGRID.interval !== '' ? oldAxis.MINORGRID.interval : null
-        newModelAxis.minorGridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
-        newModelAxis.minorGridLineColor = oldAxis.MINORGRID.style?.color ? hexToRgba(oldAxis.MINORGRID.style.color) : ''
-    }
-}
-
-const getFormattedGridLineStyle = (type: string) => {
-    switch (type) {
-        case 'solid':
-            return 'Solid';
-        case "dashed":
-            return 'Dash'
-        case "dotted":
-            return 'Dot';
-        default:
-            return ''
-    }
 }

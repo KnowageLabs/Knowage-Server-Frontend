@@ -621,6 +621,14 @@
                 },
                 "areaRangeHigh": "Area Range High",
                 "areaRangeLow": "Area Range Low",
+                "axisTickSettings": {
+                    "endOnTick": "End On Tick",
+                    "endOnTickHint": "Whether to force the axis to end on a tick.",
+                    "showLastLabel": "Show Last Label",
+                    "showLastLabelHint": "Whether to show the last tick label.",
+                    "startOnTick": "Start On Tick",
+                    "startOnTickHint": "Whether to force the axis to start on a tick."
+                },
                 "bands": {
                     "bandsGaugeHint": "In a gauge, a plot band on the Y axis (value axis) will stretch along the perimeter of the gauge.",
                     "bandsHint": "An array of colored bands stretching across the plot area marking an interval on the axis.",
@@ -722,6 +730,10 @@
                 "scale": {
                     "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
                     "minHint": "The minimum value of the axis. If null the min value is automatically calculated."
+                },
+                "scatterchart": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on at least one measure to define series."
                 },
                 "showChekboxes": "Show Checkboxes",
                 "solidGauge": {
