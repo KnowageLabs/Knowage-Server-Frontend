@@ -90,7 +90,7 @@ export const getFormattedCrossNavigation = (widget: any) => {
 const getOldCrossNavigation = (widget: any) => {
     switch (widget.type) {
         case 'chart':
-            return widget.content.cross;
+            return widget.content.cross
         case 'table':
         case 'image':
         case 'html':
@@ -101,7 +101,6 @@ const getOldCrossNavigation = (widget: any) => {
             return widget.cross.cross
         default:
             return widget.cross
-
     }
 }
 

@@ -50,7 +50,7 @@ const formatChartWidgetForGet = (dashboardId: any, widget: IWidget, dataset: IDa
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend)
 
-    addMeasuresAndCategoriesByCount(widget, dataToSend, -1, -1, false)
+    addMeasuresAndCategoriesByCount(widget, dataToSend, -1, 1, false)
 
     return dataToSend
 }

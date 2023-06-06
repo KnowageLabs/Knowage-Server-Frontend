@@ -3,12 +3,12 @@ import { updateBarChartModel } from './updater/KnowageChartJSUpdater'
 import { KnowageChartJS } from './KnowageChartJS'
 import deepcopy from 'deepcopy'
 
-export class KnowageChartJSBarChart extends KnowageChartJS {
+export class KnowageChartJSLineChart extends KnowageChartJS {
     constructor(model: any) {
         super()
         if (model && model.CHART) this.updateModel(deepcopy(model))
         else if (model) this.model = deepcopy(model)
-        this.model.chart.type = 'bar'
+        this.model.chart.type = 'line'
     }
 
     updateModel(oldModel: any) {
@@ -36,6 +36,9 @@ export class KnowageChartJSBarChart extends KnowageChartJS {
 
     updateChartColorSettings(widgetModel: IWidget) {
         if (!this.model.data.datasets || this.model.data.datasets.length == 0) return
-        this.model.data.datasets.forEach((dataset, index) => (dataset.backgroundColor = widgetModel.settings.chart.colors[index]))
+        this.model.data.datasets.forEach((dataset, index) => {
+            dataset.backgroundColor = widgetModel.settings.chart.colors[index]
+            dataset.borderColor = widgetModel.settings.chart.colors[index]
+        })
     }
 }
