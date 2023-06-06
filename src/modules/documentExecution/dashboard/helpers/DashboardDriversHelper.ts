@@ -31,7 +31,7 @@ const updateDatasetDrivers = (dataset: IDashboardDataset, filtersData: { filterS
 }
 
 const formatDatasetDriver = (datasetDriver: IDashboardDatasetDriver, driver: iParameter) => {
-    datasetDriver.parameterValue = driver.parameterValue
+    datasetDriver.parameterValue = driver.parameterValue as any
     if (driver.driverDefaultValue) updateDatasetDefaultValue(datasetDriver, driver)
     if (driver.data && datasetDriver.options) datasetDriver.options = driver.data
 }
