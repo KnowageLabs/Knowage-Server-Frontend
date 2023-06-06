@@ -39,13 +39,20 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            dashboard: {} as any,
             menuWidgetsConfig: {} as any
         }
     },
     watch: {},
     created() {
-        this.menuWidgetsConfig = this.dashboardModelProp.configuration.menuWidgets as IMenuAndWidgets
+        this.loadProps()
     },
-    methods: {}
+    methods: {
+        loadProps() {
+            this.dashboard = this.dashboardModelProp
+            if (!this.dashboard.configuration.menuWidgets) this.dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true } as IMenuAndWidgets
+            this.menuWidgetsConfig = this.dashboard.configuration.menuWidgets as IMenuAndWidgets
+        }
+    }
 })
 </script>
