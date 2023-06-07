@@ -756,5 +756,6 @@ export interface IDashboardView {
     parentId: string
     visibility: string
     type?: string
+    biObjectTypeCode?: string
     new?: boolean
 }

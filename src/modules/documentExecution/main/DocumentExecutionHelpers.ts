@@ -31,12 +31,12 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
         })
     }
 
-    if (document.typeCode === 'DASHBOARD') {
-        toolbarMenuItems.push({
-            label: $t('documentExecution.main.views'),
-            items: [{ icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => emitter.emit('openSaveCurrentViewDialog', document.dashboardId) }, { icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => emitter.emit('openSavedViewsListDialog', document.dashboardId) }]
-        })
-    }
+    toolbarMenuItems.push({
+        label: $t('documentExecution.main.views'),
+        items: [
+            { icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => document.typeCode === 'DASHBOARD' ? emitter.emit('openSaveCurrentViewDialog', document.dashboardId) : functions.openSaveCurrentViewDialog() },
+            { icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => document.typeCode === 'DASHBOARD' ? emitter.emit('openSavedViewsListDialog', document.dashboardId) : functions.openSavedViewsListDialog() }]
+    })
 
     if (user.enterprise && !newDashboardMode) {
         toolbarMenuItems.push({
