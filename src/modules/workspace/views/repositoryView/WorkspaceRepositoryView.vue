@@ -45,7 +45,7 @@
                 <template #body="slotProps">
                     <Button icon="fas fa-ellipsis-v" class="p-button-link" @click="showMenu($event, slotProps.data)" />
                     <Button v-tooltip.left="$t('workspace.myModels.showInfo')" icon="fas fa-info-circle" class="p-button-link" :data-test="'info-button-' + slotProps.data.documentName" @click="showSidebar(slotProps.data)" />
-                    <Button icon="fas fa-play-circle" class="p-button-link" @click="executeDocumentFromOrganizer(slotProps.data)" />
+                    <Button icon="fas fa-play-circle" class="p-button-link" @click="slotProps.data['type'] === 'VIEW' ? executeView(slotProps.data) : executeDocumentFromOrganizer(slotProps.data)" />
                 </template>
             </Column>
         </DataTable>
@@ -183,16 +183,6 @@ export default defineComponent({
         createMenuItems(clickedDocument: any) {
             this.menuButtons = []
             const isView = clickedDocument.type == 'VIEW'
-            if (isView)
-                this.menuButtons.push({
-                    key: '2',
-                    label: this.$t('workspace.myRepository.executeView'),
-                    icon: 'fas fa-play-circle',
-                    command: () => {
-                        this.executeView(clickedDocument)
-                    }
-                })
-
             this.menuButtons.push(
                 {
                     key: '3',

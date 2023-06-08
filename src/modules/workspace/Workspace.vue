@@ -238,7 +238,8 @@ export default defineComponent({
         async executeDocument(document: any) {
             const isView = document.type === 'VIEW'
             let routeType = ''
-            if (isView) routeType = isView && !document.executeAsDocument ? 'dashboard-view' : 'dashboard'
+            if (isView && document.biObjectTypeCode === 'DASHBOARD') routeType = isView && !document.executeAsDocument ? 'dashboard-view' : 'dashboard'
+            else if (isView) routeType = isView && !document.executeAsDocument ? 'cockpit-view' : 'document-composite'
             else routeType = this.getRouteDocumentType(document)
             let label = ''
             if (['VIEW', 'IMPORTED_DOC'].includes(document.type)) label = await this.getDocumentLabelFromView(document)
@@ -259,7 +260,7 @@ export default defineComponent({
             return label
         },
         getRouteDocumentType(item: any) {
-            let routeDocumentType = ''
+            let routeDocumentType = item.biObjectTypeCode === 'DOCUMENT_COMPOSITE' ? 'document-composite' : 'dashboard'
 
             const type = item.typeCode ? item.typeCode : item.documentType
 

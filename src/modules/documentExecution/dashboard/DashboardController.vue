@@ -171,6 +171,10 @@ export default defineComponent({
         async reloadTrigger() {
             if (!this.showDashboard) return
             await this.getData()
+        },
+        async propView() {
+            if (!this.showDashboard) return
+            await this.getData()
         }
     },
     async created() {
@@ -240,6 +244,9 @@ export default defineComponent({
             if (this.propView) {
                 this.loadSelectedViewForExecution(this.propView)
                 applyDashboardViewToModel(this.model, this.selectedViewForExecution)
+
+                this.drivers = loadDrivers(this.propView.drivers, this.model)
+                this.setDashboardDrivers(this.dashboardId, this.drivers)
                 emitter.emit('loadPivotStates', this.selectedViewForExecution)
             }
             this.store.setDashboard(this.dashboardId, this.model)
