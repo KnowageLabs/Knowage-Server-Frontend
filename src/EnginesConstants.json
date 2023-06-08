@@ -1,0 +1,11 @@
+{
+    "BIRT_REPORT_ENGINE": "knowagebirtreporteng",
+    "COCKPIT_ENGINE": "knowagecockpitengine",
+    "DASHBOARD_ENGINE": "knowagedashboardengine",
+    "DOSSIER_ENGINE": "knowagedossierengine",
+    "JASPER_REPORT_ENGINE": "knowagejasperreporte",
+    "KPI_ENGINE": "knowagekpiengine",
+    "OLAP_ENGINE": "knowageolapengine",
+    "QBE_ENGINE": "knowageqbeengine",
+    "WHATIF_ENGINE": "knowagewhatifengine"
+}

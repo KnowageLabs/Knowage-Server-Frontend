@@ -259,7 +259,7 @@ export default defineComponent({
             return label
         },
         getRouteDocumentType(item: any) {
-            let routeDocumentType = ''
+            let routeDocumentType = 'dashboard'
 
             const type = item.typeCode ? item.typeCode : item.documentType
 
