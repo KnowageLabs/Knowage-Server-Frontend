@@ -167,17 +167,20 @@ export class KnowageHighcharts {
     handleFormatter(that: any, seriesLabelSetting: IHighchartsSerieLabelSettings) {
         const prefix = seriesLabelSetting.prefix
         const suffix = seriesLabelSetting.suffix
+
+        if (!that.y && that.key && typeof that.key === 'string') return `${prefix}${that.key}${suffix}`
+
         const precision = seriesLabelSetting.precision
         const decimalPoints = Highcharts.getOptions().lang?.decimalPoint
         const thousandsSep = Highcharts.getOptions().lang?.thousandsSep
 
         const showAbsolute = seriesLabelSetting.absolute
-        const absoluteValue = showAbsolute ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, Math.abs(that.y), precision, decimalPoints, thousandsSep) : ''
+        const absoluteValue = showAbsolute ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, Math.abs(that.y ?? that.key), precision, decimalPoints, thousandsSep) : ''
 
         const showPercentage = seriesLabelSetting.percentage
         const percentValue = showPercentage ? this.createPercentageValue(that.point.percentage, precision, decimalPoints, thousandsSep) : ''
 
-        const rawValue = !showAbsolute && !showPercentage ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, that.y, precision, decimalPoints, thousandsSep) : ''
+        const rawValue = !showAbsolute && !showPercentage ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, that.y ?? that.key, precision, decimalPoints, thousandsSep) : ''
 
         const showBrackets = showAbsolute && showPercentage
         return `${prefix}${rawValue}${absoluteValue} ${showBrackets ? `(${percentValue})` : `${percentValue}`}${suffix}`

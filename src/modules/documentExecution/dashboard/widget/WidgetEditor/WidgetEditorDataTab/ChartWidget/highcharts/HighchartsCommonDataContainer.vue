@@ -1,9 +1,5 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
-        {{ 'CHART TYPE' }}
-        {{ chartType }}
-        <br />
-        {{ columnTableItems['ATTRIBUTES'] }}
         <WidgetEditorColumnTable
             v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
             class="p-m-2 p-order-1"
@@ -32,7 +28,6 @@
             @itemDeleted="onColumnDelete"
         ></WidgetEditorColumnTable>
         <ChartWidgetColumnForm class="p-m-2" :style="{ order: formFlexOrder }" :widget-model="widgetModel" :selected-column="selectedColumn" :chart-type="chartType"></ChartWidgetColumnForm>
-        {{ columnTableItems['MEASURES'] }}
     </div>
 </template>
 
@@ -237,6 +232,8 @@ export default defineComponent({
                         break
                     case 'sunburst':
                     case 'treemap':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length < 2
+                        break
                     case 'heatmap':
                         invalid = this.columnTableItems['ATTRIBUTES'].length !== 2
                         break

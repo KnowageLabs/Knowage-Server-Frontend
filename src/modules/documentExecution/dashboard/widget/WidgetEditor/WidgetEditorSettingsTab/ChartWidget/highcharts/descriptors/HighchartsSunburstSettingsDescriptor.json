@@ -22,8 +22,8 @@
                 "type": "DatetypeSettings"
             },
             {
-                "title": "dashboard.widgetEditor.highcharts.splitting.title",
-                "type": "GroupingSettings"
+                "title": "dashboard.widgetEditor.highcharts.centerText.title",
+                "type": "CenterTextSettings"
             },
             {
                 "title": "dashboard.widgetEditor.export.title",
@@ -36,10 +36,6 @@
         ],
         "Interactions": [
             {
-                "title": "dashboard.widgetEditor.drilldown.title",
-                "type": "Drilldown"
-            },
-            {
                 "title": "dashboard.widgetEditor.interactions.selection",
                 "type": "Selection"
             },
@@ -50,6 +46,12 @@
             {
                 "title": "dashboard.widgetEditor.interactions.preview",
                 "type": "Preview"
+            }
+        ],
+        "Legend": [
+            {
+                "title": "dashboard.widgetEditor.legend.title",
+                "type": "Legend"
             }
         ],
         "Responsive": [
@@ -91,42 +93,6 @@
                 "title": "dashboard.widgetEditor.tooltip.title",
                 "type": "Tooltip"
             }
-        ],
-        "XAxis": [
-            {
-                "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapXAxisSettings"
-            },
-            {
-                "title": "common.title",
-                "type": "HeatmapXAxisTitleSettings"
-            }
-        ],
-        "YAxis": [
-            {
-                "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapYAxisSettings"
-            },
-            {
-                "title": "common.title",
-                "type": "HeatmapYAxisTitleSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "YAxisBandsSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "YAxisLinesSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
-                "type": "MajorGridSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
-                "type": "MinorGridSettings"
-            }
         ]
     },
     "settingsListOptions": [
@@ -146,14 +112,9 @@
             "value": "Style"
         },
         {
-            "icon": "fa-solid fa-arrow-up",
-            "label": "dashboard.widgetEditor.yAxis",
-            "value": "YAxis"
-        },
-        {
-            "icon": "fa-solid fa-arrow-right",
-            "label": "dashboard.widgetEditor.xAxis",
-            "value": "XAxis"
+            "icon": "pi pi-table",
+            "label": "dashboard.widgetEditor.legend.title",
+            "value": "Legend"
         },
         {
             "icon": "pi pi-table",

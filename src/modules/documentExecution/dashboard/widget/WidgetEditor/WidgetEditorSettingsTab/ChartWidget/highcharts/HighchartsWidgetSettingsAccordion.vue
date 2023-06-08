@@ -49,6 +49,7 @@
                 <HighchartsSonificationSettings v-else-if="accordion.type === 'SonificationSettings'" :widget-model="widgetModel"></HighchartsSonificationSettings>
                 <HighchartsGroupingSettings v-else-if="accordion.type === 'GroupingSettings'" :widget-model="widgetModel"></HighchartsGroupingSettings>
                 <HighchartsStackingSettings v-else-if="accordion.type === 'StackingSettings' && isStacked" :widget-model="widgetModel"></HighchartsStackingSettings>
+                <HighchartsCenterTextSettings v-else-if="accordion.type === 'CenterTextSettings'" :widget-model="widgetModel"></HighchartsCenterTextSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -73,6 +74,7 @@ import WidgetTitleStyle from '../../common/style/WidgetTitleStyle.vue'
 import WidgetPaddingStyle from '../../common/style/WidgetPaddingStyle.vue'
 import WidgetBackgroundColorStyle from '../../common/style/WidgetBackgroundColorStyle.vue'
 import Highcharts3DConfiguration from '../highcharts/configuration/Highcharts3DConfiguration.vue'
+import HighchartsCenterTextSettings from '../highcharts/configuration/HighchartsCenterTextSettings.vue'
 import HighchartsNoDataMessageConfiguration from '../highcharts/configuration/HighchartsNoDataMessageConfiguration.vue'
 import HighchartsAccessibilitySettings from '../highcharts/accessibility/HighchartsAccessibilitySettings.vue'
 import HighchartsSeriesAccessibilitySettings from '../highcharts/accessibility/HighchartsSeriesAccessibilitySettings.vue'
@@ -143,7 +145,8 @@ export default defineComponent({
         HighchartsConditionalStyles,
         HighchartsSonificationSettings,
         HighchartsGroupingSettings,
-        HighchartsStackingSettings
+        HighchartsStackingSettings,
+        HighchartsCenterTextSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

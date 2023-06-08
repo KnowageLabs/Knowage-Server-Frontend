@@ -1,4 +1,24 @@
 {
+    "centerTextSettingsStyleToolbarOptions": [
+        {
+            "type": "font-weight"
+        },
+        {
+            "type": "font-style"
+        },
+        {
+            "type": "font-size"
+        },
+        {
+            "type": "font-family"
+        },
+        {
+            "type": "color"
+        },
+        {
+            "type": "background-color"
+        }
+    ],
     "dateFormats": ["DD-MM-YYYY", "DD/MM/YYYY", "YYYY", "MMMM YYYY", "dddd, MMM D, YYYY", "dddd, MMM D, YYYY hh", "dddd, MMM D, YYYY hh:mm", "dddd, MMM D, YYYY hh:mm:ss", "dddd, MMM D, YYYY hh:mm:ss sss"],
     "stackingOptions": [
         {

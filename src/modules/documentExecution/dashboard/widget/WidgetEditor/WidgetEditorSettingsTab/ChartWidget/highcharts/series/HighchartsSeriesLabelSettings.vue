@@ -130,7 +130,7 @@ export default defineComponent({
             return this.model && this.model.chart.type !== 'pie' && this.model.chart.type !== 'solidgauge'
         },
         formattingSectionAvailable() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'sunburst', 'treemap'].includes(this.model.chart.type)
         },
         percentageAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
@@ -139,13 +139,13 @@ export default defineComponent({
             return this.model?.chart.type === 'gauge'
         },
         styleToolbarVisible() {
-            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'sunburst', 'treemap'].includes(this.model.chart.type)
         },
         serieColorPickerVisible() {
             return this.model?.chart.type === 'activitygauge'
         },
         labelOptionsVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'sunburst', 'treemap'].includes(this.model.chart.type)
         }
     },
     watch: {

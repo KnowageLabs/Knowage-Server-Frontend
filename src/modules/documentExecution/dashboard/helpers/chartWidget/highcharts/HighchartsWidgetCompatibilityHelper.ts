@@ -63,8 +63,8 @@ const getFormattedWidgetSettings = (widget: any, chartType: string) => {
 const getFormattedConfiguration = (widget: any, chartType: string) => {
     const formattedConfiguration = { exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports } as IHighchartsWidgetConfiguration
     if (['HEATMAP', 'RADAR', 'BAR', 'LINE', 'BUBBLE', "SCATTER", "TREEMAP", "SUNBURST"].includes(chartType)) formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
-
     if (['BAR', "LINE", 'RADAR', 'BUBBLE'].includes(chartType)) formattedConfiguration.grouping = getFormmatedGroupingSettings(widget)
+    if (['SUNBURST', 'TREEMAP'].includes(chartType)) formattedConfiguration.centerText = getFormattedCenterTextSettings(widget)
     return formattedConfiguration
 }
 
@@ -90,6 +90,17 @@ const getFormmatedGroupingSettings = (widget: any) => {
     return groupingSettings
 }
 
+const getFormattedCenterTextSettings = (widget: any) => {
+    const formattedCenterText = { text: '', style: { 'font-family': '', 'font-size': '14px', 'font-weight': '', color: '', 'background-color': '', 'font-style': '' } }
+    const oldChartModelTipSettings = widget.content.chartTemplate?.CHART?.TIP
+    if (!oldChartModelTipSettings) return formattedCenterText
+    formattedCenterText.text = oldChartModelTipSettings.text
+    formattedCenterText.style['font-family'] = oldChartModelTipSettings.style.fontFamily
+    formattedCenterText.style['font-size'] = oldChartModelTipSettings.style.fontSize
+    formattedCenterText.style['font-weight'] = oldChartModelTipSettings.style.fontWeight
+    formattedCenterText.style.color = oldChartModelTipSettings.style.color
+    return formattedCenterText
+}
 
 const getProperDateTimeFormat = (oldDateFormat: string) => {
     switch (oldDateFormat) {

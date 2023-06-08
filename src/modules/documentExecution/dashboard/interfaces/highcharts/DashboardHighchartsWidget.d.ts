@@ -24,7 +24,8 @@ export interface IDrillOrderItem {
 export interface IHighchartsWidgetConfiguration {
     datetypeSettings?: any
     splitting?: any
-    grouping?: any
+    grouping?: any,
+    centerText?: any,
     exports: IWidgetExports
 }
 
