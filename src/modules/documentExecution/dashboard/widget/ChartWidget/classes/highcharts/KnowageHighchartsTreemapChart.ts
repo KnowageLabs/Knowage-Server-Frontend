@@ -1,11 +1,9 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartSerie, IHighchartsChartSerieData } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { updateTreemapChartModel } from './updater/KnowageHighchartsTreemapChartUpdater'
-import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
-import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
-import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue, setRegularTreeData } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, setSunburstData } from './helpers/setData/HighchartsSetDataHelpers'
 
 export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -1232,7 +1230,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         // console.log('------- dateFormat: ', dateFormat)
         const interactions = widgetModel.settings?.interactions
         const interactionsEnabled = interactions.selection.enabled || interactions.crossNavigation.enabled
-        setRegularTreeData(this.model, mockedData, attributeColumns, measureColumns, interactionsEnabled)
+        setSunburstData(this.model, mockedData, attributeColumns, measureColumns, interactionsEnabled)
         return this.model.series
     }
 

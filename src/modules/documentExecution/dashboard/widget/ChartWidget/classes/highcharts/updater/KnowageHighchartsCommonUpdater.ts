@@ -63,7 +63,7 @@ export const getFormattedSeries = (oldModel: any, newModel: IHighchartsChartMode
 export const getFormattedLegend = (oldModel: any, newModel: IHighchartsChartModel) => {
     if (oldModel.CHART.LEGEND) {
         newModel.legend = {
-            enabled: oldModel.CHART.LEGEND.show,
+            enabled: oldModel.CHART.LEGEND.show ?? true,
             align: ['left', 'right', 'center'].includes(oldModel.CHART.LEGEND.position) ? oldModel.CHART.LEGEND.position : 'center',
             layout: 'horizontal',
             verticalAlign: ['top', 'bottom'].includes(oldModel.CHART.LEGEND.position) ? oldModel.CHART.LEGEND.position : 'bottom',

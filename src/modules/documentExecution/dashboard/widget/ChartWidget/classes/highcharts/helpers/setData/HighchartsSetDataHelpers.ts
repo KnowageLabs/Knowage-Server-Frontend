@@ -208,16 +208,56 @@ export const getAllColumnsOfSpecificAxisTypeFromDataResponse = (data: any, widge
     return formattedColumns
 }
 
-export const setRegularTreeData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], interactionsEnabled = false) => {
+export const setSunburstData = (model: any, data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], interactionsEnabled = false) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
     const measureColumn = measureColumns[0]
+    const centerTextSettings = widgetModel.settings.configuration.centerText
     const serieElement = {
-        id: 0, name: measureColumn.column.columnName, data: [] as any[], layoutAlgorithm: 'squarified',
+        id: 0, name: measureColumn.column.columnName, data: [] as any[],
+        layoutAlgorithm: 'squarified',
+        type: 'sunburst',
         allowDrillToNode: !interactionsEnabled,
+        showInLegend: false,
         animationLimit: 1000,
+        levels: [
+            {
+                level: 1,
+                levelIsConstant: false,
+                dataLabels: {
+                    enabled: true,
+                    backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
+                    style: {
+                        fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
+                        fontStyle: centerTextSettings.style['font-style'] ?? "normal",
+                        fontSize: centerTextSettings.style['font-size'] ?? "12px",
+                        color: centerTextSettings.color ?? "#000000",
+                        width: "10000"
+                    }
+                }
+            },
+            {
+                level: 2,
+                colorByPoint: true
+            },
+            {
+                level: 3,
+                colorVariation: {
+                    key: "brightness",
+                    to: 0.5
+                }
+            },
+            {
+                level: 4,
+                colorVariation: {
+                    key: "brightness",
+                    to: 0.5
+                }
+            }
+        ],
     }
-    const hierarchy = {}
+    const hierarchy = {} as any
     let id = 0;
+    let colorIndex = 0
     data.rows?.forEach((row: any) => {
         const formattedRow = {}
         for (let i = 0; i < attributeColumns.length; i++) {
@@ -227,16 +267,13 @@ export const setRegularTreeData = (model: any, data: any, attributeColumns: any[
 
         let currentItem = hierarchy as any;
 
+
         Object.entries(formattedRow).forEach(([key, value]) => {
             if (key === measureColumn.metadata.dataIndex) {
                 if (!(key in currentItem)) currentItem.value = 0;
                 currentItem.value += value;
                 return;
             }
-
-            // // TODO
-            // if (!currentItem[value]) currentItem[value] = {};
-            // currentItem = currentItem[value];
 
             if (!currentItem.children) currentItem.children = [];
 
@@ -249,9 +286,14 @@ export const setRegularTreeData = (model: any, data: any, attributeColumns: any[
                 const newChildItem = {
                     id: '' + id,
                     name: value,
-                    parent: '' + currentItem.id || null,
+                    parent: currentItem.id ? '' + currentItem.id : 'root',
                     value: 0
-                };
+                } as any;
+                if (newChildItem.parent === 'root') {
+                    newChildItem.color = model.colors[colorIndex]
+                    colorIndex++
+                }
+                if (colorIndex === model.colors.length) colorIndex = 0
                 currentItem.children.push(newChildItem);
                 currentItem = newChildItem;
             }
@@ -263,14 +305,41 @@ export const setRegularTreeData = (model: any, data: any, attributeColumns: any[
         if (el.value === 0) delete el.value
     })
 
-    treemapArray.splice(0, 1)
+    treemapArray[0].parent = null,
+        treemapArray[0].id = 'root',
+        treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName,
+        treemapArray[0].dataLabels = {
+            enabled: true,
+            backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
+            style: {
+                fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
+                fontStyle: centerTextSettings.style['font-style'] ?? "normal",
+                fontSize: centerTextSettings.style['font-size'] ?? "12px",
+                color: centerTextSettings.color ?? "#000000",
+                width: "10000"
+            }
+        }
     serieElement.data = treemapArray
 
-
     model.series = [serieElement]
+
+    let index = 0
+    hierarchy.children?.forEach((el: any) => {
+        model.series.push({
+            "id": el.id,
+            "type": "area",
+            "name": el.name,
+            "color": model.colors[index],
+            showInLegend: true
+        })
+        index++
+        if (index === model.colors.length) index = 0
+    })
+
+    model.colors = []
 }
 
-const createTreeSeriesStructureFromHierarchy = (node: any, parentId = null, result = [] as any[]) => {
+const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'root', result = [] as any[]) => {
     const { children, ...rest } = node;
     const flattenedNode = {
         ...rest,

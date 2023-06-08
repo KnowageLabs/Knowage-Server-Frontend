@@ -2,7 +2,7 @@ import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateSunburstChartModel } from './updater/KnowageHighchartsSunburstChartUpdater'
 import deepcopy from 'deepcopy'
-import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularTreeData } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, setSunburstData } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 
@@ -41,12 +41,10 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
-        console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
-        console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const interactions = widgetModel.settings?.interactions
         const interactionsEnabled = interactions.selection.enabled || interactions.crossNavigation.enabled
-        setRegularTreeData(this.model, data, attributeColumns, measureColumns, interactionsEnabled)
+        setSunburstData(this.model, data, widgetModel, attributeColumns, measureColumns, interactionsEnabled)
         return this.model.series
     }
 

@@ -94,6 +94,7 @@ export default defineComponent({
         updateChartModel() {
             if (!this.chartModel) return
             Highcharts.setOptions({ lang: { noData: this.chartModel.lang.noData } })
+            this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
 
             this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel)
 
@@ -105,8 +106,6 @@ export default defineComponent({
             if (this.error) return
             this.error = this.updateTooltipSettings()
             if (this.error) return
-
-            this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
 
             this.setSeriesEvents()
 
@@ -161,11 +160,29 @@ export default defineComponent({
                 click: this.executeInteractions,
                 checkboxClick: this.onCheckboxClicked
             }
-            if (this.chartModel.plotOptions.series)
+            if (this.chartModel.plotOptions.series) {
                 this.chartModel.plotOptions.series.events = {
                     click: this.executeInteractions,
                     checkboxClick: this.onCheckboxClicked
                 }
+                if (this.chartModel.chart.type === 'sunburst')
+                    this.chartModel.plotOptions.series.events.legendItemClick = function (e) {
+                        var self = this,
+                            newLevels,
+                            series = self.chart.series[0]
+                        points.forEach(function (leaf) {
+                            if (leaf.id === self.userOptions.id || leaf.parent === self.userOptions.id) {
+                                leaf.visible = !leaf.visible
+                            }
+                        })
+
+                        var newData = points.filter(function (leaf) {
+                            return leaf.visible
+                        })
+
+                        series.setData(newData, true, true, false)
+                    }
+            }
         },
         onDrillUp(event: any) {
             this.drillLevel = event.seriesOptions._levelNumber
@@ -174,8 +191,6 @@ export default defineComponent({
         },
         async executeInteractions(event: any) {
             if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.chartModel.chart.type) || this.editorMode) return
-            console.log('--------- CHART TYPE: ', this.chartModel.chart.type)
-            console.log('--------- EVENT: ', event)
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 if (!event.point) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
@@ -196,7 +211,6 @@ export default defineComponent({
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
-                console.log('--------- formattedOutputParameters: ', formattedOutputParameters)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
             } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)

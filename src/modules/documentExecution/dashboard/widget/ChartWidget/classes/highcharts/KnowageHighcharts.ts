@@ -168,7 +168,7 @@ export class KnowageHighcharts {
         const prefix = seriesLabelSetting.prefix
         const suffix = seriesLabelSetting.suffix
 
-        if (!that.y && that.key && typeof that.key === 'string') return `${prefix}${that.key}${suffix}`
+        if (!that.y && that.key && typeof that.key === 'string') return that.point?.id === 'root' ? that.key : `${prefix}${that.key}${suffix}`
 
         const precision = seriesLabelSetting.precision
         const decimalPoints = Highcharts.getOptions().lang?.decimalPoint
