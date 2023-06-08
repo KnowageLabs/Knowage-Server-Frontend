@@ -4,7 +4,7 @@
     <DataList :dashboard-datasets-prop="dashboardDatasetsProp" :available-datasets-prop="availableDatasetsProp" :selected-datasets-prop="selectedDatasets" @addSelectedDatasets="addSelectedDatasets" @datasetSelected="selectDataset" @deleteDataset="$emit('deleteDataset', $event)" />
     <DataDetail :dashboard-datasets-prop="dashboardDatasetsProp" :selected-dataset-prop="selectedDataset" :document-drivers-prop="documentDriversProp" :dashboard-id="dashboardId" data-test="dataset-detail" />
 
-    <DatasetEditorPreview v-if="previewShown" :visible="previewShown" :prop-dataset="datasetToPreview" @close="previewShown = false" />
+    <DatasetEditorPreview v-if="previewShown" :visible="previewShown" :prop-dataset="datasetToPreview" :dashboardId="dashboardId" @close="previewShown = false" />
 </template>
 
 <script lang="ts">
@@ -67,12 +67,18 @@ export default defineComponent({
         },
         async previewSelectedDataset() {
             await this.loadDataset(this.selectedDataset.label)
-            this.datasetToPreview.drivers = [...this.selectedDataset.modelDrivers]
+
+            this.datasetToPreview.drivers = this.getPreviewDrivers()
             this.datasetToPreview.pars = [...this.selectedDataset.parameters]
 
             setTimeout(() => {
                 this.previewShown = !this.previewShown
-            }, 200)
+            }, 100)
+        },
+        getPreviewDrivers() {
+            if (this.selectedDataset.modelDrivers) return [...this.selectedDataset.modelDrivers]
+            else if (this.selectedDataset.formattedDrivers) return [...this.selectedDataset.formattedDrivers]
+            else return []
         }
     }
 })

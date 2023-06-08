@@ -26,15 +26,7 @@
                         <span :class="{ 'details-warning-color': modelHasEmptyAssociations }">{{ $t('dashboard.datasetEditor.associationsTabTitle') }}</span>
                         <i v-if="modelHasEmptyAssociations" class="fa-solid fa-circle-exclamation p-ml-1 details-warning-color" />
                     </template>
-                    <AssociationsTab
-                        :dashboard-associations-prop="dashboardAssociations"
-                        :selected-datasets-prop="selectedDatasets"
-                        :selected-association-prop="selectedAssociation"
-                        @createNewAssociation="createNewAssociation"
-                        @associationDeleted="deleteAssociation"
-                        @associationSelected="selectAssociation"
-                        @addIndexesOnAssociations="addIndexesOnAssociations"
-                    />
+                    <AssociationsTab :dashboard-associations-prop="dashboardAssociations" :selected-datasets-prop="selectedDatasets" :selected-association-prop="selectedAssociation" @associationSelected="selectAssociation" />
                 </TabPanel>
             </TabView>
         </div>
