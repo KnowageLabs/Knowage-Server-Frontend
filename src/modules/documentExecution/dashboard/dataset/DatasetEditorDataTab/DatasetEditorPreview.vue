@@ -32,17 +32,19 @@ import Message from 'primevue/message'
 import mainDescriptor from '@/modules/workspace/WorkspaceDescriptor.json'
 import workspaceDataPreviewDialogDescriptor from '@/modules/workspace/views/dataView/dialogs/WorkspaceDataPreviewDialogDescriptor.json'
 import mainStore from '../../../../../App.store'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'kpi-scheduler-save-dialog',
     components: { Dialog, DatasetPreviewTable, Message },
-    props: { visible: { type: Boolean }, propDataset: { type: Object }, previewType: String },
+    props: { visible: { type: Boolean }, propDataset: { type: Object }, previewType: String, dashboardId: { type: String, required: true } },
     emits: ['close'],
     setup() {
         const store = mainStore()
-        return { store }
+        const dashStore = dashboardStore()
+        return { store, dashStore }
     },
     data() {
         return {
@@ -95,11 +97,11 @@ export default defineComponent({
                 postData.pars.forEach((param: any) => {
                     const matched = paramRegex.exec(param.value)
                     if (matched && matched[0]) {
-                        const documentDrivers = this.dataset.drivers
+                        const documentDrivers = this.dashStore.dashboards[this.dashboardId].drivers
                         for (let index = 0; index < documentDrivers.length; index++) {
                             const driver = documentDrivers[index]
-                            if (driver.label == matched[0]) {
-                                param.value = driver.parameterValue
+                            if (driver.urlName == matched[0]) {
+                                param.value = driver.value
                             }
                         }
                     } else param.value = param.value ?? param.defaultValue

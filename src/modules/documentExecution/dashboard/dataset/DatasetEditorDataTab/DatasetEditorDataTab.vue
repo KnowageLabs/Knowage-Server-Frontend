@@ -4,7 +4,7 @@
     <DataList :dashboard-datasets-prop="dashboardDatasetsProp" :available-datasets-prop="availableDatasetsProp" :selected-datasets-prop="selectedDatasets" @addSelectedDatasets="addSelectedDatasets" @datasetSelected="selectDataset" @deleteDataset="$emit('deleteDataset', $event)" />
     <DataDetail :dashboard-datasets-prop="dashboardDatasetsProp" :selected-dataset-prop="selectedDataset" :document-drivers-prop="documentDriversProp" :dashboard-id="dashboardId" data-test="dataset-detail" />
 
-    <DatasetEditorPreview v-if="previewShown" :visible="previewShown" :prop-dataset="datasetToPreview" @close="previewShown = false" />
+    <DatasetEditorPreview v-if="previewShown" :visible="previewShown" :prop-dataset="datasetToPreview" :dashboardId="dashboardId" @close="previewShown = false" />
 </template>
 
 <script lang="ts">
@@ -66,7 +66,6 @@ export default defineComponent({
                 .catch(() => {})
         },
         async previewSelectedDataset() {
-            console.log(this.selectedDataset)
             await this.loadDataset(this.selectedDataset.label)
 
             this.datasetToPreview.drivers = this.getPreviewDrivers()
