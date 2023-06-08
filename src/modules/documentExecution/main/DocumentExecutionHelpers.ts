@@ -6,13 +6,18 @@ import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnPa
 import { emitter } from '../dashboard/DashboardHelpers'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 
-export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) {
+export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) {
     const toolbarMenuItems = [] as any[]
 
     if (mode === 'dashboard') {
         toolbarMenuItems.push({
             label: $t('common.settings'),
-            items: [{ icon: 'pi pi-cog', label: $t('common.general'), command: () => functions.openDashboardGeneralSettings('General') }, { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') }, { icon: 'fas fa-paint-roller', label: $t('common.themes'), command: () => functions.openDashboardGeneralSettings('Themes') }, { icon: 'fas fa-recycle', label: $t('documentExecution.main.clearCache') }]
+            items: [
+                { icon: 'pi pi-cog', label: $t('common.general'), command: () => functions.openDashboardGeneralSettings('General') },
+                { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') },
+                { icon: 'fas fa-paint-roller', label: $t('common.themes'), command: () => functions.openDashboardGeneralSettings('Themes') },
+                { icon: 'fas fa-recycle', label: $t('documentExecution.main.clearCache') }
+            ]
         })
     }
 
@@ -22,7 +27,6 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
             items: [{ icon: 'pi pi-print', label: $t('common.print'), command: () => functions.print() }]
         })
     }
-
 
     if (exporters && exporters.length !== 0 && !newDashboardMode) {
         toolbarMenuItems.push({
@@ -34,7 +38,10 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     if (document.typeCode === 'DASHBOARD') {
         toolbarMenuItems.push({
             label: $t('documentExecution.main.views'),
-            items: [{ icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => emitter.emit('openSaveCurrentViewDialog', document.dashboardId) }, { icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => emitter.emit('openSavedViewsListDialog', document.dashboardId) }]
+            items: [
+                { icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => emitter.emit('openSaveCurrentViewDialog', document.dashboardId) },
+                { icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => emitter.emit('openSavedViewsListDialog', document.dashboardId) }
+            ]
         })
     }
 
@@ -52,9 +59,7 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
         })
     }
 
-
-    if (!newDashboardMode)
-        exporters?.forEach((exporter: any) => toolbarMenuItems[1].items.push({ icon: 'fa fa-file-excel', label: exporter.name, command: () => functions.export(exporter.name) }))
+    if (!newDashboardMode) exporters?.forEach((exporter: any) => toolbarMenuItems[1].items.push({ icon: 'fa fa-file-excel', label: exporter.name, command: () => functions.export(exporter.name) }))
 
     if (user.functionalities.includes(UserFunctionalitiesConstants.SEND_MAIL_FUNCTIONALITY) && document.typeCode === 'REPORT') {
         const index = toolbarMenuItems.findIndex((item: any) => item.label === $t('common.info.info'))
@@ -104,11 +109,14 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     if (mode === 'dashboard' && !newDashboardMode) {
         toolbarMenuItems.push({
             label: $t('common.view'),
-            items: [{ icon: 'pi pi-eye', label: $t('documentExecution.main.asFinalUser') }, { icon: 'pi pi-print', label: $t('documentExecution.main.inFullScreen') }]
+            items: [
+                { icon: 'pi pi-eye', label: $t('documentExecution.main.asFinalUser') },
+                { icon: 'pi pi-print', label: $t('documentExecution.main.inFullScreen') }
+            ]
         })
     }
 
-    if (filtersData && filtersData.filterStatus.length > 0) toolbarMenuItems.push({ icon: 'fa fa-eraser', label: $t('documentExecution.main.resetParameters'), command: () => parameterSidebarEmitter.emit('resetAllParameters') })
+    if (filtersData && filtersData.filterStatus?.length > 0) toolbarMenuItems.push({ icon: 'fa fa-eraser', label: $t('documentExecution.main.resetParameters'), command: () => parameterSidebarEmitter.emit('resetAllParameters') })
 
     removeEmptyToolbarItems(toolbarMenuItems)
 
@@ -122,7 +130,6 @@ const removeEmptyToolbarItems = (toolbarMenuItems: any[]) => {
         }
     }
 }
-
 
 export function getValidDate(value: string) {
     let momentDate = moment(deepcopy(value))

@@ -3,9 +3,9 @@
     <ConfirmDialog></ConfirmDialog>
     <KnOverlaySpinnerPanel />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
-        <MainMenu v-if="showMenu" @menuItemSelected="setSelectedMenuItem"></MainMenu>
+        <MainMenu v-if="showMenu && mainMenuVisibility" @menuItemSelected="setSelectedMenuItem"></MainMenu>
 
-        <div class="layout-main">
+        <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }">
             <router-view :selected-menu-item="selectedMenuItem" :menu-item-clicked-trigger="menuItemClickedTrigger" />
         </div>
     </div>
@@ -20,7 +20,7 @@ import MainMenu from '@/modules/mainMenu/MainMenu'
 import Toast from 'primevue/toast'
 import { defineComponent } from 'vue'
 import mainStore from '@/App.store'
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import WEB_SOCKET from '@/services/webSocket.js'
 import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
@@ -29,10 +29,6 @@ import auth from '@/helpers/commons/authHelper'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
 
     data() {
         return {
@@ -43,181 +39,6 @@ export default defineComponent({
             showMenu: false
         }
     },
-
-    async beforeCreate() {
-        await this.$http
-            .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/currentuser')
-            .then((response) => {
-                const currentUser = response.data
-                if (localStorage.getItem('sessionRole')) {
-                    currentUser.sessionRole = localStorage.getItem('sessionRole')
-                } else if (currentUser.defaultRole) currentUser.sessionRole = currentUser.defaultRole
-
-                this.store.initializeUser(currentUser)
-
-                const responseLocale = response.data.locale
-                let storedLocale = responseLocale
-                if (localStorage.getItem('locale')) {
-                    storedLocale = localStorage.getItem('locale')
-                }
-                localStorage.setItem('locale', storedLocale)
-                localStorage.setItem('token', response.data.userUniqueIdentifier)
-
-                this.store.setLocale(storedLocale)
-                this.$i18n.locale = storedLocale
-
-                // @ts-ignore
-                if (this.$i18n.messages[this.$i18n.locale.replaceAll('-', '_')]) {
-                    // @ts-ignore
-                    this.$primevue.config.locale = { ...this.$primevue.config.locale, ...this.$i18n.messages[this.$i18n.locale.replaceAll('-', '_')].locale }
-                }
-                this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
-
-                const language = this.$i18n
-                const splittedLanguage = language.locale.split('_')
-
-                if (responseLocale !== storedLocale) {
-                    let url = '/knowage/servlet/AdapterHTTP?'
-                    url += 'ACTION_NAME=CHANGE_LANGUAGE'
-                    url += '&LANGUAGE_ID=' + splittedLanguage[0]
-                    url += '&COUNTRY_ID=' + splittedLanguage[1].toUpperCase()
-                    url += '&SCRIPT_ID=' + (splittedLanguage.length > 2 ? splittedLanguage[2].replaceAll('#', '') : '')
-                    url += '&THEME_NAME=sbi_default'
-
-                    this.store.setLoading(true)
-                    this.$http.get(url).then(
-                        () => {
-                            this.store.setLocale(language.locale)
-                            localStorage.setItem('locale', language.locale)
-                            this.$i18n.locale = language.locale
-                        },
-                        (error) => console.error(error)
-                    )
-                } else {
-                    this.showMenu = true
-                }
-                loadLanguageAsync(localStorage.getItem('locale'))
-                this.store.setLoading(false)
-            })
-            .catch(function (error) {
-                auth.logout()
-                if (error.response) {
-                    console.log(error.response.data)
-                    console.log(error.response.status)
-                    console.log(error.response.headers)
-                }
-            })
-        await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/user-configs').then((response) => {
-            this.store.setConfigurations(response.data)
-        })
-        if (this.isEnterprise) {
-            if (Object.keys(this.defaultTheme.length === 0)) this.store.setDefaultTheme(await this.themeHelper.getDefaultKnowageTheme())
-
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/license').then((response) => {
-                this.store.setLicenses(response.data)
-            })
-            if (Object.keys(this.theme).length === 0) {
-                this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `thememanagement/current`).then((response) => {
-                    this.store.setTheme(response.data.config)
-                    this.themeHelper.setTheme(response.data.config)
-                })
-            } else {
-                this.themeHelper.setTheme(this.theme)
-            }
-        }
-    },
-    mounted() {
-        this.onLoad()
-        if (/Android|iPhone/i.test(navigator.userAgent)) {
-            this.isMobileDevice = true
-        }
-    },
-
-    methods: {
-        closeDialog() {
-            this.$emit('update:visibility', false)
-        },
-        async onLoad() {
-            this.showMenu = true
-            await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/export/dataset')
-                .then((response) => {
-                    const totalDownloads = response.data.length
-                    const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
-
-                    const json = { downloads: { count: { total: 0, alreadyDownloaded: 0 } } }
-                    json.downloads.count.total = totalDownloads
-                    json.downloads.count.alreadyDownloaded = alreadyDownloaded
-
-                    this.store.setDownloads(json.downloads)
-
-                    this.newsDownloadHandler()
-                    this.loadInternationalization()
-                })
-                .catch(function (error) {
-                    if (error.response) {
-                        console.log(error.response.data)
-                        console.log(error.response.status)
-                        console.log(error.response.headers)
-                    }
-                })
-        },
-        async loadInternationalization() {
-            let currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : this.store.$state.locale
-            let currLanguage = ''
-            if (currentLocale && Object.keys(currentLocale).length > 0) currentLocale = currentLocale.replaceAll('_', '-')
-            else currentLocale = 'en-US'
-
-            const splittedLanguage = currentLocale.split('-')
-            currLanguage += splittedLanguage[0] + '-'
-            if (splittedLanguage.length > 2) currLanguage += splittedLanguage[2].replaceAll('#', '') + '-'
-            currLanguage += splittedLanguage[1].toUpperCase()
-
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/i18nMessages/internationalization?currLanguage=' + currLanguage).then((response) => this.store.setInternationalization(response.data))
-        },
-        newsDownloadHandler() {
-            console.log('Starting connection to WebSocket Server')
-            const store = this.store
-
-            WEB_SOCKET.update = function (event) {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        store.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        store.setDownloads(json.downloads)
-                    }
-                }
-            }
-            WEB_SOCKET.onopen = function (event) {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        this.store.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        this.store.setDownloads(json.downloads)
-                    }
-                }
-            }
-            WEB_SOCKET.onmessage = function (event) {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        store.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        store.setDownloads(json.downloads)
-                    }
-                }
-            }
-        },
-        setSelectedMenuItem(menuItem) {
-            this.selectedMenuItem = menuItem
-            this.menuItemClickedTrigger = !this.menuItemClickedTrigger
-        }
-    },
     computed: {
         ...mapState(mainStore, {
             error: 'error',
@@ -225,10 +46,12 @@ export default defineComponent({
             warning: 'warning',
             user: 'user',
             loading: 'loading',
+            localse: 'locale',
             isEnterprise: 'isEnterprise',
             documentExecution: 'documentExecution',
             theme: 'theme',
-            defaultTheme: 'defaultTheme'
+            defaultTheme: 'defaultTheme',
+            mainMenuVisibility: 'mainMenuVisibility'
         })
     },
     watch: {
@@ -262,6 +85,181 @@ export default defineComponent({
         user() {
             /* if (!oldUser.userId && oldUser != newUser)  */
         }
+    },
+    async beforeCreate() {
+        await this.$http
+            .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/currentuser')
+            .then((response) => {
+                const currentUser = response.data
+                if (localStorage.getItem('sessionRole')) {
+                    currentUser.sessionRole = localStorage.getItem('sessionRole')
+                } else if (currentUser.defaultRole) currentUser.sessionRole = currentUser.defaultRole
+
+                this.initializeUser(currentUser)
+
+                const responseLocale = response.data.locale
+                let storedLocale = responseLocale
+                if (localStorage.getItem('locale')) {
+                    storedLocale = localStorage.getItem('locale')
+                }
+                localStorage.setItem('locale', storedLocale)
+                localStorage.setItem('token', response.data.userUniqueIdentifier)
+
+                this.setLocale(storedLocale)
+                this.$i18n.locale = storedLocale
+
+                // @ts-ignore
+                if (this.$i18n.messages[this.$i18n.locale.replaceAll('-', '_')]) {
+                    // @ts-ignore
+                    this.$primevue.config.locale = { ...this.$primevue.config.locale, ...this.$i18n.messages[this.$i18n.locale.replaceAll('-', '_')].locale }
+                }
+                this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
+
+                const language = this.$i18n
+                const splittedLanguage = language.locale.split('_')
+
+                if (responseLocale !== storedLocale) {
+                    let url = '/knowage/servlet/AdapterHTTP?'
+                    url += 'ACTION_NAME=CHANGE_LANGUAGE'
+                    url += '&LANGUAGE_ID=' + splittedLanguage[0]
+                    url += '&COUNTRY_ID=' + splittedLanguage[1].toUpperCase()
+                    url += '&SCRIPT_ID=' + (splittedLanguage.length > 2 ? splittedLanguage[2].replaceAll('#', '') : '')
+                    url += '&THEME_NAME=sbi_default'
+
+                    this.setLoading(true)
+                    this.$http.get(url).then(
+                        () => {
+                            this.setLocale(language.locale)
+                            localStorage.setItem('locale', language.locale)
+                            this.$i18n.locale = language.locale
+                        },
+                        (error) => console.error(error)
+                    )
+                } else {
+                    this.showMenu = true
+                }
+                loadLanguageAsync(localStorage.getItem('locale'))
+                this.setLoading(false)
+            })
+            .catch(function (error) {
+                auth.logout()
+                if (error.response) {
+                    console.log(error.response.data)
+                    console.log(error.response.status)
+                    console.log(error.response.headers)
+                }
+            })
+        await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/user-configs').then((response) => {
+            this.setConfigurations(response.data)
+        })
+        if (this.isEnterprise) {
+            if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(await this.themeHelper.getDefaultKnowageTheme())
+
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/license').then((response) => {
+                this.setLicenses(response.data)
+            })
+            if (Object.keys(this.theme).length === 0) {
+                this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `thememanagement/current`).then((response) => {
+                    this.setTheme(response.data.config)
+                    this.themeHelper.setTheme(response.data.config)
+                })
+            } else {
+                this.themeHelper.setTheme(this.theme)
+            }
+        }
+    },
+
+    mounted() {
+        this.onLoad()
+        if (/Android|iPhone/i.test(navigator.userAgent)) {
+            this.isMobileDevice = true
+        }
+    },
+
+    methods: {
+        ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization']),
+        closeDialog() {
+            this.$emit('update:visibility', false)
+        },
+        async onLoad() {
+            this.showMenu = true
+            await this.$http
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/export/dataset')
+                .then((response) => {
+                    const totalDownloads = response.data.length
+                    const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
+
+                    const json = { downloads: { count: { total: 0, alreadyDownloaded: 0 } } }
+                    json.downloads.count.total = totalDownloads
+                    json.downloads.count.alreadyDownloaded = alreadyDownloaded
+
+                    this.setDownloads(json.downloads)
+
+                    this.newsDownloadHandler()
+                    this.loadInternationalization()
+                })
+                .catch(function (error) {
+                    if (error.response) {
+                        console.log(error.response.data)
+                        console.log(error.response.status)
+                        console.log(error.response.headers)
+                    }
+                })
+        },
+        async loadInternationalization() {
+            let currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : this.locale
+            let currLanguage = ''
+            if (currentLocale && Object.keys(currentLocale).length > 0) currentLocale = currentLocale.replaceAll('_', '-')
+            else currentLocale = 'en-US'
+
+            const splittedLanguage = currentLocale.split('-')
+            currLanguage += splittedLanguage[0] + '-'
+            if (splittedLanguage.length > 2) currLanguage += splittedLanguage[2].replaceAll('#', '') + '-'
+            currLanguage += splittedLanguage[1].toUpperCase()
+
+            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/i18nMessages/internationalization?currLanguage=' + currLanguage).then((response) => this.setInternationalization(response.data))
+        },
+        newsDownloadHandler() {
+            console.log('Starting connection to WebSocket Server')
+
+            WEB_SOCKET.update = (event) => {
+                if (event.data) {
+                    const json = JSON.parse(event.data)
+                    if (json.news) {
+                        this.setNews(json.news)
+                    }
+                    if (json.downloads) {
+                        this.setDownloads(json.downloads)
+                    }
+                }
+            }
+            WEB_SOCKET.onopen = (event) => {
+                if (event.data) {
+                    const json = JSON.parse(event.data)
+                    if (json.news) {
+                        this.setNews(json.news)
+                    }
+                    if (json.downloads) {
+                        this.setDownloads(json.downloads)
+                    }
+                }
+            }
+            WEB_SOCKET.onmessage = (event) => {
+                if (event.data) {
+                    const json = JSON.parse(event.data)
+                    if (json.news) {
+                        this.setNews(json.news)
+                    }
+                    if (json.downloads) {
+                        this.setDownloads(json.downloads)
+                    }
+                }
+            }
+        },
+        setSelectedMenuItem(menuItem) {
+            this.selectedMenuItem = menuItem
+            this.menuItemClickedTrigger = !this.menuItemClickedTrigger
+        }
     }
 })
 </script>
@@ -288,6 +286,9 @@ body {
 }
 .layout-main {
     margin-left: var(--kn-mainmenu-width);
+    &.hiddenMenu {
+        margin-left: 0;
+    }
     flex: 1;
 }
 </style>

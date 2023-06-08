@@ -11,6 +11,7 @@ import authHelper from '@/helpers/commons/authHelper'
 import dataPreparationRoutes from '@/modules/workspace/dataPreparation/DataPreparation.routes.js'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import { getCorrectRolesForExecutionForType } from '@/helpers/commons/roleHelper'
+import mainStore from '@/App.store'
 
 const baseRoutes = [
     {
@@ -79,12 +80,17 @@ router.afterEach(async () => {
 })
 
 router.beforeEach((to, from, next) => {
-    //if (localStorage.getItem('locale')) loadLanguageAsync(localStorage.getItem('locale')).then(() => next())
+    const store = mainStore()
+
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
     const loggedIn = localStorage.getItem('token')
 
     const validRoutes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', '/kpi/', 'dossier', 'etl']
     const invalidRoutes = ['olap-designer']
+    if (typeof to.query.menu != 'undefined' && to.query.menu === 'false') {
+        store.hideMainMenu()
+    } else store.showMainMenu()
+
     if (checkRequired && !loggedIn) {
         authHelper.handleUnauthorized()
     } else if (validRoutes.some((el) => to.fullPath.includes(el)) && !invalidRoutes.some((el) => to.fullPath.includes(el))) {
