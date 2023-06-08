@@ -189,6 +189,7 @@ export const formatDriversUsingDashboardView = (filtersData: { filterStatus: iPa
         const driverFromView = dashboardView.drivers.filterStatus.find((tempDriver: iParameter) => tempDriver.urlName === driver.urlName)
         if (driverFromView) {
             driver.parameterValue = driverFromView.parameterValue
+            if (driverFromView.data) driver.data = driverFromView.data
         }
     })
     updateFiltersDataIsReadyForExecution(filtersData)
