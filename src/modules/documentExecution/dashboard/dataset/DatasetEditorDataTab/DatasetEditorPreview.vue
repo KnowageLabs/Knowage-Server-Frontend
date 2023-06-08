@@ -102,7 +102,7 @@ export default defineComponent({
                                 param.value = driver.parameterValue
                             }
                         }
-                    } else param.value = param.defaultValue
+                    } else param.value = param.value ?? param.defaultValue
                 })
             }
 

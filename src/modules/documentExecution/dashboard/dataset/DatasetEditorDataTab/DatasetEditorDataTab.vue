@@ -66,13 +66,20 @@ export default defineComponent({
                 .catch(() => {})
         },
         async previewSelectedDataset() {
+            console.log(this.selectedDataset)
             await this.loadDataset(this.selectedDataset.label)
-            this.datasetToPreview.drivers = [...this.selectedDataset.modelDrivers]
+
+            this.datasetToPreview.drivers = this.getPreviewDrivers()
             this.datasetToPreview.pars = [...this.selectedDataset.parameters]
 
             setTimeout(() => {
                 this.previewShown = !this.previewShown
-            }, 200)
+            }, 100)
+        },
+        getPreviewDrivers() {
+            if (this.selectedDataset.modelDrivers) return [...this.selectedDataset.modelDrivers]
+            else if (this.selectedDataset.formattedDrivers) return [...this.selectedDataset.formattedDrivers]
+            else return []
         }
     }
 })
