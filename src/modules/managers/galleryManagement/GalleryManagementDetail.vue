@@ -35,7 +35,7 @@
                                     <label class="kn-material-input-label" for="type">{{ $t('common.type') }}</label>
                                 </span>
                             </div>
-                            <div v-if="v$.template.type === 'python'" class="p-col-3">
+                            <div v-if="template.type === 'python'" class="p-col-3">
                                 <span class="p-float-label">
                                     <Dropdown id="outputType" v-model="v$.template.outputType.$model" class="kn-material-input" :options="galleryDescriptor.outputTypes" option-label="name" option-value="value" @change="setDirty" />
                                     <label class="kn-material-input-label" for="outputType">{{ $t('managers.widgetGallery.outputType') }}</label>
