@@ -51,18 +51,12 @@ const formatChartWidgetForGet = (dashboardId: any, widget: IWidget, dataset: IDa
     addParametersToData(dataset, dashboardId, dataToSend)
 
     if (widget.settings.configuration?.grouping?.enabled) {
-        console.log('COND 1 ---------------- first measure, exactly 2 attribute/category')
         addMeasuresAndCategoriesByCount(widget, dataToSend, 2, -1, false)
     } else if (widget.settings.configuration?.grouping?.secondSeries.enabled) {
-        console.log('COND 2 ---------------- exactly 2 measures/dimensions, exactly 1 attribute/category/series')
         addMeasuresAndCategoriesByCount(widget, dataToSend, 1, 2, false)
     } else if (widget.settings.configuration?.grouping?.secondDimension.enabled) {
-        console.log('COND 3 ---------------- exactly 1 measure (chosen from dropdown), exactly 2 attribute/category')
         addMeasuresAndCategoriesByCount(widget, dataToSend, 1, -1, true)
     } else {
-        console.log('COND 4 ---------------- all measures and categories')
-        // TODO Bojan
-        // addMeasuresAndCategoriesByCount(widget, dataToSend, -1, -1, false)
         addMeasuresAndCategoriesByCount(widget, dataToSend, 1, -1, false)
     }
 

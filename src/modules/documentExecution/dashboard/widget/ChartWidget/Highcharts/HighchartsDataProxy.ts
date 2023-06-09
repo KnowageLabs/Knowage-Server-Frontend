@@ -16,13 +16,13 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
         case 'bar':
         case 'column':
         case 'line':
+        case 'radar':
             return await getHighchartsBarData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'scatter':
             return await getHighchartsScatterData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'sunburst':
         case 'treemap':
         case 'heatmap':
-        case 'radar':
         case 'wordcloud':
             return await getHighchartsSunburstData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
