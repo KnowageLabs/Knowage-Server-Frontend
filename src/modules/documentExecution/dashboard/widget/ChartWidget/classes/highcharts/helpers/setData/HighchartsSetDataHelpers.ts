@@ -256,6 +256,49 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
         ],
     }
     const hierarchy = {} as any
+    createHierarchyFromData(model, hierarchy, data, attributeColumns, measureColumn)
+
+
+    const treemapArray = createTreeSeriesStructureFromHierarchy(hierarchy)
+    treemapArray.forEach((el: any) => {
+        if (el.value === 0) delete el.value
+    })
+
+    treemapArray[0].parent = null,
+        treemapArray[0].id = 'root',
+        treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName,
+        treemapArray[0].dataLabels = {
+            enabled: true,
+            backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
+            style: {
+                fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
+                fontStyle: centerTextSettings.style['font-style'] ?? "normal",
+                fontSize: centerTextSettings.style['font-size'] ?? "12px",
+                color: centerTextSettings.color ?? "#000000",
+                width: "10000"
+            }
+        }
+    serieElement.data = treemapArray
+
+    model.series = [serieElement]
+
+    let index = 0
+    hierarchy.children?.forEach((el: any) => {
+        model.series.push({
+            "id": el.id,
+            "type": "area",
+            "name": el.name,
+            "color": model.colors[index],
+            showInLegend: true
+        })
+        index++
+        if (index === model.colors.length) index = 0
+    })
+
+    model.colors = []
+}
+
+export const createHierarchyFromData = (model: any, hierarchy: any, data: any, attributeColumns: any[], measureColumn: any) => {
     let id = 0;
     let colorIndex = 0
     data.rows?.forEach((row: any) => {
@@ -299,47 +342,9 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
             }
         });
     });
-
-    const treemapArray = createTreeSeriesStructureFromHierarchy(hierarchy)
-    treemapArray.forEach((el: any) => {
-        if (el.value === 0) delete el.value
-    })
-
-    treemapArray[0].parent = null,
-        treemapArray[0].id = 'root',
-        treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName,
-        treemapArray[0].dataLabels = {
-            enabled: true,
-            backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
-            style: {
-                fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
-                fontStyle: centerTextSettings.style['font-style'] ?? "normal",
-                fontSize: centerTextSettings.style['font-size'] ?? "12px",
-                color: centerTextSettings.color ?? "#000000",
-                width: "10000"
-            }
-        }
-    serieElement.data = treemapArray
-
-    model.series = [serieElement]
-
-    let index = 0
-    hierarchy.children?.forEach((el: any) => {
-        model.series.push({
-            "id": el.id,
-            "type": "area",
-            "name": el.name,
-            "color": model.colors[index],
-            showInLegend: true
-        })
-        index++
-        if (index === model.colors.length) index = 0
-    })
-
-    model.colors = []
 }
 
-const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'root', result = [] as any[]) => {
+export const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'root', result = [] as any[]) => {
     const { children, ...rest } = node;
     const flattenedNode = {
         ...rest,

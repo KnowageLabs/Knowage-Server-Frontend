@@ -18,14 +18,6 @@
         ],
         "Configuration": [
             {
-                "title": "dashboard.widgetEditor.highcharts.datetype",
-                "type": "DatetypeSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.splitting.title",
-                "type": "GroupingSettings"
-            },
-            {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
             },
@@ -35,10 +27,6 @@
             }
         ],
         "Interactions": [
-            {
-                "title": "dashboard.widgetEditor.drilldown.title",
-                "type": "Drilldown"
-            },
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
                 "type": "Selection"
@@ -91,42 +79,6 @@
                 "title": "dashboard.widgetEditor.tooltip.title",
                 "type": "Tooltip"
             }
-        ],
-        "XAxis": [
-            {
-                "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapXAxisSettings"
-            },
-            {
-                "title": "common.title",
-                "type": "HeatmapXAxisTitleSettings"
-            }
-        ],
-        "YAxis": [
-            {
-                "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapYAxisSettings"
-            },
-            {
-                "title": "common.title",
-                "type": "HeatmapYAxisTitleSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "YAxisBandsSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "YAxisLinesSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
-                "type": "MajorGridSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
-                "type": "MinorGridSettings"
-            }
         ]
     },
     "settingsListOptions": [
@@ -144,16 +96,6 @@
             "icon": "fa fa-paint-brush",
             "label": "common.style",
             "value": "Style"
-        },
-        {
-            "icon": "fa-solid fa-arrow-up",
-            "label": "dashboard.widgetEditor.yAxis",
-            "value": "YAxis"
-        },
-        {
-            "icon": "fa-solid fa-arrow-right",
-            "label": "dashboard.widgetEditor.xAxis",
-            "value": "XAxis"
         },
         {
             "icon": "pi pi-table",

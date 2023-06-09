@@ -165,23 +165,13 @@ export default defineComponent({
                     click: this.executeInteractions,
                     checkboxClick: this.onCheckboxClicked
                 }
-                if (this.chartModel.chart.type === 'sunburst')
-                    this.chartModel.plotOptions.series.events.legendItemClick = function (e) {
-                        var self = this,
-                            newLevels,
-                            series = self.chart.series[0]
-                        points.forEach(function (leaf) {
-                            if (leaf.id === self.userOptions.id || leaf.parent === self.userOptions.id) {
-                                leaf.visible = !leaf.visible
-                            }
-                        })
 
-                        var newData = points.filter(function (leaf) {
-                            return leaf.visible
-                        })
-
-                        series.setData(newData, true, true, false)
-                    }
+                // TODO - Sunburst
+                // if (this.chartModel.chart.type === 'sunburst')
+                //     this.chartModel.plotOptions.series.events.legendItemClick = function (e) {
+                //         console.log('eeeeeeee: ', e)
+                //         e.setVisible(false)
+                //     }
             }
         },
         onDrillUp(event: any) {

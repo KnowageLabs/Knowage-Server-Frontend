@@ -1,9 +1,9 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget, } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IHighchartsChartSerie, IHighchartsChartSerieData } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { updateTreemapChartModel } from './updater/KnowageHighchartsTreemapChartUpdater'
 import deepcopy from 'deepcopy'
-import { getAllColumnsOfSpecificTypeFromDataResponse, setSunburstData } from './helpers/setData/HighchartsSetDataHelpers'
+import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -13,7 +13,6 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         else if (model && model.plotOption) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'treemap') {
-                this.formatSeriesFromOtherChartTypeSeries()
                 this.setSpecificOptionsDefaultValues()
             }
         }
@@ -29,14 +28,8 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     }
 
     setPlotOptions() {
-        this.model.plotOptions.line = {
-            marker: {
-                symbol: "circle",
-                lineWidth: 2
-            }
-        }
-        this.model.plotOptions.series.showCheckbox = true
         this.model.plotOptions.series.turboThreshold = 15000
+
     }
 
     setData(data: any, widgetModel: IWidget) {
@@ -1226,135 +1219,85 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
         console.log('---------- MEASURE COLUMNS: ', measureColumns)
-        const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        // console.log('------- dateFormat: ', dateFormat)
         const interactions = widgetModel.settings?.interactions
         const interactionsEnabled = interactions.selection.enabled || interactions.crossNavigation.enabled
-        setSunburstData(this.model, mockedData, attributeColumns, measureColumns, interactionsEnabled)
+        this.setTreeData(mockedData, attributeColumns, measureColumns, interactionsEnabled)
         return this.model.series
     }
 
 
-    // TODO - remove
-    setRegularData(data: any, attributeColumns: any[], measureColumns: any[], selectionsEnabled = false) {
+    setTreeData(data: any, attributeColumns: any[], measureColumns: any[], interactionsEnabled: boolean) {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
-        const serieElement = {
-            id: 0, name: measureColumn.column.columnName, data: [] as any[], layoutAlgorithm: 'squarified',
-            allowDrillToNode: !selectionsEnabled,
-            animationLimit: 1000,
-        }
-        const hierarchy = {}
-        let id = 0;
-        data.rows?.forEach((row: any) => {
-            const formattedRow = {}
-            for (let i = 0; i < attributeColumns.length; i++) {
-                formattedRow['column_' + (i + 1)] = row[attributeColumns[i].metadata.dataIndex]
-            }
-            formattedRow['column_' + (attributeColumns.length + 1)] = row[measureColumn.metadata.dataIndex]
+        const serieElement = this.createSereElement(measureColumn, interactionsEnabled)
+        const hierarchy = {} as any
+        createHierarchyFromData(this.model, hierarchy, data, attributeColumns, measureColumn)
+        const treemapArray = createTreeSeriesStructureFromHierarchy(hierarchy)
 
-            let currentItem = hierarchy as any;
-
-            Object.entries(formattedRow).forEach(([key, value]) => {
-                if (key === measureColumn.metadata.dataIndex) {
-                    if (!(key in currentItem)) currentItem.value = 0;
-                    currentItem.value += value;
-                    return;
-                }
-
-                // // TODO
-                // if (!currentItem[value]) currentItem[value] = {};
-                // currentItem = currentItem[value];
-
-                if (!currentItem.children) {
-                    // Create a children array if it doesn't exist
-                    currentItem.children = [];
-                }
-
-                // Check if the child item already exists
-                const childItem = currentItem.children.find(child => child.name === value);
-                if (childItem) {
-                    currentItem = childItem;
-                } else {
-                    // Create a new child item and assign an ID
-                    id++;
-                    const newChildItem = {
-                        id: '' + id,
-                        name: value,
-                        parent: '' + currentItem.id || null,
-                        value: 0
-                    };
-                    currentItem.children.push(newChildItem);
-                    currentItem = newChildItem;
-                }
-            });
-        });
-
-        const treemapArray = this.createTreeSeriesStructureFromHierarchy(hierarchy)
         treemapArray.forEach((el: any) => {
             if (el.value === 0) delete el.value
         })
-
-        console.log('-------      hierarchy: ', hierarchy)
-        console.log('-------      treemapArray: ', treemapArray)
         treemapArray.splice(0, 1)
         serieElement.data = treemapArray
-
-
         this.model.series = [serieElement]
+        this.model.colors = []
     }
-    // TODO - remove
-    createTreeSeriesStructureFromHierarchy(node: any, parentId = null, result = [] as any[]) {
-        const { children, ...rest } = node;
-        const flattenedNode = {
-            ...rest,
-            parent: parentId
-        };
 
-        result.push(flattenedNode);
-
-        if (children) {
-            children.forEach(child => {
-                this.createTreeSeriesStructureFromHierarchy(child, node.id, result);
-            });
+    createSereElement(measureColumn: any, interactionsEnabled: boolean) {
+        const serieElement = {
+            id: 0, name: measureColumn.column.columnName, data: [] as any[],
+            type: 'treemap',
+            layoutAlgorithm: 'squarified',
+            allowDrillToNode: !interactionsEnabled,
+            showInLegend: false,
+            animationLimit: 1000,
+            dataLabels: {
+                enabled: false,
+            },
+            levels: [
+                {
+                    level: 1,
+                    dataLabels: {
+                        enabled: true
+                    },
+                    borderWidth: 3,
+                    levelIsConstant: false
+                }, {
+                    level: 1,
+                    dataLabels: {
+                        style: {
+                            fontSize: '14px'
+                        }
+                    }
+                },
+                {
+                    level: 2,
+                    colorByPoint: true
+                },
+                {
+                    level: 3,
+                    colorVariation: {
+                        key: "brightness",
+                        to: 0.5
+                    }
+                },
+                {
+                    level: 4,
+                    colorVariation: {
+                        key: "brightness",
+                        to: 0.5
+                    }
+                }
+            ]
         }
 
-        return result;
+        return serieElement
     }
+
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
         // TODO
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
-        const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
-        if (!seriesLabelSetting.label.enabled) return
-        this.model.series.forEach((serie: IHighchartsChartSerie) => {
-            serie.data.forEach((data: IHighchartsChartSerieData) => {
-                data.dataLabels = {
-                    backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
-                    distance: 30,
-                    enabled: true,
-                    position: '',
-                    style: {
-                        fontFamily: seriesLabelSetting.label.style.fontFamily,
-                        fontSize: seriesLabelSetting.label.style.fontSize,
-                        fontWeight: seriesLabelSetting.label.style.fontWeight,
-                        color: seriesLabelSetting.label.style.color ?? ''
-                    },
-                    formatter: function () {
-                        return KnowageHighchartsTreemapChart.prototype.handleFormatter(this, seriesLabelSetting.label)
-                    }
-                }
-            })
-        })
+        // updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
     }
 
-    formatSeriesFromOtherChartTypeSeries() {
-        this.model.series = this.model.series.map((serie: any) => { return this.getFormattedSerieFromOtherChartTypeSerie(serie) })
-    }
-
-    getFormattedSerieFromOtherChartTypeSerie(otherChartSerie: any) {
-        const formattedSerie = { name: otherChartSerie.name, data: [], colorByPoint: true } as IHighchartsChartSerie
-        if (otherChartSerie.accessibility) formattedSerie.accessibility
-        return formattedSerie
-    }
 }
