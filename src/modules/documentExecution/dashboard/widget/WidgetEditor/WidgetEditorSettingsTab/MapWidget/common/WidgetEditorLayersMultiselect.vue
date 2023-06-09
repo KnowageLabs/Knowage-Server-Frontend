@@ -9,7 +9,14 @@ import MultiSelect from 'primevue/multiselect'
 export default defineComponent({
     name: 'widget-editor-multiselect',
     components: { MultiSelect },
-    props: { value: { type: Array }, availableTargetOptions: { type: Array, required: true }, widgetLayersNameMap: { type: Object, required: true }, optionLabel: { type: String }, optionsValue: { type: String }, disabled: { type: Boolean } },
+    props: {
+        value: { type: Array },
+        availableTargetOptions: { type: Array, required: true },
+        widgetLayersNameMap: { type: Object, required: true },
+        optionLabel: { type: String },
+        optionsValue: { type: String },
+        disabled: { type: Boolean }
+    },
     emits: ['change'],
     data() {
         return {
@@ -18,9 +25,12 @@ export default defineComponent({
     },
     computed: {
         options() {
-            const targetOptions = [] as { id: string; name: string }[]
+            const targetOptions = [] as { layerID: string; name: string }[]
             this.modelValue.forEach((target: string) => {
-                const tempLayer = { id: this.widgetLayersNameMap[target], name: target }
+                const tempLayer = {
+                    layerID: target,
+                    name: this.widgetLayersNameMap[target]
+                }
                 if (tempLayer) targetOptions.push(tempLayer)
             })
             const merged = this.mergeTargetOptionsWithAvailableTargetOptions(targetOptions)
@@ -39,7 +49,7 @@ export default defineComponent({
         loadValue() {
             this.modelValue = this.value as any[]
         },
-        mergeTargetOptionsWithAvailableTargetOptions(targetOptions: { id: string; name: string }[]) {
+        mergeTargetOptionsWithAvailableTargetOptions(targetOptions: { layerID: string; name: string }[]) {
             const merged = [...targetOptions, ...this.availableTargetOptions].reduce((acc: any, curr: any) => {
                 if (!acc[curr.name]) {
                     acc[curr.name] = curr

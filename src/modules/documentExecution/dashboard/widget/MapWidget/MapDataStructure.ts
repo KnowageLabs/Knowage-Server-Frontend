@@ -1,70 +1,91 @@
 import { MapManager } from './MapManagerCreator'
+import { MapFeatureStyle, MapVisualizationManager } from './MapVisualizationManager'
+import { FIELD_TYPE_SPATIAL_ATTRIBUTE, FIELD_TYPE_ATTRIBUTE, FIELD_TYPE_MEASURE } from './MapConstants'
+import { ControlPanelItem } from './MapControlPanel'
 
-export const LAYER_TYPE_DATASET = 'DATASET'
-export const LAYER_TYPE_CATALOG = 'CATALOG'
+const COORD_TYPE_STRING = 'string'
+const COORD_TYPE_GEOJSON = 'json'
+const COORD_TYPE_WKT = 'wkt'
 
-export const FIELD_TYPE_SPATIAL_ATTRIBUTE = 'SPATIAL_ATTRIBUTE'
-export const FIELD_TYPE_ATTRIBUTE = 'ATTRIBUTE'
-export const FIELD_TYPE_MEASURE = 'MEASURE'
+const COORD_TYPE_FORMAT_LAT_LON = 'lat lon'
+const COORD_TYPE_FORMAT_LON_LAT = 'lon lat'
 
-export class ControlPanelItemMeasure {
-    public name: string
+const REGEX_LAT_LON = new RegExp('^\\s*(?<lat>-?(?:[0-8]?[0-9]|90)(?:\\.[0-9]{1,10})?)[, ](?<lon>-?(?:[0-9]{1,2}|1[0-7][0-9]|180)(?:\\.[0-9]{1,10})?)\\s*$')
+const REGEX_LON_LAT = new RegExp('^\\s*(?<lon>-?(?:[0-9]{1,2}|1[0-7][0-9]|180)(?:\\.[0-9]{1,10})?)[, ](?<lat>-?(?:[0-8]?[0-9]|90)(?:\\.[0-9]{1,10})?)\\s*$')
 
-    constructor(name: string) {
-        this.name = name
-    }
+interface FeatureGenerator {
+    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle): any
 }
 
-export class ControlPanelItem {
-    public name: string
-    public measures: ControlPanelItemMeasure[]
-
-    constructor(name: string, measures: ControlPanelItemMeasure[]) {
-        this.name = name
-        this.measures = measures
-    }
-}
-
-export class ControlPanel {
-    mapManager: MapManager
-    layers = [] as ControlPanelItem[]
+abstract class AbstractFeatureGenerator implements FeatureGenerator {
+    protected mapManager: MapManager
 
     constructor(mapManager: MapManager) {
         this.mapManager = mapManager
     }
 
-    public addLayer(item: ControlPanelItem) {
-        this.layers.push(item)
+    protected createMarkerProperties(): void {}
+
+    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
+        throw new Error('To be implemented')
+    }
+}
+
+class MarkerGenerator extends AbstractFeatureGenerator {
+    private isLongLat = false
+    private regex = REGEX_LAT_LON
+    private latitudeGroupIdx = 1
+    private longitudeGroupIdx = 2
+
+    constructor(mapManager: MapManager, isLongLat: boolean) {
+        super(mapManager)
+        this.isLongLat = isLongLat
+
+        if (this.isLongLat) {
+            this.regex = REGEX_LON_LAT
+
+            this.latitudeGroupIdx = 2
+            this.longitudeGroupIdx = 1
+        }
     }
 
-    public removeLayer(item: ControlPanelItem) {
-        const elemIdx = this.layers.indexOf(item)
+    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
+        const m = this.regex.exec(spatialValue)
 
-        if (elemIdx < 0) {
-            throw new Error('Following element not found: ' + item)
+        if (m == null) {
+            throw new Error('Error parsing following value: ' + spatialValue)
         }
 
-        this.layers.splice(elemIdx, 1)
+        // The + sign convert string to number
+        const latitude = +m[this.latitudeGroupIdx]
+        const longitude = +m[this.longitudeGroupIdx]
+        const properties = {}
+
+        this.mapManager.createMarkerFeature(latitude, longitude, featureStyle, properties)
+    }
+}
+class GeoJSONGenerator extends AbstractFeatureGenerator {
+    constructor(mapManager: MapManager) {
+        super(mapManager)
     }
 
-    public getLayers(): ControlPanelItem[] {
-        return this.layers
+    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
+        const properties = {}
+
+        this.mapManager.createGeoJSONFeature(spatialValue, featureStyle, properties)
     }
 }
+class WKTGenerator extends AbstractFeatureGenerator {
+    constructor(mapManager: MapManager) {
+        super(mapManager)
+    }
 
-interface FeatureGenerator {
-    generate(spatialValue: string): any
-}
+    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
+        const properties = {}
 
-abstract class AbstractFeatureGenerator implements FeatureGenerator {
-    constructor(spatialValue)
+        this.mapManager.createWKTFeature(spatialValue, featureStyle, properties)
+    }
 }
-
-class MarkerGenerator implements FeatureGenerator {
-    generate() {}
-}
-class GeoJSONGenerator implements FeatureGenerator {}
-class WKTGenerator implements FeatureGenerator {}
 
 export interface LayerContainer {
     getAttributes(): any[]
@@ -81,6 +102,7 @@ export interface LayerContainer {
 
 class AbstractLayerContainer implements LayerContainer {
     protected layer: any
+    protected layerId: string
 
     protected spatialAttribute = null
     protected attributes = [] as any[]
@@ -89,17 +111,35 @@ class AbstractLayerContainer implements LayerContainer {
     protected attributeByName = new Map<string, any>()
     protected measureByName = new Map<string, any>()
 
-    protected columnsByName = new Map()
-
-    protected featureGenerator = null as FeatureGenerator
+    protected featureGenerator: FeatureGenerator
+    protected visualizationManager: MapVisualizationManager
 
     protected mapManager: MapManager
 
-    constructor(mapManager: MapManager, layer: any) {
+    protected coordType = null
+    protected coordFormat = null
+
+    protected controlPanelItem: ControlPanelItem | undefined
+    protected selectedMeasure: string | undefined
+
+    constructor(mapManager: MapManager, layerId: string, layer: any, visualizationManager: MapVisualizationManager) {
         this.mapManager = mapManager
+        this.layerId = layerId
         this.layer = layer
+        this.visualizationManager = visualizationManager
 
         this.initColumns()
+
+        if (this.coordType === undefined || this.coordType === COORD_TYPE_STRING) {
+            const isLongLat = this.coordFormat == COORD_TYPE_FORMAT_LON_LAT
+            this.featureGenerator = new MarkerGenerator(this.mapManager, isLongLat)
+        } else if (this.coordType === COORD_TYPE_GEOJSON) {
+            this.featureGenerator = new GeoJSONGenerator(this.mapManager)
+        } else if (this.coordType == COORD_TYPE_WKT) {
+            this.featureGenerator = new WKTGenerator(this.mapManager)
+        } else {
+            throw new Error('Following cordinate type is not supported: ' + this.coordType)
+        }
     }
 
     getAttributes(): any[] {
@@ -127,7 +167,8 @@ class AbstractLayerContainer implements LayerContainer {
     }
 
     preShowData(datastore: any): void {
-        throw new Error('To be implemented')
+        this.controlPanelItem = this.mapManager.getControlPanel().getLayer(this.layerId)
+        this.selectedMeasure = this.controlPanelItem?.getSelected()?.getName()
     }
 
     showData(datastore: any) {
@@ -141,11 +182,11 @@ class AbstractLayerContainer implements LayerContainer {
 
 export class DatasetBasedLayer extends AbstractLayerContainer {
     private dsColumnsFromLayerField = new Map<string, string>()
-    private coordType = null
-    private coordFormat = null
+    private spatialAttributeColumnName = null
+    private measureColumnName = null
 
-    constructor(mapManager: MapManager, layer: any) {
-        super(mapManager, layer)
+    constructor(mapManager: MapManager, layerId: string, layer: any, visualizationManager: MapVisualizationManager) {
+        super(mapManager, layerId, layer, visualizationManager)
     }
 
     protected initColumns(): void {
@@ -173,6 +214,8 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
     }
 
     preShowData(datastore: any): void {
+        super.preShowData(datastore)
+
         const metaData = datastore.metaData
         // The first item is the string "recNo"
         const fields = (metaData.fields as []).slice(1)
@@ -190,6 +233,8 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
         if (!hasNeededSpatialAttribute) {
             throw new Error('Dataset is missing spatial attribute')
         }
+
+        this.spatialAttributeColumnName = this.dsColumnsFromLayerField.get(neededSpatialAttribute.name)
 
         // Attributes
         const neededAttributes = this.attributes
@@ -212,7 +257,30 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
         if (!hasNeededMeasures) {
             throw new Error('Dataset is missing required attributes')
         }
+
+        this.measureColumnName = this.dsColumnsFromLayerField.get(this.selectedMeasure)
     }
 
-    showData(datastore: any) {}
+    showData(datastore: any): void {
+        const rows = datastore.rows
+
+        for (const row of rows) {
+            try {
+                this.showRow(row)
+            } catch (e) {
+                console.log('Error showing following record: ' + row, e)
+                throw new Error('Error showing following record: ' + row)
+            }
+        }
+    }
+
+    showRow(row: any) {
+        const spatialAttributeValue = row[this.spatialAttributeColumnName]
+        const measureValue = row[this.measureColumnName]
+        const featureStyle = this.visualizationManager.getStyle(row)
+
+        console.log(this.measureColumnName)
+
+        this.featureGenerator.generate(spatialAttributeValue, measureValue, featureStyle)
+    }
 }

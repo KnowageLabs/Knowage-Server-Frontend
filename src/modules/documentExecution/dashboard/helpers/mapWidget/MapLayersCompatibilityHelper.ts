@@ -7,7 +7,7 @@ export const getFormattedSettingsFromLayers = (widget: any, formattedWidget: IWi
     layers?.forEach((layer: any) => {
         layer?.content?.columnSelectedOfDataset?.forEach((column: any) => {
             addLayerColumnTooltipOptions(column, formattedWidget, layer.name)
-            addLayerColumnConditionalStyleSettings(column, formattedWidget, layer.name, formattedDashboardModel, drivers)
+            addLayerColumnConditionalStyleSettings(column, formattedWidget, layer.layerID, formattedDashboardModel, drivers)
         })
         addLayerVisualizationTypeSettings(layer, formattedWidget)
     })
@@ -39,10 +39,10 @@ const addLayerVisualizationTypeSettings = (layer: any, formattedWidget: IWidget)
     formattedWidget.settings.visualization.types.push(visualizationType)
 }
 
-const addLayerColumnConditionalStyleSettings = (oldColumn: any, formattedWidget: IWidget, layerName: string, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
+const addLayerColumnConditionalStyleSettings = (oldColumn: any, formattedWidget: IWidget, layerID: string, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
     if (oldColumn && oldColumn.fieldType === 'MEASURE' && oldColumn.ranges) {
         oldColumn.ranges.forEach((range: any) => {
-            const tempConditionalStyle = createConditionalStyleFromRange(oldColumn, range, layerName)
+            const tempConditionalStyle = createConditionalStyleFromRange(oldColumn, range, layerID)
             addNonstaticConditionalStyles(tempConditionalStyle, range, formattedDashboardModel, drivers)
             formattedWidget.settings.conditionalStyles.enabled = true
             formattedWidget.settings.conditionalStyles.conditions.push(tempConditionalStyle)
@@ -50,9 +50,9 @@ const addLayerColumnConditionalStyleSettings = (oldColumn: any, formattedWidget:
     }
 }
 
-const createConditionalStyleFromRange = (oldColumn: any, range: any, layerName: string) => {
+const createConditionalStyleFromRange = (oldColumn: any, range: any, layerID: string) => {
     return {
-        targetLayer: layerName,
+        targetLayer: layerID,
         targetColumn: oldColumn.name,
         condition: { type: 'static', operator: range.operator, value: range.value },
         properties: { 'background-color': range['background-color'] ?? '' }

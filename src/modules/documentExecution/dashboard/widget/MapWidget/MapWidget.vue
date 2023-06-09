@@ -2,14 +2,14 @@
     <div id="map" ref="map" class="mapContainer"></div>
     <div v-if="mapManager" class="kn-parameter-sidebar kn-map-sidebar">
         <div class="kn-map-sidebar-section">Options</div>
-        <details v-for="item in mapManager.getControlPanel().getLayers()" :key="item.name" class="kn-map-sidebar-layer">
-            <summary>{{ item.name }}</summary>
-            <span v-if="item.measures.length == 0">TODO : Please show some measure</span>
-            <span v-for="measure in item.measures" v-else :key="measure.name">{{ measure.name }}</span>
+        <details v-for="item in mapManager.getControlPanel().getLayers()" :key="item.getLayerId()" class="kn-map-sidebar-layer">
+            <summary>{{ item.getAlias() }}</summary>
+            <span v-if="item.getMeasures().length == 0">TODO : Please show some measure</span>
+            <span v-for="measure in item.getMeasures()" v-else :key="measure.getName()">{{ measure.getAlias() }}</span>
         </details>
         <div class="kn-map-sidebar-section">Filters</div>
-        <details v-for="item in mapManager.getControlPanel().getLayers()" :key="item.name" class="kn-map-sidebar-layer">
-            <summary>{{ item.name }}</summary>
+        <details v-for="item in mapManager.getControlPanel().getLayers()" :key="item.getLayerId()" class="kn-map-sidebar-layer">
+            <summary>{{ item.getAlias() }}</summary>
             <span>TODO : show filters</span>
         </details>
     </div>
@@ -64,8 +64,6 @@ export default defineComponent({
         this.loadActiveSelections()
     },
     mounted() {
-        console.log(this.widgetModel)
-
         this.mapManager = MapManagerCreator.create(this.$refs.map, this.widgetModel)
 
         this.mapManager.init()

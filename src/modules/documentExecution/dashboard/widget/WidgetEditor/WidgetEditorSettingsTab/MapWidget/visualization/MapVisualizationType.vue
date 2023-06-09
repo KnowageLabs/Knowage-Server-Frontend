@@ -2,7 +2,7 @@
     <div v-for="(visType, visTypeIndex) in visualizationTypeModel" :key="visTypeIndex" class="p-d-flex p-flex-column p-m-3 widget-editor-card p-p-3">
         <div class="p-d-flex kn-flex p-ai-center p-mb-2">
             <span class="p-float-label kn-flex">
-                <WidgetEditorLayersMultiselect :value="visType.target" class="kn-material-input kn-width-full" :available-target-options="availableLayersOptions" :widget-layers-name-map="widgetLayersNameMap" option-label="name" option-value="name" @change="onLayersSelected($event, visType)" />
+                <WidgetEditorLayersMultiselect :value="visType.target" class="kn-material-input kn-width-full" :available-target-options="availableLayersOptions" :widget-layers-name-map="widgetLayersNameMap" option-label="name" option-value="layerID" @change="onLayersSelected($event, visType)" />
                 <label class="kn-material-input-label"> {{ $t('common.layers') }} </label>
             </span>
             <Button v-if="visTypeIndex == 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
@@ -39,7 +39,10 @@ export default defineComponent({
         return {
             descriptor,
             visualizationTypeModel: [] as IMapWidgetVisualizationType[],
-            availableLayersOptions: [] as { id: number | null; name: string }[],
+            availableLayersOptions: [] as {
+                layerID: string | null
+                name: string
+            }[],
             widgetLayersNameMap: {} as any
         }
     },
@@ -64,24 +67,24 @@ export default defineComponent({
         loadLayersOptions() {
             this.availableLayersOptions = this.widgetModel.layers
                 ? this.widgetModel.layers.map((layer: IMapWidgetLayer) => {
-                      return { id: layer.dsId, name: layer.name }
+                      return { layerID: layer.layerID, name: layer.name }
                   })
                 : []
         },
         loadWidgetLayersMaps() {
             this.widgetModel.layers.forEach((layer: IMapWidgetLayer) => {
-                if (layer.dsId) this.widgetLayersNameMap[layer.name] = layer.dsId
+                this.widgetLayersNameMap[layer.layerID] = layer.name
             })
         },
         removelayersFromAvailableOptions() {
             for (let i = 0; i < this.widgetModel.settings.visualization.types.length; i++) {
                 for (let j = 0; j < this.widgetModel.settings.visualization.types[i].target.length; j++) {
-                    this.removeLayerFromAvailableOptions({ id: this.widgetModel.settings.visualization.types[i].target[j], name: this.widgetModel.settings.visualization.types[i].target[j] })
+                    this.removeLayerFromAvailableOptions(this.widgetModel.settings.visualization.types[i].target[j])
                 }
             }
         },
-        removeLayerFromAvailableOptions(layer: { id: number; name: string }) {
-            const index = this.availableLayersOptions.findIndex((tempLayer: { id: number | null; name: string }) => tempLayer.name === layer.name)
+        removeLayerFromAvailableOptions(layerID: string) {
+            const index = this.availableLayersOptions.findIndex((tempLayer: { layerID: string | null; name: string }) => tempLayer.layerID === layerID)
             if (index !== -1) this.availableLayersOptions.splice(index, 1)
         },
         getImageSource(visType: string) {
@@ -116,13 +119,13 @@ export default defineComponent({
         },
         onLayersRemovedFromMultiselect(intersection: string[]) {
             intersection.forEach((el: string) => {
-                const options = { id: this.widgetLayersNameMap[el], name: el }
+                const options = { layerID: el, name: this.widgetLayersNameMap[el] }
                 this.availableLayersOptions.push(options)
             })
         },
         onLayersAddedFromMultiselect(visualizationType: IMapWidgetVisualizationType) {
             visualizationType.target.forEach((target: string) => {
-                const index = this.availableLayersOptions.findIndex((targetOption: { id: number | null; name: string }) => targetOption.name === target)
+                const index = this.availableLayersOptions.findIndex((targetOption: { layerID: string | null; name: string }) => targetOption.layerID === target)
                 if (index !== -1) this.availableLayersOptions.splice(index, 1)
             })
         }
