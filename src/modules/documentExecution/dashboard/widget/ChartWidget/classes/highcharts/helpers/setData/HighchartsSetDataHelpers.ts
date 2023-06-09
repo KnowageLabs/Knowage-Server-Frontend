@@ -1,9 +1,9 @@
-import { IWidget, IWidgetColumn } from "@/modules/documentExecution/dashboard/Dashboard"
-import moment from "moment"
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import moment from 'moment'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
     if (!data || !widgetModel.columns) return []
-    const formattedColumns = [] as { column: IWidgetColumn, metadata: any }[]
+    const formattedColumns = [] as { column: IWidgetColumn; metadata: any }[]
     widgetModel.columns.forEach((column: IWidgetColumn) => {
         if (column.fieldType === type) {
             const metadata = data.metaData.fields.find((field: any) => field.header?.startsWith(column.columnName))
@@ -32,8 +32,11 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
             const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
+            //CHECK IF COND STYLE
             data?.rows?.forEach((row: any) => {
+                //IF COND STYLE, VALIDATE
                 serieElement.data.push({
+                    color: 'red',
                     name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
                     y: row[metadata.dataIndex],
                     drilldown: drilldownEnabled && attributeColumns.length > 1
@@ -41,7 +44,7 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
             })
             model.series.push(serieElement)
         } else {
-            areaRangeColumns.push((measureColumn))
+            areaRangeColumns.push(measureColumn)
         }
     })
     if (areaRangeColumns.length > 1) setRegularAreaRangeData(model, data, attributeColumn, areaRangeColumns, dateFormat)
@@ -65,7 +68,6 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
         })
     })
     model.series.push(serieElement)
-
 }
 
 // TODO - We take exactly 2 attributes, first measure
@@ -106,7 +108,6 @@ const updateXAxisForGroupingCategoriesData = (model: any, categoryValuesMap: any
     })
 }
 
-
 // TODO - We take exactly 1 attribute, exactly 2 measures
 export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[]) => {
     if (!data || !attributeColumns[0] || measureColumns.length < 2) return
@@ -119,8 +120,8 @@ export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: 
         const attributeValue = row[attributeColumn.metadata.dataIndex]
         const firstMeasureValue = row[firstMeasureColumn.metadata.dataIndex]
         const secondMeasureValue = row[secondMeasureColumn.metadata.dataIndex]
-        measureNames.push("" + firstMeasureValue)
-        if (!categoryValueMap[attributeValue]) categoryValueMap[attributeValue] = { y: secondMeasureValue, name: "" + firstMeasureValue }
+        measureNames.push('' + firstMeasureValue)
+        if (!categoryValueMap[attributeValue]) categoryValueMap[attributeValue] = { y: secondMeasureValue, name: '' + firstMeasureValue }
     })
 
     addSeriesFromCategoryValuesMapForGroupedBySeriesData(model, categoryValueMap, measureNames)
@@ -130,7 +131,7 @@ const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, catego
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         measureNames.forEach((measureName: string) => {
-            const temp = { name: measureName } as { name: string, y?: number }
+            const temp = { name: measureName } as { name: string; y?: number }
             if (categoryValueMap[key] && categoryValueMap[key].name === measureName) temp.y = categoryValueMap[key].y
             serieElement.data.push(temp)
         })
@@ -174,7 +175,7 @@ const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: an
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
-            const tempData = { name: tempKey } as { name: string, y?: number }
+            const tempData = { name: tempKey } as { name: string; y?: number }
             if (categoryValueMap[key][tempKey]) {
                 tempData.y = categoryValueMap[key][tempKey]
             }
@@ -195,10 +196,9 @@ const createMeasureSerieForGroupedByCategoriesData = (model: any, measureForGrou
     model.series.push(measureSerieElement)
 }
 
-
 export const getAllColumnsOfSpecificAxisTypeFromDataResponse = (data: any, widgetModel: IWidget, axis: 'X' | 'Y' | 'Z') => {
     if (!data || !widgetModel.columns) return []
-    const formattedColumns = [] as { column: IWidgetColumn, metadata: any }[]
+    const formattedColumns = [] as { column: IWidgetColumn; metadata: any }[]
     widgetModel.columns.forEach((column: IWidgetColumn) => {
         if (column.axis === axis) {
             const metadata = data.metaData.fields.find((field: any) => field.header?.startsWith(column.columnName))
@@ -213,7 +213,9 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
     const measureColumn = measureColumns[0]
     const centerTextSettings = widgetModel.settings.configuration.centerText
     const serieElement = {
-        id: 0, name: measureColumn.column.columnName, data: [] as any[],
+        id: 0,
+        name: measureColumn.column.columnName,
+        data: [] as any[],
         layoutAlgorithm: 'squarified',
         type: 'sunburst',
         allowDrillToNode: !interactionsEnabled,
@@ -228,10 +230,10 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
                     backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
                     style: {
                         fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
-                        fontStyle: centerTextSettings.style['font-style'] ?? "normal",
-                        fontSize: centerTextSettings.style['font-size'] ?? "12px",
-                        color: centerTextSettings.color ?? "#000000",
-                        width: "10000"
+                        fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
+                        fontSize: centerTextSettings.style['font-size'] ?? '12px',
+                        color: centerTextSettings.color ?? '#000000',
+                        width: '10000'
                     }
                 }
             },
@@ -242,42 +244,41 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
             {
                 level: 3,
                 colorVariation: {
-                    key: "brightness",
+                    key: 'brightness',
                     to: 0.5
                 }
             },
             {
                 level: 4,
                 colorVariation: {
-                    key: "brightness",
+                    key: 'brightness',
                     to: 0.5
                 }
             }
-        ],
+        ]
     }
     const hierarchy = {} as any
     createHierarchyFromData(model, hierarchy, data, attributeColumns, measureColumn)
-
 
     const treemapArray = createTreeSeriesStructureFromHierarchy(hierarchy)
     treemapArray.forEach((el: any) => {
         if (el.value === 0) delete el.value
     })
 
-    treemapArray[0].parent = null,
-        treemapArray[0].id = 'root',
-        treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName,
-        treemapArray[0].dataLabels = {
+    ;(treemapArray[0].parent = null),
+        (treemapArray[0].id = 'root'),
+        (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
+        (treemapArray[0].dataLabels = {
             enabled: true,
             backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
             style: {
                 fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
-                fontStyle: centerTextSettings.style['font-style'] ?? "normal",
-                fontSize: centerTextSettings.style['font-size'] ?? "12px",
-                color: centerTextSettings.color ?? "#000000",
-                width: "10000"
+                fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
+                fontSize: centerTextSettings.style['font-size'] ?? '12px',
+                color: centerTextSettings.color ?? '#000000',
+                width: '10000'
             }
-        }
+        })
     serieElement.data = treemapArray
 
     model.series = [serieElement]
@@ -285,10 +286,10 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
     let index = 0
     hierarchy.children?.forEach((el: any) => {
         model.series.push({
-            "id": el.id,
-            "type": "area",
-            "name": el.name,
-            "color": model.colors[index],
+            id: el.id,
+            type: 'area',
+            name: el.name,
+            color: model.colors[index],
             showInLegend: true
         })
         index++
@@ -299,7 +300,7 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
 }
 
 export const createHierarchyFromData = (model: any, hierarchy: any, data: any, attributeColumns: any[], measureColumn: any) => {
-    let id = 0;
+    let id = 0
     let colorIndex = 0
     data.rows?.forEach((row: any) => {
         const formattedRow = {}
@@ -308,56 +309,54 @@ export const createHierarchyFromData = (model: any, hierarchy: any, data: any, a
         }
         formattedRow['column_' + (attributeColumns.length + 1)] = row[measureColumn.metadata.dataIndex]
 
-        let currentItem = hierarchy as any;
-
+        let currentItem = hierarchy as any
 
         Object.entries(formattedRow).forEach(([key, value]) => {
             if (key === measureColumn.metadata.dataIndex) {
-                if (!(key in currentItem)) currentItem.value = 0;
-                currentItem.value += value;
-                return;
+                if (!(key in currentItem)) currentItem.value = 0
+                currentItem.value += value
+                return
             }
 
-            if (!currentItem.children) currentItem.children = [];
+            if (!currentItem.children) currentItem.children = []
 
-
-            const childItem = currentItem.children.find(child => child.name === value);
+            const childItem = currentItem.children.find((child) => child.name === value)
             if (childItem) {
-                currentItem = childItem;
+                currentItem = childItem
             } else {
-                id++;
+                id++
                 const newChildItem = {
                     id: '' + id,
                     name: value,
                     parent: currentItem.id ? '' + currentItem.id : 'root',
                     value: 0
-                } as any;
+                } as any
                 if (newChildItem.parent === 'root') {
                     newChildItem.color = model.colors[colorIndex]
                     colorIndex++
                 }
                 if (colorIndex === model.colors.length) colorIndex = 0
-                currentItem.children.push(newChildItem);
-                currentItem = newChildItem;
+                currentItem.children.push(newChildItem)
+                currentItem = newChildItem
             }
-        });
-    });
+        })
+    })
 }
 
 export const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'root', result = [] as any[]) => {
-    const { children, ...rest } = node;
+    const { children, ...rest } = node
     const flattenedNode = {
         ...rest,
         parent: parentId
-    };
-
-    result.push(flattenedNode);
-
-    if (children) {
-        children.forEach(child => {
-            createTreeSeriesStructureFromHierarchy(child, node.id, result);
-        });
     }
 
-    return result;
+    result.push(flattenedNode)
+
+    if (children) {
+        children.forEach((child) => {
+            createTreeSeriesStructureFromHierarchy(child, node.id, result)
+        })
+    }
+
+    return result
 }
