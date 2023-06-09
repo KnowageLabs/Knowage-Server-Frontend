@@ -166,12 +166,7 @@ export default defineComponent({
                     checkboxClick: this.onCheckboxClicked
                 }
 
-                // TODO - Sunburst
-                // if (this.chartModel.chart.type === 'sunburst')
-                //     this.chartModel.plotOptions.series.events.legendItemClick = function (e) {
-                //         console.log('eeeeeeee: ', e)
-                //         e.setVisible(false)
-                //     }
+                if (this.chartModel.chart.type === 'sunburst') this.chartModel.plotOptions.series.events.legendItemClick = this.onSunburstLegendItemClick
             }
         },
         onDrillUp(event: any) {
@@ -247,6 +242,28 @@ export default defineComponent({
                 point.update(dataLabelOptions)
             }, false)
             this.highchartsInstance.redraw()
+        },
+        onSunburstLegendItemClick(event: any) {
+            const pointName = event.target.name
+            const point = this.highchartsInstance.series[0].points.find((point: any) => point.name === pointName)
+            const tempPoints = this.getChildrenPoints(point.id)
+            point.setVisible(!point.visible)
+            tempPoints.forEach((point: any) => point.setVisible(!point.visible))
+        },
+        getChildrenPoints(parentId: string) {
+            const seriesData = this.highchartsInstance.series[0].points
+            const childrenPoints = [] as any
+
+            function traversePoints(points: any, parentId: string) {
+                points.forEach((point: any) => {
+                    if (point.parent === parentId) {
+                        childrenPoints.push(point)
+                        traversePoints(points, point.id)
+                    }
+                })
+            }
+            traversePoints(seriesData, parentId)
+            return childrenPoints
         }
     }
 })
