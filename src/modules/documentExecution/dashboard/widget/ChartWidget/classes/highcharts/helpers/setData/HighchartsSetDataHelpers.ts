@@ -36,7 +36,6 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
             data?.rows?.forEach((row: any) => {
                 //IF COND STYLE, VALIDATE
                 serieElement.data.push({
-                    color: 'red',
                     name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
                     y: row[metadata.dataIndex],
                     drilldown: drilldownEnabled && attributeColumns.length > 1
@@ -264,7 +263,6 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
     treemapArray.forEach((el: any) => {
         if (el.value === 0) delete el.value
     })
-
     ;(treemapArray[0].parent = null),
         (treemapArray[0].id = 'root'),
         (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
