@@ -4,7 +4,7 @@ import { IDashboardDataset, IWidget, ISelection } from '../../../Dashboard'
 import { getPieChartData } from '../../../DataProxyHelper'
 // import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../../DashboardDataProxy'
 import { getHighchartsBarData } from './dataProxy/HighchartsBarDataProxy'
-import { getHighchartsGaugeData } from './dataProxy/HighchartsGaugeDataProxy copy 2'
+import { getHighchartsGaugeData } from './dataProxy/HighchartsGaugeDataProxy'
 import { getHighchartsScatterData } from './dataProxy/HighchartsScatterDataProxy'
 import { getHighchartsSunburstData } from './dataProxy/HighchartsSunburstDataProxy'
 
