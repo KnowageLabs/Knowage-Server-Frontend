@@ -60,7 +60,7 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
     const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
     if (!seriesLabelSetting.label.enabled) return
     model.series.forEach((serie: any) => {
-        serie.data.forEach((data: any) => {
+        serie.data?.forEach((data: any) => {
             data.dataLabels = {
                 backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
                 distance: 30,

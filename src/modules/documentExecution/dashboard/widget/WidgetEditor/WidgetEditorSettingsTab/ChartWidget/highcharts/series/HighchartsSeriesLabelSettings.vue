@@ -195,6 +195,7 @@ export default defineComponent({
             this.removeSeriesFromAvailableOptions()
             this.removeAllSerieSettingsFromModel()
             if (this.seriesSettings.length === 0) this.addFirstSeriesSetting()
+            if (!this.allSeriesOptionEnabled) this.seriesSettings.splice(1)
         },
         removeAllSerieSettingsFromModel() {
             if (this.seriesSettings[0]?.names[0] && this.seriesSettings[0].names[0] === 'all' && !this.allSeriesOptionEnabled) {

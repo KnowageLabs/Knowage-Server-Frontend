@@ -20,7 +20,7 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
 }
 
 // TODO - We take first attribute, unlimited measures
-export const setRegularData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) => {
+export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) => {
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 

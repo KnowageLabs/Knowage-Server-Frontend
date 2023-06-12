@@ -49,7 +49,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
             const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
             setGroupedByCategoriesData(this.model, mockedData, attributeColumns, measureColumns, serieName)
         } else {
-            setRegularData(this.model, mockedData, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+            setRegularData(this.model, widgetModel, mockedData, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
         }
 
         return this.model.series
