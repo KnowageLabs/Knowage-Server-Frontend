@@ -1,4 +1,4 @@
-import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetCrossNavigation, IWidgetLinks, IWidgetPaddingStyle, IWidgetPreview, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from "@/modules/documentExecution/dashboard/Dashboard"
+import { IHighchartsCommonConditionalStyle, IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetCrossNavigation, IWidgetLinks, IWidgetPaddingStyle, IWidgetPreview, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from '@/modules/documentExecution/dashboard/Dashboard'
 import descriptor from './WidgetCommonDefaultValuesDescriptor.json'
 import deepcopy from 'deepcopy'
 
@@ -36,4 +36,8 @@ export const getDefaultLinks = () => {
 
 export const getDefaultPreview = () => {
     return deepcopy(descriptor.defaultPreview) as IWidgetPreview
+}
+
+export const getDefaultConditionalStyles = () => {
+    return deepcopy(descriptor.defaultConditionalStyle) as IHighchartsCommonConditionalStyle
 }

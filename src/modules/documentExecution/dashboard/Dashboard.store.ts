@@ -123,7 +123,7 @@ const store = defineStore('dashboardStore', {
             return index !== -1 ? this.allDatasets[index].label : ''
         },
         getDashboardDrivers(dashboardId: string) {
-            return this.dashboards[dashboardId].drivers
+            return this.dashboards[dashboardId]?.drivers
         },
         setDashboardDrivers(dashboardId: string, drivers: IDashboardDriver[]) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].drivers = drivers
