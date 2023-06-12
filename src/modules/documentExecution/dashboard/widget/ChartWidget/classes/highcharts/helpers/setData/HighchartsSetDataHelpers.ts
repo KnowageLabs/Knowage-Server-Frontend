@@ -1,4 +1,5 @@
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
 import moment from 'moment'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
@@ -21,6 +22,7 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
 
 // TODO - We take first attribute, unlimited measures
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) => {
+    console.log('SET REG DATA MODEL', widgetModel)
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
@@ -32,12 +34,11 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
             const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
-            //CHECK IF COND STYLE
             data?.rows?.forEach((row: any) => {
-                //IF COND STYLE, VALIDATE
                 serieElement.data.push({
                     name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
                     y: row[metadata.dataIndex],
+                    color: getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex])?.color,
                     drilldown: drilldownEnabled && attributeColumns.length > 1
                 })
             })
@@ -263,21 +264,20 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
     treemapArray.forEach((el: any) => {
         if (el.value === 0) delete el.value
     })
-
-        ; (treemapArray[0].parent = null),
-            (treemapArray[0].id = 'root'),
-            (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
-            (treemapArray[0].dataLabels = {
-                enabled: true,
-                backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
-                style: {
-                    fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
-                    fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
-                    fontSize: centerTextSettings.style['font-size'] ?? '12px',
-                    color: centerTextSettings.color ?? '#000000',
-                    width: '10000'
-                }
-            })
+    ;(treemapArray[0].parent = null),
+        (treemapArray[0].id = 'root'),
+        (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
+        (treemapArray[0].dataLabels = {
+            enabled: true,
+            backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
+            style: {
+                fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
+                fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
+                fontSize: centerTextSettings.style['font-size'] ?? '12px',
+                color: centerTextSettings.color ?? '#000000',
+                width: '10000'
+            }
+        })
     serieElement.data = treemapArray
 
     model.series = [serieElement]
@@ -358,4 +358,29 @@ export const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'ro
     }
 
     return result
+}
+
+const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCompare: any, returnString?: boolean) => {
+    const conditionalStyles = propWidget.settings.series.conditionalStyles
+    let styleString = null as any
+
+    const columnConditionalStyles = conditionalStyles.conditions.filter((condition) => condition.target.includes(colId) || condition.condition.formula)
+
+    if (columnConditionalStyles.length > 0) {
+        for (let i = 0; i < columnConditionalStyles.length; i++) {
+            if (isConditionMet(columnConditionalStyles[i].condition, valueToCompare)) {
+                if (columnConditionalStyles[i].applyToWholeRow && !returnString) {
+                    styleString = columnConditionalStyles[i].properties
+                } else if (returnString) {
+                    styleString = Object.entries(columnConditionalStyles[i].properties)
+                        .map(([k, v]) => `${k}:${v}`)
+                        .join(';')
+                } else if (!returnString) {
+                    styleString = columnConditionalStyles[i].properties
+                }
+                break
+            }
+        }
+    }
+    return styleString
 }
