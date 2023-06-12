@@ -261,6 +261,8 @@ export default defineComponent({
                         break
                     case 'solidgauge':
                     case 'heatmap':
+                    case 'sunburst':
+                    case 'treemap':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     case 'pie':

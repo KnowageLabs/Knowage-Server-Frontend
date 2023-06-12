@@ -127,7 +127,7 @@ export default defineComponent({
             return this.model ? this.model.series.map((serie: IHighchartsChartSerie) => serie.name) : []
         },
         allSeriesOptionEnabled() {
-            return this.model && this.model.chart.type !== 'pie' && this.model.chart.type !== 'solidgauge'
+            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap'].includes(this.model.chart.type)
         },
         formattingSectionAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'sunburst', 'treemap'].includes(this.model.chart.type)
@@ -195,6 +195,7 @@ export default defineComponent({
             this.removeSeriesFromAvailableOptions()
             this.removeAllSerieSettingsFromModel()
             if (this.seriesSettings.length === 0) this.addFirstSeriesSetting()
+            if (!this.allSeriesOptionEnabled) this.seriesSettings.splice(1)
         },
         removeAllSerieSettingsFromModel() {
             if (this.seriesSettings[0]?.names[0] && this.seriesSettings[0].names[0] === 'all' && !this.allSeriesOptionEnabled) {

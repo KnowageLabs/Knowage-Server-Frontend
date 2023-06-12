@@ -60,7 +60,7 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
             const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
             setGroupedByCategoriesData(this.model, data, attributeColumns, measureColumns, serieName)
         } else {
-            setRegularData(this.model, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+            setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
         }
 
         return this.model.series

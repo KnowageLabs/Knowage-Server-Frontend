@@ -3,14 +3,14 @@ import { IWidget, } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateTreemapChartModel } from './updater/KnowageHighchartsTreemapChartUpdater'
 import deepcopy from 'deepcopy'
 import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     constructor(model: any) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'treemap') {
                 this.setSpecificOptionsDefaultValues()
@@ -36,9 +36,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
-        console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
-        console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const interactions = widgetModel.settings?.interactions
         const interactionsEnabled = interactions.selection.enabled || interactions.crossNavigation.enabled
         this.setTreeData(data, attributeColumns, measureColumns, interactionsEnabled)
@@ -49,7 +47,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     setTreeData(data: any, attributeColumns: any[], measureColumns: any[], interactionsEnabled: boolean) {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
-        const serieElement = this.createSereElement(measureColumn, interactionsEnabled)
+        const serieElement = this.createSerieElement(measureColumn, interactionsEnabled)
         const hierarchy = {} as any
         createHierarchyFromData(this.model, hierarchy, data, attributeColumns, measureColumn)
         const treemapArray = createTreeSeriesStructureFromHierarchy(hierarchy)
@@ -63,7 +61,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         this.model.colors = []
     }
 
-    createSereElement(measureColumn: any, interactionsEnabled: boolean) {
+    createSerieElement(measureColumn: any, interactionsEnabled: boolean) {
         const serieElement = {
             id: 0, name: measureColumn.column.columnName, data: [] as any[],
             type: 'treemap',
@@ -116,8 +114,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
 
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        // TODO
-        // updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
+        updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
 
 }

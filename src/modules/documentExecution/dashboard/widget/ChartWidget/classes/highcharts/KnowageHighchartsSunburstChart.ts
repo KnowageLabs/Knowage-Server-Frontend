@@ -2,8 +2,9 @@ import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateSunburstChartModel } from './updater/KnowageHighchartsSunburstChartUpdater'
 import deepcopy from 'deepcopy'
-import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse, setSunburstData } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 
 export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
@@ -11,7 +12,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'sunburst') {
                 this.setSpecificOptionsDefaultValues()
@@ -26,9 +27,8 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        this.model.xAxis = [{ visible: false }]
-        this.model.yAxis = [{ visible: false }]
-
+        this.setSunburstXAxis()
+        this.setSunburstYAxis()
     }
 
     setPlotOptions() {
@@ -38,6 +38,16 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
                 lineWidth: 2
             }
         }
+    }
+
+    setSunburstXAxis() {
+        if (this.model.xAxis && this.model.xAxis[0]) this.model.xAxis[0].visible = false
+        else this.model.xAxis = [{ visible: false, ...highchartsDefaultValues.getDefaultBarXAxis() }]
+    }
+
+    setSunburstYAxis() {
+        if (this.model.yAxis && this.model.yAxis[0]) this.model.yAxis[0].visible = false
+        else this.model.yAxis = [{ visible: false, ...highchartsDefaultValues.getDefaultBarYAxis() }]
     }
 
     setData(data: any, widgetModel: IWidget) {
@@ -155,8 +165,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        // TODO
-        // updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
+        updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
 
 }

@@ -42,7 +42,7 @@ export const getFormattedWidgetColumns = (widget: any, chartLibrary: 'chartJS' |
 
 export const getMaximumNumberOfSeries = (chartLibrary: 'chartJS' | 'highcharts' | 'vega', chartType: string, widget: any) => {
     if (['chartJS', 'vega'].includes(chartLibrary)) return 1
-    if (chartLibrary === 'highcharts' && store.user.enterprise && chartType === 'PIE') return 1
+    if (chartLibrary === 'highcharts' && store.user.enterprise && ['PIE', 'SUNBURST', 'TREEMAP'].includes(chartType)) return 1
     if (chartType === 'GAUGE') {
         const chartSubtype = widget.content.chartTemplate.CHART.subtype
         switch (chartSubtype) {

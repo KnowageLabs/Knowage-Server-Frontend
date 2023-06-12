@@ -1,17 +1,18 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { updatePieChartModel } from './updater/KnowageHighchartsPieChartUpdater'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IHighchartsChartSerie, IHighchartsChartSerieData } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { IHighchartsChartSerie } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
+import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 export class KnowageHighchartsPieChart extends KnowageHighcharts {
     constructor(model: any) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'pie') {
                 this.formatSeriesFromOtherChartTypeSeries()
@@ -62,28 +63,7 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
-        const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
-        if (!seriesLabelSetting.label.enabled) return
-        this.model.series.forEach((serie: IHighchartsChartSerie) => {
-            serie.data.forEach((data: IHighchartsChartSerieData) => {
-                data.dataLabels = {
-                    backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
-                    distance: 30,
-                    enabled: true,
-                    position: '',
-                    style: {
-                        fontFamily: seriesLabelSetting.label.style.fontFamily,
-                        fontSize: seriesLabelSetting.label.style.fontSize,
-                        fontWeight: seriesLabelSetting.label.style.fontWeight,
-                        color: seriesLabelSetting.label.style.color ?? ''
-                    },
-                    formatter: function () {
-                        return KnowageHighchartsPieChart.prototype.handleFormatter(this, seriesLabelSetting.label)
-                    }
-                }
-            })
-        })
+        updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
 
     formatSeriesFromOtherChartTypeSeries() {

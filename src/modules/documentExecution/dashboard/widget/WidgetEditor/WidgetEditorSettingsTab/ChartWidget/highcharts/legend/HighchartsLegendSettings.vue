@@ -57,7 +57,7 @@
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.layoutHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
-        <div v-if="model.plotOptions.series" class="p-col-12 p-md-6 p-lg-3 p-p-4">
+        <div v-if="['area', 'bar', 'column'].includes(chartType) && model.plotOptions.series" class="p-col-12 p-md-6 p-lg-3 p-p-4">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.showChekboxes') }}</label>
             <InputSwitch v-model="model.plotOptions.series.showCheckbox"></InputSwitch>
         </div>
@@ -122,6 +122,9 @@ export default defineComponent({
         }
     },
     computed: {
+        chartType() {
+            return this.widgetModel?.settings.chartModel?.model?.chart.type
+        },
         legendDisabled(): boolean {
             return !this.model || !this.model.legend.enabled
         }
