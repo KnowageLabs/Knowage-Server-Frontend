@@ -58,3 +58,16 @@ const formatHeatmapColors = (formattedChartModel: IHighchartsChartModel) => {
 export const formatRadar = (formattedChartModel: IHighchartsChartModel) => {
     formattedChartModel.chart.type = 'line'
 }
+
+export const formatBubble = (formattedChartModel: IHighchartsChartModel) => {
+    formatBubbleTooltips(formattedChartModel)
+}
+
+const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
+    const tooltip = formattedChartModel.tooltip as any
+    const prefix = tooltip.valuePrefix ?? ''
+    const suffix = tooltip.valueSuffix ?? ''
+    tooltip.formatter = function (this: Highcharts.TooltipFormatterContextObject) {
+        return this.point.options.y ? this.point.options.name + '<br/><b>' + this.series.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.y, tooltip.valueDecimals) + suffix : this.series.name;
+    }
+}

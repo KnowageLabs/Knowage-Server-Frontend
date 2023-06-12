@@ -1,6 +1,5 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
-        {{ widgetModel.columns }}
         <WidgetEditorColumnTable
             v-if="['pie', 'heatmap', 'radar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
             class="p-m-2 p-order-1"

@@ -151,11 +151,11 @@
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
-                "type": "MajorGridSettings"
+                "type": "YAxisMajorGridSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
-                "type": "MinorGridSettings"
+                "type": "YAxisMinorGridSettings"
             }
         ]
     },

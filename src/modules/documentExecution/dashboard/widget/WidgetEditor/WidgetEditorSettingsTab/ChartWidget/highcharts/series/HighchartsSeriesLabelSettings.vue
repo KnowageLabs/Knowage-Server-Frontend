@@ -130,7 +130,7 @@ export default defineComponent({
             return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap'].includes(this.model.chart.type)
         },
         formattingSectionAvailable() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'sunburst', 'treemap'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
         },
         percentageAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
@@ -139,13 +139,13 @@ export default defineComponent({
             return this.model?.chart.type === 'gauge'
         },
         styleToolbarVisible() {
-            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'sunburst', 'treemap'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
         },
         serieColorPickerVisible() {
             return this.model?.chart.type === 'activitygauge'
         },
         labelOptionsVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'sunburst', 'treemap'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
         }
     },
     watch: {
@@ -218,7 +218,7 @@ export default defineComponent({
             this.availableSeriesOptions = []
             if (!this.widgetModel) return
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
-                if (column.fieldType === 'MEASURE') this.availableSeriesOptions.push(column.columnName)
+                if (column.fieldType === 'MEASURE' && (!column.axis || column.axis === 'Y')) this.availableSeriesOptions.push(column.columnName)
             })
         },
         addFirstSeriesSetting() {

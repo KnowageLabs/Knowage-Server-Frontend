@@ -1,11 +1,10 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IHighchartsChartSerie, IHighchartsChartSerieData } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateBubbleChartModel } from './updater/KnowageHighchartsBubbleChartUpdater'
-import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
-import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificAxisTypeFromDataResponse, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -15,7 +14,6 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'bubble') {
-                this.formatSeriesFromOtherChartTypeSeries()
                 this.setSpecificOptionsDefaultValues()
             }
         }
@@ -28,6 +26,8 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
+        this.setBubbleXAxis()
+        this.setBubbleYAxis()
     }
 
     setPlotOptions() {
@@ -37,11 +37,164 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
                 lineWidth: 2
             }
         }
-        this.model.plotOptions.series.showCheckbox = true
+    }
+
+    setBubbleXAxis() {
+        this.model.xAxis = [highchartsDefaultValues.getDefaultScatterXAxis()]
+    }
+
+    setBubbleYAxis() {
+        this.model.yAxis = [highchartsDefaultValues.getDefaultScatterYAxis()]
     }
 
     setData(data: any, widgetModel: IWidget) {
         const mockedData = {
+            "metaData": {
+                "totalProperty": "results",
+                "root": "rows",
+                "id": "id",
+                "fields": [
+                    "recNo",
+                    {
+                        "name": "column_1",
+                        "header": "QUARTER",
+                        "dataIndex": "column_1",
+                        "type": "string",
+                        "multiValue": false
+                    },
+                    {
+                        "name": "column_2",
+                        "header": "UNITS_ORDERED_SUM",
+                        "dataIndex": "column_2",
+                        "type": "float",
+                        "precision": 54,
+                        "scale": 0,
+                        "multiValue": false
+                    },
+                    {
+                        "name": "column_3",
+                        "header": "UNITS_SHIPPED_SUM",
+                        "dataIndex": "column_3",
+                        "type": "float",
+                        "precision": 54,
+                        "scale": 0,
+                        "multiValue": false
+                    },
+                    {
+                        "name": "column_4",
+                        "header": "WAREHOUSE_COST_SUM",
+                        "dataIndex": "column_4",
+                        "type": "float",
+                        "precision": 54,
+                        "scale": 4,
+                        "multiValue": false
+                    },
+                    {
+                        "name": "column_5",
+                        "header": "SUPPLY_TIME_SUM",
+                        "dataIndex": "column_5",
+                        "type": "float",
+                        "precision": 31,
+                        "scale": 4,
+                        "multiValue": false
+                    }
+                ],
+                "cacheDate": "2023-06-12 14:39:31.954"
+            },
+            "results": 4,
+            "rows": [
+                {
+                    "id": 1,
+                    "column_1": "Q2",
+                    "column_2": 1665964,
+                    "column_3": 1517603,
+                    "column_4": 710180.1995,
+                    "column_5": 298.7387
+                },
+                {
+                    "id": 2,
+                    "column_1": "Q3",
+                    "column_2": 2.08226E+6,
+                    "column_3": 1.90871E+6,
+                    "column_4": 831461.175,
+                    "column_5": 318.0512
+                },
+                {
+                    "id": 3,
+                    "column_1": "Q1",
+                    "column_2": 1744587,
+                    "column_3": 1616511,
+                    "column_4": 739653.4604,
+                    "column_5": 287.2794
+                },
+                {
+                    "id": 4,
+                    "column_1": "Q4",
+                    "column_2": 1646594,
+                    "column_3": 1473639,
+                    "column_4": 643147.8198,
+                    "column_5": 259.8922
+                }
+            ],
+            "stats": {
+                "1": {
+                    "max": "Q4",
+                    "min": "Q1",
+                    "distinct": [
+                        "Q1",
+                        "Q2",
+                        "Q3",
+                        "Q4"
+                    ],
+                    "cardinality": 4
+                },
+                "2": {
+                    "max": 2.08226E+6,
+                    "min": 1646594,
+                    "distinct": [
+                        1646594,
+                        1665964,
+                        1744587,
+                        2.08226E+6
+                    ],
+                    "cardinality": 4
+                },
+                "3": {
+                    "max": 1.90871E+6,
+                    "min": 1473639,
+                    "distinct": [
+                        1473639,
+                        1517603,
+                        1616511,
+                        1.90871E+6
+                    ],
+                    "cardinality": 4
+                },
+                "4": {
+                    "max": 831461.175,
+                    "min": 643147.8198,
+                    "distinct": [
+                        643147.8198,
+                        710180.1995,
+                        739653.4604,
+                        831461.175
+                    ],
+                    "cardinality": 4
+                },
+                "5": {
+                    "max": 318.0512,
+                    "min": 259.8922,
+                    "distinct": [
+                        259.8922,
+                        287.2794,
+                        298.7387,
+                        318.0512
+                    ],
+                    "cardinality": 4
+                }
+            }
+        }
+        const mockedDataSplitted = {
             "metaData": {
                 "totalProperty": "results",
                 "root": "rows",
@@ -329,29 +482,22 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'ATTRIBUTE')
-        console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const XAxisColumns = getAllColumnsOfSpecificAxisTypeFromDataResponse(mockedData, widgetModel, 'X')
-        console.log('---------- X AXIS COLUMNS: ', XAxisColumns)
         const YAxisColumns = getAllColumnsOfSpecificAxisTypeFromDataResponse(mockedData, widgetModel, 'Y')
-        console.log('---------- Y AXIS COLUMNS: ', YAxisColumns)
         const ZAxisColumns = getAllColumnsOfSpecificAxisTypeFromDataResponse(mockedData, widgetModel, 'Z')
-        console.log('---------- Z AXIS COLUMNS: ', ZAxisColumns)
 
-        const splitting = widgetModel.settings?.configuration?.splitting
-        if (splitting?.enabled) {
-            this.setSplittedData(mockedData, splitting, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
+        if (widgetModel.settings.configuration?.grouping?.secondDimension.enabled) {
+            const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
+            this.setSplittedData(mockedData, serieName, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
         } else {
-
             this.setRegularData(mockedData, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
         }
 
         return this.model.series
     }
 
-    setSplittedData(data: any, splitting: any, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
-        console.log('----- DATA: ', data)
-        console.log('----- splitting: ', splitting)
-        const measureForGrouping = YAxisColumns.find((measureColumn: any) => measureColumn.column.columnName === splitting.groupedSerie)
+    setSplittedData(data: any, serieName: string, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
+        const measureForGrouping = YAxisColumns.find((measureColumn: any) => measureColumn.column.columnName === serieName)
         if (!data || attributeColumns.length < 2 || !measureForGrouping) return
         const firstAttributeColumn = attributeColumns[0]
         const secondAttributeColumn = attributeColumns[1]
@@ -368,9 +514,6 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
             if (!categoryValueMap[secondAttributeValue][firstAttributeValue]) categoryValueMap[secondAttributeValue][firstAttributeValue] = {}
             categoryValueMap[secondAttributeValue][firstAttributeValue] = { x: row[XColumn.metadata.dataIndex], y: row[measureForGrouping.metadata.dataIndex], z: row[ZColumn.metadata.dataIndex] }
         })
-
-        console.log('------ categoryValueMap: ', categoryValueMap)
-        console.log('------ uniqueCategoryValues: ', uniqueCategoryValues)
         const measureSerieElementValueMap = {}
         this.createSeriesForGroupedByCategoriesData(categoryValueMap, measureSerieElementValueMap)
         this.createMeasureSerieForGroupedByCategoriesData(measureForGrouping, measureSerieElementValueMap)
@@ -400,11 +543,10 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
     createMeasureSerieForGroupedByCategoriesData(measureForGrouping: any, measureSerieElementValueMap: any) {
         const measureSerieElement = { id: this.model.series.length, name: measureForGrouping.column.columnName, data: [] as any[], connectNulls: true }
         Object.keys(measureSerieElementValueMap).forEach((key: string) => {
-            measureSerieElement.data.push({ name: key, x: measureSerieElementValueMap[key].x, y: measureSerieElementValueMap[key].y, z: measureSerieElementValueMap[key].z })
+            measureSerieElement.data.push({ name: key, x: measureSerieElementValueMap[key].x, y: measureSerieElementValueMap[key].y, z: measureSerieElementValueMap[key].z, dataLabels: { enabled: true, format: '{point.name}' } })
         })
         this.model.series.push(measureSerieElement)
     }
-
 
     setRegularData(data: any, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
         if (!data || !attributeColumns[0] || !XAxisColumns[0] || !YAxisColumns[0] || !ZAxisColumns[0]) return
@@ -416,53 +558,15 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         YAxisColumns.forEach((yAxisColumn: any, index: number) => {
             const tempSerie = { id: index, name: yAxisColumn.column.columnName, data: [] as any[], connectNulls: true }
             data.rows.forEach((row: any) => {
-                tempSerie.data.push({ x: row[XColumn.metadata.dataIndex], y: row[yAxisColumn.metadata.dataIndex], z: row[ZColumn.metadata.dataIndex], name: row[attributeColumn.metadata.dataIndex] })
+                tempSerie.data.push({ x: row[XColumn.metadata.dataIndex], y: row[yAxisColumn.metadata.dataIndex], z: row[ZColumn.metadata.dataIndex], name: row[attributeColumn.metadata.dataIndex], dataLabels: { enabled: true, format: '{point.name}' } })
             })
             series.push(tempSerie)
         })
         this.model.series = series
     }
 
-    getSeriesFromWidgetModel(widgetModel: IWidget) {
-        // TODO
-        const measureColumn = widgetModel.columns.find((column: IWidgetColumn) => column.fieldType === 'MEASURE')
-        if (!measureColumn) return
-        this.model.series = [createSerie(measureColumn.columnName, measureColumn.aggregation, true)]
-    }
-
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        // TODO
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
-        const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
-        if (!seriesLabelSetting.label.enabled) return
-        this.model.series.forEach((serie: IHighchartsChartSerie) => {
-            serie.data.forEach((data: IHighchartsChartSerieData) => {
-                data.dataLabels = {
-                    backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
-                    distance: 30,
-                    enabled: true,
-                    position: '',
-                    style: {
-                        fontFamily: seriesLabelSetting.label.style.fontFamily,
-                        fontSize: seriesLabelSetting.label.style.fontSize,
-                        fontWeight: seriesLabelSetting.label.style.fontWeight,
-                        color: seriesLabelSetting.label.style.color ?? ''
-                    },
-                    formatter: function () {
-                        return KnowageHighchartsBubbleChart.prototype.handleFormatter(this, seriesLabelSetting.label)
-                    }
-                }
-            })
-        })
+        updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
     }
 
-    formatSeriesFromOtherChartTypeSeries() {
-        this.model.series = this.model.series.map((serie: any) => { return this.getFormattedSerieFromOtherChartTypeSerie(serie) })
-    }
-
-    getFormattedSerieFromOtherChartTypeSerie(otherChartSerie: any) {
-        const formattedSerie = { name: otherChartSerie.name, data: [], colorByPoint: true } as IHighchartsChartSerie
-        if (otherChartSerie.accessibility) formattedSerie.accessibility
-        return formattedSerie
-    }
 }

@@ -645,7 +645,8 @@
                 },
                 "bubblechart": {
                     "dimensionsTableHint": "Click on at least one attribute to define categories. If you want to use split function, you can select maximum 2 categories",
-                    "valuesTableHint": "Click on at least one measure to define series."
+                    "valuesTableHint": "Click on at least one measure to define series.",
+                    "xAndZAxesHint": "Click on exactly one measure to define series."
                 },
                 "centerText": {
                     "hint": "Center Text Hint",

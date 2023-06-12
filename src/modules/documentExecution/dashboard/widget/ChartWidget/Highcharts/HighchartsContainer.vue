@@ -9,7 +9,7 @@ import { ISelection, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
-import { formatActivityGauge, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import Highcharts from 'highcharts'
@@ -232,7 +232,10 @@ export default defineComponent({
                 formatHeatmap(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'radar') {
                 formatRadar(formattedChartModel)
+            } else if (formattedChartModel.chart.type === 'bubble') {
+                formatBubble(formattedChartModel)
             }
+
             return formattedChartModel
         },
         onCheckboxClicked(event: any) {
