@@ -12,7 +12,7 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'bubble') {
                 this.formatSeriesFromOtherChartTypeSeries()

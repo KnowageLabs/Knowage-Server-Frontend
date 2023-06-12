@@ -2,8 +2,8 @@ import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateSunburstChartModel } from './updater/KnowageHighchartsSunburstChartUpdater'
 import deepcopy from 'deepcopy'
-import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse, setSunburstData } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 
 export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
@@ -11,7 +11,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'sunburst') {
                 this.setSpecificOptionsDefaultValues()
@@ -155,8 +155,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        // TODO
-        // updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
+        updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
 
 }

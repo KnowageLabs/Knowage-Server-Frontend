@@ -9,7 +9,6 @@ export const updateSeriesLabelSettingsWhenAllOptionIsAvailable = (model: any, wi
     setSpecificSeriesSettings(model, widgetModel)
 }
 
-
 const setAllSeriesSettings = (model: any, widgetModel: IWidget) => {
     const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
     if (allSeriesSettings.label.enabled) {
@@ -53,5 +52,30 @@ const updateSeriesDataWithSerieSettings = (serie: any, seriesSettings: IHighchar
                 return KnowageHighcharts.prototype.handleFormatter(this, seriesSettings.label)
             }
         }
+    })
+}
+
+export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: any, widgetModel: IWidget) => {
+    if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
+    const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
+    if (!seriesLabelSetting.label.enabled) return
+    model.series.forEach((serie: any) => {
+        serie.data.forEach((data: any) => {
+            data.dataLabels = {
+                backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
+                distance: 30,
+                enabled: true,
+                position: '',
+                style: {
+                    fontFamily: seriesLabelSetting.label.style.fontFamily,
+                    fontSize: seriesLabelSetting.label.style.fontSize,
+                    fontWeight: seriesLabelSetting.label.style.fontWeight,
+                    color: seriesLabelSetting.label.style.color ?? ''
+                },
+                formatter: function () {
+                    return KnowageHighcharts.prototype.handleFormatter(this, seriesLabelSetting.label)
+                }
+            }
+        })
     })
 }

@@ -117,11 +117,11 @@
     "sunburstChartColumnTableSettings": [
         {
             "attributesOnly": true,
-            "hint": "dashboard.widgetEditor.highcharts.sunburstchart.dimensionsTableHint",
+            "hint": "dashboard.widgetEditor.highcharts.treemap.dimensionsTableHint",
             "label": "dashboard.widgetEditor.dimensions"
         },
         {
-            "hint": "dashboard.widgetEditor.highcharts.sunburstchart.valuesTableHint",
+            "hint": "dashboard.widgetEditor.highcharts.treemap.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }
