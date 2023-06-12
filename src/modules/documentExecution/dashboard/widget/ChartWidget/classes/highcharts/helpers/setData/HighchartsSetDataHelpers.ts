@@ -36,7 +36,6 @@ export const setRegularData = (model: any, data: any, attributeColumns: any[], m
             data?.rows?.forEach((row: any) => {
                 //IF COND STYLE, VALIDATE
                 serieElement.data.push({
-                    color: 'red',
                     name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
                     y: row[metadata.dataIndex],
                     drilldown: drilldownEnabled && attributeColumns.length > 1
