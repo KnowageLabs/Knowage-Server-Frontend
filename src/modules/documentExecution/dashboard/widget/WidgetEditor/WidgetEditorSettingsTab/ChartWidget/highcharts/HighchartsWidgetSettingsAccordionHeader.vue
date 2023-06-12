@@ -75,6 +75,8 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.link
                 case 'Preview':
                     return this.widgetModel.settings.interactions.preview
+                case 'ConditionalStyles':
+                    return this.widgetModel.settings.series.conditionalStyles
 
                 default:
                     return null

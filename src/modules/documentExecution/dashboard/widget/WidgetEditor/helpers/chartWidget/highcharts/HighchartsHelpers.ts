@@ -1,21 +1,20 @@
-import { IWidget } from "@/modules/documentExecution/dashboard/Dashboard"
-import { KnowageHighchartsPieChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsPieChart"
-import { IHighchartsChartModel, IHighchartsWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
-import { KnowageHighchartsActivityGaugeChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsActivityGaugeChart"
-import { KnowageHighchartsSolidGaugeChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsSolidGaugeChart"
-import { KnowageHighchartsGaugeSeriesChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsGaugeSeriesChart"
-import { KnowageHighchartsHeatmapChart } from './../../../../ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart';
-import { KnowageHighchartsRadarChart } from './../../../../ChartWidget/classes/highcharts/KnowageHighchartsRadarChart';
-import { KnowageHighchartsBarChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsBarChart"
-import { KnowageHighchartsLineChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsLineChart"
-import { KnowageHighchartsScatterChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsScatterChart"
-import { KnowageHighchartsTreemapChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart"
-import { KnowageHighchartsSunburstChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart"
-import { KnowageHighchartsBubbleChart } from "../../../../ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart"
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { KnowageHighchartsPieChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPieChart'
+import { IHighchartsChartModel, IHighchartsWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { KnowageHighchartsActivityGaugeChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsActivityGaugeChart'
+import { KnowageHighchartsSolidGaugeChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsSolidGaugeChart'
+import { KnowageHighchartsGaugeSeriesChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsGaugeSeriesChart'
+import { KnowageHighchartsHeatmapChart } from './../../../../ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart'
+import { KnowageHighchartsRadarChart } from './../../../../ChartWidget/classes/highcharts/KnowageHighchartsRadarChart'
+import { KnowageHighchartsBarChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsBarChart'
+import { KnowageHighchartsLineChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsLineChart'
+import { KnowageHighchartsScatterChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsScatterChart'
+import { KnowageHighchartsTreemapChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart'
+import { KnowageHighchartsSunburstChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart'
+import { KnowageHighchartsBubbleChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart'
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
-import * as  highchartsDefaultValues from "../highcharts/HighchartsDefaultValues"
+import * as highchartsDefaultValues from '../highcharts/HighchartsDefaultValues'
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
-
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -24,13 +23,13 @@ export const createNewHighchartsSettings = () => {
         chartModel: null,
         configuration: { exports: { showExcelExport: true, showScreenshot: true }, datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(), grouping: { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } } },
         accesssibility: { seriesAccesibilitySettings: getSeriesAccesibilitySettings() },
-        series: { seriesSettings: getSerieSettings() },
+        series: { seriesSettings: getSerieSettings(), conditionalStyles: { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } },
         interactions: {
             drilldown: { enabled: false },
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
             link: widgetCommonDefaultValues.getDefaultLinks(),
             preview: widgetCommonDefaultValues.getDefaultPreview(),
-            selection: highchartsDefaultValues.getDefaultHighchartsSelections(),
+            selection: highchartsDefaultValues.getDefaultHighchartsSelections()
         },
         chart: { colors: descriptor.defaultColors },
         style: {
@@ -93,9 +92,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             break
         case 'sunburst':
             widget.settings.chartModel = new KnowageHighchartsSunburstChart(chartModel)
-
     }
-
 }
 
 export const createNewHighchartsModel = (chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean) => {
