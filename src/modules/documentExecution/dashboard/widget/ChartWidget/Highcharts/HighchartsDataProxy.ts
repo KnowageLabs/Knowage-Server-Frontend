@@ -1,6 +1,7 @@
 import { IDashboardDataset, IWidget, ISelection } from '../../../Dashboard'
 import { getPieChartData } from '../../../DataProxyHelper'
 import { getHighchartsBarData } from './dataProxy/HighchartsBarDataProxy'
+import { getHighchartsBubbleData } from './dataProxy/HighchartsBubbleDataProxy'
 import { getHighchartsGaugeData } from './dataProxy/HighchartsGaugeDataProxy'
 import { getHighchartsScatterData } from './dataProxy/HighchartsScatterDataProxy'
 import { getHighchartsSunburstData } from './dataProxy/HighchartsSunburstDataProxy'
@@ -28,6 +29,8 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
         case 'activitygauge':
         case 'solidgauge':
             return await getHighchartsGaugeData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'bubble':
+            return await getHighchartsBubbleData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             return ''
     }
