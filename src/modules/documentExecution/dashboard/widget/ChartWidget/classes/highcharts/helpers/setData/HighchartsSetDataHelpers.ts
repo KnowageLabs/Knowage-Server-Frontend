@@ -360,7 +360,7 @@ export const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'ro
     return result
 }
 
-const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCompare: any, returnString?: boolean) => {
+export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCompare: any, returnString?: boolean) => {
     const conditionalStyles = propWidget.settings.series.conditionalStyles
     let styleString = null as any
 

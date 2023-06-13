@@ -3,9 +3,9 @@ import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Da
 import { IHighchartsChartSerie, IHighchartsChartSerieData } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { updateBubbleChartModel } from './updater/KnowageHighchartsBubbleChartUpdater'
 import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
-import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
+// import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
-import { getAllColumnsOfSpecificAxisTypeFromDataResponse, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificAxisTypeFromDataResponse, getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles } from './helpers/setData/HighchartsSetDataHelpers'
 
 export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -54,15 +54,15 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
 
         const splitting = widgetModel.settings?.configuration?.splitting
         if (splitting?.enabled) {
-            this.setSplittedData(data, splitting, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
+            this.setSplittedData(data, widgetModel, splitting, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
         } else {
-            this.setRegularData(data, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
+            this.setRegularData(data, widgetModel, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
         }
 
         return this.model.series
     }
 
-    setSplittedData(data: any, splitting: any, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
+    setSplittedData(data: any, widgetModel: IWidget, splitting: any, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
         console.log('----- DATA: ', data)
         console.log('----- splitting: ', splitting)
         const measureForGrouping = YAxisColumns.find((measureColumn: any) => measureColumn.column.columnName === splitting.groupedSerie)
@@ -80,7 +80,12 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
 
             if (!categoryValueMap[secondAttributeValue]) categoryValueMap[secondAttributeValue] = {}
             if (!categoryValueMap[secondAttributeValue][firstAttributeValue]) categoryValueMap[secondAttributeValue][firstAttributeValue] = {}
-            categoryValueMap[secondAttributeValue][firstAttributeValue] = { x: row[XColumn.metadata.dataIndex], y: row[measureForGrouping.metadata.dataIndex], z: row[ZColumn.metadata.dataIndex] }
+            categoryValueMap[secondAttributeValue][firstAttributeValue] = {
+                x: row[XColumn.metadata.dataIndex],
+                y: row[measureForGrouping.metadata.dataIndex],
+                z: row[ZColumn.metadata.dataIndex],
+                color: getColumnConditionalStyles(widgetModel, measureForGrouping.column.id, row[measureForGrouping.metadata.dataIndex])?.color
+            }
         })
 
         console.log('------ categoryValueMap: ', categoryValueMap)
@@ -119,7 +124,7 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         this.model.series.push(measureSerieElement)
     }
 
-    setRegularData(data: any, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
+    setRegularData(data: any, widgetModel: IWidget, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
         if (!data || !attributeColumns[0] || !XAxisColumns[0] || !YAxisColumns[0] || !ZAxisColumns[0]) return
         const attributeColumn = attributeColumns[0]
         const XColumn = XAxisColumns[0]
@@ -129,7 +134,14 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         YAxisColumns.forEach((yAxisColumn: any, index: number) => {
             const tempSerie = { id: index, name: yAxisColumn.column.columnName, data: [] as any[], connectNulls: true }
             data.rows.forEach((row: any) => {
-                tempSerie.data.push({ x: row[XColumn.metadata.dataIndex], y: row[yAxisColumn.metadata.dataIndex], z: row[ZColumn.metadata.dataIndex], name: row[attributeColumn.metadata.dataIndex] })
+                tempSerie.data.push({
+                    x: row[XColumn.metadata.dataIndex],
+                    y: row[yAxisColumn.metadata.dataIndex],
+                    z: row[ZColumn.metadata.dataIndex],
+                    name: row[attributeColumn.metadata.dataIndex],
+                    //MAIN MEASURE IS Y, so we look at it for conditional style
+                    color: getColumnConditionalStyles(widgetModel, yAxisColumn.column.id, row[yAxisColumn.metadata.dataIndex])?.color
+                })
             })
             series.push(tempSerie)
         })

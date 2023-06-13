@@ -62,6 +62,10 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
+            },
+            {
+                "title": "dashboard.widgetEditor.conditionalStyle",
+                "type": "ConditionalStyles"
             }
         ],
         "Style": [
