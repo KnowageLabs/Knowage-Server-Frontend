@@ -239,7 +239,7 @@ export default defineComponent({
             }
         },
         removeSeriesFromAvailableOptions() {
-            for (let i = 1; i < this.widgetModel.settings.series.seriesSettings.length; i++) {
+            for (let i = 1; i < this.widgetModel.settings.series.seriesSettings?.length; i++) {
                 for (let j = 0; j < this.widgetModel.settings.series.seriesSettings[i].names.length; j++) {
                     this.removeSerieFromAvailableOptions(this.widgetModel.settings.series.seriesSettings[i].names[j])
                 }

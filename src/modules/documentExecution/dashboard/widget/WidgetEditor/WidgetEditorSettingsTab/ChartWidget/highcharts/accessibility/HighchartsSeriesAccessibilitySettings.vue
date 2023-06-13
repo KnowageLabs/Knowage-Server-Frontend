@@ -104,7 +104,7 @@ export default defineComponent({
             }
         },
         removeSeriesFromAvailableOptions() {
-            for (let i = 1; i < this.widgetModel.settings.accesssibility.seriesAccesibilitySettings.length; i++) {
+            for (let i = 1; i < this.widgetModel.settings.accesssibility.seriesAccesibilitySettings?.length; i++) {
                 for (let j = 0; j < this.widgetModel.settings.accesssibility.seriesAccesibilitySettings[i].names.length; j++) {
                     this.removeSerieFromAvailableOptions(this.widgetModel.settings.accesssibility.seriesAccesibilitySettings[i].names[j])
                 }

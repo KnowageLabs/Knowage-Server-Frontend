@@ -361,7 +361,8 @@ export const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'ro
 }
 
 export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCompare: any, returnString?: boolean) => {
-    const conditionalStyles = propWidget.settings.series.conditionalStyles
+    const conditionalStyles = propWidget.settings.series?.conditionalStyles
+    if (!conditionalStyles) return ''
     let styleString = null as any
 
     const columnConditionalStyles = conditionalStyles.conditions.filter((condition) => condition.target.includes(colId) || condition.condition.formula)
