@@ -97,6 +97,7 @@ export default defineConfig((command, mode) => {
         },
         base: env.VITE_PUBLIC_PATH,
         build: {
+            minify: false,
             outDir: './target/knowage-vue',
             sourcemap: true,
             rollupOptions: {
