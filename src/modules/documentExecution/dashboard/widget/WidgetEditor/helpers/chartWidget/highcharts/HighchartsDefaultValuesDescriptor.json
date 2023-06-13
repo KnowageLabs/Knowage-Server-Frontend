@@ -483,6 +483,11 @@
             "enabled": false
         }
     },
+    "defaultSonificationSettings": {
+        "duration": 6000,
+        "enabled": false,
+        "order": "sequential"
+    },
     "defaultTooltipSettings": {
         "backgroundColor": "rgba(194,194,194, 1)",
         "enabled": true,

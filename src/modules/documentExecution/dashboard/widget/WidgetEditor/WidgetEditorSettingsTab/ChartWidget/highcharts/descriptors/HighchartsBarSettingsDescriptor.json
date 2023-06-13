@@ -10,7 +10,7 @@
                 "type": "SeriesAccessibilitySettings"
             },
             {
-                "title": "dashboard.widgetEditor.sonification.title",
+                "title": "dashboard.widgetEditor.highcharts.sonification.title",
                 "type": "SonificationSettings"
             }
         ],

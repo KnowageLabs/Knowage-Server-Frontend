@@ -744,6 +744,15 @@
                 "solidGauge": {
                     "valuesTableHint": "Measures only."
                 },
+                "sonification": {
+                    "duration": "Duration",
+                    "durationHint": "The total duration of the sonification, in milliseconds.",
+                    "order": "Order",
+                    "orderHint": "What order to play the data series in, either sequential where the series play individually one after the other, or simultaneous where the series play all at once.",
+                    "sequential": "Sequential",
+                    "simultaneous": "Simultaneous",
+                    "title": "Sonification"
+                },
                 "splitting": {
                     "hint": "Options available only if you are not using datetime and Group by categories. You can use only one Splitting function.",
                     "secondCategory": "Series to use on second category options",
@@ -1040,9 +1049,6 @@
                 "title": "Shadows"
             },
             "showLabel": "Show Label",
-            "sonification": {
-                "title": "Sonification"
-            },
             "sortingColumn": "Sorting column",
             "sortingOrder": "Sorting order",
             "suffix": "Suffix",

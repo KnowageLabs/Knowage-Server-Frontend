@@ -1,5 +1,5 @@
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { getFormattedLabels, getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, getFormattedTooltipSettings, setAxisGridSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
+import { getFormattedLabels, getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, getFormattedSonificationSettings, getFormattedTooltipSettings, setAxisGridSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const updateLineChartModel = (oldModel: any, newModel: IHighchartsChartModel) => {
@@ -10,6 +10,7 @@ export const updateLineChartModel = (oldModel: any, newModel: IHighchartsChartMo
     getFormattedLabels(oldModel, newModel)
     getFormattedSeries(oldModel, newModel, null)
     getFormattedTooltipSettings(oldModel, newModel)
+    getFormattedSonificationSettings(oldModel, newModel)
 
     return newModel
 }
