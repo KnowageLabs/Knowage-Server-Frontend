@@ -6,6 +6,7 @@ import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularData } from './helpers/setData/HighchartsSetDataHelpers'
 
 export class KnowageHighchartsPieChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -31,24 +32,12 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
     }
 
     setData(data: any, widgetModel: IWidget) {
-        if (this.model.series.length === 0) this.getSeriesFromWidgetModel(widgetModel)
+        this.model.series = []
+        const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
+        const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
+        const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
+        setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, '')
 
-        this.model.series.map((item, serieIndex) => {
-            this.range[serieIndex] = { serie: item.name }
-            item.data = []
-            data?.rows?.forEach((row: any) => {
-                const serieElement = {
-                    id: row.id,
-                    name: row['column_1'],
-                    y: row['column_2'],
-                    drilldown: false
-                }
-                this.range[serieIndex].min = this.range[serieIndex].min ? Math.min(this.range[serieIndex].min, row['column_2']) : row['column_2']
-                this.range[serieIndex].max = this.range[serieIndex].max ? Math.max(this.range[serieIndex].max, row['column_2']) : row['column_2']
-                if (this.model.settings.drilldown) serieElement.drilldown = true
-                item.data.push(serieElement)
-            })
-        })
         return this.model.series
     }
 

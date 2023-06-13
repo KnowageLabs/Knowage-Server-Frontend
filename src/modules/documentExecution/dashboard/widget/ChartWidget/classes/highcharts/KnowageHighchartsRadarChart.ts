@@ -34,11 +34,12 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setData(data: any, widgetModel: IWidget) {
-        const mockedData = { "metaData": { "totalProperty": "results", "root": "rows", "id": "id", "fields": ["recNo", { "name": "column_1", "header": "QUARTER", "dataIndex": "column_1", "type": "string", "multiValue": false }, { "name": "column_2", "header": "UNIT_SALES_SUM", "dataIndex": "column_2", "type": "float", "precision": 54, "scale": 4, "multiValue": false }, { "name": "column_3", "header": "UNITS_ORDERED_SUM", "dataIndex": "column_3", "type": "float", "precision": 54, "scale": 0, "multiValue": false }], "cacheDate": "2023-06-01 16:57:10.449" }, "results": 4, "rows": [{ "id": 1, "column_1": "Q1", "column_2": 104893.2241, "column_3": 1744587 }, { "id": 2, "column_1": "Q2", "column_2": 102115.586, "column_3": 1665964 }, { "id": 3, "column_1": "Q3", "column_2": 121873.7686, "column_3": 2.08226E+6 }, { "id": 4, "column_1": "Q4", "column_2": 96443.6608, "column_3": 1646594 }], "stats": { "1": { "max": "Q4", "min": "Q1", "distinct": ["Q1", "Q2", "Q3", "Q4"], "cardinality": 4 }, "2": { "max": 121873.7686, "min": 96443.6608, "distinct": [96443.6608, 102115.586, 104893.2241, 121873.7686], "cardinality": 4 }, "3": { "max": 2.08226E+6, "min": 1646594, "distinct": [1646594, 1665964, 1744587, 2.08226E+6], "cardinality": 4 } } }
+        // TODO
+        //const mockedData = { "metaData": { "totalProperty": "results", "root": "rows", "id": "id", "fields": ["recNo", { "name": "column_1", "header": "QUARTER", "dataIndex": "column_1", "type": "string", "multiValue": false }, { "name": "column_2", "header": "UNIT_SALES_SUM", "dataIndex": "column_2", "type": "float", "precision": 54, "scale": 4, "multiValue": false }, { "name": "column_3", "header": "UNITS_ORDERED_SUM", "dataIndex": "column_3", "type": "float", "precision": 54, "scale": 0, "multiValue": false }], "cacheDate": "2023-06-01 16:57:10.449" }, "results": 4, "rows": [{ "id": 1, "column_1": "Q1", "column_2": 104893.2241, "column_3": 1744587 }, { "id": 2, "column_1": "Q2", "column_2": 102115.586, "column_3": 1665964 }, { "id": 3, "column_1": "Q3", "column_2": 121873.7686, "column_3": 2.08226E+6 }, { "id": 4, "column_1": "Q4", "column_2": 96443.6608, "column_3": 1646594 }], "stats": { "1": { "max": "Q4", "min": "Q1", "distinct": ["Q1", "Q2", "Q3", "Q4"], "cardinality": 4 }, "2": { "max": 121873.7686, "min": 96443.6608, "distinct": [96443.6608, 102115.586, 104893.2241, 121873.7686], "cardinality": 4 }, "3": { "max": 2.08226E+6, "min": 1646594, "distinct": [1646594, 1665964, 1744587, 2.08226E+6], "cardinality": 4 } } }
         this.model.series = []
-        const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'ATTRIBUTE')
+        const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         console.log('---------- ATTRIBUTE COLUMNS: ', attributeColumns)
-        const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
+        const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         console.log('---------- MEASURE COLUMNS: ', measureColumns)
         const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
         console.log('------- drilldownEnabled: ', drilldownEnabled)
@@ -47,41 +48,12 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
 
         if (widgetModel.settings.configuration?.grouping?.secondDimension.enabled) {
             const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
-            setGroupedByCategoriesData(this.model, mockedData, attributeColumns, measureColumns, serieName)
+            setGroupedByCategoriesData(this.model, data, attributeColumns, measureColumns, serieName)
         } else {
-            setRegularData(this.model, widgetModel, mockedData, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+            setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
         }
 
         return this.model.series
-    }
-
-    setSplitedData(splitingColumn: string, data: any) {
-        const groupedSerie = data.metaData.fields.find((field: any) => field.header?.startsWith(splitingColumn))
-        if (!groupedSerie) return
-        const distinctFirstAttributeValues = data.stats[1].distinct
-        const distinctValues = data.stats[2].distinct
-        const distinctValuesMap = {}
-        distinctValues?.forEach((value: string) => {
-            distinctValuesMap[value] = { data: [] }
-            distinctFirstAttributeValues.forEach((firstAttributeValue: string) => distinctValuesMap[value].data.push({ name: firstAttributeValue, datetype: 'string' }))
-        })
-        data.rows.forEach((row: any) => {
-            distinctValuesMap[row['column_2']]?.data?.push({
-                "y": row[groupedSerie.dataIndex],
-                "name": row['column_1'],
-                "datetype": "string"
-            })
-        })
-        const formattedSeries = [] as any[]
-        Object.keys(distinctValuesMap).forEach((key: string) => {
-            const serie = {
-                name: key,
-                data: distinctValuesMap[key].data,
-                label: { enabled: false }
-            }
-            formattedSeries.push(serie)
-        })
-        this.model.seriesForRender = formattedSeries
     }
 
     setNormalData(data: any, widgetModel: IWidget, dateFormat: string, drilldownEnabled: boolean) {

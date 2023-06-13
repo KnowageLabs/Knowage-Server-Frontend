@@ -57,6 +57,7 @@ const getFormattedWidgetSettings = (widget: any, chartType: string) => {
         chart: { colors: getFormattedColorSettings(widget) as any },
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
     } as IHighchartsWidgetSettings
+    if (['BAR', "LINE", 'RADAR', 'BUBBLE', 'PIE'].includes(chartType)) formattedSettings.series.conditionalStyles = { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } as any
     return formattedSettings
 }
 
