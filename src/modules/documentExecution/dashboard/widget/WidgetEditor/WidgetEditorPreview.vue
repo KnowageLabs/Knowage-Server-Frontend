@@ -44,7 +44,8 @@ import { defineComponent, PropType } from 'vue'
 import { IDashboardDataset, ISelection, IVariable, IWidget } from '../../Dashboard'
 import { getWidgetStyleByType } from '../TableWidget/TableWidgetHelper'
 import { emitter } from '../../DashboardHelpers'
-import { getWidgetData } from '../../DataProxyHelper'
+// import { getWidgetData } from '../../DataProxyHelper'
+import { getWidgetData } from '../../DashboardDataProxy'
 import { mapState, mapActions } from 'pinia'
 import descriptor from '../../dataset/DatasetEditorDescriptor.json'
 import ProgressBar from 'primevue/progressbar'
@@ -112,7 +113,7 @@ export default defineComponent({
         loadWebComponentData() {},
         async getWidgetData() {
             this.loading = true
-            this.widgetData = await getWidgetData(this.dashboardId, this.propWidget, this.datasets, this.$http, false, this.activeSelections, {})
+            this.widgetData = await getWidgetData(this.dashboardId, this.propWidget, this.datasets, this.$http, true, this.activeSelections, { searchText: '', searchColumns: [] })
             this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
             this.loading = false
         },
