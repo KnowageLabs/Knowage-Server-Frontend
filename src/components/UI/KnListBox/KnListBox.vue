@@ -3,7 +3,7 @@
         class="kn-list knListBox"
         :options="sortedOptions"
         :class="{ noSorting: !settings.sortFields }"
-        list-style="max-height:calc(100% - 62px)"
+        list-style="max-height:calc(100% - 66px)"
         :filter="true"
         :filter-placeholder="$t('common.search')"
         filter-match-mode="contains"
@@ -14,7 +14,7 @@
         <template v-if="settings.sortFields" #header>
             <Button v-tooltip.bottom="$t('common.sort')" icon="fas fa-sort-amount-down-alt" class="p-button-text p-button-rounded p-button-plain headerButton" @click="toggleSort" />
             <Menu id="sortMenu" ref="sortMenu" :model="settings.sortFields" :popup="true">
-                <template #item="{item}">
+                <template #item="{ item }">
                     <a class="p-menuitem-link" role="menuitem" tabindex="0" @click="sort($event, item.name || item)">
                         <span v-if="selectedDirection === 'asc'" class="p-menuitem-icon fas" :class="{ 'fa-sort-amount-up-alt': selectedSort === (item.name || item) }"></span>
                         <span v-else class="p-menuitem-icon fas" :class="{ 'fa-sort-amount-down-alt': selectedSort === (item.name || item) }"></span>
