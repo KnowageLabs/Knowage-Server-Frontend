@@ -96,6 +96,14 @@
             {
                 "title": "common.title",
                 "type": "HeatmapXAxisTitleSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.bands.title",
+                "type": "XAxisBandsSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.lines.title",
+                "type": "XAxisLinesSettings"
             }
         ],
         "YAxis": [
