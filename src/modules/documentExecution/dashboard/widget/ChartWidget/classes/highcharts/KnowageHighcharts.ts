@@ -60,6 +60,7 @@ export class KnowageHighcharts {
             },
             noData: highchartsDefaultValues.getDefaultNoDataConfiguration(),
             accessibility: highchartsDefaultValues.getDefaultAccessibilitySettings(),
+            sonification: highchartsDefaultValues.getDefaultSonificationSettings(),
             series: [],
             settings: {
                 drilldown: {},

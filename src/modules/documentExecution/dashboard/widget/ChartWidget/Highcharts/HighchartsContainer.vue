@@ -1,5 +1,6 @@
 <template>
     <div v-show="!error" :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div>
+    <HighchartsSonificationControls v-if="chartModel?.sonification?.enabled" @playSonify="playSonify" @pauseSonify="pauseSonify" @cancelSonify="cancelSonify"></HighchartsSonificationControls>
 </template>
 
 <script lang="ts">
@@ -9,9 +10,10 @@ import { ISelection, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
-import { formatActivityGauge, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
+import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
 import Highcharts3D from 'highcharts/highcharts-3d'
 import HighchartsMore from 'highcharts/highcharts-more'
@@ -27,6 +29,7 @@ import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
 import HighchartsTreemap from 'highcharts/modules/treemap'
 import HighchartsSunburst from 'highcharts/modules/sunburst'
+import Sonification from 'highcharts/modules/sonification'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -34,6 +37,7 @@ HighchartsHeatmap(Highcharts)
 HighchartsTreemap(Highcharts)
 HighchartsSunburst(Highcharts)
 Accessibility(Highcharts)
+Sonification(Highcharts)
 NoDataToDisplay(Highcharts)
 SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
@@ -41,7 +45,7 @@ Drilldown(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
-    components: {},
+    components: { HighchartsSonificationControls },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -232,7 +236,10 @@ export default defineComponent({
                 formatHeatmap(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'radar') {
                 formatRadar(formattedChartModel)
+            } else if (formattedChartModel.chart.type === 'bubble') {
+                formatBubble(formattedChartModel)
             }
+
             return formattedChartModel
         },
         onCheckboxClicked(event: any) {
@@ -264,6 +271,15 @@ export default defineComponent({
             }
             traversePoints(seriesData, parentId)
             return childrenPoints
+        },
+        playSonify() {
+            this.highchartsInstance.toggleSonify()
+        },
+        pauseSonify() {
+            this.highchartsInstance.toggleSonify(false)
+        },
+        cancelSonify() {
+            this.highchartsInstance.sonification.cancel()
         }
     }
 })

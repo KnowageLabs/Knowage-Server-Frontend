@@ -112,7 +112,8 @@ export interface IHighchartsChartModel {
     xAxis?: any
     yAxis?: any,
     colorAxis?: { stops: any[] },
-    seriesForRender?: any[]
+    seriesForRender?: any[],
+    sonification?: any
 }
 
 export interface IHighchartsOptions3D {

@@ -30,12 +30,12 @@
             "measuresOnly": true
         },
         {
-            "hint": "dashboard.widgetEditor.highcharts.bubblechart.valuesTableHint",
+            "hint": "dashboard.widgetEditor.highcharts.bubblechart.xAndZAxesHint",
             "label": "X",
             "measuresOnly": true
         },
         {
-            "hint": "dashboard.widgetEditor.highcharts.bubblechart.valuesTableHint",
+            "hint": "dashboard.widgetEditor.highcharts.bubblechart.xAndZAxesHint",
             "label": "Z",
             "measuresOnly": true
         }

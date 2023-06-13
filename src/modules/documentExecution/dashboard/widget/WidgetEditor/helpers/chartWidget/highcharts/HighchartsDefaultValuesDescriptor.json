@@ -457,7 +457,7 @@
     },
     "defaultSerieLabelSettings": {
         "absolute": false,
-        "backgroundColor": "rgba(255,255,255, 1)",
+        "backgroundColor": "",
         "enabled": false,
         "percentage": false,
         "precision": 2,
@@ -482,6 +482,11 @@
         "keyboardNavigation": {
             "enabled": false
         }
+    },
+    "defaultSonificationSettings": {
+        "duration": 6000,
+        "enabled": false,
+        "order": "sequential"
     },
     "defaultTooltipSettings": {
         "backgroundColor": "rgba(194,194,194, 1)",

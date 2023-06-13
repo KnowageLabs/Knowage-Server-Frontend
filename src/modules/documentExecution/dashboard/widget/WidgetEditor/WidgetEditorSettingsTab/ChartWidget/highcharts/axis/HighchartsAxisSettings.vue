@@ -41,7 +41,7 @@
             <WidgetEditorStyleToolbar :options="descriptor.styleToolbarSettings" :prop-model="toolbarModel" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
         </div>
 
-        <div v-if="['scatter'].includes(chartType)" class="p-grid p-col-12 p-ai-center p-mt-3">
+        <div v-if="['scatter', 'bubble'].includes(chartType)" class="p-grid p-col-12 p-ai-center p-mt-3">
             <div class="p-col-4">
                 <InputSwitch v-model="axisModel.startOnTick"></InputSwitch>
                 <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.highcharts.axisTickSettings.startOnTick') }}</label>

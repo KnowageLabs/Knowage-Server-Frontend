@@ -104,6 +104,22 @@
             {
                 "title": "common.title",
                 "type": "HeatmapXAxisTitleSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.bands.title",
+                "type": "XAxisBandsSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.lines.title",
+                "type": "XAxisLinesSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
+                "type": "XAxisMajorGridSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
+                "type": "XAxisMinorGridSettings"
             }
         ],
         "YAxis": [
@@ -125,11 +141,11 @@
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
-                "type": "MajorGridSettings"
+                "type": "YAxisMajorGridSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
-                "type": "MinorGridSettings"
+                "type": "YAxisMinorGridSettings"
             }
         ]
     },

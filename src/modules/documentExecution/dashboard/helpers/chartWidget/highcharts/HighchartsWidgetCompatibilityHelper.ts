@@ -91,7 +91,7 @@ const getFormmatedGroupingSettings = (widget: any) => {
 }
 
 const getFormattedCenterTextSettings = (widget: any) => {
-    const formattedCenterText = { text: '', style: { 'font-family': '', 'font-size': '14px', 'font-weight': '', color: '', 'background-color': '', 'font-style': '' } }
+    const formattedCenterText = { text: '', style: { 'font-family': '', 'font-size': '14px', 'font-weight': '', color: '', 'font-style': '' } }
     const oldChartModelTipSettings = widget.content.chartTemplate?.CHART?.TIP
     if (!oldChartModelTipSettings) return formattedCenterText
     formattedCenterText.text = oldChartModelTipSettings.text

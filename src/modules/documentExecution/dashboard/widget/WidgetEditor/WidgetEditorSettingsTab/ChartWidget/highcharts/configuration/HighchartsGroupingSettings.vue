@@ -4,13 +4,13 @@
             {{ groupingSettings }}
         </div>
 
-        <div class="p-col-3 p-grid p-ai-center p-p-4">
+        <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-3 p-grid p-ai-center p-p-4">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.grouping.groupByCategories') }}</label>
             <InputSwitch v-model="groupingSettings.enabled" :disabled="groupingDisabled"></InputSwitch>
             <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.grouping.groupByCategoriesHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
         </div>
 
-        <div class="p-col-3 p-grid p-ai-center p-p-4">
+        <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-3 p-grid p-ai-center p-p-4">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.grouping.secondSerie') }}</label>
             <InputSwitch v-model="groupingSettings.secondSeries.enabled" :disabled="seriesGroupingDisabled"></InputSwitch>
             <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.grouping.secondSerieHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
@@ -45,6 +45,9 @@ export default defineComponent({
         }
     },
     computed: {
+        chartType() {
+            return this.widgetModel?.settings.chartModel?.model?.chart.type
+        },
         groupingDisabled() {
             return !this.groupingSettings || this.groupingSettings.secondSeries.enabled || this.groupingSettings.secondDimension.enabled
         },

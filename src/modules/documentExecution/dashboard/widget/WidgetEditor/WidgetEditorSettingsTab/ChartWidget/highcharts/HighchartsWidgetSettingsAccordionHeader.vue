@@ -77,7 +77,8 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.preview
                 case 'ConditionalStyles':
                     return this.widgetModel.settings.series.conditionalStyles
-
+                case 'SonificationSettings':
+                    return this.widgetModel.settings.chartModel.model?.sonification
                 default:
                     return null
             }

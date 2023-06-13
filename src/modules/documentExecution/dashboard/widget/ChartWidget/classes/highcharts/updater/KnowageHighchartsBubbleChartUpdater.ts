@@ -1,6 +1,5 @@
 import { IHighchartsChartModel } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { getFormattedLabels, getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, getFormattedTooltipSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
-import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers'
+import { getFormattedLabels, getFormattedLegend, getFormattedNoDataConfiguration, getFormattedSeries, getFormattedTooltipSettings, setAxisGridSettings, setFormattedAxisLabels, setFormattedAxisTitle } from './KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const updateBubbleChartModel = (oldModel: any, newModel: IHighchartsChartModel) => {
@@ -27,7 +26,7 @@ const getFormattedAxisSettings = (oldModel: any, newModel: IHighchartsChartModel
     setAxisGridSettings(oldAxis, newModelAxis)
 
     axis === 'x' ? setXAxisSpecificValues(newModelAxis) : setYAxisSpecificValues(newModelAxis)
-    axis === 'x' ? newModel.xAxis = newModelAxis : newModel.yAxis = newModelAxis
+    axis === 'x' ? newModel.xAxis[0] = newModelAxis : newModel.yAxis[0] = newModelAxis
 }
 
 const setXAxisSpecificValues = (newModelAxis: any) => {
@@ -40,32 +39,4 @@ const setYAxisSpecificValues = (newModelAxis: any) => {
     newModelAxis.min = 0
     newModelAxis.plotBands = []
     newModelAxis.plotLines = []
-}
-
-
-const setAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
-    if (oldAxis.MAJORGRID) {
-        newModelAxis.tickInterval = oldAxis.MAJORGRID.interval && oldAxis.MAJORGRID.interval !== '' ? oldAxis.MAJORGRID.interval : null
-        newModelAxis.gridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
-        newModelAxis.gridLineColor = oldAxis.MAJORGRID.style?.color ? hexToRgba(oldAxis.MAJORGRID.style.color) : ''
-    }
-
-    if (oldAxis.MINORGRID) {
-        newModelAxis.minorTickInterval = oldAxis.MINORGRID.interval && oldAxis.MINORGRID.interval !== '' ? oldAxis.MINORGRID.interval : null
-        newModelAxis.minorGridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
-        newModelAxis.minorGridLineColor = oldAxis.MINORGRID.style?.color ? hexToRgba(oldAxis.MINORGRID.style.color) : ''
-    }
-}
-
-const getFormattedGridLineStyle = (type: string) => {
-    switch (type) {
-        case 'solid':
-            return 'Solid';
-        case "dashed":
-            return 'Dash'
-        case "dotted":
-            return 'Dot';
-        default:
-            return ''
-    }
 }

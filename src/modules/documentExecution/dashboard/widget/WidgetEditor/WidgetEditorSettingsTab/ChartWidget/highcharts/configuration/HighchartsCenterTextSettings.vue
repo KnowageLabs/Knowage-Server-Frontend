@@ -32,7 +32,7 @@ export default defineComponent({
         return {
             descriptor,
             centerTextSettings: null as any,
-            toolbarModel: {} as { 'font-family': string; 'font-size': string; 'font-style': string; 'font-weight': string; color: string; 'background-color': string },
+            toolbarModel: {} as { 'font-family': string; 'font-size': string; 'font-style': string; 'font-weight': string; color: string },
             advancedVisible: false
         }
     },
@@ -41,7 +41,7 @@ export default defineComponent({
     },
     methods: {
         loadCenterTextSettings() {
-            this.centerTextSettings = this.widgetModel.settings.centerText ?? { text: '', style: { 'font-family': '', 'font-size': '14px', 'font-weight': '', color: '', 'background-color': '' } }
+            this.centerTextSettings = this.widgetModel.settings.configuration.centerText ?? { text: '', style: { 'font-family': '', 'font-size': '14px', 'font-weight': '', color: '' } }
             this.loadToolbarModel()
         },
         loadToolbarModel() {
@@ -51,8 +51,7 @@ export default defineComponent({
                     'font-size': this.centerTextSettings.style.fontSize,
                     'font-style': this.centerTextSettings.style.fontStyle,
                     'font-weight': this.centerTextSettings.style.fontWeight,
-                    color: this.centerTextSettings.style.color,
-                    'background-color': this.centerTextSettings.style.backgroundColor
+                    color: this.centerTextSettings.style.color
                 }
             }
         },
@@ -63,14 +62,12 @@ export default defineComponent({
             this.centerTextSettings.style['font-style'] = model['font-style'] ?? ''
             this.centerTextSettings.style['font-weight'] = model['font-weight'] ?? ''
             this.centerTextSettings.style.color = model.color ?? ''
-            this.centerTextSettings.style['background-color'] = model['background-color'] ?? ''
             this.toolbarModel = {
                 'font-family': model['font-family'] ?? '',
                 'font-size': model['font-size'] ?? '14px',
                 'font-style': model['font-style'] ?? '',
                 'font-weight': model['font-weight'] ?? '',
-                color: model.color ?? '',
-                'background-color': model['background-color'] ?? ''
+                color: model.color ?? ''
             }
         }
     }

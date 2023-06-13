@@ -153,3 +153,7 @@ export const getDefaultScatterXAxis = () => {
 export const getDefaultScatterYAxis = () => {
     return deepcopy(descriptor.defaultScatterYAxis)
 }
+
+export const getDefaultSonificationSettings = () => {
+    return deepcopy(descriptor.defaultSonificationSettings)
+}

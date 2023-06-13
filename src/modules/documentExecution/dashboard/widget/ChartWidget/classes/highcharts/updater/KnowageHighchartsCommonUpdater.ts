@@ -198,3 +198,12 @@ export const getFormatted3DConfiguration = (oldModel: any, newModel: IHighcharts
         } as IHighchartsOptions3D
     }
 }
+
+export const getFormattedSonificationSettings = (oldModel: any, newModel: IHighchartsChartModel) => {
+    const sonificationSettings = highchartsDefaultValues.getDefaultSonificationSettings()
+    newModel.sonification.order = sonificationSettings.order
+    if (oldModel.CHART.accessibility) {
+        newModel.sonification.enabled = oldModel.CHART.accessibility.sonification ?? sonificationSettings.enabled
+        newModel.sonification.duration = oldModel.CHART.accessibility.duration ? oldModel.CHART.accessibility.duration * 1000 : sonificationSettings.duration
+    }
+}

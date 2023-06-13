@@ -43,8 +43,10 @@
                 <HighchartsDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsDatetypeSettings>
                 <HighchartsLineSettings v-else-if="accordion.type === 'XAxisLinesSettings'" :widget-model="widgetModel" axis="x"></HighchartsLineSettings>
                 <HighchartsLineSettings v-else-if="accordion.type === 'YAxisLinesSettings'" :widget-model="widgetModel" axis="y"></HighchartsLineSettings>
-                <HighchartsAxisGridSettings v-else-if="accordion.type === 'MajorGridSettings'" :widget-model="widgetModel" type="major"></HighchartsAxisGridSettings>
-                <HighchartsAxisGridSettings v-else-if="accordion.type === 'MinorGridSettings'" :widget-model="widgetModel" type="minor"></HighchartsAxisGridSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'XAxisMajorGridSettings'" :widget-model="widgetModel" type="major" axis="x"></HighchartsAxisGridSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'YAxisMajorGridSettings'" :widget-model="widgetModel" type="major" axis="y"></HighchartsAxisGridSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'XAxisMinorGridSettings'" :widget-model="widgetModel" type="minor" axis="x"></HighchartsAxisGridSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'YAxisMinorGridSettings'" :widget-model="widgetModel" type="minor" axis="y"></HighchartsAxisGridSettings>
                 <HighchartsConditionalStyles v-else-if="accordion.type === 'ConditionalStyles'" :widget-model="widgetModel"></HighchartsConditionalStyles>
                 <HighchartsSonificationSettings v-else-if="accordion.type === 'SonificationSettings'" :widget-model="widgetModel"></HighchartsSonificationSettings>
                 <HighchartsGroupingSettings v-else-if="accordion.type === 'GroupingSettings'" :widget-model="widgetModel"></HighchartsGroupingSettings>

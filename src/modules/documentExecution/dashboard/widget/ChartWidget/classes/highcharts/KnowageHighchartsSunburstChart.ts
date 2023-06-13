@@ -111,14 +111,6 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
                     levelIsConstant: false,
                     dataLabels: {
                         enabled: true,
-                        backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
-                        style: {
-                            fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
-                            fontStyle: centerTextSettings.style['font-style'] ?? "normal",
-                            fontSize: centerTextSettings.style['font-size'] ?? "12px",
-                            color: centerTextSettings.color ?? "#000000",
-                            width: "10000"
-                        }
                     }
                 },
                 {
@@ -152,12 +144,11 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
             treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName,
             treemapArray[0].dataLabels = {
                 enabled: true,
-                backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
                 style: {
                     fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
                     fontStyle: centerTextSettings.style['font-style'] ?? "normal",
                     fontSize: centerTextSettings.style['font-size'] ?? "12px",
-                    color: centerTextSettings.color ?? "#000000",
+                    color: centerTextSettings.style.color ?? "#000000",
                     width: "10000"
                 }
             }
