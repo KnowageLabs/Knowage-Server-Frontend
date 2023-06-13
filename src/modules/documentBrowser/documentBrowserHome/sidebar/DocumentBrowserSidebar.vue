@@ -19,43 +19,43 @@
                 </div>
             </template>
         </Toolbar>
-        <div class="p-m-4">
+        <div class="p-m-2">
             <div v-if="selectedDocument?.previewFile" class="p-text-center">
                 <img id="image-preview" :src="getImageUrl" />
             </div>
-            <div v-if="document.functionalities && document.functionalities.length > 0" class="p-m-4">
+            <div v-if="document.functionalities && document.functionalities.length > 0">
                 <h3 class="p-m-0">{{ $t('common.path') }}</h3>
                 <p v-for="(path, index) in document.functionalities" :key="index" class="p-m-0">{{ path }}</p>
             </div>
-            <div v-if="document.name" class="p-m-4">
+            <div v-if="document.name">
                 <h3 class="p-m-0">{{ $t('common.name') }}</h3>
                 <p class="p-m-0">{{ document.name }}</p>
             </div>
-            <div v-if="document.label" class="p-m-4">
+            <div v-if="document.label">
                 <h3 class="p-m-0">{{ $t('common.label') }}</h3>
                 <p class="p-m-0">{{ document.label }}</p>
             </div>
-            <div v-if="document.creationUser" class="p-m-4">
+            <div v-if="document.creationUser">
                 <h3 class="p-m-0">{{ $t('common.author') }}</h3>
                 <p class="p-m-0">{{ document.creationUser }}</p>
             </div>
-            <div v-if="document.description" class="p-m-4 kn-truncated">
+            <div v-if="document.description" class="kn-truncated">
                 <h3 class="p-m-0">{{ $t('common.description') }}</h3>
                 <p class="p-m-0">{{ document.description }}</p>
             </div>
-            <div v-if="document.stateCodeStr" class="p-m-4">
+            <div v-if="document.stateCodeStr">
                 <h3 class="p-m-0">{{ $t('common.state') }}</h3>
                 <p class="p-m-0">{{ document.stateCodeStr }}</p>
             </div>
-            <div v-if="document.typeCode" class="p-m-4">
+            <div v-if="document.typeCode">
                 <h3 class="p-m-0">{{ $t('common.type') }}</h3>
                 <p class="p-m-0">{{ document.typeCode }}</p>
             </div>
-            <div v-if="document.creationDate" class="p-m-4">
+            <div v-if="document.creationDate">
                 <h3 class="p-m-0">{{ $t('common.creationDate') }}</h3>
                 <p class="p-m-0">{{ getFormatedDate(document.creationDate) }}</p>
             </div>
-            <div v-if="document.visible" class="p-m-4">
+            <div v-if="document.visible">
                 <h3 class="p-m-0">{{ $t('common.visibility') }}</h3>
                 <p class="p-m-0">{{ document.visible ? $t('common.visible') : $t('common.notVisible') }}</p>
             </div>
