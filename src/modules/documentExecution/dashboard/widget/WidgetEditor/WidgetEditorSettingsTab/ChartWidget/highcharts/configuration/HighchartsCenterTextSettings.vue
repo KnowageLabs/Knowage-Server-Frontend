@@ -1,8 +1,5 @@
 <template>
     <div v-if="centerTextSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ centerTextSettings }}
-        </div>
         <div class="p-col-9 p-fluid">
             <label class="kn-material-input-label">{{ $t('common.text') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center">

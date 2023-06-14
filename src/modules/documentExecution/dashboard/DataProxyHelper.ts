@@ -471,7 +471,7 @@ export const getHighchartsWidgetData = async (widget: IWidget, datasets: IDashbo
         case 'area':
         case 'bar':
         case 'column':
-        case 'line': // TODO Bojan
+        case 'line':
         case 'gauge':
             return await getGaugeChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'activitygauge':

@@ -34,9 +34,9 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '../../../../../../Dashboard'
+import { IWidget, IWidgetColumn } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { IHighchartsChartModel, IHighchartsChartSerie, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { IHighchartsChartModel, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputSwitch from 'primevue/inputswitch'
@@ -59,7 +59,7 @@ export default defineComponent({
     },
     computed: {
         allSeriesOptionEnabled() {
-            return this.model && this.model.chart.type !== 'pie' && this.model.chart.type !== 'solidgauge' && this.model.chart.type !== 'heatmap'
+            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap'].includes(this.model.chart.type)
         }
     },
     watch: {
@@ -116,9 +116,9 @@ export default defineComponent({
         },
         loadSeriesOptions() {
             this.availableSeriesOptions = []
-            if (!this.model) return
-            this.model.series.forEach((serie: IHighchartsChartSerie) => {
-                this.availableSeriesOptions.push(serie.name)
+            if (!this.widgetModel) return
+            this.widgetModel.columns.forEach((column: IWidgetColumn) => {
+                if (column.fieldType === 'MEASURE' && (!column.axis || column.axis === 'Y')) this.availableSeriesOptions.push(column.columnName)
             })
         },
         addFirstSeriesSetting() {

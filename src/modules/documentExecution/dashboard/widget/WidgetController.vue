@@ -47,9 +47,6 @@ import { defineComponent, PropType } from 'vue'
 import { IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
 import { emitter, canEditDashboard } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
-// TODO Bojan
-// IN PROGRESS DATA PROXY : ako treba stari proxy, samo zameniti 2 importa
-// import { getWidgetData } from '../DataProxyHelper'
 import { getWidgetData } from '../DashboardDataProxy'
 import store from '../Dashboard.store'
 import mainStore from '@/App.store'

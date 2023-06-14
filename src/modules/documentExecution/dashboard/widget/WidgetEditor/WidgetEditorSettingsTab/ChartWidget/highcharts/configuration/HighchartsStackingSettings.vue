@@ -1,9 +1,5 @@
 <template>
     <div v-if="seriesSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ seriesSettings }}
-        </div>
-
         <div class="p-col-3 p-d-flex p-flex-column kn-flex p-pr-4">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.grouping.secondCategoryToUse') }}</label>
             <Dropdown v-model="seriesSettings.stacking" class="kn-material-input" :options="descriptor.stackingOptions" option-value="value">

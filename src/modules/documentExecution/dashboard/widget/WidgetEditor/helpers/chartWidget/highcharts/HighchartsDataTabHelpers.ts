@@ -65,20 +65,6 @@ const addColumnToRows = (rows: IWidgetColumn[], tempColumn: IWidgetColumn) => {
     if (index === -1) rows.push(tempColumn)
 }
 
-// TODO - see about this
-const updateSerieInWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
-    if (chartType === 'pie' || chartType === 'solidgauge') {
-        updateFirstSeriesOption(widgetModel.settings.accesssibility.seriesAccesibilitySettings, column)
-        updateFirstSeriesOption(widgetModel.settings.series.seriesSettings, column)
-    }
-}
-
-const updateFirstSeriesOption = (array: any[], column: IWidgetColumn) => {
-    if (array && array[0]) {
-        array[0].names[0] = column.columnName
-    }
-}
-
 export const removeSerieFromWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
     widgetModel.settings.chartModel.removeSerie(column)
     const allSeriesOption = chartType !== 'pie' && chartType !== 'solidgauge'

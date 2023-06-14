@@ -1,8 +1,5 @@
 <template>
     <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ axisModel }}
-        </div>
         <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.lines.lineInterval') }}</label>
             <InputNumber v-if="type === 'major'" v-model="axisModel.tickInterval" class="kn-material-input p-inputtext-sm" />

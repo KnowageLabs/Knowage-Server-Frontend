@@ -86,7 +86,6 @@ import DashboardGeneralSettings from './generalSettings/DashboardGeneralSettings
 import deepcopy from 'deepcopy'
 import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
-import KNCTEST_SCATTER from './KNCTEST_SCATTER.json'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -236,8 +235,6 @@ export default defineComponent({
                     .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/documentexecution/` + this.document?.id + '/templates')
                     .then((response: AxiosResponse<any>) => (tempModel = response.data))
                     .catch(() => {})
-                // TODO - Remove mock
-                // tempModel = KNCTEST_SCATTER
             }
 
             this.datasets = this.newDashboardMode ? [] : await loadDatasets(tempModel, this.appStore, this.setAllDatasets, this.$http)

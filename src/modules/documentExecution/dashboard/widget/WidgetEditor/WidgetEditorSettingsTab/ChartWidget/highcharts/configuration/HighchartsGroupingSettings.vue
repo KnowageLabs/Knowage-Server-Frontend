@@ -1,9 +1,5 @@
 <template>
     <div v-if="groupingSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ groupingSettings }}
-        </div>
-
         <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-3 p-grid p-ai-center p-p-4">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.grouping.groupByCategories') }}</label>
             <InputSwitch v-model="groupingSettings.enabled" :disabled="groupingDisabled"></InputSwitch>
