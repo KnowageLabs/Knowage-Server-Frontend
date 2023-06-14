@@ -61,5 +61,5 @@ const getFormattedDriverValue = (filter: iParameter | IDashboardDatasetDriver) =
         filter.parameterValue.length > 1 ? (value += `'${filter.parameterValue[i].value}'`) : (value += filter.parameterValue[i].value)
         value += i === filter.parameterValue.length ? '' : ','
     }
-    return value.substring(0, value.length - 2)
+    return value.substring(0, value.length - 1)
 }
