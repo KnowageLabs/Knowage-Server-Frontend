@@ -44,7 +44,6 @@ export default defineComponent({
             activeSelections: [] as ISelection[],
             zoom: 2 as number,
             layerManagers: [] as MapLayerManager[],
-            map: null as any,
             mapManager: null as any
         }
     },
@@ -65,63 +64,8 @@ export default defineComponent({
     },
     mounted() {
         this.mapManager = MapManagerCreator.create(this.$refs.map, this.widgetModel)
-
         this.mapManager.init()
-
         this.mapManager.showData(this.dataToShow)
-
-        //        console.log(this.$refs.map)
-        //
-        //        this.map = L.map(this.$refs.map).setView([45, 11], 10)
-        //
-        //        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        //            maxZoom: 19
-        //        }).addTo(this.map)
-        //
-        //        // GeoJSON
-        //        L.geoJson(sampleGeoJsonData).addTo(this.map)
-        //
-        //        // Simple marker
-        //        new L.Marker([45, 11]).addTo(this.map)
-        //
-        //        // Font Awesome marker
-        //        const fontAwesomeIcon = L.divIcon({ className: 'fa-solid fa-house' })
-        //        new L.Marker([45.1, 11], { icon: fontAwesomeIcon }).addTo(this.map)
-        //
-        //        // Choropleth
-        //        const color = function (d) {
-        //            return 'red'
-        //        }
-        //        const chIcon = L.divIcon({
-        //            className: 'fa-solid fa-user-circle',
-        //            html: `<span style=”color: red” />`
-        //        })
-        //        function style(feature) {
-        //            return {
-        //                'background-color': color(feature),
-        //                color: color(feature)
-        //            }
-        //        }
-        //        new L.Marker([45.0, 10.5], { icon: chIcon, style: style, title: 'Sample Tooltip' }).addTo(this.map)
-        //        new L.Marker([44.9, 10.5], { icon: chIcon, style: style, title: 'Sample Tooltip' }).addTo(this.map)
-        //        new L.Marker([44.8, 10.5], { icon: chIcon, style: style, title: 'Sample Tooltip' }).addTo(this.map)
-        //        new L.Marker([44.7, 10.5], { icon: chIcon, style: style, title: 'Sample Tooltip' }).addTo(this.map)
-        //
-        //        // Custom legend
-        //        const popupPos = L.latLng(45, 11.5)
-        //        L.popup().setLatLng(popupPos).setContent('<p>Hello world!<br />This is a nice popup.</p>').openOn(this.map)
-        //
-        //        this.layerManagers.length = 0
-        //        const layers = this.propWidget.layers
-        //
-        //        for (const layer of layers) {
-        //            const layerManager = MapLayerManagerCreator.create(layer)
-        //
-        //            this.layerManagers.push(layerManager)
-        //        }
-        //
-        //        console.log(layers)
-        //        console.log(this.layerManagers)
     },
     updated() {
         this.mapManager.invalidateSize()

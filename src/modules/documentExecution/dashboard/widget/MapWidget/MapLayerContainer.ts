@@ -1,7 +1,8 @@
-import { MapManager } from './MapManagerCreator'
-import { MapFeatureStyle, MapVisualizationManager } from './MapVisualizationManager'
 import { FIELD_TYPE_SPATIAL_ATTRIBUTE, FIELD_TYPE_ATTRIBUTE, FIELD_TYPE_MEASURE } from './MapConstants'
 import { ControlPanelItem } from './MapControlPanel'
+import { FeatureGenerator, GeoJSONGenerator, MarkerGenerator, WKTGenerator } from './MapFeatureGenerator'
+import { MapManager } from './MapManagerCreator'
+import { MapVisualizationManager } from './MapVisualizationManager'
 
 const COORD_TYPE_STRING = 'string'
 const COORD_TYPE_GEOJSON = 'json'
@@ -9,83 +10,6 @@ const COORD_TYPE_WKT = 'wkt'
 
 const COORD_TYPE_FORMAT_LAT_LON = 'lat lon'
 const COORD_TYPE_FORMAT_LON_LAT = 'lon lat'
-
-const REGEX_LAT_LON = new RegExp('^\\s*(?<lat>-?(?:[0-8]?[0-9]|90)(?:\\.[0-9]{1,10})?)[, ](?<lon>-?(?:[0-9]{1,2}|1[0-7][0-9]|180)(?:\\.[0-9]{1,10})?)\\s*$')
-const REGEX_LON_LAT = new RegExp('^\\s*(?<lon>-?(?:[0-9]{1,2}|1[0-7][0-9]|180)(?:\\.[0-9]{1,10})?)[, ](?<lat>-?(?:[0-8]?[0-9]|90)(?:\\.[0-9]{1,10})?)\\s*$')
-
-interface FeatureGenerator {
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle): any
-}
-
-abstract class AbstractFeatureGenerator implements FeatureGenerator {
-    protected mapManager: MapManager
-
-    constructor(mapManager: MapManager) {
-        this.mapManager = mapManager
-    }
-
-    protected createMarkerProperties(): void {}
-
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
-        throw new Error('To be implemented')
-    }
-}
-
-class MarkerGenerator extends AbstractFeatureGenerator {
-    private isLongLat = false
-    private regex = REGEX_LAT_LON
-    private latitudeGroupIdx = 1
-    private longitudeGroupIdx = 2
-
-    constructor(mapManager: MapManager, isLongLat: boolean) {
-        super(mapManager)
-        this.isLongLat = isLongLat
-
-        if (this.isLongLat) {
-            this.regex = REGEX_LON_LAT
-
-            this.latitudeGroupIdx = 2
-            this.longitudeGroupIdx = 1
-        }
-    }
-
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
-        const m = this.regex.exec(spatialValue)
-
-        if (m == null) {
-            throw new Error('Error parsing following value: ' + spatialValue)
-        }
-
-        // The + sign convert string to number
-        const latitude = +m[this.latitudeGroupIdx]
-        const longitude = +m[this.longitudeGroupIdx]
-        const properties = {}
-
-        this.mapManager.createMarkerFeature(latitude, longitude, featureStyle, properties)
-    }
-}
-class GeoJSONGenerator extends AbstractFeatureGenerator {
-    constructor(mapManager: MapManager) {
-        super(mapManager)
-    }
-
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
-        const properties = {}
-
-        this.mapManager.createGeoJSONFeature(spatialValue, featureStyle, properties)
-    }
-}
-class WKTGenerator extends AbstractFeatureGenerator {
-    constructor(mapManager: MapManager) {
-        super(mapManager)
-    }
-
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
-        const properties = {}
-
-        this.mapManager.createWKTFeature(spatialValue, featureStyle, properties)
-    }
-}
 
 export interface LayerContainer {
     getAttributes(): any[]
@@ -131,7 +55,14 @@ class AbstractLayerContainer implements LayerContainer {
         this.initColumns()
 
         if (this.coordType === undefined || this.coordType === COORD_TYPE_STRING) {
-            const isLongLat = this.coordFormat == COORD_TYPE_FORMAT_LON_LAT
+            let isLongLat = false
+            if (this.coordFormat === COORD_TYPE_FORMAT_LAT_LON) {
+                isLongLat = false
+            } else if (this.coordFormat === COORD_TYPE_FORMAT_LON_LAT) {
+                isLongLat = true
+            } else {
+                throw new Error('Following coordinate format is not supported: ' + this.coordFormat)
+            }
             this.featureGenerator = new MarkerGenerator(this.mapManager, isLongLat)
         } else if (this.coordType === COORD_TYPE_GEOJSON) {
             this.featureGenerator = new GeoJSONGenerator(this.mapManager)

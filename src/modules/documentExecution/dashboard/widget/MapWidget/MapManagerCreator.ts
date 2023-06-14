@@ -1,11 +1,11 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ControlPanel, ControlPanelItem, ControlPanelItemMeasure } from './MapControlPanel'
-import { DatasetBasedLayer, LayerContainer } from './MapDataStructure'
 import { MapVisualizationManagerCreator } from './MapVisualizationManager'
 import { LAYER_TYPE_DATASET, LAYER_TYPE_CATALOG } from './MapConstants'
 import { MapFeatureStyle } from './MapVisualizationManager'
 import { Wkt } from 'wicket'
+import { DatasetBasedLayer, LayerContainer } from './MapLayerContainer'
 
 export interface MapManager {
     changeShowedMeasure(layer: any, name: string): void
@@ -14,6 +14,7 @@ export interface MapManager {
     getControlPanel(): ControlPanel
     getMapFramework(): any
     showData(dataToShow: any): void
+    getModel(): any
 
     createMarkerFeature(latitude: number, longitude: number, style: MapFeatureStyle, properties: any): any
     createGeoJSONFeature(spatialValue: string, style: MapFeatureStyle, properties: any): void
@@ -27,10 +28,10 @@ class AbstractManager implements MapManager {
     private visualizationByLayerId = new Map<string, any>()
     private columnsByLayerId
 
-    protected element: Element
+    protected element: unknown
     protected map: any
 
-    constructor(element: Element, model: any) {
+    constructor(element: unknown, model: any) {
         this.element = element
         this.model = model
         this.controlPanel = new ControlPanel(this)
@@ -95,7 +96,7 @@ class AbstractManager implements MapManager {
             perLayerShowDataPromises.push(currPromise)
         }
 
-        Promise.all(perLayerShowDataPromises).then((values) => {
+        Promise.any(perLayerShowDataPromises).then((values) => {
             console.log(values)
         })
     }
@@ -174,22 +175,38 @@ class AbstractManager implements MapManager {
 
     private initLayers(): void {
         this.layerContainerByLayerId.clear()
+        const initPromises = [] as Promise<any>[]
+
         for (const layer of this.model.layers) {
-            const layerId = this.getLayerIdFromLayer(layer)
-            const type = layer.type
-            let container = null as any
-            const visualizationManager = this.visualizationByLayerId.get(layerId)
+            const currPromise = new Promise((resolve, reject) => {
+                try {
+                    const layerId = this.getLayerIdFromLayer(layer)
+                    const type = layer.type
+                    let container = null as any
+                    const visualizationManager = this.visualizationByLayerId.get(layerId)
 
-            if (type === LAYER_TYPE_DATASET) {
-                container = new DatasetBasedLayer(this, layerId, layer, visualizationManager)
-            } else if (type === LAYER_TYPE_CATALOG) {
-                throw new Error('Following layer type is not supported: ' + type)
-            } else {
-                throw new Error('Following layer type is not supported: ' + type)
-            }
+                    if (type === LAYER_TYPE_DATASET) {
+                        container = new DatasetBasedLayer(this, layerId, layer, visualizationManager)
+                    } else if (type === LAYER_TYPE_CATALOG) {
+                        throw new Error('Following layer type is not supported: ' + type)
+                    } else {
+                        throw new Error('Following layer type is not supported: ' + type)
+                    }
 
-            this.layerContainerByLayerId.set(layerId, container)
+                    this.layerContainerByLayerId.set(layerId, container)
+
+                    resolve({})
+                } catch (e) {
+                    reject({ error: e })
+                }
+            })
+
+            initPromises.push(currPromise)
         }
+
+        Promise.any(initPromises).then((values) => {
+            console.log(values)
+        })
     }
 
     private layerNameFromDataset(dataset: any) {
@@ -203,7 +220,7 @@ class Leaflet extends AbstractManager {
     private RISE_OB_HOVER = true
     private AUTOPAN_ON_FOCUS = false
 
-    constructor(element: Element, model: any) {
+    constructor(element: unknown, model: any) {
         super(element, model)
     }
 
@@ -217,20 +234,21 @@ class Leaflet extends AbstractManager {
             fillOpacity: 1
         }
 
-        let ret = null
         try {
             const spatialValueAsObject = JSON.parse(spatialValue)
-            ret = L.geoJSON(spatialValueAsObject, {
+            const ret = L.geoJSON(spatialValueAsObject, {
                 style: geoJsonStyle
             })
 
             ret.addTo(this.map)
+
+            this.addCustomProperties(ret, properties)
+
+            return ret
         } catch (e) {
             console.log('Error parsing GeoJSON: ', e)
             throw new Error('Error parsing GeoJSON: see console')
         }
-
-        return ret
     }
 
     createMarkerFeature(latitude: number, longitude: number, style: MapFeatureStyle, properties: any): any {
@@ -252,6 +270,9 @@ class Leaflet extends AbstractManager {
             icon: svgIcon
         })
         ret.addTo(this.map)
+
+        this.addCustomProperties(ret, properties)
+
         return ret
     }
 
@@ -265,20 +286,21 @@ class Leaflet extends AbstractManager {
             fillOpacity: 1
         }
 
-        let ret = null
         try {
             const spatialValueAsObject = this.WKT.read(spatialValue).toJson()
-            ret = L.geoJSON(spatialValueAsObject, {
+            const ret = L.geoJSON(spatialValueAsObject, {
                 style: geoJsonStyle
             })
 
             ret.addTo(this.map)
+
+            this.addCustomProperties(ret, properties)
+
+            return ret
         } catch (e) {
             console.log('Error parsing GeoJSON: ', e)
             throw new Error('Error parsing GeoJSON: see console')
         }
-
-        return ret
     }
 
     init(): void {
@@ -305,10 +327,14 @@ class Leaflet extends AbstractManager {
             maxZoom: 19
         })
     }
+
+    private addCustomProperties(feature: any, properties: any) {
+        feature.knProperties = properties
+    }
 }
 
 export class MapManagerCreator {
-    static create(element: Element, model: any): MapManager {
+    static create(element: unknown, model: any): MapManager {
         return new Leaflet(element, model)
     }
 }

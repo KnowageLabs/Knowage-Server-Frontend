@@ -1,6 +1,7 @@
 import { MapManager } from './MapManagerCreator'
 
 const VISUALIZATION_TYPE_MARKER = 'markers'
+const VISUALIZATION_TYPE_PIE = 'pies'
 
 export class MapFeatureStyle {
     color = 'red'
@@ -24,9 +25,6 @@ class AbstractStyleHandler implements StyleHandler {
 
     public setNext(handler: StyleHandler): StyleHandler {
         this.nextHandler = handler
-        // Returning a handler from here will let us link handlers in a
-        // convenient way like this:
-        // monkey.setNext(squirrel).setNext(dog);
         return handler
     }
 
@@ -145,10 +143,34 @@ class MarkerMapVisualizationManager extends AbstractMapVisualizationManager {
     }
 }
 
+class PieVisualizationManager extends AbstractMapVisualizationManager {
+    private styleHandler: StyleHandler
+
+    constructor(mapManager: MapManager, settings: any) {
+        super(mapManager, settings)
+
+        const sh1 = new CacheStyleHandler()
+        const sh2 = new MarkerStyleHandler()
+        const sh3 = new ConditionalStyleHandler(mapManager)
+
+        sh1.setNext(sh2).setNext(sh3)
+
+        this.styleHandler = sh1
+    }
+
+    getStyle(row: any, measureValue: any): MapFeatureStyle {
+        const featureStyle = new MapFeatureStyle()
+        this.styleHandler.handle(this.mapManager, this.settings, row, measureValue, featureStyle)
+        return featureStyle
+    }
+}
+
 export class MapVisualizationManagerCreator {
     static create(mapManager: MapManager, type: string, settings: any): MapVisualizationManager {
         if (type === VISUALIZATION_TYPE_MARKER) {
             return new MarkerMapVisualizationManager(mapManager, settings)
+        } else if (type === VISUALIZATION_TYPE_PIE) {
+            return new PieVisualizationManager(mapManager, settings)
         } else {
             throw new Error('Following visualization type is not supported: ' + type)
         }
