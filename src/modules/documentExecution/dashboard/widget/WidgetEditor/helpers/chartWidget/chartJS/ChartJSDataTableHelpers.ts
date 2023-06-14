@@ -11,6 +11,7 @@ export const addChartJSColumnToTable = (tempColumn: IWidgetColumn, rows: IWidget
             addChartJSPieChartColumnToTable(tempColumn, rows, mode)
             break
         case 'bar':
+        case 'line':
             addChartJSBarChartColumnToTable(tempColumn, rows, mode)
             break
     }
