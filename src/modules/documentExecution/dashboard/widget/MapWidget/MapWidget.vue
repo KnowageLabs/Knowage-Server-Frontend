@@ -3,7 +3,7 @@
     <div v-if="mapManager" class="kn-parameter-sidebar kn-map-sidebar">
         <div class="kn-map-sidebar-section">Options</div>
         <details v-for="item in mapManager.getControlPanel().getLayers()" :key="item.getLayerId()" class="kn-map-sidebar-layer">
-            <summary>{{ item.getAlias() }}</summary>
+            <summary><i class="fa-solid" :class="layerVisibilityState[item.getLayerId()] ? 'fa-eye' : 'fa-eye-slash'" @click="mapManager.switchLayerVisibility(item.getLayerId())"></i>{{ item.getAlias() }}</summary>
             <span v-if="item.getMeasures().length == 0">TODO : Please show some measure</span>
             <span v-for="measure in item.getMeasures()" v-else :key="measure.getName()">{{ measure.getAlias() }}</span>
         </details>
@@ -44,7 +44,8 @@ export default defineComponent({
             activeSelections: [] as ISelection[],
             zoom: 2 as number,
             layerManagers: [] as MapLayerManager[],
-            mapManager: null as any
+            mapManager: null as any,
+            layerVisibilityState: {}
         }
     },
     watch: {
@@ -63,7 +64,7 @@ export default defineComponent({
         this.loadActiveSelections()
     },
     mounted() {
-        this.mapManager = MapManagerCreator.create(this.$refs.map, this.widgetModel)
+        this.mapManager = MapManagerCreator.create(this.$refs.map, this.widgetModel, this.layerVisibilityState)
         this.mapManager.init()
         this.mapManager.showData(this.dataToShow)
     },

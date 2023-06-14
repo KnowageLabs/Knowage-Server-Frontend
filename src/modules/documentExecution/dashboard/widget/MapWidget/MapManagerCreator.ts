@@ -2,7 +2,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ControlPanel, ControlPanelItem, ControlPanelItemMeasure } from './MapControlPanel'
 import { MapVisualizationManagerCreator } from './MapVisualizationManager'
-import { LAYER_TYPE_DATASET, LAYER_TYPE_CATALOG } from './MapConstants'
+import { LAYER_TYPE_DATASET, LAYER_TYPE_CATALOG, FEATURE_PROPERTY_LAYER_ID } from './MapConstants'
 import { MapFeatureStyle } from './MapVisualizationManager'
 import { Wkt } from 'wicket'
 import { DatasetBasedLayer, LayerContainer } from './MapLayerContainer'
@@ -12,13 +12,18 @@ export interface MapManager {
     init(): void
     invalidateSize(): void
     getControlPanel(): ControlPanel
-    getMapFramework(): any
     showData(dataToShow: any): void
     getModel(): any
 
+    getProprietaryMap(): any
+    createProprietaryLayer(index: number, layerId: string): any
+    addProprietaryLayerToProprietaryMap(proprietaryLayer: any)
+    addFeatureToProprietaryLayer(feature: any, proprietaryLayer: any)
+    switchLayerVisibility(layerId: string)
+
     createMarkerFeature(latitude: number, longitude: number, style: MapFeatureStyle, properties: any): any
-    createGeoJSONFeature(spatialValue: string, style: MapFeatureStyle, properties: any): void
-    createWKTFeature(spatialValue: string, style: MapFeatureStyle, properties: any): void
+    createGeoJSONFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any
+    createWKTFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any
 }
 
 class AbstractManager implements MapManager {
@@ -28,16 +33,30 @@ class AbstractManager implements MapManager {
     private visualizationByLayerId = new Map<string, any>()
     private columnsByLayerId
 
+    protected layerVisibilityState: any
     protected element: unknown
     protected map: any
 
-    constructor(element: unknown, model: any) {
+    constructor(element: unknown, model: any, layerVisibilityState: any) {
         this.element = element
         this.model = model
+        this.layerVisibilityState = layerVisibilityState
         this.controlPanel = new ControlPanel(this)
     }
 
+    addFeatureToProprietaryLayer(feature: any, proprietaryLayer: any) {
+        throw new Error('To be implemented')
+    }
+
+    addProprietaryLayerToProprietaryMap(proprietaryLayer: any) {
+        throw new Error('To be implemented')
+    }
+
     changeShowedMeasure(layer: any, name: string): void {
+        throw new Error('To be implemented')
+    }
+
+    createProprietaryLayer(index: number, layerId: string): any {
         throw new Error('To be implemented')
     }
 
@@ -59,6 +78,10 @@ class AbstractManager implements MapManager {
         this.initControlPanel()
     }
 
+    switchLayerVisibility(layerId: string) {
+        throw new Error('To be implemented')
+    }
+
     invalidateSize(): void {
         throw new Error('To be implemented')
     }
@@ -67,7 +90,7 @@ class AbstractManager implements MapManager {
         return this.controlPanel
     }
 
-    getMapFramework(): any {
+    getProprietaryMap(): any {
         return this.map
     }
 
@@ -87,6 +110,7 @@ class AbstractManager implements MapManager {
                 try {
                     layerManager?.preShowData(datastore)
                     layerManager?.showData(datastore)
+                    layerManager?.afterShowData(datastore)
                     resolve({})
                 } catch (e) {
                     reject({ error: e })
@@ -177,6 +201,7 @@ class AbstractManager implements MapManager {
         this.layerContainerByLayerId.clear()
         const initPromises = [] as Promise<any>[]
 
+        let i = 0
         for (const layer of this.model.layers) {
             const currPromise = new Promise((resolve, reject) => {
                 try {
@@ -186,7 +211,7 @@ class AbstractManager implements MapManager {
                     const visualizationManager = this.visualizationByLayerId.get(layerId)
 
                     if (type === LAYER_TYPE_DATASET) {
-                        container = new DatasetBasedLayer(this, layerId, layer, visualizationManager)
+                        container = new DatasetBasedLayer(this, layerId, layer, visualizationManager, i)
                     } else if (type === LAYER_TYPE_CATALOG) {
                         throw new Error('Following layer type is not supported: ' + type)
                     } else {
@@ -195,6 +220,8 @@ class AbstractManager implements MapManager {
 
                     this.layerContainerByLayerId.set(layerId, container)
 
+                    this.layerVisibilityState[layerId] = true
+
                     resolve({})
                 } catch (e) {
                     reject({ error: e })
@@ -202,6 +229,8 @@ class AbstractManager implements MapManager {
             })
 
             initPromises.push(currPromise)
+
+            i++
         }
 
         Promise.any(initPromises).then((values) => {
@@ -220,11 +249,30 @@ class Leaflet extends AbstractManager {
     private RISE_OB_HOVER = true
     private AUTOPAN_ON_FOCUS = false
 
-    constructor(element: unknown, model: any) {
-        super(element, model)
+    constructor(element: unknown, model: any, layerVisibilityState: any) {
+        super(element, model, layerVisibilityState)
+    }
+
+    addFeatureToProprietaryLayer(feature: any, proprietaryLayer: any): void {
+        proprietaryLayer.addLayer(feature)
+    }
+
+    addProprietaryLayerToProprietaryMap(proprietaryLayer: any): void {
+        this.map.addLayer(proprietaryLayer)
+    }
+
+    createProprietaryLayer(index: number, layerId: string): void {
+        const paneName = this.paneName(layerId)
+
+        const pane = this.map.createPane(paneName)
+        pane.style.zIndex = 601 + index
+        return L.featureGroup([], { pane: paneName })
     }
 
     createGeoJSONFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any {
+        const layerId = properties[FEATURE_PROPERTY_LAYER_ID]
+        const paneName = this.paneName(layerId)
+
         const geoJsonStyle = {
             color: style.strokeColor,
             fillColor: style.color,
@@ -237,10 +285,9 @@ class Leaflet extends AbstractManager {
         try {
             const spatialValueAsObject = JSON.parse(spatialValue)
             const ret = L.geoJSON(spatialValueAsObject, {
-                style: geoJsonStyle
+                style: geoJsonStyle,
+                pane: paneName
             })
-
-            ret.addTo(this.map)
 
             this.addCustomProperties(ret, properties)
 
@@ -252,6 +299,9 @@ class Leaflet extends AbstractManager {
     }
 
     createMarkerFeature(latitude: number, longitude: number, style: MapFeatureStyle, properties: any): any {
+        const layerId = properties[FEATURE_PROPERTY_LAYER_ID]
+        const paneName = this.paneName(layerId)
+
         const coordinate = L.latLng(latitude, longitude)
         const text = coordinate.lat + ' ' + coordinate.lng
 
@@ -267,9 +317,9 @@ class Leaflet extends AbstractManager {
             riseOnHover: this.RISE_OB_HOVER,
             autoPanOnFocus: this.AUTOPAN_ON_FOCUS,
             title: text,
-            icon: svgIcon
+            icon: svgIcon,
+            pane: paneName
         })
-        ret.addTo(this.map)
 
         this.addCustomProperties(ret, properties)
 
@@ -277,6 +327,9 @@ class Leaflet extends AbstractManager {
     }
 
     createWKTFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any {
+        const layerId = properties[FEATURE_PROPERTY_LAYER_ID]
+        const paneName = this.paneName(layerId)
+
         const geoJsonStyle = {
             color: style.strokeColor,
             fillColor: style.color,
@@ -289,10 +342,9 @@ class Leaflet extends AbstractManager {
         try {
             const spatialValueAsObject = this.WKT.read(spatialValue).toJson()
             const ret = L.geoJSON(spatialValueAsObject, {
-                style: geoJsonStyle
+                style: geoJsonStyle,
+                pane: paneName
             })
-
-            ret.addTo(this.map)
 
             this.addCustomProperties(ret, properties)
 
@@ -314,6 +366,12 @@ class Leaflet extends AbstractManager {
         this.map.invalidateSize()
     }
 
+    switchLayerVisibility(layerId: string) {
+        const paneName = this.paneName(layerId)
+        this.map.getPane(paneName).style.display = this.map.getPane(paneName).style.display == 'none' ? 'block' : 'none'
+        this.layerVisibilityState[layerId] = this.map.getPane(paneName).style.display != 'none'
+    }
+
     private initMap() {
         this.map = L.map(this.element).setView([45, 11], 10)
     }
@@ -331,10 +389,14 @@ class Leaflet extends AbstractManager {
     private addCustomProperties(feature: any, properties: any) {
         feature.knProperties = properties
     }
+
+    private paneName(layerId: string) {
+        return 'kn' + layerId
+    }
 }
 
 export class MapManagerCreator {
-    static create(element: unknown, model: any): MapManager {
-        return new Leaflet(element, model)
+    static create(element: unknown, model: anyù, layerVisibilityState: any): MapManager {
+        return new Leaflet(element, model, layerVisibilityState)
     }
 }

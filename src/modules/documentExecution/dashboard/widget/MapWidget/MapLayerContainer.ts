@@ -19,12 +19,15 @@ export interface LayerContainer {
     getSpatialAttribute(): any
 
     getLayer(): any
+    getLayerId(): string
 
     preShowData(datastore: any): void
     showData(datastore: any): void
+    afterShowData(datastore: any): void
 }
 
 class AbstractLayerContainer implements LayerContainer {
+    protected index: number
     protected layer: any
     protected layerId: string
 
@@ -46,11 +49,12 @@ class AbstractLayerContainer implements LayerContainer {
     protected controlPanelItem: ControlPanelItem | undefined
     protected selectedMeasure: string | undefined
 
-    constructor(mapManager: MapManager, layerId: string, layer: any, visualizationManager: MapVisualizationManager) {
+    constructor(mapManager: MapManager, layerId: string, layer: any, visualizationManager: MapVisualizationManager, index: number) {
         this.mapManager = mapManager
         this.layerId = layerId
         this.layer = layer
         this.visualizationManager = visualizationManager
+        this.index = index
 
         this.initColumns()
 
@@ -63,11 +67,11 @@ class AbstractLayerContainer implements LayerContainer {
             } else {
                 throw new Error('Following coordinate format is not supported: ' + this.coordFormat)
             }
-            this.featureGenerator = new MarkerGenerator(this.mapManager, isLongLat)
+            this.featureGenerator = new MarkerGenerator(this.mapManager, this, isLongLat)
         } else if (this.coordType === COORD_TYPE_GEOJSON) {
-            this.featureGenerator = new GeoJSONGenerator(this.mapManager)
+            this.featureGenerator = new GeoJSONGenerator(this.mapManager, this)
         } else if (this.coordType == COORD_TYPE_WKT) {
-            this.featureGenerator = new WKTGenerator(this.mapManager)
+            this.featureGenerator = new WKTGenerator(this.mapManager, this)
         } else {
             throw new Error('Following cordinate type is not supported: ' + this.coordType)
         }
@@ -83,6 +87,10 @@ class AbstractLayerContainer implements LayerContainer {
 
     getLayer() {
         return this.layer
+    }
+
+    getLayerId(): string {
+        return this.layerId
     }
 
     getMeasures(): any[] {
@@ -106,6 +114,10 @@ class AbstractLayerContainer implements LayerContainer {
         throw new Error('To be implemented')
     }
 
+    afterShowData(datastore: any): void {
+        throw new Error('To be implemented')
+    }
+
     protected initColumns(): void {
         throw new Error('To be implemented')
     }
@@ -115,9 +127,10 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
     private dsColumnsFromLayerField = new Map<string, string>()
     private spatialAttributeColumnName = null
     private measureColumnName = null
+    private proprietaryLayer = null
 
-    constructor(mapManager: MapManager, layerId: string, layer: any, visualizationManager: MapVisualizationManager) {
-        super(mapManager, layerId, layer, visualizationManager)
+    constructor(mapManager: MapManager, layerId: string, layer: any, visualizationManager: MapVisualizationManager, index: number) {
+        super(mapManager, layerId, layer, visualizationManager, index)
     }
 
     protected initColumns(): void {
@@ -146,7 +159,40 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
 
     preShowData(datastore: any): void {
         super.preShowData(datastore)
+        this.initColumnsFromDatastore(datastore)
+        this.initProprietaryLayer()
+    }
 
+    showData(datastore: any): void {
+        const rows = datastore.rows
+
+        for (const row of rows) {
+            try {
+                this.showRow(row)
+            } catch (e) {
+                console.log('Error showing following record: ' + row, e)
+                throw new Error('Error showing following record: ' + row)
+            }
+        }
+    }
+
+    showRow(row: any) {
+        const spatialAttributeValue = row[this.spatialAttributeColumnName]
+        const measureValue = row[this.measureColumnName]
+        const featureStyle = this.visualizationManager.getStyle(row)
+
+        console.log(this.measureColumnName)
+
+        const feature = this.featureGenerator.generate(spatialAttributeValue, measureValue, featureStyle)
+
+        this.mapManager.addFeatureToProprietaryLayer(feature, this.proprietaryLayer)
+    }
+
+    afterShowData(datastore: any): void {
+        this.mapManager.addProprietaryLayerToProprietaryMap(this.proprietaryLayer)
+    }
+
+    private initColumnsFromDatastore(datastore: any): void {
         const metaData = datastore.metaData
         // The first item is the string "recNo"
         const fields = (metaData.fields as []).slice(1)
@@ -192,26 +238,7 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
         this.measureColumnName = this.dsColumnsFromLayerField.get(this.selectedMeasure)
     }
 
-    showData(datastore: any): void {
-        const rows = datastore.rows
-
-        for (const row of rows) {
-            try {
-                this.showRow(row)
-            } catch (e) {
-                console.log('Error showing following record: ' + row, e)
-                throw new Error('Error showing following record: ' + row)
-            }
-        }
-    }
-
-    showRow(row: any) {
-        const spatialAttributeValue = row[this.spatialAttributeColumnName]
-        const measureValue = row[this.measureColumnName]
-        const featureStyle = this.visualizationManager.getStyle(row)
-
-        console.log(this.measureColumnName)
-
-        this.featureGenerator.generate(spatialAttributeValue, measureValue, featureStyle)
+    private initProprietaryLayer(): void {
+        this.proprietaryLayer = this.mapManager.createProprietaryLayer(this.index, this.layerId)
     }
 }
