@@ -1,26 +1,22 @@
-import { iParameter } from "@/components/UI/KnParameterSidebar/KnParameterSidebar";
-import { IDashboard, IDashboardDatasetDriver, IDashboardDriver, IDashboardDataset } from "../Dashboard";
+import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
+import { IDashboard, IDashboardDatasetDriver, IDashboardDriver, IDashboardDataset } from '../Dashboard'
 
 export const loadDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, dashboardModel: IDashboard) => {
     const dataset = datasetWithDriversExists(dashboardModel)
     if (dataset && dataset.drivers) {
         updateDatasetDrivers(dataset, filtersData)
         return getFormattedDashboardDrivers(dataset.drivers)
-    }
-    else if (filtersData?.filterStatus) {
+    } else if (filtersData?.filterStatus) {
         return getFormattedDashboardDrivers(filtersData.filterStatus)
     } else {
-
         return []
     }
 }
-
 
 const datasetWithDriversExists = (dashboardModel: IDashboard) => {
     if (!dashboardModel || !dashboardModel.configuration.datasets) return null
     const dataset = dashboardModel.configuration.datasets.find((dataset: IDashboardDataset) => dataset.drivers && dataset.drivers.length > 0)
     return dataset
-
 }
 
 const updateDatasetDrivers = (dataset: IDashboardDataset, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) => {
@@ -38,7 +34,7 @@ const formatDatasetDriver = (datasetDriver: IDashboardDatasetDriver, driver: iPa
 
 const updateDatasetDefaultValue = (datasetDriver: IDashboardDatasetDriver, driver: iParameter) => {
     datasetDriver.defaultValue = driver.driverDefaultValue.map((defaultValue: { value: string | number; desc: string }) => {
-        return { value: "" + defaultValue.value, description: defaultValue.desc }
+        return { value: '' + defaultValue.value, description: defaultValue.desc }
     })
 }
 
@@ -58,13 +54,12 @@ export const getFormattedDashboardDrivers = (dashboardDrivers: (iParameter | IDa
     return drivers
 }
 
-
 const getFormattedDriverValue = (filter: iParameter | IDashboardDatasetDriver) => {
     if (!filter || !filter.parameterValue) return ''
     let value = ''
     for (let i = 0; i < filter.parameterValue.length; i++) {
-        value += filter.parameterValue[i].value
-        value += i === filter.parameterValue.length ? '  ' : '; '
+        value += `'${filter.parameterValue[i].value}'`
+        value += i === filter.parameterValue.length ? '  ' : ', '
     }
     return value.substring(0, value.length - 2)
 }
