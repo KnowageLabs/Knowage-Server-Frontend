@@ -1,11 +1,12 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ControlPanel, ControlPanelItem, ControlPanelItemMeasure } from './MapControlPanel'
-import { MapVisualizationManagerCreator } from './MapVisualizationManager'
+import { MapVisualizationManagerCreator, PieVisualizationManager } from './MapVisualizationManager'
 import { LAYER_TYPE_DATASET, LAYER_TYPE_CATALOG, FEATURE_PROPERTY_LAYER_ID } from './MapConstants'
 import { MapFeatureStyle } from './MapVisualizationManager'
 import { Wkt } from 'wicket'
 import { DatasetBasedLayer, LayerContainer } from './MapLayerContainer'
+import { LeafleatBaseFeatureGroup, LeafleatPerSpatialAttributeFeatureGroup } from './LeafletExtension'
 
 export interface MapManager {
     changeShowedMeasure(layer: any, name: string): void
@@ -16,7 +17,7 @@ export interface MapManager {
     getModel(): any
 
     getProprietaryMap(): any
-    createProprietaryLayer(index: number, layerId: string): any
+    createProprietaryLayer(layerContainer: LayerContainer): any
     addProprietaryLayerToProprietaryMap(proprietaryLayer: any)
     addFeatureToProprietaryLayer(feature: any, proprietaryLayer: any)
     switchLayerVisibility(layerId: string)
@@ -56,7 +57,7 @@ class AbstractManager implements MapManager {
         throw new Error('To be implemented')
     }
 
-    createProprietaryLayer(index: number, layerId: string): any {
+    createProprietaryLayer(layerContainer: LayerContainer): any {
         throw new Error('To be implemented')
     }
 
@@ -261,12 +262,24 @@ class Leaflet extends AbstractManager {
         this.map.addLayer(proprietaryLayer)
     }
 
-    createProprietaryLayer(index: number, layerId: string): void {
+    createProprietaryLayer(layerContainer: LayerContainer): void {
+        const index = layerContainer.getLayerIndex()
+        const layerId = layerContainer.getLayerId()
+        const visualizationManager = layerContainer.getVisualizationManager()
+
         const paneName = this.paneName(layerId)
 
         const pane = this.map.createPane(paneName)
         pane.style.zIndex = 601 + index
-        return L.featureGroup([], { pane: paneName })
+
+        let ret = new LeafleatBaseFeatureGroup([], { pane: paneName })
+
+        if (visualizationManager instanceof PieVisualizationManager) {
+            ret = new LeafleatPerSpatialAttributeFeatureGroup([], { pane: paneName })
+        }
+
+        return ret
+        // return L.featureGroup([], { pane: paneName })
     }
 
     createGeoJSONFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any {
@@ -304,20 +317,26 @@ class Leaflet extends AbstractManager {
 
         const coordinate = L.latLng(latitude, longitude)
         const text = coordinate.lat + ' ' + coordinate.lng
+        const originaliIcon = style.icon
 
-        const svgIcon = L.divIcon({
-            html: style.icon,
-            className: '',
-            iconSize: [24, 40],
-            iconAnchor: [12, 40]
-        })
+        let icon = ''
+        if (typeof originaliIcon === 'object') {
+            icon = originaliIcon
+        } else if (typeof originaliIcon === 'string') {
+            icon = L.divIcon({
+                html: originaliIcon,
+                className: '',
+                iconSize: [24, 40],
+                iconAnchor: [12, 40]
+            })
+        }
 
         const ret = L.marker(coordinate, {
             alt: text,
             riseOnHover: this.RISE_OB_HOVER,
             autoPanOnFocus: this.AUTOPAN_ON_FOCUS,
             title: text,
-            icon: svgIcon,
+            icon: icon,
             pane: paneName
         })
 
@@ -391,7 +410,7 @@ class Leaflet extends AbstractManager {
     }
 
     private paneName(layerId: string) {
-        return 'kn' + layerId
+        return 'knowage-' + layerId
     }
 }
 

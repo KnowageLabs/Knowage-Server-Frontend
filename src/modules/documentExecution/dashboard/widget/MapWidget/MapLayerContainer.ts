@@ -20,6 +20,9 @@ export interface LayerContainer {
 
     getLayer(): any
     getLayerId(): string
+    getLayerIndex(): number
+
+    getVisualizationManager(): MapVisualizationManager
 
     preShowData(datastore: any): void
     showData(datastore: any): void
@@ -93,6 +96,14 @@ class AbstractLayerContainer implements LayerContainer {
         return this.layerId
     }
 
+    getLayerIndex(): number {
+        return this.index
+    }
+
+    getVisualizationManager(): MapVisualizationManager {
+        return this.visualizationManager
+    }
+
     getMeasures(): any[] {
         return this.measures
     }
@@ -106,8 +117,7 @@ class AbstractLayerContainer implements LayerContainer {
     }
 
     preShowData(datastore: any): void {
-        this.controlPanelItem = this.mapManager.getControlPanel().getLayer(this.layerId)
-        this.selectedMeasure = this.controlPanelItem?.getSelected()?.getName()
+        throw new Error('To be implemented')
     }
 
     showData(datastore: any) {
@@ -158,7 +168,6 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
     }
 
     preShowData(datastore: any): void {
-        super.preShowData(datastore)
         this.initColumnsFromDatastore(datastore)
         this.initProprietaryLayer()
     }
@@ -180,8 +189,6 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
         const spatialAttributeValue = row[this.spatialAttributeColumnName]
         const measureValue = row[this.measureColumnName]
         const featureStyle = this.visualizationManager.getStyle(row)
-
-        console.log(this.measureColumnName)
 
         const feature = this.featureGenerator.generate(spatialAttributeValue, measureValue, featureStyle)
 
@@ -211,8 +218,6 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
             throw new Error('Dataset is missing spatial attribute')
         }
 
-        this.spatialAttributeColumnName = this.dsColumnsFromLayerField.get(neededSpatialAttribute.name)
-
         // Attributes
         const neededAttributes = this.attributes
         let hasNeededAttributes = true
@@ -236,9 +241,17 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
         }
 
         this.measureColumnName = this.dsColumnsFromLayerField.get(this.selectedMeasure)
+
+        // Get active measure
+        this.controlPanelItem = this.mapManager.getControlPanel().getLayer(this.layerId)
+        this.selectedMeasure = this.controlPanelItem?.getSelected()?.getName()
+
+        // Cache column name for spatial attribute and current measure
+        this.spatialAttributeColumnName = this.dsColumnsFromLayerField.get(neededSpatialAttribute.name)
+        this.measureColumnName = this.dsColumnsFromLayerField.get(this.selectedMeasure)
     }
 
     private initProprietaryLayer(): void {
-        this.proprietaryLayer = this.mapManager.createProprietaryLayer(this.index, this.layerId)
+        this.proprietaryLayer = this.mapManager.createProprietaryLayer(this)
     }
 }

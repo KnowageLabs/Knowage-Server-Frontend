@@ -1,4 +1,6 @@
+import { VegaLiteIcon } from './LeafletExtension'
 import { MapManager } from './MapManagerCreator'
+import L from 'leaflet'
 
 const VISUALIZATION_TYPE_MARKER = 'markers'
 const VISUALIZATION_TYPE_PIE = 'pies'
@@ -7,7 +9,7 @@ export class MapFeatureStyle {
     color = 'red'
     strokeColor = 'black'
     strokeWidth = 2
-    icon = ''
+    icon: L.Icon | string
     iconRadius = 7
 }
 
@@ -103,6 +105,12 @@ class MarkerStyleHandler extends AbstractStyleHandler {
     }
 }
 
+class PieStyleHandler extends AbstractStyleHandler {
+    public handle(mapManager: MapManager, settings: any, row: any, measureValue: any, featureStyle: MapFeatureStyle): void {
+        featureStyle.icon = new VegaLiteIcon({})
+    }
+}
+
 export interface MapVisualizationManager {
     getStyle(row: any, measureValue: any): MapFeatureStyle
 }
@@ -121,7 +129,7 @@ class AbstractMapVisualizationManager implements MapVisualizationManager {
     }
 }
 
-class MarkerMapVisualizationManager extends AbstractMapVisualizationManager {
+export class MarkerMapVisualizationManager extends AbstractMapVisualizationManager {
     private styleHandler: StyleHandler
 
     constructor(mapManager: MapManager, settings: any) {
@@ -143,17 +151,13 @@ class MarkerMapVisualizationManager extends AbstractMapVisualizationManager {
     }
 }
 
-class PieVisualizationManager extends AbstractMapVisualizationManager {
+export class PieVisualizationManager extends AbstractMapVisualizationManager {
     private styleHandler: StyleHandler
 
     constructor(mapManager: MapManager, settings: any) {
         super(mapManager, settings)
 
-        const sh1 = new CacheStyleHandler()
-        const sh2 = new MarkerStyleHandler()
-        const sh3 = new ConditionalStyleHandler(mapManager)
-
-        sh1.setNext(sh2).setNext(sh3)
+        const sh1 = new PieStyleHandler()
 
         this.styleHandler = sh1
     }
