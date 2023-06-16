@@ -27,8 +27,8 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        if (!this.model.xAxis) this.setScatterXAxis()
-        if (!this.model.yAxis) this.setScatterYAxis()
+        if (!this.model.xAxis || !this.model.xAxis.gridLineWidth) this.setScatterXAxis()
+        if (!this.model.yAxis || !this.model.yAxis.gridLineWidth) this.setScatterYAxis()
     }
 
     setPlotOptions() {

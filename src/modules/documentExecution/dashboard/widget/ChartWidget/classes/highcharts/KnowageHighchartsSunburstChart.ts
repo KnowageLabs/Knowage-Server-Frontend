@@ -66,7 +66,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
         const centerTextSettings = widgetModel.settings.configuration.centerText
-        const serieElement = this.createSerieElement(measureColumn, centerTextSettings, interactionsEnabled)
+        const serieElement = this.createSerieElement(measureColumn, interactionsEnabled)
         const hierarchy = {} as any
         createHierarchyFromData(this.model, hierarchy, data, attributeColumns, measureColumn)
 
@@ -97,7 +97,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         this.model.colors = []
     }
 
-    createSerieElement(measureColumn: any, centerTextSettings: any, interactionsEnabled: boolean) {
+    createSerieElement(measureColumn: any, interactionsEnabled: boolean) {
         const serieElement = {
             id: 0, name: measureColumn.column.columnName, data: [] as any[],
             layoutAlgorithm: 'squarified',
@@ -141,14 +141,14 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         if (!treemapArray[0]) return
         treemapArray[0].parent = null,
             treemapArray[0].id = 'root',
-            treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName,
+            treemapArray[0].name = centerTextSettings?.text ?? attributeColumns[0].column.columnName,
             treemapArray[0].dataLabels = {
                 enabled: true,
                 style: {
-                    fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
-                    fontStyle: centerTextSettings.style['font-style'] ?? "normal",
-                    fontSize: centerTextSettings.style['font-size'] ?? "12px",
-                    color: centerTextSettings.style.color ?? "#000000",
+                    fontFamily: centerTextSettings?.style['font-family'] ?? 'Arial',
+                    fontStyle: centerTextSettings?.style['font-style'] ?? "normal",
+                    fontSize: centerTextSettings?.style['font-size'] ?? "12px",
+                    color: centerTextSettings?.style.color ?? "#000000",
                     width: "10000"
                 }
             }
