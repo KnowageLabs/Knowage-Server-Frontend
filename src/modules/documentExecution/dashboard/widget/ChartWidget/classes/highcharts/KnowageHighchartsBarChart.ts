@@ -26,8 +26,8 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        if (!this.model.xAxis) this.setBarXAxis()
-        if (!this.model.yAxis) this.setBarYAxis()
+        if (!this.model.xAxis || !this.model.xAxis.title) this.setBarXAxis()
+        if (!this.model.yAxis || !this.model.yAxis.title) this.setBarYAxis()
     }
 
     setPlotOptions() {

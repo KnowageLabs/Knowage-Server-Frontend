@@ -1,6 +1,6 @@
 <template>
     <div class="dashboard-editor-list-card-container p-m-3">
-        <Listbox class="kn-list kn-list-no-border-right dashboard-editor-list" :options="options" option-disabled="disabled">
+        <Listbox v-model="selectedItem" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="options" option-disabled="disabled">
             <template #option="slotProps">
                 <div class="kn-list-item" :style="descriptor.listStyle.listItem" data-test="widget-editor-list-item" @click="itemClicked(slotProps.option)">
                     <i v-if="slotProps.option.icon" :class="slotProps.option.icon" class="p-mr-2" :style="descriptor.listStyle.listIcon"></i>
@@ -26,12 +26,13 @@ export default defineComponent({
     emits: ['itemClicked'],
     data() {
         return {
-            descriptor
+            descriptor,
+            selectedItem: null as { icon: string; label: string; value: string } | null
         }
     },
     async created() {},
     methods: {
-        itemClicked(item: any) {
+        itemClicked(item: { icon: string; label: string; value: string }) {
             this.$emit('itemClicked', item)
         }
     }

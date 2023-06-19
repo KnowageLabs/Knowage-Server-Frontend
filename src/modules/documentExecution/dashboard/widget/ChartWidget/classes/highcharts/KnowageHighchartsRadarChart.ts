@@ -26,8 +26,8 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setSpecificOptionsDefaultValues() {
-        if (!this.model.xAxis) this.setRadarXAxis()
-        if (!this.model.yAxis) this.setRadarYAxis()
+        if (!this.model.xAxis || !this.model.xAxis.title) this.setRadarXAxis()
+        if (!this.model.yAxis || !this.model.yAxis.title) this.setRadarYAxis()
     }
 
     setData(data: any, widgetModel: IWidget) {

@@ -20,7 +20,6 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
     return date.isValid() ? date.format(dateFormat) : dateString
 }
 
-// TODO - We take first attribute, unlimited measures
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) => {
     console.log('SET REG DATA MODEL', widgetModel)
     const attributeColumn = attributeColumns[0]
@@ -70,7 +69,6 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
     model.series.push(serieElement)
 }
 
-// TODO - We take exactly 2 attributes, first measure
 export const setGroupedCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
     const measureColumn = measureColumns[0]
@@ -100,15 +98,9 @@ const updateXAxisForGroupingCategoriesData = (model: any, categoryValuesMap: any
     axis.index = 0
     Object.keys(categoryValuesMap).forEach((key: string) => {
         categoryValuesMap[key].categories?.forEach((category: string) => axis.categories.push(key + ' - ' + category))
-        // TODO PR - Problem with grouping lib
-        // axis.categories.push({
-        //     name: key,
-        //     categories: categoryValuesMap[key].categories ? categoryValuesMap[key].categories : []
-        // })
     })
 }
 
-// TODO - We take exactly 1 attribute, exactly 2 measures
 export const setGroupedBySeriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[]) => {
     if (!data || !attributeColumns[0] || measureColumns.length < 2) return
     const attributeColumn = attributeColumns[0]
@@ -139,12 +131,8 @@ const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, catego
     })
 }
 
-// TODO - We take exactly 2 attributes, exactly 1 measure (chosen from dropdown)
 export const setGroupedByCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], serieForGroupingName: string) => {
-    console.log('--------- DATA: ', data)
-    console.log('--------- attributeColumns: ', attributeColumns)
     const measureForGrouping = measureColumns.find((measureColumn: any) => measureColumn.column.columnName === serieForGroupingName)
-    console.log('--------- measureForGrouping: ', measureForGrouping)
     if (!data || attributeColumns.length < 2 || !measureForGrouping) return
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]

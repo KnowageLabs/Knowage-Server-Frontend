@@ -26,8 +26,8 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        if (!this.model.xAxis) this.setLineXAxis()
-        if (!this.model.yAxis) this.setLineYAxis()
+        if (!this.model.xAxis || !this.model.xAxis.title) this.setLineXAxis()
+        if (!this.model.yAxis || !this.model.yAxis.title) this.setLineYAxis()
     }
 
     setPlotOptions() {
