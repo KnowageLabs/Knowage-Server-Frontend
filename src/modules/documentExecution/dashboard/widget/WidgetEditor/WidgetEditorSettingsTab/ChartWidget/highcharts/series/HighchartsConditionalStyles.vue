@@ -92,7 +92,6 @@ export default defineComponent({
             emitter.off('columnRemoved', this.loadConditionalStyles)
         },
         loadConditionalStyles() {
-            console.log('test', this.widgetModel?.settings?.series?.conditionalStyles)
             if (this.widgetModel?.settings?.series?.conditionalStyles) this.conditionalStylesModel = this.widgetModel.settings.series.conditionalStyles
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, conditionalStyle: IHighchartsCommonConditionalStyle) {
