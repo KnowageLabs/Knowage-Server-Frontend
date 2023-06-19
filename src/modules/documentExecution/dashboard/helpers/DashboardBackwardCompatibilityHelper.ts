@@ -260,9 +260,6 @@ const getFormattedChartWidget = (widget: any, user: any) => {
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return formatVegaChartsWidget(widget)
     else if (user?.enterprise) return formatHighchartsWidget(widget)
     else return formatChartJSWidget(widget)
-
-    // TODO widgetChange - Darko
-    // return formatChartJSWidget(widget)
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {

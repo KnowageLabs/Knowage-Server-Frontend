@@ -21,7 +21,6 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
 }
 
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) => {
-    console.log('SET REG DATA MODEL', widgetModel)
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
@@ -152,7 +151,6 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
     const measureSerieElementValueMap = {} as any
     createSeriesForGroupedByCategoriesData(model, categoryValueMap, measureSerieElementValueMap)
     createMeasureSerieForGroupedByCategoriesData(model, measureForGrouping, measureSerieElementValueMap)
-    console.log('---- model.series: ', model.series)
 }
 
 const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: string[], categoryValueMap: any) => {

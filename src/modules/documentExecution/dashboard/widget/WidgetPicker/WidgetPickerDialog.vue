@@ -57,9 +57,6 @@ export default defineComponent({
         openWidgetEditor(widget) {
             // TODO widgetChange
             if (widget.type === 'chart') widget.type = this.isEnterprise ? 'highcharts' : 'chartJS'
-
-            // TODO widgetChange - Darko
-            // widget.type = 'chartJS'
             this.$emit('openNewWidgetEditor', widget)
         }
     }

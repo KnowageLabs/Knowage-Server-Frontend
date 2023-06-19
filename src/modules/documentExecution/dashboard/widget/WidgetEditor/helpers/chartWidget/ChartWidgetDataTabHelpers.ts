@@ -11,7 +11,4 @@ export const addChartColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetCo
     else {
         store.user.enterprise ? addHighchartsColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly, widgetModel) : addChartJSColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
     }
-
-    // TODO widgetChange - Darko
-    // addChartJSColumnToTable(tempColumn, rows, attributesOnly, measuresOnly, widgetModel)
 }

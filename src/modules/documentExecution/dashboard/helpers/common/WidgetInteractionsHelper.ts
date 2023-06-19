@@ -59,9 +59,6 @@ const getFormattedChartSelection = (widget: any, chartType: string | null) => {
         if (chartType && ['SUNBURST', 'TREEMAP'].includes(chartType)) highchartsDefaultSelections.enabled = false
         return user?.enterprise ? highchartsDefaultSelections : chartJSDefaultValues.getDefaultChartJSSelections()
     }
-
-    // TODO widgetChange - Darko
-    // return chartJSDefaultValues.getDefaultChartJSSelections()
 }
 
 const getFormattedCommonSelection = () => {

@@ -91,10 +91,6 @@ export default defineComponent({
                 this.widget.settings.chartModel = createChartJSModel(chartType)
             }
 
-            // TODO widgetChange - Darko
-            // this.widget.type = 'chartJS'
-            // this.widget.settings = createNewChartJSSettings()
-            // this.widget.settings.chartModel = createChartJSModel(chartType)
             emitter.emit('chartTypeChanged', this.widget.id)
             emitter.emit('refreshWidgetWithData', this.widget.id)
         }

@@ -3,7 +3,6 @@ import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Da
 export const addChartJSColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], attributesOnly: boolean, measuresOnly: boolean, widgetModel: IWidget) => {
     let mode = ''
     const chartType = widgetModel.settings.chartModel.model.chart.type
-    console.log('chart type', chartType)
     if (attributesOnly) mode = 'attributesOnly'
     else if (measuresOnly) mode = 'measuresOnly'
     switch (chartType) {
@@ -47,5 +46,4 @@ const addChartJSBarChartColumnToTable = (tempColumn: IWidgetColumn, rows: IWidge
         }
         rows.push(tempColumn)
     }
-    console.log('rows', rows)
 }
