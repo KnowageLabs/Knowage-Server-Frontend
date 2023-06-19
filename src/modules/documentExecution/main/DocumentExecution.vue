@@ -89,7 +89,7 @@
                             :new-dashboard-mode="newDashboardMode"
                             :mode="mode"
                             :prop-view="dashboardView"
-                            @executeView="onExecuteView"
+                            @executeView="executeView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
                             @executeCrossNavigation="onExecuteCrossNavigation"
@@ -146,6 +146,9 @@
                     @close="onCrossNavigationPopupClose()"
                 ></DocumentExecution>
             </Dialog>
+
+            <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedCockpitView" :document="document" @close="onSaveViewDialogClose"></DashboardSaveViewDialog>
+            <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
         </div>
     </div>
 </template>
@@ -187,6 +190,8 @@ import descriptor from './DocumentExecutionDescriptor.json'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/WorkspaceFolderPickerDialog.vue'
 import EnginesConstants from '@/EnginesConstants.json'
+import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
+import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 
 // @ts-ignore
 // eslint-disable-next-line
@@ -224,7 +229,9 @@ export default defineComponent({
         DocumentExecutionCNContainerDialog,
         DashboardController,
         Dialog,
-        WorkspaceFolderPickerDialog
+        WorkspaceFolderPickerDialog,
+        DashboardSaveViewDialog,
+        DashboardSavedViewsDialog
     },
     props: {
         id: { type: String },
@@ -298,7 +305,12 @@ export default defineComponent({
             crossNavigationSourceDocumentName: '',
             dashboardView: null as IDashboardView | null,
             workspaceFolderPickerDialogVisible: false,
-            metadataLoading: false
+            metadataLoading: false,
+            saveViewDialogVisible: false,
+            savedViewsListDialogVisible: false,
+            currentCockpitView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
+            selectedCockpitView: null as IDashboardView | null,
+            cockpitViewForExecution: null as IDashboardView | null
         }
     },
     computed: {
@@ -471,7 +483,9 @@ export default defineComponent({
                     addToWorkspace: this.addToWorkspace,
                     showOLAPCustomView: this.showOLAPCustomView,
                     copyLink: this.copyLink,
-                    openDashboardGeneralSettings: this.openDashboardGeneralSettings
+                    openDashboardGeneralSettings: this.openDashboardGeneralSettings,
+                    openSaveCurrentViewDialog: this.openSaveCurrentViewDialog,
+                    openSavedViewsListDialog: this.openSavedViewsListDialog
                 },
                 this.exporters,
                 this.user,
@@ -495,6 +509,11 @@ export default defineComponent({
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
 
                 let tempFrame = filteredFrames[tempIndex]
+                if (tempFrame && tempFrame.name === 'documentFrame' + tempIndex) {
+                    tempFrame.postMessage({ type: 'export', format: type.toLowerCase() }, '*')
+                    return
+                }
+
                 while (tempFrame && tempFrame.name !== 'documentFrame' + tempIndex) tempFrame = tempFrame[0].frames
 
                 tempFrame.postMessage({ type: 'export', format: type.toLowerCase() }, '*')
@@ -571,6 +590,7 @@ export default defineComponent({
             this.loading = crossNavigationPopupMode ? false : true
             this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
             if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
+            else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
             if (this.filtersData?.isReadyForExecution) {
                 this.parameterSidebarVisible = false
                 await this.loadURL(null, documentLabel, crossNavigationPopupMode)
@@ -602,7 +622,10 @@ export default defineComponent({
             this.loading = true
             await this.$http
                 .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/${this.$route.query.viewId}`)
-                .then((response: AxiosResponse<any>) => (this.dashboardView = response.data))
+                .then(async (response: AxiosResponse<any>) => {
+                    this.$route.path.includes('cockpit-view') ? (this.cockpitViewForExecution = response.data) : (this.dashboardView = response.data)
+                    if (this.cockpitViewForExecution) await this.executeView(this.cockpitViewForExecution)
+                })
                 .catch(() => {})
             this.loading = false
         },
@@ -1118,9 +1141,28 @@ export default defineComponent({
             breadcrumb.document.dashboardId = event
             this.document.dashboardId = event
         },
-        async onExecuteView(view: IDashboardView) {
-            this.dashboardView = view
+        async executeView(view: IDashboardView) {
+            this.savedViewsListDialogVisible = false
+            if (view.biObjectTypeCode === 'DASHBOARD') this.dashboardView = view
+            else this.cockpitViewForExecution = view
             await this.loadPage()
+        },
+        openSaveCurrentViewDialog() {
+            this.currentCockpitView.drivers = this.filtersData
+            this.selectedCockpitView = { ...this.currentCockpitView, new: true }
+            this.saveViewDialogVisible = true
+        },
+        openSavedViewsListDialog() {
+            this.savedViewsListDialogVisible = true
+        },
+        onSaveViewDialogClose() {
+            this.saveViewDialogVisible = false
+            this.selectedCockpitView = null
+        },
+        moveView(view: IDashboardView) {
+            this.savedViewsListDialogVisible = false
+            this.selectedCockpitView = view
+            this.saveViewDialogVisible = true
         }
     }
 })

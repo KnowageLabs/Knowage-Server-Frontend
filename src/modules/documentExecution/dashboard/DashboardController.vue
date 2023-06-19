@@ -175,6 +175,10 @@ export default defineComponent({
         async propView() {
             if (!this.showDashboard) return
             await this.getData()
+        },
+        async filtersData() {
+            if (!this.showDashboard) return
+            await this.getData()
         }
     },
     async created() {

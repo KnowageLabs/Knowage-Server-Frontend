@@ -85,7 +85,8 @@ export default defineConfig((command, mode) => {
         resolve: {
             extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
             alias: {
-                '@': path.resolve(__dirname, './src')
+                '@': path.resolve(__dirname, './src'),
+                'devextreme/ui': 'devextreme/esm/ui'
             }
         },
         css: {
@@ -103,7 +104,17 @@ export default defineConfig((command, mode) => {
                 output: {
                     chunkFileNames: 'assets/js/[name]-[hash].js',
                     entryFileNames: 'assets/js/[name]-[hash].js'
-                }
+                },
+                plugins: [
+                    {
+                        name: 'no-treeshake',
+                        transform(_, id) {
+                            if (id.includes('devextreme-vue/pivot-grid')) {
+                                return { moduleSideEffects: 'no-treeshake' }
+                            }
+                        }
+                    }
+                ]
             }
         },
         server: {

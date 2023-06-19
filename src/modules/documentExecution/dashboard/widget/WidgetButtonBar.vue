@@ -82,6 +82,7 @@ export default defineComponent({
 }
 .widgetButtonBarContainer {
     display: none;
+    z-index: 1001;
     position: absolute;
     bottom: 2px;
     left: 2px;

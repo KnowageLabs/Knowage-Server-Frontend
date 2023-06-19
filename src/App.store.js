@@ -20,6 +20,7 @@ const store = defineStore('store', {
                 licenses: {},
                 cpuNumber: -1
             },
+            mainMenuVisibility: false,
             documentExecution: {},
             theme: {},
             defaultTheme: {}
@@ -102,6 +103,12 @@ const store = defineStore('store', {
         },
         setDefaultTheme(defaultTheme) {
             this.defaultTheme = defaultTheme
+        },
+        hideMainMenu() {
+            this.mainMenuVisibility = false
+        },
+        showMainMenu() {
+            this.mainMenuVisibility = true
         },
         getLocale() {
             return this.locale

@@ -140,6 +140,7 @@ export default defineComponent({
 ::v-deep(.p-listbox) {
     .p-listbox-item {
         padding: 0;
+        height: auto;
     }
 }
 .dropzone {
