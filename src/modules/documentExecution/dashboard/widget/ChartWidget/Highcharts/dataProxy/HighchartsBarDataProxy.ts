@@ -55,7 +55,7 @@ const formatChartWidgetForGet = (dashboardId: any, widget: IWidget, dataset: IDa
     } else if (widget.settings.configuration?.grouping?.secondSeries.enabled) {
         addMeasuresAndCategoriesByCount(widget, dataToSend, 1, 2, false)
     } else if (widget.settings.configuration?.grouping?.secondDimension.enabled) {
-        addMeasuresAndCategoriesByCount(widget, dataToSend, 1, -1, true)
+        addMeasuresAndCategoriesByCount(widget, dataToSend, 2, -1, true)
     } else {
         addMeasuresAndCategoriesByCount(widget, dataToSend, 1, -1, false)
     }

@@ -141,7 +141,10 @@ const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, catego
 
 // TODO - We take exactly 2 attributes, exactly 1 measure (chosen from dropdown)
 export const setGroupedByCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], serieForGroupingName: string) => {
+    console.log('--------- DATA: ', data)
+    console.log('--------- attributeColumns: ', attributeColumns)
     const measureForGrouping = measureColumns.find((measureColumn: any) => measureColumn.column.columnName === serieForGroupingName)
+    console.log('--------- measureForGrouping: ', measureForGrouping)
     if (!data || attributeColumns.length < 2 || !measureForGrouping) return
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
@@ -161,6 +164,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
     const measureSerieElementValueMap = {} as any
     createSeriesForGroupedByCategoriesData(model, categoryValueMap, measureSerieElementValueMap)
     createMeasureSerieForGroupedByCategoriesData(model, measureForGrouping, measureSerieElementValueMap)
+    console.log('---- model.series: ', model.series)
 }
 
 const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: string[], categoryValueMap: any) => {

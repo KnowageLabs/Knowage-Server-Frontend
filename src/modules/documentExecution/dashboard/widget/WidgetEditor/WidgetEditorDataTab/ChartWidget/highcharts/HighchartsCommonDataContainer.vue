@@ -153,20 +153,8 @@ export default defineComponent({
             this.columnTableItems['MEASURES'] = []
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
                 const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
-                const maxNumberOfDimensions = this.getMaximumNumberOfDimensions()
-                if (type === 'MEASURES' && maxNumberOfDimensions && this.columnTableItems['MEASURES'].length === maxNumberOfDimensions) return
                 this.columnTableItems[type].push(column)
             })
-        },
-        getMaximumNumberOfDimensions() {
-            switch (this.chartType) {
-                case 'pie':
-                    return 1
-                case 'heatmap':
-                    return 2
-                default:
-                    return null
-            }
         },
         onColumnsReorder(columns: IWidgetColumn[], type: 'ATTRIBUTES' | 'MEASURES') {
             this.columnTableItems[type] = columns
