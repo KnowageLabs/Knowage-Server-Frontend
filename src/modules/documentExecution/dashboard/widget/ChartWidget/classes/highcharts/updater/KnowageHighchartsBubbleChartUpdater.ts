@@ -3,7 +3,6 @@ import { getFormattedLabels, getFormattedLegend, getFormattedNoDataConfiguration
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const updateBubbleChartModel = (oldModel: any, newModel: IHighchartsChartModel) => {
-    console.log('------ OLD BUBBLE MODEL: ', oldModel)
     getFormattedNoDataConfiguration(oldModel, newModel)
     getFormattedAxisSettings(oldModel, newModel, 'x')
     getFormattedAxisSettings(oldModel, newModel, 'y')
@@ -11,7 +10,6 @@ export const updateBubbleChartModel = (oldModel: any, newModel: IHighchartsChart
     getFormattedLabels(oldModel, newModel)
     getFormattedSeries(oldModel, newModel, null)
     getFormattedTooltipSettings(oldModel, newModel)
-    console.log('------ NEW BUBBLE MODEL: ', newModel)
 
     return newModel
 }

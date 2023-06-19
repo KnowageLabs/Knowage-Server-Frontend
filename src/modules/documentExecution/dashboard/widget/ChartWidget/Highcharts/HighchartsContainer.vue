@@ -121,12 +121,10 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
 
-            console.log('-------------- MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
-                console.log('---------- EROR: ', error)
                 this.setError({
                     title: this.$t('common.toast.errorTitle'),
                     msg: error ? error.message : ''

@@ -72,7 +72,6 @@ export default defineComponent({
         onChartTypeChanged(chartType: string) {
             if (!this.widget) return
 
-            console.log('---------- onChartTypeChanged: ', chartType)
             delete this.widget.invalid
 
             // TODO widgetChange
@@ -98,8 +97,6 @@ export default defineComponent({
             // this.widget.settings.chartModel = createChartJSModel(chartType)
             emitter.emit('chartTypeChanged', this.widget.id)
             emitter.emit('refreshWidgetWithData', this.widget.id)
-
-            console.log('bar model', this.widget)
         }
     }
 })
