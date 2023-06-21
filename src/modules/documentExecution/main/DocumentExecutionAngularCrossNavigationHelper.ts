@@ -89,7 +89,7 @@ const formatAngularOutputParameters = (vueComponent: any, otherOutputParameters:
 const getParameterValueForCrossNavigation = (vueComponent: any, parameterLabel: string) => {
     if (!parameterLabel) return
     const index = vueComponent.filtersData.filterStatus?.findIndex((param: any) => param.label === parameterLabel)
-    return index !== -1 ? vueComponent.filtersData.filterStatus[index].parameterValue[0].value : ''
+    return index !== -1 && vueComponent.filtersData.filterStatus[index].parameterValue[0] ? vueComponent.filtersData.filterStatus[index].parameterValue[0].value : ''
 }
 
 const formatNavigationParams = (vueComponent: any, otherOutputParameters: any[], navigationParams: any) => {
@@ -160,8 +160,8 @@ const addSourceDocumentParameterValuesFromDocumentNavigationParameters = (vueCom
                 return parameter.urlName === crossNavigationDocument.navigationParams[key].value.label
             })
             if (sourceParameter) {
-                navigationParams[key] = sourceParameter.parameterValue[0].value ?? ''
-                navigationParams[key + '_field_visible_description'] = sourceParameter.parameterValue[0].description ?? ''
+                navigationParams[key] = sourceParameter.parameterValue[0] && sourceParameter.parameterValue[0].value ? sourceParameter.parameterValue[0].value : ''
+                navigationParams[key + '_field_visible_description'] = sourceParameter.parameterValue[0] && sourceParameter.parameterValue[0].description ? sourceParameter.parameterValue[0].description : ''
             }
         }
     })
