@@ -161,7 +161,7 @@ export default defineComponent({
         async loadPackages() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '/scheduleree/listAllJobs')
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'scheduleree/listAllJobs')
                 .then((response: AxiosResponse<any>) => {
                     const rawList = response.data.root
 
