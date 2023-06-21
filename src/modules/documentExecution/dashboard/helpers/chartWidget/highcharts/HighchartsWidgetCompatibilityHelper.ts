@@ -19,10 +19,13 @@ import { KnowageHighchartsLineChart } from '../../../widget/ChartWidget/classes/
 import { KnowageHighchartsScatterChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsScatterChart'
 import { KnowageHighchartsTreemapChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart'
 import { KnowageHighchartsSunburstChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart'
+import { KnowageHighchartsChordChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsChordChart'
 
 const columnNameIdMap = {}
 
 export const formatHighchartsWidget = (widget: any) => {
+    console.log('----------- OLD WIDGET: ', widget)
+
     const oldChart = widget.content?.chartTemplate?.CHART
     const formattedWidget = {
         id: widget.id,
@@ -37,6 +40,7 @@ export const formatHighchartsWidget = (widget: any) => {
     getFiltersForColumns(formattedWidget, widget)
     formattedWidget.settings.chartModel = createChartModel(widget, oldChart?.type, oldChart?.seriesStacking)
 
+    console.log('----------- FORMATTED WIDGET: ', formattedWidget)
     return formattedWidget
 }
 
@@ -159,6 +163,8 @@ const createChartModel = (widget: any, chartType: string, isStacking: boolean) =
             return new KnowageHighchartsTreemapChart(widgetContentChartTemplate)
         case "SUNBURST":
             return new KnowageHighchartsSunburstChart(widgetContentChartTemplate)
+        case "CHORD":
+            return new KnowageHighchartsChordChart(widgetContentChartTemplate)
         default:
             return null
     }

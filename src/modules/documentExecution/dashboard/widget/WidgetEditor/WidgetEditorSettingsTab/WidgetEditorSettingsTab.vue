@@ -177,6 +177,7 @@ import HighchartsBubbleSettingsDescriptor from './ChartWidget/highcharts/descrip
 import HighchartsScatterSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsScatterSettingsDescriptor.json'
 import HighchartsLineSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsLineSettingsDescriptor.json'
 import HighchartsSunburstSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSunburstSettingsDescriptor.json'
+import HighchartsChordSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsChordSettingsDescriptor.json'
 import HighchartsTreemapSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsTreemapSettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
@@ -317,6 +318,8 @@ export default defineComponent({
                     return HighchartsTreemapSettingsDescriptor
                 case 'sunburst':
                     return HighchartsSunburstSettingsDescriptor
+                case 'dependencywheel':
+                    return HighchartsChordSettingsDescriptor
             }
         },
         onItemClicked(item: any) {

@@ -15,6 +15,7 @@ import { KnowageHighchartsBubbleChart } from '../../../../ChartWidget/classes/hi
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
 import * as highchartsDefaultValues from '../highcharts/HighchartsDefaultValues'
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
+import { KnowageHighchartsChordChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsChordChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -92,6 +93,9 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             break
         case 'sunburst':
             widget.settings.chartModel = new KnowageHighchartsSunburstChart(chartModel)
+            break
+        case 'dependencywheel':
+            widget.settings.chartModel = new KnowageHighchartsChordChart(chartModel)
     }
 }
 
@@ -125,6 +129,8 @@ export const createNewHighchartsModel = (chartType: string, model: IHighchartsCh
             return new KnowageHighchartsTreemapChart(model)
         case 'sunburst':
             return new KnowageHighchartsSunburstChart(model)
+        case 'dependencywheel':
+            return new KnowageHighchartsChordChart(model)
         default:
             return null
     }
