@@ -72,8 +72,6 @@ export default defineComponent({
     },
     computed: {
         saveDisabled(): any {
-            console.log('---------- this.job.jobName', this.job?.jobName)
-            console.log('---------- this.job.documents', this.job?.documents?.length)
             return this.job && (!this.job.jobName || this.job.documents?.length === 0)
         },
         testReadonly(): any {
