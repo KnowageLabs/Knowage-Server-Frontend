@@ -1,7 +1,7 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
         <WidgetEditorColumnTable
-            v-if="['pie', 'heatmap', 'radar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
+            v-if="['dependencywheel'].includes(chartType)"
             class="p-m-2 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
