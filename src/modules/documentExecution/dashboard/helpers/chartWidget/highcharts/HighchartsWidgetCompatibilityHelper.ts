@@ -20,6 +20,7 @@ import { KnowageHighchartsScatterChart } from '../../../widget/ChartWidget/class
 import { KnowageHighchartsTreemapChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart'
 import { KnowageHighchartsSunburstChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart'
 import { KnowageHighchartsChordChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsChordChart'
+import { KnowageHighchartsParallelChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsParallelChart'
 
 const columnNameIdMap = {}
 
@@ -165,6 +166,8 @@ const createChartModel = (widget: any, chartType: string, isStacking: boolean) =
             return new KnowageHighchartsSunburstChart(widgetContentChartTemplate)
         case "CHORD":
             return new KnowageHighchartsChordChart(widgetContentChartTemplate)
+        case "PARALLEL":
+            return new KnowageHighchartsParallelChart(widgetContentChartTemplate)
         default:
             return null
     }

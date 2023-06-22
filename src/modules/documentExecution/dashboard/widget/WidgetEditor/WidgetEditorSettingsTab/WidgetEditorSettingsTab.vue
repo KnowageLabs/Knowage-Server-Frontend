@@ -177,8 +177,9 @@ import HighchartsBubbleSettingsDescriptor from './ChartWidget/highcharts/descrip
 import HighchartsScatterSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsScatterSettingsDescriptor.json'
 import HighchartsLineSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsLineSettingsDescriptor.json'
 import HighchartsSunburstSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSunburstSettingsDescriptor.json'
-import HighchartsChordSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsChordSettingsDescriptor.json'
 import HighchartsTreemapSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsTreemapSettingsDescriptor.json'
+import HighchartsChordSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsChordSettingsDescriptor.json'
+import HighchartsParallelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsParallelSettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -320,6 +321,8 @@ export default defineComponent({
                     return HighchartsSunburstSettingsDescriptor
                 case 'dependencywheel':
                     return HighchartsChordSettingsDescriptor
+                case 'spline':
+                    return HighchartsParallelSettingsDescriptor
             }
         },
         onItemClicked(item: any) {

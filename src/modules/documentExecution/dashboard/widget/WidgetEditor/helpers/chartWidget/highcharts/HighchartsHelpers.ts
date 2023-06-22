@@ -12,10 +12,11 @@ import { KnowageHighchartsScatterChart } from '../../../../ChartWidget/classes/h
 import { KnowageHighchartsTreemapChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsTreemapChart'
 import { KnowageHighchartsSunburstChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart'
 import { KnowageHighchartsBubbleChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart'
+import { KnowageHighchartsChordChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsChordChart'
+import { KnowageHighchartsParallelChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsParallelChart'
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
 import * as highchartsDefaultValues from '../highcharts/HighchartsDefaultValues'
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
-import { KnowageHighchartsChordChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsChordChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -96,6 +97,10 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             break
         case 'dependencywheel':
             widget.settings.chartModel = new KnowageHighchartsChordChart(chartModel)
+            break
+        case 'spline':
+            widget.settings.chartModel = new KnowageHighchartsParallelChart(chartModel)
+            break
     }
 }
 
@@ -131,6 +136,8 @@ export const createNewHighchartsModel = (chartType: string, model: IHighchartsCh
             return new KnowageHighchartsSunburstChart(model)
         case 'dependencywheel':
             return new KnowageHighchartsChordChart(model)
+        case 'spline':
+            return new KnowageHighchartsParallelChart(model)
         default:
             return null
     }
