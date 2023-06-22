@@ -472,6 +472,7 @@
                 "areaChart": "Area Chart",
                 "barChart": "Bar Chart",
                 "bubbleChart": "Bubble Chart",
+                "chord": "Chord Chart",
                 "columnChart": "Column Chart",
                 "donutChart": "Donut Chart",
                 "funnelChart": "Funnel Chart",
@@ -731,6 +732,11 @@
                 "radar": {
                     "dimensionsTableHint": "Click on at least one attribute to define categories If you enable splitting serie using second category, you need to define exactly two categories and one serie.",
                     "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second category, you need to define exactly one serie."
+                },
+                "sankey": {
+                    "fromTableHint": "Click on exactly two attributes to define categories",
+                    "toTableHint": "Click on exactly two attributes to define categories",
+                    "valuesTableHint": "Click on exactly one measure to define series"
                 },
                 "scale": {
                     "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",

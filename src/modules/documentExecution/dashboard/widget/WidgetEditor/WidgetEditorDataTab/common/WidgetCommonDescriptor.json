@@ -142,6 +142,11 @@
             "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.sunburst",
             "value": "sunburst"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.chord",
+            "value": "dependencywheel"
         }
     ],
     "columnAggregationOptions": [

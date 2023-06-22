@@ -1,9 +1,9 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateChordChartModel } from './updater/KnowageHighchartsChordChartUpdater'
-import deepcopy from 'deepcopy'
-import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export class KnowageHighchartsChordChart extends KnowageHighcharts {
@@ -25,18 +25,8 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
     }
 
     setSpecificOptionsDefaultValues() {
-        this.setPlotOptions()
         this.setChordXAxis()
         this.setChordYAxis()
-    }
-
-    setPlotOptions() {
-        this.model.plotOptions.line = {
-            marker: {
-                symbol: "circle",
-                lineWidth: 2
-            }
-        }
     }
 
     setChordXAxis() {
@@ -216,13 +206,13 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
         console.log('-------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
         console.log('-------- MEASURE COLUMNS: ', measureColumns)
+        // TODO
         this.setSankeyData(mockedData, attributeColumns, measureColumns, '')
         return this.model.series
     }
 
 
     setSankeyData = (data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
-        // TODO
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
         const firstAttributeColumn = attributeColumns[0]

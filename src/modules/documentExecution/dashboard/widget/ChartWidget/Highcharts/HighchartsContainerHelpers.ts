@@ -3,8 +3,11 @@ import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardCh
 
 export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions: IWidgetCrossNavigation, dataToShow: any, chartType: string) => {
     if (!chartEvent.point) return []
+    console.log('----------- chartEvent: ', chartEvent)
     const formattedChartValues = getFormattedChartValues(chartEvent, dataToShow, chartType)
+    console.log('----------- formattedChartValues: ', formattedChartValues)
     const formattedOutputParameters = getFormattedOutputParameters(formattedChartValues, crossNavigationOptions.parameters)
+    console.log('----------- formattedOutputParameters: ', formattedOutputParameters)
     return formattedOutputParameters
 
 }

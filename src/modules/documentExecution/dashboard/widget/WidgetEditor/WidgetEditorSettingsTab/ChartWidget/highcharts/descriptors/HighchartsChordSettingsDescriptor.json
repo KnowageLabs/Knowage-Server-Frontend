@@ -18,6 +18,10 @@
         ],
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.highcharts.datetype",
+                "type": "DatetypeSettings"
+            },
+            {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
             },

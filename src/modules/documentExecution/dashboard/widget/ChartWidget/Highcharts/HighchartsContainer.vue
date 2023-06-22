@@ -183,7 +183,7 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.chartModel.chart.type) || this.editorMode) return
+            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel'].includes(this.chartModel.chart.type) || this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 if (!event.point) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
@@ -205,15 +205,22 @@ export default defineComponent({
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
+            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
         setSelection(event: any) {
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel'].includes(this.chartModel.chart.type)) this.setSankeySelection(event)
             const serieClicked = event.point?.options
             if (!serieClicked || !serieClicked.name) return
             updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
+        },
+        setSankeySelection(event: any) {
+            const serieClicked = event.point?.options
+            if (!serieClicked && !serieClicked.id && !serieClicked.from) return
+            const value = serieClicked.id ?? serieClicked.from
+            updateStoreSelections(this.createNewSelection([value]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
         },
         createNewSelection(value: (string | number)[]) {
             const attributeColumn = this.widgetModel.columns.find((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')

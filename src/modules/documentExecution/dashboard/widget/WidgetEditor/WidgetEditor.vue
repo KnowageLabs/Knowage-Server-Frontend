@@ -20,7 +20,6 @@
                     :html-gallery-prop="htmlGalleryProp"
                     :custom-chart-gallery-prop="customChartGalleryProp"
                     @settingChanged="onSettingChanged"
-                    @datasetSelected="onDatasetSelected"
                 />
 
                 <div v-if="selectedSetting != 'Gallery'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px">
