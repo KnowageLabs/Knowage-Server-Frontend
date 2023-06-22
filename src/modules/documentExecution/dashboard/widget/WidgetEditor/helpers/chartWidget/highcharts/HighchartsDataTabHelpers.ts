@@ -20,6 +20,7 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'bubble':
         case 'sunburst':
         case 'treemap':
+        case 'dependencywheel':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }

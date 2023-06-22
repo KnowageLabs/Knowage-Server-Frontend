@@ -9,7 +9,7 @@
             :chart-type="chartType"
             :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
-            @itemAdded="onColumnAdded"
+            @itemAdded="onColumnAdded($event, null)"
             @itemUpdated="onColumnItemUpdate"
             @itemSelected="setSelectedColumn($event, null)"
             @itemDeleted="onColumnDelete"
@@ -26,7 +26,7 @@
             :axis="axis"
             :error="isAxisTableInvalid(axis)"
             @rowReorder="onColumnsReorder($event, axis)"
-            @itemAdded="onColumnAdded"
+            @itemAdded="onColumnAdded($event, axis)"
             @itemUpdated="onColumnItemUpdate"
             @itemSelected="setSelectedColumn($event, axis)"
             @itemDeleted="onColumnDelete"
@@ -47,7 +47,7 @@ import WidgetEditorColumnTable from '../../common/WidgetEditorColumnTable.vue'
 import ChartWidgetColumnForm from '../common/ChartWidgetColumnForm.vue'
 
 export default defineComponent({
-    name: 'highcharts-widget-common-data-container',
+    name: 'highcharts-bubble-data-container',
     components: { WidgetEditorColumnTable, ChartWidgetColumnForm },
     props: {
         propWidgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -130,10 +130,10 @@ export default defineComponent({
             emitter.emit('columnsReordered', this.widgetModel.columns)
             emitter.emit('refreshWidgetWithData', this.widgetModel.id)
         },
-        onColumnAdded(payload: { column: IWidgetColumn; rows: IWidgetColumn[]; settings: any }) {
-            if (!payload.rows) this.columnTableItems['MEASURES'] = [payload]
+        onColumnAdded(payload: { column: IWidgetColumn; rows: IWidgetColumn[]; settings: any }, axis: string | null) {
+            if (!payload.rows) this.columnTableItems['Y'] = [payload]
             else {
-                const type = payload.settings?.measuresOnly ? 'MEASURES' : 'ATTRIBUTES'
+                const type = axis ?? 'ATTRIBUTES'
                 this.columnTableItems[type] = payload.rows
             }
             this.updateWidgetColumns()

@@ -29,6 +29,8 @@ import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
 import HighchartsTreemap from 'highcharts/modules/treemap'
 import HighchartsSunburst from 'highcharts/modules/sunburst'
+import HighchartsSankey from 'highcharts/modules/sankey'
+import HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
 import Sonification from 'highcharts/modules/sonification'
 
 HighchartsMore(Highcharts)
@@ -36,6 +38,8 @@ HighchartsSolidGauge(Highcharts)
 HighchartsHeatmap(Highcharts)
 HighchartsTreemap(Highcharts)
 HighchartsSunburst(Highcharts)
+HighchartsSankey(Highcharts)
+HighchartsDependencyWheel(Highcharts)
 Accessibility(Highcharts)
 Sonification(Highcharts)
 NoDataToDisplay(Highcharts)
@@ -121,10 +125,12 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
 
+            console.log('------------ MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
+                console.log('--------- ERROR: ', error)
                 this.setError({
                     title: this.$t('common.toast.errorTitle'),
                     msg: error ? error.message : ''

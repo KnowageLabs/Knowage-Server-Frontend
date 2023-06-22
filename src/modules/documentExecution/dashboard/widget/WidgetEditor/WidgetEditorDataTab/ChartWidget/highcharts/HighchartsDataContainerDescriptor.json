@@ -95,6 +95,23 @@
             "measuresOnly": true
         }
     ],
+    "sankeyChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.sankey.fromTableHint",
+            "label": "common.from"
+        },
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.sankey.toTableHint",
+            "label": "common.to"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.sankey.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "scatterChartColumnTableSettings": [
         {
             "attributesOnly": true,
