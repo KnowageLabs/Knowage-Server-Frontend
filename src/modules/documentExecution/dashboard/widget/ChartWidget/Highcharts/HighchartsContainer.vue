@@ -211,14 +211,17 @@ export default defineComponent({
         },
         setSelection(event: any) {
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
-            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel'].includes(this.chartModel.chart.type)) this.setSankeySelection(event)
-            const serieClicked = event.point?.options
-            if (!serieClicked || !serieClicked.name) return
-            updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel'].includes(this.chartModel.chart.type)) {
+                this.setSankeySelection(event)
+            } else {
+                const serieClicked = event.point?.options
+                if (!serieClicked || !serieClicked.name) return
+                updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
+            }
         },
         setSankeySelection(event: any) {
             const serieClicked = event.point?.options
-            if (!serieClicked && !serieClicked.id && !serieClicked.from) return
+            if (!serieClicked || (!serieClicked.id && !serieClicked.from)) return
             const value = serieClicked.id ?? serieClicked.from
             updateStoreSelections(this.createNewSelection([value]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
         },

@@ -25,8 +25,17 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
     }
 
     setSpecificOptionsDefaultValues() {
+        this.setPlotOptions()
         this.setChordXAxis()
         this.setChordYAxis()
+    }
+
+    setPlotOptions() {
+        this.model.plotOptions.dependencywheel = {
+            showInLegend: true,
+            colorByPoint: true,
+            legendType: 'point'
+        }
     }
 
     setChordXAxis() {
@@ -217,12 +226,16 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
         const measureColumn = measureColumns[0]
         const firstAttributeColumn = attributeColumns[0]
         const secondAttributeColumn = attributeColumns[1]
-        const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], connectNulls: true }
+        const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true, colorByPoint: true, connectNulls: true }
         data.rows.forEach((row: any) => {
+            const from = dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, row[firstAttributeColumn]) : row[firstAttributeColumn.metadata.dataIndex]
+            const to = dateFormat && ['date', 'timestamp'].includes(row[secondAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, row[secondAttributeColumn]) : row[secondAttributeColumn.metadata.dataIndex]
             serieElement.data.push({
-                from: dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, row[firstAttributeColumn]) : row[firstAttributeColumn.metadata.dataIndex],
-                to: dateFormat && ['date', 'timestamp'].includes(row[secondAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, row[secondAttributeColumn]) : row[secondAttributeColumn.metadata.dataIndex],
+                name: from + ' -> ' + to,
+                from: from,
+                to: to,
                 weight: row[measureColumn.metadata.dataIndex],
+                y: row[measureColumn.metadata.dataIndex],
                 drilldown: false
             })
         })

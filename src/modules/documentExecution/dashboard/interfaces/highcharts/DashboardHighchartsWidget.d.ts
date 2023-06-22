@@ -101,6 +101,7 @@ export interface IHighchartsChartModel {
         heatmap?: any
         line?: any,
         scatter?: any,
+        dependencywheel?: any
         series?: any
     },
     legend: any,
