@@ -31,6 +31,7 @@ import HighchartsTreemap from 'highcharts/modules/treemap'
 import HighchartsSunburst from 'highcharts/modules/sunburst'
 import HighchartsSankey from 'highcharts/modules/sankey'
 import HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
+import HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinates'
 import Sonification from 'highcharts/modules/sonification'
 
 HighchartsMore(Highcharts)
@@ -40,6 +41,7 @@ HighchartsTreemap(Highcharts)
 HighchartsSunburst(Highcharts)
 HighchartsSankey(Highcharts)
 HighchartsDependencyWheel(Highcharts)
+HighchartsParallelCoordinates(Highcharts)
 Accessibility(Highcharts)
 Sonification(Highcharts)
 NoDataToDisplay(Highcharts)
@@ -126,6 +128,7 @@ export default defineComponent({
             modelToRender.chart.backgroundColor = null
 
             console.log('------------ MODEL TO RENDER: ', modelToRender)
+
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()

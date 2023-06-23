@@ -88,7 +88,9 @@ export interface IHighchartsChartModel {
         type: string,
         backgroundColor?: any,
         polar?: boolean,
-        events?: any
+        events?: any,
+        parallelCoordinates?: any,
+        parallelAxes?: any
     },
     noData: IHighchartsNoDataConfiguration,
     accessibility: IHighchartsAccessibilitySettings,

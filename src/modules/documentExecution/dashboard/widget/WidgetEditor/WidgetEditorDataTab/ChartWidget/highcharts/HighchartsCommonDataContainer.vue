@@ -220,6 +220,7 @@ export default defineComponent({
                             (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
                         break
                     case 'scatter':
+                    case 'spline':
                         invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
                         break
                     case 'sunburst':

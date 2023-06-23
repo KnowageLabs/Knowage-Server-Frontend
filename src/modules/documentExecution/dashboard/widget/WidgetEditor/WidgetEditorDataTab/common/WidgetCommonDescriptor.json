@@ -147,6 +147,11 @@
             "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.chord",
             "value": "dependencywheel"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.parallelChart",
+            "value": "spline"
         }
     ],
     "columnAggregationOptions": [
