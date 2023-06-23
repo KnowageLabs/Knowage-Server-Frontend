@@ -36,6 +36,7 @@
     </grid-item>
 
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" />
+    <ChangeWidgetDialog v-if="showChangeDialog" @close="toggleChangeDialog" />
     <WidgetSearchDialog v-if="searchDialogVisible" :visible="searchDialogVisible" :widget="widget" :prop-search="search" @close="searchDialogVisible = false" @search="onSearch"></WidgetSearchDialog>
 </template>
 
@@ -60,11 +61,12 @@ import { datasetIsUsedInAssociations } from './interactionsHelpers/DatasetAssoci
 import { loadAssociativeSelections } from './interactionsHelpers/InteractionHelper'
 import ContextMenu from 'primevue/contextmenu'
 import QuickWidgetDialog from './commonComponents/QuickWidgetDialog.vue'
+import ChangeWidgetDialog from './commonComponents/ChangeWidgetDialog.vue'
 import WidgetSearchDialog from './WidgetSearchDialog/WidgetSearchDialog.vue'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog },
+    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -98,11 +100,12 @@ export default defineComponent({
             playDisabledButtonTimeout: null as any,
             widgetLoading: false,
             customChartLoading: false,
+            showChangeDialog: false,
             canEditDashboard,
             items: [
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: true },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.cloneWidget(this.widget), visible: this.widget.type === 'highcharts' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(this.widget), visible: this.widget.type === 'highcharts' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'map' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'table' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
@@ -293,6 +296,9 @@ export default defineComponent({
         },
         toggleQuickDialog() {
             this.showQuickDialog = !this.showQuickDialog
+        },
+        toggleChangeDialog() {
+            this.showChangeDialog = !this.showChangeDialog
         },
         searchOnWidget() {
             this.searchDialogVisible = true
