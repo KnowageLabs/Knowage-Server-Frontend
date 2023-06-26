@@ -71,3 +71,18 @@ const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
         return this.point.options.y ? this.point.options.name + '<br/><b>' + this.series.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.y, tooltip.valueDecimals) + suffix : this.series.name;
     }
 }
+
+export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    formatSplineChartVerticalAxisLines(formattedChartModel, widgetModel.settings.configuration?.axisLines)
+}
+
+const formatSplineChartVerticalAxisLines = (formattedChartModel: IHighchartsChartModel, axisLinesSettings: any) => {
+    if (!axisLinesSettings || !formattedChartModel.yAxis) return
+    formattedChartModel.xAxis.forEach((xAxis: any) => {
+        xAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
+    })
+    formattedChartModel.yAxis.forEach((yAxis: any) => {
+        yAxis.lineColor = axisLinesSettings.color
+        yAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
+    })
+}

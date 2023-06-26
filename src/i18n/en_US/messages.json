@@ -167,6 +167,7 @@
         "output": "Output",
         "owner": "Owner",
         "packages": "Packages",
+        "padding": "Padding",
         "parameter": "Parameter",
         "parameters": "Parameters",
         "password": "Password",
@@ -622,6 +623,11 @@
                 },
                 "areaRangeHigh": "Area Range High",
                 "areaRangeLow": "Area Range Low",
+                "axisLines": {
+                    "crosshairColor": "Crosshair Color",
+                    "crosshairWidth": "Crosshair Width",
+                    "title": "Axis Line Details"
+                },
                 "axisTickSettings": {
                     "endOnTick": "End On Tick",
                     "endOnTickHint": "Whether to force the axis to end on a tick.",

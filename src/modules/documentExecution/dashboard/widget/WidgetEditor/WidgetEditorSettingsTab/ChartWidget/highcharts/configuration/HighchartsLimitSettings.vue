@@ -63,6 +63,7 @@ export default defineComponent({
     methods: {
         loadLimitModel() {
             if (this.widgetModel.settings?.configuration?.limit) this.limitModel = this.widgetModel.settings.configuration.limit
+            else this.limitModel = { enabled: true, itemsNumber: 5, sortingSerie: '', direction: 'top' }
         }
     }
 })

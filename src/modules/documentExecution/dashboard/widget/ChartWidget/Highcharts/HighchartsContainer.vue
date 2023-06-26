@@ -10,7 +10,7 @@ import { ISelection, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -255,6 +255,8 @@ export default defineComponent({
                 formatRadar(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'bubble') {
                 formatBubble(formattedChartModel)
+            } else if (formattedChartModel.chart.type === 'spline') {
+                formatSplineChart(formattedChartModel, this.widgetModel)
             }
 
             return formattedChartModel

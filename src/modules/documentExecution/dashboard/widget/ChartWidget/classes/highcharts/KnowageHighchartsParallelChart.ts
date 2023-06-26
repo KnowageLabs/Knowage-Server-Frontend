@@ -229,21 +229,28 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         if (!data || measureColumns.length < 2 || !attributeColumns[0]) return
 
         this.setDataForXAxis(measureColumns)
+        this.setDataForYAxis(measureColumns)
 
         data.rows.forEach((row: any, index: number) => {
             const serieElement = { id: index, name: row[attributeColumns[0].metadata.dataIndex], data: [] as any[], showInLegend: true }
-            measureColumns.forEach((measureColumn: any) => {
-                serieElement.data.push((row[measureColumn.metadata.dataIndex]))
-            })
+            measureColumns.forEach((measureColumn: any) => serieElement.data.push((row[measureColumn.metadata.dataIndex])))
             this.model.series.push(serieElement)
         })
     }
 
     setDataForXAxis(measureColumns: any[]) {
+        this.model.xAxis.splice(1)
         const categories = [] as string[]
         measureColumns.forEach((measureColumn: any) => categories.push(measureColumn.column.columnName))
         this.model.xAxis[0].categories = categories
         this.model.xAxis[0].offset = 10
+    }
+
+    setDataForYAxis(measureColumns: any[]) {
+        this.model.yAxis.splice(1)
+        for (let i = 0; i < measureColumns.length - 1; i++) {
+            this.model.yAxis.push({ index: i })
+        }
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {

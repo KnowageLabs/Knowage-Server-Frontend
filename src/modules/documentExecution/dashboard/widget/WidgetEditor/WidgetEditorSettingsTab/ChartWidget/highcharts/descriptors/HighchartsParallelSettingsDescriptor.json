@@ -22,6 +22,10 @@
                 "type": "LimitSettings"
             },
             {
+                "title": "dashboard.widgetEditor.highcharts.axisLines.title",
+                "type": "AxisLinesSettings"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },

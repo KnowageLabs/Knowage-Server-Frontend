@@ -5,6 +5,7 @@ import { getFormattedInteractions } from '../../common/WidgetInteractionsHelper'
 import { getFiltersForColumns } from '../../DashboardBackwardCompatibilityHelper'
 import { getFormattedWidgetColumns, getFormattedColorSettings } from '../CommonChartCompatibilityHelper'
 import { getFormattedStyle } from './HighchartsWidgetStyleHelper'
+import { hexToRgba } from '../../FormattingHelpers'
 import { KnowageHighchartsGaugeSeriesChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsGaugeSeriesChart'
 import { KnowageHighchartsSolidGaugeChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSolidGaugeChart'
 import { KnowageHighchartsActivityGaugeChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsActivityGaugeChart'
@@ -12,8 +13,6 @@ import { getFormattedSerieLabelsSettings } from './HighchartsSeriesSettingsCompa
 import { KnowageHighchartsHeatmapChart } from './../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart';
 import { KnowageHighchartsRadarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsRadarChart';
 import { KnowageHighchartsBarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsBarChart'
-import * as widgetCommonDefaultValues from '../../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
-import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import { KnowageHighchartsBubbleChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart'
 import { KnowageHighchartsLineChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsLineChart'
 import { KnowageHighchartsScatterChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsScatterChart'
@@ -21,6 +20,8 @@ import { KnowageHighchartsTreemapChart } from '../../../widget/ChartWidget/class
 import { KnowageHighchartsSunburstChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSunburstChart'
 import { KnowageHighchartsChordChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsChordChart'
 import { KnowageHighchartsParallelChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsParallelChart'
+import * as widgetCommonDefaultValues from '../../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
+import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 const columnNameIdMap = {}
 
@@ -68,20 +69,9 @@ const getFormattedConfiguration = (widget: any, chartType: string) => {
     if (['BAR', "LINE", 'RADAR', 'BUBBLE'].includes(chartType)) formattedConfiguration.grouping = getFormmatedGroupingSettings(widget)
     if (['SUNBURST', 'TREEMAP'].includes(chartType)) formattedConfiguration.centerText = getFormattedCenterTextSettings(widget)
     if (['PARALLEL'].includes(chartType)) formattedConfiguration.limit = getFormmatedLimitSettings(widget)
+    if (['PARALLEL'].includes(chartType)) formattedConfiguration.axisLines = getFormmatedAxisLinesSettings(widget)
     return formattedConfiguration
 }
-
-const getFormmatedLimitSettings = (widget: any) => {
-    const formattedLimitSettings = { enabled: true, itemsNumber: 5, sortingSerie: '', direction: 'top' }
-    const oldChartModel = widget.content?.chartTemplate?.CHART
-    if (oldChartModel && oldChartModel.LIMIT && oldChartModel.LIMIT.style) {
-        formattedLimitSettings.itemsNumber = oldChartModel.LIMIT.style.maxNumberOfLines
-        formattedLimitSettings.sortingSerie = oldChartModel.LIMIT.style.serieFilterColumn
-        formattedLimitSettings.direction = oldChartModel.LIMIT.style.orderTopMinBottomMax
-    }
-    return formattedLimitSettings
-}
-
 
 const getFormmatedDatetypeSettings = (widget: any) => {
     const formattedDatetypeSettings = highchartsDefaultValues.getDefaultDateTypeSettings()
@@ -116,6 +106,30 @@ const getFormattedCenterTextSettings = (widget: any) => {
     formattedCenterText.style.color = oldChartModelTipSettings.style.color
     return formattedCenterText
 }
+
+const getFormmatedLimitSettings = (widget: any) => {
+    const formattedLimitSettings = { enabled: true, itemsNumber: 5, sortingSerie: '', direction: 'top' }
+    const oldChartModel = widget.content?.chartTemplate?.CHART
+    if (oldChartModel && oldChartModel.LIMIT && oldChartModel.LIMIT.style) {
+        formattedLimitSettings.itemsNumber = oldChartModel.LIMIT.style.maxNumberOfLines
+        formattedLimitSettings.sortingSerie = oldChartModel.LIMIT.style.serieFilterColumn
+        formattedLimitSettings.direction = oldChartModel.LIMIT.style.orderTopMinBottomMax
+    }
+    return formattedLimitSettings
+}
+
+const getFormmatedAxisLinesSettings = (widget: any) => {
+    const formattedAxisLinesSettings = { color: '', crosshairColor: '', crosshairWidth: 8 }
+    const oldChartModel = widget.content?.chartTemplate?.CHART
+    if (oldChartModel && oldChartModel.AXES_LIST && oldChartModel.AXES_LIST.style) {
+        formattedAxisLinesSettings.color = oldChartModel.AXES_LIST.style.axisColor ? hexToRgba(oldChartModel.AXES_LIST.style.axisColor) : ''
+        formattedAxisLinesSettings.crosshairColor = oldChartModel.AXES_LIST.style.brushColor ? hexToRgba(oldChartModel.AXES_LIST.style.brushColor) : ''
+        formattedAxisLinesSettings.crosshairWidth = oldChartModel.AXES_LIST.style.brushWidth
+    }
+    return formattedAxisLinesSettings
+}
+
+
 
 const getProperDateTimeFormat = (oldDateFormat: string) => {
     switch (oldDateFormat) {
