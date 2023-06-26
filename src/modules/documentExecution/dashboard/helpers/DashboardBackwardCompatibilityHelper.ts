@@ -16,6 +16,7 @@ import { formatImageWidget } from './imageWidget/ImageWidgetCompatibilityHelper'
 import { formatCustomChartWidget } from './customChart/CustomChartWidgetCompatibilityHelper'
 import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHelper'
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
+import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 
 const datasetIdLabelMap = {}
 
@@ -243,7 +244,7 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
             formattedWidget = formatCustomChartWidget(widget)
             break
         case 'static-pivot-table':
-            formattedWidget = formatPivotTabletWidget(widget)
+            formattedWidget = getFormattedPivotWidget(widget, user)
             break
         case 'discovery':
             formattedWidget = formatDiscoveryWidget(widget, drivers)
@@ -260,6 +261,14 @@ const getFormattedChartWidget = (widget: any, user: any) => {
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return formatVegaChartsWidget(widget)
     else if (user?.enterprise) return formatHighchartsWidget(widget)
     else return formatChartJSWidget(widget)
+}
+
+const getFormattedPivotWidget = (widget: any, user: any) => {
+    // TODO widgetChange
+    // if (user?.enterprise) return formatPivotTabletWidget(widget)
+    // else return formatPivotTabletWidget(widget)
+
+    return formatCEPivotTabletWidget(widget)
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {
