@@ -185,6 +185,7 @@ export default defineComponent({
             else {
                 switch (this.chartType) {
                     case 'dependencywheel':
+                    case 'sankey':
                         invalid = this.columnTableItems[type].length !== 1
                         break
                     default:
@@ -197,6 +198,15 @@ export default defineComponent({
         isMeasureTableInvalid() {
             let invalid = false
             if (this.columnTableItems['MEASURES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'sankey':
+                        invalid = this.columnTableItems['MEASURES'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
+            }
             if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
             this.widgetModel.invalid.measuresInvalid = invalid
             return invalid

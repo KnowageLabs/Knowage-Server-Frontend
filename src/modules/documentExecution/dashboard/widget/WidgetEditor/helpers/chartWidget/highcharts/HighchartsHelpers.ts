@@ -17,6 +17,8 @@ import { KnowageHighchartsParallelChart } from '../../../../ChartWidget/classes/
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
 import * as highchartsDefaultValues from '../highcharts/HighchartsDefaultValues'
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
+import { KnowageHighchartsPictorialChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPictorialChart'
+import { KnowageHighchartsSankeyChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsSankeyChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -101,10 +103,17 @@ export const formatHighchartsWidget = (widget: IWidget) => {
         case 'spline':
             widget.settings.chartModel = new KnowageHighchartsParallelChart(chartModel)
             break
+        case 'pictorial':
+            widget.settings.chartModel = new KnowageHighchartsPictorialChart(chartModel)
+            break
+        case 'sankey':
+            widget.settings.chartModel = new KnowageHighchartsSankeyChart(chartModel)
+            break
     }
 }
 
 export const createNewHighchartsModel = (chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean) => {
+    console.log('-------- CHART TYPE: ', chartType)
     switch (chartType) {
         case 'pie':
             return new KnowageHighchartsPieChart(model)
@@ -138,6 +147,10 @@ export const createNewHighchartsModel = (chartType: string, model: IHighchartsCh
             return new KnowageHighchartsChordChart(model)
         case 'spline':
             return new KnowageHighchartsParallelChart(model)
+        case 'pictorial':
+            return new KnowageHighchartsPictorialChart(model)
+        case 'sankey':
+            return new KnowageHighchartsSankeyChart(model)
         default:
             return null
     }

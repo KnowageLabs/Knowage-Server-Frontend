@@ -180,6 +180,8 @@ import HighchartsSunburstSettingsDescriptor from './ChartWidget/highcharts/descr
 import HighchartsTreemapSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsTreemapSettingsDescriptor.json'
 import HighchartsChordSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsChordSettingsDescriptor.json'
 import HighchartsParallelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsParallelSettingsDescriptor.json'
+import HighchartsPictorialSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPictorialSettingsDescriptor.json'
+import HighchartsSankeySettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSankeySettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -323,6 +325,10 @@ export default defineComponent({
                     return HighchartsChordSettingsDescriptor
                 case 'spline':
                     return HighchartsParallelSettingsDescriptor
+                case 'pictorial':
+                    return HighchartsPictorialSettingsDescriptor
+                case 'sankey':
+                    return HighchartsSankeySettingsDescriptor
             }
         },
         onItemClicked(item: any) {

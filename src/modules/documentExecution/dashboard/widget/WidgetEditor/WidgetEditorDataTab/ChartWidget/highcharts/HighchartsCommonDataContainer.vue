@@ -1,7 +1,9 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
+        {{ 'chartType' }}
+        {{ chartType }}
         <WidgetEditorColumnTable
-            v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline'].includes(chartType)"
+            v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline', 'pictorial'].includes(chartType)"
             class="p-m-2 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
@@ -119,6 +121,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[1] }
                 case 'spline':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.splineChartColumnTableSettings[1] }
+                case 'pictorial':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
             }
@@ -221,6 +225,7 @@ export default defineComponent({
                         break
                     case 'scatter':
                     case 'spline':
+                    case 'pictorial':
                         invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
                         break
                     case 'sunburst':
@@ -256,6 +261,7 @@ export default defineComponent({
                     case 'heatmap':
                     case 'sunburst':
                     case 'treemap':
+                    case 'pictorial':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     case 'pie':

@@ -152,6 +152,16 @@
             "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.parallelChart",
             "value": "spline"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.pictorial",
+            "value": "pictorial"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.sankey",
+            "value": "sankey"
         }
     ],
     "columnAggregationOptions": [

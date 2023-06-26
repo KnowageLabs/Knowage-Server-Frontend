@@ -71,6 +71,18 @@
             "measuresOnly": true
         }
     ],
+    "pictorialChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.pictorial.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.pictorial.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "pieChartColumnTableSettings": [
         {
             "attributesOnly": true,
