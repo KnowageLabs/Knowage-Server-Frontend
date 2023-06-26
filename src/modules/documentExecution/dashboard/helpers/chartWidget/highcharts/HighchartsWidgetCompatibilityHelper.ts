@@ -67,8 +67,21 @@ const getFormattedConfiguration = (widget: any, chartType: string) => {
     if (['HEATMAP', 'RADAR', 'BAR', 'LINE', 'BUBBLE', "SCATTER", "TREEMAP", "SUNBURST"].includes(chartType)) formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
     if (['BAR', "LINE", 'RADAR', 'BUBBLE'].includes(chartType)) formattedConfiguration.grouping = getFormmatedGroupingSettings(widget)
     if (['SUNBURST', 'TREEMAP'].includes(chartType)) formattedConfiguration.centerText = getFormattedCenterTextSettings(widget)
+    if (['PARALLEL'].includes(chartType)) formattedConfiguration.limit = getFormmatedLimitSettings(widget)
     return formattedConfiguration
 }
+
+const getFormmatedLimitSettings = (widget: any) => {
+    const formattedLimitSettings = { enabled: true, itemsNumber: 5, sortingSerie: '', direction: 'top' }
+    const oldChartModel = widget.content?.chartTemplate?.CHART
+    if (oldChartModel && oldChartModel.LIMIT && oldChartModel.LIMIT.style) {
+        formattedLimitSettings.itemsNumber = oldChartModel.LIMIT.style.maxNumberOfLines
+        formattedLimitSettings.sortingSerie = oldChartModel.LIMIT.style.serieFilterColumn
+        formattedLimitSettings.direction = oldChartModel.LIMIT.style.orderTopMinBottomMax
+    }
+    return formattedLimitSettings
+}
+
 
 const getFormmatedDatetypeSettings = (widget: any) => {
     const formattedDatetypeSettings = highchartsDefaultValues.getDefaultDateTypeSettings()

@@ -26,6 +26,7 @@ export interface IHighchartsWidgetConfiguration {
     splitting?: any
     grouping?: any,
     centerText?: any,
+    limit?: any,
     exports: IWidgetExports
 }
 

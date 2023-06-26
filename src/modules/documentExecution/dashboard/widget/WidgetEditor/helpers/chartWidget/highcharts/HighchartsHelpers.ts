@@ -23,7 +23,7 @@ export const createNewHighchartsSettings = () => {
         updatable: true,
         clickable: true,
         chartModel: null,
-        configuration: { exports: { showExcelExport: true, showScreenshot: true }, datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(), grouping: { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } } },
+        configuration: { exports: { showExcelExport: true, showScreenshot: true }, datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(), grouping: { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } }, limit: { enabled: true, itemsNumber: 5, sortingSerie: '', direction: 'top' } },
         accesssibility: { seriesAccesibilitySettings: getSeriesAccesibilitySettings() },
         series: { seriesSettings: getSerieSettings(), conditionalStyles: { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } },
         interactions: {

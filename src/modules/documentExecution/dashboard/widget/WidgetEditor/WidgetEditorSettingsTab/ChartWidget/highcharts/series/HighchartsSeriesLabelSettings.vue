@@ -81,7 +81,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { IHighchartsChartModel, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
@@ -124,9 +124,6 @@ export default defineComponent({
         }
     },
     computed: {
-        modelSerieNames() {
-            return this.model ? this.model.series.map((serie: IHighchartsChartSerie) => serie.name) : []
-        },
         allSeriesOptionEnabled() {
             return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel'].includes(this.model.chart.type)
         },

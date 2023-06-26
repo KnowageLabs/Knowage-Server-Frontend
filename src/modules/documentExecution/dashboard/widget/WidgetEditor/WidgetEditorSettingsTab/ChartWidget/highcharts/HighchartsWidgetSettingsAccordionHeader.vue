@@ -79,6 +79,8 @@ export default defineComponent({
                     return this.widgetModel.settings.series.conditionalStyles
                 case 'SonificationSettings':
                     return this.widgetModel.settings.chartModel.model?.sonification
+                case 'LimitSettings':
+                    return this.widgetModel.settings.configuration.limit
                 default:
                     return null
             }
