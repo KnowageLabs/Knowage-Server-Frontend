@@ -1,7 +1,5 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
-        {{ 'chartType' }}
-        {{ chartType }}
         <WidgetEditorColumnTable
             v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline', 'pictorial'].includes(chartType)"
             class="p-m-2 p-order-1"
@@ -87,6 +85,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[0] }
                 case 'spline':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.splineChartColumnTableSettings[0] }
+                case 'pictorial':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }

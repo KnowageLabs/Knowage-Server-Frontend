@@ -22,6 +22,10 @@
                 "type": "DatetypeSettings"
             },
             {
+                "title": "dashboard.widgetEditor.highcharts.svg.title",
+                "type": "SVGSettings"
+            },
+            {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
             },

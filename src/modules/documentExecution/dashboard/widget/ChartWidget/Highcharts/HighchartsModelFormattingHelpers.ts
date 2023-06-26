@@ -86,3 +86,14 @@ const formatSplineChartVerticalAxisLines = (formattedChartModel: IHighchartsChar
         yAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
     })
 }
+
+export const formatPictorialChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    formatPictorialSVGPath(formattedChartModel, widgetModel)
+}
+
+const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    console.log('-------- FORMATTED CHART MODEL :', formattedChartModel)
+    console.log('-------- widgetModel :', widgetModel)
+    if (!formattedChartModel.plotOptions.series || !widgetModel.settings.configuration.svgSettings) return
+    formattedChartModel.plotOptions.series.paths = [{ definition: widgetModel.settings.configuration.svgSettings.definition }]
+}

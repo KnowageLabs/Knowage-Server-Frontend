@@ -27,16 +27,16 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
     setSpecificOptionsDefaultValues() {
         this.model.chart.parallelCoordinates = true
         this.model.chart.parallelAxes = { lineWidth: 2 }
-        this.setChordXAxis()
-        this.setChordYAxis()
+        this.setParallelXAxis()
+        this.setParallelXAxis()
     }
 
-    setChordXAxis() {
+    setParallelXAxis() {
         if (this.model.xAxis && this.model.xAxis[0]) this.model.xAxis[0] = [highchartsDefaultValues.getDefaultBarXAxis()]
         else this.model.xAxis = [highchartsDefaultValues.getDefaultBarXAxis()]
     }
 
-    setChordYAxis() {
+    setParallelYAxis() {
         if (this.model.yAxis && this.model.yAxis[0]) this.model.yAxis[0].visible = [highchartsDefaultValues.getDefaultBarYAxis()]
         else this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
     }

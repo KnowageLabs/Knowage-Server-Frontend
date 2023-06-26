@@ -54,6 +54,7 @@
                 <HighchartsCenterTextSettings v-else-if="accordion.type === 'CenterTextSettings'" :widget-model="widgetModel"></HighchartsCenterTextSettings>
                 <HighchartsLimitSettings v-else-if="accordion.type === 'LimitSettings'" :widget-model="widgetModel"></HighchartsLimitSettings>
                 <HighchartsAxisLinesSettings v-else-if="accordion.type === 'AxisLinesSettings'" :widget-model="widgetModel"></HighchartsAxisLinesSettings>
+                <HighchartsSVGSettings v-else-if="accordion.type === 'SVGSettings'" :widget-model="widgetModel"></HighchartsSVGSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -107,6 +108,7 @@ import HighchartsGroupingSettings from './configuration/HighchartsGroupingSettin
 import HighchartsStackingSettings from './configuration/HighchartsStackingSettings.vue'
 import HighchartsLimitSettings from './configuration/HighchartsLimitSettings.vue'
 import HighchartsAxisLinesSettings from './configuration/HighchartsAxisLinesSettings.vue'
+import HighchartsSVGSettings from './configuration/HighchartsSVGSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -154,7 +156,8 @@ export default defineComponent({
         HighchartsStackingSettings,
         HighchartsCenterTextSettings,
         HighchartsLimitSettings,
-        HighchartsAxisLinesSettings
+        HighchartsAxisLinesSettings,
+        HighchartsSVGSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

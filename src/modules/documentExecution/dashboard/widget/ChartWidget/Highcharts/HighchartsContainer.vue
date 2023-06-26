@@ -10,7 +10,7 @@ import { ISelection, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -33,6 +33,7 @@ import HighchartsSankey from 'highcharts/modules/sankey'
 import HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
 import HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinates'
 import Sonification from 'highcharts/modules/sonification'
+import HighchartsPictorial from 'highcharts/modules/pictorial'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -48,6 +49,7 @@ NoDataToDisplay(Highcharts)
 SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
 Drilldown(Highcharts)
+HighchartsPictorial(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -257,6 +259,8 @@ export default defineComponent({
                 formatBubble(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'spline') {
                 formatSplineChart(formattedChartModel, this.widgetModel)
+            } else if (formattedChartModel.chart.type === 'pictorial') {
+                formatPictorialChart(formattedChartModel, this.widgetModel)
             }
 
             return formattedChartModel
