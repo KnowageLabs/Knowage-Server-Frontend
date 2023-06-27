@@ -796,8 +796,10 @@
                 },
                 "svg": {
                     "definition": "Definition",
+                    "error": "No path element with d attribute found in SVG file.",
                     "hint": "SVG Hint Placegolder",
-                    "title": "SVG"
+                    "title": "SVG",
+                    "upload": "Upload SVG"
                 },
                 "tick": {
                     "minorTickInterval": "Minor Tick Interval",
