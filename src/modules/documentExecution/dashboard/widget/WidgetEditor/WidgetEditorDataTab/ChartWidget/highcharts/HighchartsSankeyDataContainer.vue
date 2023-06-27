@@ -162,7 +162,7 @@ export default defineComponent({
             }
         },
         removeColumnFromColumnTableItems(column: IWidgetColumn) {
-            const type = column.axis ? column.axis : 'ATTRIBUTES'
+            const type = column.axis ? column.axis : 'MEASURES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
         },

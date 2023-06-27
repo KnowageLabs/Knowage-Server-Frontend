@@ -1,7 +1,7 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateSankeyChartModel } from './updater/KnowageHighchartsSankeyChartUpdater'
-import { getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -25,8 +25,6 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
     }
 
     setSpecificOptionsDefaultValues() {
-        this.model.chart.parallelCoordinates = true
-        this.model.chart.parallelAxes = { lineWidth: 2 }
         this.setChordXAxis()
         this.setChordYAxis()
     }
@@ -58,89 +56,102 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
                     },
                     {
                         "name": "column_2",
-                        "header": "UNITS_ORDERED_SUM",
+                        "header": "PRODUCT_FAMILY",
                         "dataIndex": "column_2",
-                        "type": "float",
-                        "precision": 54,
-                        "scale": 0,
+                        "type": "string",
                         "multiValue": false
                     },
                     {
                         "name": "column_3",
-                        "header": "UNITS_SHIPPED_SUM",
+                        "header": "UNITS_ORDERED_SUM",
                         "dataIndex": "column_3",
                         "type": "float",
                         "precision": 54,
                         "scale": 0,
                         "multiValue": false
-                    },
-                    {
-                        "name": "column_4",
-                        "header": "WAREHOUSE_COST_SUM",
-                        "dataIndex": "column_4",
-                        "type": "float",
-                        "precision": 54,
-                        "scale": 4,
-                        "multiValue": false
-                    },
-                    {
-                        "name": "column_5",
-                        "header": "SUPPLY_TIME_SUM",
-                        "dataIndex": "column_5",
-                        "type": "float",
-                        "precision": 31,
-                        "scale": 4,
-                        "multiValue": false
-                    },
-                    {
-                        "name": "column_6",
-                        "header": "UNIT_SALES_SUM",
-                        "dataIndex": "column_6",
-                        "type": "float",
-                        "precision": 54,
-                        "scale": 4,
-                        "multiValue": false
                     }
                 ],
-                "cacheDate": "2023-06-23 14:13:12.253"
+                "cacheDate": "2023-06-22 10:29:39.664"
             },
-            "results": 4,
+            "results": 13,
             "rows": [
                 {
                     "id": 1,
                     "column_1": "Q1",
-                    "column_2": 1744587,
-                    "column_3": 1616511,
-                    "column_4": 739653.4604,
-                    "column_5": 287.2794,
-                    "column_6": 104893.2241
+                    "column_2": "Drink",
+                    "column_3": 128144
                 },
                 {
                     "id": 2,
-                    "column_1": "Q2",
-                    "column_2": 1665964,
-                    "column_3": 1517603,
-                    "column_4": 710180.1995,
-                    "column_5": 298.7387,
-                    "column_6": 102115.586
+                    "column_1": "Q1",
+                    "column_2": "Food",
+                    "column_3": 1047654
                 },
                 {
                     "id": 3,
-                    "column_1": "Q3",
-                    "column_2": 2.08226E+6,
-                    "column_3": 1.90871E+6,
-                    "column_4": 831461.175,
-                    "column_5": 318.0512,
-                    "column_6": 121873.7686
+                    "column_1": "Q1",
+                    "column_2": "Non-Consumable",
+                    "column_3": 568789
                 },
                 {
                     "id": 4,
+                    "column_1": "Q2",
+                    "column_2": "Drink",
+                    "column_3": 194835
+                },
+                {
+                    "id": 5,
+                    "column_1": "Q2",
+                    "column_2": "Food",
+                    "column_3": 930864
+                },
+                {
+                    "id": 6,
+                    "column_1": "Q2",
+                    "column_2": "Non-Consumable",
+                    "column_3": 540265
+                },
+                {
+                    "id": 7,
+                    "column_1": "Q3",
+                    "column_2": "Car",
+                    "column_3": 17812
+                },
+                {
+                    "id": 8,
+                    "column_1": "Q3",
+                    "column_2": "Drink",
+                    "column_3": 202356
+                },
+                {
+                    "id": 9,
+                    "column_1": "Q3",
+                    "column_2": "Food",
+                    "column_3": 1147708
+                },
+                {
+                    "id": 10,
+                    "column_1": "Q3",
+                    "column_2": "Non-Consumable",
+                    "column_3": 714384
+                },
+                {
+                    "id": 11,
                     "column_1": "Q4",
-                    "column_2": 1646594,
-                    "column_3": 1473639,
-                    "column_4": 643147.8198,
-                    "column_5": 259.8922,
-                    "column_6": 96443.6608
+                    "column_2": "Drink",
+                    "column_3": 102185
+                },
+                {
+                    "id": 12,
+                    "column_1": "Q4",
+                    "column_2": "Food",
+                    "column_3": 965621
+                },
+                {
+                    "id": 13,
+                    "column_1": "Q4",
+                    "column_2": "Non-Consumable",
+                    "column_3": 578788
                 }
             ],
             "stats": {
@@ -156,62 +167,39 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
                     "cardinality": 4
                 },
                 "2": {
-                    "max": 2.08226E+6,
-                    "min": 1646594,
+                    "max": "Non-Consumable",
+                    "min": "Car",
                     "distinct": [
-                        1646594,
-                        1665964,
-                        1744587,
-                        2.08226E+6
+                        "Car",
+                        "Drink",
+                        "Food",
+                        "Non-Consumable"
                     ],
                     "cardinality": 4
                 },
                 "3": {
-                    "max": 1.90871E+6,
-                    "min": 1473639,
+                    "max": 1147708,
+                    "min": 17812,
                     "distinct": [
-                        1473639,
-                        1517603,
-                        1616511,
-                        1.90871E+6
+                        17812,
+                        102185,
+                        128144,
+                        194835,
+                        202356,
+                        540265,
+                        568789,
+                        578788,
+                        714384,
+                        930864,
+                        965621,
+                        1047654,
+                        1147708
                     ],
-                    "cardinality": 4
-                },
-                "4": {
-                    "max": 831461.175,
-                    "min": 643147.8198,
-                    "distinct": [
-                        643147.8198,
-                        710180.1995,
-                        739653.4604,
-                        831461.175
-                    ],
-                    "cardinality": 4
-                },
-                "5": {
-                    "max": 318.0512,
-                    "min": 259.8922,
-                    "distinct": [
-                        259.8922,
-                        287.2794,
-                        298.7387,
-                        318.0512
-                    ],
-                    "cardinality": 4
-                },
-                "6": {
-                    "max": 121873.7686,
-                    "min": 96443.6608,
-                    "distinct": [
-                        96443.6608,
-                        102115.586,
-                        104893.2241,
-                        121873.7686
-                    ],
-                    "cardinality": 4
+                    "cardinality": 13
                 }
             }
         }
+        console.log('-------- MOCKED DATA: ', mockedData)
         // TODO
         this.model.series = []
 
@@ -220,41 +208,35 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
         console.log('-------- MEASURE COLUMNS: ', measureColumns)
         // TODO
-        this.setParallelData(mockedData, attributeColumns, measureColumns, '')
+        this.setSankeyData(mockedData, attributeColumns, measureColumns, '')
         return this.model.series
     }
 
 
-    setParallelData = (data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
-        if (!data || measureColumns.length < 2 || !attributeColumns[0]) return
-
-        this.setDataForXAxis(measureColumns)
-        this.setDataForYAxis(measureColumns)
-
-        data.rows.forEach((row: any, index: number) => {
-            const serieElement = { id: index, name: row[attributeColumns[0].metadata.dataIndex], data: [] as any[], showInLegend: true }
-            measureColumns.forEach((measureColumn: any) => serieElement.data.push((row[measureColumn.metadata.dataIndex])))
-            this.model.series.push(serieElement)
+    setSankeyData = (data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
+        if (!data || !measureColumns[0] || attributeColumns.length < 2) return
+        const measureColumn = measureColumns[0]
+        const firstAttributeColumn = attributeColumns[0]
+        const secondAttributeColumn = attributeColumns[1]
+        const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true, colorByPoint: true, connectNulls: true }
+        data.rows.forEach((row: any) => {
+            const from = dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, row[firstAttributeColumn]) : row[firstAttributeColumn.metadata.dataIndex]
+            const to = dateFormat && ['date', 'timestamp'].includes(row[secondAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, row[secondAttributeColumn]) : row[secondAttributeColumn.metadata.dataIndex]
+            serieElement.data.push({
+                name: from + ' -> ' + to,
+                from: from,
+                to: to,
+                weight: row[measureColumn.metadata.dataIndex],
+                y: row[measureColumn.metadata.dataIndex],
+                drilldown: false
+            })
         })
-    }
 
-    setDataForXAxis(measureColumns: any[]) {
-        this.model.xAxis.splice(1)
-        const categories = [] as string[]
-        measureColumns.forEach((measureColumn: any) => categories.push(measureColumn.column.columnName))
-        this.model.xAxis[0].categories = categories
-        this.model.xAxis[0].offset = 10
-    }
-
-    setDataForYAxis(measureColumns: any[]) {
-        this.model.yAxis.splice(1)
-        for (let i = 0; i < measureColumns.length - 1; i++) {
-            this.model.yAxis.push({ index: i })
-        }
+        this.model.series.push(serieElement)
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
+        // updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
     }
 
 }
