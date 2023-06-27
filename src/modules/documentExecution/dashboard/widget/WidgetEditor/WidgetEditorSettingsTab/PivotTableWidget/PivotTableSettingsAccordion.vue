@@ -94,17 +94,17 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]>, required: true },
         dashboardId: { type: String, required: true }
     },
-    watch: {
-        settings() {
-            this.activeIndex = -1
-            this.setActiveAccordion()
-        }
-    },
     data() {
         return {
             descriptor,
             settingsTabDescriptor,
             activeIndex: -1
+        }
+    },
+    watch: {
+        settings() {
+            this.activeIndex = -1
+            this.setActiveAccordion()
         }
     },
     created() {

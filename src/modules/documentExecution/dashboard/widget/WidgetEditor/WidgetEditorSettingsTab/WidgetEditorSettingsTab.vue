@@ -139,6 +139,16 @@
             :variables="variables"
             :dashboard-id="dashboardId"
         ></VegaChartsSettingsContainer>
+        <cePivotTableWidgetSettingsContainer
+            v-else-if="propWidget.type === 'ce-pivot-table'"
+            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
+            :widget-model="propWidget"
+            :selected-setting="selectedSetting"
+            :datasets="datasets"
+            :selected-datasets="selectedDatasets"
+            :variables="variables"
+            :dashboard-id="dashboardId"
+        ></cePivotTableWidgetSettingsContainer>
     </div>
 </template>
 
@@ -157,6 +167,7 @@ import ChartJSWidgetSettingsContainer from './ChartWidget/chartJS/ChartJSWidgetS
 import ImageWidgetSettingsContainer from './ImageWidget/ImageWidgetSettingsContainer.vue'
 import CustomChartWidgetSettingsContainer from './CustomChartWidget/CustomChartWidgetSettingsContainer.vue'
 import PivotTableWidgetSettingsContainer from './PivotTableWidget/PivotTableWidgetSettingsContainer.vue'
+import cePivotTableWidgetSettingsContainer from './cePivotTableWidget/cePivotTableWidgetSettingsContainer.vue'
 import DiscoveryWidgetSettingsContainer from './DiscoveryWidget/DiscoveryWidgetSettingsContainer.vue'
 import MapWidgetSettingsContainer from './MapWidget/MapWidgetSettingsContainer.vue'
 import VegaChartsSettingsContainer from './ChartWidget/vega/VegaChartsSettingsContainer.vue'
@@ -185,6 +196,7 @@ import HighchartsSankeySettingsDescriptor from './ChartWidget/highcharts/descrip
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
+import cePivotTableDescriptor from './cePivotTableWidget/cePivotTableSettingsDescriptor.json'
 import discoveryDescriptor from './DiscoveryWidget/DiscoveryWidgetSettingsDescriptor.json'
 import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
 import vegaChartsDescriptor from './ChartWidget/vega/VegaChartsSettingsDescriptor.json'
@@ -207,7 +219,8 @@ export default defineComponent({
         PivotTableWidgetSettingsContainer,
         DiscoveryWidgetSettingsContainer,
         MapWidgetSettingsContainer,
-        VegaChartsSettingsContainer
+        VegaChartsSettingsContainer,
+        cePivotTableWidgetSettingsContainer
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -282,6 +295,9 @@ export default defineComponent({
                     break
                 case 'static-pivot-table':
                     this.descriptor = pivotTableDescriptor
+                    break
+                case 'ce-pivot-table':
+                    this.descriptor = cePivotTableDescriptor
                     break
                 case 'discovery':
                     this.descriptor = discoveryDescriptor
