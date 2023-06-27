@@ -13,7 +13,6 @@
 
 <script lang="ts">
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IHighchartsChartPlotOptions } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import InputSwitch from 'primevue/inputswitch'
@@ -25,7 +24,7 @@ export default defineComponent({
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
-            heatmapPlotOptions: null as IHighchartsChartPlotOptions | null
+            heatmapPlotOptions: null as any
         }
     },
     created() {

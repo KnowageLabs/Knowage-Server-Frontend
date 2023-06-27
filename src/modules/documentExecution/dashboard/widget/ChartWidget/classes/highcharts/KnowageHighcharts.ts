@@ -60,13 +60,14 @@ export class KnowageHighcharts {
             },
             noData: highchartsDefaultValues.getDefaultNoDataConfiguration(),
             accessibility: highchartsDefaultValues.getDefaultAccessibilitySettings(),
+            sonification: highchartsDefaultValues.getDefaultSonificationSettings(),
             series: [],
             settings: {
                 drilldown: {},
                 categories: []
             },
             plotOptions: {
-                series: { events: {} }
+                series: { events: {}, cursor: "pointer" }
             },
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),
@@ -75,9 +76,10 @@ export class KnowageHighcharts {
         }
     }
 
-    addSerie(column: IWidgetColumn, type: 'pie' | 'gauge' | 'radar') {
+    addSerie(column: IWidgetColumn, type: 'pie' | 'gauge' | 'radar' | 'column') {
         switch (type) {
             case 'pie':
+            case 'column':
                 this.model.series.push(createSerie(column.columnName, column.aggregation, true, column.serieType))
                 break
             case 'radar':
@@ -166,17 +168,20 @@ export class KnowageHighcharts {
     handleFormatter(that: any, seriesLabelSetting: IHighchartsSerieLabelSettings) {
         const prefix = seriesLabelSetting.prefix
         const suffix = seriesLabelSetting.suffix
+
+        if (!that.y && that.key && typeof that.key === 'string') return that.point?.id === 'root' ? that.key : `${prefix}${that.key}${suffix}`
+
         const precision = seriesLabelSetting.precision
         const decimalPoints = Highcharts.getOptions().lang?.decimalPoint
         const thousandsSep = Highcharts.getOptions().lang?.thousandsSep
 
         const showAbsolute = seriesLabelSetting.absolute
-        const absoluteValue = showAbsolute ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, Math.abs(that.y), precision, decimalPoints, thousandsSep) : ''
+        const absoluteValue = showAbsolute ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, Math.abs(that.y ?? that.key), precision, decimalPoints, thousandsSep) : ''
 
         const showPercentage = seriesLabelSetting.percentage
         const percentValue = showPercentage ? this.createPercentageValue(that.point.percentage, precision, decimalPoints, thousandsSep) : ''
 
-        const rawValue = !showAbsolute && !showPercentage ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, that.y, precision, decimalPoints, thousandsSep) : ''
+        const rawValue = !showAbsolute && !showPercentage ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, that.y ?? that.key, precision, decimalPoints, thousandsSep) : ''
 
         const showBrackets = showAbsolute && showPercentage
         return `${prefix}${rawValue}${absoluteValue} ${showBrackets ? `(${percentValue})` : `${percentValue}`}${suffix}`

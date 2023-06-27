@@ -4,7 +4,7 @@ import { getMaximumNumberOfSeries } from '../CommonChartCompatibilityHelper'
 import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const getFormattedSerieLabelsSettings = (widget: any) => {
-    const formattedSerieSettings = widget.content.chartTemplate.CHART.type !== 'PIE' ? highchartsDefaultValues.getDefaultSeriesSettings() : ([] as IHighchartsSeriesLabelsSetting[])
+    const formattedSerieSettings = !['PIE', 'SUNBURST', 'TREEMAP'].includes(widget.content.chartTemplate.CHART.type) ? highchartsDefaultValues.getDefaultSeriesSettings() : ([] as IHighchartsSeriesLabelsSetting[])
     if (widget.content.chartTemplate.CHART.type === 'GAUGE') {
         formattedSerieSettings[0].dial = highchartsDefaultValues.getDefaultSerieDialSettings()
         formattedSerieSettings[0].pivot = highchartsDefaultValues.getDefaultSeriePivotSettings()
@@ -13,6 +13,7 @@ export const getFormattedSerieLabelsSettings = (widget: any) => {
     if (endIndex > widget.content.chartTemplate.CHART.VALUES.SERIE.length) endIndex = widget.content.chartTemplate.CHART.VALUES.SERIE.length
     for (let i = 0; i < endIndex; i++) {
         const oldModelSerie = widget.content.chartTemplate.CHART.VALUES.SERIE[i]
+        if (widget.content.chartTemplate.CHART.type === 'BUBBLE' && oldModelSerie.axis !== 'Y') continue
         const formattedSettings = { names: [oldModelSerie.name] } as IHighchartsSeriesLabelsSetting
         setFormattedSerieLabelSettings(oldModelSerie, formattedSettings)
         setSerieSettingsForGaugeChart(oldModelSerie, formattedSettings, widget)

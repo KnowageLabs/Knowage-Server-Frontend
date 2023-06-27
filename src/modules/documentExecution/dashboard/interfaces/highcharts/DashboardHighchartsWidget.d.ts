@@ -24,6 +24,8 @@ export interface IDrillOrderItem {
 export interface IHighchartsWidgetConfiguration {
     datetypeSettings?: any
     splitting?: any
+    grouping?: any,
+    centerText?: any,
     exports: IWidgetExports
 }
 
@@ -37,7 +39,8 @@ export interface ISerieAccessibilitySetting {
 }
 
 export interface IHighchartsSeriesSetting {
-    seriesLabelsSettings: IHighchartsSeriesLabelsSetting[]
+    seriesSettings: IHighchartsSeriesLabelsSetting[],
+    conditionalStyles?: any
 }
 
 export interface IHighchartsSeriesLabelsSetting {
@@ -92,11 +95,13 @@ export interface IHighchartsChartModel {
     series: any[],
     settings: IHighchartsChartModelSettings,
     plotOptions: {
-        pie?: IHighchartsChartPlotOptions,
-        gauge?: IHighchartsChartPlotOptions,
-        solidgauge?: IHighchartsChartPlotOptions
-        heatmap?: IHighchartsChartPlotOptions
-        series?: { events: any }
+        pie?: any,
+        gauge?: any,
+        solidgauge?: any
+        heatmap?: any
+        line?: any,
+        scatter?: any,
+        series?: any
     },
     legend: any,
     tooltip: any,
@@ -108,24 +113,16 @@ export interface IHighchartsChartModel {
     xAxis?: any
     yAxis?: any,
     colorAxis?: { stops: any[] },
-    seriesForRender?: any[]
-}
-
-export interface IHighchartsChartPlotOptions {
-    showInLegend: boolean,
-    depth: number,
-    allowPointSelect: boolean,
-    cursor: string,
-    connectNulls?: boolean,
-    nullColor?: string,
-    dataLabels: IHighchartsChartDataLabels,
+    seriesForRender?: any[],
+    sonification?: any
 }
 
 export interface IHighchartsOptions3D {
     enabled: boolean,
     alpha: number,
     beta: number,
-    viewDistance: number
+    viewDistance: number,
+    depth: number
 }
 
 

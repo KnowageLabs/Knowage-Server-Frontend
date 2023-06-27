@@ -573,7 +573,7 @@ export default defineComponent({
         updatePagination() {
             const pagination = this.propWidget.settings.pagination
             if (pagination.enabled) {
-                this.widgetModel.settings.pagination.properties.totalItems = this.dataToShow.results
+                this.widgetModel.settings.pagination.properties.totalItems = this.dataToShow?.results
             }
         }
     }
@@ -581,9 +581,6 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .cell-span {
-    // border-left: 1px solid lightgrey !important;
-    // border-right: 1px solid lightgrey !important;
-    // border-bottom: 1px solid lightgrey !important;
     background-color: white;
 }
 .ag-cell {

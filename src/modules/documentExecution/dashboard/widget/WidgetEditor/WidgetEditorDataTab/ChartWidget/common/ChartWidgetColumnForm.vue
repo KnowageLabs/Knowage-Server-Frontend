@@ -34,7 +34,7 @@
                 </div>
             </div>
 
-            <div v-else-if="['pie', 'heatmap', 'radar'].includes(chartType)" class="p-d-flex p-flex-row p-ai-center kn-flex p-mt-2">
+            <div v-else-if="['pie', 'heatmap', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType)" class="p-d-flex p-flex-row p-ai-center kn-flex p-mt-2">
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
                     <Dropdown v-model="column.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
@@ -51,7 +51,7 @@
                     </Dropdown>
                 </div>
 
-                <div v-if="['radar'].includes(chartType)" class="p-d-flex p-flex-column kn-flex">
+                <div v-if="['area', 'bar', 'column', 'line', 'radar'].includes(chartType)" class="p-d-flex p-flex-column kn-flex">
                     <div class="p-d-flex p-flex-column kn-flex p-m-2">
                         <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
                         <Dropdown v-model="column.serieType" class="kn-material-input" :options="descriptor.serieTypeOptions" option-value="value" @change="selectedColumnUpdated">

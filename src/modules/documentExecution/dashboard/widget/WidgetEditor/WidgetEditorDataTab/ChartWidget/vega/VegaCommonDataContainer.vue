@@ -7,6 +7,7 @@
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...highchartDescriptor.wordcloudColumnTableSettings[0] }"
             :chart-type="chartType"
+            :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -19,6 +20,7 @@
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...highchartDescriptor.wordcloudColumnTableSettings[1] }"
             :chart-type="chartType"
+            :error="isMeasureTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -82,8 +84,6 @@ export default defineComponent({
             this.columnTableItems['MEASURES'] = []
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
                 const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
-                const maxNumberOfDimensions = this.chartType === 'wordcloud' ? 1 : null
-                if (type === 'MEASURES' && maxNumberOfDimensions && this.columnTableItems['MEASURES'].length === maxNumberOfDimensions) return
                 this.columnTableItems[type].push(column)
             })
         },
@@ -130,6 +130,38 @@ export default defineComponent({
             const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
+        },
+        isAttributesTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'wordcloud':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.attributesInvalid = invalid
+            return invalid
+        },
+        isMeasureTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['MEASURES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'wordcloud':
+                        invalid = this.columnTableItems['MEASURES'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.measuresInvalid = invalid
+            return invalid
         }
     }
 })

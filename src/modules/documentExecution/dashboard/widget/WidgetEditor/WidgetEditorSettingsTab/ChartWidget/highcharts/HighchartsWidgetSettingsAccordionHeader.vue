@@ -49,7 +49,7 @@ export default defineComponent({
                     return this.widgetModel.settings.chartModel.model?.xAxis?.title
                 case 'DatetypeSettings':
                     return this.widgetModel.settings.configuration.datetypeSettings
-                case 'SplittingSettings':
+                case 'GroupingSettings':
                     return this.widgetModel.settings.configuration.splitting
                 case 'Title':
                     return this.widgetModel.settings.style.title
@@ -75,7 +75,10 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.link
                 case 'Preview':
                     return this.widgetModel.settings.interactions.preview
-
+                case 'ConditionalStyles':
+                    return this.widgetModel.settings.series.conditionalStyles
+                case 'SonificationSettings':
+                    return this.widgetModel.settings.chartModel.model?.sonification
                 default:
                     return null
             }

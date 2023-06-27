@@ -17,6 +17,17 @@
             "border-width": "1px"
         }
     },
+    "defaultConditionalStyle": {
+        "condition": {
+            "operator": "",
+            "type": "",
+            "value": ""
+        },
+        "properties": {
+            "color": ""
+        },
+        "target": ""
+    },
     "defaultCrossNavigation": {
         "column": "",
         "enabled": false,

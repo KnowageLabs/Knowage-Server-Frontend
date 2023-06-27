@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn } from "@/modules/documentExecution/dashboard/Dashboard";
+import { IWidgetColumn } from "@/modules/documentExecution/dashboard/Dashboard";
 
 export const addVegaColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, attributesOnly: boolean, measuresOnly: boolean) => {
     let mode = ''
@@ -11,45 +11,22 @@ export const addVegaColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetCol
 }
 
 const addWordcloudColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, mode: string) => {
-    if (mode === 'attributesOnly' && rows.length <= 1) {
+    if (mode === 'attributesOnly') {
         if (tempColumn.fieldType === 'MEASURE') {
             tempColumn.fieldType = 'ATTRIBUTE'
             tempColumn.aggregation = ''
         }
-        rows[0] = tempColumn
-    } else if (mode === 'measuresOnly' && rows.length <= 1) {
+        addColumnToRows(rows, tempColumn)
+    } else if (mode === 'measuresOnly') {
         if (tempColumn.fieldType === 'ATTRIBUTE') {
             tempColumn.fieldType = 'MEASURE'
             tempColumn.aggregation = 'SUM'
         }
-        rows[0] = tempColumn
+        addColumnToRows(rows, tempColumn)
     }
 }
 
-export const updateVegaModelColumnsAfterChartTypeChange = (widget: IWidget, chartType: string) => {
-    const maxAttributeColumns = chartType === 'wordcloud' ? 1 : 0
-    const maxMeasureColumns = getMaxValuesNumber(chartType) ?? widget.columns.length
-    const updatedColumns = [] as IWidgetColumn[]
-    let attributesAdded = 0
-    let measuresAdded = 0
-    widget.columns.forEach((column: IWidgetColumn) => {
-        if (column.fieldType === 'ATTRIBUTE' && attributesAdded < maxAttributeColumns) {
-            updatedColumns.push(column)
-            attributesAdded++
-        } else if (column.fieldType === 'MEASURE' && measuresAdded < maxMeasureColumns) {
-            updatedColumns.push(column)
-            measuresAdded++
-        }
-    })
-    widget.columns = updatedColumns
+const addColumnToRows = (rows: IWidgetColumn[], tempColumn: IWidgetColumn) => {
+    const index = rows.findIndex((column: IWidgetColumn) => column.columnName === tempColumn.columnName)
+    if (index === -1) rows.push(tempColumn)
 }
-
-const getMaxValuesNumber = (chartType: string | undefined) => {
-    switch (chartType) {
-        case 'wordcloud':
-            return 1;
-        default:
-            return null
-    }
-}
-

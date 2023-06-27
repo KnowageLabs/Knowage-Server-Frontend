@@ -40,6 +40,16 @@
     "chartTypeOptions": [
         {
             "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.areaChart",
+            "value": "area"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.stackedAreaChart",
+            "value": "areaStacked"
+        },
+        {
+            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.pieChart",
             "value": "pie"
         },
@@ -49,29 +59,34 @@
             "value": "donut"
         },
         {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.columnsChart",
-            "value": "columns"
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.columnChart",
+            "value": "column"
         },
         {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.stackedColumnsChart",
-            "value": "stackedColumns"
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.stackedColumnChart",
+            "value": "columnStacked"
         },
         {
-            "disabled": true,
+            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.barChart",
             "value": "bar"
         },
         {
-            "disabled": true,
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.stackedBarChart",
+            "value": "barStacked"
+        },
+        {
+            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.scatterChart",
             "value": "scatter"
         },
         {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.areaChart",
-            "value": "area"
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.bubbleChart",
+            "value": "bubble"
         },
         {
             "disabled": false,
@@ -104,14 +119,14 @@
             "value": "solidgauge"
         },
         {
-            "disabled": true,
+            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.lineChart",
             "value": "line"
         },
         {
-            "disabled": true,
+            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.treemap",
-            "value": "treeMap"
+            "value": "treemap"
         },
         {
             "disabled": false,
@@ -122,6 +137,11 @@
             "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.heatmap",
             "value": "heatmap"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.sunburst",
+            "value": "sunburst"
         }
     ],
     "columnAggregationOptions": [

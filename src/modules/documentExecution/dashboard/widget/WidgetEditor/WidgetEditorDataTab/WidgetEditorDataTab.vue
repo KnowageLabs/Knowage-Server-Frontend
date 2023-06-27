@@ -17,7 +17,6 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset } from '../../../Dashboard'
 import { createNewHighchartsModel, createNewHighchartsSettings } from '../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsHelpers'
 import { createChartJSModel, createNewChartJSSettings } from '../helpers/chartWidget/chartJS/ChartJSHelpers'
-import { updateWidgetModelColumnsAfterChartTypeChange } from '../helpers/chartWidget/highcharts/HighchartsDataTabHelpers'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { mapState } from 'pinia'
 import { IHighchartsWidgetSettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
@@ -34,7 +33,6 @@ import PivotTableDataContainer from './PivotTable/PivotTableDataContainer.vue'
 import ChartJSDataContainer from './ChartWidget/chartJS/ChartJSDataContainer.vue'
 import ChartGallery from '../WidgetEditorDataTab/ChartWidget/common/ChartWidgetGallery.vue'
 import VegaDataContainer from './ChartWidget/vega/VegaDataContainer.vue'
-import { updateVegaModelColumnsAfterChartTypeChange } from '../helpers/chartWidget/vega/VegaDataTabHelpers'
 
 export default defineComponent({
     name: 'widget-editor-data-tab',
@@ -74,23 +72,25 @@ export default defineComponent({
         onChartTypeChanged(chartType: string) {
             if (!this.widget) return
 
+            delete this.widget.invalid
+
             // TODO widgetChange
             if (chartType === 'wordcloud') {
                 this.widget.type = 'vega'
                 this.widget.settings = createNewVegaSettings()
-                updateVegaModelColumnsAfterChartTypeChange(this.widget, chartType)
                 this.widget.settings.chartModel = createVegaModel(this.widget, chartType)
             } else if (this.isEnterprise) {
                 const oldChartModel = this.widget.settings.chartModel?.model
+                const type = chartType.replace('Stacked', '')
                 this.widget.type = 'highcharts'
                 this.widget.settings = createNewHighchartsSettings()
-                updateWidgetModelColumnsAfterChartTypeChange(this.widget, chartType)
-                this.widget.settings.chartModel = createNewHighchartsModel(chartType, oldChartModel)
+                this.widget.settings.chartModel = createNewHighchartsModel(type, oldChartModel, chartType.endsWith('Stacked'))
             } else {
                 this.widget.type = 'chartJS'
                 this.widget.settings = createNewChartJSSettings()
                 this.widget.settings.chartModel = createChartJSModel(chartType)
             }
+
             emitter.emit('chartTypeChanged', this.widget.id)
             emitter.emit('refreshWidgetWithData', this.widget.id)
         }

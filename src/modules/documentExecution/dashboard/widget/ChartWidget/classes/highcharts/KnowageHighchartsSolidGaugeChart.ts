@@ -9,7 +9,7 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
-        else if (model && model.plotOption) {
+        else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'solidgauge') {
                 this.formatSeriesFromOtherChartTypeSeries()
@@ -47,8 +47,8 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesLabelsSettings) return
-        const seriesSettings = widgetModel.settings.series.seriesLabelsSettings[0]
+        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings) return
+        const seriesSettings = widgetModel.settings.series.seriesSettings[0]
         this.updateSeriesDataWithSerieSettings(this.model.series[0], seriesSettings)
     }
 

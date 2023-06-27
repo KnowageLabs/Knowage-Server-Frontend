@@ -1,12 +1,13 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
         <WidgetEditorColumnTable
-            v-if="['pie', 'heatmap', 'radar'].includes(chartType)"
+            v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst'].includes(chartType)"
             class="p-m-2 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="columnTableSettings"
             :chart-type="chartType"
+            :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -19,6 +20,7 @@
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="valuesColumnSettings"
             :chart-type="chartType"
+            :error="isMeasureTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -67,6 +69,20 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[0] }
                 case 'radar':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.radarColumnTableSettings[0] }
+                case 'area':
+                case 'bar':
+                case 'column':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.barChartColumnTableSettings[0] }
+                case 'bubble':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[0] }
+                case 'scatter':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[0] }
+                case 'line':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.lineChartColumnTableSettings[0] }
+                case 'treemap':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.treemapChartColumnTableSettings[0] }
+                case 'sunburst':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[0] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }
@@ -85,8 +101,22 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[1] }
                 case 'radar':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.radarColumnTableSettings[1] }
+                case 'area':
+                case 'bar':
+                case 'column':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.barChartColumnTableSettings[1] }
+                case 'bubble':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[1] }
+                case 'scatter':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[1] }
+                case 'line':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.lineChartColumnTableSettings[1] }
+                case 'treemap':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.treemapChartColumnTableSettings[1] }
+                case 'sunburst':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[1] }
                 default:
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
             }
         }
     },
@@ -98,14 +128,24 @@ export default defineComponent({
             this.selectedColumn = null
         }
     },
-    async created() {
+    created() {
+        this.setEventListeners()
         this.loadWidgetModel()
-        this.$watch('widgetModel.columns', () => this.loadColumnTableItems())
         this.loadColumnTableItems()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('reloadChartColumns', this.loadColumnTableItems)
+        },
+        removeEventListeners() {
+            emitter.off('reloadChartColumns', this.loadColumnTableItems)
+        },
         loadWidgetModel() {
             this.widgetModel = this.propWidgetModel
+            this.loadColumnTableItems()
         },
         loadColumnTableItems() {
             this.columnTableItems = []
@@ -113,20 +153,8 @@ export default defineComponent({
             this.columnTableItems['MEASURES'] = []
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
                 const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
-                const maxNumberOfDimensions = this.getMaximumNumberOfDimensions()
-                if (type === 'MEASURES' && maxNumberOfDimensions && this.columnTableItems['MEASURES'].length === maxNumberOfDimensions) return
                 this.columnTableItems[type].push(column)
             })
-        },
-        getMaximumNumberOfDimensions() {
-            switch (this.chartType) {
-                case 'pie':
-                    return 1
-                case 'heatmap':
-                    return 2
-                default:
-                    return null
-            }
         },
         onColumnsReorder(columns: IWidgetColumn[], type: 'ATTRIBUTES' | 'MEASURES') {
             this.columnTableItems[type] = columns
@@ -172,6 +200,71 @@ export default defineComponent({
             const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
+        },
+        isAttributesTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'area':
+                    case 'bar':
+                    case 'column':
+                    case 'line':
+                        invalid =
+                            (this.widgetModel.settings.configuration?.grouping?.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2) ||
+                            (this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['ATTRIBUTES'].length !== 1) ||
+                            (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
+                        break
+                    case 'scatter':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
+                        break
+                    case 'sunburst':
+                    case 'treemap':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length < 2
+                        break
+                    case 'heatmap':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 2
+                        break
+                    case 'radar':
+                        invalid = this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.attributesInvalid = invalid
+            return invalid
+        },
+        isMeasureTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['MEASURES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'area':
+                    case 'bar':
+                    case 'column':
+                    case 'line':
+                        invalid = this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length !== 2
+                        break
+                    case 'solidgauge':
+                    case 'heatmap':
+                    case 'sunburst':
+                    case 'treemap':
+                        invalid = this.columnTableItems['MEASURES'].length !== 1
+                        break
+                    case 'pie':
+                    case 'gauge':
+                    case 'activitygauge':
+                        invalid = this.columnTableItems['MEASURES'].length > 4
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.measuresInvalid = invalid
+            return invalid
         }
     }
 })

@@ -18,12 +18,12 @@
         ],
         "Configuration": [
             {
-                "title": "dashboard.widgetEditor.highcharts.heatmap.datetype",
+                "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.splitting.title",
-                "type": "SplittingSettings"
+                "type": "GroupingSettings"
             },
             {
                 "title": "dashboard.widgetEditor.export.title",
@@ -113,19 +113,19 @@
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "BandsSettings"
+                "type": "YAxisBandsSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "LinesSettings"
+                "type": "YAxisLinesSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
-                "type": "MajorGridSettings"
+                "type": "YAxisMajorGridSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
-                "type": "MinorGridSettings"
+                "type": "YAxisMinorGridSettings"
             }
         ]
     },

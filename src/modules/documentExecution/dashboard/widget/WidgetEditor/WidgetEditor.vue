@@ -2,9 +2,9 @@
     <Teleport to=".dashboard-container">
         <div class="dashboardEditor">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start> {{ widget.type }} Widget Editor </template>
+                <template #start> {{ widget.type }} Widget Editor</template>
                 <template #end>
-                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" @click="save" />
+                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="widgetIsInvalid" @click="save" />
                     <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="close" />
                 </template>
             </Toolbar>
@@ -75,6 +75,20 @@ export default defineComponent({
             selectedSetting: '',
             chartPickerVisible: false,
             showPreview: false
+        }
+    },
+    computed: {
+        widgetIsInvalid() {
+            let invalid = false
+            if (!this.widget.invalid) return invalid
+            const invalidPropertyKeys = Object.keys(this.widget.invalid)
+            for (let i = 0; i < invalidPropertyKeys.length; i++) {
+                if (this.widget.invalid[invalidPropertyKeys[i]]) {
+                    invalid = true
+                    return invalid
+                }
+            }
+            return invalid
         }
     },
     watch: {
@@ -153,6 +167,12 @@ export default defineComponent({
 <style lang="scss">
 .widget-editor-card {
     color: rgba(0, 0, 0, 0.87);
+    box-shadow: 0 2px 1px -1px rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 1px 3px 0 rgb(0 0 0 / 12%);
+    border-radius: 4px;
+}
+
+.widget-editor-card-error {
+    border-color: rgba(219, 2, 2, 0.87);
     box-shadow: 0 2px 1px -1px rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 1px 3px 0 rgb(0 0 0 / 12%);
     border-radius: 4px;
 }

@@ -1,5 +1,6 @@
 <template>
     <div v-show="!error" :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div>
+    <HighchartsSonificationControls v-if="chartModel?.sonification?.enabled" @playSonify="playSonify" @pauseSonify="pauseSonify" @cancelSonify="cancelSonify"></HighchartsSonificationControls>
 </template>
 
 <script lang="ts">
@@ -9,9 +10,10 @@ import { ISelection, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
-import { formatActivityGauge, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation } from './HighchartsContainerHelpers'
-import { getPieChartDrilldownData } from '../../../DataProxyHelper'
+import { getChartDrilldownData } from '../../../DataProxyHelper'
+import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
 import Highcharts3D from 'highcharts/highcharts-3d'
 import HighchartsMore from 'highcharts/highcharts-more'
@@ -25,11 +27,17 @@ import cryptoRandomString from 'crypto-random-string'
 import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
+import HighchartsTreemap from 'highcharts/modules/treemap'
+import HighchartsSunburst from 'highcharts/modules/sunburst'
+import Sonification from 'highcharts/modules/sonification'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
 HighchartsHeatmap(Highcharts)
+HighchartsTreemap(Highcharts)
+HighchartsSunburst(Highcharts)
 Accessibility(Highcharts)
+Sonification(Highcharts)
 NoDataToDisplay(Highcharts)
 SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
@@ -37,7 +45,7 @@ Drilldown(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
-    components: {},
+    components: { HighchartsSonificationControls },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         dataToShow: { type: Object as any, required: true },
@@ -90,6 +98,7 @@ export default defineComponent({
         updateChartModel() {
             if (!this.chartModel) return
             Highcharts.setOptions({ lang: { noData: this.chartModel.lang.noData } })
+            this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
 
             this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel)
 
@@ -102,19 +111,24 @@ export default defineComponent({
             this.error = this.updateTooltipSettings()
             if (this.error) return
 
-            this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
-
             this.setSeriesEvents()
 
             const modelToRender = this.getModelForRender()
-            modelToRender.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
+            modelToRender.chart.events = {
+                drillup: this.onDrillUp,
+                click: this.executeInteractions,
+                checkboxClick: this.onCheckboxClicked
+            }
             modelToRender.chart.backgroundColor = null
 
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
-                this.setError({ title: this.$t('common.toast.errorTitle'), msg: error ? error.message : '' })
+                this.setError({
+                    title: this.$t('common.toast.errorTitle'),
+                    msg: error ? error.message : ''
+                })
             }
         },
         updateLegendSettings() {
@@ -142,10 +156,20 @@ export default defineComponent({
             hasError = this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.tooltip, null, 'pointFormatter', 'pointFormatterText', 'pointFormatterError')
             return hasError
         },
-
         setSeriesEvents() {
-            this.chartModel.chart.events = { drillup: this.onDrillUp, click: this.executeInteractions }
-            if (this.chartModel.plotOptions.series) this.chartModel.plotOptions.series = { events: { click: this.executeInteractions } }
+            this.chartModel.chart.events = {
+                drillup: this.onDrillUp,
+                click: this.executeInteractions,
+                checkboxClick: this.onCheckboxClicked
+            }
+            if (this.chartModel.plotOptions.series) {
+                this.chartModel.plotOptions.series.events = {
+                    click: this.executeInteractions,
+                    checkboxClick: this.onCheckboxClicked
+                }
+
+                if (this.chartModel.chart.type === 'sunburst') this.chartModel.plotOptions.series.events.legendItemClick = this.onSunburstLegendItemClick
+            }
         },
         onDrillUp(event: any) {
             this.drillLevel = event.seriesOptions._levelNumber
@@ -153,8 +177,7 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar'].includes(this.chartModel.chart.type)) return
-
+            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.chartModel.chart.type) || this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 if (!event.point) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
@@ -162,7 +185,7 @@ export default defineComponent({
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
-                const tempData = await getPieChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
+                const tempData = await getChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
                 const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
                 this.highchartsInstance.hideLoading()
                 newSeries.forEach((serie: any) => {
@@ -176,7 +199,7 @@ export default defineComponent({
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-            } else if (['pie', 'radar'].includes(this.chartModel.chart.type)) {
+            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
@@ -211,8 +234,50 @@ export default defineComponent({
                 formatHeatmap(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'radar') {
                 formatRadar(formattedChartModel)
+            } else if (formattedChartModel.chart.type === 'bubble') {
+                formatBubble(formattedChartModel)
             }
+
             return formattedChartModel
+        },
+        onCheckboxClicked(event: any) {
+            this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
+                const dataLabelOptions = point.options.dataLabels
+                dataLabelOptions.enabled = event.checked
+                point.update(dataLabelOptions)
+            }, false)
+            this.highchartsInstance.redraw()
+        },
+        onSunburstLegendItemClick(event: any) {
+            const pointName = event.target.name
+            const point = this.highchartsInstance.series[0].points.find((point: any) => point.name === pointName)
+            const tempPoints = this.getChildrenPoints(point.id)
+            point.setVisible(!point.visible)
+            tempPoints.forEach((point: any) => point.setVisible(!point.visible))
+        },
+        getChildrenPoints(parentId: string) {
+            const seriesData = this.highchartsInstance.series[0].points
+            const childrenPoints = [] as any
+
+            function traversePoints(points: any, parentId: string) {
+                points.forEach((point: any) => {
+                    if (point.parent === parentId) {
+                        childrenPoints.push(point)
+                        traversePoints(points, point.id)
+                    }
+                })
+            }
+            traversePoints(seriesData, parentId)
+            return childrenPoints
+        },
+        playSonify() {
+            this.highchartsInstance.toggleSonify()
+        },
+        pauseSonify() {
+            this.highchartsInstance.toggleSonify(false)
+        },
+        cancelSonify() {
+            this.highchartsInstance.sonification.cancel()
         }
     }
 })

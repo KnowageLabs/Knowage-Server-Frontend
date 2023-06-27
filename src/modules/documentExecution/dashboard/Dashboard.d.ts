@@ -45,8 +45,9 @@ export interface IWidget {
     new?: boolean
     fields?: IPivotFields
     layers?: any
-    state?: any,
+    state?: any
     search?: any
+    invalid?: any
 }
 
 export interface ITableWidgetSettings {
@@ -71,7 +72,7 @@ export interface ITableWidgetConditionalStyles {
 
 export interface ITableWidgetConditionalStyle {
     target: string
-    applyToWholeRow: boolean
+    applyToWholeRow?: boolean
     condition: {
         type: string
         variable?: string
@@ -83,6 +84,7 @@ export interface ITableWidgetConditionalStyle {
         formula?: string
     }
     properties: {
+        'text-align': string
         'justify-content': string
         'font-family': string
         'font-size': string
@@ -433,6 +435,7 @@ export interface IWidgetColumn {
     orderType?: string
     sort?: string
     serieType?: string
+    axis?: string
 }
 
 export interface IWidgetColumnFilter {
@@ -758,4 +761,31 @@ export interface IDashboardView {
     type?: string
     biObjectTypeCode?: string
     new?: boolean
+}
+
+export interface IWidgetSearch {
+    searchText: string
+    searchColumns: string[]
+}
+
+export interface IHighchartsCommonConditionalStyles {
+    enabled: boolean
+    conditions: IHighchartsCommonConditionalStyle[]
+}
+
+export interface IHighchartsCommonConditionalStyle {
+    target: string
+    condition: {
+        type: string
+        variable?: string
+        parameter?: string
+        variableKey?: string
+        variablePivotDatasetOptions?: any
+        operator: string
+        value: string
+        formula?: string
+    }
+    properties: {
+        color: string
+    }
 }

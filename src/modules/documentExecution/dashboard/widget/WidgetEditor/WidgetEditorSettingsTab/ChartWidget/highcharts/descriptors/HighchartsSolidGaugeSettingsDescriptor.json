@@ -77,7 +77,7 @@
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "BandsSettings"
+                "type": "YAxisBandsSettings"
             }
         ],
         "Style": [

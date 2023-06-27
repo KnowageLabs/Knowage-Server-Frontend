@@ -1,12 +1,12 @@
-import { IWidget, IWidgetExports, IWidgetInteractions } from "../../../Dashboard"
-import { IChartJSWidgetConfiguration, IChartJSWidgetSettings } from "../../../interfaces/chartJS/DashboardChartJSWidget"
-import { getFormattedInteractions } from "../../common/WidgetInteractionsHelper"
-import { getFormattedStyle } from "./ChartJSWidgetStyleHelper"
-import { KnowageChartJSPieChart } from "../../../widget/ChartWidget/classes/chartJS/KnowageChartJSPieChart"
+import { IWidget, IWidgetExports, IWidgetInteractions } from '../../../Dashboard'
+import { IChartJSWidgetConfiguration, IChartJSWidgetSettings } from '../../../interfaces/chartJS/DashboardChartJSWidget'
+import { getFormattedInteractions } from '../../common/WidgetInteractionsHelper'
+import { getFormattedStyle } from './ChartJSWidgetStyleHelper'
+import { KnowageChartJSPieChart } from '../../../widget/ChartWidget/classes/chartJS/KnowageChartJSPieChart'
 import * as widgetCommonDefaultValues from '../../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
-import { getFormattedColorSettings, getFormattedWidgetColumns } from "../CommonChartCompatibilityHelper"
-import { getFiltersForColumns } from "../../DashboardBackwardCompatibilityHelper"
-
+import { getFormattedColorSettings, getFormattedWidgetColumns } from '../CommonChartCompatibilityHelper'
+import { getFiltersForColumns } from '../../DashboardBackwardCompatibilityHelper'
+import { KnowageChartJSBarChart } from '../../../widget/ChartWidget/classes/chartJS/KnowageChartJSBarChart'
 
 export const formatChartJSWidget = (widget: any) => {
     const formattedWidget = {
@@ -24,7 +24,6 @@ export const formatChartJSWidget = (widget: any) => {
     return formattedWidget
 }
 
-
 const getFormattedWidgetSettings = (widget: any) => {
     const formattedSettings = {
         updatable: widget.updateble,
@@ -41,18 +40,18 @@ const getFormattedWidgetSettings = (widget: any) => {
     return formattedSettings
 }
 
-
 const getFormattedConfiguration = (widget: any) => {
     return {
         exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports
     } as IChartJSWidgetConfiguration
 }
 
-
 const createChartModel = (widget: any) => {
     switch (widget.content.chartTemplate.CHART.type) {
         case 'PIE':
             return new KnowageChartJSPieChart(widget.content.chartTemplate)
+        case 'BAR':
+            return new KnowageChartJSBarChart(widget.content.chartTemplate)
         default:
             return null
     }

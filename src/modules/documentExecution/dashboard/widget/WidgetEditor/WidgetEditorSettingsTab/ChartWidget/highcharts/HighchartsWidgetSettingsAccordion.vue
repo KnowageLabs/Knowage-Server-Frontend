@@ -1,7 +1,7 @@
 <template>
     <div v-show="widgetModel">
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
-            <AccordionTab v-for="(accordion, index) in settings" :key="index">
+            <AccordionTab v-for="(accordion, index) in filteredSettings" :key="index">
                 <template #header>
                     <HighchartsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></HighchartsWidgetSettingsAccordionHeader>
                 </template>
@@ -20,7 +20,8 @@
                 <HighchartsGaugeScaleSettings v-else-if="accordion.type === 'ScaleSettings'" :widget-model="widgetModel"></HighchartsGaugeScaleSettings>
                 <HighchartsGaugeTickSettings v-else-if="accordion.type === 'TickSettings'" :widget-model="widgetModel"></HighchartsGaugeTickSettings>
                 <HighchartsStopsSettings v-else-if="accordion.type === 'StopsSettings'" :widget-model="widgetModel"></HighchartsStopsSettings>
-                <HighchartsBandsSettings v-else-if="accordion.type === 'BandsSettings'" :widget-model="widgetModel"></HighchartsBandsSettings>
+                <HighchartsBandsSettings v-else-if="accordion.type === 'XAxisBandsSettings'" :widget-model="widgetModel" axis="x"></HighchartsBandsSettings>
+                <HighchartsBandsSettings v-else-if="accordion.type === 'YAxisBandsSettings'" :widget-model="widgetModel" axis="y"></HighchartsBandsSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
@@ -40,10 +41,17 @@
                 <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HeatmapYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
                 <HighchartsHeatmapNullSettings v-else-if="accordion.type === 'HeatmapNullSettings'" :widget-model="widgetModel"></HighchartsHeatmapNullSettings>
                 <HighchartsDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsDatetypeSettings>
-                <HighchartsLineSettings v-else-if="accordion.type === 'LinesSettings'" :widget-model="widgetModel"></HighchartsLineSettings>
-                <HighchartsAxisGridSettings v-else-if="accordion.type === 'MajorGridSettings'" :widget-model="widgetModel" type="major"></HighchartsAxisGridSettings>
-                <HighchartsAxisGridSettings v-else-if="accordion.type === 'MinorGridSettings'" :widget-model="widgetModel" type="minor"></HighchartsAxisGridSettings>
-                <HighchartsRadarSplittingSettings v-else-if="accordion.type === 'SplittingSettings'" :widget-model="widgetModel"></HighchartsRadarSplittingSettings>
+                <HighchartsLineSettings v-else-if="accordion.type === 'XAxisLinesSettings'" :widget-model="widgetModel" axis="x"></HighchartsLineSettings>
+                <HighchartsLineSettings v-else-if="accordion.type === 'YAxisLinesSettings'" :widget-model="widgetModel" axis="y"></HighchartsLineSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'XAxisMajorGridSettings'" :widget-model="widgetModel" type="major" axis="x"></HighchartsAxisGridSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'YAxisMajorGridSettings'" :widget-model="widgetModel" type="major" axis="y"></HighchartsAxisGridSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'XAxisMinorGridSettings'" :widget-model="widgetModel" type="minor" axis="x"></HighchartsAxisGridSettings>
+                <HighchartsAxisGridSettings v-else-if="accordion.type === 'YAxisMinorGridSettings'" :widget-model="widgetModel" type="minor" axis="y"></HighchartsAxisGridSettings>
+                <HighchartsConditionalStyles v-else-if="accordion.type === 'ConditionalStyles'" :widget-model="widgetModel"></HighchartsConditionalStyles>
+                <HighchartsSonificationSettings v-else-if="accordion.type === 'SonificationSettings'" :widget-model="widgetModel"></HighchartsSonificationSettings>
+                <HighchartsGroupingSettings v-else-if="accordion.type === 'GroupingSettings'" :widget-model="widgetModel"></HighchartsGroupingSettings>
+                <HighchartsStackingSettings v-else-if="accordion.type === 'StackingSettings' && isStacked" :widget-model="widgetModel"></HighchartsStackingSettings>
+                <HighchartsCenterTextSettings v-else-if="accordion.type === 'CenterTextSettings'" :widget-model="widgetModel"></HighchartsCenterTextSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -68,6 +76,7 @@ import WidgetTitleStyle from '../../common/style/WidgetTitleStyle.vue'
 import WidgetPaddingStyle from '../../common/style/WidgetPaddingStyle.vue'
 import WidgetBackgroundColorStyle from '../../common/style/WidgetBackgroundColorStyle.vue'
 import Highcharts3DConfiguration from '../highcharts/configuration/Highcharts3DConfiguration.vue'
+import HighchartsCenterTextSettings from '../highcharts/configuration/HighchartsCenterTextSettings.vue'
 import HighchartsNoDataMessageConfiguration from '../highcharts/configuration/HighchartsNoDataMessageConfiguration.vue'
 import HighchartsAccessibilitySettings from '../highcharts/accessibility/HighchartsAccessibilitySettings.vue'
 import HighchartsSeriesAccessibilitySettings from '../highcharts/accessibility/HighchartsSeriesAccessibilitySettings.vue'
@@ -90,7 +99,10 @@ import HighchartsHeatmapNullSettings from './heatmap/HighchartsHeatmapNullSettin
 import HighchartsDatetypeSettings from './configuration/HighchartsDatetypeSettings.vue'
 import HighchartsLineSettings from './settings/HighchartsLineSettings.vue'
 import HighchartsAxisGridSettings from './axis/HighchartsAxisGridSettings.vue'
-import HighchartsRadarSplittingSettings from './radar/HighchartsRadarSplittingSettings.vue'
+import HighchartsConditionalStyles from './series/HighchartsConditionalStyles.vue'
+import HighchartsSonificationSettings from './accessibility/HighchartsSonificationSettings.vue'
+import HighchartsGroupingSettings from './configuration/HighchartsGroupingSettings.vue'
+import HighchartsStackingSettings from './configuration/HighchartsStackingSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -132,7 +144,11 @@ export default defineComponent({
         HighchartsDatetypeSettings,
         HighchartsLineSettings,
         HighchartsAxisGridSettings,
-        HighchartsRadarSplittingSettings
+        HighchartsConditionalStyles,
+        HighchartsSonificationSettings,
+        HighchartsGroupingSettings,
+        HighchartsStackingSettings,
+        HighchartsCenterTextSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -146,19 +162,38 @@ export default defineComponent({
     data() {
         return {
             settingsTabDescriptor,
+            filteredSettings: [] as { title: string; type: string }[],
             activeIndex: -1
+        }
+    },
+    computed: {
+        isStacked() {
+            if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.series?.stacking) return true
+            return false
         }
     },
     watch: {
         settings() {
             this.activeIndex = -1
-            this.setActiveAccordion()
+            this.loadSettings()
+        },
+        isStacked() {
+            this.loadSettings()
         }
     },
     created() {
-        this.setActiveAccordion()
+        this.loadSettings()
     },
     methods: {
+        loadSettings() {
+            this.filteredSettings = this.settings ? [...this.settings] : []
+            if (!this.isStacked) this.removeStackedFromOptions()
+            this.setActiveAccordion()
+        },
+        removeStackedFromOptions() {
+            const index = this.filteredSettings.findIndex((setting: { title: string; type: string }) => setting.type === 'StackingSettings')
+            if (index !== -1) this.filteredSettings.splice(index, 1)
+        },
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
         }

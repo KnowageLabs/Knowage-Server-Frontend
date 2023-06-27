@@ -34,9 +34,9 @@
                     </div>
                 </div>
             </div>
-            <div class="table-container">
-                <ag-grid-vue v-if="!gridLoading" class="discovery-grid ag-theme-alpine kn-flex discovery-grid-scrollbar" :grid-options="gridOptions" :context="context"></ag-grid-vue>
-                <PaginationRenderer class="discovery-pagination" :prop-widget-pagination="propWidget.settings.pagination" @page-changed="$emit('pageChanged')" />
+            <div v-if="!gridLoading" class="table-container">
+                <ag-grid-vue class="discovery-grid ag-theme-alpine kn-flex discovery-grid-scrollbar" :grid-options="gridOptions" :context="context"></ag-grid-vue>
+                <PaginationRenderer class="discovery-pagination" :prop-widget="propWidget" :prop-widget-pagination="propWidget.settings.pagination" @pageChanged="$emit('pageChanged')" />
             </div>
         </div>
     </div>

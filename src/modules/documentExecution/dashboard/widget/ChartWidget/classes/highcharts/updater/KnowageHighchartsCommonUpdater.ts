@@ -1,5 +1,5 @@
 import { hexToRgba } from "@/modules/documentExecution/dashboard/helpers/FormattingHelpers"
-import { IHighchartsChartModel } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
+import { IHighchartsChartModel, IHighchartsOptions3D } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const createSerie = (serieName: string, groupingFunction: string, colorByPoint: boolean, serieType?: string) => {
@@ -63,17 +63,17 @@ export const getFormattedSeries = (oldModel: any, newModel: IHighchartsChartMode
 export const getFormattedLegend = (oldModel: any, newModel: IHighchartsChartModel) => {
     if (oldModel.CHART.LEGEND) {
         newModel.legend = {
-            enabled: oldModel.CHART.LEGEND.show,
-            align: oldModel.CHART.LEGEND.position !== 'top' ? oldModel.CHART.LEGEND.position : 'center',
+            enabled: oldModel.CHART.LEGEND.show ?? true,
+            align: ['left', 'right', 'center'].includes(oldModel.CHART.LEGEND.position) ? oldModel.CHART.LEGEND.position : 'center',
             layout: 'horizontal',
-            verticalAlign: oldModel.CHART.LEGEND.position === 'top' ? 'top' : 'middle',
+            verticalAlign: ['top', 'bottom'].includes(oldModel.CHART.LEGEND.position) ? oldModel.CHART.LEGEND.position : 'bottom',
             itemStyle: {
-                fontFamily: oldModel.CHART.LEGEND.style.fontFamily ?? '',
-                fontSize: oldModel.CHART.LEGEND.style.fontSize ?? '',
-                fontWeight: oldModel.CHART.LEGEND.style.fontWeight ?? '',
-                color: oldModel.CHART.LEGEND.style.color ? hexToRgba(oldModel.CHART.LEGEND.style.color) : ''
+                fontFamily: oldModel.CHART.LEGEND.style?.fontFamily ?? '',
+                fontSize: oldModel.CHART.LEGEND.style?.fontSize ?? '',
+                fontWeight: oldModel.CHART.LEGEND.style?.fontWeight ?? '',
+                color: oldModel.CHART.LEGEND.style?.color ? hexToRgba(oldModel.CHART.LEGEND.style.color) : ''
             },
-            backgroundColor: oldModel.CHART.LEGEND.style.backgroundColor ? hexToRgba(oldModel.CHART.LEGEND.style.backgroundColor) : '',
+            backgroundColor: oldModel.CHART.LEGEND.style?.backgroundColor ? hexToRgba(oldModel.CHART.LEGEND.style.backgroundColor) : '',
             borderWidth: 1,
             borderColor: ''
         }
@@ -151,5 +151,59 @@ const getFormattedTitleAlign = (oldAxisTitleAlign: 'left' | 'center' | 'right') 
             return 'high'
         default:
             return 'middle'
+    }
+}
+
+export const setAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
+    if (oldAxis.MAJORGRID) {
+        newModelAxis.tickInterval = oldAxis.MAJORGRID.interval && oldAxis.MAJORGRID.interval !== '' ? oldAxis.MAJORGRID.interval : null
+        newModelAxis.gridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
+        newModelAxis.gridLineColor = oldAxis.MAJORGRID.style?.color ? hexToRgba(oldAxis.MAJORGRID.style.color) : ''
+    }
+
+    if (oldAxis.MINORGRID) {
+        newModelAxis.minorTickInterval = oldAxis.MINORGRID.interval && oldAxis.MINORGRID.interval !== '' ? oldAxis.MINORGRID.interval : null
+        newModelAxis.minorGridLineDashStyle = getFormattedGridLineStyle(oldAxis.MINORGRID.style?.typeline) ? '' : ''
+        newModelAxis.minorGridLineColor = oldAxis.MINORGRID.style?.color ? hexToRgba(oldAxis.MINORGRID.style.color) : ''
+    }
+}
+
+const getFormattedGridLineStyle = (type: string) => {
+    switch (type) {
+        case 'solid':
+            return 'Solid';
+        case "dashed":
+            return 'Dash'
+        case "dotted":
+            return 'Dot';
+        default:
+            return ''
+    }
+}
+
+export const setAxisTickSettings = (oldAxis: any, newModelAxis: any) => {
+    newModelAxis.startOnTick = oldAxis.startOnTick ?? true
+    newModelAxis.endOnTick = oldAxis.endOnTick ?? true
+    newModelAxis.showLastLabel = oldAxis.showLastLabel ?? true
+}
+
+export const getFormatted3DConfiguration = (oldModel: any, newModel: IHighchartsChartModel) => {
+    if (oldModel.CHART.show3D) {
+        if (newModel.plotOptions.pie) newModel.plotOptions.pie.depth = oldModel.CHART.depth
+        newModel.chart.options3d = {
+            enabled: oldModel.CHART.show3D,
+            alpha: oldModel.CHART.alpha,
+            beta: oldModel.CHART.beta,
+            viewDistance: oldModel.CHART.viewDistance ?? 25
+        } as IHighchartsOptions3D
+    }
+}
+
+export const getFormattedSonificationSettings = (oldModel: any, newModel: IHighchartsChartModel) => {
+    const sonificationSettings = highchartsDefaultValues.getDefaultSonificationSettings()
+    newModel.sonification.order = sonificationSettings.order
+    if (oldModel.CHART.accessibility) {
+        newModel.sonification.enabled = oldModel.CHART.accessibility.sonification ?? sonificationSettings.enabled
+        newModel.sonification.duration = oldModel.CHART.accessibility.duration ? oldModel.CHART.accessibility.duration * 1000 : sonificationSettings.duration
     }
 }

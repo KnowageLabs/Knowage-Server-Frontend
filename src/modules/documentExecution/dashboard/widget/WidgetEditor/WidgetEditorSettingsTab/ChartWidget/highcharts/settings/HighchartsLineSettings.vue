@@ -69,7 +69,7 @@ import * as highchartsDefaultValues from '../../../../helpers/chartWidget/highch
 export default defineComponent({
     name: 'hihgcharts-line-settings',
     components: { InputNumber, Message, WidgetEditorColorPicker, Dropdown },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, axis: { type: String, required: true } },
     data() {
         return {
             descriptor,
@@ -84,7 +84,7 @@ export default defineComponent({
 
     methods: {
         loadModel() {
-            this.axisModel = this.widgetModel.settings.chartModel.model.yAxis
+            this.axisModel = this.axis === 'x' ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
         },
         modelChanged() {
             emitter.emit('refreshChart', this.widgetModel.id)

@@ -7,7 +7,6 @@
         :rows="propWidgetPagination.properties.itemsNumber"
         :total-records="propWidgetPagination.properties.totalItems"
         template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-        style="color: red !important"
         @page="onPage($event)"
     />
 </template>

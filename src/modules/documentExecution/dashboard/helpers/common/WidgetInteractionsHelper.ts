@@ -10,7 +10,7 @@ import mainStore from '@/App.store'
 export const getFormattedInteractions = (widget: any) => {
     const interactions = {} as IWidgetInteractions
     const chartType = getChartType(widget)
-    if (['table', 'chart', 'static-pivot-table', 'map'].includes(widget.type) && chartType !== 'GAUGE') interactions.selection = getFormattedSelection(widget) as IWidgetSelection
+    if (['table', 'chart', 'static-pivot-table', 'map'].includes(widget.type) && chartType !== 'GAUGE') interactions.selection = getFormattedSelection(widget, chartType) as IWidgetSelection
     if (['table', 'html', 'text', 'chart', 'discovery', 'image', 'customchart', 'static-pivot-table', 'map'].includes(widget.type)) interactions.crossNavigation = getFormattedCrossNavigation(widget) as IWidgetCrossNavigation
     if (['table', 'chart', 'discovery', 'static-pivot-table', 'map'].includes(widget.type)) interactions.link = getFormattedLinkInteraction(widget) as IWidgetLinks
     if (['table', 'html', 'text', 'chart', 'discovery', 'customchart', 'map'].includes(widget.type)) interactions.preview = getFormattedPreview(widget) as IWidgetPreview
@@ -22,11 +22,11 @@ const getChartType = (widget: any) => {
     return widget.content?.chartTemplate?.CHART?.type ?? null
 }
 
-const getFormattedSelection = (widget: any) => {
+const getFormattedSelection = (widget: any, chartType: string | null) => {
     if (widget.type === 'table') {
         return getFormattedTableSelection(widget)
     } else if (widget.type === 'chart') {
-        return getFormattedChartSelection(widget)
+        return getFormattedChartSelection(widget, chartType)
     } else if (['static-pivot-table', 'map'].includes(widget.type)) {
         return getFormattedCommonSelection()
     }
@@ -49,12 +49,16 @@ const getFormattedTableSelection = (widget: any) => {
     return formattedSelection
 }
 
-const getFormattedChartSelection = (widget: any) => {
+const getFormattedChartSelection = (widget: any, chartType: string | null) => {
     const store = mainStore()
     const user = store.getUser()
     // TODO widgetChange
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return chartJSDefaultValues.getDefaultChartJSSelections()
-    return user?.enterprise ? highchartsDefaultValues.getDefaultHighchartsSelections() : chartJSDefaultValues.getDefaultChartJSSelections()
+    else {
+        const highchartsDefaultSelections = highchartsDefaultValues.getDefaultHighchartsSelections()
+        if (chartType && ['SUNBURST', 'TREEMAP'].includes(chartType)) highchartsDefaultSelections.enabled = false
+        return user?.enterprise ? highchartsDefaultSelections : chartJSDefaultValues.getDefaultChartJSSelections()
+    }
 }
 
 const getFormattedCommonSelection = () => {
@@ -83,7 +87,7 @@ export const getFormattedCrossNavigation = (widget: any) => {
 const getOldCrossNavigation = (widget: any) => {
     switch (widget.type) {
         case 'chart':
-            return widget.content.cross;
+            return widget.content.cross
         case 'table':
         case 'image':
         case 'html':
@@ -94,7 +98,6 @@ const getOldCrossNavigation = (widget: any) => {
             return widget.cross.cross
         default:
             return widget.cross
-
     }
 }
 

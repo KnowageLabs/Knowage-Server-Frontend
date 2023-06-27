@@ -1,0 +1,81 @@
+import { IWidget } from "@/modules/documentExecution/dashboard/Dashboard"
+import { IHighchartsSeriesLabelsSetting } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
+import * as highchartsDefaultValues from '../../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
+import { KnowageHighcharts } from "../../KnowageHighcharts"
+
+export const updateSeriesLabelSettingsWhenAllOptionIsAvailable = (model: any, widgetModel: IWidget) => {
+    if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings) return
+    setAllSeriesSettings(model, widgetModel)
+    setSpecificSeriesSettings(model, widgetModel)
+}
+
+const setAllSeriesSettings = (model: any, widgetModel: IWidget) => {
+    const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
+    if (allSeriesSettings.label.enabled) {
+        model.series?.forEach((serie: any) =>
+            updateSeriesDataWithSerieSettings(serie, allSeriesSettings))
+    } else {
+        resetSeriesSettings(model)
+    }
+}
+
+const resetSeriesSettings = (model: any) => {
+    model.series?.forEach((serie: any) => serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' })
+}
+
+const setSpecificSeriesSettings = (model: any, widgetModel: IWidget) => {
+    for (let i = 1; i < widgetModel.settings.series.seriesSettings.length; i++) {
+        const seriesSettings = widgetModel.settings.series.seriesSettings[i] as IHighchartsSeriesLabelsSetting
+        if (seriesSettings.label.enabled) seriesSettings.names.forEach((serieName: string) => updateSpecificSeriesLabelSettings(model, serieName, seriesSettings))
+    }
+}
+
+const updateSpecificSeriesLabelSettings = (model: any, serieName: string, seriesSettings: IHighchartsSeriesLabelsSetting) => {
+    if (!model.series) return
+    const index = model.series.findIndex((serie: any) => serie.name === serieName)
+    if (index !== undefined && index !== -1) updateSeriesDataWithSerieSettings(model.series[index], seriesSettings)
+}
+
+const updateSeriesDataWithSerieSettings = (serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) => {
+    serie.data.forEach((data: any) => {
+        data.dataLabels = {
+            backgroundColor: seriesSettings.label.backgroundColor ?? '',
+            enabled: true,
+            position: '',
+            style: {
+                fontFamily: seriesSettings.label.style.fontFamily,
+                fontSize: seriesSettings.label.style.fontSize,
+                fontWeight: seriesSettings.label.style.fontWeight,
+                color: seriesSettings.label.style.color ?? ''
+            },
+            formatter: function () {
+                return KnowageHighcharts.prototype.handleFormatter(this, seriesSettings.label)
+            }
+        }
+    })
+}
+
+export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: any, widgetModel: IWidget) => {
+    if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings || !widgetModel.settings.series.seriesSettings[0]) return
+    const seriesLabelSetting = widgetModel.settings.series.seriesSettings[0]
+    if (!seriesLabelSetting.label.enabled) return
+    model.series.forEach((serie: any) => {
+        serie.data?.forEach((data: any) => {
+            data.dataLabels = {
+                backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
+                distance: 30,
+                enabled: true,
+                position: '',
+                style: {
+                    fontFamily: seriesLabelSetting.label.style.fontFamily,
+                    fontSize: seriesLabelSetting.label.style.fontSize,
+                    fontWeight: seriesLabelSetting.label.style.fontWeight,
+                    color: seriesLabelSetting.label.style.color ?? ''
+                },
+                formatter: function () {
+                    return KnowageHighcharts.prototype.handleFormatter(this, seriesLabelSetting.label)
+                }
+            }
+        })
+    })
+}
