@@ -1,7 +1,7 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateChordChartModel } from './updater/KnowageHighchartsChordChartUpdater'
-import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue, setSankeyData } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, setSankeyData } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -31,6 +31,10 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
     }
 
     setPlotOptions() {
+        this.model.plotOptions.series.dataLabels = {
+            enabled: true,
+            align: 'center',
+        }
         this.model.plotOptions.dependencywheel = {
             showInLegend: true,
             colorByPoint: true,
@@ -221,29 +225,6 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
 
         return this.model.series
     }
-
-    // TODO
-    // setSankeyData = (data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
-    //     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
-    //     const measureColumn = measureColumns[0]
-    //     const firstAttributeColumn = attributeColumns[0]
-    //     const secondAttributeColumn = attributeColumns[1]
-    //     const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true, colorByPoint: true, connectNulls: true }
-    //     data.rows.forEach((row: any) => {
-    //         const from = dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, row[firstAttributeColumn]) : row[firstAttributeColumn.metadata.dataIndex]
-    //         const to = dateFormat && ['date', 'timestamp'].includes(row[secondAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, row[secondAttributeColumn]) : row[secondAttributeColumn.metadata.dataIndex]
-    //         serieElement.data.push({
-    //             name: from + ' -> ' + to,
-    //             from: from,
-    //             to: to,
-    //             weight: row[measureColumn.metadata.dataIndex],
-    //             y: row[measureColumn.metadata.dataIndex],
-    //             drilldown: false
-    //         })
-    //     })
-
-    //     this.model.series.push(serieElement)
-    // }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
         updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)

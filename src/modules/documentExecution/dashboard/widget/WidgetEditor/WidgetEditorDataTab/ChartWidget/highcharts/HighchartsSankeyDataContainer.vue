@@ -200,6 +200,7 @@ export default defineComponent({
             if (this.columnTableItems['MEASURES'].length === 0) invalid = true
             else {
                 switch (this.chartType) {
+                    case 'dependencywheel':
                     case 'sankey':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
