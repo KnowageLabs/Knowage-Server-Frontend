@@ -88,12 +88,20 @@ const formatSplineChartVerticalAxisLines = (formattedChartModel: IHighchartsChar
 }
 
 export const formatPictorialChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    if (formattedChartModel.tooltip) formattedChartModel.tooltip.headerFormat = ''
+    formatPictorialPlotOptions(formattedChartModel)
     formatPictorialSVGPath(formattedChartModel, widgetModel)
 }
 
+const formatPictorialPlotOptions = (formattedChartModel: IHighchartsChartModel) => {
+    formattedChartModel.plotOptions.series.stacking = 'percent'
+    formattedChartModel.plotOptions.series.dataLabels = {
+        enabled: true,
+        align: 'center',
+    }
+}
+
 const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
-    console.log('-------- FORMATTED CHART MODEL :', formattedChartModel)
-    console.log('-------- widgetModel :', widgetModel)
     if (!formattedChartModel.plotOptions.series || !widgetModel.settings.configuration.svgSettings) return
     formattedChartModel.plotOptions.series.paths = [{ definition: widgetModel.settings.configuration.svgSettings.definition }]
 }
