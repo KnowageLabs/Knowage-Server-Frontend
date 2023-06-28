@@ -65,18 +65,21 @@ export const LeafletPieFeatureGroup = LeafleatBaseFeatureGroup.extend({
         layerManager: null
     },
     _featureAggregatedBySpatialAttribute: null,
+    _categoryName: null,
     _categoryColumnName: null,
     initialize: function (layers, options) {
         Util.setOptions(this, options)
         FeatureGroup.prototype.initialize.call(this, layers, options)
 
         this._featureAggregatedBySpatialAttribute = new Map()
-        debugger
 
         const layerContainer = this.options.layerContainer
         const visualizationManager = layerContainer.getVisualizationManager()
 
-        this._categoryColumnName = visualizationManager.getCategoryColumnName()
+        this._categoryName = visualizationManager.getCategoryColumnName()
+        this._categoryColumnName = layerContainer.getAttributeByName(this._categoryName)
+
+        debugger
 
         // TODO : layers???
     },

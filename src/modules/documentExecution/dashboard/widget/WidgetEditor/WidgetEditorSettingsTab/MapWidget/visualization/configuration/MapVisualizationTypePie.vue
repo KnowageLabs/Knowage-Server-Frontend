@@ -57,7 +57,7 @@ export default defineComponent({
             descriptor,
             pieConfiguration: null as IMapWidgetVisualizationTypePie | null,
             rangeValue: [1, 100] as number[],
-            categories: [{ columnName: 'column_name', alias: 'COLONNA' }] as { columnName: string; alias: string }[],
+            categories: [{ columnName: 'category', alias: 'category' }] as { columnName: string; alias: string }[],
             getTranslatedLabel
         }
     },

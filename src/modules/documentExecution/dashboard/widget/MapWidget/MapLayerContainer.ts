@@ -17,6 +17,7 @@ export interface LayerContainer {
     getMeasures(): any[]
     getMeasureByName(name: string): any
     getSpatialAttribute(): any
+    getColumnNameByFieldName(name): string
 
     getLayer(): any
     getLayerId(): string
