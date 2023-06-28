@@ -1,12 +1,12 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ControlPanel, ControlPanelItem, ControlPanelItemMeasure } from './MapControlPanel'
-import { MapVisualizationManagerCreator, PieVisualizationManager } from './MapVisualizationManager'
-import { LAYER_TYPE_DATASET, LAYER_TYPE_CATALOG, FEATURE_PROPERTY_LAYER_ID } from './MapConstants'
+import { MapVisualizationManagerCreator, MarkerMapVisualizationManager, PieVisualizationManager } from './MapVisualizationManager'
+import { LAYER_TYPE_DATASET, LAYER_TYPE_CATALOG, FEATURE_PROPERTY_LAYER_ID, FEATURE_PROPERTY_ROOT } from './MapConstants'
 import { MapFeatureStyle } from './MapVisualizationManager'
 import { Wkt } from 'wicket'
 import { DatasetBasedLayer, LayerContainer } from './MapLayerContainer'
-import { LeafleatBaseFeatureGroup, LeafleatPerSpatialAttributeFeatureGroup } from './LeafletExtension'
+import { LeafleatBaseFeatureGroup, LeafletPieFeatureGroup, MarkerFeatureGroup } from './LeafletExtension'
 
 export interface MapManager {
     changeShowedMeasure(layer: any, name: string): void
@@ -17,10 +17,11 @@ export interface MapManager {
     getModel(): any
 
     getProprietaryMap(): any
-    createProprietaryLayer(layerContainer: LayerContainer): any
     addProprietaryLayerToProprietaryMap(proprietaryLayer: any)
     addFeatureToProprietaryLayer(feature: any, proprietaryLayer: any)
     switchLayerVisibility(layerId: string)
+
+    createProprietaryLayer(layerContainer: LayerContainer): any
 
     createMarkerFeature(latitude: number, longitude: number, style: MapFeatureStyle, properties: any): any
     createGeoJSONFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any
@@ -46,31 +47,31 @@ class AbstractManager implements MapManager {
     }
 
     addFeatureToProprietaryLayer(feature: any, proprietaryLayer: any) {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     addProprietaryLayerToProprietaryMap(proprietaryLayer: any) {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     changeShowedMeasure(layer: any, name: string): void {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     createProprietaryLayer(layerContainer: LayerContainer): any {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     createGeoJSONFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     createMarkerFeature(latitude: number, longitude: number, style: MapFeatureStyle, properties: any): any {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     createWKTFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     init(): void {
@@ -80,11 +81,11 @@ class AbstractManager implements MapManager {
     }
 
     switchLayerVisibility(layerId: string) {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     invalidateSize(): void {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     getControlPanel(): ControlPanel {
@@ -255,7 +256,7 @@ class Leaflet extends AbstractManager {
     }
 
     addFeatureToProprietaryLayer(feature: any, proprietaryLayer: any): void {
-        proprietaryLayer.addLayer(feature)
+        proprietaryLayer.addFeature(feature)
     }
 
     addProprietaryLayerToProprietaryMap(proprietaryLayer: any): void {
@@ -274,12 +275,13 @@ class Leaflet extends AbstractManager {
 
         let ret = new LeafleatBaseFeatureGroup([], { pane: paneName })
 
-        if (visualizationManager instanceof PieVisualizationManager) {
-            ret = new LeafleatPerSpatialAttributeFeatureGroup([], { pane: paneName })
+        if (visualizationManager instanceof MarkerMapVisualizationManager) {
+            ret = new MarkerFeatureGroup([], { pane: paneName, layerContainer: layerContainer })
+        } else if (visualizationManager instanceof PieVisualizationManager) {
+            ret = new LeafletPieFeatureGroup([], { pane: paneName, layerContainer: layerContainer })
         }
 
         return ret
-        // return L.featureGroup([], { pane: paneName })
     }
 
     createGeoJSONFeature(spatialValue: string, style: MapFeatureStyle, properties: any): any {
@@ -406,7 +408,7 @@ class Leaflet extends AbstractManager {
     }
 
     private addCustomProperties(feature: any, properties: any) {
-        feature.knProperties = properties
+        feature[FEATURE_PROPERTY_ROOT] = properties
     }
 
     private paneName(layerId: string) {
@@ -415,7 +417,7 @@ class Leaflet extends AbstractManager {
 }
 
 export class MapManagerCreator {
-    static create(element: unknown, model: anyù, layerVisibilityState: any): MapManager {
+    static create(element: unknown, model: any, layerVisibilityState: any): MapManager {
         return new Leaflet(element, model, layerVisibilityState)
     }
 }

@@ -23,10 +23,23 @@ export interface LayerContainer {
     getLayerIndex(): number
 
     getVisualizationManager(): MapVisualizationManager
+    getFeatureGenerator(): FeatureGenerator
 
     preShowData(datastore: any): void
     showData(datastore: any): void
     afterShowData(datastore: any): void
+
+    getSpatialAttributeValueFromRow(row: any): any
+
+    getMeasureValueFromRow(row: any): any
+    getMeasureColumnName(): string
+    getMeasureAlias(): string
+    getMeasureStatsFromDatastore(): any
+
+    // DELETE : getCategoryValueFromRow(row: any): any
+    // DELETE : getCategoryColumnName(): string
+    // DELETE : getCategoryAlias(): string
+    // DELETE : getCategoryStatsFromDatastore(): any
 }
 
 class AbstractLayerContainer implements LayerContainer {
@@ -51,6 +64,16 @@ class AbstractLayerContainer implements LayerContainer {
 
     protected controlPanelItem: ControlPanelItem | undefined
     protected selectedMeasure: string | undefined
+
+    protected spatialAttributeColumnName = null
+
+    protected measureColumnName = null
+    protected measureAlias = null
+    protected measureStats = null
+
+    // DELETE : protected categoryColumnName = null
+    // DELETE : protected categoryAlias = null
+    // DELETE : protected categoryStats = null
 
     constructor(mapManager: MapManager, layerId: string, layer: any, visualizationManager: MapVisualizationManager, index: number) {
         this.mapManager = mapManager
@@ -100,6 +123,10 @@ class AbstractLayerContainer implements LayerContainer {
         return this.index
     }
 
+    getFeatureGenerator(): FeatureGenerator {
+        return this.featureGenerator
+    }
+
     getVisualizationManager(): MapVisualizationManager {
         return this.visualizationManager
     }
@@ -117,26 +144,61 @@ class AbstractLayerContainer implements LayerContainer {
     }
 
     preShowData(datastore: any): void {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     showData(datastore: any) {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
     afterShowData(datastore: any): void {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 
+    getSpatialAttributeColumnName(): string {
+        return this.spatialAttributeColumnName
+    }
+
+    getSpatialAttributeValueFromRow(row: any) {
+        return row[this.spatialAttributeColumnName]
+    }
+
+    getMeasureValueFromRow(row: any) {
+        return row[this.measureColumnName]
+    }
+
+    getMeasureColumnName(): string {
+        return this.measureColumnName
+    }
+
+    getMeasureAlias(): string {
+        return this.measureAlias
+    }
+
+    getMeasureStatsFromDatastore() {
+        return this.measureStats
+    }
+
+    // DELETE : getCategoryValueFromRow(row: any) {
+    // DELETE :     return row[this.categoryColumnName]
+    // DELETE : }
+    // DELETE : getCategoryColumnName(): string {
+    // DELETE :     return this.categoryColumnName
+    // DELETE : }
+    // DELETE : getCategoryAlias(): string {
+    // DELETE :     return this.categoryAlias
+    // DELETE : }
+    // DELETE : getCategoryStatsFromDatastore() {
+    // DELETE :     return this.categoryStats
+    // DELETE : }
+
     protected initColumns(): void {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 }
 
 export class DatasetBasedLayer extends AbstractLayerContainer {
     private dsColumnsFromLayerField = new Map<string, string>()
-    private spatialAttributeColumnName = null
-    private measureColumnName = null
     private proprietaryLayer = null
 
     constructor(mapManager: MapManager, layerId: string, layer: any, visualizationManager: MapVisualizationManager, index: number) {
@@ -183,14 +245,14 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
                 throw new Error('Error showing following record: ' + row)
             }
         }
+
+        // TODO : this.proprietaryLayer.showDataStore(this, datastore)
     }
 
     showRow(row: any) {
-        const spatialAttributeValue = row[this.spatialAttributeColumnName]
-        const measureValue = row[this.measureColumnName]
         const featureStyle = this.visualizationManager.getStyle(row)
 
-        const feature = this.featureGenerator.generate(spatialAttributeValue, measureValue, featureStyle)
+        const feature = this.featureGenerator.generate(row, featureStyle)
 
         this.mapManager.addFeatureToProprietaryLayer(feature, this.proprietaryLayer)
     }
@@ -240,15 +302,16 @@ export class DatasetBasedLayer extends AbstractLayerContainer {
             throw new Error('Dataset is missing required attributes')
         }
 
-        this.measureColumnName = this.dsColumnsFromLayerField.get(this.selectedMeasure)
-
         // Get active measure
         this.controlPanelItem = this.mapManager.getControlPanel().getLayer(this.layerId)
-        this.selectedMeasure = this.controlPanelItem?.getSelected()?.getName()
+        const selectedMeasure = this.controlPanelItem?.getSelected()
 
-        // Cache column name for spatial attribute and current measure
         this.spatialAttributeColumnName = this.dsColumnsFromLayerField.get(neededSpatialAttribute.name)
+
+        this.selectedMeasure = selectedMeasure?.getName()
+        this.measureAlias = selectedMeasure?.getAlias()
         this.measureColumnName = this.dsColumnsFromLayerField.get(this.selectedMeasure)
+        this.measureStats = Object.values(datastore.stats).find((value) => value.name === this.measureColumnName)
     }
 
     private initProprietaryLayer(): void {

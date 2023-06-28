@@ -1,13 +1,25 @@
 import { LayerContainer } from './MapLayerContainer'
 import { MapManager } from './MapManagerCreator'
 import { MapFeatureStyle } from './MapVisualizationManager'
-import { FEATURE_PROPERTY_LAYER_ID, FEATURE_PROPERTY_MEASURE_VALUE, FEATURE_PROPERTY_SPATIAL_ATTRIBUTE_VALUE } from './MapConstants'
+import {
+    FEATURE_PROPERTY_LAYER_ID,
+    FEATURE_PROPERTY_MEASURE_VALUE,
+    FEATURE_PROPERTY_MEASURE_STATS,
+    FEATURE_PROPERTY_SPATIAL_ATTRIBUTE_VALUE,
+    FEATURE_PROPERTY_CATEGORY_VALUE,
+    FEATURE_PROPERTY_CATEGORY_STATS,
+    FEATURE_PROPERTY_MEASURE_COLUMN_NAME,
+    FEATURE_PROPERTY_MEASURE_ALIAS,
+    FEATURE_PROPERTY_CATEGORY_COLUMN_NAME,
+    FEATURE_PROPERTY_CATEGORY_ALIAS,
+    FEATURE_PROPERTY_ID
+} from './MapConstants'
 
 const REGEX_LAT_LON = new RegExp('^\\s*(?<lat>-?(?:[0-8]?[0-9]|90)(?:\\.[0-9]{1,10})?)[, ](?<lon>-?(?:[0-9]{1,2}|1[0-7][0-9]|180)(?:\\.[0-9]{1,10})?)\\s*$')
 const REGEX_LON_LAT = new RegExp('^\\s*(?<lon>-?(?:[0-9]{1,2}|1[0-7][0-9]|180)(?:\\.[0-9]{1,10})?)[, ](?<lat>-?(?:[0-8]?[0-9]|90)(?:\\.[0-9]{1,10})?)\\s*$')
 
 export interface FeatureGenerator {
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle): any
+    generate(row: any, featureStyle: MapFeatureStyle): any
 }
 
 abstract class AbstractFeatureGenerator implements FeatureGenerator {
@@ -21,16 +33,38 @@ abstract class AbstractFeatureGenerator implements FeatureGenerator {
 
     protected createMarkerProperties(): void {}
 
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle) {
-        throw new Error('To be implemented')
+    generate(row: any, featureStyle: MapFeatureStyle) {
+        throw new Error('Method not implemented.')
     }
 
-    protected generateProperties(spatialValue: string, measureValue: any): any {
+    protected generateProperties(row: any): any {
         const ret = {}
+        const layerContainer = this.layerContainer
 
-        ret[FEATURE_PROPERTY_LAYER_ID] = this.layerContainer.getLayerId()
-        ret[FEATURE_PROPERTY_SPATIAL_ATTRIBUTE_VALUE] = spatialValue
+        const layerId = layerContainer.getLayerId()
+        const spatialAttributeValue = layerContainer.getSpatialAttributeValueFromRow(row)
+        const measureValue = layerContainer.getMeasureValueFromRow(row)
+        const measureColumnName = layerContainer.getMeasureColumnName()
+        const measureAlias = layerContainer.getMeasureAlias()
+        const measureStats = layerContainer.getMeasureStatsFromDatastore()
+        // DELETE : const categoryValue = layerContainer.getCategoryValueFromRow(row)
+        // DELETE : const categoryColumnName = layerContainer.getCategoryColumnName()
+        // DELETE : const categoryAlias = layerContainer.getCategoryAlias()
+        // DELETE : const categoryStats = layerContainer.getCategoryStatsFromDatastore()
+
+        ret[FEATURE_PROPERTY_LAYER_ID] = layerId
+
+        ret[FEATURE_PROPERTY_SPATIAL_ATTRIBUTE_VALUE] = spatialAttributeValue
+
         ret[FEATURE_PROPERTY_MEASURE_VALUE] = measureValue
+        ret[FEATURE_PROPERTY_MEASURE_COLUMN_NAME] = measureColumnName
+        ret[FEATURE_PROPERTY_MEASURE_ALIAS] = measureAlias
+        ret[FEATURE_PROPERTY_MEASURE_STATS] = measureStats
+
+        // DELETE : ret[FEATURE_PROPERTY_CATEGORY_VALUE] = categoryValue
+        // DELETE : ret[FEATURE_PROPERTY_CATEGORY_COLUMN_NAME] = categoryColumnName
+        // DELETE : ret[FEATURE_PROPERTY_CATEGORY_ALIAS] = categoryAlias
+        // DELETE : ret[FEATURE_PROPERTY_CATEGORY_STATS] = categoryStats
 
         return ret
     }
@@ -54,7 +88,9 @@ export class MarkerGenerator extends AbstractFeatureGenerator {
         }
     }
 
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle): any {
+    generate(row: any, featureStyle: MapFeatureStyle): any {
+        const layerContainer = this.layerContainer
+        const spatialValue = layerContainer.getSpatialAttributeValueFromRow(row)
         const m = this.regex.exec(spatialValue)
 
         if (m == null) {
@@ -64,7 +100,7 @@ export class MarkerGenerator extends AbstractFeatureGenerator {
         // The + sign convert string to number
         const latitude = +m[this.latitudeGroupIdx]
         const longitude = +m[this.longitudeGroupIdx]
-        const properties = this.generateProperties(spatialValue, measureValue)
+        const properties = this.generateProperties(row)
 
         return this.mapManager.createMarkerFeature(latitude, longitude, featureStyle, properties)
     }
@@ -74,8 +110,10 @@ export class GeoJSONGenerator extends AbstractFeatureGenerator {
         super(mapManager, layerContainer)
     }
 
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle): any {
-        const properties = this.generateProperties(spatialValue, measureValue)
+    generate(row: any, featureStyle: MapFeatureStyle): any {
+        const layerContainer = this.layerContainer
+        const spatialValue = layerContainer.getSpatialAttributeValueFromRow(row)
+        const properties = this.generateProperties(row)
 
         return this.mapManager.createGeoJSONFeature(spatialValue, featureStyle, properties)
     }
@@ -85,8 +123,10 @@ export class WKTGenerator extends AbstractFeatureGenerator {
         super(mapManager, layerContainer)
     }
 
-    generate(spatialValue: string, measureValue: any, featureStyle: MapFeatureStyle): any {
-        const properties = this.generateProperties(spatialValue, measureValue)
+    generate(row: any, featureStyle: MapFeatureStyle): any {
+        const layerContainer = this.layerContainer
+        const spatialValue = layerContainer.getSpatialAttributeValueFromRow(row)
+        const properties = this.generateProperties(row)
 
         return this.mapManager.createWKTFeature(spatialValue, featureStyle, properties)
     }

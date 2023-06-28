@@ -17,18 +17,7 @@
         </div>
 
         <div class="p-field p-float-label p-col-12 p-lg-6 p-fluid">
-            <Dropdown v-model="pieConfiguration.categorizeBy" class="kn-material-input" :options="descriptor.categorizeByOptions" option-value="value">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.categorizeByOptions, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
+            <Dropdown v-model="pieConfiguration.categorizeBy" class="kn-material-input" :options="categories" option-label="alias" option-value="columnName"> </Dropdown>
             <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.map.categorizeBy') }} </label>
         </div>
 
@@ -68,6 +57,7 @@ export default defineComponent({
             descriptor,
             pieConfiguration: null as IMapWidgetVisualizationTypePie | null,
             rangeValue: [1, 100] as number[],
+            categories: [{ columnName: 'column_name', alias: 'COLONNA' }] as { columnName: string; alias: string }[],
             getTranslatedLabel
         }
     },

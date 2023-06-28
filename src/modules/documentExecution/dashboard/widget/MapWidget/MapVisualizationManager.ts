@@ -10,7 +10,7 @@ export class MapFeatureStyle {
     strokeColor = 'black'
     strokeWidth = 2
     icon: L.Icon | string
-    iconRadius = 7
+    radius = 7
 }
 
 interface StyleHandler {
@@ -89,15 +89,15 @@ class MarkerStyleHandler extends AbstractStyleHandler {
 
         super.handle(mapManager, settings, row, measureValue, featureStyle)
 
-        const width = featureStyle.iconRadius * 2 + featureStyle.strokeWidth * 2
+        const width = featureStyle.radius * 2 + featureStyle.strokeWidth * 2
         const height = width
-        const offset = featureStyle.iconRadius + featureStyle.strokeWidth
+        const offset = featureStyle.radius + featureStyle.strokeWidth
 
         featureStyle.icon = `
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="${width}" height="${height}">
                 <circle
                     style="background-color: transparent; fill: ${featureStyle.color}; stroke: ${featureStyle.strokeColor}; stroke-width: ${featureStyle.strokeWidth}"
-                    r="${featureStyle.iconRadius}"
+                    r="${featureStyle.radius}"
                     cy="${offset}"
                     cx="${offset}" />
             </svg>
@@ -125,11 +125,33 @@ class AbstractMapVisualizationManager implements MapVisualizationManager {
     }
 
     getStyle(row: any, measureValue: any): MapFeatureStyle {
-        throw new Error('To be implemented')
+        throw new Error('Method not implemented.')
     }
 }
 
 export class MarkerMapVisualizationManager extends AbstractMapVisualizationManager {
+    private styleHandler: StyleHandler
+
+    constructor(mapManager: MapManager, settings: any) {
+        super(mapManager, settings)
+
+        const sh1 = new CacheStyleHandler()
+        const sh2 = new MarkerStyleHandler()
+        const sh3 = new ConditionalStyleHandler(mapManager)
+
+        sh1.setNext(sh2).setNext(sh3)
+
+        this.styleHandler = sh1
+    }
+
+    getStyle(row: any, measureValue: any): MapFeatureStyle {
+        const featureStyle = new MapFeatureStyle()
+        this.styleHandler.handle(this.mapManager, this.settings, row, measureValue, featureStyle)
+        return featureStyle
+    }
+}
+
+export class BalloonMapVisualizationManager extends AbstractMapVisualizationManager {
     private styleHandler: StyleHandler
 
     constructor(mapManager: MapManager, settings: any) {
@@ -166,6 +188,10 @@ export class PieVisualizationManager extends AbstractMapVisualizationManager {
         const featureStyle = new MapFeatureStyle()
         this.styleHandler.handle(this.mapManager, this.settings, row, measureValue, featureStyle)
         return featureStyle
+    }
+
+    getCategoryColumnName(): string {
+        return this.settings.pieConf.categorizeBy
     }
 }
 
