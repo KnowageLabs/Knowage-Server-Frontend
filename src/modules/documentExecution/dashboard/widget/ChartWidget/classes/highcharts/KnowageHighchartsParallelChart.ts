@@ -28,7 +28,7 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         this.model.chart.parallelCoordinates = true
         this.model.chart.parallelAxes = { lineWidth: 2 }
         this.setParallelXAxis()
-        this.setParallelXAxis()
+        this.setParallelYAxis()
     }
 
     setParallelXAxis() {
@@ -239,7 +239,7 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
     }
 
     setDataForXAxis(measureColumns: any[]) {
-        this.model.xAxis.splice(1)
+        if (this.model.xAxis.length > 1) this.model.xAxis.splice(1)
         const categories = [] as string[]
         measureColumns.forEach((measureColumn: any) => categories.push(measureColumn.column.columnName))
         this.model.xAxis[0].categories = categories
@@ -247,7 +247,7 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
     }
 
     setDataForYAxis(measureColumns: any[]) {
-        this.model.yAxis.splice(1)
+        if (this.model.yAxis.length > 1) this.model.yAxis.splice(1)
         for (let i = 0; i < measureColumns.length - 1; i++) {
             this.model.yAxis.push({ index: i })
         }
