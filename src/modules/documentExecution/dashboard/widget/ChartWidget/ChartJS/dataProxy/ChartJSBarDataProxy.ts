@@ -76,10 +76,6 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfM
         }
     }
 
-    console.group(`%c MEASURES `, 'background: #222; color: #bada55')
-    console.log(dataToSend.aggregations.measures)
-    console.groupEnd()
-
     const categories = widget.columns.filter((column) => column.fieldType !== 'MEASURE')
     const categoryLength = noOfCategories == -1 ? categories.length : noOfCategories
 
@@ -90,8 +86,4 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfM
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }
-
-    console.group(`%c CATEGORIES `, 'background: #222; color: #bada55')
-    console.log(dataToSend.aggregations.categories)
-    console.groupEnd()
 }
