@@ -77,7 +77,7 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
     const categoryValuesMap = {}
     data.rows.forEach((row: any) => {
         serieElement.data.push({
-            name: dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, row[firstAttributeColumn]) : row[firstAttributeColumn.metadata.dataIndex],
+            name: dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex],
             y: row[measureColumn.metadata.dataIndex],
             drilldown: false
         })
@@ -374,4 +374,26 @@ export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCo
         }
     }
     return styleString
+}
+
+export const setSankeyData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
+    if (!data || !measureColumns[0] || attributeColumns.length < 2) return
+    const measureColumn = measureColumns[0]
+    const firstAttributeColumn = attributeColumns[0]
+    const secondAttributeColumn = attributeColumns[1]
+    const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true, colorByPoint: true, connectNulls: true }
+    data.rows.forEach((row: any) => {
+        const from = dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
+        const to = dateFormat && ['date', 'timestamp'].includes(row[secondAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
+        serieElement.data.push({
+            name: from + ' -> ' + to,
+            from: from,
+            to: to,
+            weight: row[measureColumn.metadata.dataIndex],
+            y: row[measureColumn.metadata.dataIndex],
+            drilldown: false
+        })
+    })
+
+    model.series.push(serieElement)
 }

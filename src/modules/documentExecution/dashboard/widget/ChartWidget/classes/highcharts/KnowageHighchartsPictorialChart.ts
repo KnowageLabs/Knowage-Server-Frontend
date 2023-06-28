@@ -1,7 +1,7 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updatePictorialChartModel } from './updater/KnowageHighchartsPictorialChartUpdater'
-import { getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
@@ -134,8 +134,9 @@ export class KnowageHighchartsPictorialChart extends KnowageHighcharts {
         console.log('-------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
         console.log('-------- MEASURE COLUMNS: ', measureColumns)
-        // TODO
-        this.setPictorialData(mockedData, attributeColumns, measureColumns, '')
+        const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
+
+        this.setPictorialData(mockedData, attributeColumns, measureColumns, dateFormat)
         return this.model.series
     }
 
@@ -144,7 +145,8 @@ export class KnowageHighchartsPictorialChart extends KnowageHighcharts {
         if (!data || !measureColumns[0] || !attributeColumns[0]) return
 
         data.rows.forEach((row: any, index: number) => {
-            const serieElement = { id: index, name: row[attributeColumns[0].metadata.dataIndex], data: [row[measureColumns[0].metadata.dataIndex]] as any[], showInLegend: true }
+            const serieName = dateFormat && ['date', 'timestamp'].includes(row[attributeColumns[0].metadata.type]) ? getFormattedDateCategoryValue(row[attributeColumns[0].metadata.dataIndex], dateFormat, attributeColumns[0].metadata.type) : row[attributeColumns[0].metadata.dataIndex]
+            const serieElement = { id: index, name: serieName, data: [row[measureColumns[0].metadata.dataIndex]] as any[], showInLegend: true }
             this.model.series.push(serieElement)
         })
 

@@ -1,7 +1,7 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateParallelChartModel } from './updater/KnowageHighchartsParallelChartUpdater'
-import { getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -219,8 +219,9 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         console.log('-------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
         console.log('-------- MEASURE COLUMNS: ', measureColumns)
+        const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         // TODO
-        this.setParallelData(mockedData, attributeColumns, measureColumns, '')
+        this.setParallelData(mockedData, attributeColumns, measureColumns, dateFormat)
         return this.model.series
     }
 
@@ -232,7 +233,8 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         this.setDataForYAxis(measureColumns)
 
         data.rows.forEach((row: any, index: number) => {
-            const serieElement = { id: index, name: row[attributeColumns[0].metadata.dataIndex], data: [] as any[], showInLegend: true }
+            const serieName = dateFormat && ['date', 'timestamp'].includes(row[attributeColumns[0].metadata.type]) ? getFormattedDateCategoryValue(row[attributeColumns[0].metadata.dataIndex], dateFormat, attributeColumns[0].metadata.type) : row[attributeColumns[0].metadata.dataIndex]
+            const serieElement = { id: index, name: serieName, data: [] as any[], showInLegend: true }
             measureColumns.forEach((measureColumn: any) => serieElement.data.push((row[measureColumn.metadata.dataIndex])))
             this.model.series.push(serieElement)
         })
