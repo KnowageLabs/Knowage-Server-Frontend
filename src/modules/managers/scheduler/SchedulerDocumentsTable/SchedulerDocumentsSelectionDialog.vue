@@ -37,6 +37,7 @@ import { iFile, iNode } from '../Scheduler'
 import Dialog from 'primevue/dialog'
 import schedulerDocumentsSelectionDialogDescriptor from './SchedulerDocumentsSelectionDialogDescriptor.json'
 import Tree from 'primevue/tree'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'scheduler-documents-selection-dialog',
@@ -69,10 +70,14 @@ export default defineComponent({
         },
         loadFiles() {
             this.files = this.propFiles as iFile[]
+            this.files?.sort((a: any, b: any) => {
+                return a.id - b.id
+            })
         },
         createNodeTree() {
             this.nodes = []
             const foldersWithMissingParent = [] as iNode[]
+
             this.files.forEach((file: iFile) => {
                 const node = {
                     key: file.id,
@@ -88,7 +93,6 @@ export default defineComponent({
 
                 const temp = foldersWithMissingParent.filter((folder: iNode) => node.id === folder.parentId)
                 temp.forEach((el: any) => node.children.push(el))
-
                 this.attachFolderToTree(node, foldersWithMissingParent)
             })
         },
@@ -108,13 +112,14 @@ export default defineComponent({
                 for (let i = 0; i < foldersWithMissingParent.length; i++) {
                     if (folder.parentId === foldersWithMissingParent[i].id) {
                         foldersWithMissingParent[i].children?.push(folder)
+                        parentFolder = foldersWithMissingParent[i]
                         break
                     }
                 }
                 for (let i = 0; i < this.nodes.length; i++) {
                     parentFolder = this.findParentFolder(folder, this.nodes[i])
                     if (parentFolder && !parentFolder.data.stateCode) {
-                        parentFolder.children?.push(folder)
+                        parentFolder.children?.push(deepcopy(folder))
                         break
                     }
                 }
@@ -125,8 +130,14 @@ export default defineComponent({
                 this.nodes.push(folder)
             }
         },
+        attachFoldersFromMissngParentArrayToTheTree(foldersWithMissingParent: iNode[]) {
+            for (let i = foldersWithMissingParent.length - 1; i >= 0; i--) {
+                this.attachFolderToTree(foldersWithMissingParent[i], foldersWithMissingParent)
+                foldersWithMissingParent.splice(i)
+            }
+        },
         findParentFolder(folderToAdd: iNode, folderToSearch: iNode) {
-            if (folderToAdd.parentId === folderToSearch.id && folderToSearch.data.stateCode) {
+            if (folderToAdd.parentId === folderToSearch.id && !folderToSearch.data.stateCode) {
                 return folderToSearch
             } else {
                 let tempFolder = null as iNode | null
