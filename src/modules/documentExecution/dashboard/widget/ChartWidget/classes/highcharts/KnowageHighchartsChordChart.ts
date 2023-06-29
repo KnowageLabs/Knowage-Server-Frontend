@@ -31,11 +31,11 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
     }
 
     setPlotOptions() {
-        this.model.plotOptions.series.dataLabels = {
-            enabled: true,
-            align: 'center',
-        }
         this.model.plotOptions.dependencywheel = {
+            dataLabels: {
+                enabled: true,
+                align: 'center',
+            },
             showInLegend: true,
             colorByPoint: true,
             legendType: 'point'

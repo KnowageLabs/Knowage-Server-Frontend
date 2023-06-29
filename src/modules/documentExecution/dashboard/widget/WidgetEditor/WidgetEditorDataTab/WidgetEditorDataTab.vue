@@ -85,7 +85,7 @@ export default defineComponent({
                 const type = chartType.replace('Stacked', '')
                 this.widget.type = 'highcharts'
                 this.widget.settings = createNewHighchartsSettings()
-                this.widget.settings.chartModel = createNewHighchartsModel(this.widget, type, oldChartModel, chartType.endsWith('Stacked'))
+                this.widget.settings.chartModel = createNewHighchartsModel(this.widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'))
             } else {
                 this.widget.type = 'chartJS'
                 this.widget.settings = createNewChartJSSettings()

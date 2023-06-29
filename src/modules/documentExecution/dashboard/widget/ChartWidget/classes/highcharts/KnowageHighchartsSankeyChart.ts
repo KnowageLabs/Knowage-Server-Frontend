@@ -7,14 +7,14 @@ import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
-    constructor(model: any) {
+    constructor(model: any, inverted: boolean) {
         super()
-        this.setSpecificOptionsDefaultValues()
+        this.setSpecificOptionsDefaultValues(inverted)
         if (model && model.CHART) this.updateModel(deepcopy(model))
         else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'sankey') {
-                this.setSpecificOptionsDefaultValues()
+                this.setSpecificOptionsDefaultValues(inverted)
             }
         }
         this.model.chart.type = 'sankey'
@@ -24,7 +24,8 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
         updateSankeyChartModel(oldModel, this.model)
     }
 
-    setSpecificOptionsDefaultValues() {
+    setSpecificOptionsDefaultValues(inverted: boolean) {
+        this.model.chart.inverted = inverted
         this.setChordXAxis()
         this.setChordYAxis()
     }

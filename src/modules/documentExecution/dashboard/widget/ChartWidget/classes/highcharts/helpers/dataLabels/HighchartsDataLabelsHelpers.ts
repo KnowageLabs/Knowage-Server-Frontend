@@ -62,9 +62,9 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
     model.series.forEach((serie: any) => {
         serie.data?.forEach((data: any) => {
             data.dataLabels = {
-                alignTo: 'plotEdges',
+                // alignTo: 'plotEdges',
                 backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
-                distance: 30,
+                distance: -30,
                 enabled: true,
                 position: '',
                 style: {

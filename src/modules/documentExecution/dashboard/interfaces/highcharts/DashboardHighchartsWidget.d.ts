@@ -93,6 +93,7 @@ export interface IHighchartsChartModel {
         events?: any,
         parallelCoordinates?: any,
         parallelAxes?: any
+        inverted?: any
     },
     noData: IHighchartsNoDataConfiguration,
     accessibility: IHighchartsAccessibilitySettings,

@@ -53,6 +53,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
     const chartModel = widget.settings.chartModel.model ?? widget.settings.chartModel
     const chartType = chartModel.chart.type
     const isStacking = chartModel.plotOptions?.series?.stacking
+    const isInverted = chartModel.chart.inverted
 
     switch (chartType) {
         case 'pie':
@@ -108,12 +109,12 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             widget.settings.chartModel = new KnowageHighchartsPictorialChart(chartModel)
             break
         case 'sankey':
-            widget.settings.chartModel = new KnowageHighchartsSankeyChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsSankeyChart(chartModel, isInverted)
             break
     }
 }
 
-export const createNewHighchartsModel = (widget: IWidget, chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean) => {
+export const createNewHighchartsModel = (widget: IWidget, chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean, isInverted: boolean) => {
     switch (chartType) {
         case 'pie':
             return new KnowageHighchartsPieChart(model)
@@ -151,7 +152,8 @@ export const createNewHighchartsModel = (widget: IWidget, chartType: string, mod
             setPictorialSettings(widget)
             return new KnowageHighchartsPictorialChart(model)
         case 'sankey':
-            return new KnowageHighchartsSankeyChart(model)
+        case 'sankeyInverted':
+            return new KnowageHighchartsSankeyChart(model, isInverted)
         default:
             return null
     }

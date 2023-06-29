@@ -162,6 +162,11 @@
             "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.sankey",
             "value": "sankey"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.sankeyInverted",
+            "value": "sankeyInverted"
         }
     ],
     "columnAggregationOptions": [

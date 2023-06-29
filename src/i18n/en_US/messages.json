@@ -485,6 +485,7 @@
                 "pieChart": "Pie Chart",
                 "radar": "Radar",
                 "sankey": "Sankey",
+                "sankeyInverted": "Sankey Inverted",
                 "scatterChart": "Scatter Chart",
                 "solidgauge": "Solid Gauge",
                 "stackedAreaChart": "Stacked Area Chart",
