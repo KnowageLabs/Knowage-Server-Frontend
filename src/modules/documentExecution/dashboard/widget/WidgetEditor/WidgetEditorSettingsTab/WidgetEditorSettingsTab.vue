@@ -149,6 +149,16 @@
             :variables="variables"
             :dashboard-id="dashboardId"
         ></cePivotTableWidgetSettingsContainer>
+        <PythonWidgetSettingsContainer
+            v-else-if="propWidget.type === 'python'"
+            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
+            :widget-model="propWidget"
+            :selected-setting="selectedSetting"
+            :datasets="datasets"
+            :selected-datasets="selectedDatasets"
+            :dashboard-id="dashboardId"
+            @galleryItemSelected="onGalleryItemSelected"
+        ></PythonWidgetSettingsContainer>
     </div>
 </template>
 
@@ -171,6 +181,7 @@ import cePivotTableWidgetSettingsContainer from './cePivotTableWidget/cePivotTab
 import DiscoveryWidgetSettingsContainer from './DiscoveryWidget/DiscoveryWidgetSettingsContainer.vue'
 import MapWidgetSettingsContainer from './MapWidget/MapWidgetSettingsContainer.vue'
 import VegaChartsSettingsContainer from './ChartWidget/vega/VegaChartsSettingsContainer.vue'
+import PythonWidgetSettingsContainer from './PythonWidget/PythonWidgetSettingsContainer.vue'
 import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescriptor.json'
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
 import WidgetEditorSettingsList from './WidgetEditorSettingsList.vue'
@@ -200,6 +211,7 @@ import cePivotTableDescriptor from './cePivotTableWidget/cePivotTableSettingsDes
 import discoveryDescriptor from './DiscoveryWidget/DiscoveryWidgetSettingsDescriptor.json'
 import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
 import vegaChartsDescriptor from './ChartWidget/vega/VegaChartsSettingsDescriptor.json'
+import pythonWidgetDescriptor from './PythonWidget/PythonWidgetSettingsDescriptor.json'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
@@ -220,7 +232,8 @@ export default defineComponent({
         DiscoveryWidgetSettingsContainer,
         MapWidgetSettingsContainer,
         VegaChartsSettingsContainer,
-        cePivotTableWidgetSettingsContainer
+        cePivotTableWidgetSettingsContainer,
+        PythonWidgetSettingsContainer
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -307,6 +320,9 @@ export default defineComponent({
                     break
                 case 'vega':
                     this.descriptor = vegaChartsDescriptor
+                    break
+                case 'python':
+                    this.descriptor = pythonWidgetDescriptor
             }
         },
         getHighchartsDescriptor() {

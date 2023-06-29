@@ -51,6 +51,7 @@
                 @searchWordChanged="$emit('reloadData')"
             />
             <VegaContainer v-if="widget.type === 'vega'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId"></VegaContainer>
+            <PythonWidgetContainer v-if="widget.type === 'python'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" />
         </div>
     </div>
 </template>
@@ -74,12 +75,13 @@ import CEPivotWidget from '../widget/CEPivotWidget/CEPivotWidget.vue'
 import CustomChartWidget from '../widget/CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../widget/DiscoveryWidget/DiscoveryWidget.vue'
 import VegaContainer from '../widget/ChartWidget/Vega/VegaContainer.vue'
+import PythonWidgetContainer from '../widget/PythonWidget/PythonWidgetContainer.vue'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'widget-renderer',
-    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, VegaContainer, CEPivotWidget },
+    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, VegaContainer, CEPivotWidget, PythonWidgetContainer },
     props: {
         widget: { required: true, type: Object as any },
         widgetLoading: { required: true, type: Boolean as any },
