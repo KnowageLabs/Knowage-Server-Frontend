@@ -2,6 +2,7 @@ import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updatePictorialChartModel } from './updater/KnowageHighchartsPictorialChartUpdater'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
+import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
@@ -140,14 +141,14 @@ export class KnowageHighchartsPictorialChart extends KnowageHighcharts {
 
         data.rows.forEach((row: any, index: number) => {
             const serieName = dateFormat && ['date', 'timestamp'].includes(row[attributeColumns[0].metadata.type]) ? getFormattedDateCategoryValue(row[attributeColumns[0].metadata.dataIndex], dateFormat, attributeColumns[0].metadata.type) : row[attributeColumns[0].metadata.dataIndex]
-            const serieElement = { id: index, name: serieName, data: [row[measureColumns[0].metadata.dataIndex]] as any[], showInLegend: true }
+            const serieElement = { id: index, name: serieName, data: [{ y: row[measureColumns[0].metadata.dataIndex] }] as any[], showInLegend: true }
             this.model.series.push(serieElement)
         })
 
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        // updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
+        updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
 
 }
