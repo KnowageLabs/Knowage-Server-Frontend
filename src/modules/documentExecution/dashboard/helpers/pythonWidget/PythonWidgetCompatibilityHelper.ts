@@ -42,7 +42,7 @@ const getFormattedConfiguration = (widget: any) => {
 }
 
 const getFormattedEditorSettings = (widget: any) => {
-    const formattedEditor = pythonWidgetDefaultValues.getdefaultEditorSettings()
+    const formattedEditor = pythonWidgetDefaultValues.getDefaultEditorSettings()
     formattedEditor.environment = widget.pythonConf.environment
     formattedEditor.outputType = widget.pythonConf.outputType
     formattedEditor.outputName = widget.pythonConf.outputVariable

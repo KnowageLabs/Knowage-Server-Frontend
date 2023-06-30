@@ -1041,6 +1041,14 @@
             "position": "Position",
             "precision": "Precision",
             "prefix": "Prefix",
+            "python": {
+                "tagsDialog": {
+                    "hint": {
+                        "columnsData": "This tag is used to select a specific column from the selected dataset",
+                        "parameters": "This tag is used to choose an analytical driver from the ones available"
+                    }
+                }
+            },
             "radius": "Radius",
             "recentlyUsed": "Recently Used",
             "responsive": {

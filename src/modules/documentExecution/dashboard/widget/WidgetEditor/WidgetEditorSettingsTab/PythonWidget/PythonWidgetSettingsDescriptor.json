@@ -12,6 +12,12 @@
                 "type": "Python"
             }
         ],
+        "Environment": [
+            {
+                "title": "common.environment",
+                "type": "Environment"
+            }
+        ],
         "Gallery": [],
         "Interactions": [
             {
@@ -63,6 +69,11 @@
             "icon": "fa fa-code",
             "label": "dashboard.widgetEditor.editor",
             "value": "Editor"
+        },
+        {
+            "icon": "fa fa-cogs",
+            "label": "common.environment",
+            "value": "Environment"
         },
         {
             "icon": "fa fa-cogs",

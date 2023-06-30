@@ -19,6 +19,7 @@ import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import useStore from '@/App.store'
 import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
+import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
 
 const store = useStore()
 
@@ -94,6 +95,8 @@ const createNewWidgetSettings = (widget: IWidget) => {
             widget.layers = []
             widget.settings = createNewMapWidgetSettings()
             break
+        case 'python':
+            widget.settings = createNewPythonWidgetSettings()
     }
 }
 

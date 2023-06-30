@@ -5,13 +5,13 @@
     </div>
 
     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
-    <PythonTagsDialog :visible="tagsDialogVisible" :widget-model="widgetModel" :mode="tagsDialogMode" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId" @close="closeTagsDialog" @insert="onInsert" />
+    <PythonTagsDialog :visible="tagsDialogVisible" :widget-model="widgetModel" :mode="tagsDialogMode" widget-type="python" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId" @close="closeTagsDialog" @insert="onInsert" />
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IWidget } from '../../../Dashboard'
-import { IPythonEditorSettings } from '../../../interfaces/DashboardPythonWidget'
+import { IDataset, IWidget } from '../../../../../Dashboard'
+import { IPythonEditorSettings } from '../../../../../interfaces/DashboardPythonWidget'
 import TieredMenu from 'primevue/tieredmenu'
 import PythonTagsDialog from './PythonTagsDialog.vue'
 
@@ -20,7 +20,6 @@ export default defineComponent({
     components: { TieredMenu, PythonTagsDialog },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        activeIndex: { type: Number, required: true },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         dashboardId: { type: String, required: true }
     },
@@ -73,6 +72,7 @@ export default defineComponent({
         },
         onInsert(value: string) {
             console.log('------ ON INSERT: ', value)
+            this.tagsDialogVisible = false
         }
     }
 })

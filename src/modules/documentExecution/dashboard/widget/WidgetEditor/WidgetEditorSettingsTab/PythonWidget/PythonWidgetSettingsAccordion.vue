@@ -6,7 +6,8 @@
                     <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></PythonWidgetSettingsAccordionHeader>
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <PythonWidgetEditor v-else-if="accordion.type === 'Python'" :active-index="activeIndex" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
+                <PythonWidgetEditor v-else-if="accordion.type === 'Python'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
+                <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel"></WidgetBackgroundColorStyle>
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel"></WidgetPaddingStyle>
@@ -30,6 +31,7 @@ import descriptor from './PythonWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
 import PythonWidgetEditor from './editor/PythonWidgetEditor.vue'
+import PythonEnvironmentSettings from './environment/PythonEnvironmentSettings.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
@@ -47,6 +49,8 @@ export default defineComponent({
         Accordion,
         AccordionTab,
         WidgetExport,
+        PythonWidgetEditor,
+        PythonEnvironmentSettings,
         WidgetTitleStyle,
         WidgetBackgroundColorStyle,
         WidgetPaddingStyle,
@@ -56,8 +60,7 @@ export default defineComponent({
         WidgetCrossNavigation,
         WidgetInteractionsLinks,
         WidgetPreview,
-        PythonWidgetSettingsAccordionHeader,
-        PythonWidgetEditor
+        PythonWidgetSettingsAccordionHeader
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
