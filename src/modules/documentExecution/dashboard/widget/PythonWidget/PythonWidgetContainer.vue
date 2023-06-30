@@ -7,6 +7,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '../../Dashboard'
+import { executeImageWidgetCrossNavigation } from '../interactionsHelpers/InteractionHelper'
 
 export default defineComponent({
     name: 'python-widget-container',
@@ -23,7 +24,8 @@ export default defineComponent({
         executeInteractions() {
             const crossNavigation = this.widgetModel.settings.interactions.crossNavigation
             if (!crossNavigation.enabled) return
-            console.log('---------- executeInteractions()')
+            // TODO - Rename
+            executeImageWidgetCrossNavigation(crossNavigation, this.dashboardId)
         }
     }
 })

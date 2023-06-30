@@ -63,7 +63,7 @@ export interface iDataset {
 export interface iPythonConfiguration {
     id: number,
     label: string,
-    name: strign,
+    name: string,
     description: string,
     valueCheck: string,
     valueTypeId: number,
