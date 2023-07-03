@@ -5,7 +5,7 @@
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
         <WidgetRenderer
             v-if="!loading"
-            :widget="widget"
+            :widget="widgetModel"
             :widget-data="widgetData"
             :widget-initial-data="widgetInitialData"
             :datasets="datasets"
