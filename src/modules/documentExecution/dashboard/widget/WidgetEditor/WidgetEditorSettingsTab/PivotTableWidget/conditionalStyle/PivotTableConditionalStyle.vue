@@ -82,6 +82,11 @@ export default defineComponent({
             return !this.conditionalStylesModel || !this.conditionalStylesModel.enabled
         }
     },
+    watch: {
+        conditionalStylesDisabled() {
+            this.onConditionalStylesEnabledChange()
+        }
+    },
     created() {
         this.setEventListeners()
         this.loadConditionalStyles()
@@ -94,6 +99,7 @@ export default defineComponent({
             emitter.off('columnRemoved', this.loadConditionalStyles)
         },
         loadConditionalStyles() {
+            console.log('------ LOADED WIDGET MODEL: ', this.widgetModel)
             if (this.widgetModel?.settings?.conditionalStyles) this.conditionalStylesModel = this.widgetModel.settings.conditionalStyles
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, conditionalStyle: IPivotTableWidgetConditionalStyle) {
@@ -116,6 +122,12 @@ export default defineComponent({
         removeConditionalStyle(index: number) {
             if (!this.conditionalStylesModel || this.conditionalStylesDisabled) return
             this.conditionalStylesModel.conditions.splice(index, 1)
+        },
+        onConditionalStylesEnabledChange() {
+            if (!this.conditionalStylesModel) return
+            if (this.conditionalStylesModel.enabled && this.conditionalStylesModel.conditions.length === 0) {
+                this.conditionalStylesModel.conditions.push(pivotTableDefaultValues.getDefaultConditionalStyle())
+            }
         },
         onDragStart(event: any, index: number) {
             if (!this.conditionalStylesModel || this.conditionalStylesDisabled) return

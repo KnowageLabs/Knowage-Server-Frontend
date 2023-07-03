@@ -130,12 +130,6 @@ export default defineComponent({
                 this.nodes.push(folder)
             }
         },
-        attachFoldersFromMissngParentArrayToTheTree(foldersWithMissingParent: iNode[]) {
-            for (let i = foldersWithMissingParent.length - 1; i >= 0; i--) {
-                this.attachFolderToTree(foldersWithMissingParent[i], foldersWithMissingParent)
-                foldersWithMissingParent.splice(i)
-            }
-        },
         findParentFolder(folderToAdd: iNode, folderToSearch: iNode) {
             if (folderToAdd.parentId === folderToSearch.id && !folderToSearch.data.stateCode) {
                 return folderToSearch

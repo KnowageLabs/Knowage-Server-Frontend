@@ -588,6 +588,10 @@ export default defineComponent({
         },
         async loadPage(initialLoading = false, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             this.loading = crossNavigationPopupMode ? false : true
+            if (!this.userRole) {
+                this.parameterSidebarVisible = true
+                return
+            }
             this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
             if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
             else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
