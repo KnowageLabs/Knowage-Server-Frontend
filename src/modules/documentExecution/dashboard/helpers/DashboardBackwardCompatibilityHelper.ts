@@ -18,6 +18,7 @@ import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHe
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
 import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
+import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
 
 const datasetIdLabelMap = {}
 
@@ -255,6 +256,10 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
             break
         case 'python':
             formattedWidget = formatPythonWidget(widget)
+            break
+        case 'r':
+            formattedWidget = formatRWidget(widget)
+
     }
 
     return formattedWidget

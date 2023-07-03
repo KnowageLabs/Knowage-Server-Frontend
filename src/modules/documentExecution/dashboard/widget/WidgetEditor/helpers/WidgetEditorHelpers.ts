@@ -20,6 +20,7 @@ import deepcopy from 'deepcopy'
 import useStore from '@/App.store'
 import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
 import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
+import { createNewRWidgetSettings } from './rWidget/RWidgetFunctions'
 
 const store = useStore()
 
@@ -97,6 +98,9 @@ const createNewWidgetSettings = (widget: IWidget) => {
             break
         case 'python':
             widget.settings = createNewPythonWidgetSettings()
+            break
+        case 'r':
+            widget.settings = createNewRWidgetSettings()
     }
 }
 

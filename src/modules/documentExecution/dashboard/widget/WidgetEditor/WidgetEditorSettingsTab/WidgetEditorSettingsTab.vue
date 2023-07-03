@@ -159,6 +159,7 @@
             :dashboard-id="dashboardId"
             @galleryItemSelected="onGalleryItemSelected"
         ></PythonWidgetSettingsContainer>
+        <RWidgetSettingsContainer v-else-if="propWidget.type === 'r'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></RWidgetSettingsContainer>
     </div>
 </template>
 
@@ -182,6 +183,7 @@ import DiscoveryWidgetSettingsContainer from './DiscoveryWidget/DiscoveryWidgetS
 import MapWidgetSettingsContainer from './MapWidget/MapWidgetSettingsContainer.vue'
 import VegaChartsSettingsContainer from './ChartWidget/vega/VegaChartsSettingsContainer.vue'
 import PythonWidgetSettingsContainer from './PythonWidget/PythonWidgetSettingsContainer.vue'
+import RWidgetSettingsContainer from './RWidget/RWidgetSettingsContainer.vue'
 import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescriptor.json'
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
 import WidgetEditorSettingsList from './WidgetEditorSettingsList.vue'
@@ -212,6 +214,7 @@ import discoveryDescriptor from './DiscoveryWidget/DiscoveryWidgetSettingsDescri
 import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
 import vegaChartsDescriptor from './ChartWidget/vega/VegaChartsSettingsDescriptor.json'
 import pythonWidgetDescriptor from './PythonWidget/PythonWidgetSettingsDescriptor.json'
+import rWidgetDescriptor from './RWidget/RWidgetSettingsDescriptor.json'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
@@ -233,7 +236,8 @@ export default defineComponent({
         MapWidgetSettingsContainer,
         VegaChartsSettingsContainer,
         cePivotTableWidgetSettingsContainer,
-        PythonWidgetSettingsContainer
+        PythonWidgetSettingsContainer,
+        RWidgetSettingsContainer
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -323,6 +327,9 @@ export default defineComponent({
                     break
                 case 'python':
                     this.descriptor = pythonWidgetDescriptor
+                    break
+                case 'r':
+                    this.descriptor = rWidgetDescriptor
             }
         },
         getHighchartsDescriptor() {
