@@ -162,7 +162,7 @@ export default defineComponent({
             }
         },
         removeColumnFromColumnTableItems(column: IWidgetColumn) {
-            const type = column.axis ? column.axis : 'ATTRIBUTES'
+            const type = column.axis ? column.axis : 'MEASURES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
         },
@@ -200,6 +200,7 @@ export default defineComponent({
             if (this.columnTableItems['MEASURES'].length === 0) invalid = true
             else {
                 switch (this.chartType) {
+                    case 'dependencywheel':
                     case 'sankey':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break

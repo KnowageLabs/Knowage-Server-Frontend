@@ -35,16 +35,6 @@ export const getData = (item) =>
     })
 
 export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any) => {
-    // console.group('getWidgetData ---------------------')
-    // console.log('dashboardId', dashboardId)
-    // console.log('widget', widget)
-    // console.log('datasets', datasets)
-    // // console.log('$http', $http)
-    // console.log('initialCall', initialCall)
-    // console.log('selections', selections)
-    // console.log('searchParams', searchParams)
-    // console.log('associativeResponseSelections', associativeResponseSelections)
-    // console.groupEnd()
     switch (widget.type) {
         case 'table':
             return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections)
@@ -58,7 +48,7 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'chartJS':
             return await getChartJSWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
-        case 'customchart': //TODO: CHANGE METHOD
+        case 'customchart':
             return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'static-pivot-table':
             return await getPivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
@@ -66,7 +56,7 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getCePivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'discovery':
             return await getDiscoveryWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
-        case 'vega': //TODO: CHANGE METHOD - WORDCLOUD
+        case 'vega':
             return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break

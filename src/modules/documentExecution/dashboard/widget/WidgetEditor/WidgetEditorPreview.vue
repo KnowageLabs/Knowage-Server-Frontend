@@ -34,6 +34,8 @@
                 ></CustomChartWidget>
                 <DiscoveryWidget v-if="propWidget.type == 'discovery'" :propWidget="propWidget" :datasets="datasets" :dataToShow="widgetData" :editorMode="true" :dashboardId="dashboardId" :propActiveSelections="activeSelections" @pageChanged="getWidgetData" />
                 <VegaContainer v-if="propWidget.type === 'vega' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections"></VegaContainer>
+                <PythonWidgetContainer v-if="propWidget.type === 'python' && !loading" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" />
+                <RWidgetContainer v-if="propWidget.type === 'r' && !loading" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" />
             </div>
         </div>
     </div>
@@ -62,10 +64,12 @@ import ImageWidget from '../ImageWidget/ImageWidget.vue'
 import CustomChartWidget from '../CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../DiscoveryWidget/DiscoveryWidget.vue'
 import VegaContainer from '../ChartWidget/Vega/VegaContainer.vue'
+import PythonWidgetContainer from '../PythonWidget/PythonWidgetContainer.vue'
+import RWidgetContainer from '../RWidget/RWidgetContainer.vue'
 
 export default defineComponent({
     name: 'widget-editor-preview',
-    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, ProgressBar, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, DiscoveryWidget, VegaContainer },
+    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, ProgressBar, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, DiscoveryWidget, VegaContainer, PythonWidgetContainer, RWidgetContainer },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDashboardDataset[]>, required: true },

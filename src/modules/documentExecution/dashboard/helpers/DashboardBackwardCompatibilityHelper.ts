@@ -17,6 +17,8 @@ import { formatCustomChartWidget } from './customChart/CustomChartWidgetCompatib
 import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHelper'
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
 import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
+import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
+import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
 
 const datasetIdLabelMap = {}
 
@@ -251,6 +253,13 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
             break
         case 'map':
             formattedWidget = formatMapWidget(widget, formattedModel, drivers)
+            break
+        case 'python':
+            formattedWidget = formatPythonWidget(widget)
+            break
+        case 'r':
+            formattedWidget = formatRWidget(widget)
+
     }
 
     return formattedWidget

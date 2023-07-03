@@ -1,7 +1,7 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateParallelChartModel } from './updater/KnowageHighchartsParallelChartUpdater'
-import { getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
+import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -28,7 +28,7 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         this.model.chart.parallelCoordinates = true
         this.model.chart.parallelAxes = { lineWidth: 2 }
         this.setParallelXAxis()
-        this.setParallelXAxis()
+        this.setParallelYAxis()
     }
 
     setParallelXAxis() {
@@ -219,8 +219,9 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         console.log('-------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(mockedData, widgetModel, 'MEASURE')
         console.log('-------- MEASURE COLUMNS: ', measureColumns)
+        const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
         // TODO
-        this.setParallelData(mockedData, attributeColumns, measureColumns, '')
+        this.setParallelData(mockedData, attributeColumns, measureColumns, dateFormat)
         return this.model.series
     }
 
@@ -232,14 +233,15 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         this.setDataForYAxis(measureColumns)
 
         data.rows.forEach((row: any, index: number) => {
-            const serieElement = { id: index, name: row[attributeColumns[0].metadata.dataIndex], data: [] as any[], showInLegend: true }
+            const serieName = dateFormat && ['date', 'timestamp'].includes(row[attributeColumns[0].metadata.type]) ? getFormattedDateCategoryValue(row[attributeColumns[0].metadata.dataIndex], dateFormat, attributeColumns[0].metadata.type) : row[attributeColumns[0].metadata.dataIndex]
+            const serieElement = { id: index, name: serieName, data: [] as any[], showInLegend: true }
             measureColumns.forEach((measureColumn: any) => serieElement.data.push((row[measureColumn.metadata.dataIndex])))
             this.model.series.push(serieElement)
         })
     }
 
     setDataForXAxis(measureColumns: any[]) {
-        this.model.xAxis.splice(1)
+        if (this.model.xAxis.length > 1) this.model.xAxis.splice(1)
         const categories = [] as string[]
         measureColumns.forEach((measureColumn: any) => categories.push(measureColumn.column.columnName))
         this.model.xAxis[0].categories = categories
@@ -247,7 +249,7 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
     }
 
     setDataForYAxis(measureColumns: any[]) {
-        this.model.yAxis.splice(1)
+        if (this.model.yAxis.length > 1) this.model.yAxis.splice(1)
         for (let i = 0; i < measureColumns.length - 1; i++) {
             this.model.yAxis.push({ index: i })
         }

@@ -20,6 +20,8 @@ import deepcopy from 'deepcopy'
 import useStore from '@/App.store'
 import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
 import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
+import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
+import { createNewRWidgetSettings } from './rWidget/RWidgetFunctions'
 
 const store = useStore()
 
@@ -98,6 +100,11 @@ const createNewWidgetSettings = (widget: IWidget) => {
             widget.layers = []
             widget.settings = createNewMapWidgetSettings()
             break
+        case 'python':
+            widget.settings = createNewPythonWidgetSettings()
+            break
+        case 'r':
+            widget.settings = createNewRWidgetSettings()
     }
 }
 

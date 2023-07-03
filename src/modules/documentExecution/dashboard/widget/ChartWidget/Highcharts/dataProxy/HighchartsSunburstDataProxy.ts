@@ -86,12 +86,4 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfC
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }
-
-    console.group(`%c ATTRIBUTES - CATEGORIES - DIMENSIONS `, 'background: #222; color: #bada55')
-    console.log(dataToSend.aggregations.categories)
-    console.groupEnd()
-
-    console.group(`%c MEASURES - SERIES `, 'background: #222; color: #bada55')
-    console.log(dataToSend.aggregations.measures)
-    console.groupEnd()
 }

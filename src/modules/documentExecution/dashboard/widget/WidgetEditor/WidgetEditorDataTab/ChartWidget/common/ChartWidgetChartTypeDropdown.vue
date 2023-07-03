@@ -57,6 +57,8 @@ export default defineComponent({
             const chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
             if (chartModel?.chart.type) {
                 this.selectedType = chartModel.chart.type
+                if (this.selectedType === 'sankey' && chartModel.chart.inverted) this.selectedType = 'sankeyInverted'
+                if (['area', 'bar', 'line'].includes(this.selectedType) && chartModel.plotOptions.series.stacking === 'normal') this.selectedType = this.selectedType + 'Stacked'
             }
         },
         getImageSource(chartValue: string) {
