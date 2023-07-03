@@ -19,6 +19,7 @@ import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import useStore from '@/App.store'
 import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
+import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
 
 const store = useStore()
 
@@ -83,6 +84,9 @@ const createNewWidgetSettings = (widget: IWidget) => {
             break
         case 'static-pivot-table':
             widget.settings = createNewPivotTableWidgetSettings()
+            break
+        case 'ce-pivot-table':
+            widget.settings = createCeNewPivotTableWidgetSettings()
             break
         case 'discovery':
             widget.settings = createNewDiscoveryWidgetSettings()

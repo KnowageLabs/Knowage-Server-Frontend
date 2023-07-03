@@ -23,6 +23,7 @@
                 <PivotTableTooltips v-else-if="accordion.type === 'Tooltips'" :widgetModel="widgetModel" />
                 <PivotTableTotalsStyle v-else-if="accordion.type === 'Totals'" :widgetModel="widgetModel" :toolbarStyleSettings="descriptor.columnHeadersToolbarStyleOptions" :totalType="accordion.type" />
                 <PivotTableTotalsStyle v-else-if="accordion.type === 'SubTotals'" :widgetModel="widgetModel" :toolbarStyleSettings="descriptor.columnHeadersToolbarStyleOptions" :totalType="accordion.type" />
+                <PivotTableTotalsStyle v-else-if="accordion.type === 'CrossTabHeaders'" :widgetModel="widgetModel" :toolbarStyleSettings="descriptor.columnHeadersToolbarStyleOptions" :totalType="accordion.type" />
                 <PivotTableFieldsStyle v-else-if="accordion.type === 'FieldsStyle'" :widgetModel="widgetModel" :fieldType="'fields'" />
                 <PivotTableFieldsStyle v-else-if="accordion.type === 'FieldHeadersStyle'" :widgetModel="widgetModel" :fieldType="'fieldHeaders'" />
                 <PivotTableConditionalStyle v-else-if="accordion.type === 'Conditions'" :widgetModel="widgetModel"></PivotTableConditionalStyle>

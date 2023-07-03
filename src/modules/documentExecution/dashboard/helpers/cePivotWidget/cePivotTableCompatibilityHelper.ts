@@ -1,7 +1,7 @@
 import { IWidget, IWidgetColumn, IWidgetColumnFilter, IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
 import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
 import { getFormattedPivotFields } from './cePivotTableColumnHelper'
-import { IPivotTableConfiguration, IPivotTableSettings, IPivotTableStyle, IPivotTableWidgetConditionalStyles, IPivotTableWidgetVisualization, IPivotTooltips } from '../../interfaces/pivotTable/DashboardPivotTableWidget'
+import { ICePivotTableConfiguration, ICePivotTableSettings, ICePivotTableStyle, ICePivotTableWidgetConditionalStyles, ICePivotTableWidgetVisualization, IPivotTooltips } from '../../interfaces/cePivotTable/ceDashboardPivotTableWidget'
 import { getSettingsFromPivotTableWidgetColumns } from './cePivotTableColumnSettingsHelper'
 import { getFormattedConfiguration } from './cePivotTableConfigurationHelper'
 import { getFormattedStyle } from './cePivotTabletStyleHelper'
@@ -23,7 +23,7 @@ export const formatCEPivotTabletWidget = (widget: any) => {
         columns: [],
         theme: '',
         style: {},
-        settings: {} as IPivotTableSettings
+        settings: {} as ICePivotTableSettings
     } as IWidget
     formattedWidget.settings = getFormattedWidgetSettings(widget)
 
@@ -58,14 +58,14 @@ const getFormattedWidgetSettings = (widget: any) => {
     const formattedSettings = {
         updatable: widget.updateble,
         clickable: widget.cliccable,
-        conditionalStyles: pivotTableDefaultValues.getDefaultConditionalStyles() as IPivotTableWidgetConditionalStyles,
-        visualization: pivotTableDefaultValues.getDefaultVisualisationSettings() as IPivotTableWidgetVisualization,
-        configuration: getFormattedConfiguration(widget) as IPivotTableConfiguration,
+        conditionalStyles: pivotTableDefaultValues.getDefaultConditionalStyles() as ICePivotTableWidgetConditionalStyles,
+        visualization: pivotTableDefaultValues.getDefaultVisualisationSettings() as ICePivotTableWidgetVisualization,
+        configuration: getFormattedConfiguration(widget) as ICePivotTableConfiguration,
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
-        style: getFormattedStyle(widget) as IPivotTableStyle,
+        style: getFormattedStyle(widget) as ICePivotTableStyle,
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
         tooltips: pivotTableDefaultValues.getDefaultTooltips() as IPivotTooltips[]
-    } as IPivotTableSettings
+    } as ICePivotTableSettings
     return formattedSettings
 }
 

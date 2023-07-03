@@ -96,6 +96,10 @@
                 "type": "FieldsStyle"
             },
             {
+                "title": "dashboard.widgetEditor.pivot.style.crossTabHeaders",
+                "type": "CrossTabHeaders"
+            },
+            {
                 "title": "dashboard.widgetEditor.pivot.style.totals",
                 "type": "Totals"
             },

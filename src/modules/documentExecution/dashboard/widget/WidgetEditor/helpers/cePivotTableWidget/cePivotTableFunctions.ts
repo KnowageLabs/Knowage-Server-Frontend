@@ -4,7 +4,7 @@ import { removeColumnFromSubmodel } from '../tableWidget/TableWidgetFunctions'
 import * as pivotTableDefaultValues from './cePivotTableDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 
-export const createNewPivotTableWidgetSettings = () => {
+export const createCeNewPivotTableWidgetSettings = () => {
     return {
         updatable: true,
         clickable: true,
@@ -30,7 +30,8 @@ export const createNewPivotTableWidgetSettings = () => {
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             totals: pivotTableDefaultValues.getDefaultTotals(),
-            subTotals: pivotTableDefaultValues.getDefaultTotals()
+            subTotals: pivotTableDefaultValues.getDefaultTotals(),
+            crossTabHeaders: pivotTableDefaultValues.getDefaultTotals()
         },
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
         tooltips: pivotTableDefaultValues.getDefaultTooltips()

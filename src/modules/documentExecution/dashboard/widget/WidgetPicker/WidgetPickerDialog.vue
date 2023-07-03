@@ -57,6 +57,7 @@ export default defineComponent({
         openWidgetEditor(widget) {
             // TODO widgetChange
             if (widget.type === 'chart') widget.type = this.isEnterprise ? 'highcharts' : 'chartJS'
+            if (widget.type === 'static-pivot-table') widget.type = this.isEnterprise ? 'ce-pivot-table' : 'ce-pivot-table'
             this.$emit('openNewWidgetEditor', widget)
         }
     }

@@ -1023,6 +1023,7 @@
                 },
                 "style": {
                     "columnHeaders": "Column Headers",
+                    "crossTabHeaders": "Cross Tab Headers",
                     "fieldHeaders": "Field Headers",
                     "rowHeaders": "Row Headers",
                     "subTotals": "SubTotals",

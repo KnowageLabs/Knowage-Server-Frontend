@@ -70,7 +70,7 @@ import HighchartsContainer from '../widget/ChartWidget/Highcharts/HighchartsCont
 import ChartJSContainer from '../widget/ChartWidget/ChartJS/ChartJSContainer.vue'
 import ImageWidget from '../widget/ImageWidget/ImageWidget.vue'
 import PivotWidget from '@/workspaces/PivotWidget/PivotWidget.vue'
-import CEPivotWidget from '../widget/CEPivotWidget/CEPivotWidget.vue'
+import CEPivotWidget from '../widget/cePivotWidget/cePivotWidget.vue'
 import CustomChartWidget from '../widget/CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../widget/DiscoveryWidget/DiscoveryWidget.vue'
 import VegaContainer from '../widget/ChartWidget/Vega/VegaContainer.vue'

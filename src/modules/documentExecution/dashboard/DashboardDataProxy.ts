@@ -21,6 +21,7 @@ import { getPivotData } from '@/workspaces/PivotWidget/PivotWidgetDataProxy'
 import { getDiscoveryWidgetData } from './widget/DiscoveryWidget/DiscoveryWidgetDataProxy'
 import { getHighchartsBarData } from './widget/ChartWidget/Highcharts/dataProxy/HighchartsBarDataProxy'
 import { getChartJSWidgetData } from './widget/ChartWidget/ChartJS/ChartJSDataProxy'
+import { getCePivotData } from './widget/cePivotWidget/cePivotWidgetDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -61,6 +62,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'static-pivot-table':
             return await getPivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'ce-pivot-table':
+            return await getCePivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'discovery':
             return await getDiscoveryWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'vega': //TODO: CHANGE METHOD - WORDCLOUD
