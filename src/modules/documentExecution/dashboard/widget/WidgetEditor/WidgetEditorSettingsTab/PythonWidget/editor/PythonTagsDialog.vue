@@ -40,7 +40,6 @@ export default defineComponent({
         visible: { type: Boolean },
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         mode: { type: String, required: true },
-        widgetType: { type: String, required: true },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         dashboardId: { type: String, required: true }
     },

@@ -5,7 +5,7 @@
     </div>
 
     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
-    <PythonTagsDialog :visible="tagsDialogVisible" :widget-model="widgetModel" :mode="tagsDialogMode" widget-type="python" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId" @close="closeTagsDialog" @insert="onInsert" />
+    <PythonTagsDialog :visible="tagsDialogVisible" :widget-model="widgetModel" :mode="tagsDialogMode" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId" @close="closeTagsDialog" @insert="onInsert" />
 </template>
 
 <script lang="ts">

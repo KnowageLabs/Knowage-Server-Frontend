@@ -58,8 +58,9 @@ export default defineComponent({
         },
         async loadEnvironments() {
             this.setLoading(true)
+            const configuration = this.widget?.type === 'r' ? 'R_CONFIGURATION' : 'PYTHON_CONFIGURATION'
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/configs/category/PYTHON_CONFIGURATION`)
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/configs/category/${configuration}`)
                 .then((response: AxiosResponse<any>) => (this.environments = response.data))
                 .catch(() => {})
             this.setLoading(false)
@@ -69,8 +70,9 @@ export default defineComponent({
             console.log('----- ENV SELECTED: ', this.selectedEnvironment)
             if (this.widget?.settings.editor) this.widget.settings.editor = this.selectedEnvironment
             this.setLoading(true)
+            const envUrlType = this.widget?.type === 'r' ? 'RWidget' : 'python'
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/backendservices/widgets/python/libraries/${this.selectedEnvironment}`)
+                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/backendservices/widgets/${envUrlType}/libraries/${this.selectedEnvironment}`)
                 .then((response: AxiosResponse<any>) => (this.environmentLibraries = JSON.parse(response.data.result)))
                 .catch(() => {})
             this.setLoading(false)
