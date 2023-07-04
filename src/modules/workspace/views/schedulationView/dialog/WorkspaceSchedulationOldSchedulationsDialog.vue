@@ -70,13 +70,13 @@ export default defineComponent({
         },
         async getDocumentId(documentName: string) {
             let documentId = null
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/workspace/scheduler/${documentName}`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/workspace/scheduler/${documentName}`).then((response: AxiosResponse<any>) => {
                 documentId = response.data
             })
             return documentId
         },
         async loadDocumentSchedulers(documentId: number, schedulerName: string) {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentsnapshot/getSnapshotsForSchedulationAndDocument?id=${documentId}&scheduler=${schedulerName}`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/getSnapshotsForSchedulationAndDocument?id=${documentId}&scheduler=${schedulerName}`).then((response: AxiosResponse<any>) => {
                 response.data?.schedulers.forEach((el: ISchedulation) => this.schedulations.push({ ...el, urlPath: response.data.urlPath }))
             })
         }

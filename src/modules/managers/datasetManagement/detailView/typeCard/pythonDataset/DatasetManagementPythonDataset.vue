@@ -144,9 +144,9 @@ export default defineComponent({
         },
         getEnvLibraries() {
             if (this.dataset.pythonDatasetType == 'python') {
-                return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/backendservices/widgets/python/libraries/${this.dataset.pythonEnvironment.label}`)
+                return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/python/libraries/${this.dataset.pythonEnvironment.label}`)
             } else {
-                return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/backendservices/widgets/RWidget/libraries/${this.dataset.pythonEnvironment.label}`)
+                return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/RWidget/libraries/${this.dataset.pythonEnvironment.label}`)
             }
         },
         async checkEnvironment() {

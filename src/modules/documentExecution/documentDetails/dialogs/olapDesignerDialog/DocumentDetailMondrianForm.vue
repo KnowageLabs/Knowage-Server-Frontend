@@ -65,7 +65,7 @@ export default defineComponent({
 
             this.setLoading(true)
             await this.$http
-                .get(import.meta.env.VITE_OLAP_PATH + `1.0/designer/allcubes/${this.selectedMondrianSchema.currentContentId}?SBI_EXECUTION_ID=${this.sbiExecutionId}`)
+                .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/designer/allcubes/${this.selectedMondrianSchema.currentContentId}?SBI_EXECUTION_ID=${this.sbiExecutionId}`)
                 .then((response: AxiosResponse<any>) => (this.cubes = response.data))
                 .catch(() => {})
             this.setLoading(false)
@@ -80,7 +80,7 @@ export default defineComponent({
 
             this.setLoading(true)
             await this.$http
-                .get(import.meta.env.VITE_OLAP_PATH + `1.0/designer/cubes/getMDX/${this.selectedMondrianSchema.currentContentId}/${this.selectedCube}?SBI_EXECUTION_ID=${this.sbiExecutionId}`, { headers: { Accept: 'application/json, text/plain, */*' } })
+                .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/designer/cubes/getMDX/${this.selectedMondrianSchema.currentContentId}/${this.selectedCube}?SBI_EXECUTION_ID=${this.sbiExecutionId}`, { headers: { Accept: 'application/json, text/plain, */*' } })
                 .then((response: AxiosResponse<any>) => {
                     this.model.mdxQuery = response.data
                     this.model.mondrianMdxQuery = response.data

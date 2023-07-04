@@ -154,7 +154,7 @@ export default defineComponent({
         },
         async loadFolders() {
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/folders/`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/folders/`).then((response: AxiosResponse<any>) => {
                 this.folders = response.data
                 this.folders?.sort((a: any, b: any) => {
                     return a.id - b.id
@@ -165,8 +165,8 @@ export default defineComponent({
         },
         async loadDocuments() {
             this.loading = true
-            const url = this.searchMode ? `2.0/documents?searchAttributes=all&searchKey=${this.searchWord}` : `2.0/documents?folderId=${this.selectedFolder?.id}`
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url).then((response: AxiosResponse<any>) => {
+            const url = this.searchMode ? `/restful-services/2.0/documents?searchAttributes=all&searchKey=${this.searchWord}` : `/restful-services/2.0/documents?folderId=${this.selectedFolder?.id}`
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + url).then((response: AxiosResponse<any>) => {
                 this.searchMode ? (this.searchedDocuments = response.data) : (this.documents = response.data)
             })
             this.loading = false

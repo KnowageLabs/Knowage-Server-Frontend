@@ -28,7 +28,7 @@ export default defineComponent({
     },
     methods: {
         getImageUrl(image: IImage) {
-            return import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/images/getImage?IMAGES_ID=${image.imgId}`
+            return import.meta.env.VITE_KNOWAGE_CONTEXT + `1.0/images/getImage?IMAGES_ID=${image.imgId}`
         },
         openImageSidebar() {
             this.$emit('openSidebar', this.imageProp)

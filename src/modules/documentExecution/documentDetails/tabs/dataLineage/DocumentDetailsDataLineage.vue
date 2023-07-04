@@ -98,7 +98,7 @@ export default defineComponent({
         async getTablesBySourceID() {
             this.loading = true
             this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaSourceResource/${this.dataSource.sourceId}/metatables`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaSourceResource/${this.dataSource.sourceId}/metatables`)
                 .then((response: AxiosResponse<any>) => {
                     this.tablesList = response.data as iTableSmall[]
                     this.setCheckedTables()
@@ -116,7 +116,7 @@ export default defineComponent({
         },
         peristTable(event) {
             this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaDocumetRelationResource/${this.selectedDocument.id}`, event.data, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDocumetRelationResource/${this.selectedDocument.id}`, event.data, {
                     headers: { 'X-Disable-Errors': 'true' }
                 })
                 .then(() => this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.documentDetails.dataLineage.persistOk') }))
@@ -124,7 +124,7 @@ export default defineComponent({
         },
         deleteTable(event) {
             this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaDocumetRelationResource/${this.selectedDocument.id}/${event.data.tableId}`, {
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDocumetRelationResource/${this.selectedDocument.id}/${event.data.tableId}`, {
                     headers: { 'X-Disable-Errors': 'true' }
                 })
                 .then(() => this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.documentDetails.dataLineage.deleteOk') }))

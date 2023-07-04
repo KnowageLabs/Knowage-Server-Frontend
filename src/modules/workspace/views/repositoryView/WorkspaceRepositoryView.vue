@@ -155,7 +155,7 @@ export default defineComponent({
         async getFolderDocuments() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/${this.id}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/${this.id}`)
                 .then((response: AxiosResponse<any>) => {
                     this.documents = [...response.data.content]
                     this.filteredDocuments = [...this.documents]
@@ -224,7 +224,7 @@ export default defineComponent({
             if (!this.selectedDocument || !folder) return
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/document`, { biObjectId: this.selectedDocument.biObjectId, parentId: folder.id })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/document`, { biObjectId: this.selectedDocument.biObjectId, parentId: folder.id })
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -269,7 +269,7 @@ export default defineComponent({
         async deleteDocument(document: IDashboardView) {
             this.loading = true
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/document/${document.id}`)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/document/${document.id}`)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

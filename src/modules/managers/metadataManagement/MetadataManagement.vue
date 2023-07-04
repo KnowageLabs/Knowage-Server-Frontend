@@ -80,7 +80,7 @@ export default defineComponent({
             this.loading = true
             this.metadataList = []
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/objMetadata')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/objMetadata')
                 .then((response: AxiosResponse<any>) =>
                     response.data.map((metadata: any) => {
                         this.metadataList.push({
@@ -118,7 +118,7 @@ export default defineComponent({
             })
         },
         async deleteMetadata(metadataId: number) {
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/objMetadata/' + metadataId).then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/objMetadata/' + metadataId).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')

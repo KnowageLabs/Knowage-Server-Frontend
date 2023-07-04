@@ -78,7 +78,7 @@ export default defineComponent({
     methods: {
         async loadAttributeValue() {
             if (this.attribute?.lovId) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/lovs/${this.attribute.lovId}/preview`).then((response: AxiosResponse<any>) => {
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/lovs/${this.attribute.lovId}/preview`).then((response: AxiosResponse<any>) => {
                     this.lovValues = response.data.map((lovValue, index) => {
                         return { value: lovValue, id: index }
                     })

@@ -86,11 +86,11 @@ export default defineComponent({
     },
     methods: {
         loadData(dataType: string) {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `multitenant${dataType}`).finally(() => (this.loading = false))
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant${dataType}`).finally(() => (this.loading = false))
         },
         async getLicences() {
             return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/license`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license`)
                 .then((response: AxiosResponse<any>) => {
                     const host = response.data.hosts[0].hostName
                     const licenses = response.data.licenses[host]
@@ -114,7 +114,7 @@ export default defineComponent({
             })
         },
         async deleteTenant(selectedTenant: Object) {
-            const url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'multitenant'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'multitenant'
             await this.$http.delete(url, { data: selectedTenant }).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),

@@ -88,7 +88,7 @@ export default defineComponent({
     methods: {
         async getAllDatabases() {
             return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/databases`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/databases`)
                 .then((response: AxiosResponse<any>) => {
                     this.listOfAvailableDatabases = response.data
                 })
@@ -97,7 +97,7 @@ export default defineComponent({
 
         async getCurrentUser() {
             return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/currentuser`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/currentuser`)
                 .then((response: AxiosResponse<any>) => {
                     this.user = response.data
                 })
@@ -107,7 +107,7 @@ export default defineComponent({
         async getAllDatasources() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/datasources')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasources')
                 .then((response: AxiosResponse<any>) => {
                     this.datasources = response.data
                     this.convertToSeconds(this.datasources)
@@ -156,7 +156,7 @@ export default defineComponent({
         },
         async deleteDatasource(datasourceId: number) {
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/datasources/' + datasourceId)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasources/' + datasourceId)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

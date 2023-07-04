@@ -17,7 +17,7 @@
                     <Listbox v-if="!loading" class="kn-list kn-height-full" :options="modes" option-label="label" data-test="usemodes-list" @change="showForm">
                         <template #empty>{{ $t('common.info.noDataFound') }}</template>
                         <template #option="slotProps">
-                            <div class="kn-list-item" >
+                            <div class="kn-list-item">
                                 <Badge v-if="slotProps.option.numberOfErrors > 0 || slotProps.option.associatedRoles.length === 0" value="!" class="p-ml-2" severity="danger"></Badge>
                                 <div v-tooltip.top="slotProps.option.description" class="kn-list-item-text">
                                     <span data-test="list-item">{{ slotProps.option.label }}</span>
@@ -84,7 +84,7 @@ export default defineComponent({
             requierd: true
         }
     },
-      setup() {
+    setup() {
         const store = mainStore()
         return { store }
     },
@@ -134,7 +134,7 @@ export default defineComponent({
         async deleteMode(useMode: any) {
             if (useMode.useID != -1) {
                 await this.$http
-                    .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/analyticalDrivers/modes/' + useMode.useID)
+                    .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/analyticalDrivers/modes/' + useMode.useID)
                     .then(() => {
                         this.store.setInfo({
                             title: this.$t('common.toast.deleteTitle'),

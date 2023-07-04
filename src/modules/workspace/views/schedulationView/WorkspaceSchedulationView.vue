@@ -53,7 +53,7 @@ export default defineComponent({
         ...mapActions(mainStore, ['setInfo']),
         async loadJobs() {
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/listAllJobs`).then((response: AxiosResponse<any>) => (this.jobs = response.data.root))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/listAllJobs`).then((response: AxiosResponse<any>) => (this.jobs = response.data.root))
             this.loading = false
         },
         setSelectedSchedulations(schedulations: any) {
@@ -78,7 +78,7 @@ export default defineComponent({
         async runSchedulations(schedulations: any) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/executeMultipleTrigger`, schedulations)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/executeMultipleTrigger`, schedulations)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.resp === 'ok') {
                         this.setInfo({

@@ -56,7 +56,7 @@ export async function getCorrectRolesForExecutionForType(typeCode, id, label) {
 async function callGetCorrectRolesForExecution(typeCode, id, label) {
     let params = 'typeCode=' + typeCode + '&' + (id ? `id=${id}` : `label=${label}`)
 
-    let url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/documentexecution/correctRolesForExecution?` + params
+    let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `3.0/documentexecution/correctRolesForExecution?` + params
 
     const store = mainStore()
     return new Promise((resolve, reject) => {

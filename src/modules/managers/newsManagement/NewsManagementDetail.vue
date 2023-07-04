@@ -72,7 +72,7 @@ export default defineComponent({
         async loadSelectedNews() {
             this.loading = true
             if (this.id) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/news/${this.id}?isTechnical=true`).then((response: AxiosResponse<any>) => (this.selectedNews = { ...response.data, expirationDate: new Date(response.data.expirationDate) }))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/news/${this.id}?isTechnical=true`).then((response: AxiosResponse<any>) => (this.selectedNews = { ...response.data, expirationDate: new Date(response.data.expirationDate) }))
             } else {
                 this.selectedNews = {
                     type: 1,
@@ -84,7 +84,7 @@ export default defineComponent({
         async loadRoles() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/roles')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/roles')
                 .then((response: AxiosResponse<any>) => {
                     this.roleList = response.data
                 })
@@ -100,7 +100,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/news', { ...this.selectedNews, expirationDate: new Date(this.selectedNews.expirationDate as string).valueOf() })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/news', { ...this.selectedNews, expirationDate: new Date(this.selectedNews.expirationDate as string).valueOf() })
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t(this.newsManagementDetailDescriptor.operation[this.operation].toastTitle),

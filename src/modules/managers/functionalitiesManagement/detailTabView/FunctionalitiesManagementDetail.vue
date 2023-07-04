@@ -221,7 +221,7 @@ export default defineComponent({
         },
         async loadParentFolder() {
             if (this.parentId) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/functionalities/getParent/${this.parentId}`).then((response: AxiosResponse<any>) => (this.parentFolder = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/functionalities/getParent/${this.parentId}`).then((response: AxiosResponse<any>) => (this.parentFolder = response.data))
             }
         },
         roleIsChecked(role: any, roles: [], roleField: string) {
@@ -274,7 +274,9 @@ export default defineComponent({
             functionality.createRoles = []
         },
         async createOrUpdate(functionalityToSend) {
-            return this.selectedFolder.id ? this.$http.put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/functionalities/${functionalityToSend.id}`, functionalityToSend) : this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/functionalities/', functionalityToSend)
+            return this.selectedFolder.id
+                ? this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/functionalities/${functionalityToSend.id}`, functionalityToSend)
+                : this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/functionalities/', functionalityToSend)
         },
         async handleSubmit() {
             if (this.v$.$invalid) {

@@ -61,7 +61,7 @@ export default defineComponent({
             this.setLoading(false)
         },
         async getAllFolders() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
         },
         setSelectedParentFolder(folder: any) {
             this.parentFolder = folder
@@ -76,7 +76,7 @@ export default defineComponent({
             this.setLoading(true)
             const postData = { biObjectId: this.document.id, parentId: this.parentFolder.id }
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/document`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/document`, postData)
                 .then(() => {
                     this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.success') })
                     this.closeDialog()

@@ -228,7 +228,6 @@ import Message from 'primevue/message'
 import mainStore from '../../../../App.store'
 
 export default defineComponent({
-
     directives: {
         tooltip: Tooltip
     },
@@ -425,7 +424,7 @@ export default defineComponent({
         },
 
         async testDataSource() {
-            const url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/datasources/test'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/datasources/test'
             let dsToTest = {} as any
             dsToTest = { ...this.datasource }
             dsToTest.type = this.jdbcOrJndi.type
@@ -447,7 +446,7 @@ export default defineComponent({
             if (this.v$.$invalid) {
                 return
             }
-            const url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/datasources/'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/datasources/'
             let dsToSave = {} as any
             dsToSave = { ...this.datasource }
 

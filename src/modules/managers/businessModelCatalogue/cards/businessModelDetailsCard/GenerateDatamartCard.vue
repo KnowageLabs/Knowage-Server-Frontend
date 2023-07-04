@@ -107,7 +107,7 @@ export default defineComponent({
             this.currentUser = this.user
         },
         async loadModelInfo() {
-            await this.$http.get(`/knowagemeta/restful-services/1.0/metaWeb/modelInfos/${this.businessModel.id}?user_id=${this.user.userUniqueIdentifier}`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(`${import.meta.env.VITE_KNOWAGEMETA_CONTEXT}/restful-services/1.0/metaWeb/modelInfos/${this.businessModel.id}?user_id=${this.user.userUniqueIdentifier}`).then((response: AxiosResponse<any>) => {
                 if (response.data.schemaName) {
                     this.schemaName = response.data.schemaName
                 }
@@ -118,7 +118,7 @@ export default defineComponent({
         },
         generateDatamart() {
             const url =
-                `/knowagemeta/restful-services/1.0/metaWeb/buildModel/${this.businessModel.id}?user_id=${this.user.userId}` +
+                `${import.meta.env.VITE_KNOWAGEMETA_CONTEXT}/restful-services/1.0/metaWeb/buildModel/${this.businessModel.id}?user_id=${this.user.userId}` +
                 `&model=${encodeURIComponent(this.modelName)}&schema=${this.schemaName}&catalog=${this.catalogName}&registry=${this.isGeneratedForRegistry}&includeSources=${this.includeSources}`
             this.$http.get(url).then(() => {
                 this.store.setInfo({

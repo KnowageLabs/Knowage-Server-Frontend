@@ -520,7 +520,10 @@ export default defineComponent({
             }
         },
         exportOlap(type: string) {
-            const url = type === 'PDF' ? `/knowagewhatifengine/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}` : `/knowagewhatifengine/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
+            const url =
+                type === 'PDF'
+                    ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}`
+                    : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
             window.open(url)
         },
         openMailDialog() {
@@ -528,7 +531,7 @@ export default defineComponent({
         },
         async openMetadata() {
             this.metadataLoading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecutionee/${this.document.id}/documentMetadata`).then((response: AxiosResponse<any>) => (this.metadata = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecutionee/${this.document.id}/documentMetadata`).then((response: AxiosResponse<any>) => (this.metadata = response.data))
             this.metadataDialogVisible = true
             this.metadataLoading = false
         },
@@ -543,13 +546,15 @@ export default defineComponent({
             this.loading = true
             this.parameterSidebarVisible = false
             this.schedulationsTableVisible = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentsnapshot/getSnapshots?id=${this.document.id}`).then((response: AxiosResponse<any>) => response.data?.schedulers.forEach((el: any) => this.schedulations.push({ ...el, urlPath: response.data.urlPath })))
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/getSnapshots?id=${this.document.id}`)
+                .then((response: AxiosResponse<any>) => response.data?.schedulers.forEach((el: any) => this.schedulations.push({ ...el, urlPath: response.data.urlPath })))
             this.loading = false
         },
         async copyLink(embedHTML: boolean) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecution/canHavePublicExecutionUrl`, { label: this.document.label })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/canHavePublicExecutionUrl`, { label: this.document.label })
                 .then((response: AxiosResponse<any>) => {
                     this.embedHTML = embedHTML
                     this.linkInfo = response.data
@@ -613,7 +618,7 @@ export default defineComponent({
             else this.mode = 'iframe'
         },
         async loadDocument() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documents/${this.document?.label}`).then((response: AxiosResponse<any>) => (this.document = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${this.document?.label}`).then((response: AxiosResponse<any>) => (this.document = response.data))
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             index !== -1
                 ? (this.breadcrumbs[index].document = this.document)
@@ -625,7 +630,7 @@ export default defineComponent({
         async loadView() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/${this.$route.query.viewId}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/view/${this.$route.query.viewId}`)
                 .then(async (response: AxiosResponse<any>) => {
                     this.$route.path.includes('cockpit-view') ? (this.cockpitViewForExecution = response.data) : (this.dashboardView = response.data)
                     if (this.cockpitViewForExecution) await this.executeView(this.cockpitViewForExecution)
@@ -646,7 +651,7 @@ export default defineComponent({
             if (this.sbiExecutionId) postData.SBI_EXECUTION_ID = this.sbiExecutionId
             if (this.document.typeCode === 'MAP') postData.EDIT_MODE = 'edit_map'
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecution/url`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/url`, postData)
                 .then((response: AxiosResponse<any>) => {
                     error = false
                     this.urlData = response.data
@@ -671,7 +676,7 @@ export default defineComponent({
             if (!this.urlData || !this.urlData.engineLabel) return
             const engineLabel = this.urlData.engineLabel
             if (engineLabel !== EnginesConstants.DOSSIER_ENGINE) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
             }
         },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
@@ -779,7 +784,7 @@ export default defineComponent({
             }
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/export/cockpitData`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/cockpitData`, postData)
                 .then(() =>
                     this.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -845,7 +850,7 @@ export default defineComponent({
         async getRank() {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `documentrating/getvote`, { obj: this.document.id })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documentrating/getvote`, { obj: this.document.id })
                 .then((response: AxiosResponse<any>) => (this.documentRank = response.data))
                 .catch((error: any) => this.setError({ title: this.$t('common.error.generic'), msg: error }))
             this.loading = false
@@ -854,7 +859,7 @@ export default defineComponent({
             if (newRank) {
                 this.loading = true
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `documentrating/vote`, { rating: newRank, obj: this.document.id })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documentrating/vote`, { rating: newRank, obj: this.document.id })
                     .then(() =>
                         this.setInfo({
                             title: this.$t('common.toast.updateTitle'),
@@ -884,7 +889,7 @@ export default defineComponent({
                 })
             )
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecutionee/saveDocumentMetadata`, { id: this.document.id, jsonMeta: jsonMeta })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecutionee/saveDocumentMetadata`, { id: this.document.id, jsonMeta: jsonMeta })
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.createTitle'),
@@ -905,7 +910,7 @@ export default defineComponent({
                 parameters: this.getFormattedParameters()
             }
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecutionmail/sendMail`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecutionmail/sendMail`, postData)
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.createTitle'),
@@ -919,7 +924,7 @@ export default defineComponent({
         async onDeleteSchedulation(schedulation: any) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentsnapshot/deleteSnapshot`, { SNAPSHOT: '' + schedulation.id })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/deleteSnapshot`, { SNAPSHOT: '' + schedulation.id })
                 .then(async () => {
                     this.removeSchedulation(schedulation)
                     this.setInfo({
@@ -985,7 +990,7 @@ export default defineComponent({
         async executeOLAPCrossNavigation(crossNavigationParams: any) {
             let temp = {} as any
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/crossNavigation/${this.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => (temp = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => (temp = response.data))
             this.loading = false
 
             if (!temp || temp.length === 0) {

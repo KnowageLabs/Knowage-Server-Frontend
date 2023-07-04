@@ -88,7 +88,7 @@ export default defineComponent({
                 obj['key'] = '' + this.selectedFolder.key
                 obj['folderName'] = folderName
                 this.$http
-                    .post(import.meta.env.VITE_API_PATH + `2.0/resources/folders`, obj, {
+                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders`, obj, {
                         responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
 
                         headers: {
@@ -134,7 +134,7 @@ export default defineComponent({
                         obj['folderName'] = node.label
                         this.loading = true
                         this.$http
-                            .post(import.meta.env.VITE_API_PATH + `2.0/resources/folders/update`, obj, {
+                            .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders/update`, obj, {
                                 responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
 
                                 headers: {
@@ -175,7 +175,7 @@ export default defineComponent({
             this.showHint = showHint != undefined ? showHint : true
             this.formVisible = formVisible != undefined ? formVisible : false
             this.$http
-                .get(import.meta.env.VITE_API_PATH + `2.0/resources/folders`)
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders`)
                 .then((response: AxiosResponse<any>) => {
                     const root = response.data.root[0]
                     root.label = 'HOME'
@@ -194,7 +194,7 @@ export default defineComponent({
         deleteFolder(node) {
             this.loading = true
             this.$http
-                .delete(import.meta.env.VITE_API_PATH + `2.0/resources/folders`, {
+                .delete(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders`, {
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -222,7 +222,7 @@ export default defineComponent({
             const obj = {} as JSON
             obj['key'] = node.key
             this.$http
-                .post(import.meta.env.VITE_API_PATH + `2.0/resources/folders/download`, obj, {
+                .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/folders/download`, obj, {
                     responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
 
                     headers: {

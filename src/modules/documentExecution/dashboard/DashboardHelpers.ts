@@ -102,7 +102,7 @@ const formatWidget = (widget: IWidget) => {
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {
     appStore.setLoading(true)
-    let url = `2.0/datasets/?asPagedList=true&seeTechnical=true`
+    let url = `/restful-services/2.0/datasets/?asPagedList=true&seeTechnical=true`
     if (dashboardModel) {
         const datasetIdsAsString = getDatasetIdsFromDashboardModel(dashboardModel)
         if (!datasetIdsAsString) {
@@ -113,9 +113,9 @@ export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: a
     }
     let datasets = []
     await $http
-        .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url)
+        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
         .then((response: AxiosResponse<any>) => (datasets = response.data ? response.data.item : []))
-        .catch(() => { })
+        .catch(() => {})
     setAllDatasets(datasets)
     appStore.setLoading(false)
     return datasets

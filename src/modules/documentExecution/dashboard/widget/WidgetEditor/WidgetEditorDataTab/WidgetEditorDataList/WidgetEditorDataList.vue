@@ -113,7 +113,7 @@ export default defineComponent({
                 this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions))
             }
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
                 .then((response: AxiosResponse<any>) => {
                     this.datasetFunctions = response.data
 

@@ -138,7 +138,7 @@ export default defineComponent({
         async loadAllDomains() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/domains')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/domains')
                 .then((response: AxiosResponse<any>) => {
                     this.domains = response.data
                 })
@@ -153,7 +153,7 @@ export default defineComponent({
             })
         },
         async deleteDomain(domainId: number) {
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/domains/' + domainId).then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/domains/' + domainId).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')

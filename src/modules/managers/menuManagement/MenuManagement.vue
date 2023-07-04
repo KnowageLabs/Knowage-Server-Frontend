@@ -59,7 +59,7 @@ export default defineComponent({
     },
     data() {
         return {
-            apiUrl: import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/',
+            apiUrl: import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/',
             menuNodes: [] as iMenuNode[],
             staticPagesList: [] as iStaticPage[],
             selectedMenuNode: {} as any,

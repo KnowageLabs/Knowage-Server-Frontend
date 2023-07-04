@@ -114,7 +114,7 @@ export default defineComponent({
 
             if (this.id) {
                 this.$http
-                    .get(import.meta.env.VITE_API_PATH + `2.0/resources/files/metadata?key=` + this.id)
+                    .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files/metadata?key=` + this.id)
                     .then((response: AxiosResponse<any>) => {
                         this.metadata = response.data
                     })
@@ -135,7 +135,7 @@ export default defineComponent({
             this.loading = true
             if (this.id) {
                 this.$http
-                    .post(import.meta.env.VITE_API_PATH + `2.0/resources/files/metadata?key=` + this.id, this.metadata, {
+                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files/metadata?key=` + this.id, this.metadata, {
                         responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
 
                         headers: {

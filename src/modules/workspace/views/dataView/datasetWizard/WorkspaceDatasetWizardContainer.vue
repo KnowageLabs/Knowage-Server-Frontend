@@ -87,7 +87,7 @@ export default defineComponent({
         },
         async getSelectedDataset() {
             this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/dataset/id/${this.selectedDataset.id}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/dataset/id/${this.selectedDataset.id}`)
                 .then((response: AxiosResponse<any>) => {
                     this.dataset = response.data[0] ? { ...response.data[0] } : {}
                     this.initializeDatasetWizard(this.dataset, true)
@@ -142,7 +142,7 @@ export default defineComponent({
             this.newFileUploaded ? (this.dataset.fileUploaded = true) : ''
             this.$http({
                 method: 'POST',
-                url: import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'selfservicedataset/testDataSet',
+                url: import.meta.env.VITE_KNOWAGE_CONTEXT + 'selfservicedataset/testDataSet',
                 data: this.dataset,
                 params: params,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Disable-Errors': 'true' },
@@ -222,7 +222,7 @@ export default defineComponent({
 
             await this.$http({
                 method: 'POST',
-                url: import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'selfservicedataset/save',
+                url: import.meta.env.VITE_KNOWAGE_CONTEXT + 'selfservicedataset/save',
                 data: dsToSend,
                 params: params,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Disable-Errors': 'true' },
@@ -235,7 +235,7 @@ export default defineComponent({
             })
                 .then((response: AxiosResponse<any>) => {
                     if (dsToSend.exportToHdfs) {
-                        this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/hdfs/${response.data.id}`, { headers: { 'X-Disable-Errors': 'true' } }).catch((responseHDFS: any) => {
+                        this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/hdfs/${response.data.id}`, { headers: { 'X-Disable-Errors': 'true' } }).catch((responseHDFS: any) => {
                             this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: responseHDFS.data.errors[0].message })
                         })
                     }

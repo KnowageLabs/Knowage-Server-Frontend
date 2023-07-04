@@ -73,7 +73,9 @@ export default defineComponent({
             const entityOrder = this.entity + subEntity + ':' + (this.filter.column.orderBy ?? this.filter.field)
 
             const postData = new URLSearchParams({ ENTITY_ID: entityId, QUERY_TYPE: 'standard', ORDER_ENTITY: entityOrder, ORDER_TYPE: 'asc', QUERY_ROOT_ENTITY: 'true' })
-            await this.$http.post(`/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then((response: AxiosResponse<any>) => (this.options = response.data.rows))
+            await this.$http
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+                .then((response: AxiosResponse<any>) => (this.options = response.data.rows))
         },
         filterChanged() {
             this.$emit('changed', this.filter.filterValue)

@@ -81,7 +81,7 @@ export default defineComponent({
         getRecentDocuments() {
             this.loading = true
             return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/recents`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/recents`)
                 .then((response: AxiosResponse<any>) => {
                     this.recentDocumentsList = [...response.data]
                     this.filteredDocuments = [...this.recentDocumentsList]

@@ -96,7 +96,7 @@ export default defineComponent({
         async selectedTenant() {
             this.v$.$reset()
             this.tenant = { ...this.selectedTenant } as iMultitenant
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `multitenant/image?TENANT=${this.tenant.MULTITENANT_NAME}`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant/image?TENANT=${this.tenant.MULTITENANT_NAME}`).then((response: AxiosResponse<any>) => {
                 this.tenant.MULTITENANT_IMAGE = response.data
             })
         },

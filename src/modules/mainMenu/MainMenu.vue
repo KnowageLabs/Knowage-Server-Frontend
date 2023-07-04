@@ -264,7 +264,7 @@ export default defineComponent({
                 localObject.locale = splittedLocale[0] + '-' + splittedLocale[2].replaceAll('#', '') + '-' + splittedLocale[1]
             }
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '3.0/menu/enduser?locale=' + encodeURIComponent(localObject.locale))
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(localObject.locale))
                 .then((response: AxiosResponse<any>) => {
                     this.technicalUserFunctionalities = response.data.technicalUserFunctionalities
                     this.setConditionedVisibility(response.data.allowedUserFunctionalities)

@@ -1,16 +1,15 @@
-import { IAssociation, IAssociationField, IDashboard, IDataset, IDashboardDataset, IDashboardDatasetParameter, ISelection, IWidget, IWidgetColumn, IWidgetColumnFilter } from "../../Dashboard"
-import { AxiosResponse } from "axios"
+import { IAssociation, IAssociationField, IDashboard, IDataset, IDashboardDataset, IDashboardDatasetParameter, ISelection, IWidget, IWidgetColumn, IWidgetColumnFilter } from '../../Dashboard'
+import { AxiosResponse } from 'axios'
 import { emitter } from '../../DashboardHelpers'
-import { clearDatasetInterval } from "../../helpers/datasetRefresh/DatasetRefreshHelpers"
+import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 
 interface IFormattedFilter {
-    filterOperator: string,
-    filterVals: string[
-    ],
+    filterOperator: string
+    filterVals: string[]
     dataset: {
-        dsId: number,
+        dsId: number
         label: string
-    },
+    }
     colName: string
 }
 
@@ -42,17 +41,15 @@ export const getAssociativeSelections = async (model: IDashboard, datasets: IDat
 
     let tempResponse = null
     await $http
-        .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/associativeSelections/`, postData)
+        .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/associativeSelections/`, postData)
         .then((response: AxiosResponse<any>) => (tempResponse = response.data))
-        .catch(() => { })
+        .catch(() => {})
     emitter.emit('setWidgetLoading', false)
     return tempResponse
 }
 
-
-
 const loadDatasetLabelIdMap = (datasets: IDataset[]) => {
-    datasets.forEach((dataset: IDataset) => datasetMapById[dataset.id.dsId] = dataset)
+    datasets.forEach((dataset: IDataset) => (datasetMapById[dataset.id.dsId] = dataset))
 }
 
 const getDatasetsInfoFromModelDatasets = (modelDatasets: IDashboardDataset[], datasets: IDataset[]) => {
@@ -67,7 +64,7 @@ const getDatasetsInfoFromModelDatasets = (modelDatasets: IDashboardDataset[], da
 }
 
 const getDatasetIdByLabel = (datasetLabel: string) => {
-    return Object.keys(datasetMapById).find(key => datasetMapById[key].label === datasetLabel);
+    return Object.keys(datasetMapById).find((key) => datasetMapById[key].label === datasetLabel)
 }
 
 const findDatasetByLabel = (datasetLabel: string, datasets: IDataset[]) => {
@@ -84,16 +81,18 @@ const getFormattedAssocitationsGroups = (associations: IAssociation[]) => {
     const formattedAssociations = [] as any[]
     const datasetsUsedInAssociations = [] as string[]
 
-    associations.forEach((association: IAssociation) => formattedAssociations.push({
-        id: association.id,
-        fields: getFormattedAssociationFields(association.fields, datasetsUsedInAssociations),
-        description: getAssociationDescription(association.fields)
-    }))
+    associations.forEach((association: IAssociation) =>
+        formattedAssociations.push({
+            id: association.id,
+            fields: getFormattedAssociationFields(association.fields, datasetsUsedInAssociations),
+            description: getAssociationDescription(association.fields)
+        })
+    )
     return { datasets: datasetsUsedInAssociations, associations: formattedAssociations }
 }
 
-const getFormattedAssociationFields = (associationFields: { column: string, dataset: number }[], datasetsUsedInAssociations: string[]) => {
-    return associationFields.map((field: { column: string, dataset: number }) => {
+const getFormattedAssociationFields = (associationFields: { column: string; dataset: number }[], datasetsUsedInAssociations: string[]) => {
+    return associationFields.map((field: { column: string; dataset: number }) => {
         const tempDataset = getDatasetById(field.dataset)
         if (tempDataset) {
             const index = datasetsUsedInAssociations.findIndex((dasetLabel: string) => dasetLabel === tempDataset.label)
@@ -103,7 +102,7 @@ const getFormattedAssociationFields = (associationFields: { column: string, data
     })
 }
 
-const getAssociationDescription = (associationFields: { column: string, dataset: number }[]) => {
+const getAssociationDescription = (associationFields: { column: string; dataset: number }[]) => {
     let description = ''
     for (let i = 0; i < associationFields.length; i++) {
         description += getDatasetById(associationFields[i].dataset)?.label + '.' + associationFields[i].column
@@ -123,13 +122,13 @@ const getFormattedSelections = (modelSelections: ISelection[]) => {
 
 const getFormattedModelDatasets = (modelDatasets: IDashboardDataset[]) => {
     const formattedDatasets = {}
-    modelDatasets.forEach((dataset: IDashboardDataset) => formattedDatasets[dataset.dsLabel as string] = getFormattedDatasetParameters(dataset))
+    modelDatasets.forEach((dataset: IDashboardDataset) => (formattedDatasets[dataset.dsLabel as string] = getFormattedDatasetParameters(dataset)))
     return formattedDatasets
 }
 
 const getFormattedDatasetParameters = (dataset: IDashboardDataset) => {
     const formattedParameters = {}
-    if (dataset.parameters) dataset.parameters.forEach((parameter: IDashboardDatasetParameter) => formattedParameters[parameter.name] = parameter.value)
+    if (dataset.parameters) dataset.parameters.forEach((parameter: IDashboardDatasetParameter) => (formattedParameters[parameter.name] = parameter.value))
     return formattedParameters
 }
 
@@ -161,7 +160,6 @@ const getFiltersFromWidgets = (model: IDashboard, datasetsInAssociation: any) =>
     })
     return filters
 }
-
 
 export const selectionsUseDatasetWithAssociation = (selections: ISelection[], associations: IAssociation[]) => {
     if (!selections || !associations) return false

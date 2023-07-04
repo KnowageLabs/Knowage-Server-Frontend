@@ -59,7 +59,7 @@ export default defineComponent({
         },
         async copyToBase64() {
             if (!this.image) return
-            this.toDataURL(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/images/getImage?IMAGES_ID=${this.image.imgId}`, async (dataUrl: string) => await navigator.clipboard.writeText(dataUrl))
+            this.toDataURL(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/images/getImage?IMAGES_ID=${this.image.imgId}`, async (dataUrl: string) => await navigator.clipboard.writeText(dataUrl))
         },
         toDataURL(url: string, callback: Function) {
             const xhr = new XMLHttpRequest()

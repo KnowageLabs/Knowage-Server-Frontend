@@ -119,7 +119,7 @@ export default defineComponent({
         async loadAllDoc() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/documents/listDocument')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/listDocument')
                 .then((response: AxiosResponse<any>) => (this.documents = response.data))
                 .finally(() => (this.loading = false))
         },

@@ -117,16 +117,16 @@ export default defineComponent({
             await this.loadBackupData()
         },
         async loadNodeMetadata() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `hierarchies/nodeMetadata?dimension=${this.selectedDimension?.DIMENSION_NM}&excludeLeaf=false`).then((response: AxiosResponse<any>) => (this.nodeMetadata = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/hierarchies/nodeMetadata?dimension=${this.selectedDimension?.DIMENSION_NM}&excludeLeaf=false`).then((response: AxiosResponse<any>) => (this.nodeMetadata = response.data))
         },
         async loadHierarchies() {
-            const url = this.hierarchyType === 'MASTER' ? `hierarchiesMaster/getHierarchiesMaster?dimension=${this.selectedDimension?.DIMENSION_NM}` : `hierarchiesTechnical/getHierarchiesTechnical?dimension=${this.selectedDimension?.DIMENSION_NM}`
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url).then((response: AxiosResponse<any>) => (this.hierarchies = response.data))
+            const url = this.hierarchyType === 'MASTER' ? `/restful-services/hierarchiesMaster/getHierarchiesMaster?dimension=${this.selectedDimension?.DIMENSION_NM}` : `/restful-services/hierarchiesTechnical/getHierarchiesTechnical?dimension=${this.selectedDimension?.DIMENSION_NM}`
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + url).then((response: AxiosResponse<any>) => (this.hierarchies = response.data))
         },
         async loadBackupData() {
             this.loading = true
-            const url = `hierarchiesBackup/getHierarchyBkps?dimension=${this.selectedDimension?.DIMENSION_NM}&hierarchyCode=${this.selectedHierarchy?.HIER_CD}&hierarchyName=${this.selectedHierarchy?.HIER_NM}&hierarchyType=${this.selectedHierarchy?.HIER_TP}`
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url).then((response: AxiosResponse<any>) => {
+            const url = `/restful-services/hierarchiesBackup/getHierarchyBkps?dimension=${this.selectedDimension?.DIMENSION_NM}&hierarchyCode=${this.selectedHierarchy?.HIER_CD}&hierarchyName=${this.selectedHierarchy?.HIER_NM}&hierarchyType=${this.selectedHierarchy?.HIER_TP}`
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + url).then((response: AxiosResponse<any>) => {
                 this.rows = response.data.root
                 this.columns = response.data.columns
                     ?.filter((column: any) => column.VISIBLE)
@@ -146,9 +146,9 @@ export default defineComponent({
             })
         },
         async deleteBackup(hierarchy) {
-            const url = `hierarchies/deleteHierarchy`
+            const url = `/restful-services/hierarchies/deleteHierarchy`
             const postData = { dimension: this.selectedDimension?.DIMENSION_NM, name: hierarchy.HIER_NM }
-            await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData).then((response: AxiosResponse<any>) => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData).then((response: AxiosResponse<any>) => {
                 if (response.data.response === 'ok') {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
@@ -167,9 +167,9 @@ export default defineComponent({
             })
         },
         async updateBackup(eventData) {
-            const url = `hierarchiesBackup/modifyHierarchyBkps`
+            const url = `/restful-services/hierarchiesBackup/modifyHierarchyBkps`
             const postData = { HIER_DS: eventData.newData.HIER_DS, HIER_NM: eventData.newData.HIER_NM, HIER_NM_ORIG: eventData.data.HIER_NM, dimension: this.selectedDimension?.DIMENSION_NM }
-            await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData).then((response: AxiosResponse<any>) => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData).then((response: AxiosResponse<any>) => {
                 if (response.data.response === 'ok') {
                     this.store.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -188,9 +188,9 @@ export default defineComponent({
             })
         },
         async restoreBackup(backup) {
-            const url = `hierarchiesBackup/restoreHierarchyBkps`
+            const url = `/restful-services/hierarchiesBackup/restoreHierarchyBkps`
             const postData = { code: backup.HIER_CD, name: backup.HIER_NM, dimension: this.selectedDimension?.DIMENSION_NM }
-            await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData).then((response: AxiosResponse<any>) => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData).then((response: AxiosResponse<any>) => {
                 if (response.data.response === 'ok') {
                     this.store.setInfo({
                         title: this.$t('common.restore'),

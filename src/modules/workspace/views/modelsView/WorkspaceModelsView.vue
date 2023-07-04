@@ -137,7 +137,7 @@ export default defineComponent({
         },
         async loadBusinessModels() {
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/businessmodels/?fileExtension=jar`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/businessmodels/?fileExtension=jar`).then((response: AxiosResponse<any>) => {
                 this.businessModels = response.data
                 this.businessModels = this.businessModels.map((el: any) => {
                     return { ...el, type: 'businessModel' }
@@ -147,7 +147,7 @@ export default defineComponent({
         },
         async loadFederatedDatasets() {
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `federateddataset/`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/federateddataset/`).then((response: AxiosResponse<any>) => {
                 this.federatedDatasets = response.data
                 this.federatedDatasets = this.federatedDatasets.map((el: any) => {
                     return { ...el, type: 'federatedDataset' }
@@ -157,7 +157,7 @@ export default defineComponent({
         },
         async getModelCategories() {
             this.loading = true
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `domainsforfinaluser/bm-categories`).then((response: AxiosResponse<any>) => {
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/domainsforfinaluser/bm-categories`).then((response: AxiosResponse<any>) => {
                 this.modelCategories = [...response.data]
             })
         },
@@ -237,7 +237,7 @@ export default defineComponent({
         async deleteDataset(dataset: IFederatedDataset) {
             this.loading = true
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/federateddataset/${dataset.federation_id}`)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/federateddataset/${dataset.federation_id}`)
                 .then(async () => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

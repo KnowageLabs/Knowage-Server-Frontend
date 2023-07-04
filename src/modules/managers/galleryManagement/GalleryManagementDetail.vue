@@ -208,7 +208,7 @@ export default defineComponent({
             this.loading = true
             if (id) {
                 this.$http
-                    .get(import.meta.env.VITE_API_PATH + '1.0/widgetgallery/' + (id || this.id))
+                    .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery/' + (id || this.id))
                     .then((response: AxiosResponse<any>) => {
                         this.template = response.data
                     })
@@ -225,7 +225,7 @@ export default defineComponent({
         },
         saveTemplate(): void {
             if (this.validateTags()) {
-                const postUrl = this.id ? '1.0/widgetgallery/' + this.id : '1.0/widgetgallery'
+                const postUrl = this.id ? '/api/1.0/widgetgallery/' + this.id : '/api/1.0/widgetgallery'
                 const label = this.template.label
                 const name = this.template.name
                 if (!label && !name) {
@@ -235,7 +235,7 @@ export default defineComponent({
                 if (!label && name) this.template.label = name
                 if (label && !name) this.template.name = label
                 this.$http
-                    .post(import.meta.env.VITE_API_PATH + postUrl, this.template)
+                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + postUrl, this.template)
                     .then((response: AxiosResponse<any>) => {
                         this.store.setInfo({ title: this.$t('managers.widgetGallery.saveTemplate'), msg: this.$t('managers.widgetGallery.templateSuccessfullySaved') })
                         this.$router.push('/gallery-management/' + response.data.id)

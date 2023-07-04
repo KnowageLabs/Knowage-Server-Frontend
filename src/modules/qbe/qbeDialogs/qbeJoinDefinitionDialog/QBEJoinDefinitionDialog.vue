@@ -116,7 +116,7 @@ export default defineComponent({
             if (this.id && this.query) {
                 const postData = { catalogue: this.qbe?.qbeJSONQuery.catalogue.queries, meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
                 await this.$http
-                    .post(`/knowageqbeengine/restful-services/qbequery/queryEntities/?SBI_EXECUTION_ID=${this.id}&currentQueryId=${this.query?.id}`, postData)
+                    .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/restful-services/qbequery/queryEntities/?SBI_EXECUTION_ID=${this.id}&currentQueryId=${this.query?.id}`, postData)
                     .then((response: AxiosResponse<any>) => (this.entityNames = response.data))
                     .catch(() => {})
             }

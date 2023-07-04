@@ -98,7 +98,7 @@ export default defineComponent({
         },
         async startExport(fileName: string) {
             await this.$http
-                .post(import.meta.env.VITE_API_PATH + '1.0/export/bulk', this.streamlineSelectedItemsArray(fileName), {
+                .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/export/bulk', this.streamlineSelectedItemsArray(fileName), {
                     responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
 
                     headers: {

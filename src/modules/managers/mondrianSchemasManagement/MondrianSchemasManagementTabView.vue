@@ -139,13 +139,13 @@ export default defineComponent({
             }
         },
         async loadAllUsers() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/users`).then((response: AxiosResponse<any>) => (this.allUsers = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/users`).then((response: AxiosResponse<any>) => (this.allUsers = response.data))
         },
         async loadSelectedSchema() {
             this.loading = true
             if (this.id) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/mondrianSchemasResource/${this.id}`).then((response: AxiosResponse<any>) => (this.selectedSchema = response.data))
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/workflow/${this.id}`).then((response: any) => (this.wfSelectedUserList = response.data.errors ? [] : response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/mondrianSchemasResource/${this.id}`).then((response: AxiosResponse<any>) => (this.selectedSchema = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/workflow/${this.id}`).then((response: any) => (this.wfSelectedUserList = response.data.errors ? [] : response.data))
             } else {
                 this.selectedSchema = {} as iSchema
                 this.wfSelectedUserList = []
@@ -171,7 +171,7 @@ export default defineComponent({
                 return
             }
             this.selectedSchema.type = 'MONDRIAN_SCHEMA'
-            let url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/mondrianSchemasResource/`
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/mondrianSchemasResource/`
             if (this.selectedSchema.id) {
                 url += this.selectedSchema.id
             }
@@ -207,7 +207,7 @@ export default defineComponent({
             this.touched = false
         },
         async updateWorkflow(schemaId) {
-            const url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/workflow/update`
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/workflow/update`
             await this.$http.put(url, { modelId: schemaId, workflowArr: this.availableUsersList[1] }, { headers: { Accept: 'application/json, text/plain, */*' } }).then(() => {
                 this.store.setInfo({
                     title: this.$t('managers.mondrianSchemasManagement.toast.workflow.updated'),
@@ -221,7 +221,7 @@ export default defineComponent({
             }
             const formData = new FormData()
             formData.append('file', this.versionToSave)
-            const url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/mondrianSchemasResource/${this.selectedSchema.id}` + '/versions'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/mondrianSchemasResource/${this.selectedSchema.id}` + '/versions'
             await this.$http.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
                     this.store.setError({ title: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.error'), msg: response.data.errors })

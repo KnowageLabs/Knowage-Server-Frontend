@@ -158,7 +158,7 @@ export default defineComponent({
     data() {
         return {
             v$: useValidate() as any,
-            apiUrl: import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/',
+            apiUrl: import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/',
             attribute: {} as iAttribute,
             lovs: {} as iLov,
             loading: false as boolean,

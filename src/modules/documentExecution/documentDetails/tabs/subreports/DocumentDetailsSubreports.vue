@@ -101,7 +101,7 @@ export default defineComponent({
         async getSelectedSubreports() {
             this.loading = true
             if (this.selectedDocument?.id) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument?.id}/subreports`).then((response: AxiosResponse<any>) => (this.savedSubreports = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument?.id}/subreports`).then((response: AxiosResponse<any>) => (this.savedSubreports = response.data))
                 this.setCheckedTables()
             }
             this.loading = false
@@ -121,7 +121,7 @@ export default defineComponent({
             delete postData.creationDate
             postData.refreshSeconds = parseInt(postData.refreshSeconds)
             this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/subreports`, postData, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/subreports`, postData, {
                     headers: { 'X-Disable-Errors': 'true' }
                 })
                 .then(() => this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.documentDetails.subreports.persistOk') }))
@@ -129,7 +129,7 @@ export default defineComponent({
         },
         deleteTable(event) {
             this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/subreports/${event.data.id}`, {
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/subreports/${event.data.id}`, {
                     headers: { 'X-Disable-Errors': 'true' }
                 })
                 .then(() => this.store.setInfo({ title: this.$t('common.save'), msg: this.$t('documentExecution.documentDetails.subreports.deleteOk') }))
