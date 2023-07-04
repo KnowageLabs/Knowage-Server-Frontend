@@ -27,6 +27,11 @@
         },
         {
             "disabled": false,
+            "name": "oracle.sql.CLOB",
+            "value": "CLOB"
+        },
+        {
+            "disabled": false,
             "name": "java.sql.Date",
             "value": "Date"
         },
@@ -86,29 +91,29 @@
             "value": "Float"
         },
         {
-          "disabled": false,
-          "name": "java.time.LocalTime",
-          "value": "Local Time"
+            "disabled": false,
+            "name": "java.time.LocalTime",
+            "value": "Local Time"
         },
         {
-          "disabled": false,
-          "name": "java.time.LocalDateTime",
-          "value": "Local Date Time"
+            "disabled": false,
+            "name": "java.time.LocalDateTime",
+            "value": "Local Date Time"
         },
         {
-          "disabled": false,
-          "name": "java.time.OffsetTime",
-          "value": "Offset Time"
+            "disabled": false,
+            "name": "java.time.OffsetTime",
+            "value": "Offset Time"
         },
         {
-          "disabled": false,
-          "name": "java.time.OffsetDateTime",
-          "value": "Offset Date Time"
+            "disabled": false,
+            "name": "java.time.OffsetDateTime",
+            "value": "Offset Date Time"
         },
         {
-          "disabled": false,
-          "name": "java.time.ZonedDateTime",
-          "value": "Zoned Date Time"
+            "disabled": false,
+            "name": "java.time.ZonedDateTime",
+            "value": "Zoned Date Time"
         }
     ]
 }
