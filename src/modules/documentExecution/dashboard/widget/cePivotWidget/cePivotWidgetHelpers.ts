@@ -1,12 +1,12 @@
 import { IDataset, ISelection, IWidget, IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../Dashboard"
 
-interface ISelectionValue { columnName: string, value: string, columnType: string }
+interface ISelectionValue { columnName: string, value: string }
 
 export const getFormattedClickedValueForCrossNavigation = (cellEvent: any, dataFields: any, crossNavigationOptions: IWidgetCrossNavigation) => {
     if (!cellEvent || cellEvent.area !== 'data') return null
     const selectionValues = [] as ISelectionValue[]
-    addSelectionValues(cellEvent.cell.columnPath, cellEvent.columnFields, selectionValues)
-    addSelectionValues(cellEvent.cell.rowPath, cellEvent.rowFields, selectionValues)
+    //  addSelectionValues(cellEvent.cell.columnPath, cellEvent.columnFields, selectionValues)
+    // addSelectionValues(cellEvent.cell.rowPath, cellEvent.rowFields, selectionValues)
     const formattedOutputParameters = getFormattedOutputParameters(selectionValues, crossNavigationOptions.parameters)
     return formattedOutputParameters
 }
@@ -30,22 +30,23 @@ const getFormattedDynamicOutputParameter = (selectionValues: ISelectionValue[], 
     return outputParameter
 }
 
+export const createPivotTableSelection = (selectionValues: string[], widgetModel: IWidget, datasets: IDataset[]) => {
+    const formattedSelectionValues = getFormattedSelectionValuesFromStringArray(selectionValues)
+    const selections = createSelectionsFromSelectedValues(formattedSelectionValues, widgetModel, datasets)
 
-export const createPivotTableSelection = (cellEvent: any, widgetModel: IWidget, datasets: IDataset[]) => {
-    if (!cellEvent || cellEvent.area !== 'data') return null
-    const selectionValues = [] as ISelectionValue[]
-    addSelectionValues(cellEvent.cell.columnPath, cellEvent.columnFields, selectionValues)
-    addSelectionValues(cellEvent.cell.rowPath, cellEvent.rowFields, selectionValues)
-    return selectionValues.length > 0 ? createSelectionsFromSelectedValues(selectionValues, widgetModel, datasets) : null
+    return selections
 }
 
-const addSelectionValues = (path: string[], columnFields: any[], selectionValues: ISelectionValue[]) => {
-    path.forEach((pathValue: string, index) => {
-        if (columnFields[index]) {
-            const column = columnFields[index]
-            selectionValues.push({ columnName: column.caption, value: pathValue, columnType: column.dataType })
+const getFormattedSelectionValuesFromStringArray = (selectionValues: string[]) => {
+    const formattedSelectionValues = [] as ISelectionValue[]
+    for (let i = 0; i < selectionValues.length; i += 2) {
+        if (selectionValues[i + 1]) {
+            const columnName = selectionValues[i].startsWith('_S_') ? selectionValues[i].slice(3) : selectionValues[i]
+            const value = selectionValues[i + 1].startsWith('_S_') ? selectionValues[i + 1].slice(3) : selectionValues[i + 1]
+            formattedSelectionValues.push({ columnName: columnName, value: value })
         }
-    })
+    }
+    return formattedSelectionValues
 }
 
 const createSelectionsFromSelectedValues = (selectionValues: ISelectionValue[], widgetModel: IWidget, datasets: IDataset[]) => {

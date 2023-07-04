@@ -1,5 +1,5 @@
 <template>
-    <div ref="cePivotTable" class="ce-widget-container p-d-flex p-d-row kn-flex" v-html="dataToShow.htmlTable"></div>
+    <div ref="cePivotTable" class="ce-widget-container p-d-flex p-d-row kn-flex" v-html="dataToShow.htmlTable" @click="onCellClicked"></div>
 </template>
 
 <script lang="ts">
@@ -136,13 +136,20 @@ export default defineComponent({
             }
         },
         //#region ===================== Cell Click Events  ====================================================
-        onCellClicked(cellEvent) {
+        onCellClicked(cellEvent: any) {
             if (this.editorMode) return
+            const attributes = cellEvent.target.attributes
+            const clickAttribute = attributes.getNamedItem('ng-click')
+            const clickAttributeValue = clickAttribute.value
+            const valuesAsString = clickAttributeValue.slice(clickAttributeValue.indexOf('(') + 1, clickAttributeValue.lastIndexOf(')')).trim()
+            const extractedValues = valuesAsString.split(',').map((value: string) => value.trim().slice(1, -1))
+            console.log('------------- extractedValues: ', extractedValues)
+
             if (this.propWidget.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = getFormattedClickedValueForCrossNavigation(cellEvent, this.dataFields, this.propWidget.settings.interactions.crossNavigation)
                 if (formattedOutputParameters) executePivotTableWidgetCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.propWidget.settings.interactions.selection.enabled) {
-                const selections = createPivotTableSelection(cellEvent, this.propWidget, this.datasets)
+                const selections = createPivotTableSelection(extractedValues, this.propWidget, this.datasets)
                 if (selections) updateAllStoreSelections(selections, this.activeSelections, this.dashboardId, this.setSelections, this.$http)
             }
         }
