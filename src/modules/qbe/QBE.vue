@@ -391,7 +391,7 @@ export default defineComponent({
             const dataset = this.dataset ? this.dataset : this.sourceDataset
 
             if (dataset) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/${dataset.label}`).then((response: AxiosResponse<any>) => {
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${dataset.label}`).then((response: AxiosResponse<any>) => {
                     this.qbe = response.data[0]
                     if (this.qbe && this.qbe.qbeJSONQuery) this.qbe.qbeJSONQuery = JSON.parse(this.qbe.qbeJSONQuery)
                 })
@@ -471,10 +471,10 @@ export default defineComponent({
         async loadDatasetDrivers() {
             if (!this.qbe) return
             const label = this.qbe.label ? this.qbe.label : this.qbe.qbeDatamarts
-            const url = this.qbe.label ? `3.0/datasets/${label}/filters` : `1.0/businessmodel/${this.qbe.qbeDatamarts}/filters`
+            const url = this.qbe.label ? `/restful-services/3.0/datasets/${label}/filters` : `/restful-services/1.0/businessmodel/${this.qbe.qbeDatamarts}/filters`
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, { role: this.userRole })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, { role: this.userRole })
                 .then((response: AxiosResponse<any>) => {
                     this.filtersData = response.data
                     if (this.filtersData.filterStatus) {
@@ -509,10 +509,10 @@ export default defineComponent({
                 const temp = this.getFormattedParameters(this.filtersData)
                 const drivers = encodeURI(JSON.stringify(temp))
                 const url = this.dataset?.federation_id
-                    ? `start-federation?federationId=${this.dataset.federation_id}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}&drivers=%7B%7D`
-                    : `start-qbe?datamart=${datamart}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}&DATA_SOURCE_LABEL=${label}&drivers=${drivers}`
+                    ? `/restful-services/start-federation?federationId=${this.dataset.federation_id}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}&drivers=%7B%7D`
+                    : `/restful-services/start-qbe?datamart=${datamart}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}&DATA_SOURCE_LABEL=${label}&drivers=${drivers}`
                 await this.$http
-                    .get(import.meta.env.VITE_QBE_PATH + url)
+                    .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + url)
                     .then(() => {
                         this.qbeLoaded = true
                     })
@@ -521,7 +521,7 @@ export default defineComponent({
                 // Derived
                 const sourceDatasetLabel = this.sourceDataset.dsTypeCd !== 'Derived' ? this.sourceDataset.label : this.sourceDataset.sourceDatasetLabel
                 await this.$http
-                    .get(import.meta.env.VITE_QBE_PATH + `start-qbe?sourceDatasetLabel=${sourceDatasetLabel}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}`)
+                    .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/start-qbe?sourceDatasetLabel=${sourceDatasetLabel}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}`)
                     .then(() => {
                         this.qbeLoaded = true
                     })
@@ -544,7 +544,7 @@ export default defineComponent({
         async loadCustomizedDatasetFunctions() {
             if (this.dataset && this.dataset.federation_id) return
             const id = this.dataset?.dataSourceId ? this.dataset.dataSourceId : this.qbe?.qbeDataSourceId
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/configs/KNOWAGE.CUSTOMIZED_DATABASE_FUNCTIONS/${id}`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/KNOWAGE.CUSTOMIZED_DATABASE_FUNCTIONS/${id}`).then((response: AxiosResponse<any>) => {
                 this.customizedDatasetFunctions = response.data
                 if (response.data.data && response.data.data.length > 0) {
                     const customFunctions = response.data.data.map((funct) => ({ category: 'CUSTOM', formula: funct.value, label: funct.label, name: funct.name, help: 'dataPreparation.custom' }))
@@ -571,7 +571,7 @@ export default defineComponent({
                 datamartName = null
             }
 
-            let url = `/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=GET_TREE_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`
+            let url = `${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_TREE_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`
 
             if (this.dataset && datamartName) url += `&datamartName=${datamartName}`
             if (this.sourceDataset) url += '&openDatasetInQbe=true'
@@ -606,7 +606,7 @@ export default defineComponent({
             this.loading = true
             const postData = { catalogue: this.qbe?.qbeJSONQuery?.catalogue.queries, meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
             await this.$http
-                .post(import.meta.env.VITE_QBE_PATH + `qbequery/executeQuery/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&start=${this.pagination.start}&limit=${this.pagination.limit}`, postData)
+                .post(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/qbequery/executeQuery/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&start=${this.pagination.start}&limit=${this.pagination.limit}`, postData)
                 .then((response: AxiosResponse<any>) => {
                     this.queryPreviewData = response.data
                     this.pagination.size = response.data.results
@@ -838,7 +838,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(`/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=SET_CATALOGUE_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`, item, conf)
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=SET_CATALOGUE_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`, item, conf)
                 .then(() => {
                     this.getSQL()
                 })
@@ -860,7 +860,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(`/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=GET_SQL_QUERY_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`, item, conf)
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_SQL_QUERY_ACTION&SBI_EXECUTION_ID=${this.uniqueID}`, item, conf)
                 .then((response: AxiosResponse<any>) => {
                     this.sqlData = response.data
                     this.sqlDialogVisible = true
@@ -891,7 +891,7 @@ export default defineComponent({
 
             const postData = { catalogue: this.qbe?.qbeJSONQuery?.catalogue.queries, meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
             await this.$http
-                .post(import.meta.env.VITE_QBE_PATH + `qbequery/export/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&outputType=${mimeType}`, postData, { headers: { Accept: 'application/json, text/plain, */*' }, responseType: 'blob' })
+                .post(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/qbequery/export/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&outputType=${mimeType}`, postData, { headers: { Accept: 'application/json, text/plain, */*' }, responseType: 'blob' })
                 .then((response: AxiosResponse<any>) => {
                     downloadDirect(response.data, fileName, response.headers['content-type'])
                 })
@@ -1102,7 +1102,7 @@ export default defineComponent({
                 if (this.sourceDataset && this.qbe?.dsTypeCd) {
                     if (this.qbe?.dsTypeCd === 'File' && !this.qbe.persistTableName) {
                         await this.$http
-                            .get(import.meta.env.VITE_QBE_PATH + `qbequery/persistTableName?sourceDatasetName=${this.qbe.label}&SBI_EXECUTION_ID=${this.uniqueID}`)
+                            .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/qbequery/persistTableName?sourceDatasetName=${this.qbe.label}&SBI_EXECUTION_ID=${this.uniqueID}`)
                             .then((response: AxiosResponse<any>) => {
                                 if (this.qbe) this.qbe.persistTableName = response.data
                             })

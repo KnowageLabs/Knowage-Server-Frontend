@@ -89,7 +89,7 @@ export default defineComponent({
     watch: {
         visibility(newVisibility) {
             if (newVisibility && this.languages.length == 0) {
-                this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/languages').then(
+                this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/languages').then(
                     (response: AxiosResponse<any>) => {
                         const languagesArray = response.data.sort()
 

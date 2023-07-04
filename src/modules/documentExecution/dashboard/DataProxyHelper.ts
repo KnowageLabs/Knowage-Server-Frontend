@@ -209,11 +209,11 @@ const resetDatasetInterval = (widget: IWidget) => {
 export const getVariableData = async (variable: IVariable, datasets: IDataset[], $http: any) => {
     const selectedDataset = getVariableDatasetLabel(variable, datasets)
     if (!selectedDataset) return
-    const url = `2.0/datasets/${selectedDataset.label}/data?offset=-1&size=-1&widgetName=undefined`
+    const url = `/restful-services/2.0/datasets/${selectedDataset.label}/data?offset=-1&size=-1&widgetName=undefined`
     const postData = { aggregations: { dataset: selectedDataset.label, measures: [], categories: [] }, parameters: {}, selections: {}, indexes: [] }
     let tempResponse = null as any
     await $http
-        .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+        .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
         .then((response: AxiosResponse<any>) => (tempResponse = response.data))
         .catch((error: any) => {
             showGetDataError(error, selectedDataset.label)
@@ -240,8 +240,8 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
         let url = ''
         const pagination = widget.settings.pagination
         if (pagination.enabled) {
-            url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
-        } else url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
+            url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
+        } else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatWidgetModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         if (searchParams.searchText != '' && searchParams.searchColumns.length > 0) postData.likeSelections = formattedSelections
@@ -249,7 +249,7 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 if (pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
@@ -306,14 +306,14 @@ export const getSelectorWidgetData = async (dashboardId: any, widget: IWidget, d
     const selectedDataset = datasets[datasetIndex]
 
     if (selectedDataset) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
         const postData = formatWidgetModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -338,14 +338,14 @@ export const getTextWidgetData = async (dashboardId: any, widget: IWidget, datas
     if (selectedDataset && widget.settings.editor.text) {
         const text = widget.settings.editor.text
         const numOfRowsToGet = maxRow(widget)
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=${numOfRowsToGet}&nearRealtime=true&limit=${numOfRowsToGet}`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=${numOfRowsToGet}&nearRealtime=true&limit=${numOfRowsToGet}`
 
         const aggregationsModel = getAggregationsModel(widget, text, selectedDataset)
         let aggregationDataset = null as any
         if (aggregationsModel) {
             const aggregationsPostData = formatWidgetModelForGet(dashboardId, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)
             await $http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, aggregationsPostData, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, aggregationsPostData, { headers: { 'X-Disable-Errors': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     aggregationDataset = response.data
                 })
@@ -358,7 +358,7 @@ export const getTextWidgetData = async (dashboardId: any, widget: IWidget, datas
         let tempResponse = null as any
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -382,14 +382,14 @@ export const getHtmlWidgetData = async (dashboardId: any, widget: IWidget, datas
     if (selectedDataset && widget.settings.editor.html) {
         const html = widget.settings.editor.html
         const numOfRowsToGet = maxRow(widget)
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=${numOfRowsToGet}&nearRealtime=true&limit=${numOfRowsToGet}`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=${numOfRowsToGet}&nearRealtime=true&limit=${numOfRowsToGet}`
 
         const aggregationsModel = getAggregationsModel(widget, html, selectedDataset)
         let aggregationDataset = null as any
         if (aggregationsModel) {
             const aggregationsPostData = formatWidgetModelForGet(dashboardId, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)
             await $http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, aggregationsPostData, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, aggregationsPostData, { headers: { 'X-Disable-Errors': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     aggregationDataset = response.data
                 })
@@ -402,7 +402,7 @@ export const getHtmlWidgetData = async (dashboardId: any, widget: IWidget, datas
         let tempResponse = null as any
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -496,14 +496,14 @@ export const getPieChartData = async (widget: IWidget, datasets: IDashboardDatas
     const categoryCheck = widget.columns.findIndex((column: any) => column.fieldType !== 'MEASURE') != -1
 
     if (selectedDataset && measureCheck && categoryCheck) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
         const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -532,14 +532,14 @@ export const getChartDrilldownData = async (widget: IWidget, datasets: IDashboar
     const formattedSelections = { [datasetLabel]: formattedLikeSelections }
 
     if (selectedDataset) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
         const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, {}, drillDownLevel)
         postData.likeSelections = formattedSelections
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -557,14 +557,14 @@ export const getGaugeChartData = async (widget: IWidget, datasets: IDashboardDat
     const measureCheck = widget.columns.findIndex((column: any) => column.fieldType === 'MEASURE') != -1
 
     if (selectedDataset && measureCheck) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
         const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -643,14 +643,14 @@ const getRadarChartData = async (widget: IWidget, datasets: IDashboardDataset[],
     const categoryCheck = widget.columns.findIndex((column: any) => column.fieldType !== 'MEASURE') != -1
 
     if (selectedDataset && measureCheck && categoryCheck) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
         const postData = formatRadarChartWidgetForGet(widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -731,14 +731,14 @@ const getCustomChartData = async (dashboardId, widget: IWidget, datasets: IDashb
 
     // if (selectedDataset && measureCheck && categoryCheck) {
     if (selectedDataset && widget.settings.editor.html) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
         const postData = formatWidgetModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -767,14 +767,14 @@ const getDiscoveryChartData = async (widget: IWidget, datasets: IDashboardDatase
             widget.settings.pagination = pagination
         }
 
-        url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=${widget.settings.pagination.properties.offset}&size=${widget.settings.pagination.properties.itemsNumber}&nearRealtime=true`
+        url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${widget.settings.pagination.properties.offset}&size=${widget.settings.pagination.properties.itemsNumber}&nearRealtime=true`
 
         const postData = formatDiscoveryModelForGet(widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
@@ -859,14 +859,14 @@ export const getPivotData = async (dashboardId: any, widget: IWidget, datasets: 
     const selectedDataset = datasets[datasetIndex]
 
     if (selectedDataset && hasFields(widget)) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
         const postData = formatPivotModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall

@@ -32,7 +32,17 @@
             </template>
         </KnCalculatedField>
         <DataPreparationDialog v-model:transformation="selectedTransformation" v-model:col="col" :columns="columns" :read-only="readOnly" @send-transformation="handleTransformation" @update:readOnly="updateReadOnly" />
-        <DataPreparationSaveDialog v-model:visibility="showSaveDialog" :original-dataset="dataset" :config="dataset.config" :columns="columns" :instance-id="instanceId" :process-id="processId" :prepared-ds-meta="preparedDsMeta" @update:instanceId="updateInstanceId" @update:processId="updateprocessId" />
+        <DataPreparationSaveDialog
+            v-model:visibility="showSaveDialog"
+            :original-dataset="dataset"
+            :config="dataset.config"
+            :columns="columns"
+            :instance-id="instanceId"
+            :process-id="processId"
+            :prepared-ds-meta="preparedDsMeta"
+            @update:instanceId="updateInstanceId"
+            @update:processId="updateprocessId"
+        />
         <Toolbar class="kn-toolbar kn-toolbar--primary p-m-0">
             <template #start> {{ $t('managers.workspaceManagement.dataPreparation.label') }} ({{ $t('managers.workspaceManagement.dataPreparation.originalDataset') }}: {{ dataset.name }})</template>
             <template #end>
@@ -225,7 +235,7 @@ export default defineComponent({
         this.loading++
         this.descriptorTransformations = Object.assign([], this.descriptor.transformations)
 
-        await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/datasets/dataset/id/' + this.id).then((response: AxiosResponse<any>) => {
+        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/datasets/dataset/id/' + this.id).then((response: AxiosResponse<any>) => {
             this.dataset = response.data[0]
         })
         if (this.dataset) {
@@ -371,7 +381,7 @@ export default defineComponent({
             // launch avro export job
             this.$http
                 .post(
-                    import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/data-preparation/prepare/${this.dataset.id}`,
+                    import.meta.env.VITE_KNOWAGE_CONTEXT + `1.0/data-preparation/prepare/${this.dataset.id}`,
                     {},
                     {
                         headers: {
@@ -446,7 +456,7 @@ export default defineComponent({
                 tmp['name'] = dsMeta.name
                 tmp['description'] = dsMeta.description
                 tmp['id'] = dsMeta.id
-                await this.$http.get(import.meta.env.VITE_DATA_PREPARATION_PATH + '1.0/process/by-destination-data-set/' + dsMeta.id).then((response: AxiosResponse<any>) => {
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/process/by-destination-data-set/' + dsMeta.id).then((response: AxiosResponse<any>) => {
                     const instance = response.data.instance
                     if (instance.config) {
                         tmp['config'] = instance.config

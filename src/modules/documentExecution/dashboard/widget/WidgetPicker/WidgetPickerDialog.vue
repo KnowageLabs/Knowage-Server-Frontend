@@ -52,7 +52,7 @@ export default defineComponent({
     },
     methods: {
         async getWidgetTypes() {
-            await this.$http.get(import.meta.env.VITE_DASHBOARD_PATH + `1.0/engine/widget`).then((response: AxiosResponse<any>) => (this.widgetTypes = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/engine/widget`).then((response: AxiosResponse<any>) => (this.widgetTypes = response.data))
         },
         openWidgetEditor(widget) {
             // TODO widgetChange

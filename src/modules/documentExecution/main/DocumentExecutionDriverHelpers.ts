@@ -11,14 +11,25 @@ import i18n from '@/App.i18n'
 const { t } = i18n.global
 const mainStore = store()
 
-export const loadFilters = async (initialLoading: boolean, filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, document: any, breadcrumbs: any[], userRole: string | null, parameterValuesMap: any, tabKey: string, sessionEnabled: boolean, $http: any, dateFormat: string, route: any, vueComponenet: any) => {
+export const loadFilters = async (
+    initialLoading: boolean,
+    filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean },
+    document: any,
+    breadcrumbs: any[],
+    userRole: string | null,
+    parameterValuesMap: any,
+    tabKey: string,
+    sessionEnabled: boolean,
+    $http: any,
+    dateFormat: string,
+    route: any,
+    vueComponenet: any
+) => {
     if (parameterValuesMap && parameterValuesMap[document.label + '-' + tabKey] && initialLoading) return loadFiltersFromParametersMap(parameterValuesMap, document, tabKey, filtersData, breadcrumbs)
     if (sessionEnabled && !document.navigationParams) {
         const filtersFromSession = loadFiltersFromSession(document, filtersData, breadcrumbs)
         if (filtersFromSession.filterStatus) return filtersFromSession
     }
-
-
 
     if (route.query.crossNavigationParameters) {
         document.formattedCrossNavigationParameters = JSON.parse(route.query.crossNavigationParameters)
@@ -43,7 +54,7 @@ export const loadFilters = async (initialLoading: boolean, filtersData: { filter
     return filtersData
 }
 
-const getFormattedDriversFromURL = (driversFromUrl: IURLDriver[], filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) => {
+const getFormattedDriversFromURL = (driversFromUrl: IURLDriver[], filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) => {
     driversFromUrl.forEach((driver: IURLDriver) => {
         const index = filtersData.filterStatus.findIndex((parameter: iParameter) => driver.urlName === parameter.urlName)
         if (index !== -1) filtersData.filterStatus[index].parameterValue = driver.value
@@ -52,7 +63,7 @@ const getFormattedDriversFromURL = (driversFromUrl: IURLDriver[], filtersData: {
     return filtersData
 }
 
-const updateFiltersDataIsReadyForExecution = (filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) => {
+const updateFiltersDataIsReadyForExecution = (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) => {
     filtersData.isReadyForExecution = true
     for (let i = 0; i < filtersData.filterStatus.length; i++) {
         const tempParameter = filtersData.filterStatus[i]
@@ -65,13 +76,13 @@ const updateFiltersDataIsReadyForExecution = (filtersData: { filterStatus: iPara
     }
 }
 
-const loadFiltersFromParametersMap = (parameterValuesMap: any, document: any, tabKey: string, filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, breadcrumbs: any) => {
+const loadFiltersFromParametersMap = (parameterValuesMap: any, document: any, tabKey: string, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, breadcrumbs: any) => {
     filtersData = parameterValuesMap[document.label + '-' + tabKey]
     setFiltersForBreadcrumbItem(breadcrumbs, filtersData, document)
     return filtersData
 }
 
-const loadFiltersFromSession = (document: any, filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, breadcrumbs: any[]) => {
+const loadFiltersFromSession = (document: any, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, breadcrumbs: any[]) => {
     const tempFilters = sessionStorage.getItem(document.label)
     if (tempFilters) {
         filtersData = JSON.parse(tempFilters) as {
@@ -89,9 +100,9 @@ const loadFiltersFromSession = (document: any, filtersData: { filterStatus: iPar
 }
 
 const getFilters = async (document: any, userRole: string | null, $http: any) => {
-    let filtersData = {} as { filterStatus: iParameter[], isReadyForExecution: boolean }
+    let filtersData = {} as { filterStatus: iParameter[]; isReadyForExecution: boolean }
     await $http
-        .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentexecution/filters`, {
+        .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentexecution/filters`, {
             label: document.label,
             role: userRole,
             parameters: document.navigationParams ?? {}
@@ -110,7 +121,7 @@ const getFilters = async (document: any, userRole: string | null, $http: any) =>
     return filtersData
 }
 
-const formatDrivers = (filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean } | null) => {
+const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean } | null) => {
     filtersData?.filterStatus?.forEach((el: iParameter) => {
         if (el.type === 'DATE') formatDateDriver(el)
         else el.parameterValue = !el.multivalue || (el.valueSelection === 'man_in' && !el.selectionType) ? [{ value: '', description: '' }] : []
@@ -161,10 +172,9 @@ const formatDateDriver = (el: any) => {
     if (el.type === 'DATE' && !el.selectionType && el.valueSelection === 'man_in' && el.showOnPanel === 'true' && el.visible) {
         el.parameterValue[0].value = getValidDate('' + el.parameterValue[0].value)
     }
-
 }
 
-const setFiltersForBreadcrumbItem = (breadcrumbs: any[], filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, document: any) => {
+const setFiltersForBreadcrumbItem = (breadcrumbs: any[], filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, document: any) => {
     const index = breadcrumbs.findIndex((el: any) => el.label === document.name)
     if (index !== -1) breadcrumbs[index].filtersData = filtersData
 }
@@ -182,8 +192,7 @@ const formatParameterDataOptions = (parameter: iParameter, data: any) => {
     }
 }
 
-
-export const formatDriversUsingDashboardView = (filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, dashboardView: IDashboardView) => {
+export const formatDriversUsingDashboardView = (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, dashboardView: IDashboardView) => {
     if (!dashboardView.drivers || !dashboardView.drivers.filterStatus) return
     filtersData.filterStatus.forEach((driver: iParameter) => {
         const driverFromView = dashboardView.drivers.filterStatus.find((tempDriver: iParameter) => tempDriver.urlName === driver.urlName)

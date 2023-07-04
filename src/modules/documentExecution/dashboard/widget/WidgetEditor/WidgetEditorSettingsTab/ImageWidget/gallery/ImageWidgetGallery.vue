@@ -99,7 +99,7 @@ export default defineComponent({
                 const formData = new FormData()
                 formData.append('uploadedImage', imageToUpload)
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/images/addImage`, formData, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/images/addImage`, formData, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
                     .then((response: AxiosResponse<any>) => {
                         if (response.data.success) {
                             this.$emit('uploadedImage')
@@ -136,7 +136,7 @@ export default defineComponent({
         async deleteImage(image: IImage) {
             this.setLoading(true)
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/images/deleteImage?imageId=${image.imgId}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/images/deleteImage?imageId=${image.imgId}`)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.success) this.onSuccessfullImageDelete(image)
                     else this.setError({ title: this.$t('common.toast.deleteTitle'), msg: response.data.msg })

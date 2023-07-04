@@ -121,7 +121,7 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFile)
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `selfservicedatasetupload/fileupload`, formData, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/selfservicedatasetupload/fileupload`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryFYwjkDOpT85ZFN3L'
                     }
@@ -141,7 +141,7 @@ export default defineComponent({
         async downloadDatasetFile() {
             const encodedLabel = encodeURI(this.dataset.label)
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/download/file?dsLabel=${encodedLabel}&type=${this.dataset.fileType}`, {
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/download/file?dsLabel=${encodedLabel}&type=${this.dataset.fileType}`, {
                     headers: {
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                         'X-Disable-Errors': 'true'

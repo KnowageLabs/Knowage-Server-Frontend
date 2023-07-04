@@ -147,7 +147,7 @@ export default defineComponent({
             this.$emit('loading', true)
             if (trigger) {
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/getTriggerInfo?jobName=${trigger.jobName}&jobGroup=${trigger.jobGroup}&triggerName=${trigger.triggerName}&triggerGroup=${trigger.triggerGroup}`)
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/getTriggerInfo?jobName=${trigger.jobName}&jobGroup=${trigger.jobGroup}&triggerName=${trigger.triggerName}&triggerGroup=${trigger.triggerGroup}`)
                     .then((response) => {
                         this.triggerInfo = response.data
                     })
@@ -174,7 +174,7 @@ export default defineComponent({
             this.$emit('loading', true)
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/executeTrigger?jobName=${trigger.jobName}&jobGroup=${trigger.jobGroup}&triggerName=${trigger.triggerName}&triggerGroup=${trigger.triggerGroup}`)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/executeTrigger?jobName=${trigger.jobName}&jobGroup=${trigger.jobGroup}&triggerName=${trigger.triggerName}&triggerGroup=${trigger.triggerGroup}`)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.resp === 'ok') {
                         this.store.setInfo({
@@ -198,7 +198,7 @@ export default defineComponent({
             this.$emit('loading', true)
             const action = trigger.triggerIsPaused ? 'resumeTrigger' : 'pauseTrigger'
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/${action}?jobName=${trigger.jobName}&jobGroup=${trigger.jobGroup}&triggerName=${trigger.triggerName}&triggerGroup=${trigger.triggerGroup}`)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/${action}?jobName=${trigger.jobName}&jobGroup=${trigger.jobGroup}&triggerName=${trigger.triggerName}&triggerGroup=${trigger.triggerGroup}`)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.resp === 'ok') {
                         this.store.setInfo({
@@ -222,7 +222,7 @@ export default defineComponent({
         async deleteTrigger(trigger: any, index: number) {
             this.$emit('loading', true)
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/deleteTrigger?jobName=${trigger.jobName}&jobGroup=${trigger.jobGroup}&triggerName=${trigger.triggerName}&triggerGroup=${trigger.triggerGroup}`)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/deleteTrigger?jobName=${trigger.jobName}&jobGroup=${trigger.jobGroup}&triggerName=${trigger.triggerName}&triggerGroup=${trigger.triggerGroup}`)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.resp === 'ok') {
                         this.store.setInfo({

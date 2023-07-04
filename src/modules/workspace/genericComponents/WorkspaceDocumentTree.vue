@@ -59,7 +59,7 @@ export default defineComponent({
             this.setLoading(false)
         },
         async getAllFolders() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository`).then((response: AxiosResponse<any>) => (this.folders = { ...response.data }))
         },
         createNodeTree() {
             this.nodes = [] as any[]
@@ -139,7 +139,7 @@ export default defineComponent({
             newFolder.progr = this.selectedFolder.children.length + 1
             this.setLoading(true)
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/repository', newFolder)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/repository', newFolder)
                 .then(async () => {
                     this.setInfo({ title: this.$t('workspace.myRepository.folderCreatedMessage') })
                     await this.loadData()
@@ -152,7 +152,7 @@ export default defineComponent({
             this.setLoading(true)
             const postData = { id: folder.id, name: folder.name, description: folder.description, parentId: folder.parentId, progr: folder.progr }
             await this.$http
-                .put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository`, postData)
+                .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository`, postData)
                 .then(async () => {
                     this.setInfo({ title: this.$t('common.toast.updateTitle') })
                     await this.loadData()
@@ -172,7 +172,7 @@ export default defineComponent({
         async deleteFolder(folder: any) {
             this.setLoading(true)
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/${folder.id}`, { headers: { 'X-Disable-Errors': 'true' } })
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/${folder.id}`, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(async () => {
                     this.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

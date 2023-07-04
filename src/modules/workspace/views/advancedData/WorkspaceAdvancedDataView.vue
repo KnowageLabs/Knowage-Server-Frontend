@@ -219,7 +219,7 @@ export default defineComponent({
                     }
                 })
             }
-            this.client.onStompError = function(frame) {
+            this.client.onStompError = function (frame) {
                 // Will be invoked in case of error encountered at Broker
                 // Bad login/passcode typically will cause an error
                 // Complaint brokers will set `message` header with a brief message. Body may contain details.
@@ -250,10 +250,10 @@ export default defineComponent({
             this.selectedDataset.type = 'PreparedDataset'
             await this.$http({
                 method: 'POST',
-                url: import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'selfservicedataset/update',
+                url: import.meta.env.VITE_KNOWAGE_CONTEXT + 'selfservicedataset/update',
                 data: this.selectedDataset,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Disable-Errors': 'true' },
-                transformRequest: function(obj) {
+                transformRequest: function (obj) {
                     const str = [] as any
                     for (const p in obj) str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
                     return str.join('&')
@@ -270,7 +270,7 @@ export default defineComponent({
         async loadDataset(datasetId: number) {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/dataset/id/${datasetId}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/dataset/id/${datasetId}`)
                 .then((response: AxiosResponse<any>) => {
                     this.selectedDataset = response.data[0]
                 })
@@ -292,7 +292,7 @@ export default defineComponent({
             this.selectedDsForDataPrep = {}
         },
         showDataSetCatalog() {
-            this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/datasets/for-dataprep`).then(
+            this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/datasets/for-dataprep`).then(
                 (response: AxiosResponse<any>) => {
                     this.availableDatasets = [...response.data.root]
                     this.showDatasetList = true
@@ -364,10 +364,10 @@ export default defineComponent({
             this.pushEvent(0)
             if (dataset.dsTypeCd == 'Prepared') {
                 //edit existing data prep
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/datasets/advanced/${dataset.id}`).then(
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/datasets/advanced/${dataset.id}`).then(
                     (response: AxiosResponse<any>) => {
                         const instanceId = response.data.configuration.dataPrepInstanceId
-                        this.$http.get(import.meta.env.VITE_DATA_PREPARATION_PATH + `1.0/process/by-instance-id/${instanceId}`).then((response: AxiosResponse<any>) => {
+                        this.$http.get(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/api/1.0/process/by-instance-id/${instanceId}`).then((response: AxiosResponse<any>) => {
                             const transformations = response.data.definition
                             const processId = response.data.id
                             const datasetId = response.data.instance.dataSetId
@@ -411,7 +411,7 @@ export default defineComponent({
             // launch avro export job
             await this.$http
                 .post(
-                    import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/data-preparation/prepare/${dsId}`,
+                    import.meta.env.VITE_KNOWAGE_CONTEXT + `1.0/data-preparation/prepare/${dsId}`,
                     {},
                     {
                         headers: {
@@ -432,7 +432,7 @@ export default defineComponent({
         },
         async getAllAvroDataSets() {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/datasets/avro`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/datasets/avro`)
                 .then((response: AxiosResponse<any>) => {
                     this.setAvroDatasets(response.data)
                     this.setLoadedAvros(response.data)
@@ -445,7 +445,7 @@ export default defineComponent({
             //  { 'Content-Type': 'application/x-www-form-urlencoded' }
             await this.$http
                 .post(
-                    import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/export/dataset/${dataset.id}/${format}`,
+                    import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/export/dataset/${dataset.id}/${format}`,
                     {},
                     {
                         headers: {
@@ -478,9 +478,9 @@ export default defineComponent({
         },
         async handleDatasetShare(dataset: any) {
             this.loading = true
-            const url = dataset.catTypeId ? `selfservicedataset/share/?catTypeId=${dataset.catTypeId}&id=${dataset.id}` : `selfservicedataset/share/?id=${dataset.id}`
+            const url = dataset.catTypeId ? `/restful-services/selfservicedataset/share/?catTypeId=${dataset.catTypeId}&id=${dataset.id}` : `/restful-services/selfservicedataset/share/?id=${dataset.id}`
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -499,7 +499,7 @@ export default defineComponent({
         },
         async handleDatasetClone(dataset: any) {
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets`, dataset, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets`, dataset, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
@@ -528,7 +528,7 @@ export default defineComponent({
         async deleteDataset(dataset: any) {
             this.loading = true
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/${dataset.label}`)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${dataset.label}`)
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
@@ -554,7 +554,7 @@ export default defineComponent({
             this.loading = true
             this.searchWord = ''
             this.preparedDatasets = this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/datasets/advanced`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/datasets/advanced`)
                 .then((response: AxiosResponse<any>) => {
                     this.datasetList = [...response.data.root]
                     this.preparedDatasets = [...this.datasetList]
@@ -574,7 +574,7 @@ export default defineComponent({
         },
         async updateDatasetAndSave(newConfig) {
             this.showMonitoring = false
-            await this.$http.patch(import.meta.env.VITE_DATA_PREPARATION_PATH + '1.0/instance/' + newConfig.instanceId, { config: newConfig.config }, { headers: { Accept: 'application/json, */*' } }).then(
+            await this.$http.patch(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/instance/' + newConfig.instanceId, { config: newConfig.config }, { headers: { Accept: 'application/json, */*' } }).then(
                 () => {
                     this.loadDataset(this.selectedDataset.id)
                     this.setInfo({ title: this.$t('common.save'), msg: this.$t('common.toast.updateSuccess') })

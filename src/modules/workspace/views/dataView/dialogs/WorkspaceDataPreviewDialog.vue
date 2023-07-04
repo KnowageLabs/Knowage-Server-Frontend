@@ -161,7 +161,7 @@ export default defineComponent({
             }
             if (postData.dsTypeCd === 'Prepared') {
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/${this.dataset.label}/preview`, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${this.dataset.label}/preview`, postData, { headers: { 'X-Disable-Errors': 'true' } })
                     .then((response: AxiosResponse<any>) => {
                         const fields = response.data?.metaData?.fields
                         if (this.dataset.dsTypeCd == 'REST' && fields?.length == 1 && fields[0] === 'recNo') {
@@ -178,7 +178,7 @@ export default defineComponent({
                     })
             } else {
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/preview`, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/preview`, postData, { headers: { 'X-Disable-Errors': 'true' } })
                     .then((response: AxiosResponse<any>) => {
                         this.setPreviewColumns(response.data)
                         this.rows = response.data.rows
@@ -207,7 +207,7 @@ export default defineComponent({
                 postData.drivers = this.formatDriversForPreviewData()
             }
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/${this.dataset.label}/preview`, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${this.dataset.label}/preview`, postData, { headers: { 'X-Disable-Errors': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     this.setPreviewColumns(response.data)
                     this.rows = response.data.rows
@@ -223,7 +223,7 @@ export default defineComponent({
             let hasError = false
             if (this.dataset.label && this.dataset.id && this.dataset.dsTypeCd !== 'Prepared') {
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/datasets/${this.dataset.label}/filters`, { role: this.userRole })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/datasets/${this.dataset.label}/filters`, { role: this.userRole })
                     .then((response: AxiosResponse<any>) => {
                         this.filtersData = response.data
                         if (this.filtersData.filterStatus) {

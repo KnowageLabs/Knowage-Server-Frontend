@@ -236,7 +236,7 @@ export default defineComponent({
                 tempModel = createNewDashboardModel()
             } else {
                 await this.$http
-                    .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/documentexecution/` + this.document?.id + '/templates')
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/documentexecution/` + this.document?.id + '/templates')
                     .then((response: AxiosResponse<any>) => (tempModel = response.data))
                     .catch(() => {})
             }
@@ -261,7 +261,7 @@ export default defineComponent({
             this.appStore.setLoading(true)
             const result = (this.appStore.$state as any).user.locale.split('_')
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/i18nMessages/?currCountry=${result[1]}&currLanguage=${result[0]}&currScript=`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/i18nMessages/?currCountry=${result[1]}&currLanguage=${result[0]}&currScript=`)
                 .then((response: AxiosResponse<any>) => {
                     this.internationalization = response.data
                     this.setInternationalization(response.data)
@@ -274,7 +274,7 @@ export default defineComponent({
             if (this.newDashboardMode) return
             this.appStore.setLoading(true)
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/crossNavigation/${this.document?.label}/loadCrossNavigationByDocument`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document?.label}/loadCrossNavigationByDocument`)
                 .then((response: AxiosResponse<any>) => (this.crossNavigations = response.data))
                 .catch(() => {})
             this.appStore.setLoading(false)
@@ -282,13 +282,13 @@ export default defineComponent({
         },
         async loadHtmlGallery() {
             await this.$http
-                .get(import.meta.env.VITE_API_PATH + `1.0/widgetgallery/widgets/html`)
+                .get(import.meta.env.VITE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
                 .then((response: AxiosResponse<any>) => (this.htmlGallery = response.data))
                 .catch(() => {})
         },
         async loadCustomChartGallery() {
             await this.$http
-                .get(import.meta.env.VITE_API_PATH + `1.0/widgetgallery/widgets/chart`)
+                .get(import.meta.env.VITE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
                 .then((response: AxiosResponse<any>) => (this.customChartGallery = response.data))
                 .catch(() => {})
         },
@@ -385,7 +385,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/saveDocument`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/saveDocument`, postData)
                 .then(() => {
                     this.appStore.setInfo({
                         title: this.$t('common.toast.createTitle'),

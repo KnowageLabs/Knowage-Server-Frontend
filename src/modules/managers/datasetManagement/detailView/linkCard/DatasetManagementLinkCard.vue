@@ -107,14 +107,14 @@ export default defineComponent({
         async getSelectedTables() {
             if (this.dataset.id) {
                 this.$http
-                    .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaDsRelationResource/dataset/${this.dataset.id}/`)
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDsRelationResource/dataset/${this.dataset.id}/`)
                     .then((response: AxiosResponse<any>) => (this.selectedTables = response.data))
                     .catch((error) => this.store.setError({ title: this.$t('common.toast.error'), msg: error }))
             }
         },
         async getAvailableSources() {
             this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaSourceResource/`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaSourceResource/`)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.length > 0) {
                         this.availableResources = [...response.data]
@@ -127,7 +127,7 @@ export default defineComponent({
         },
         async getAvailableSourceTables(sourceId) {
             this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaSourceResource/${sourceId}/metatables/`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaSourceResource/${sourceId}/metatables/`)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.length > 0) {
                         this.availableTables = this.removeSelectedTablesFromAvailable(response.data, this.selectedTables)

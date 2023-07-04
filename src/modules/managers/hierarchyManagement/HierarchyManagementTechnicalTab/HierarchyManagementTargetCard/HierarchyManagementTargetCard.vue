@@ -108,7 +108,7 @@ export default defineComponent({
         },
         async loadTechnicalHierarchies() {
             this.$emit('loading', true)
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `hierarchiesTechnical/getHierarchiesTechnical?dimension=${this.selectedDimension?.DIMENSION_NM}`).then((response: AxiosResponse<any>) => (this.hierarchies = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/hierarchiesTechnical/getHierarchiesTechnical?dimension=${this.selectedDimension?.DIMENSION_NM}`).then((response: AxiosResponse<any>) => (this.hierarchies = response.data))
             this.$emit('loading', false)
         },
         async onHierarchySelected() {
@@ -117,7 +117,7 @@ export default defineComponent({
         async loadHierarchyTree() {
             this.$emit('loading', true)
             const date = moment(this.optionsDate).format('YYYY-MM-DD')
-            let url = `hierarchies/getHierarchyTree?dimension=${this.selectedDimension?.DIMENSION_NM}&filterHierarchy=${this.selectedHierarchy?.HIER_NM}&filterType=TECHNICAL&validityDate=${date}`
+            let url = `/restful-services/hierarchies/getHierarchyTree?dimension=${this.selectedDimension?.DIMENSION_NM}&filterHierarchy=${this.selectedHierarchy?.HIER_NM}&filterType=TECHNICAL&validityDate=${date}`
             if (this.filterData) {
                 if (this.filterData.showMissingElements) {
                     url = url.concat('&filterDimension=' + this.filterData.showMissingElements)
@@ -126,7 +126,7 @@ export default defineComponent({
                 if (this.filterData.afterDate) url = url.concat('&filterDate=' + moment(this.filterData.afterDate).format('YYYY-MM-DD'))
             }
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
                 .then((response: AxiosResponse<any>) => {
                     this.tree = response.status === 200 ? response.data : null
                 })
@@ -220,7 +220,7 @@ export default defineComponent({
                 root: this.treeModel
             }
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `hierarchies/saveHierarchy`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/hierarchies/saveHierarchy`, postData)
                 .then(async (response: AxiosResponse<any>) => {
                     if (response.data.response === 'ok') {
                         this.store.setInfo({ title: this.$t('common.toast.createTitle'), msg: this.$t('common.toast.success') })

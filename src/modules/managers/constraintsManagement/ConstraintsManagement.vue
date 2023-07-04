@@ -97,7 +97,7 @@ export default defineComponent({
             this.loadCheks()
         },
         async getAllPredefinedChecks() {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/predefinedChecks`).then((response: AxiosResponse<any>) => {
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/predefinedChecks`).then((response: AxiosResponse<any>) => {
                 this.predefinedChecks = response.data.map((check: any) => {
                     return {
                         checkId: check.checkId,
@@ -114,7 +114,7 @@ export default defineComponent({
             })
         },
         async getAllCustomChecks() {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/customChecks`).then((response: AxiosResponse<any>) => {
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/customChecks`).then((response: AxiosResponse<any>) => {
                 this.customChecks = response.data.map((check: any) => {
                     return {
                         checkId: check.checkId,
@@ -150,7 +150,7 @@ export default defineComponent({
             }
         },
         async getDomainTypes() {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `domains/listValueDescriptionByType?DOMAIN_TYPE=CHECK`).then((response: AxiosResponse<any>) => {
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/domains/listValueDescriptionByType?DOMAIN_TYPE=CHECK`).then((response: AxiosResponse<any>) => {
                 this.domains = response.data
             })
         },
@@ -164,7 +164,7 @@ export default defineComponent({
         },
         async deleteConstraint(id: number) {
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/customChecks/' + id)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/customChecks/' + id)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

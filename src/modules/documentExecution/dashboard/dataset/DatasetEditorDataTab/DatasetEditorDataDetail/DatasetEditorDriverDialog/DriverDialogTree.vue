@@ -119,7 +119,7 @@ export default defineComponent({
 
             const content = [] as iNode[]
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/businessModelOpening/parametervalues', postData, { headers: { 'X-Disable-Interceptor': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/businessModelOpening/parametervalues', postData, { headers: { 'X-Disable-Interceptor': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     response.data.filterValues.forEach((el: IFilterValueResponse) => {
                         content.push(this.createNode(el, parent))

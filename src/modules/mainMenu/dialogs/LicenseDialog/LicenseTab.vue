@@ -132,7 +132,7 @@ export default defineComponent({
         },
         async downloadLicence(productName) {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/license/download` + `/${this.selectedHost.hostName}/` + `${productName}`, {
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/download` + `/${this.selectedHost.hostName}/` + `${productName}`, {
                     headers: {
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
                     }
@@ -188,7 +188,7 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFiles)
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/license/upload` + `/${this.selectedHost.hostName}` + `?isForUpdate=${this.isForUpdate}`, formData, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/upload` + `/${this.selectedHost.hostName}` + `?isForUpdate=${this.isForUpdate}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'X-Disable-Errors': 'true'
@@ -230,7 +230,7 @@ export default defineComponent({
         },
         async deleteLicense(licenseName) {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/license/delete` + `/${this.selectedHost.hostName}/` + licenseName, {
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/delete` + `/${this.selectedHost.hostName}/` + licenseName, {
                     headers: {
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
                     }

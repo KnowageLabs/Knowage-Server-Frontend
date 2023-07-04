@@ -160,7 +160,7 @@ export default defineComponent({
         async addAssociatedWord(linkItem: any, word: iWord, type: string, url: string, postData: any, itemType: string) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.Status !== 'NON OK') {
                         type === 'tree'
@@ -192,21 +192,21 @@ export default defineComponent({
         },
         async addAssociatedWordDocument(document: any, word: iWord) {
             const postData = { DOCUMENT_ID: document.id, WORD_ID: word.WORD_ID }
-            await this.addAssociatedWord(document, word, 'array', '1.0/glossary/addDocWlist', postData, '')
+            await this.addAssociatedWord(document, word, 'array', '/restful-services/1.0/glossary/addDocWlist', postData, '')
         },
         async addAssociatedWordDataset(dataset: any, word: iWord, column: string, type: string) {
             const postData = { COLUMN_NAME: column, DATASET_ID: dataset.id, ORGANIZATION: dataset.organization, WORD_ID: word.WORD_ID }
-            await this.addAssociatedWord(dataset, word, type, '1.0/glossary/addDataSetWlist', postData, 'datasetTree')
+            await this.addAssociatedWord(dataset, word, type, '/restful-services/1.0/glossary/addDataSetWlist', postData, 'datasetTree')
         },
         async addAssociatedWordBusinessClass(businessClass: any, word: iWord, column: string, type: string) {
             const id = type === 'tree' ? businessClass.businessClassId : businessClass.id
             const postData = { COLUMN_NAME: column, META_BC_ID: id, WORD_ID: word.WORD_ID }
-            await this.addAssociatedWord(businessClass, word, type, '1.0/glossary/addMetaBcWlist', postData, 'businessClassTree')
+            await this.addAssociatedWord(businessClass, word, type, '/restful-services/1.0/glossary/addMetaBcWlist', postData, 'businessClassTree')
         },
         async addAssociatedWordTables(table: any, word: iWord, column: string, type: string) {
             const id = type === 'tree' ? table.metasourceId : table.id
             const postData = { COLUMN_NAME: column, META_TABLE_ID: id, WORD_ID: word.WORD_ID }
-            await this.addAssociatedWord(table, word, type, '1.0/glossary/addMetaTableWlist', postData, 'tableTree')
+            await this.addAssociatedWord(table, word, type, '/restful-services/1.0/glossary/addMetaTableWlist', postData, 'tableTree')
         },
         deleteWordConfirm(wordId: number, item: any) {
             this.$confirm.require({
@@ -242,7 +242,7 @@ export default defineComponent({
         },
         async deleteWord(linkItem: any, wordId: number, type: string, url: string, method: string) {
             this.loading = true
-            await this.$http[method](import.meta.env.VITE_RESTFUL_SERVICES_PATH + url)
+            await this.$http[method](import.meta.env.VITE_KNOWAGE_CONTEXT + url)
                 .then(() => {
                     type === 'tree' ? this.removeWordFromTreeWords(wordId, linkItem.parent) : this.removeWordFromAssociatedWords(wordId, linkItem.id)
                     this.store.setInfo({
@@ -260,20 +260,20 @@ export default defineComponent({
         },
         async deleteTablesWord(wordId: number, table: any, column: string, type: string) {
             const id = type === 'tree' ? table.parent.metasourceId : table.id
-            const url = `1.0/glossary/deleteMetaTableWlist?WORD_ID=${wordId}&TABLE_ID=${id}&COLUMN=${column}`
+            const url = `/restful-services/1.0/glossary/deleteMetaTableWlist?WORD_ID=${wordId}&TABLE_ID=${id}&COLUMN=${column}`
             await this.deleteWord(table, wordId, type, url, 'delete')
         },
         async deleteBusinessClassWord(wordId: number, businessClass: any, column: string, type: string) {
             const id = type === 'tree' ? businessClass.parent.businessClassId : businessClass.id
-            const url = `1.0/glossary/deleteMetaBcWlist?WORD_ID=${wordId}&BC_ID=${id}&COLUMN=${column}`
+            const url = `/restful-services/1.0/glossary/deleteMetaBcWlist?WORD_ID=${wordId}&BC_ID=${id}&COLUMN=${column}`
             await this.deleteWord(businessClass, wordId, type, url, 'delete')
         },
         async deleteDatasetWord(wordId: number, dataset: any, column: string, type: string) {
-            const url = `1.0/glossary/deleteDatasetWlist?WORD_ID=${wordId}&DATASET_ID=${dataset.datasetId}&ORGANIZATION=${dataset.organization}&COLUMN=${column}`
+            const url = `/restful-services/1.0/glossary/deleteDatasetWlist?WORD_ID=${wordId}&DATASET_ID=${dataset.datasetId}&ORGANIZATION=${dataset.organization}&COLUMN=${column}`
             await this.deleteWord(dataset, wordId, type, url, 'post')
         },
         async deleteDocumentWord(wordId: number, document: any) {
-            const url = `1.0/glossary/deleteDocWlist?WORD_ID=${wordId}&DOCUMENT_ID=${document.id}`
+            const url = `/restful-services/1.0/glossary/deleteDocWlist?WORD_ID=${wordId}&DOCUMENT_ID=${document.id}`
             await this.deleteWord(document, wordId, 'array', url, 'post')
         },
         removeWordFromAssociatedWords(wordId: number, documentId: number) {

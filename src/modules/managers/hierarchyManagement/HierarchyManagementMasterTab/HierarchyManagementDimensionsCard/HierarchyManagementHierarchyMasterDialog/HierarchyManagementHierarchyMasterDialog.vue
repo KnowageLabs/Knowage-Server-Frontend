@@ -121,7 +121,7 @@ export default defineComponent({
 
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `hierarchiesMaster/createHierarchyMaster`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/hierarchiesMaster/createHierarchyMaster`, postData)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data?.response === 'ok') {
                         this.$emit('masterHierarchyCreated')

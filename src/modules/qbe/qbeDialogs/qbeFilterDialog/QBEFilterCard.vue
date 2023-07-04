@@ -25,7 +25,7 @@
                     </Dropdown>
                 </div>
 
-                <div v-show="filter.operator === 'SPATIAL_NN'" class=" p-ml-2">
+                <div v-show="filter.operator === 'SPATIAL_NN'" class="p-ml-2">
                     <label class="kn-material-input-label"> {{ $t('common.parameter') }} </label>
                     <InputText v-model="filter.operatorParameter" class="kn-material-input" />
                 </div>
@@ -336,7 +336,7 @@ export default defineComponent({
         async loadFilterValues() {
             this.loading = true
             await this.$http
-                .post(`/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=GET_VALUES_FOR_QBE_FILTER_LOOKUP_ACTION&ENTITY_ID=${this.filter?.leftOperandValue}&SBI_EXECUTION_ID=${this.id}`, {
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/restful-services/AdapterHTTP?ACTION_NAME=GET_VALUES_FOR_QBE_FILTER_LOOKUP_ACTION&ENTITY_ID=${this.filter?.leftOperandValue}&SBI_EXECUTION_ID=${this.id}`, {
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8' }
                 })
                 .then((response: AxiosResponse<any>) => (this.filterValuesData = response.data))

@@ -252,7 +252,7 @@ export default defineComponent({
         async deleteFromList(itemForDeletion) {
             const postData = { data: { name: itemForDeletion.uniqueName }, diff: generate(this.observer) }
             let url = ''
-            itemForDeletion.joinRelationships ? (url = import.meta.env.VITE_META_API_URL + '/1.0/metaWeb/deleteBusinessView') : (url = import.meta.env.VITE_META_API_URL + '/1.0/metaWeb/deleteBusinessClass')
+            itemForDeletion.joinRelationships ? (url = import.meta.env.VITE_KNOWAGEMETA_CONTEXT + '/restful-services/1.0/metaWeb/deleteBusinessView') : (url = import.meta.env.VITE_KNOWAGEMETA_CONTEXT + '/restful-services/1.0/metaWeb/deleteBusinessClass')
             await this.$http
                 .post(url, postData)
                 .then((response: AxiosResponse<any>) => {
@@ -268,12 +268,12 @@ export default defineComponent({
         },
         async loadRoles() {
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/roles').then((response: AxiosResponse<any>) => (this.roles = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/roles').then((response: AxiosResponse<any>) => (this.roles = response.data))
             this.loading = false
         },
         async loadCustomFunctions() {
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/configs/KNOWAGE.CUSTOMIZED_DATABASE_FUNCTIONS/${this.businessModelId}`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/KNOWAGE.CUSTOMIZED_DATABASE_FUNCTIONS/${this.businessModelId}`).then((response: AxiosResponse<any>) => {
                 if (response.data.data && response.data.data.length > 0) {
                     this.customFunctions = response.data.data.map((funct) => ({ category: 'CUSTOM', formula: funct.value, label: funct.label, name: funct.name, help: 'dataPreparation.custom' }))
                 } else this.customFunctions = null
@@ -284,7 +284,7 @@ export default defineComponent({
             this.loading = true
             const postData = { data: { index: event.dragIndex, direction: event.dropIndex - event.dragIndex }, diff: generate(this.observer) }
             await this.$http
-                .post(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/moveBusinessClass`, postData)
+                .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/moveBusinessClass`, postData)
                 .then((response: AxiosResponse<any>) => {
                     this.meta = applyPatch(this.meta, response.data).newDocument
                 })

@@ -195,7 +195,7 @@ export default defineComponent({
                 this.operation = 'update'
             }
 
-            await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/objMetadata', this.metadata).then(() => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/objMetadata', this.metadata).then(() => {
                 this.store.setInfo({
                     title: this.$t(this.metadataManagementDescriptor.operation[this.operation].toastTitle),
                     msg: this.$t(this.metadataManagementDescriptor.operation.success)

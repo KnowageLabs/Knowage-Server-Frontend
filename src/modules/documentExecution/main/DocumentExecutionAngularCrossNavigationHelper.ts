@@ -2,7 +2,6 @@ import { AxiosResponse } from 'axios'
 import { getValidDate } from './DocumentExecutionHelpers'
 import deepcopy from 'deepcopy'
 
-
 export const executeAngularCrossNavigation = async (vueComponent: any, event: any, $http: any) => {
     vueComponent.angularData = event.data
     await loadCrossNavigationByDocument(vueComponent, event.data, $http)
@@ -14,7 +13,7 @@ const loadCrossNavigationByDocument = async (vueComponent: any, angularData: any
     let temp = {} as any
 
     vueComponent.loadingCrossNavigationDocument = true
-    await $http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/crossNavigation/${vueComponent.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => (temp = response.data))
+    await $http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${vueComponent.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => (temp = response.data))
     vueComponent.loadingCrossNavigationDocument = false
 
     if (temp.length === 0) return
@@ -133,7 +132,6 @@ const setNavigationParametersFromCurrentFilters = (vueComponent: any, formatedPa
     }
 }
 
-
 const addDocumentOtherParametersToNavigationParamas = (vueComponent: any, navigationParams: any[], angularData: any, crossNavigationDocument: any) => {
     if (!angularData.outputParameters || angularData.outputParameters.length === 0 || !crossNavigationDocument?.navigationParams) return
     const keys = Object.keys(angularData.outputParameters)
@@ -166,7 +164,6 @@ const addSourceDocumentParameterValuesFromDocumentNavigationParameters = (vueCom
         }
     })
 }
-
 
 const checkIfParameterHasFixedValue = (navigationParams: any, crossNavigationDocument: any) => {
     if (!crossNavigationDocument || !crossNavigationDocument.navigationParams) return

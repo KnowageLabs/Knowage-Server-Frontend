@@ -153,7 +153,7 @@ export default defineComponent({
             })
             const postData = { data: objToSend, diff: generate(this.observer) }
             await this.$http
-                .post(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/addBusinessClass`, postData)
+                .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/addBusinessClass`, postData)
                 .then(async (response: AxiosResponse<any>) => {
                     this.metaObserve = applyPatch(this.metaObserve, response.data)
                     generate(this.observer)

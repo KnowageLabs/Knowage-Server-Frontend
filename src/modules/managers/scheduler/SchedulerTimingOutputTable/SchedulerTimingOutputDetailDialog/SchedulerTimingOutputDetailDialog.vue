@@ -110,14 +110,16 @@ export default defineComponent({
             this.trigger = this.propTrigger ? { ...this.propTrigger } : {}
         },
         async loadDatasets() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/?asPagedList=true`).then((response: AxiosResponse<any>) => (this.datasets = response.data.item))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/?asPagedList=true`).then((response: AxiosResponse<any>) => (this.datasets = response.data.item))
         },
         async loadJobInfo() {
             if (this.trigger.jobName) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/getJob?jobName=${this.trigger.jobName}&jobGroup=${this.trigger.jobGroup}&triggerName=${this.trigger.triggerName}&triggerGroup=${this.trigger.triggerGroup}`).then((response: AxiosResponse<any>) => {
-                    this.jobInfo = response.data.job
-                    this.functionalities = response.data.functionality
-                })
+                await this.$http
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/getJob?jobName=${this.trigger.jobName}&jobGroup=${this.trigger.jobGroup}&triggerName=${this.trigger.triggerName}&triggerGroup=${this.trigger.triggerGroup}`)
+                    .then((response: AxiosResponse<any>) => {
+                        this.jobInfo = response.data.job
+                        this.functionalities = response.data.functionality
+                    })
             }
             if (!this.trigger.documents) {
                 this.trigger = { ...this.trigger, documents: this.jobInfo?.documents }
@@ -138,7 +140,7 @@ export default defineComponent({
             const formattedTrigger = this.formatTrigger()
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/saveTrigger`, formattedTrigger, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/saveTrigger`, formattedTrigger, { headers: { 'X-Disable-Errors': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.Errors) {
                         this.setWarningMessage(response.data.Errors[0] ?? 'default error')

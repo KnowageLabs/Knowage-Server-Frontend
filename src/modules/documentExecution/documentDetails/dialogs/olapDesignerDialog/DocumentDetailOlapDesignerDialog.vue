@@ -124,7 +124,7 @@ export default defineComponent({
 
             this.setLoading(true)
             await this.$http
-                .post(import.meta.env.VITE_OLAP_PATH + `olap/startolap/edit`, hiddenFormData, {
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/olap/startolap/edit`, hiddenFormData, {
                     headers: {
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
                     }
@@ -134,7 +134,7 @@ export default defineComponent({
         },
         async loadMondrianSchemaResources() {
             this.setLoading(true)
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/mondrianSchemasResource`).then((response: AxiosResponse<any>) => (this.mondrianSchemas = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/mondrianSchemasResource`).then((response: AxiosResponse<any>) => (this.mondrianSchemas = response.data))
             this.setLoading(false)
         },
         closeDialog() {
@@ -147,7 +147,7 @@ export default defineComponent({
             const postData = this.type === 'xmla' ? { ...this.xmlModel } : { ...this.mondrianModel }
             this.setLoading(true)
             await this.$http
-                .post(import.meta.env.VITE_OLAP_PATH + `1.0/designer/cubes?SBI_EXECUTION_ID=${this.sbiExecutionId}`, postData, { headers: { Accept: 'application/json, text/plain, */*' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/designer/cubes?SBI_EXECUTION_ID=${this.sbiExecutionId}`, postData, { headers: { Accept: 'application/json, text/plain, */*' } })
                 .then(() => {
                     this.$emit('designerStarted', {
                         ...this.selectedDocument,

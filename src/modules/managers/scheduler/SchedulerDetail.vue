@@ -100,7 +100,7 @@ export default defineComponent({
             this.formatJob()
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/saveJob`, this.job)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/saveJob`, this.job)
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.resp === 'ok') {
                         this.store.setInfo({

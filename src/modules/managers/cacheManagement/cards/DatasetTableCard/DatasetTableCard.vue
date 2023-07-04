@@ -91,7 +91,7 @@ export default defineComponent({
             })
         },
         async cleanAll() {
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/cacheee').then(() => this.emitDeleteSuccess())
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/cacheee').then(() => this.emitDeleteSuccess())
         },
         deleteDatasetConfirm(signature: string) {
             this.$confirm.require({
@@ -102,7 +102,7 @@ export default defineComponent({
             })
         },
         async deleteDataset(signature: string) {
-            await this.$http.put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/cacheee/deleteItems', { namesArray: [signature] }).then(() => this.emitDeleteSuccess())
+            await this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/cacheee/deleteItems', { namesArray: [signature] }).then(() => this.emitDeleteSuccess())
         },
         emitDeleteSuccess() {
             this.store.setInfo({

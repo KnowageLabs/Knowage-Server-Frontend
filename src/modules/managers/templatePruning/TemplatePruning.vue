@@ -141,10 +141,10 @@ export default defineComponent({
             this.loading = false
         },
         async loadFolderStructure() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/folders?includeDocs=true').then((response: AxiosResponse<any>) => (this.folderStructure = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/folders?includeDocs=true').then((response: AxiosResponse<any>) => (this.folderStructure = response.data))
         },
         async loadDocuments(date: Date) {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documents?date=${this.formatDate(date)}`).then((response: AxiosResponse<any>) => (this.documents = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents?date=${this.formatDate(date)}`).then((response: AxiosResponse<any>) => (this.documents = response.data))
         },
         createNodeTree() {
             this.nodes = []
@@ -253,7 +253,7 @@ export default defineComponent({
                 })
             }
 
-            await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'template/deleteTemplate', documentsToDelete).then(() => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/template/deleteTemplate', documentsToDelete).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')

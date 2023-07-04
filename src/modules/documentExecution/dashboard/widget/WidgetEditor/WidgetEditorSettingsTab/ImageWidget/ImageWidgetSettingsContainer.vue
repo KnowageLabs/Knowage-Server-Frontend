@@ -58,7 +58,7 @@ export default defineComponent({
         async loadImages() {
             this.setLoading(true)
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/images/listImages`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/images/listImages`)
                 .then((response: AxiosResponse<any>) => (this.imagesList = response.data ? response.data.data : []))
                 .catch(() => {})
             this.setLoading(false)
