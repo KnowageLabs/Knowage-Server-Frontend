@@ -47,7 +47,7 @@ export default defineComponent({
     },
     data() {
         return {
-            apiUrl: import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/',
+            apiUrl: import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/',
             attributes: [] as iAttribute[],
             attribute: {} as iAttribute,
             tempAttribute: {} as iAttribute,

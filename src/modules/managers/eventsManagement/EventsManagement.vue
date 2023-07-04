@@ -117,7 +117,7 @@ export default defineComponent({
     methods: {
         async getEvents() {
             this.loading = true
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/events/?fetchsize=${this.lazyParams.size}&offset=${this.lazyParams.paginationStart}`
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/events/?fetchsize=${this.lazyParams.size}&offset=${this.lazyParams.paginationStart}`
             this.selectedEventModel != '' ? (url += `&type=${this.selectedEventModel}`) : ''
             this.startDate ? (url += `&startDate=${encodeURIComponent(moment(this.startDate).format('YYYY-MM-DD+HH:mm:ss'))}`) : ''
             this.endDate ? (url += `&endDate=${encodeURIComponent(moment(this.endDate).format('YYYY-MM-DD+HH:mm:ss'))}`) : ''

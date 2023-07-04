@@ -970,7 +970,7 @@ export default defineComponent({
         },
         async loadProfileAttributes() {
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services//2.0/attributes`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/attributes`)
                 .then((response: AxiosResponse<any>) => (this.profileAttributes = response.data))
                 .catch(() => {})
         },
