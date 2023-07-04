@@ -143,10 +143,9 @@ export default defineComponent({
             const clickAttributeValue = clickAttribute.value
             const valuesAsString = clickAttributeValue.slice(clickAttributeValue.indexOf('(') + 1, clickAttributeValue.lastIndexOf(')')).trim()
             const extractedValues = valuesAsString.split(',').map((value: string) => value.trim().slice(1, -1))
-            console.log('------------- extractedValues: ', extractedValues)
 
             if (this.propWidget.settings.interactions.crossNavigation.enabled) {
-                const formattedOutputParameters = getFormattedClickedValueForCrossNavigation(cellEvent, this.dataFields, this.propWidget.settings.interactions.crossNavigation)
+                const formattedOutputParameters = getFormattedClickedValueForCrossNavigation(extractedValues, this.dataFields, this.propWidget.settings.interactions.crossNavigation)
                 if (formattedOutputParameters) executePivotTableWidgetCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.propWidget.settings.interactions.selection.enabled) {
                 const selections = createPivotTableSelection(extractedValues, this.propWidget, this.datasets)

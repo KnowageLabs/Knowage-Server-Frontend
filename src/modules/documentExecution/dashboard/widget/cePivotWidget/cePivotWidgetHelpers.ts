@@ -2,12 +2,9 @@ import { IDataset, ISelection, IWidget, IWidgetCrossNavigation, IWidgetInteracti
 
 interface ISelectionValue { columnName: string, value: string }
 
-export const getFormattedClickedValueForCrossNavigation = (cellEvent: any, dataFields: any, crossNavigationOptions: IWidgetCrossNavigation) => {
-    if (!cellEvent || cellEvent.area !== 'data') return null
-    const selectionValues = [] as ISelectionValue[]
-    //  addSelectionValues(cellEvent.cell.columnPath, cellEvent.columnFields, selectionValues)
-    // addSelectionValues(cellEvent.cell.rowPath, cellEvent.rowFields, selectionValues)
-    const formattedOutputParameters = getFormattedOutputParameters(selectionValues, crossNavigationOptions.parameters)
+export const getFormattedClickedValueForCrossNavigation = (selectionValues: string[], dataFields: any, crossNavigationOptions: IWidgetCrossNavigation) => {
+    const formattedSelectionValues = getFormattedSelectionValuesFromStringArray(selectionValues)
+    const formattedOutputParameters = getFormattedOutputParameters(formattedSelectionValues, crossNavigationOptions.parameters)
     return formattedOutputParameters
 }
 
@@ -16,7 +13,7 @@ const getFormattedOutputParameters = (selectionValues: ISelectionValue[], output
     outputParameters.forEach((outputParameter: IWidgetInteractionParameter) => {
         if (outputParameter.type === 'dynamic') {
             const formattedOutputParameter = getFormattedDynamicOutputParameter(selectionValues, outputParameter)
-            if (formattedOutputParameter.value) formattedOutputParameters.push(getFormattedDynamicOutputParameter(selectionValues, outputParameter))
+            if (formattedOutputParameter.value) formattedOutputParameters.push(formattedOutputParameter)
         } else {
             formattedOutputParameters.push(outputParameter)
         }
@@ -43,7 +40,15 @@ const getFormattedSelectionValuesFromStringArray = (selectionValues: string[]) =
         if (selectionValues[i + 1]) {
             const columnName = selectionValues[i].startsWith('_S_') ? selectionValues[i].slice(3) : selectionValues[i]
             const value = selectionValues[i + 1].startsWith('_S_') ? selectionValues[i + 1].slice(3) : selectionValues[i + 1]
-            formattedSelectionValues.push({ columnName: columnName, value: value })
+            if (columnName.includes('_S_')) {
+                const columnNamesArray = columnName.split('_S_')
+                const valuesArray = value.split('_S_')
+                columnNamesArray.forEach((columnName: string, index: number) => {
+                    if (valuesArray[index]) formattedSelectionValues.push({ columnName: columnName, value: valuesArray[index] })
+                })
+            } else {
+                formattedSelectionValues.push({ columnName: columnName, value: value })
+            }
         }
     }
     return formattedSelectionValues

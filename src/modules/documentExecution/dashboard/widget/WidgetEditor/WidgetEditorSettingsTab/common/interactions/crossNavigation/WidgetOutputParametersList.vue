@@ -29,14 +29,14 @@
                 <label class="kn-material-input-label">{{ $t('common.value') }}</label>
                 <InputText v-model="parameter.value" class="kn-material-input p-inputtext-sm" :disabled="disabled" @change="parametersChanged" />
             </div>
-            <div v-else-if="parameter.type === 'dynamic' && ['table', 'highcharts', 'chartJS', 'static-pivot-table', 'discovery', 'vega', 'map'].includes(widgetType)" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
+            <div v-else-if="parameter.type === 'dynamic' && ['table', 'highcharts', 'chartJS', 'static-pivot-table', 'discovery', 'vega', 'map', 'ce-pivot-table'].includes(widgetType)" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
                 <div class="p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
                     <Dropdown
-                        v-if="['table', 'discovery', 'static-pivot-table'].includes(widgetType)"
+                        v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)"
                         v-model="parameter.column"
                         class="kn-material-input"
-                        :options="['table', 'discovery'].includes(widgetType) ? widgetModel.columns : pivotTalbeFields"
+                        :options="['table', 'discovery'].includes(widgetType) ? widgetModel.columns : pivotTableFields"
                         option-label="alias"
                         option-value="columnName"
                         :disabled="disabled"
@@ -99,8 +99,8 @@ export default defineComponent({
         outputParameterTypeOptions() {
             return this.widgetType !== 'image' ? descriptor.outputParameterTypeOptions : descriptor.outputParameterTypeOptions.filter((option: { value: string; label: string }) => option.value !== 'dynamic')
         },
-        pivotTalbeFields(): any {
-            if (this.widgetType !== 'static-pivot-table') return []
+        pivotTableFields(): any {
+            if (this.widgetType !== 'static-pivot-table' && this.widgetType !== 'ce-pivot-table') return []
             const modelFields = this.widgetModel.fields
             const combinedArray = modelFields?.columns.concat(modelFields.rows, modelFields.data, modelFields.filters)
             return combinedArray
