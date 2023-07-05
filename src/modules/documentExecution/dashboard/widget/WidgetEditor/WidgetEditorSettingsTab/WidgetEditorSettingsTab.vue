@@ -1,5 +1,5 @@
 <template>
-    <WidgetEditorSettingsList v-if="descriptor" :widget-model="propWidget" :options="descriptor.settingsListOptions" @itemClicked="onItemClicked"></WidgetEditorSettingsList>
+    <WidgetEditorSettingsList v-if="descriptor" :widget-model="propWidget" :options="descriptor.settingsListOptions" :propSelectedItem="selectedSetting" @itemClicked="onItemClicked"></WidgetEditorSettingsList>
     <div v-if="propWidget" class="p-d-flex kn-flex kn-overflow">
         <TableWidgetSettingsContainer
             v-if="propWidget.type === 'table'"
@@ -157,6 +157,7 @@
             :datasets="datasets"
             :selected-datasets="selectedDatasets"
             :dashboard-id="dashboardId"
+            :python-gallery-prop="pythonGalleryProp"
             @galleryItemSelected="onGalleryItemSelected"
         ></PythonWidgetSettingsContainer>
         <RWidgetSettingsContainer v-else-if="propWidget.type === 'r'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></RWidgetSettingsContainer>
@@ -244,14 +245,9 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: {
-            type: Array as PropType<IGalleryItem[]>,
-            required: true
-        },
-        customChartGalleryProp: {
-            type: Array as PropType<IGalleryItem[]>,
-            required: true
-        },
+        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
+        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
+        customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
         dashboardId: { type: String, required: true },
         layers: { type: Array as PropType<ILayer[]>, required: true }
     },

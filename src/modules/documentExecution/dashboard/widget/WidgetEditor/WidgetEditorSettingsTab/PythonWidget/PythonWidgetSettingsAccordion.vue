@@ -6,6 +6,7 @@
                     <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></PythonWidgetSettingsAccordionHeader>
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <HTMLWidgetGallery v-if="accordion.type === 'Gallery'" :widget-model="widgetModel"></HTMLWidgetGallery>
                 <PythonWidgetEditor v-else-if="accordion.type === 'Python'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
                 <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
@@ -30,6 +31,7 @@ import AccordionTab from 'primevue/accordiontab'
 import descriptor from './PythonWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
+import HTMLWidgetGallery from '../HTMLWidget/gallery/HTMLWidgetGallery.vue'
 import PythonWidgetEditor from './editor/PythonWidgetEditor.vue'
 import PythonEnvironmentSettings from './environment/PythonEnvironmentSettings.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
@@ -60,7 +62,8 @@ export default defineComponent({
         WidgetCrossNavigation,
         WidgetInteractionsLinks,
         WidgetPreview,
-        PythonWidgetSettingsAccordionHeader
+        PythonWidgetSettingsAccordionHeader,
+        HTMLWidgetGallery
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

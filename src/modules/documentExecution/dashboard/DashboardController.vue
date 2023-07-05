@@ -48,6 +48,7 @@
         :document-drivers="drivers"
         :variables="model ? model.configuration.variables : []"
         :html-gallery-prop="htmlGallery"
+        :python-gallery-prop="pythonGallery"
         :custom-chart-gallery-prop="customChartGallery"
         data-test="widget-editor"
         @close="closeWidgetEditor"
@@ -140,6 +141,7 @@ export default defineComponent({
             generalSettingsVisible: false,
             loading: false,
             htmlGallery: [] as IGalleryItem[],
+            pythonGallery: [] as IGalleryItem[],
             customChartGallery: [] as IGalleryItem[],
             currentView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedView: null as IDashboardView | null,
@@ -224,6 +226,8 @@ export default defineComponent({
             await Promise.all([this.loadProfileAttributes(), this.loadModel(), this.loadInternationalization()])
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadHtmlGallery()
+            // TODO - Add condition?
+            this.loadPythonGallery()
             this.loadCustomChartGallery()
             this.loadOutputParameters()
             await this.loadCrossNavigations()
@@ -284,6 +288,12 @@ export default defineComponent({
             await this.$http
                 .get(import.meta.env.VITE_API_PATH + `1.0/widgetgallery/widgets/html`)
                 .then((response: AxiosResponse<any>) => (this.htmlGallery = response.data))
+                .catch(() => {})
+        },
+        async loadPythonGallery() {
+            await this.$http
+                .get(import.meta.env.VITE_API_PATH + `1.0/widgetgallery/widgets/python`)
+                .then((response: AxiosResponse<any>) => (this.pythonGallery = response.data))
                 .catch(() => {})
         },
         async loadCustomChartGallery() {
