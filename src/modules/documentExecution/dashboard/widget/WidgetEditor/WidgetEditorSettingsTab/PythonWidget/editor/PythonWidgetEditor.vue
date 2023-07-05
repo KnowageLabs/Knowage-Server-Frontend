@@ -1,7 +1,34 @@
 <template>
-    <div v-if="editorSettings" id="python-widget-editor">
-        <Button v-tooltip.left="$t('common.menu')" icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain editor-tags-menu-button" @click="toggle"></Button>
-        {{ 'TODO - MONACO EDITOR' }}
+    <div v-if="editorSettings" id="python-widget-editor" class="p-grid p-jc-center p-p-4">
+        <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-p-2">
+            <label class="kn-material-input-label p-mr-2">{{ $t('managers.widgetGallery.outputType') }}</label>
+            <Dropdown v-model="editorSettings.outputType" class="kn-material-input" :options="descriptor.pythonOutputTypeOptions" option-value="value">
+                <template #value="slotProps">
+                    <div>
+                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.pythonOutputTypeOptions, $t) }}</span>
+                    </div>
+                </template>
+                <template #option="slotProps">
+                    <div>
+                        <span>{{ $t(slotProps.option.label) }}</span>
+                    </div>
+                </template>
+            </Dropdown>
+        </div>
+
+        <div class="p-col-12 p-md-6 p-d-flex p-flex-column">
+            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.python.outputFileName') }}</label>
+            <InputText v-model="editorSettings.outputName" class="kn-material-input p-inputtext-sm" />
+        </div>
+
+        <div>
+            <Button v-tooltip.left="$t('common.menu')" icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain editor-tags-menu-button" @click="toggle"></Button>
+        </div>
+
+        <div class="p-col-12">
+            <label class="kn-material-input-label p-m-3"> {{ $t('common.script') }}</label>
+            <KnMonaco ref="monacoEditor" v-model="editorSettings.script" :options="{ theme: 'vs-light' }" :language="widgetModel.type === 'python' ? 'python' : 'r'" :text-to-insert="textToInsert" @stringInserted="textToInsert = ''" />
+        </div>
     </div>
 
     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
@@ -12,12 +39,16 @@
 import { defineComponent, PropType } from 'vue'
 import { IDataset, IWidget } from '../../../../../Dashboard'
 import { IPythonEditorSettings } from '../../../../../interfaces/DashboardPythonWidget'
+import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import descriptor from './PythonWidgetEditorDescriptor.json'
+import Dropdown from 'primevue/dropdown'
 import TieredMenu from 'primevue/tieredmenu'
 import PythonTagsDialog from './PythonTagsDialog.vue'
+import KnMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 
 export default defineComponent({
     name: 'python-widget-editor',
-    components: { TieredMenu, PythonTagsDialog },
+    components: { Dropdown, TieredMenu, PythonTagsDialog, KnMonaco },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
@@ -25,11 +56,14 @@ export default defineComponent({
     },
     data() {
         return {
+            descriptor,
             editorSettings: null as IPythonEditorSettings | null,
             toolbarMenuItems: [] as any[],
             tagsDialogMode: '' as string,
             tagsDialogVisible: false,
-            code: ''
+            code: '',
+            textToInsert: '',
+            getTranslatedLabel
         }
     },
     watch: {
@@ -71,7 +105,7 @@ export default defineComponent({
             this.tagsDialogVisible = false
         },
         onInsert(value: string) {
-            console.log('------ ON INSERT: ', value)
+            this.textToInsert = value
             this.tagsDialogVisible = false
         }
     }

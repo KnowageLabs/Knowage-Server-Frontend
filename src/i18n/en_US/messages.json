@@ -1043,6 +1043,7 @@
             "precision": "Precision",
             "prefix": "Prefix",
             "python": {
+                "outputFileName": "Output File Name",
                 "tagsDialog": {
                     "hint": {
                         "columnsData": "This tag is used to select a specific column from the selected dataset",

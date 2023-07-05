@@ -15,11 +15,36 @@ const props = defineProps<{
     language: string
     modelValue: string
     options: object
+    textToInsert: string
 }>()
+
+watch(
+    () => props.textToInsert,
+    (cur, prev) => {
+        if (cur !== prev && cur) {
+            const currentPosition = editor.getPosition()
+            if (!currentPosition) return
+            editor.executeEdits('insertText', [
+                {
+                    range: new monaco.Range(currentPosition.lineNumber, currentPosition.column, currentPosition.lineNumber, currentPosition.column),
+                    text: props.textToInsert,
+                    forceMoveMarkers: true
+                }
+            ])
+            const newCursorPosition = editor.getModel()?.modifyPosition(currentPosition, props.textToInsert.length)
+            if (newCursorPosition) {
+                editor.setPosition(newCursorPosition)
+                editor.focus()
+            }
+            emit('stringInserted')
+        }
+    }
+)
 
 const emit = defineEmits<{
     (e: 'change', payload: typeof editorValue.value): void
     (e: 'update:modelValue', payload: typeof editorValue.value): void
+    (e: 'stringInserted'): void
 }>()
 
 self.MonacoEnvironment = {

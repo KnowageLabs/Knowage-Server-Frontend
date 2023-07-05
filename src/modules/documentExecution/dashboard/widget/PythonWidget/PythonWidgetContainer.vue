@@ -22,6 +22,7 @@ export default defineComponent({
     unmounted() {},
     methods: {
         executeInteractions() {
+            console.log('--------- CLICKED!')
             const crossNavigation = this.widgetModel.settings.interactions.crossNavigation
             if (!crossNavigation.enabled) return
             // TODO - Rename
