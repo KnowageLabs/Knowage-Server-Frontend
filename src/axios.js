@@ -3,7 +3,7 @@ import axios from 'axios'
 import mainStore from './App.store.js'
 import authHelper from '@/helpers/commons/authHelper'
 
-axios.defaults.baseURL = import.meta.env.VITE_HOST_URL
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
 
 axios.interceptors.request.use(
     (config) => {
