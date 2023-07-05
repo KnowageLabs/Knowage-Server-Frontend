@@ -1,4 +1,7 @@
 <template>
+    <Message class="p-m-2" severity="warn" :closable="false">
+        {{ $t('workspace.buttonsTooltips.addViewFolderHint') }}
+    </Message>
     <Tree id="folders-tree" v-model:selectionKeys="selectedFolderKey" :value="nodes" selection-mode="single" @node-select="setSelectedFolder($event)" @node-unselect="removeSelectedFolder" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
         <template #default="slotProps">
             <div class="p-d-flex p-flex-row p-ai-center" @mouseover="buttonsVisible[slotProps.node.id] = true" @mouseleave="buttonsVisible[slotProps.node.id] = false">
@@ -19,6 +22,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { IFolder } from '../Workspace'
 import { mapActions } from 'pinia'
+import Message from 'primevue/message'
 import Tree from 'primevue/tree'
 import WorkspaceNewFolderDialog from './WorkspaceNewFolderDialog.vue'
 import workspaceDocumentTreeDescriptor from './WorkspaceDocumentTreeDescriptor.json'
@@ -26,7 +30,7 @@ import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'workspace-document-tree',
-    components: { Tree, WorkspaceNewFolderDialog },
+    components: { Message, Tree, WorkspaceNewFolderDialog },
     props: { mode: { type: String }, selectedBreadcrumb: { type: Object }, selectedFolderId: { type: String } },
     emits: ['folderSelected', 'delete', 'createFolder'],
     data() {
@@ -44,6 +48,9 @@ export default defineComponent({
     watch: {
         selectedBreadcrumb() {
             this.onBreadcrumbSelected()
+        },
+        async selectedFolderId() {
+            await this.loadData()
         }
     },
     async created() {
