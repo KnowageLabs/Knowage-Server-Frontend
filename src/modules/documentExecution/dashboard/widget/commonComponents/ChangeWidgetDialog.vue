@@ -99,10 +99,97 @@ export default defineComponent({
         },
         loadStarredChartsMap() {
             this.starredChartOptionsMap = {}
-            descriptor.availableWidgets.forEach((chartOption: { name: string; tooltip: string }) => {
-                this.starredChartOptionsMap[chartOption.name] = true
-            })
+            console.log('------ DATA TO SHOW: ', this.widgetData)
+            console.log('---------- this.numberOfCategories: ', this.numberOfCategories)
+            console.log('---------- this.numberOfSeries: ', this.numberOfSeries)
+
+            if (this.numberOfCategories === 0) {
+                ;['gauge', 'solidgauge', 'activitygauge'].forEach((chartType: string) => (this.starredChartOptionsMap[chartType] = true))
+            } else if (this.numberOfCategories === 1 && this.numberOfSeries === 1) {
+                this.loadStarredChartsMapForOnlyOneCategoryAndMeasure()
+            } else if (this.numberOfCategories === 1 && this.numberOfSeries > 1) {
+                this.loadStarredChartsMapForOnlyOneCategoryAndMultipleMeasures()
+            } else if (this.numberOfCategories > 1 && this.numberOfSeries === 1) {
+                this.loadStarredChartsMapForMultipleCategoriesAndOneMeasure()
+            } else if (this.numberOfCategories > 1 && this.numberOfSeries > 1) {
+                this.starredChartOptionsMap['bubble'] = true
+            }
             console.log('-------- starredChartOptionsMap', this.starredChartOptionsMap)
+        },
+        loadStarredChartsMapForOnlyOneCategoryAndMeasure() {
+            const typeOfCategory = this.getFirstCategoryType()
+            console.log('-------- typeOfCategory: ', typeOfCategory)
+            if (['float', 'int'].includes(typeOfCategory)) {
+                this.starredChartOptionsMap['scatter'] = true
+            } else {
+                const categoryCardinality = this.getFirstCategoryCardinality()
+                console.log('-------- categoryCardinality: ', categoryCardinality)
+                if (categoryCardinality >= 1 && categoryCardinality <= 2) {
+                    this.starredChartOptionsMap['bar'] = true
+                } else if (categoryCardinality >= 3 && categoryCardinality <= 6) {
+                    this.starredChartOptionsMap[['date', 'timestamp'].includes(typeOfCategory) ? 'line' : 'pie'] = true
+                } else if (categoryCardinality >= 7 && categoryCardinality <= 100) {
+                    this.starredChartOptionsMap[['date', 'timestamp'].includes(typeOfCategory) ? 'line' : 'bar'] = true
+                } else {
+                    this.starredChartOptionsMap['wordcloud'] = true
+                }
+            }
+        },
+        loadStarredChartsMapForOnlyOneCategoryAndMultipleMeasures() {
+            const typeOfCategory = this.getFirstCategoryType()
+            console.log('-------- typeOfCategory: ', typeOfCategory)
+            const seriesStacking = this.widgetModel.settings.chartModel?.model?.plotOptions?.series?.stacking ? true : false
+            if (seriesStacking) {
+                this.starredChartOptionsMap['bar'] = true
+            } else {
+                if (['float', 'int'].includes(typeOfCategory)) {
+                    this.starredChartOptionsMap[typeOfCategory === 'int' ? 'parallel' : 'scatter'] = true
+                } else {
+                    if (this.numberOfSeries === 2) {
+                        this.starredChartOptionsMap[['date', 'timestamp'].includes(typeOfCategory) ? 'line' : 'bar'] = true
+                    } else if (this.numberOfSeries === 3) {
+                        const rangesAreValid = this.checkMeasureRangeValuesAreValid(10)
+                        console.log('------- rangesAreValid: ', rangesAreValid)
+                        this.starredChartOptionsMap[rangesAreValid ? 'bar' : 'bubble'] = true
+                    } else if (this.numberOfSeries >= 4 && this.numberOfSeries <= 6) {
+                        this.starredChartOptionsMap['bar'] = true
+                    } else {
+                        this.starredChartOptionsMap['parallel'] = true
+                    }
+                }
+            }
+        },
+        loadStarredChartsMapForMultipleCategoriesAndOneMeasure() {
+            if (this.numberOfCategories === 2) {
+                const groupedSeries = this.widgetModel.settings.configuration?.grouping
+                    ? this.widgetModel.settings.configuration.grouping.enabled || this.widgetModel.settings.configuration.grouping.secondSeries.enabled || this.widgetModel.settings.configuration.grouping.secondDimension.enabled
+                    : false
+                console.log('-------- groupedSeries: ', groupedSeries)
+                const typeOfCategory = this.getFirstCategoryType()
+                console.log('-------- typeOfCategory: ', typeOfCategory)
+                if (groupedSeries) {
+                    this.starredChartOptionsMap[['date', 'timestamp'].includes(typeOfCategory) ? 'line' : 'bar'] = true
+                } else {
+                    this.starredChartOptionsMap['heatmap'] = true
+                }
+            } else if (this.numberOfCategories >= 3) {
+                this.starredChartOptionsMap['treemap'] = true
+            }
+        },
+        getFirstCategoryType() {
+            return this.widgetData.metaData?.fields && this.widgetData.metaData.fields[1] ? this.widgetData.metaData.fields[1].type : null
+        },
+        getFirstCategoryCardinality() {
+            return this.widgetData.stats && this.widgetData.stats[0] ? this.widgetData.stats[0].cardinality : 0
+        },
+        checkMeasureRangeValuesAreValid(differenceValue: number) {
+            if (!this.widgetData.stats) return false
+            const maxRanges = [] as number[]
+            Object.keys(this.widgetData.stats)
+                .slice(1)
+                .forEach((key: any) => maxRanges.push(this.widgetData.stats[key].max ?? 0))
+
+            return Math.max(...maxRanges) < Math.min(...maxRanges) * differenceValue
         }
     }
 })
