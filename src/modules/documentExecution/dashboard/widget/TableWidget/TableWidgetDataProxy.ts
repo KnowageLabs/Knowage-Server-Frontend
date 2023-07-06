@@ -9,7 +9,7 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
 
     const datasetLabel = selectedDataset.dsLabel as string
 
-    const formattedLikeSelections = searchParams.searchColumns?.toString()
+    const formattedLikeSelections = searchParams?.searchColumns?.toString()
     const formattedSelections = { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }
 
     if (selectedDataset) {
