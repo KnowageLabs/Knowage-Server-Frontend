@@ -1,8 +1,9 @@
 <template>
-    <Message class="p-m-2" severity="warn" :closable="false">
-        {{ $t('workspace.buttonsTooltips.addViewFolderHint') }}
+    <Message v-if="nodes.length === 0 && !loading" class="p-m-3" severity="info" :closable="false">
+        {{ $t('workspace.addViewFolderHint') }}
     </Message>
-    <Tree id="folders-tree" v-model:selectionKeys="selectedFolderKey" :value="nodes" selection-mode="single" @node-select="setSelectedFolder($event)" @node-unselect="removeSelectedFolder" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
+    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
+    <Tree v-else id="folders-tree" v-model:selectionKeys="selectedFolderKey" :value="nodes" selection-mode="single" @node-select="setSelectedFolder($event)" @node-unselect="removeSelectedFolder" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
         <template #default="slotProps">
             <div class="p-d-flex p-flex-row p-ai-center" @mouseover="buttonsVisible[slotProps.node.id] = true" @mouseleave="buttonsVisible[slotProps.node.id] = false">
                 <span>{{ slotProps.node.label }}</span>
@@ -42,7 +43,8 @@ export default defineComponent({
             selectedFolder: null as any,
             buttonsVisible: {},
             newFolderDialogVisible: false,
-            selectedFolderForEdit: null as any
+            selectedFolderForEdit: null as any,
+            loading: false
         }
     },
     watch: {
@@ -60,9 +62,11 @@ export default defineComponent({
         ...mapActions(mainStore, ['setInfo', 'setError', 'setLoading']),
         async loadData() {
             this.setLoading(true)
+            this.loading = true
             await this.getAllFolders()
             this.createNodeTree()
             if (this.selectedFolderId) this.setSelectedFolderFromPropKey()
+            this.loading = false
             this.setLoading(false)
         },
         async getAllFolders() {
