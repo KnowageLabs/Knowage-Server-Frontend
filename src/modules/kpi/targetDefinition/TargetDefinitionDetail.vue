@@ -169,7 +169,7 @@ export default defineComponent({
         },
         async handleSubmit() {
             this.categoryDialogVisiable = false
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '1.0/kpiee/saveTarget'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpiee/saveTarget'
 
             this.target.values = this.kpi.map((kpi: iValues) => {
                 return {

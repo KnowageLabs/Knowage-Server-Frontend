@@ -263,7 +263,7 @@ export default defineComponent({
         loadSelectedThreshold(event) {
             this.thresholdToClone = []
             let url = ''
-            this.kpi.id ? (url = import.meta.env.VITE_KNOWAGE_CONTEXT + `1.0/kpi/${event.value.id}/loadThreshold?kpiId=${this.selectedKpi.id}`) : (url = import.meta.env.VITE_KNOWAGE_CONTEXT + `1.0/kpi/${event.value.id}/loadThreshold`)
+            this.kpi.id ? (url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${event.value.id}/loadThreshold?kpiId=${this.selectedKpi.id}`) : (url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${event.value.id}/loadThreshold`)
 
             return this.$http.get(url).then((response: AxiosResponse<any>) => {
                 this.thresholdToClone = { ...response.data }

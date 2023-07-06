@@ -165,7 +165,7 @@ export default defineComponent({
                 })
             }
 
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/analyticalDrivers/'
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/analyticalDrivers/'
             if (this.driver.id) {
                 this.operation = 'update'
                 url += this.driver.id
@@ -189,7 +189,7 @@ export default defineComponent({
 
             for (let i = 0; i < this.modesToSave.length; i++) {
                 const mode = this.modesToSave[i]
-                let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/analyticalDrivers/modes/'
+                let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/analyticalDrivers/modes/'
                 mode.id = this.driver.id
                 if (mode.useID != -1) {
                     this.useModeOperation = 'update'

@@ -189,7 +189,7 @@ export default defineComponent({
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/datasources/?onlySqlLike=true`).then((response: AxiosResponse<any>) => (this.datasourcesList = response.data.root))
         },
         async loadAliases() {
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `1.0/kpi/listAvailableAlias`
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/listAvailableAlias`
             if (this.rule.id) {
                 url += `?ruleId=${this.id}&ruleVersion=${this.ruleVersion}`
             }

@@ -521,10 +521,10 @@ export default defineComponent({
             }
         },
         async saveLov() {
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/lovs/save'
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/lovs/save'
             if (this.lov.id) {
                 this.operation = 'update'
-                url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/lovs/'
+                url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/lovs/'
             }
             await this.sendRequest(url)
                 .then((response: AxiosResponse<any>) => {

@@ -164,7 +164,7 @@ export default defineComponent({
             if (this.v$.$invalid) {
                 return
             }
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'multitenant/save'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/multitenant/save'
 
             await this.$http.post(url, this.createTenantToSave()).then((response: AxiosResponse<any>) => {
                 if (this.selectedTenant) {
