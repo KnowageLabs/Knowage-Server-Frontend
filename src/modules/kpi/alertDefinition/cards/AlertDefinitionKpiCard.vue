@@ -121,7 +121,7 @@ export default defineComponent({
         },
         async loadKpi(kpiId, kpiVersion) {
             if (kpiId != undefined) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/${kpiId}/${kpiVersion}/loadKpi`).then((response: AxiosResponse<any>) => {
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${kpiId}/${kpiVersion}/loadKpi`).then((response: AxiosResponse<any>) => {
                     this.oldKpi = { ...response.data }
                     this.kpi = { ...response.data }
                     this.$emit('kpiLoaded', this.kpi)

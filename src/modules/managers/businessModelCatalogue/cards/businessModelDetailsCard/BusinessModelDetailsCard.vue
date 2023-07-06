@@ -335,7 +335,7 @@ export default defineComponent({
     },
     computed: {
         metaModelUrl(): any {
-            return `/knowagemeta/restful-services/1.0/pages/edit?datasourceId=${this.businessModel.dataSourceId}&user_id=${(this.user as any)?.userUniqueIdentifier}&bmId=${this.businessModel.id}&bmName=${this.businessModel.name}`
+            return `${import.meta.env.VITE_KNOWAGEMETA_CONTEXT}/restful-services/1.0/pages/edit?datasourceId=${this.businessModel.dataSourceId}&user_id=${(this.user as any)?.userUniqueIdentifier}&bmId=${this.businessModel.id}&bmName=${this.businessModel.name}`
         }
     },
     watch: {
@@ -407,7 +407,7 @@ export default defineComponent({
         },
         async loadModelFromSession() {
             await this.$http
-                .get(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/model`)
+                .get(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/model`)
                 .then((response: AxiosResponse<any>) => {
                     this.meta = response.data
                     this.metawebDialogVisible = true
@@ -415,11 +415,11 @@ export default defineComponent({
                 .catch(() => {})
         },
         async createSession() {
-            let url = `/1.0/pages/edit?datasourceId=${this.businessModel?.dataSourceId}&user_id=${(this.store.$state as any).user.userUniqueIdentifier}&bmId=${this.businessModel?.id}&bmName=${this.businessModel?.name}`
+            let url = `/restful-services/1.0/pages/edit?datasourceId=${this.businessModel?.dataSourceId}&user_id=${(this.store.$state as any).user.userUniqueIdentifier}&bmId=${this.businessModel?.id}&bmName=${this.businessModel?.name}`
             if (this.businessModel.tablePrefixLike) url += `&tablePrefixLike=${this.businessModel.tablePrefixLike}`
             if (this.businessModel.tablePrefixNotLike) url += `&tablePrefixNotLike=${this.businessModel.tablePrefixNotLike}`
             await this.$http
-                .get(import.meta.env.VITE_META_API_URL + url, {
+                .get(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + url, {
                     headers: {
                         Accept: 'application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
                     }

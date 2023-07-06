@@ -94,7 +94,7 @@ export default defineComponent({
             this.loading = true
             const postData = { data: { name: this.businessModel?.name, id: this.businessModel?.id }, diff: generate(this.observer) }
             await this.$http
-                .post(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/checkRelationships`, postData)
+                .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/checkRelationships`, postData)
                 .then(async (response: AxiosResponse<any>) => {
                     this.observer = applyPatch(this.observer, response.data).newDocument
                     this.observer = observe(this.meta)
@@ -113,7 +113,7 @@ export default defineComponent({
         async generateModel() {
             const postData = { data: { name: this.businessModel?.name, id: this.businessModel?.id }, diff: generate(this.observer) }
             await this.$http
-                .post(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/generateModel`, postData)
+                .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/generateModel`, postData)
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.createTitle'),

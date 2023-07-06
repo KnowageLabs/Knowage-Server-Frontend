@@ -32,7 +32,7 @@ export default defineComponent({
     emits: ['selectedDocumentNode'],
     data() {
         return {
-            apiUrl: import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/',
+            apiUrl: import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/',
             load: false as boolean,
             preselectedNodeKey: null as any | null,
             nodes: [] as any[],

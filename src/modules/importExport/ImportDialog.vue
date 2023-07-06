@@ -141,7 +141,7 @@ export default defineComponent({
         async cleanTempDirectory() {
             if (this.token != '') {
                 this.uploadedFiles = []
-                await this.$http.get(import.meta.env.VITE_API_PATH + '1.0/import/cleanup', { params: { token: this.token } }).then(
+                await this.$http.get(import.meta.env.VITE_API_CONTEXT + '/api/1.0/import/cleanup', { params: { token: this.token } }).then(
                     () => {
                         this.token = ''
                         this.packageItems = {
@@ -185,7 +185,7 @@ export default defineComponent({
                 const formData = new FormData()
                 formData.append('file', uploadedFiles[0])
                 await this.$http
-                    .post(import.meta.env.VITE_API_PATH + '1.0/import/upload', formData, {
+                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/import/upload', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
@@ -240,7 +240,7 @@ export default defineComponent({
         startImport() {
             this.store.setLoading(true)
             this.$http
-                .post(import.meta.env.VITE_API_PATH + '1.0/import/bulk', this.streamlineSelectedItemsArray(), {
+                .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/import/bulk', this.streamlineSelectedItemsArray(), {
                     headers: {
                         // Overwrite Axios's automatically set Content-Type
                         'Content-Type': 'application/json'

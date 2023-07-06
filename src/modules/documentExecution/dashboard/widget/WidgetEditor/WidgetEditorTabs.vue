@@ -61,7 +61,7 @@ export default defineComponent({
     methods: {
         async loadLayers() {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'layers')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/layers')
                 .then((response: AxiosResponse<any>) => (this.layers = response.data.root))
                 .catch(() => {})
         }

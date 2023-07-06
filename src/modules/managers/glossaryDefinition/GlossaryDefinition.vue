@@ -98,19 +98,19 @@ export default defineComponent({
             this.loading = false
         },
         async loadWordsList() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/glossary/listWords?Page=1&ItemPerPage=`).then((response: AxiosResponse<any>) => (this.wordsList = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/glossary/listWords?Page=1&ItemPerPage=`).then((response: AxiosResponse<any>) => (this.wordsList = response.data))
         },
         async loadState() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `domains/listValueDescriptionByType?DOMAIN_TYPE=GLS_STATE`).then((response: AxiosResponse<any>) => (this.state = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/domains/listValueDescriptionByType?DOMAIN_TYPE=GLS_STATE`).then((response: AxiosResponse<any>) => (this.state = response.data))
         },
         async loadCategory() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `domains/listValueDescriptionByType?DOMAIN_TYPE=GLS_CATEGORY`).then((response: AxiosResponse<any>) => (this.category = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/domains/listValueDescriptionByType?DOMAIN_TYPE=GLS_CATEGORY`).then((response: AxiosResponse<any>) => (this.category = response.data))
         },
         async showInfo(content: any) {
             this.loading = true
-            const url = content.CONTENT_ID ? `1.0/glossary/getContent?CONTENT_ID=${content.CONTENT_ID}` : `1.0/glossary/getWord?WORD_ID=${content.WORD_ID}`
+            const url = content.CONTENT_ID ? `/restful-services/1.0/glossary/getContent?CONTENT_ID=${content.CONTENT_ID}` : `/restful-services/1.0/glossary/getWord?WORD_ID=${content.WORD_ID}`
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
                 .then((response: AxiosResponse<any>) => {
                     this.contentInfo = response.data
                     this.infoDialogVisible = true
@@ -128,7 +128,7 @@ export default defineComponent({
             })
         },
         async deleteWord(wordId: number) {
-            await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/glossary/business/deleteWord?WORD_ID=${wordId}`).then(() => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/glossary/business/deleteWord?WORD_ID=${wordId}`).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')
@@ -144,7 +144,7 @@ export default defineComponent({
         },
         async editWord(id: number, event: any) {
             if (id != -1) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/glossary/getWord?WORD_ID=${id}`).then((response: AxiosResponse<any>) => {
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/glossary/getWord?WORD_ID=${id}`).then((response: AxiosResponse<any>) => {
                     this.contentInfo = response.data
                 })
             } else this.contentInfo = { LINK: [], SBI_GL_WORD_ATTR: [], STATE: '', CATEGORY: '', FORMULA: '' }

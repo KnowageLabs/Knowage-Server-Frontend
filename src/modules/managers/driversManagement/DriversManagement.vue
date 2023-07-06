@@ -94,7 +94,7 @@ export default defineComponent({
         async loadAllDrivers() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/analyticalDrivers')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/analyticalDrivers')
                 .then((response: AxiosResponse<any>) => (this.drivers = response.data))
                 .finally(() => (this.loading = false))
         },
@@ -149,7 +149,7 @@ export default defineComponent({
         },
         async deleteDriver(id: number) {
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/analyticalDrivers/' + id)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/analyticalDrivers/' + id)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

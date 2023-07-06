@@ -99,7 +99,7 @@ export default defineComponent({
         async getNews(id) {
             if (id != this.selectedNews.id) {
                 this.loading = true
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/news/' + id + '?isTechnical=false').then(
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/news/' + id + '?isTechnical=false').then(
                     (response: AxiosResponse<any>) => {
                         if (response.data.errors) {
                             this.store.setError({ title: this.$t('common.error.news'), msg: this.$t('news.errorGettingSelectedNews') })
@@ -107,7 +107,7 @@ export default defineComponent({
                             this.selectedNews = response.data
                             this.loading = false
                             if (!this.selectedNews.read) {
-                                this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/newsRead/' + id).then(
+                                this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/newsRead/' + id).then(
                                     () => {
                                         WS.send(JSON.stringify({ news: true }))
                                     },
@@ -148,7 +148,7 @@ export default defineComponent({
     watch: {
         visibility(newVisibility) {
             if (newVisibility) {
-                this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/newsRead').then(
+                this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/newsRead').then(
                     (response: AxiosResponse<any>) => {
                         this.newsReadArray = []
                         this.newsReadArray = response.data
@@ -156,7 +156,7 @@ export default defineComponent({
                     (error) => console.error(error)
                 )
 
-                this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/news').then(
+                this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/news').then(
                     (response: AxiosResponse<any>) => {
                         const jsonData = {}
                         const localNewsReadArray = this.newsReadArray

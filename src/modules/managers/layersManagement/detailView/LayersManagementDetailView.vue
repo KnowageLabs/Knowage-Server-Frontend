@@ -84,7 +84,7 @@ export default defineComponent({
         },
         async getRolesForLayer() {
             if (this.layer.layerId) {
-                await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `layers/postitem`, this.selectedLayer).then((response: AxiosResponse<any>) => (this.layer.roles = response.data))
+                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/postitem`, this.selectedLayer).then((response: AxiosResponse<any>) => (this.layer.roles = response.data))
             }
         },
         closeTemplateConfirm() {
@@ -114,20 +114,20 @@ export default defineComponent({
         async loadFilters() {
             if (this.layer) {
                 this.loading = true
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `layers/getFilter?id=${this.layer.layerId}`).then((response: AxiosResponse<any>) => (this.filters = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?id=${this.layer.layerId}`).then((response: AxiosResponse<any>) => (this.filters = response.data))
                 this.loading = false
             }
         },
         saveOrUpdateMessage(layer) {
             let toSend = layer
-            let url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'layers'
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'layers'
             if (this.layer.layerFile) {
                 const formData = new FormData()
                 formData.append('data', JSON.stringify(this.layer))
                 formData.append('layerFile', this.layer.layerFile.file)
                 if (layer.layerId) {
-                    url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'layers/updateData'
-                } else url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'layers/addData'
+                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'layers/updateData'
+                } else url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'layers/addData'
                 toSend = formData
             }
             if (layer.layerId) {

@@ -61,7 +61,7 @@ export default defineComponent({
             this.loading = true
             this.jobs = []
             let tempJobs = [] as iPackage[]
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/listAllJobs/`).then((response: AxiosResponse<any>) => (tempJobs = response.data.root))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/listAllJobs/`).then((response: AxiosResponse<any>) => (tempJobs = response.data.root))
             tempJobs.forEach((el: iPackage) => {
                 this.jobs.push({ ...el, numberOfDocuments: el.documents.length })
             })
@@ -92,7 +92,7 @@ export default defineComponent({
             this.loading = true
             let tempResponse = null as any
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/deleteJob?jobGroup=BIObjectExecutions&jobName=${jobName}`)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/deleteJob?jobGroup=BIObjectExecutions&jobName=${jobName}`)
                 .then((response: AxiosResponse<any>) => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

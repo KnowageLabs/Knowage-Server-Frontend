@@ -85,7 +85,7 @@ export default defineComponent({
         async loadCalendarInfo(calendarId: number) {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `calendar/${calendarId}/getInfoCalendarById`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/calendar/${calendarId}/getInfoCalendarById`)
                 .then((response: AxiosResponse<any>) => {
                     this.calendarInfo = response.data
                     this.generateButtonVisible = true
@@ -126,7 +126,7 @@ export default defineComponent({
             tempCalendar.calEndDay = moment(tempCalendar.calEndDay).valueOf()
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `calendar/saveCalendar`, tempCalendar)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/calendar/saveCalendar`, tempCalendar)
                 .then((response: AxiosResponse<any>) => {
                     this.store.setInfo({
                         title: this.$t('common.toast.createTitle'),
@@ -145,7 +145,7 @@ export default defineComponent({
             const postData = this.getFormattedSplittedCalendar()
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `calendar/${this.calendar.calendarId}/updateDaysGenerated`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/calendar/${this.calendar.calendarId}/updateDaysGenerated`, postData)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -185,7 +185,7 @@ export default defineComponent({
         async generateCalendar() {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `calendar/${this.calendar?.calendarId}/generateCalendarDays`, {})
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/calendar/${this.calendar?.calendarId}/generateCalendarDays`, {})
                 .then(async () => {
                     await this.loadCalendarInfo(this.calendar?.calendarId as number)
                     this.generateButtonDisabled = true

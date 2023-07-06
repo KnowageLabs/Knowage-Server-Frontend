@@ -47,7 +47,7 @@ export default defineComponent({
             const uniqueID = user.userUniqueIdentifier
             const country = locale.split('_')[1]
 
-            this.url = import.meta.env.VITE_HOST_URL + `/knowagecockpitengine/api/1.0/pages/edit?NEW_SESSION=TRUE&SBI_LANGUAGE=${language}&SBI_SCRIPT=&user_id=${uniqueID}&SBI_COUNTRY=${country}&SBI_ENVIRONMENT=WORKSPACE&IS_TECHNICAL_USER=true&documentMode=EDIT`
+            this.url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT}/api/1.0/pages/edit?NEW_SESSION=TRUE&SBI_LANGUAGE=${language}&SBI_SCRIPT=&user_id=${uniqueID}&SBI_COUNTRY=${country}&SBI_ENVIRONMENT=WORKSPACE&IS_TECHNICAL_USER=true&documentMode=EDIT`
         },
         close() {
             this.$emit('close')

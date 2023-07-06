@@ -1,6 +1,6 @@
-import { IDashboardDatasetDriver } from "@/modules/documentExecution/dashboard/Dashboard"
-import { AxiosResponse } from "axios"
-import { getFormattedDrivers, getUserRole } from "./DatasetEditorDriverHelper"
+import { IDashboardDatasetDriver } from '@/modules/documentExecution/dashboard/Dashboard'
+import { AxiosResponse } from 'axios'
+import { getFormattedDrivers, getUserRole } from './DatasetEditorDriverHelper'
 
 export const setDataDependency = (formattedDriver: IDashboardDatasetDriver, formattedDrivers: IDashboardDatasetDriver[]) => {
     if (formattedDriver.dataDependencies && formattedDriver.dataDependencies.length !== 0) {
@@ -30,15 +30,16 @@ export const dataDependencyCheck = async (drivers: IDashboardDatasetDriver[], dr
         OBJECT_LABEL: document?.label,
         ROLE: getUserRole(user),
         PARAMETER_ID: driver.urlName,
-        MODE: "simple",
-        PARAMETERS: getFormattedDrivers(drivers),
+        MODE: 'simple',
+        PARAMETERS: getFormattedDrivers(drivers)
     }
 
-    await $http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/documentExeParameters/getParameters', postData).then((response: AxiosResponse<any>) => {
+    await $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/documentExeParameters/getParameters', postData).then((response: AxiosResponse<any>) => {
         if (response.data.status === 'OK' && response.data.root && Array.isArray(response.data.root)) {
-            driver.options = response.data.root.map((tempOption: { value: string, label: string, description: string }) => {
+            driver.options = response.data.root.map((tempOption: { value: string; label: string; description: string }) => {
                 return {
-                    value: tempOption.value, description: tempOption.description
+                    value: tempOption.value,
+                    description: tempOption.description
                 }
             })
         }
@@ -53,7 +54,7 @@ export const formatParameterAfterDataDependencyCheck = (driver: IDashboardDatase
 }
 
 const checkIfDriverOptionsContainsNewValue = (driver: IDashboardDatasetDriver) => {
-    const index = driver.options?.findIndex((option: { value: string, description: string }) => {
+    const index = driver.options?.findIndex((option: { value: string; description: string }) => {
         return driver.parameterValue[0].value === option.value && driver.parameterValue[0].description === option.description
     })
     return index !== -1

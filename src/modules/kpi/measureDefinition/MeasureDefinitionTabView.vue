@@ -54,7 +54,16 @@
 
     <MeasureDefinitionSubmitDialog v-if="showSaveDialog" :rule-name="rule.name" :new-alias="newAlias" :reused-alias="reusedAlias" :new-placeholder="newPlaceholder" :reused-placeholder="reusedPlaceholder" @close="showSaveDialog = false" @save="saveRule($event)"></MeasureDefinitionSubmitDialog>
 
-    <Dialog :auto-z-index="false" :style="metadataDefinitionTabViewDescriptor.errorDialog.style" :content-style="metadataDefinitionTabViewDescriptor.errorDialog.contentStyle"  :modal="true" :visible="errorDialogVisible" :header="errorTitle" class="p-fluid kn-dialog--toolbar--primary error-dialog" :closable="false">
+    <Dialog
+        :auto-z-index="false"
+        :style="metadataDefinitionTabViewDescriptor.errorDialog.style"
+        :content-style="metadataDefinitionTabViewDescriptor.errorDialog.contentStyle"
+        :modal="true"
+        :visible="errorDialogVisible"
+        :header="errorTitle"
+        class="p-fluid kn-dialog--toolbar--primary error-dialog"
+        :closable="false"
+    >
         <p>{{ errorMessage }}</p>
         <template #footer>
             <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="closeErrorMessageDialog"></Button>
@@ -174,13 +183,13 @@ export default defineComponent({
     },
     methods: {
         async loadSelectedRule() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/${this.id}/${this.ruleVersion}/loadRule`).then((response: AxiosResponse<any>) => (this.rule = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${this.id}/${this.ruleVersion}/loadRule`).then((response: AxiosResponse<any>) => (this.rule = response.data))
         },
         async loadDataSources() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `datasources/?onlySqlLike=true`).then((response: AxiosResponse<any>) => (this.datasourcesList = response.data.root))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/datasources/?onlySqlLike=true`).then((response: AxiosResponse<any>) => (this.datasourcesList = response.data.root))
         },
         async loadAliases() {
-            let url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/listAvailableAlias`
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/listAvailableAlias`
             if (this.rule.id) {
                 url += `?ruleId=${this.id}&ruleVersion=${this.ruleVersion}`
             }
@@ -190,7 +199,7 @@ export default defineComponent({
             })
         },
         async loadPlaceholders() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/listPlaceholder`).then((response: AxiosResponse<any>) => (this.placeholdersList = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/listPlaceholder`).then((response: AxiosResponse<any>) => (this.placeholdersList = response.data))
         },
         async loadDomainsData() {
             await this.loadDomainsByCode('KPI_RULEOUTPUT_TYPE').then((response: AxiosResponse<any>) => (this.domainsKpiRuleoutput = response.data))
@@ -198,7 +207,7 @@ export default defineComponent({
             await this.loadDomainsByCode('KPI_MEASURE_CATEGORY').then((response: AxiosResponse<any>) => (this.domainsKpiMeasures = response.data))
         },
         loadDomainsByCode(code: string) {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/domains/listByCode/${code}`)
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/domains/listByCode/${code}`)
         },
         async setTabChanged(tabIndex: any) {
             this.activeTab = tabIndex
@@ -303,7 +312,7 @@ export default defineComponent({
                 const postData = { rule: this.rule, maxItem: 10 }
 
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpi/queryPreview', postData, { headers: { 'X-Disable-Errors': 'true' } })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpi/queryPreview', postData, { headers: { 'X-Disable-Errors': 'true' } })
                     .then((response: AxiosResponse<any>) => {
                         this.columns = response.data.columns
                         this.rows = response.data.rows
@@ -339,7 +348,7 @@ export default defineComponent({
             })
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpi/preSaveRule', this.rule, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpi/preSaveRule', this.rule, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(() => {
                     if (this.rule.ruleOutputs.length === 0) {
                         this.errorTitle = this.$t('kpi.measureDefinition.presaveErrors.metadataMissing')
@@ -389,7 +398,7 @@ export default defineComponent({
 
             delete this.rule.dataSource
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpi/saveRule', this.rule)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpi/saveRule', this.rule)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.' + this.operation + 'Title'),

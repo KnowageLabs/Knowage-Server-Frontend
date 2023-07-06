@@ -88,7 +88,7 @@ export default defineComponent({
     },
     async beforeCreate() {
         await this.$http
-            .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/currentuser')
+            .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/currentuser')
             .then((response) => {
                 const currentUser = response.data
                 if (localStorage.getItem('sessionRole')) {
@@ -149,17 +149,17 @@ export default defineComponent({
                     console.log(error.response.headers)
                 }
             })
-        await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/user-configs').then((response) => {
+        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response) => {
             this.setConfigurations(response.data)
         })
         if (this.isEnterprise) {
             if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(await this.themeHelper.getDefaultKnowageTheme())
 
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/license').then((response) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
                 this.setLicenses(response.data)
             })
             if (Object.keys(this.theme).length === 0) {
-                this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `thememanagement/current`).then((response) => {
+                this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((response) => {
                     this.setTheme(response.data.config)
                     this.themeHelper.setTheme(response.data.config)
                 })
@@ -184,7 +184,7 @@ export default defineComponent({
         async onLoad() {
             this.showMenu = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/export/dataset')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset')
                 .then((response) => {
                     const totalDownloads = response.data.length
                     const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
@@ -217,7 +217,7 @@ export default defineComponent({
             if (splittedLanguage.length > 2) currLanguage += splittedLanguage[2].replaceAll('#', '') + '-'
             currLanguage += splittedLanguage[1].toUpperCase()
 
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/i18nMessages/internationalization?currLanguage=' + currLanguage).then((response) => this.setInternationalization(response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages/internationalization?currLanguage=' + currLanguage).then((response) => this.setInternationalization(response.data))
         },
         newsDownloadHandler() {
             console.log('Starting connection to WebSocket Server')

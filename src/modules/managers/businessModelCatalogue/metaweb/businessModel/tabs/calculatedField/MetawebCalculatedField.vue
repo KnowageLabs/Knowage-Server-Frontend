@@ -198,7 +198,7 @@ export default defineComponent({
         async createCalcField(calculatedField) {
             const postData = { data: calculatedField, diff: generate(this.observer) }
             await this.$http
-                .post(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/setCalculatedField`, postData)
+                .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/setCalculatedField`, postData)
                 .then((response: AxiosResponse<any>) => {
                     this.meta = applyPatch(this.meta, response.data).newDocument
                 })
@@ -210,7 +210,7 @@ export default defineComponent({
             const dataToSend = { name: calcField.name, sourceTableName: this.businessModel?.uniqueName }
             const postData = { data: dataToSend, diff: generate(this.observer) }
             await this.$http
-                .post(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/deleteCalculatedField`, postData)
+                .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/deleteCalculatedField`, postData)
                 .then((response: AxiosResponse<any>) => {
                     this.meta = applyPatch(this.meta, response.data).newDocument
                 })

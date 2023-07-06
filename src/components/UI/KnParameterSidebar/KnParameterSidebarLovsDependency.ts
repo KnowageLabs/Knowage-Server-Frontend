@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios'
 import { iParameter } from './KnParameterSidebar'
-import { addDefaultValueForSelectionTypeParameters, formatParameterDataOptions, getFormattedParameters } from './KnParameterSidebarDataDependency';
+import { addDefaultValueForSelectionTypeParameters, formatParameterDataOptions, getFormattedParameters } from './KnParameterSidebarDataDependency'
 
 export function setLovsDependency(loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, parameter: iParameter) {
     if (parameter.dependencies.lov.length !== 0) {
@@ -36,20 +36,20 @@ export async function lovDependencyCheck(loadedParameters: { filterStatus: iPara
     if (resetValue) return
 
     const postData = { label: document?.label, parameters: getFormattedParameters(loadedParameters, userDateFormat), paramId: parameter.urlName, role: sessionRole }
-    let url = '2.0/documentExeParameters/admissibleValues'
+    let url = '/restful-services/2.0/documentExeParameters/admissibleValues'
 
     if (mode !== 'execution' && document) {
-        url = document.type === 'businessModel' ? `1.0/businessmodel/${document.name}/admissibleValues` : `/3.0/datasets/${document.label}/admissibleValues`
+        url = document.type === 'businessModel' ? `/restful-services/1.0/businessmodel/${document.name}/admissibleValues` : `/restful-services/3.0/datasets/${document.label}/admissibleValues`
     }
 
     await $http
-        .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData)
+        .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData)
         .then((response: AxiosResponse<any>) => {
             parameter.data = response.data.result.data
             parameter.metadata = response.data.result.metadata
             formatParameterAfterDataDependencyCheck(parameter)
         })
-        .catch(() => { })
+        .catch(() => {})
     loading = false
 }
 

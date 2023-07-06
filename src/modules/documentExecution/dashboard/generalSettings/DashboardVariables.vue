@@ -99,15 +99,19 @@ export default defineComponent({
     },
     watch: {
         propVariables() {
-            this.loadVariables()
+            this.loadData()
         }
     },
     created() {
-        this.loadVariables()
-        this.loadSelectedDatasetNames()
+        this.loadData()
     },
     methods: {
         ...mapActions(dashboardStore, ['getDashboardDrivers']),
+        loadData() {
+            this.loadVariables()
+            this.loadDrivers()
+            this.loadSelectedDatasetNames()
+        },
         loadDrivers() {
             this.drivers = this.getDashboardDrivers(this.dashboardId)
         },

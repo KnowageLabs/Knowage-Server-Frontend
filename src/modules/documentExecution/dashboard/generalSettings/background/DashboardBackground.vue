@@ -1,7 +1,6 @@
 <template>
     <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
         <label class="kn-material-input-label p-m-3"> {{ $t('dashboard.widgetEditor.background') }}</label>
-
         <form v-if="background" class="p-fluid p-formgrid p-grid p-m-1">
             <span class="p-field p-float-label p-col-12">
                 <InputText id="imageBackgroundUrl" v-model="background.imageBackgroundUrl" class="kn-material-input kn-width-full" />
@@ -52,9 +51,12 @@ export default defineComponent({
             this.dashboard = this.dashboardModelProp
             if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '' } as IBackground
             this.background = this.dashboard.configuration.background as IBackground
+
+            console.log('this.dashboard.configuration.background', this.dashboard.configuration.background)
         },
         onSelectionColorChanged(event: string | null) {
-            if (!event || !this.background.sheetsBackgroundColor) return
+            console.log('this.dashboard.configuration.background', !this.background.sheetsBackgroundColor)
+            if (!event) return
             else this.background.sheetsBackgroundColor = event
         }
     }

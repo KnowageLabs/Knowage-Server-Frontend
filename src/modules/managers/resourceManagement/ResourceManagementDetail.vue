@@ -153,7 +153,7 @@ export default defineComponent({
         },
         downloadFiles() {
             this.$http
-                .post(import.meta.env.VITE_API_PATH + `2.0/resources/files/download`, this.getKeyAndFilenamesObj(), {
+                .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files/download`, this.getKeyAndFilenamesObj(), {
                     responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
 
                     headers: {
@@ -211,7 +211,7 @@ export default defineComponent({
             this.selectedFiles = []
             if (this.folder) {
                 await this.$http
-                    .get(import.meta.env.VITE_API_PATH + `2.0/resources/files` + '?key=' + this.folder.key)
+                    .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files` + '?key=' + this.folder.key)
                     .then((response: AxiosResponse<any>) => {
                         this.files = response.data
                         this.getBreadcrumbs()
@@ -244,7 +244,7 @@ export default defineComponent({
             this.loading = true
 
             this.$http
-                .delete(import.meta.env.VITE_API_PATH + `2.0/resources/files`, {
+                .delete(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/2.0/resources/files`, {
                     headers: {
                         'Content-Type': 'application/json'
                     },

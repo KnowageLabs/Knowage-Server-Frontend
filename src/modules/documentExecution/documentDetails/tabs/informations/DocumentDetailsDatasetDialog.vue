@@ -60,7 +60,7 @@ export default defineComponent({
         async getAllDatasets() {
             this.loading = true
             this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/basicinfo/all/`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/basicinfo/all/`)
                 .then((response: AxiosResponse<any>) => (this.datasets = response.data))
                 .finally(() => (this.loading = false))
         }

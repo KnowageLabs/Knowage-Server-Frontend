@@ -421,7 +421,7 @@ export default defineComponent({
             this.loading = true
 
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/documents/listDocument')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/listDocument')
                 .then((response: AxiosResponse<any>) => (this.documents = response.data))
                 .finally(() => (this.loading = false))
 
@@ -460,7 +460,7 @@ export default defineComponent({
             const documentId = this.getDocument()?.id
             if (documentId) {
                 const userId = this.user?.userUniqueIdentifier
-                const url = `/knowagedossierengine/api/dossierdocument/dossierTemplate?user_id=${userId}&documentId=${documentId}`
+                const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/dossierTemplate?user_id=${userId}&documentId=${documentId}`
 
                 this.loading = true
                 await this.$http
@@ -505,7 +505,7 @@ export default defineComponent({
 
                 this.loading = true
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
                     .then(async (response: any) => {
                         if (response.status === 'KO') {
                             this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') })
@@ -525,7 +525,7 @@ export default defineComponent({
             if (valid) {
                 const ppt = this.activeTemplate.type === 'PPT_TEMPLATE_V2'
                 const typeEndpoint = ppt ? 'pptplaceholders' : 'docplaceholders'
-                let url = `/knowagedossierengine/api/dossierdocument/${typeEndpoint}`
+                let url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/${typeEndpoint}`
 
                 const fileName = this.activeTemplate.name
                 const userId = this.user?.userUniqueIdentifier
@@ -588,7 +588,7 @@ export default defineComponent({
 
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/saveDocument/', formattedAnalysis, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/saveDocument/', formattedAnalysis, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(async (response: any) => {
                     this.setInfo({
                         title: this.$t('common.toast.createTitle'),
@@ -658,7 +658,7 @@ export default defineComponent({
         async loadParameters(docId) {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${docId}/drivers`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${docId}/drivers`)
                 .then((response: AxiosResponse<any>) => {
                     response.data.forEach((par) => {
                         const existing = this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters?.filter((x) => x.urlName == par.parameterUrlName)
@@ -686,7 +686,7 @@ export default defineComponent({
         async loadViews(docId) {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/repository/view/document/${docId}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/view/document/${docId}`)
                 .then((response: AxiosResponse<any>) => {
                     const tmp = this.activeTemplate.placeholders[this.currentSelectedIndex]
                     this.setupViewsObj(tmp)
@@ -750,7 +750,7 @@ export default defineComponent({
             // SAVE TEMPLATE
             this.loading = true
             await this.$http
-                .post(`/knowagedossierengine/api/dossierdocument/saveTemplate?user_id=${this.user?.userUniqueIdentifier}`, objToSend)
+                .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/saveTemplate?user_id=${this.user?.userUniqueIdentifier}`, objToSend)
                 .then(() => {
                     this.closeDialog(this.inheritedDrivers, true)
                     this.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
@@ -805,7 +805,7 @@ export default defineComponent({
 
                                 this.loading = true
                                 await this.$http
-                                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
                                     .then(() => {
                                         placeholder.parameters[j] = {
                                             urlName: newDriver.parameterUrlName,
@@ -818,7 +818,7 @@ export default defineComponent({
 
                                 this.loading = true
                                 await this.$http
-                                    .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${newDriver.biObjectID}/drivers`)
+                                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`)
                                     .then((response: AxiosResponse<any>) => {
                                         if (this.document && this.document.drivers) this.document.drivers = response.data
                                     })
@@ -859,7 +859,7 @@ export default defineComponent({
             formData.append('fileName', fileName)
             this.loading = true
             await this.$http
-                .post(`/knowagedossierengine/api/dossiervalidator/validateDocument?user_id=${this.user?.userUniqueIdentifier}`, formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossiervalidator/validateDocument?user_id=${this.user?.userUniqueIdentifier}`, formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
                 .then(() => (valid = true))
                 .catch(() => {
                     this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.designerDialog.errorDuringValidation') })

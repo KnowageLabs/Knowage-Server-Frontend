@@ -79,7 +79,7 @@ export default defineComponent({
             return formatDate(date, 'LLL')
         },
         getDownloads() {
-            this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/export/dataset?showAll=true').then(
+            this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset?showAll=true').then(
                 (response: AxiosResponse<any>) => {
                     this.downloadsList = response.data
                 },
@@ -87,7 +87,7 @@ export default defineComponent({
             )
         },
         async downloadContent(data) {
-            const encodedUri = encodeURI(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/export/dataset/' + data.id)
+            const encodedUri = encodeURI(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset/' + data.id)
             await this.$http
                 .get(encodedUri, {
                     responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
@@ -109,7 +109,7 @@ export default defineComponent({
             this.getDownloads()
         },
         deleteAllDownloads() {
-            this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/export').then(
+            this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export').then(
                 () => {
                     this.downloadsList = []
                     this.store.setDownloads({ count: { total: 0, unRead: 0 } })

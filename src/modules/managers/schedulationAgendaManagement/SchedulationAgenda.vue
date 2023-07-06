@@ -161,7 +161,7 @@ export default defineComponent({
         async loadPackages() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'scheduleree/listAllJobs')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/scheduleree/listAllJobs')
                 .then((response: AxiosResponse<any>) => {
                     const rawList = response.data.root
 
@@ -178,7 +178,7 @@ export default defineComponent({
         async loadDocuments() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/documents')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents')
                 .then((response: AxiosResponse<any>) => {
                     this.documentList = response.data
                 })
@@ -201,7 +201,7 @@ export default defineComponent({
         runSearch() {
             this.loading = true
 
-            let path = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `scheduleree/nextExecutions?start=${this.formatDateTime(this.startDateTime)}&end=${this.formatDateTime(this.endDateTime)}`
+            let path = import.meta.env.VITE_KNOWAGE_CONTEXT + `scheduleree/nextExecutions?start=${this.formatDateTime(this.startDateTime)}&end=${this.formatDateTime(this.endDateTime)}`
             if (this.selectedPackage) {
                 path += `&jobPackageName=${this.selectedPackage.id}`
             }

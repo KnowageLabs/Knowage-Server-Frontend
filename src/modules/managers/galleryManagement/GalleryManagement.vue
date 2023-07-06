@@ -74,7 +74,7 @@ export default defineComponent({
         loadAllTemplates(): void {
             this.loading = true
             this.axios
-                .get(import.meta.env.VITE_API_PATH + '1.0/widgetgallery')
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery')
                 .then((response: AxiosResponse<any>) => {
                     this.galleryTemplates = response.data.map((item) => {
                         // TODO remove after backend implementation
@@ -94,7 +94,7 @@ export default defineComponent({
                 icon: 'pi pi-exclamation-triangle',
                 accept: () => {
                     this.axios
-                        .delete(import.meta.env.VITE_API_PATH + '1.0/widgetgallery/' + templateId)
+                        .delete(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery/' + templateId)
                         .then(() => {
                             this.store.setInfo({ title: this.$t('managers.widgetGallery.deleteTemplate'), msg: this.$t('managers.widgetGallery.templateSuccessfullyDeleted') })
                             this.loadAllTemplates()
@@ -155,7 +155,7 @@ export default defineComponent({
         importWidget(json: JSON) {
             this.adjustMandatoryFields(json)
 
-            this.$http.post(import.meta.env.VITE_API_PATH + '1.0/widgetgallery/import', json).then(() => {
+            this.$http.post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery/import', json).then(() => {
                 this.store.setInfo({ title: this.$t('managers.widgetGallery.uploadTemplate'), msg: this.$t('managers.widgetGallery.templateSuccessfullyUploaded') })
 
                 this.loadAllTemplates()

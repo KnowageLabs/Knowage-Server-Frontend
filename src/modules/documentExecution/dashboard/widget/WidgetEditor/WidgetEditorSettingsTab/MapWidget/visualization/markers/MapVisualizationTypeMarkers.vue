@@ -123,7 +123,7 @@ export default defineComponent({
             this.iconPickerDialogVisible = false
         },
         onSetImage(image: IImage) {
-            this.markerConfig.img = import.meta.env.VITE_RESTFUL_SERVICES_PATH + image.url
+            this.markerConfig.img = import.meta.env.VITE_KNOWAGE_CONTEXT + image.url
             this.imagePickerDialogVisible = false
         }
     }

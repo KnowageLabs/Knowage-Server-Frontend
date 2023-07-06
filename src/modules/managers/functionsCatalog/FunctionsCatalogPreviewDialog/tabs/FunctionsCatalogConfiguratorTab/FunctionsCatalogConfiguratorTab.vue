@@ -4,7 +4,15 @@
             <FunctionsCatalogDatasetTable :datasets="datasets" @selected="loadSelectedDataset"></FunctionsCatalogDatasetTable>
         </div>
         <div class="p-col-8 p-sm-8 p-md-9 p-m-2 p-p-0">
-            <FunctionsCatalogDatasetForm v-if="selectedDataset" :selected-dataset="selectedDataset" :prop-function="propFunction" :python-environments="pythonEnvironments" :r-environments="rEnvironments" :libraries="libraries" @environmentSelected="onEnvironmentSelected"></FunctionsCatalogDatasetForm>
+            <FunctionsCatalogDatasetForm
+                v-if="selectedDataset"
+                :selected-dataset="selectedDataset"
+                :prop-function="propFunction"
+                :python-environments="pythonEnvironments"
+                :r-environments="rEnvironments"
+                :libraries="libraries"
+                @environmentSelected="onEnvironmentSelected"
+            ></FunctionsCatalogDatasetForm>
             <div v-else id="no-dataset-selected-info" class="p-d-flex p-flex-row p-jc-center">
                 {{ $t('managers.functionsCatalog.noDatasetSelected') }}
             </div>
@@ -38,7 +46,7 @@ export default defineComponent({
     methods: {
         async loadSelectedDataset(dataset: iDataset) {
             this.$emit('loading', true)
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/${dataset.label}`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${dataset.label}`).then((response: AxiosResponse<any>) => {
                 if (response.data) {
                     this.selectedDataset = response.data[0]
                     this.$emit('selectedDataset', this.selectedDataset)
@@ -53,7 +61,7 @@ export default defineComponent({
             this.$emit('loading', false)
         },
         loadEnvironment(type: string) {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/configs/category/${type}`)
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/category/${type}`)
         },
         async onEnvironmentSelected(environment: string) {
             this.$emit('selectedEnvironment', environment)
@@ -64,7 +72,7 @@ export default defineComponent({
             this.$emit('loading', false)
         },
         async loadEnvironmentLibraries(url: string) {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `${url}`)
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/${url}`)
         }
     }
 })

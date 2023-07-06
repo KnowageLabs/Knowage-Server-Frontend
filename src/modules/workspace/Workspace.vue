@@ -253,7 +253,7 @@ export default defineComponent({
             this.loading = true
             let label = ''
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documents/${view.biObjectId}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${view.biObjectId}`)
                 .then((response: AxiosResponse<any>) => (label = response.data ? response.data.label : ''))
                 .catch(() => {})
             this.loading = false
@@ -298,7 +298,7 @@ export default defineComponent({
         },
         async loadQBEDataset(dataset) {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/${dataset.label}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${dataset.label}`)
                 .then((response: AxiosResponse<any>) => {
                     this.qbeDataset = response.data
                 })
@@ -306,7 +306,7 @@ export default defineComponent({
         },
         async loadDatasetDrivers(dataset) {
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/businessmodel/${dataset.name}/filters`, { name: dataset.name, role: this.userRole })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/businessmodel/${dataset.name}/filters`, { name: dataset.name, role: this.userRole })
                 .then((response: AxiosResponse<any>) => {
                     this.filtersData = response.data
                     this.formatDrivers()
@@ -373,7 +373,9 @@ export default defineComponent({
             const language = this.user.locale.split('_')[0]
             const country = this.user.locale.split('_')[1]
             const drivers = encodeURI(JSON.stringify(this.datasetDrivers))
-            initialUrl = `/knowageqbeengine/servlet/AdapterHTTP?NEW_SESSION=TRUE&SBI_LANGUAGE=${language}&SBI_SCRIPT=&user_id=${this.user.userUniqueIdentifier}&DEFAULT_DATASOURCE_FOR_WRITING_LABEL=CacheDS&SBI_COUNTRY=${country}&SBI_EXECUTION_ID=${this.uniqueID}&ACTION_NAME=QBE_ENGINE_START_ACTION_FROM_BM&MODEL_NAME=${dataset.name}&DATA_SOURCE_LABEL=${dataset.dataSourceLabel}&DATA_SOURCE_ID=${dataset.dataSourceId}&isTechnicalUser=true&DRIVERS=${drivers}`
+            initialUrl = `${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?NEW_SESSION=TRUE&SBI_LANGUAGE=${language}&SBI_SCRIPT=&user_id=${this.user.userUniqueIdentifier}&DEFAULT_DATASOURCE_FOR_WRITING_LABEL=CacheDS&SBI_COUNTRY=${country}&SBI_EXECUTION_ID=${
+                this.uniqueID
+            }&ACTION_NAME=QBE_ENGINE_START_ACTION_FROM_BM&MODEL_NAME=${dataset.name}&DATA_SOURCE_LABEL=${dataset.dataSourceLabel}&DATA_SOURCE_ID=${dataset.dataSourceId}&isTechnicalUser=true&DRIVERS=${drivers}`
             this.qbeUrl = import.meta.env.VITE_HOST_URL + initialUrl
         },
         getFormattedParameters(loadedParameters: { filterStatus: any[]; isReadyForExecution: boolean }) {

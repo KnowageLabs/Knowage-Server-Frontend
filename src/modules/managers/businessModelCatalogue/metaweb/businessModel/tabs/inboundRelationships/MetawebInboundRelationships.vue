@@ -234,7 +234,7 @@ export default defineComponent({
             })
             const postData = { data: this.dataSend, diff: generate(this.observer) }
             await this.$http
-                .post(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/addBusinessRelation`, postData)
+                .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/addBusinessRelation`, postData)
                 .then((response: AxiosResponse<any>) => {
                     this.meta = applyPatch(this.meta, response.data).newDocument
                     this.closeDialog()
@@ -246,7 +246,7 @@ export default defineComponent({
         async deleteInbound(item) {
             const postData = { data: item, diff: generate(this.observer) }
             await this.$http
-                .post(import.meta.env.VITE_META_API_URL + `/1.0/metaWeb/deleteBusinessRelation`, postData)
+                .post(import.meta.env.VITE_KNOWAGEMETA_CONTEXT + `/restful-services/1.0/metaWeb/deleteBusinessRelation`, postData)
                 .then((response: AxiosResponse<any>) => {
                     this.meta = applyPatch(this.meta, response.data).newDocument
                     this.populateInboundRelationships()

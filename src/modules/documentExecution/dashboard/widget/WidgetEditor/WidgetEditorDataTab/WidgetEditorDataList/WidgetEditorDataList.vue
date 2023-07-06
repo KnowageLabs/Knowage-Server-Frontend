@@ -7,6 +7,7 @@
         <div v-if="widgetModel.type !== 'selector'" class="p-col-12 p-d-flex">
             <label class="kn-material-input-label p-as-center p-ml-1"> {{ $t('common.columns') }} </label>
             <Button :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" @click="createNewCalcField"></Button>
+            <Button id="add-all-columns-button" icon="fa fa-arrow-right" class="p-button-text p-button-rounded p-button-plain" @click="addAllColumnsToWidgetModel" />
         </div>
 
         <Listbox v-if="selectedDataset" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="selectedDatasetColumns" :filter="true" :filter-placeholder="$t('common.search')" :filter-fields="descriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')">
@@ -42,7 +43,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDashboardDataset, IDatasetColumn, IDataset, IWidget } from '../../../../Dashboard'
+import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { removeColumnFromDiscoveryWidgetModel } from '../../helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import descriptor from './WidgetEditorDataListDescriptor.json'
@@ -54,6 +55,7 @@ import KnCalculatedField from '@/components/functionalities/KnCalculatedField/Kn
 import calcFieldDescriptor from './WidgetEditorCalcFieldDescriptor.json'
 import cryptoRandomString from 'crypto-random-string'
 import { AxiosResponse } from 'axios'
+import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
@@ -111,7 +113,7 @@ export default defineComponent({
                 this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions))
             }
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
                 .then((response: AxiosResponse<any>) => {
                     this.datasetFunctions = response.data
 
@@ -168,6 +170,20 @@ export default defineComponent({
             }
             this.$emit('datasetSelected', this.selectedDataset)
             emitter.emit('clearWidgetData', this.widgetModel.id)
+        },
+        addAllColumnsToWidgetModel() {
+            const formattedColumns = [] as IWidgetColumn[]
+            this.selectedDatasetColumns.forEach((column: IDatasetColumn) => {
+                formattedColumns.push(createNewWidgetColumn({ name: column.name, alias: column.alias, type: column.type, fieldType: column.fieldType }, this.model ? this.model.type : ''))
+            })
+
+            formattedColumns.forEach((column: IWidgetColumn) => {
+                const index = this.model?.columns.findIndex((modelColumn: IWidgetColumn) => modelColumn.columnName === column.columnName)
+                if (index === -1) {
+                    this.model?.columns.push(column)
+                    emitter.emit('columnAdded', column)
+                }
+            })
         },
         removeSelectedColumnsFromModel() {
             if (!this.model?.columns) return
@@ -238,5 +254,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 .dashboard-editor-list-alias-container {
     font-size: 0.8rem;
+}
+
+#add-all-columns-button {
+    font-size: 1.5rem;
 }
 </style>

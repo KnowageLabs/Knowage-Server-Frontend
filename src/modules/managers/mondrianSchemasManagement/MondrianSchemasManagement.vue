@@ -90,7 +90,7 @@ export default defineComponent({
         async loadAllSchemas() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/mondrianSchemasResource')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/mondrianSchemasResource')
                 .then((response: AxiosResponse<any>) => {
                     this.schemas = response.data
                 })
@@ -122,7 +122,7 @@ export default defineComponent({
             })
         },
         async deleteSchema(schemaId: number) {
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/mondrianSchemasResource/' + schemaId).then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/mondrianSchemasResource/' + schemaId).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')

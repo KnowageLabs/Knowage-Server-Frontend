@@ -76,7 +76,7 @@ export default defineComponent({
         async loadAllMetadata() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpiee/listTarget')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpiee/listTarget')
                 .then(
                     (response: AxiosResponse<any>) =>
                         (this.targetList = response.data.map((target: any) => {
@@ -118,7 +118,7 @@ export default defineComponent({
             })
         },
         async deleteTarget(targetId: number) {
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpiee/' + targetId + '/deleteTarget').then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpiee/' + targetId + '/deleteTarget').then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')

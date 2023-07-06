@@ -50,7 +50,7 @@ export default defineComponent({
         return { descriptor: DataPreparationDescriptor, dataPreparation: Array<any>() }
     },
     created() {
-        this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '3.0/datasets/mydata/').then((response: AxiosResponse<any>) => (this.dataPreparation = response.data.root))
+        this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/datasets/mydata/').then((response: AxiosResponse<any>) => (this.dataPreparation = response.data.root))
     },
     methods: {
         search(e, item): void {

@@ -491,13 +491,13 @@ export default defineComponent({
             const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
             const postData = { label: this.document?.label, parameters: this.getFormattedParameters(), paramId: parameter.urlName, role: role }
 
-            let url = '2.0/documentExeParameters/admissibleValues'
+            let url = '/restful-services/2.0/documentExeParameters/admissibleValues'
             if (this.mode !== 'execution' && this.document) {
-                url = this.document.type === 'businessModel' ? `1.0/businessmodel/${this.document.name}/admissibleValues` : `/3.0/datasets/${this.document.label}/admissibleValues`
+                url = this.document.type === 'businessModel' ? `/restful-services/1.0/businessmodel/${this.document.name}/admissibleValues` : `/restful-services/3.0/datasets/${this.document.label}/admissibleValues`
             }
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData)
                 .then((response: AxiosResponse<any>) => (this.parameterPopUpData = response.data))
                 .catch((error: any) => console.log('ERROR: ', error))
             this.loading = false
@@ -608,7 +608,7 @@ export default defineComponent({
         async deleteViewpoint(viewpoint: any) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentviewpoint/deleteViewpoint`, { VIEWPOINT: '' + viewpoint.vpId })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentviewpoint/deleteViewpoint`, { VIEWPOINT: '' + viewpoint.vpId })
                 .then(async () => {
                     this.removeViewpoint(viewpoint)
                     this.store.setInfo({

@@ -206,7 +206,7 @@ export default defineComponent({
         async getDossierActivities() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `dossier/activities/${this.id}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activities/${this.id}`)
                 .then((response: AxiosResponse<any>) => {
                     this.dossierActivities = [...response.data]
                 })
@@ -216,7 +216,7 @@ export default defineComponent({
         },
         async getDossierTemplate() {
             this.loading = true
-            const url = `/knowagedossierengine/api/start/dossierTemplate?documentId=${this.id}`
+            const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/start/dossierTemplate?documentId=${this.id}`
             const filters = this.filterData ? this.filterData : {}
             filters.filterStatus?.forEach((filter: iParameter) => {
                 const fields = ['dataDependsOnParameters', 'dataDependentParameters', 'lovDependsOnParameters', 'lovDependentParameters', 'dependsOnParameters', 'dependentParameters']
@@ -245,7 +245,7 @@ export default defineComponent({
             })
         },
         async deleteDossier(selectedDossier) {
-            const url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `dossier/activity/${selectedDossier.id}`
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `dossier/activity/${selectedDossier.id}`
             if (selectedDossier.status == 'DOWNLOAD' || selectedDossier.status == 'ERROR' || !this.dateCheck(selectedDossier)) {
                 await this.$http
                     .delete(url, { headers: { Accept: 'application/json, text/plain, */*' } })
@@ -275,7 +275,7 @@ export default defineComponent({
             this.launchClicked = true
             setTimeout(() => (this.launchClicked = false), 3000)
 
-            const url = `/knowagedossierengine/api/dossier/run?activityName=${this.activity.activityName}&documentId=${this.id}`
+            const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossier/run?activityName=${this.activity.activityName}&documentId=${this.id}`
             await this.$http.post(url, this.jsonTemplate, { headers: { Accept: 'application/json, text/plain, */*' } }).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
                     this.store.setError({ title: this.$t('common.error.saving'), msg: response.data.errors })
@@ -288,11 +288,11 @@ export default defineComponent({
         async downloadActivity(selectedActivity) {
             if (selectedActivity.status == 'ERROR') {
                 if (selectedActivity.hasBinContent) {
-                    const link = import.meta.env.VITE_DOSSIER_PATH + `dossier/activity/${selectedActivity.id}/txt?activityName=${selectedActivity.activity}`
+                    const link = import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT + `/restful-services/dossier/activity/${selectedActivity.id}/txt?activityName=${selectedActivity.activity}`
                     window.open(link)
                 } else {
-                    await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `dossier/random-key/${selectedActivity.progressId}`).then((response: AxiosResponse<any>) => {
-                        let url = `../api/start/errorFile?activityId=${selectedActivity.id}&randomKey=${response.data}&activityName=${selectedActivity.activity}`
+                    await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/random-key/${selectedActivity.progressId}`).then((response: AxiosResponse<any>) => {
+                        let url = `/api/start/errorFile?activityId=${selectedActivity.id}&randomKey=${response.data}&activityName=${selectedActivity.activity}`
                         if (this.jsonTemplate.PPT_TEMPLATE != null) {
                             url += '&type=PPT'
                             url += '&templateName=' + this.jsonTemplate.PPT_TEMPLATE.name
@@ -303,23 +303,23 @@ export default defineComponent({
                             url += '&type=PPTV2'
                             url += '&templateName=' + this.jsonTemplate.PPT_TEMPLATE_V2.name
                         }
-                        const link = import.meta.env.VITE_RESTFUL_SERVICES_PATH + url
+                        const link = import.meta.env.VITE_KNOWAGE_CONTEXT + url
                         window.open(link)
                         response.data.errors ? this.store.setError({ title: this.$t('common.error.generic'), msg: response.data.errors[0].message }) : ''
                     })
                 }
             } else if (selectedActivity.partial == selectedActivity.total) {
                 if (selectedActivity.hasBinContent) {
-                    const link = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `dossier/activity/${selectedActivity.id}/pptx?activityName=${selectedActivity.activity}`
+                    const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedActivity.id}/pptx?activityName=${selectedActivity.activity}`
                     window.open(link)
                 } else if (selectedActivity.hasDocBinContent) {
-                    const link = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `dossier/activity/${selectedActivity.id}/doc?activityName=${selectedActivity.activity}`
+                    const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedActivity.id}/doc?activityName=${selectedActivity.activity}`
                     window.open(link)
                 } else if (selectedActivity.hasPptV2BinContent) {
-                    const link = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `dossier/activity/${selectedActivity.id}/pptv2?activityName=${selectedActivity.activity}`
+                    const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedActivity.id}/pptv2?activityName=${selectedActivity.activity}`
                     window.open(link)
                 } else {
-                    const link = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `dossier/random-key/${selectedActivity.progressId}`
+                    const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/random-key/${selectedActivity.progressId}`
                     await this.$http.get(link, { headers: { Accept: 'application/json, text/plain, */*' } }).then((response: AxiosResponse<any>) => {
                         if (this.jsonTemplate.PPT_TEMPLATE != null) {
                             this.storePPT(selectedActivity.id, response.data, selectedActivity.activity)
@@ -355,7 +355,7 @@ export default defineComponent({
             this.storeDossier(id, randomKey, activityName, generateType, templateName)
         },
         storeDossier(id, randomKey, activityName, generateType, templateName) {
-            const link = import.meta.env.VITE_HOST_URL + `/knowagedossierengine/api/start/` + generateType + `?activityId=${id}&randomKey=${randomKey}&templateName=${templateName}&activityName=${activityName}`
+            const link = import.meta.env.VITE_HOST_URL + `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/start/` + generateType + `?activityId=${id}&randomKey=${randomKey}&templateName=${templateName}&activityName=${activityName}`
             window.open(link)
         },
 
@@ -388,12 +388,12 @@ export default defineComponent({
             if (this.jsonTemplate.PPT_TEMPLATE == null) {
                 const fileName = this.jsonTemplate?.DOC_TEMPLATE?.name ? this.jsonTemplate?.DOC_TEMPLATE?.name : this.jsonTemplate?.PPT_TEMPLATE_V2?.name
                 await this.$http
-                    .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'dossier/checkPathFile?templateName=' + fileName)
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/checkPathFile?templateName=' + fileName)
                     .then((response: AxiosResponse<any>) => {
                         if (response.data.STATUS == 'KO') {
                             this.store.setInfo({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateDownloadError') })
                         } else if (response.data.STATUS == 'OK') {
-                            window.open(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'dossier/resourcePath?templateName=' + fileName)
+                            window.open(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/resourcePath?templateName=' + fileName)
                         }
                     })
                     .catch((error) => {
@@ -401,7 +401,7 @@ export default defineComponent({
                     })
             } else {
                 const fileName = this.jsonTemplate.PPT_TEMPLATE.name
-                window.open(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'resourcePath?templateName=' + fileName)
+                window.open(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/resourcePath?templateName=' + fileName)
             }
         },
         setUploadType() {
@@ -418,7 +418,7 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFile)
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
                 })

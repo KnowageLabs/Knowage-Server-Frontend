@@ -11,7 +11,19 @@
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <Listbox v-if="!loading" class="kn-list--column" :options="kpiList" :filter="true" :filter-placeholder="$t('common.search')" option-label="name" filter-match-mode="contains" :filter-fields="name" :empty-filter-message="$t('common.info.noDataFound')" data-test="kpi-list" @change="showForm">
+                <Listbox
+                    v-if="!loading"
+                    class="kn-list--column"
+                    :options="kpiList"
+                    :filter="true"
+                    :filter-placeholder="$t('common.search')"
+                    option-label="name"
+                    filter-match-mode="contains"
+                    :filter-fields="name"
+                    :empty-filter-message="$t('common.info.noDataFound')"
+                    data-test="kpi-list"
+                    @change="showForm"
+                >
                     <template #empty>{{ $t('common.info.noDataFound') }}</template>
                     <template #option="slotProps">
                         <div class="kn-list-item" data-test="list-item">
@@ -71,7 +83,7 @@ export default defineComponent({
         async getKpiList() {
             this.loading = true
             return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/listKpi`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/listKpi`)
                 .then((response: AxiosResponse<any>) => {
                     this.kpiList = [...response.data]
                 })
@@ -87,7 +99,7 @@ export default defineComponent({
             })
         },
         async deleteKpi(kpiId: number, kpiVersion: number) {
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/${kpiId}/${kpiVersion}/deleteKpi`).then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${kpiId}/${kpiVersion}/deleteKpi`).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')
