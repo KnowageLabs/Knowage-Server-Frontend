@@ -36,7 +36,7 @@
     </grid-item>
 
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" />
-    <ChangeWidgetDialog v-if="showChangeDialog" @close="toggleChangeDialog" />
+    <ChangeWidgetDialog v-if="showChangeDialog" :widget-model="widgetModel" :widget-data="widgetData" @close="toggleChangeDialog" />
     <WidgetSearchDialog v-if="searchDialogVisible" :visible="searchDialogVisible" :widget="widget" :prop-search="search" @close="searchDialogVisible = false" @search="onSearch"></WidgetSearchDialog>
 </template>
 
