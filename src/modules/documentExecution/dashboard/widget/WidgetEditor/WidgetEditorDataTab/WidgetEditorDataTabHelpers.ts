@@ -5,7 +5,6 @@ import { createNewVegaSettings, createVegaModel } from "../helpers/chartWidget/v
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 export const changeChartType = (chartType: string, widget: IWidget, isEnterprise: boolean) => {
-    console.log('---------- WIDGET: ', widget)
     if (!widget) return
 
     delete widget.invalid
