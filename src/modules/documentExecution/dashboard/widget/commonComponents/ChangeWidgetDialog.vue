@@ -23,6 +23,9 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn } from '../../Dashboard'
+import { mapState } from 'pinia'
+import { changeChartType } from '../WidgetEditor/WidgetEditorDataTab/WidgetEditorDataTabHelpers'
+import mainStore from '@/App.store'
 import Dialog from 'primevue/dialog'
 import descriptor from './CommonComponentsDescriptor.json'
 
@@ -42,7 +45,11 @@ export default defineComponent({
             starredChartOptionsMap: {} as any
         }
     },
-    computed: {},
+    computed: {
+        ...mapState(mainStore, {
+            isEnterprise: 'isEnterprise'
+        })
+    },
     watch: {},
     created() {
         console.log('------------ OPTIONS: ', descriptor.availableWidgets)
@@ -52,6 +59,7 @@ export default defineComponent({
     methods: {
         selectWidget(widgetName) {
             this.selectedWidget = widgetName
+            changeChartType(widgetName, this.widgetModel, this.isEnterprise)
         },
         getImageSource(widgetType: string) {
             return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/changeWidgetTypes/${widgetType}.png`

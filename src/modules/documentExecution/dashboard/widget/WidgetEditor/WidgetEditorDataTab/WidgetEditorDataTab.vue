@@ -24,6 +24,7 @@ import { IHighchartsWidgetSettings } from '../../../interfaces/highcharts/Dashbo
 import { IChartJSWidgetSettings } from '../../../interfaces/chartJS/DashboardChartJSWidget'
 import { createVegaModel, createNewVegaSettings } from '../helpers/chartWidget/vega/VegaHelpers'
 import { IVegaChartsSettings } from '../../../interfaces/vega/VegaChartsWidget'
+import {changeChartType} from './WidgetEditorDataTabHelpers'
 import mainStore from '@/App.store'
 import WidgetEditorDataList from './WidgetEditorDataList/WidgetEditorDataList.vue'
 import WidgetEditorHint from '../WidgetEditorHint.vue'
@@ -72,6 +73,7 @@ export default defineComponent({
         },
         onChartTypeChanged(chartType: string) {
             if (!this.widget) return
+            changeChartType(chartType, this.widget, this.isEnterprise)
 
             delete this.widget.invalid
 
