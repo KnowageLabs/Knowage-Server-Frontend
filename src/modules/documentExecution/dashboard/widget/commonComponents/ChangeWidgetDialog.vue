@@ -41,7 +41,7 @@ export default defineComponent({
             selectedWidget: '',
             availableChartOptions: [] as { name: string; tooltip: string }[],
             numberOfCategories: 0,
-            numberOfSeries: 9,
+            numberOfSeries: 0,
             starredChartOptionsMap: {} as any
         }
     },
@@ -94,7 +94,7 @@ export default defineComponent({
                     (['line', 'bar', 'area'].includes(chartOption.name) && categoriesBetween1and100 && seriesBetween1and100) ||
                     (chartOption.name === 'parallel' && exactlyOneCategory && this.numberOfSeries >= 2 && this.numberOfSeries <= 100 && !seriesStacking && !groupedSeries) ||
                     (chartOption.name === 'chord' && exactlyTwoCategories && exactlyOneSerie && !seriesStacking && !groupedSeries) ||
-                    (['sunburst', 'tree'].includes(chartOption.name) && this.numberOfCategories >= 2 && this.numberOfCategories <= 100 && exactlyOneSerie && !seriesStacking && !groupedSeries) ||
+                    (['sunburst', 'treemap'].includes(chartOption.name) && this.numberOfCategories >= 2 && this.numberOfCategories <= 100 && exactlyOneSerie && !seriesStacking && !groupedSeries) ||
                     (chartOption.name === 'pie' && categoriesBetween1and100 && exactlyOneSerie && !seriesStacking && !groupedSeries) ||
                     (['gauge', 'solidgauge', 'activitygauge'].includes(chartOption.name) && this.numberOfCategories === 0 && seriesBetween1and100 && !seriesStacking && !groupedSeries) ||
                     (chartOption.name === 'heatmap' && exactlyTwoCategories && exactlyOneSerie && !seriesStacking && !groupedSeries) ||
@@ -187,7 +187,7 @@ export default defineComponent({
             return this.widgetData.metaData?.fields && this.widgetData.metaData.fields[1] ? this.widgetData.metaData.fields[1].type : null
         },
         getFirstCategoryCardinality() {
-            return this.widgetData.stats && this.widgetData.stats[0] ? this.widgetData.stats[0].cardinality : 0
+            return this.widgetData.stats && this.widgetData.stats[1] ? this.widgetData.stats[1].cardinality : 0
         },
         checkMeasureRangeValuesAreValid(differenceValue: number) {
             if (!this.widgetData.stats) return false

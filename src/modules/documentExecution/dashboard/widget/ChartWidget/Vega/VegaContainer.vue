@@ -81,6 +81,7 @@ export default defineComponent({
             this.setTooltipConfiguration()
             this.setChartColors()
 
+            console.log('------- VEGA MODEL TO RENDER: ', this.chartModel)
             try {
                 if (!this.showNoData)
                     await vegaEmbed('#chartId' + this.chartID, this.chartModel as any, { actions: false }).then((res: any) => {
