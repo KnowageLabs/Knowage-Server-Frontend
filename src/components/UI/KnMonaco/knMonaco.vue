@@ -88,7 +88,7 @@ onMounted(() => {
             }
         }, 500)
     )
-    editor.setValue(editorValue.value)
+    if (editorValue?.value) editor.setValue(editorValue.value)
 })
 
 watch(modelValue, (cur, prev) => {
