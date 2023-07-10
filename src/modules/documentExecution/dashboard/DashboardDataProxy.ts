@@ -22,6 +22,7 @@ import { getDiscoveryWidgetData } from './widget/DiscoveryWidget/DiscoveryWidget
 import { getHighchartsBarData } from './widget/ChartWidget/Highcharts/dataProxy/HighchartsBarDataProxy'
 import { getChartJSWidgetData } from './widget/ChartWidget/ChartJS/ChartJSDataProxy'
 import { getCePivotData } from './widget/cePivotWidget/cePivotWidgetDataProxy'
+import { getPythonData } from './widget/PythonWidget/PythonWidgetDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -58,6 +59,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getDiscoveryWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'vega':
             return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'python':
+            return await getPythonData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
