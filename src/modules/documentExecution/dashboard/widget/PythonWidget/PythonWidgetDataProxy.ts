@@ -35,11 +35,12 @@ export const getPythonData = async (dashboardId: any, widget: IWidget, datasets:
             drivers: postData.drivers,
             aggregations: JSON.stringify(postData.aggregations),
             parameters: JSON.stringify(postData.parameters),
-            selections: JSON.stringify(postData.selections)
+            selections: JSON.stringify(postData.selections),
+            script: widget.settings.editor.script
         }
 
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/backendservices/widgets/python/edit/img', imgPostData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/backendservices/widgets/python/edit/${widget.settings.editor.outputType == 'img' ? 'img' : 'html'}`, imgPostData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
