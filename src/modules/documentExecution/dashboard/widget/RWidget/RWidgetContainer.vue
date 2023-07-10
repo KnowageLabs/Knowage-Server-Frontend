@@ -1,6 +1,5 @@
 <template>
     <div id="container" class="kn-cursor-pointer" @click="executeInteractions">
-        {{ 'R WIDGET CONTAINER' }}
         <iframe id="iframe" ref="iframeRef" :srcdoc="htmlCode"></iframe>
     </div>
 </template>
@@ -8,7 +7,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '../../Dashboard'
-import { executeImageWidgetCrossNavigation } from '../interactionsHelpers/InteractionHelper'
+import { executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings } from '../interactionsHelpers/InteractionHelper'
 import mockedData from '../PythonWidget/mockedData.json'
 
 export default defineComponent({
@@ -30,19 +29,28 @@ export default defineComponent({
     methods: {
         loadData() {
             this.htmlCode = mockedData.result
-            console.log('-------- LOADED MOCKED DATA: ', this.htmlCode)
-            console.log('--------  this.$refs.iframeRef: ', this.$refs.iframeRef)
             const iframeRef = this.$refs.iframeRef as any
-            if (iframeRef) iframeRef.contentDocument.write(this.htmlCode)
+            if (iframeRef) {
+                iframeRef.contentDocument.write(this.htmlCode)
+                const iframeBody = iframeRef.contentDocument?.body
+                // TODO - ASK ON PEER
+                if (iframeBody) iframeBody.addEventListener('click', this.executeInteractions)
+            }
         },
         executeInteractions() {
+            console.log('------ executeInteractions()')
             const crossNavigation = this.widgetModel.settings.interactions.crossNavigation
             if (!crossNavigation.enabled) return
-            // TODO - Rename
-            executeImageWidgetCrossNavigation(crossNavigation, this.dashboardId)
+            executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings(crossNavigation, this.dashboardId)
         }
     }
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+#container,
+#iframe {
+    height: 100%;
+    width: 100%;
+}
+</style>

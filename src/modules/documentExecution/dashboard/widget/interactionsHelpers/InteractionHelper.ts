@@ -167,7 +167,7 @@ const getFormattedChartDynamicOutputParameter = (outputParameters: IWidgetIntera
 }
 
 // TODO - Rename
-export const executeImageWidgetCrossNavigation = (crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
+export const executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings = (crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const outputParameters = getFormattedImageWidgetOutputParameters(crossNavigationModel, dashboardId)
     executeCrossNavigation(outputParameters, crossNavigationModel.name)
 }
