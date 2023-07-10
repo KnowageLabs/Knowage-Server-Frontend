@@ -1,10 +1,5 @@
 <template>
     <div v-if="axisLinesSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ 'TODO' }}
-            {{ axisLinesSettings }}
-        </div>
-
         <div class="p-col-12 p-md-3">
             <WidgetEditorColorPicker :initial-value="axisLinesSettings.color" :label="$t('common.color')" @change="onSelectionColorChanged($event)"></WidgetEditorColorPicker>
         </div>

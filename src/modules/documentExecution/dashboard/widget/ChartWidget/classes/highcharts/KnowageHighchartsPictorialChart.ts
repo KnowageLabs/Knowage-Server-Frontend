@@ -50,78 +50,10 @@ export class KnowageHighchartsPictorialChart extends KnowageHighcharts {
     }
 
     setData(data: any, widgetModel: IWidget) {
-        const mockedData = {
-            metaData: {
-                totalProperty: 'results',
-                root: 'rows',
-                id: 'id',
-                fields: [
-                    'recNo',
-                    {
-                        name: 'column_1',
-                        header: 'PRODUCT_FAMILY',
-                        dataIndex: 'column_1',
-                        type: 'string',
-                        multiValue: false
-                    },
-                    {
-                        name: 'column_2',
-                        header: 'UNITS_ORDERED_SUM',
-                        dataIndex: 'column_2',
-                        type: 'float',
-                        precision: 54,
-                        scale: 0,
-                        multiValue: false
-                    }
-                ],
-                cacheDate: '2023-06-26 15:26:01.012'
-            },
-            results: 4,
-            rows: [
-                {
-                    id: 1,
-                    column_1: 'Food',
-                    column_2: 4091847
-                },
-                {
-                    id: 2,
-                    column_1: 'Drink',
-                    column_2: 627520
-                },
-                {
-                    id: 3,
-                    column_1: 'Non-Consumable',
-                    column_2: 2402226
-                },
-                {
-                    id: 4,
-                    column_1: 'Car',
-                    column_2: 17812
-                }
-            ],
-            stats: {
-                '1': {
-                    max: 'Non-Consumable',
-                    min: 'Car',
-                    distinct: ['Car', 'Drink', 'Food', 'Non-Consumable'],
-                    cardinality: 4
-                },
-                '2': {
-                    max: 4091847,
-                    min: 17812,
-                    distinct: [17812, 627520, 2402226, 4091847],
-                    cardinality: 4
-                }
-            },
-            initialCall: true
-        }
-        // TODO
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
-        console.log('-------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
-        console.log('-------- MEASURE COLUMNS: ', measureColumns)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
 
         this.setPictorialData(data, attributeColumns, measureColumns, dateFormat)

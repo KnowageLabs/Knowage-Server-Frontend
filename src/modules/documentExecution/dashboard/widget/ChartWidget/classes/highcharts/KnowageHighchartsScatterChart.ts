@@ -70,7 +70,6 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
         return this.model.series
     }
 
-    // TODO - Ask on peer, from the logic, the attribute column needs to have number (needs to be measure) in order for this to work
     setRegularData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
         const attributeColumn = attributeColumns[0]
         if (!attributeColumn || !attributeColumn.metadata) return

@@ -74,7 +74,7 @@ const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
 }
 
 export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
-    console.log('-------- CAAAAAAAAAAALED!')
+
     formattedChartModel.chart.parallelCoordinates = true
     formattedChartModel.chart.parallelAxes = { lineWidth: 2 }
     formatSplineChartVerticalAxisLines(formattedChartModel, widgetModel.settings.configuration?.axisLines)
@@ -86,7 +86,7 @@ const formatSplineChartVerticalAxisLines = (formattedChartModel: IHighchartsChar
         xAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
     })
     formattedChartModel.yAxis.forEach((yAxis: any) => {
-        yAxis.lineColor = axisLinesSettings.color
+        yAxis.lineColor = axisLinesSettings.color ? axisLinesSettings.color : 'black'
         yAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
     })
 }
@@ -99,10 +99,7 @@ export const formatPictorialChart = (formattedChartModel: IHighchartsChartModel,
 
 const formatPictorialPlotOptions = (formattedChartModel: IHighchartsChartModel) => {
     formattedChartModel.plotOptions.series.stacking = 'percent'
-    formattedChartModel.plotOptions.series.dataLabels = {
-        enabled: true,
-        align: 'center',
-    }
+    formattedChartModel.plotOptions.series.dataLabels = { enabled: true, align: 'center', }
 }
 
 const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
