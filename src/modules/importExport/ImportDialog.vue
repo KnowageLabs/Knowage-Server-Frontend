@@ -141,7 +141,7 @@ export default defineComponent({
         async cleanTempDirectory() {
             if (this.token != '') {
                 this.uploadedFiles = []
-                await this.$http.get(import.meta.env.VITE_API_CONTEXT + '/api/1.0/import/cleanup', { params: { token: this.token } }).then(
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/import/cleanup', { params: { token: this.token } }).then(
                     () => {
                         this.token = ''
                         this.packageItems = {

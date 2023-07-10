@@ -15,5 +15,77 @@
             "transition": "0.5s ease",
             "width": "285px"
         }
-    }
+    },
+    "widgets": [
+        {
+            "description": "dashboard.widgets.text.description",
+            "name": "dashboard.widgets.text.title",
+            "type": "text"
+        },
+        {
+            "description": "dashboard.widgets.image.description",
+            "name": "dashboard.widgets.image.title",
+            "type": "image"
+        },
+        {
+            "description": "dashboard.widgets.chart.description",
+            "name": "dashboard.widgets.chart.title",
+            "type": "chart"
+        },
+        {
+            "description": "dashboard.widgets.html.description",
+            "name": "dashboard.widgets.html.title",
+            "type": "html"
+        },
+        {
+            "description": "dashboard.widgets.table.description",
+            "name": "dashboard.widgets.table.title",
+            "type": "table"
+        },
+        {
+            "description": "dashboard.widgets.static-pivot-table.description",
+            "name": "dashboard.widgets.static-pivot-table.title",
+            "type": "static-pivot-table"
+        },
+        {
+            "description": "dashboard.widgets.map.description",
+            "functionality": "dashboard.widgets.map.title",
+            "name": "Map",
+            "type": "map"
+        },
+        {
+            "description": "dashboard.widgets.selection.description",
+            "name": "dashboard.widgets.selection.title",
+            "type": "selection"
+        },
+        {
+            "description": "dashboard.widgets.selector.description",
+            "name": "dashboard.widgets.selector.title",
+            "type": "selector"
+        },
+        {
+            "description": "dashboard.widgets.customchart.description",
+            "functionality": "CreateCustomChart",
+            "name": "Custom Chart",
+            "type": "customchart"
+        },
+        {
+            "description": "dashboard.widgets.discovery.description",
+            "functionality": "DiscoveryWidgetUse",
+            "name": "dashboard.widgets.discovery.title",
+            "type": "discovery"
+        },
+        {
+            "description": "dashboard.widgets.python.description",
+            "functionality": "PythonWidget",
+            "name": "dashboard.widgets.python.title",
+            "type": "python"
+        },
+        {
+            "description": "dashboard.widgets.r.description",
+            "functionality": "PythonWidget",
+            "name": "dashboard.widgets.r.title",
+            "type": "r"
+        }
+    ]
 }

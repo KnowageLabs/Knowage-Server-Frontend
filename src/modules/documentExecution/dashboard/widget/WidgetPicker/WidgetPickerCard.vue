@@ -1,10 +1,10 @@
 <template>
-    <div id="widget-card" class="p-m-2" :style="descriptor.style.widgetCard" :title="$t(`dashboard.widgets.${widget.type}.description`)">
+    <div id="widget-card" class="p-m-2" :style="descriptor.style.widgetCard" :title="$t(widget.description)">
         <div id="widget-card-icon-container" class="p-d-flex p-ai-center p-jc-center">
             <div class="innerIcon" :style="documentImageSource()"></div>
         </div>
         <div class="p-d-flex p-flex-column p-ai-start p-jc-center">
-            <span class="p-ml-2 widgetTitle">{{ $t(`dashboard.widgets.${widget.type}.title`) }}</span>
+            <span class="p-ml-2 widgetTitle">{{ $t(widget.name) }}</span>
         </div>
     </div>
 </template>

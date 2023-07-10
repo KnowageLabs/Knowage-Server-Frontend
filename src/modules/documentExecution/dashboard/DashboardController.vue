@@ -282,13 +282,13 @@ export default defineComponent({
         },
         async loadHtmlGallery() {
             await this.$http
-                .get(import.meta.env.VITE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
                 .then((response: AxiosResponse<any>) => (this.htmlGallery = response.data))
                 .catch(() => {})
         },
         async loadCustomChartGallery() {
             await this.$http
-                .get(import.meta.env.VITE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
                 .then((response: AxiosResponse<any>) => (this.customChartGallery = response.data))
                 .catch(() => {})
         },
