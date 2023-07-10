@@ -31,7 +31,8 @@ export default defineComponent({
             this.htmlCode = mockedData.result
             console.log('-------- LOADED MOCKED DATA: ', this.htmlCode)
             console.log('--------  this.$refs.iframeRef: ', this.$refs.iframeRef)
-            this.$refs.iframeRef.contentDocument.write(this.htmlCode)
+            const iframeRef = this.$refs.iframeRef as any
+            if (iframeRef) iframeRef.contentDocument.write(this.htmlCode)
         },
         executeInteractions() {
             console.log('--------- CLICKED!')
