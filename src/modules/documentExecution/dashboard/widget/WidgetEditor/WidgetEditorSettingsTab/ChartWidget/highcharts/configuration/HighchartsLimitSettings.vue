@@ -1,9 +1,5 @@
 <template>
     <div v-if="limitModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ 'TODO' }}
-            {{ limitModel }}
-        </div>
         <div class="p-col-12 p-md-4 p-d-flex p-flex-column p-p-2">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.limit.sortBySerie') }}</label>
             <Dropdown v-model="limitModel.direction" class="kn-material-input" :options="seriesOptions" option-value="columnName" option-label="columnName" :disabled="limitSettingsDisabled"> </Dropdown>

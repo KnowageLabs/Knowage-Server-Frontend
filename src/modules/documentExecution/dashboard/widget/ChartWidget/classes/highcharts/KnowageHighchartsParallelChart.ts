@@ -2,7 +2,6 @@ import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateParallelChartModel } from './updater/KnowageHighchartsParallelChartUpdater'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
@@ -79,9 +78,5 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         for (let i = 0; i < measureColumns.length - 1; i++) {
             this.model.yAxis.push({ index: i })
         }
-    }
-
-    updateSeriesLabelSettings(widgetModel: IWidget) {
-        updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
     }
 }

@@ -98,7 +98,6 @@ export interface IHighchartsChartModel {
     noData: IHighchartsNoDataConfiguration,
     accessibility: IHighchartsAccessibilitySettings,
     series: any[],
-    settings: IHighchartsChartModelSettings,
     plotOptions: {
         pie?: any,
         gauge?: any,
@@ -197,11 +196,6 @@ export interface IHighchartsSerieAccessibility {
     description: string,
     exposeAsGroupOnly: boolean
     keyboardNavigation: { enabled: boolean }
-}
-
-export interface IHighchartsChartModelSettings {
-    drilldown: any, // TODO
-    categories: any // TODO
 }
 
 export interface IHighchartsLegend {
