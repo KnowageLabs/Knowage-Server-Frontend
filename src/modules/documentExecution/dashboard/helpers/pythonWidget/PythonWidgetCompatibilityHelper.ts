@@ -14,7 +14,7 @@ export const formatPythonWidget = (widget: any) => {
     console.log('----------- OLD PYTHON WIDGET: ', widget)
     const formattedWidget = {
         id: widget.id,
-        dataset: null,
+        dataset: widget.dataset.dsId,
         type: widget.type,
         columns: getFormattedWidgetColumns(widget, columnNameIdMap),
         theme: '',
