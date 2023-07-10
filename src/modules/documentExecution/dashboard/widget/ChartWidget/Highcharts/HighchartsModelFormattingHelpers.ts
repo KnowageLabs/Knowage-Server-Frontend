@@ -57,6 +57,7 @@ const formatHeatmapColors = (formattedChartModel: IHighchartsChartModel) => {
 
 export const formatRadar = (formattedChartModel: IHighchartsChartModel) => {
     formattedChartModel.chart.type = 'line'
+    formattedChartModel.chart.polar = true
 }
 
 export const formatBubble = (formattedChartModel: IHighchartsChartModel) => {
@@ -73,6 +74,9 @@ const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
 }
 
 export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    console.log('-------- CAAAAAAAAAAALED!')
+    formattedChartModel.chart.parallelCoordinates = true
+    formattedChartModel.chart.parallelAxes = { lineWidth: 2 }
     formatSplineChartVerticalAxisLines(formattedChartModel, widgetModel.settings.configuration?.axisLines)
 }
 

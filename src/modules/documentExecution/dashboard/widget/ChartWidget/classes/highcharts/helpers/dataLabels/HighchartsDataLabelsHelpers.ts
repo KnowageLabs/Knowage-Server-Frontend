@@ -38,18 +38,20 @@ const updateSpecificSeriesLabelSettings = (model: any, serieName: string, series
 
 const updateSeriesDataWithSerieSettings = (model: any, serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) => {
     serie.data.forEach((data: any) => {
-        data.dataLabels = {
-            backgroundColor: seriesSettings.label.backgroundColor ?? '',
-            enabled: true,
-            position: '',
-            style: {
-                fontFamily: seriesSettings.label.style.fontFamily,
-                fontSize: seriesSettings.label.style.fontSize,
-                fontWeight: seriesSettings.label.style.fontWeight,
-                color: seriesSettings.label.style.color ?? ''
-            },
-            formatter: function () {
-                return KnowageHighcharts.prototype.handleFormatter(this, seriesSettings.label, model.chart.type)
+        if (data instanceof Object) {
+            data.dataLabels = {
+                backgroundColor: seriesSettings.label.backgroundColor ?? '',
+                enabled: true,
+                position: '',
+                style: {
+                    fontFamily: seriesSettings.label.style.fontFamily,
+                    fontSize: seriesSettings.label.style.fontSize,
+                    fontWeight: seriesSettings.label.style.fontWeight,
+                    color: seriesSettings.label.style.color ?? ''
+                },
+                formatter: function () {
+                    return KnowageHighcharts.prototype.handleFormatter(this, seriesSettings.label, model.chart.type)
+                }
             }
         }
     })
@@ -62,9 +64,9 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
     model.series.forEach((serie: any) => {
         serie.data?.forEach((data: any) => {
             data.dataLabels = {
-                // alignTo: 'plotEdges',
+                alignTo: 'plotEdges',
                 backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
-                distance: -30,
+                distance: 30,
                 enabled: true,
                 position: '',
                 style: {

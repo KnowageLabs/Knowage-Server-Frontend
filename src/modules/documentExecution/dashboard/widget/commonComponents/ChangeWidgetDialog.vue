@@ -74,6 +74,7 @@ export default defineComponent({
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
                 column.fieldType === 'ATTRIBUTE' ? this.numberOfCategories++ : this.numberOfSeries++
             })
+            if (['area', 'bar', 'column', 'pie'].includes(this.widgetModel?.settings.chartModel?.model?.chart.type) && this.numberOfCategories > 0) this.numberOfCategories = 1
         },
         loadAvailableChartOptions() {
             this.availableChartOptions = []
@@ -199,9 +200,19 @@ export default defineComponent({
             return Math.max(...maxRanges) < Math.min(...maxRanges) * differenceValue
         },
         saveChargeChange() {
-            changeChartType(this.selectedWidget, this.widgetModel, this.isEnterprise)
+            const chartType = this.getChartType()
+            console.log('------- this.selectedWidget: ', chartType)
+            changeChartType(chartType, this.widgetModel, this.isEnterprise)
             this.$emit('close')
             console.log('-------- WIDGET MODEL AFTER CHART CHANGE: ', this.widgetModel)
+        },
+        getChartType() {
+            switch (this.selectedWidget) {
+                case 'parallel':
+                    return 'spline'
+                default:
+                    return this.selectedWidget
+            }
         }
     }
 })
