@@ -5,6 +5,10 @@ import { getFormattedStyle } from "./PythonWidgetStyleHelper"
 import { getFormattedInteractions } from "../common/WidgetInteractionsHelper"
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import * as  pythonWidgetDefaultValues from '../../widget/WidgetEditor/helpers/pythonWidget/PythonWidgetDefaultValues'
+import { getFormattedWidgetColumns } from "../common/WidgetColumnHelper"
+import { getFiltersForColumns } from "../DashboardBackwardCompatibilityHelper"
+
+const columnNameIdMap = {}
 
 export const formatPythonWidget = (widget: any) => {
     console.log('----------- OLD PYTHON WIDGET: ', widget)
@@ -12,11 +16,12 @@ export const formatPythonWidget = (widget: any) => {
         id: widget.id,
         dataset: null,
         type: widget.type,
-        columns: [],
+        columns: getFormattedWidgetColumns(widget, columnNameIdMap),
         theme: '',
         settings: {} as IPythonWidgetSettings
     } as IWidget
     formattedWidget.settings = getFormattedWidgetSettings(widget) as IPythonWidgetSettings
+    getFiltersForColumns(formattedWidget, widget)
     console.log('----------- FORMATTED PYTHON WIDGET: ', formattedWidget)
     return formattedWidget
 }
