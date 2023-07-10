@@ -8,12 +8,11 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '../../Dashboard'
 import { executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings } from '../interactionsHelpers/InteractionHelper'
-import mockedData from './mockedData.json'
 
 export default defineComponent({
     name: 'python-widget-container',
     components: {},
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: String, required: true }, editorMode: { type: Boolean } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: String, required: true }, editorMode: { type: Boolean }, dataToShow: { type: Object as any, required: true } },
     emits: [],
     data() {
         return {
@@ -28,9 +27,10 @@ export default defineComponent({
     unmounted() {},
     methods: {
         loadData() {
-            this.htmlCode = mockedData.result
+            console.log('----------- dataToShow: ', this.dataToShow)
+            this.htmlCode = this.dataToShow ? this.dataToShow.result : null
             const iframeRef = this.$refs.iframeRef as any
-            if (iframeRef) {
+            if (iframeRef && this.htmlCode) {
                 iframeRef.contentDocument.write(this.htmlCode)
                 const iframeBody = iframeRef.contentDocument?.body
                 // TODO - ASK ON PEER
@@ -38,6 +38,7 @@ export default defineComponent({
             }
         },
         executeInteractions() {
+            // TODO - ASK ON PEER
             console.log('---------  executeInteractions()')
             const crossNavigation = this.widgetModel.settings.interactions.crossNavigation
             if (!crossNavigation.enabled) return

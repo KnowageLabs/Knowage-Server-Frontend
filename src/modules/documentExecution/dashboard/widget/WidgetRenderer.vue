@@ -51,8 +51,8 @@
                 @searchWordChanged="$emit('reloadData')"
             />
             <VegaContainer v-if="widget.type === 'vega'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId"></VegaContainer>
-            <PythonWidgetContainer v-if="widget.type === 'python'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" />
-            <RWidgetContainer v-if="widget.type === 'r'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" />
+            <PythonWidgetContainer v-if="widget.type === 'python'" :widget-model="widget" :data-to-show="dataToShow" :dashboard-id="dashboardId" :editor-mode="false" />
+            <RWidgetContainer v-if="widget.type === 'r'" :widget-model="widget" :data-to-show="dataToShow" :dashboard-id="dashboardId" :editor-mode="false" />
         </div>
     </div>
 </template>
