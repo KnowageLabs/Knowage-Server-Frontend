@@ -15,7 +15,7 @@
 
         <template #footer>
             <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="$emit('close')"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="$emit('close')"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="saveChargeChange"></Button>
         </template>
     </Dialog>
 </template>
@@ -59,7 +59,6 @@ export default defineComponent({
     methods: {
         selectWidget(widgetName) {
             this.selectedWidget = widgetName
-            changeChartType(widgetName, this.widgetModel, this.isEnterprise)
         },
         getImageSource(widgetType: string) {
             return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/changeWidgetTypes/${widgetType}.png`
@@ -198,6 +197,11 @@ export default defineComponent({
                 .forEach((key: any) => maxRanges.push(this.widgetData.stats[key].max ?? 0))
 
             return Math.max(...maxRanges) < Math.min(...maxRanges) * differenceValue
+        },
+        saveChargeChange() {
+            changeChartType(this.selectedWidget, this.widgetModel, this.isEnterprise)
+            this.$emit('close')
+            console.log('-------- WIDGET MODEL AFTER CHART CHANGE: ', this.widgetModel)
         }
     }
 })
