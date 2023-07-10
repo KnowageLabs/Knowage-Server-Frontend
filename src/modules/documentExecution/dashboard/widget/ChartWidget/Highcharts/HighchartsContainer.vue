@@ -93,10 +93,12 @@ export default defineComponent({
         setEventListeners() {
             emitter.on('refreshChart', this.onRefreshChart)
             emitter.on('widgetResized', this.resizeChart)
+            emitter.on('chartTypeChanged', this.onRefreshChart)
         },
         removeEventListeners() {
             emitter.off('refreshChart', this.onRefreshChart)
             emitter.off('widgetResized', this.resizeChart)
+            emitter.off('chartTypeChanged', this.onRefreshChart)
         },
         onRefreshChart(widgetId: any | null = null) {
             if (widgetId && widgetId !== this.widgetModel.id) return
