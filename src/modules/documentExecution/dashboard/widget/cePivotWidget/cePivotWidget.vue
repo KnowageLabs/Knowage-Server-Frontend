@@ -137,6 +137,7 @@ export default defineComponent({
         },
         //#region ===================== Cell Click Events  ====================================================
         onCellClicked(cellEvent: any) {
+            console.log('cellEvent ------------- \n', cellEvent)
             if (this.editorMode) return
             const attributes = cellEvent.target.attributes
             const clickAttribute = attributes.getNamedItem('ng-click')
