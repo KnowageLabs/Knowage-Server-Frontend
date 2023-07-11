@@ -29,7 +29,7 @@ export const getRData = async (dashboardId: any, widget: IWidget, datasets: IDas
             })
 
         const imgPostData = {
-            datasetLabel: selectedDataset.dsLabel,
+            dataset: selectedDataset.dsLabel,
             r_environment: widget.settings.editor.environment,
             output_variable: widget.settings.editor.outputName,
             drivers: JSON.stringify(postData.drivers), // sends stringified drivers, but Python doesnt?
