@@ -12,9 +12,8 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
     if (selectedDataset) {
         let url = ''
         const pagination = widget.settings.pagination
-        if (pagination.enabled) {
-            url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
-        } else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
+        if (pagination && pagination.enabled) url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
+        else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatTableWidgetModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
 
@@ -28,7 +27,7 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
             .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
-                if (pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
+                if (pagination && pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             })
             .catch((error: any) => {
                 showGetDataError(error, selectedDataset.dsLabel)
@@ -61,8 +60,10 @@ const formatTableWidgetModelForService = (dashboardId: any, widget: IWidget, dat
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend)
 
-    if (widget.settings.configuration.summaryRows.enabled) dataToSend.summaryRow = getSummaryRow(widget)
-    if (widget.type === 'table') dataToSend.options = { solrFacetPivot: true } //if dataset is table solr, it needs this option
+    if (widget.type === 'table') {
+        if (widget.settings.configuration.summaryRows.enabled) dataToSend.summaryRow = getSummaryRow(widget)
+        dataToSend.options = { solrFacetPivot: true } //if dataset is table solr, it needs this option
+    }
 
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
