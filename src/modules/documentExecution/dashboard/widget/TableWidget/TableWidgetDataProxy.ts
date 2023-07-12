@@ -9,9 +9,6 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
 
     const datasetLabel = selectedDataset.dsLabel as string
 
-    const formattedLikeSelections = searchParams.searchColumns.toString()
-    const formattedSelections = { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }
-
     if (selectedDataset) {
         let url = ''
         const pagination = widget.settings.pagination
@@ -20,7 +17,10 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
         } else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatTableWidgetModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
-        if (searchParams.searchText != '' && searchParams.searchColumns.length > 0) postData.likeSelections = formattedSelections
+
+        const formattedSelections = getLikeSelections(searchParams, datasetLabel)
+        if (formattedSelections != null) postData.likeSelections = formattedSelections
+
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
@@ -112,4 +112,11 @@ const getSummaryRow = (widget: IWidget) => {
     }
 
     return summaryArray
+}
+
+const getLikeSelections = (searchParams: IWidgetSearch, datasetLabel: string) => {
+    if (searchParams && searchParams?.searchText != '' && searchParams?.searchColumns.length > 0) {
+        const formattedLikeSelections = searchParams.searchColumns.toString()
+        return { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }
+    } else return null
 }
