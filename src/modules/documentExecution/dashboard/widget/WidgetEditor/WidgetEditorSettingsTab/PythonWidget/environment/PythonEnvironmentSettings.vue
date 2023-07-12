@@ -64,18 +64,23 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => (this.environments = response.data))
                 .catch(() => {})
             this.setLoading(false)
-            console.log('----- ENV LOADED: ', this.environments)
         },
         async onEnvironmentSelected() {
-            console.log('----- ENV SELECTED: ', this.selectedEnvironment)
             if (this.widget?.settings.editor) this.widget.settings.editor = this.selectedEnvironment
             this.setLoading(true)
             const envUrlType = this.widget?.type === 'r' ? 'RWidget' : 'python'
             await this.$http
                 .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/backendservices/widgets/${envUrlType}/libraries/${this.selectedEnvironment}`)
-                .then((response: AxiosResponse<any>) => (this.environmentLibraries = JSON.parse(response.data.result)))
+                .then((response: AxiosResponse<any>) => (this.environmentLibraries = envUrlType === 'RWidget' && response.data.result ? this.getFormattedRLibraries(JSON.parse(response.data.result)) : JSON.parse(response.data.result)))
                 .catch(() => {})
             this.setLoading(false)
+        },
+        getFormattedRLibraries(librariesFromBackend: string[][] | null) {
+            if (!librariesFromBackend) return []
+            const formattedLibraries = librariesFromBackend.map((tempLibrary: string[]) => {
+                return { name: tempLibrary[0], version: tempLibrary[1] }
+            })
+            return formattedLibraries
         }
     }
 })

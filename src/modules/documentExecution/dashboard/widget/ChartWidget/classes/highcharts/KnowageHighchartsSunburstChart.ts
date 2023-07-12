@@ -63,7 +63,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
 
     setSunburstData = (data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], interactionsEnabled = false) => {
-        console.log('-------- DATA: ', data)
+        console.log('-------- DATA FOR SUNBURST: ', data)
         console.log('-------- measureColumns: ', measureColumns)
         console.log('-------- attributeColumns: ', attributeColumns)
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return

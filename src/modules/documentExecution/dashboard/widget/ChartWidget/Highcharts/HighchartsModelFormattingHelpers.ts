@@ -74,7 +74,6 @@ const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
 }
 
 export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
-
     formattedChartModel.chart.parallelCoordinates = true
     formattedChartModel.chart.parallelAxes = { lineWidth: 2 }
     formatSplineChartVerticalAxisLines(formattedChartModel, widgetModel.settings.configuration?.axisLines)

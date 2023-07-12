@@ -806,7 +806,7 @@
                 "svg": {
                     "definition": "Definition",
                     "error": "No path element with d attribute found in SVG file.",
-                    "hint": "SVG Hint Placegolder",
+                    "hint": "SVG Hint Placeholder",
                     "title": "SVG",
                     "upload": "Upload SVG"
                 },

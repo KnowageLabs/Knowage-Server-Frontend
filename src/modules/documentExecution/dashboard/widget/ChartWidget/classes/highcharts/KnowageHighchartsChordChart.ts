@@ -2,7 +2,6 @@ import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateChordChartModel } from './updater/KnowageHighchartsChordChartUpdater'
 import { getAllColumnsOfSpecificTypeFromDataResponse, setSankeyData } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
@@ -61,9 +60,5 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
         setSankeyData(this.model, data, attributeColumns, measureColumns, dateFormat)
 
         return this.model.series
-    }
-
-    updateSeriesLabelSettings(widgetModel: IWidget) {
-        updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
 }

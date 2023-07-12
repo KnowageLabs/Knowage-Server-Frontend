@@ -2,12 +2,12 @@ import { KnowageHighcharts } from './KnowageHighcharts'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateSankeyChartModel } from './updater/KnowageHighchartsSankeyChartUpdater'
 import { getAllColumnsOfSpecificTypeFromDataResponse, setSankeyData } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
     constructor(model: any, inverted: boolean) {
+        console.log('------- KnowageHighchartsSankeyChart inverted: ', inverted)
         super()
         this.setSpecificOptionsDefaultValues(inverted)
         if (model && model.CHART) this.updateModel(deepcopy(model))
@@ -26,9 +26,24 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues(inverted: boolean) {
         this.model.chart.inverted = inverted
+        this.setPlotOptions()
         this.setChordXAxis()
         this.setChordYAxis()
     }
+
+    setPlotOptions() {
+        console.log('------------ CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALED!', this.model)
+        this.model.plotOptions.dependencywheel = {
+            dataLabels: {
+                enabled: true,
+                align: 'center'
+            },
+            showInLegend: true,
+            colorByPoint: true,
+            legendType: 'point'
+        }
+    }
+
 
     setChordXAxis() {
         if (this.model.xAxis && this.model.xAxis[0]) this.model.xAxis[0] = [highchartsDefaultValues.getDefaultBarXAxis()]
@@ -49,9 +64,5 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
 
         setSankeyData(this.model, data, attributeColumns, measureColumns, dateFormat)
         return this.model.series
-    }
-
-    updateSeriesLabelSettings(widgetModel: IWidget) {
-        updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
 }

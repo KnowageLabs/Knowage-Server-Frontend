@@ -1,5 +1,5 @@
 <template>
-    <div id="container" class="kn-cursor-pointer" @click="executeInteractions">
+    <div id="container" class="kn-cursor-pointer">
         <Message v-if="!htmlCode && !loading" class="p-d-flex p-jc-center p-m-2" severity="info" :closable="false">
             {{ $t('dashboard.widgetEditor.python.error') }}
         </Message>
@@ -10,7 +10,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '../../Dashboard'
-import { executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings } from '../interactionsHelpers/InteractionHelper'
 import Message from 'primevue/message'
 
 export default defineComponent({
@@ -36,21 +35,8 @@ export default defineComponent({
             this.loading = true
             this.htmlCode = this.dataToShow ? this.dataToShow.result : null
             const iframeRef = this.$refs.iframeRef as any
-            if (iframeRef && this.htmlCode) {
-                iframeRef.contentDocument.write(this.htmlCode)
-                const iframeBody = iframeRef.contentDocument?.body
-                // TODO - ASK ON PEER
-                if (iframeBody) iframeBody.addEventListener('click', this.executeInteractions)
-            }
+            if (iframeRef && this.htmlCode) iframeRef.contentDocument.write(this.htmlCode)
             this.loading = false
-        },
-        executeInteractions() {
-            // TODO - ASK ON PEER
-            console.log('---------  executeInteractions()')
-            if (!this.htmlCode) return
-            const crossNavigation = this.widgetModel.settings.interactions.crossNavigation
-            if (!crossNavigation.enabled) return
-            executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings(crossNavigation, this.dashboardId)
         }
     }
 })

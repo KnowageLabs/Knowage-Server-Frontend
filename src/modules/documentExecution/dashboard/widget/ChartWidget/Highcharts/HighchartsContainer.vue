@@ -114,7 +114,7 @@ export default defineComponent({
             this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel)
 
             this.widgetModel.settings.chartModel.updateSeriesAccessibilitySettings(this.widgetModel)
-            if (this.chartModel.chart.type !== 'heatmap' && this.chartModel.chart.type !== 'spline') this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
+            if (!['heatmap', 'chord', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
             if (this.chartModel.chart.type === 'heatmap') this.updateAxisLabels()
             else if (this.chartModel.chart.type !== 'radar') this.updateDataLabels()
             this.error = this.updateLegendSettings()
