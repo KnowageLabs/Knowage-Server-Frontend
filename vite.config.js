@@ -38,7 +38,7 @@ export default defineConfig((command, mode) => {
                     short_name: 'Knowage',
                     start_url: '.',
                     display: 'standalone',
-                    scope: '/knowage-vue/',
+                    scope: env.VITE_PUBLIC_PATH,
                     orientation: 'landscape',
                     background_color: '#3b678c',
                     theme_color: '#3b678c',
@@ -80,7 +80,7 @@ export default defineConfig((command, mode) => {
             quasar()
         ],
         define: {
-            _KNOWAGE_VERSION: JSON.stringify(process.env.npm_package_version)
+            _KNOWAGE_VERSION: JSON.stringify(env.npm_package_version)
         },
         resolve: {
             extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
@@ -98,7 +98,7 @@ export default defineConfig((command, mode) => {
         },
         base: env.VITE_PUBLIC_PATH,
         build: {
-            outDir: './target/knowage-vue',
+            outDir: `./target${env.VITE_KNOWAGE_VUE_CONTEXT}`,
             sourcemap: true,
             rollupOptions: {
                 output: {
