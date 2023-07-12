@@ -9,18 +9,17 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
 
     const datasetLabel = selectedDataset.dsLabel as string
 
-    const formattedLikeSelections = searchParams?.searchColumns?.toString()
-    const formattedSelections = { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }
-
     if (selectedDataset) {
         let url = ''
         const pagination = widget.settings.pagination
-        if (pagination.enabled) {
-            url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
-        } else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
+        if (pagination && pagination.enabled) url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
+        else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatTableWidgetModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
-        if (searchParams.searchText != '' && searchParams.searchColumns.length > 0) postData.likeSelections = formattedSelections
+
+        const formattedSelections = getLikeSelections(searchParams, datasetLabel)
+        if (formattedSelections != null) postData.likeSelections = formattedSelections
+
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
@@ -28,7 +27,7 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
             .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
-                if (pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
+                if (pagination && pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             })
             .catch((error: any) => {
                 showGetDataError(error, selectedDataset.dsLabel)
@@ -61,8 +60,10 @@ const formatTableWidgetModelForService = (dashboardId: any, widget: IWidget, dat
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend)
 
-    if (widget.settings.configuration.summaryRows.enabled) dataToSend.summaryRow = getSummaryRow(widget)
-    if (widget.type === 'table') dataToSend.options = { solrFacetPivot: true } //if dataset is table solr, it needs this option
+    if (widget.type === 'table') {
+        if (widget.settings.configuration.summaryRows.enabled) dataToSend.summaryRow = getSummaryRow(widget)
+        dataToSend.options = { solrFacetPivot: true } //if dataset is table solr, it needs this option
+    }
 
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
@@ -112,4 +113,11 @@ const getSummaryRow = (widget: IWidget) => {
     }
 
     return summaryArray
+}
+
+const getLikeSelections = (searchParams: IWidgetSearch, datasetLabel: string) => {
+    if (searchParams && searchParams?.searchText != '' && searchParams?.searchColumns.length > 0) {
+        const formattedLikeSelections = searchParams.searchColumns.toString()
+        return { [datasetLabel]: { [formattedLikeSelections]: searchParams.searchText } }
+    } else return null
 }
