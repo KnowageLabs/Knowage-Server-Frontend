@@ -25,9 +25,9 @@
             <Button v-tooltip.left="$t('common.menu')" icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain editor-tags-menu-button" @click="toggle"></Button>
         </div>
 
-        <div class="p-col-12">
+        <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
             <label class="kn-material-input-label p-m-3"> {{ $t('common.script') }}</label>
-            <KnMonaco ref="monacoEditor" v-model="editorSettings.script" :options="{ theme: 'vs-light' }" :language="widgetModel.type === 'python' ? 'python' : 'r'" :text-to-insert="textToInsert" @stringInserted="textToInsert = ''" />
+            <KnMonaco ref="monacoEditor" style="height: 500px" v-model="editorSettings.script" :options="{ theme: 'vs-light' }" :language="widgetModel.type === 'python' ? 'python' : 'r'" :text-to-insert="textToInsert" @stringInserted="textToInsert = ''" />
         </div>
     </div>
 
@@ -112,11 +112,6 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
-#python-widget-editor {
-    height: 500px;
-    width: 100%;
-}
-
 .editor-tags-menu-button {
     position: absolute;
     font-size: 20px;
