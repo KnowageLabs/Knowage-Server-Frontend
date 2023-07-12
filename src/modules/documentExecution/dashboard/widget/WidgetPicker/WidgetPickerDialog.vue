@@ -22,7 +22,6 @@
  * ! this component is in charge of opening the correct widget editor and containing all the cards
  */
 import { defineComponent } from 'vue'
-import { AxiosResponse } from 'axios'
 import { IWidgetPickerType } from '../../Dashboard'
 import { mapState } from 'pinia'
 import appStore from '@/App.store'
@@ -44,16 +43,19 @@ export default defineComponent({
     },
     computed: {
         ...mapState(appStore, {
-            isEnterprise: 'isEnterprise'
+            isEnterprise: 'isEnterprise',
+            user: 'user'
         })
     },
     created() {
-        this.getWidgetTypes()
+        this.widgetTypes = descriptor.widgets.filter((item: any) => {
+            if (item.functionality) {
+                return this.user.functionalities.includes(item.functionality)
+            }
+            return item
+        })
     },
     methods: {
-        async getWidgetTypes() {
-            await this.$http.get(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/engine/widget`).then((response: AxiosResponse<any>) => (this.widgetTypes = response.data))
-        },
         openWidgetEditor(widget) {
             // TODO widgetChange
             if (widget.type === 'chart') widget.type = this.isEnterprise ? 'highcharts' : 'chartJS'

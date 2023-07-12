@@ -29,7 +29,7 @@ export default defineComponent({
             return {
                 'background-size': this.backgroundSize,
                 'background-position': this.backgroundPositionX + ' ' + this.backgroundPositionY,
-                'background-image': `url(/knowage/restful-services/1.0/images/getImage?IMAGES_ID=${this.widgetModel.settings.configuration.image.id})`
+                'background-image': `url(${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/images/getImage?IMAGES_ID=${this.widgetModel.settings.configuration.image.id})`
             }
         }
     },

@@ -402,6 +402,13 @@
                 "sheetsImage": "Sheets Background Image URL",
                 "sheetsSize": "Sheets Background Size"
             },
+            "css": "CSS Editor",
+            "menuWidgets": {
+                "showExcelExport": "Show excel export functionality on widgets",
+                "showScreenshot": "Enable screenshot functionality on widgets",
+                "showSelectionButton": "Always show selection button",
+                "title": "Menu & Widgets"
+            },
             "profile": "Profile",
             "title": "General Settings",
             "variableColumnHint": "If no column is defined the whole dataset will be used.",

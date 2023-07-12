@@ -122,7 +122,7 @@ export default defineComponent({
 
             this.mapCategories()
 
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/roles/'
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/roles/'
             if (this.selectedRole.id) {
                 this.operation = 'update'
                 url += this.selectedRole.id

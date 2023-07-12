@@ -31,35 +31,35 @@ const baseRoutes = [
         props: (route) => ({ url: route.params.url, externalLink: true })
     },
     {
-        path: '/knowage/servlet/:catchAll(.*)',
+        path: `${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/:catchAll(.*)`,
         name: 'knowageUrl',
         component: IframeRenderer,
         props: (route) => ({ url: route.fullPath })
     },
     {
-        path: '/knowage/restful-services/publish:catchAll(.*)',
+        path: `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish:catchAll(.*)`,
         component: IframeRenderer,
         props: (route) => ({ url: route.fullPath })
     },
     {
-        path: '/knowage/restful-services/signup:catchAll(.*)',
+        path: `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/signup:catchAll(.*)`,
         component: IframeRenderer,
         props: (route) => ({ url: route.fullPath })
     },
     {
-        path: '/knowage/restful-services/2.0/installconfig',
+        path: `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/installconfig`,
         component: IframeRenderer,
         props: (route) => ({ url: route.fullPath })
     },
     {
-        path: '/knowage/themes:catchAll(.*)',
+        path: `${import.meta.env.VITE_KNOWAGE_CONTEXT}/themes:catchAll(.*)`,
         component: IframeRenderer,
         props: (route) => ({ url: route.fullPath })
     },
     {
         path: '/login',
         name: 'login',
-        redirect: import.meta.env.VITE_HOST_URL + '/knowage/servlet/AdapterHTTP?ACTION_NAME=LOGOUT_ACTION&LIGHT_NAVIGATOR_DISABLED=TRUE&NEW_SESSION=TRUE'
+        redirect: `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOGOUT_ACTION&LIGHT_NAVIGATOR_DISABLED=TRUE&NEW_SESSION=TRUE`
     },
     {
         path: '/:catchAll(.*)',

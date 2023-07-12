@@ -474,12 +474,10 @@ export interface IDashboardDatasetDriver {
 }
 
 export interface IWidgetPickerType {
-    cssClass: string
-    descKey: string
-    img: string
+    description: string
     name: string
-    tags: Array<string>
     type: string
+    functionality?: string
 }
 
 export interface IDatasetOptions {
