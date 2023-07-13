@@ -226,7 +226,6 @@ export default defineComponent({
             await Promise.all([this.loadProfileAttributes(), this.loadModel(), this.loadInternationalization()])
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadHtmlGallery()
-            // TODO - Add condition?
             this.loadPythonGallery()
             this.loadCustomChartGallery()
             this.loadOutputParameters()
@@ -286,19 +285,19 @@ export default defineComponent({
         },
         async loadHtmlGallery() {
             await this.$http
-                .get(import.meta.env.VITE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
                 .then((response: AxiosResponse<any>) => (this.htmlGallery = response.data))
                 .catch(() => {})
         },
         async loadPythonGallery() {
             await this.$http
-                .get(import.meta.env.VITE_API_PATH + `1.0/widgetgallery/widgets/python`)
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
                 .then((response: AxiosResponse<any>) => (this.pythonGallery = response.data))
                 .catch(() => {})
         },
         async loadCustomChartGallery() {
             await this.$http
-                .get(import.meta.env.VITE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
                 .then((response: AxiosResponse<any>) => (this.customChartGallery = response.data))
                 .catch(() => {})
         },

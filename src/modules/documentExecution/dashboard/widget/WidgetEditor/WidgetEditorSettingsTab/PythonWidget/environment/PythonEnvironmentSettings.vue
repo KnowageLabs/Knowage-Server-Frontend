@@ -60,7 +60,7 @@ export default defineComponent({
             this.setLoading(true)
             const configuration = this.widget?.type === 'r' ? 'R_CONFIGURATION' : 'PYTHON_CONFIGURATION'
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/configs/category/${configuration}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/category/${configuration}`)
                 .then((response: AxiosResponse<any>) => (this.environments = response.data))
                 .catch(() => {})
             this.setLoading(false)
@@ -70,7 +70,7 @@ export default defineComponent({
             this.setLoading(true)
             const envUrlType = this.widget?.type === 'r' ? 'RWidget' : 'python'
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/backendservices/widgets/${envUrlType}/libraries/${this.selectedEnvironment}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/${envUrlType}/libraries/${this.selectedEnvironment}`)
                 .then((response: AxiosResponse<any>) => (this.environmentLibraries = envUrlType === 'RWidget' && response.data.result ? this.getFormattedRLibraries(JSON.parse(response.data.result)) : JSON.parse(response.data.result)))
                 .catch(() => {})
             this.setLoading(false)

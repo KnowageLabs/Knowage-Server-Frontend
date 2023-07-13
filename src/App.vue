@@ -119,7 +119,7 @@ export default defineComponent({
                 const splittedLanguage = language.locale.split('_')
 
                 if (responseLocale !== storedLocale) {
-                    let url = '/knowage/servlet/AdapterHTTP?'
+                    let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/servlet/AdapterHTTP?'
                     url += 'ACTION_NAME=CHANGE_LANGUAGE'
                     url += '&LANGUAGE_ID=' + splittedLanguage[0]
                     url += '&COUNTRY_ID=' + splittedLanguage[1].toUpperCase()
