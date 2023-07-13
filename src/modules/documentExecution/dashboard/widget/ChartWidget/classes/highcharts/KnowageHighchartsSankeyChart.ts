@@ -7,7 +7,6 @@ import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWid
 
 export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
     constructor(model: any, inverted: boolean) {
-        console.log('------- KnowageHighchartsSankeyChart inverted: ', inverted)
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
@@ -41,9 +40,7 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
             colorByPoint: true,
             legendType: 'point'
         }
-        console.log('------------ CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALED setPlotOptions!', this.model)
     }
-
 
     setChordXAxis() {
         if (this.model.xAxis && this.model.xAxis[0]) this.model.xAxis[0] = [highchartsDefaultValues.getDefaultBarXAxis()]

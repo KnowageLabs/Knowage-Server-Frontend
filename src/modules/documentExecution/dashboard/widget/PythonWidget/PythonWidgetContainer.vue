@@ -31,7 +31,6 @@ export default defineComponent({
     unmounted() {},
     methods: {
         loadData() {
-            console.log('----------- dataToShow: ', this.dataToShow)
             this.loading = true
             this.htmlCode = this.dataToShow ? this.dataToShow.result : null
             const iframeRef = this.$refs.iframeRef as any

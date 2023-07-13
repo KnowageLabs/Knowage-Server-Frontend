@@ -26,8 +26,6 @@ import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/c
 const columnNameIdMap = {}
 
 export const formatHighchartsWidget = (widget: any) => {
-    console.log('----------- OLD WIDGET: ', widget)
-
     const oldChart = widget.content?.chartTemplate?.CHART
     const formattedWidget = {
         id: widget.id,
@@ -41,8 +39,6 @@ export const formatHighchartsWidget = (widget: any) => {
     formattedWidget.settings = getFormattedWidgetSettings(widget, oldChart?.type) as IHighchartsWidgetSettings
     getFiltersForColumns(formattedWidget, widget)
     formattedWidget.settings.chartModel = createChartModel(widget, oldChart?.type, oldChart?.seriesStacking)
-
-    console.log('----------- FORMATTED WIDGET: ', formattedWidget)
     return formattedWidget
 }
 

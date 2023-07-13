@@ -114,8 +114,6 @@ export const formatHighchartsWidget = (widget: IWidget) => {
 }
 
 export const createNewHighchartsModel = (widget: IWidget, chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean, isInverted: boolean) => {
-    console.log('------ IS INVERTED: ', isInverted)
-    console.log('------ IS chartType: ', chartType)
     switch (chartType) {
         case 'pie':
             return new KnowageHighchartsPieChart(model)

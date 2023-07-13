@@ -11,7 +11,6 @@ import { getFiltersForColumns } from "../DashboardBackwardCompatibilityHelper"
 const columnNameIdMap = {}
 
 export const formatPythonWidget = (widget: any) => {
-    console.log('----------- OLD PYTHON WIDGET: ', widget)
     const formattedWidget = {
         id: widget.id,
         dataset: widget.dataset.dsId,
@@ -22,7 +21,6 @@ export const formatPythonWidget = (widget: any) => {
     } as IWidget
     formattedWidget.settings = getFormattedWidgetSettings(widget) as IPythonWidgetSettings
     getFiltersForColumns(formattedWidget, widget)
-    console.log('----------- FORMATTED PYTHON WIDGET: ', formattedWidget)
     return formattedWidget
 }
 

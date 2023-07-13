@@ -42,11 +42,8 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
-        console.log('-------- ATTRIBUTE COLUMNS: ', attributeColumns)
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
-        console.log('-------- MEASURE COLUMNS: ', measureColumns)
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        console.log('--------- DATA: ', data)
         this.setParallelData(data, attributeColumns, measureColumns, dateFormat)
         return this.model.series
     }

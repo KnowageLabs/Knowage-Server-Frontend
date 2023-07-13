@@ -52,7 +52,6 @@ export default defineComponent({
     },
     watch: {},
     created() {
-        console.log('------------ OPTIONS: ', descriptor.availableWidgets)
         this.loadData()
     },
     mounted() {},
@@ -78,7 +77,6 @@ export default defineComponent({
         },
         loadAvailableChartOptions() {
             this.availableChartOptions = []
-            console.log('-------- WIDGET MODEL: ', this.widgetModel)
 
             const seriesStacking = this.widgetModel.settings.chartModel?.model?.plotOptions?.series?.stacking ? true : false
             const groupedSeries = this.widgetModel.settings.configuration?.grouping ? this.widgetModel.settings.configuration.grouping.enabled || this.widgetModel.settings.configuration.grouping.secondSeries.enabled || this.widgetModel.settings.configuration.grouping.secondDimension.enabled : false
@@ -103,13 +101,9 @@ export default defineComponent({
                 )
                     this.availableChartOptions.push(chartOption)
             })
-            console.log('-------- availableChartOptions', this.availableChartOptions)
         },
         loadStarredChartsMap() {
             this.starredChartOptionsMap = {}
-            console.log('------ DATA TO SHOW: ', this.widgetData)
-            console.log('---------- this.numberOfCategories: ', this.numberOfCategories)
-            console.log('---------- this.numberOfSeries: ', this.numberOfSeries)
 
             if (this.numberOfCategories === 0) {
                 ;['gauge', 'solidgauge', 'activitygauge'].forEach((chartType: string) => (this.starredChartOptionsMap[chartType] = true))
@@ -122,16 +116,13 @@ export default defineComponent({
             } else if (this.numberOfCategories > 1 && this.numberOfSeries > 1) {
                 this.starredChartOptionsMap['bubble'] = true
             }
-            console.log('-------- starredChartOptionsMap', this.starredChartOptionsMap)
         },
         loadStarredChartsMapForOnlyOneCategoryAndMeasure() {
             const typeOfCategory = this.getFirstCategoryType()
-            console.log('-------- typeOfCategory: ', typeOfCategory)
             if (['float', 'int'].includes(typeOfCategory)) {
                 this.starredChartOptionsMap['scatter'] = true
             } else {
                 const categoryCardinality = this.getFirstCategoryCardinality()
-                console.log('-------- categoryCardinality: ', categoryCardinality)
                 if (categoryCardinality >= 1 && categoryCardinality <= 2) {
                     this.starredChartOptionsMap['bar'] = true
                 } else if (categoryCardinality >= 3 && categoryCardinality <= 6) {
@@ -145,7 +136,6 @@ export default defineComponent({
         },
         loadStarredChartsMapForOnlyOneCategoryAndMultipleMeasures() {
             const typeOfCategory = this.getFirstCategoryType()
-            console.log('-------- typeOfCategory: ', typeOfCategory)
             const seriesStacking = this.widgetModel.settings.chartModel?.model?.plotOptions?.series?.stacking ? true : false
             if (seriesStacking) {
                 this.starredChartOptionsMap['bar'] = true
@@ -157,7 +147,6 @@ export default defineComponent({
                         this.starredChartOptionsMap[['date', 'timestamp'].includes(typeOfCategory) ? 'line' : 'bar'] = true
                     } else if (this.numberOfSeries === 3) {
                         const rangesAreValid = this.checkMeasureRangeValuesAreValid(10)
-                        console.log('------- rangesAreValid: ', rangesAreValid)
                         this.starredChartOptionsMap[rangesAreValid ? 'bar' : 'bubble'] = true
                     } else if (this.numberOfSeries >= 4 && this.numberOfSeries <= 6) {
                         this.starredChartOptionsMap['bar'] = true
@@ -172,9 +161,8 @@ export default defineComponent({
                 const groupedSeries = this.widgetModel.settings.configuration?.grouping
                     ? this.widgetModel.settings.configuration.grouping.enabled || this.widgetModel.settings.configuration.grouping.secondSeries.enabled || this.widgetModel.settings.configuration.grouping.secondDimension.enabled
                     : false
-                console.log('-------- groupedSeries: ', groupedSeries)
+
                 const typeOfCategory = this.getFirstCategoryType()
-                console.log('-------- typeOfCategory: ', typeOfCategory)
                 if (groupedSeries) {
                     this.starredChartOptionsMap[['date', 'timestamp'].includes(typeOfCategory) ? 'line' : 'bar'] = true
                 } else {
@@ -201,10 +189,8 @@ export default defineComponent({
         },
         saveChargeChange() {
             const chartType = this.getChartType()
-            console.log('------- this.selectedWidget: ', chartType)
             changeChartType(chartType, this.widgetModel, this.isEnterprise)
             this.$emit('close')
-            console.log('-------- WIDGET MODEL AFTER CHART CHANGE: ', this.widgetModel)
         },
         getChartType() {
             switch (this.selectedWidget) {

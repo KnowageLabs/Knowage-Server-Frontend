@@ -11,10 +11,6 @@ import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/co
 const columnNameIdMap = {}
 
 export const formatCEPivotTabletWidget = (widget: any) => {
-    console.group('OLD PIVOT ---------------------')
-    console.log(widget)
-    console.groupEnd()
-
     const formattedWidget = {
         id: widget.id,
         dataset: widget.dataset.dsId,
@@ -26,14 +22,8 @@ export const formatCEPivotTabletWidget = (widget: any) => {
         settings: {} as ICePivotTableSettings
     } as IWidget
     formattedWidget.settings = getFormattedWidgetSettings(widget)
-
     getFiltersForColumns(formattedWidget, widget)
     getSettingsFromPivotTableWidgetColumns(formattedWidget, widget)
-
-    console.group('FORMATTED PIVOT ---------------------')
-    console.log(formattedWidget)
-    console.groupEnd()
-
     return formattedWidget
 }
 

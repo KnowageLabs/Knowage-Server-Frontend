@@ -54,7 +54,6 @@ export default defineComponent({
 
     methods: {
         onInsertChanged(value: string) {
-            console.log('--------- onInsertChanged: ', value)
             this.forInsert = value
         },
         addInsert() {
