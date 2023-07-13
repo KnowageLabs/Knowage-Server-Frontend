@@ -13,7 +13,7 @@ const builtinsPlugin = { ...builtins({ crypto: true }), name: 'rollup-plugin-nod
 const build = {
     rollupOptions: {
         input: {
-            'sgdt-knowage-vue': new URL('./index.html', import.meta.url).href
+            'knowage-vue': new URL('./index.html', import.meta.url).href
         }
     }
 }
