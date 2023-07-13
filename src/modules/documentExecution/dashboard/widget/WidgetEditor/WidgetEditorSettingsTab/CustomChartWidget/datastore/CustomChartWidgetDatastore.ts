@@ -285,11 +285,11 @@ export class CustomChartDatastore {
     }
 
     getState() {
-        return this.state
+        return JSON.parse(this.state)
     }
 
     setState(state: any) {
-        window?.parent?.postMessage({ type: 'setState', payload: state }, '*')
+        window?.parent?.postMessage({ type: 'setState', payload: JSON.stringify(state) }, '*')
     }
 }
 
@@ -409,7 +409,7 @@ class node {
         return contains
     }
     traverseDF(tree, callback) {
-        ; (function recurse(currentNode) {
+        ;(function recurse(currentNode) {
             callback(currentNode)
             if (!Array.isArray(currentNode)) {
                 for (var i = 0; i < currentNode.children.length; i++) {

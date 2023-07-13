@@ -39,7 +39,7 @@ export default defineComponent({
             const role = this.user.sessionRole === this.$t('role.defaultRolePlaceholder') ? '' : this.user.sessionRole
             const headers = { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }
             const data = this.formUrlEncoded({ ACTION_NAME: 'SET_SESSION_ROLE_ACTION', SELECTED_ROLE: role })
-            const postUrl = '/knowage/servlet/AdapterHTTP'
+            const postUrl = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP`
 
             this.$http.post(postUrl, data, { headers: headers }).then(() => {
                 this.store.setUser(this.user)

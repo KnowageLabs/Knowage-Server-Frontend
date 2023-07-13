@@ -1,5 +1,9 @@
 <template>
-    <Tree id="folders-tree" v-model:selectionKeys="selectedFolderKey" :value="nodes" selection-mode="single" @node-select="setSelectedFolder($event)" @node-unselect="removeSelectedFolder" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
+    <Message v-if="nodes.length === 0 && !loading" class="p-m-3" severity="info" :closable="false">
+        {{ $t('workspace.addViewFolderHint') }}
+    </Message>
+    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
+    <Tree v-else id="folders-tree" v-model:selectionKeys="selectedFolderKey" :value="nodes" selection-mode="single" @node-select="setSelectedFolder($event)" @node-unselect="removeSelectedFolder" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
         <template #default="slotProps">
             <div class="p-d-flex p-flex-row p-ai-center" @mouseover="buttonsVisible[slotProps.node.id] = true" @mouseleave="buttonsVisible[slotProps.node.id] = false">
                 <span>{{ slotProps.node.label }}</span>
@@ -19,6 +23,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { IFolder } from '../Workspace'
 import { mapActions } from 'pinia'
+import Message from 'primevue/message'
 import Tree from 'primevue/tree'
 import WorkspaceNewFolderDialog from './WorkspaceNewFolderDialog.vue'
 import workspaceDocumentTreeDescriptor from './WorkspaceDocumentTreeDescriptor.json'
@@ -26,7 +31,7 @@ import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'workspace-document-tree',
-    components: { Tree, WorkspaceNewFolderDialog },
+    components: { Message, Tree, WorkspaceNewFolderDialog },
     props: { mode: { type: String }, selectedBreadcrumb: { type: Object }, selectedFolderId: { type: String } },
     emits: ['folderSelected', 'delete', 'createFolder'],
     data() {
@@ -38,12 +43,16 @@ export default defineComponent({
             selectedFolder: null as any,
             buttonsVisible: {},
             newFolderDialogVisible: false,
-            selectedFolderForEdit: null as any
+            selectedFolderForEdit: null as any,
+            loading: false
         }
     },
     watch: {
         selectedBreadcrumb() {
             this.onBreadcrumbSelected()
+        },
+        async selectedFolderId() {
+            await this.loadData()
         }
     },
     async created() {
@@ -53,9 +62,11 @@ export default defineComponent({
         ...mapActions(mainStore, ['setInfo', 'setError', 'setLoading']),
         async loadData() {
             this.setLoading(true)
+            this.loading = true
             await this.getAllFolders()
             this.createNodeTree()
             if (this.selectedFolderId) this.setSelectedFolderFromPropKey()
+            this.loading = false
             this.setLoading(false)
         },
         async getAllFolders() {

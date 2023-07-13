@@ -328,8 +328,9 @@ export default defineComponent({
         },
         url(): string {
             return this.document
-                ? import.meta.env.VITE_HOST_URL +
-                      `/knowage/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${this.document.id}&OBJECT_LABEL=${this.document.label}&TOOLBAR_VISIBLE=false&MENU_PARAMETERS=%7B%7D&LIGHT_NAVIGATOR_DISABLED=TRUE&SBI_EXECUTION_ID=${this.sbiExecutionId}&OBJECT_NAME=${this.document.name}&CROSS_PARAMETER=null`
+                ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${this.document.id}&OBJECT_LABEL=${
+                      this.document.label
+                  }&TOOLBAR_VISIBLE=false&MENU_PARAMETERS=%7B%7D&LIGHT_NAVIGATOR_DISABLED=TRUE&SBI_EXECUTION_ID=${this.sbiExecutionId}&OBJECT_NAME=${this.document.name}&CROSS_PARAMETER=null`
                 : ''
         },
         isParameterSidebarVisible(): boolean {
@@ -1134,7 +1135,7 @@ export default defineComponent({
         },
         openCrossNavigationInNewWindow(tempDocument: any, crossNavigation: IDashboardCrossNavigation) {
             const parameters = encodeURI(JSON.stringify(tempDocument.formattedCrossNavigationParameters))
-            const url = import.meta.env.VITE_HOST_URL + `/knowage-vue/document-browser/dashboard/${this.document.label}?role=${this.userRole}&crossNavigationParameters=${parameters}`
+            const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/document-browser/dashboard/${this.document.label}?role=${this.userRole}&crossNavigationParameters=${parameters}`
             const popupOptions = crossNavigation.popupOptions ?? {
                 width: '800',
                 height: '600'

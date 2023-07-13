@@ -1,4 +1,4 @@
-import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardView, IDataset, IVariable, IWidget } from './Dashboard'
+import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
 import mitt from 'mitt'
@@ -22,6 +22,7 @@ export const createNewDashboardModel = () => {
             name: '',
             label: '',
             description: '',
+            cssToRender: '',
             associations: [],
             datasets: [],
             variables: [],
@@ -91,6 +92,7 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
 }
 
 const formatWidget = (widget: IWidget) => {
+    addColumnIdsToWidgetColumns(widget)
     switch (widget.type) {
         case 'chartJS':
             formatChartJSWidget(widget)
@@ -98,6 +100,10 @@ const formatWidget = (widget: IWidget) => {
         case 'highcharts':
             formatHighchartsWidget(widget)
     }
+}
+
+const addColumnIdsToWidgetColumns = (widget: IWidget) => {
+    widget.columns.forEach((column: IWidgetColumn) => column.id = cryptoRandomString({ length: 16, type: 'base64' }))
 }
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {
@@ -115,7 +121,7 @@ export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: a
     await $http
         .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
         .then((response: AxiosResponse<any>) => (datasets = response.data ? response.data.item : []))
-        .catch(() => {})
+        .catch(() => { })
     setAllDatasets(datasets)
     appStore.setLoading(false)
     return datasets
