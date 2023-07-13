@@ -226,7 +226,6 @@ export default defineComponent({
             await Promise.all([this.loadProfileAttributes(), this.loadModel(), this.loadInternationalization()])
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadHtmlGallery()
-            // TODO - Add condition?
             this.loadPythonGallery()
             this.loadCustomChartGallery()
             this.loadOutputParameters()
@@ -292,7 +291,7 @@ export default defineComponent({
         },
         async loadPythonGallery() {
             await this.$http
-                .get(import.meta.env.VITE_API_PATH + `1.0/widgetgallery/widgets/python`)
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `1.0/widgetgallery/widgets/python`)
                 .then((response: AxiosResponse<any>) => (this.pythonGallery = response.data))
                 .catch(() => {})
         },
