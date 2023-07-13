@@ -12,6 +12,7 @@
                 :variables="variables"
                 :dashboard-id="dashboardId"
                 :html-gallery-prop="htmlGalleryProp"
+                :python-gallery-prop="pythonGalleryProp"
                 :custom-chart-gallery-prop="customChartGalleryProp"
                 :layers="layers"
                 @settingChanged="$emit('settingChanged', $event)"
@@ -43,6 +44,7 @@ export default defineComponent({
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
         htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
+        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
         customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
         dashboardId: { type: String, required: true }
     },

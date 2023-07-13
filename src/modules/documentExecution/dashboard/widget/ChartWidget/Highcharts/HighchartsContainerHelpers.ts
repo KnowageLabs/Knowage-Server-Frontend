@@ -13,13 +13,31 @@ const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartType: st
     const categoryName = dataToShow?.metaData?.fields[1] ? dataToShow.metaData.fields[1].header : ''
     const chartPoint = chartEvent.point
 
-    const formattedChartValues = { serieName: chartPoint.series.name, serieValue: ['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble'].includes(chartType) ? chartPoint.options.y : chartPoint.options.value, categoryName: categoryName, categoryValue: chartPoint.options.name } as IChartInteractionValues
+    const formattedChartValues = { serieName: getSerieNameForCrossNavigation(chartPoint, chartType, dataToShow), serieValue: getSerieValueForCrossNavigation(chartPoint, chartType), categoryName: categoryName, categoryValue: getCategoryValueForCrossNavigation(chartPoint, chartType) } as IChartInteractionValues
     if (chartType === 'heatmap') {
         const groupingName = dataToShow?.metaData?.fields[2] ? dataToShow.metaData.fields[2].header : ''
         formattedChartValues.groupingName = groupingName
         formattedChartValues.groupingValue = chartPoint.options.groupingValue
     }
     return formattedChartValues
+}
+
+const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, dataToShow: any) => {
+    if (['pictorial'].includes(chartType)) return dataToShow?.metaData?.fields[2] ? dataToShow?.metaData?.fields[2].header : ''
+    if (['spline'].includes(chartType)) return chartPoint.category
+    else return chartPoint.series.name
+}
+
+const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) => {
+    if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline'].includes(chartType)) return chartPoint.options.y
+    else if (['dependencywheel', 'pictorial'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
+    else return chartPoint.options.value
+}
+
+const getCategoryValueForCrossNavigation = (chartPoint: any, chartType: string) => {
+    if (['dependencywheel', 'sankey'].includes(chartType)) return chartPoint.options.id ?? chartPoint.options.from
+    else if (['spline', 'pictorial'].includes(chartType)) return chartPoint.series.name
+    else return chartPoint.options.name
 }
 
 const getFormattedOutputParameters = (formattedChartValues: IChartInteractionValues, outputParameters: IWidgetInteractionParameter[]) => {

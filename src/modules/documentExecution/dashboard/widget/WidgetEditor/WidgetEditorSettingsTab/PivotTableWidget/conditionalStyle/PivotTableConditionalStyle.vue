@@ -99,7 +99,6 @@ export default defineComponent({
             emitter.off('columnRemoved', this.loadConditionalStyles)
         },
         loadConditionalStyles() {
-            console.log('------ LOADED WIDGET MODEL: ', this.widgetModel)
             if (this.widgetModel?.settings?.conditionalStyles) this.conditionalStylesModel = this.widgetModel.settings.conditionalStyles
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, conditionalStyle: IPivotTableWidgetConditionalStyle) {

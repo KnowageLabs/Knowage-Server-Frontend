@@ -18,7 +18,7 @@
                     </WidgetEditorColumnsMultiselect>
                 </div>
                 <div class="p-col-2 p-md-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                    <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
+                    <i v-if="fieldType != 'fieldHeaders' && widgetModel.type === 'ce-pivot-table'" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
                 </div>
             </div>
 

@@ -166,7 +166,7 @@ const getFormattedChartDynamicOutputParameter = (outputParameters: IWidgetIntera
     } as ICrossNavigationParameter
 }
 
-export const executeImageWidgetCrossNavigation = (crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
+export const executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings = (crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const outputParameters = getFormattedImageWidgetOutputParameters(crossNavigationModel, dashboardId)
     executeCrossNavigation(outputParameters, crossNavigationModel.name)
 }
@@ -270,6 +270,7 @@ const getFormattedSelectionOutputParameter = (crossNavigationParameter: IWidgetI
         outputDriverName: crossNavigationParameter.name
     } as ICrossNavigationParameter
 }
+
 
 
 

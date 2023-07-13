@@ -22,7 +22,7 @@ import descriptor from './WidgetEditorSettingsTabDescriptor.json'
 export default defineComponent({
     name: 'widget-editor-list',
     components: { Listbox },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, options: { type: Array } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, options: { type: Array as PropType<{ icon: string; label: string; value: string }[]> }, propSelectedItem: { type: Object as PropType<string | null> } },
     emits: ['itemClicked'],
     data() {
         return {
@@ -30,10 +30,22 @@ export default defineComponent({
             selectedItem: null as { icon: string; label: string; value: string } | null
         }
     },
-    async created() {},
+    watch: {
+        propSelectedItem() {
+            this.loadSelectedItem()
+        }
+    },
+    created() {
+        this.loadSelectedItem()
+    },
     methods: {
         itemClicked(item: { icon: string; label: string; value: string }) {
             this.$emit('itemClicked', item)
+        },
+        loadSelectedItem() {
+            if (!this.propSelectedItem || !this.options) return
+            const index = this.options.findIndex((option: { icon: string; label: string; value: string }) => option.value === this.propSelectedItem)
+            this.selectedItem = index !== -1 ? this.options[index] : null
         }
     }
 })

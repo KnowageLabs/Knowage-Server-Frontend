@@ -6,7 +6,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { executeImageWidgetCrossNavigation } from '../interactionsHelpers/InteractionHelper'
+import { executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings } from '../interactionsHelpers/InteractionHelper'
 
 export default defineComponent({
     name: 'image-widget',
@@ -57,7 +57,7 @@ export default defineComponent({
         executeInteractions() {
             const crossNavigation = this.widgetModel.settings.interactions.crossNavigation
             if (!crossNavigation.enabled) return
-            executeImageWidgetCrossNavigation(crossNavigation, this.dashboardId)
+            executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings(crossNavigation, this.dashboardId)
         }
     }
 })

@@ -1,0 +1,14 @@
+{
+    "columns": [
+        {
+            "field": "name",
+            "header": "common.library",
+            "style": {}
+        },
+        {
+            "field": "version",
+            "header": "common.version",
+            "style": {}
+        }
+    ]
+}

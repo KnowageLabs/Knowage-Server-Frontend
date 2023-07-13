@@ -10,7 +10,7 @@ import { ISelection, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -29,19 +29,27 @@ import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
 import HighchartsTreemap from 'highcharts/modules/treemap'
 import HighchartsSunburst from 'highcharts/modules/sunburst'
+import HighchartsSankey from 'highcharts/modules/sankey'
+import HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
+import HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinates'
 import Sonification from 'highcharts/modules/sonification'
+import HighchartsPictorial from 'highcharts/modules/pictorial'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
 HighchartsHeatmap(Highcharts)
 HighchartsTreemap(Highcharts)
 HighchartsSunburst(Highcharts)
+HighchartsSankey(Highcharts)
+HighchartsDependencyWheel(Highcharts)
+HighchartsParallelCoordinates(Highcharts)
 Accessibility(Highcharts)
 Sonification(Highcharts)
 NoDataToDisplay(Highcharts)
 SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
 Drilldown(Highcharts)
+HighchartsPictorial(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -85,14 +93,17 @@ export default defineComponent({
         setEventListeners() {
             emitter.on('refreshChart', this.onRefreshChart)
             emitter.on('widgetResized', this.resizeChart)
+            emitter.on('chartTypeChanged', this.onRefreshChart)
         },
         removeEventListeners() {
             emitter.off('refreshChart', this.onRefreshChart)
             emitter.off('widgetResized', this.resizeChart)
+            emitter.off('chartTypeChanged', this.onRefreshChart)
         },
-        onRefreshChart(widgetId: any | null = null) {
-            if (widgetId && widgetId !== this.widgetModel.id) return
+        onRefreshChart(widget: any | null = null) {
+            if (widget && widget.id !== this.widgetModel.id) return
             this.chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
+            if (this.chartModel?.chart.type === 'wordcloud') return
             this.updateChartModel()
         },
         updateChartModel() {
@@ -103,7 +114,7 @@ export default defineComponent({
             this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel)
 
             this.widgetModel.settings.chartModel.updateSeriesAccessibilitySettings(this.widgetModel)
-            if (this.chartModel.chart.type !== 'heatmap') this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
+            if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
             if (this.chartModel.chart.type === 'heatmap') this.updateAxisLabels()
             else if (this.chartModel.chart.type !== 'radar') this.updateDataLabels()
             this.error = this.updateLegendSettings()
@@ -177,7 +188,7 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.chartModel.chart.type) || this.editorMode) return
+            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey'].includes(this.chartModel.chart.type) || this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 if (!event.point) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
@@ -199,15 +210,32 @@ export default defineComponent({
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
+            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
         setSelection(event: any) {
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
+                const serieClicked = event.point?.options
+                if (!serieClicked || !serieClicked.name) return
+                updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
+            } else if (['pictorial', 'spline'].includes(this.chartModel.chart.type)) {
+                this.setPictorialSelection(event)
+            } else {
+                this.setSankeySelection(event)
+            }
+        },
+        setPictorialSelection(event: any) {
+            const selectionValue = event.point?.series?.name
+            if (!selectionValue) return
+            updateStoreSelections(this.createNewSelection([selectionValue]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
+        },
+        setSankeySelection(event: any) {
             const serieClicked = event.point?.options
-            if (!serieClicked || !serieClicked.name) return
-            updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
+            if (!serieClicked || (!serieClicked.id && !serieClicked.from)) return
+            const value = serieClicked.id ?? serieClicked.from
+            updateStoreSelections(this.createNewSelection([value]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
         },
         createNewSelection(value: (string | number)[]) {
             const attributeColumn = this.widgetModel.columns.find((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')
@@ -236,6 +264,10 @@ export default defineComponent({
                 formatRadar(formattedChartModel)
             } else if (formattedChartModel.chart.type === 'bubble') {
                 formatBubble(formattedChartModel)
+            } else if (formattedChartModel.chart.type === 'spline') {
+                formatSplineChart(formattedChartModel, this.widgetModel)
+            } else if (formattedChartModel.chart.type === 'pictorial') {
+                formatPictorialChart(formattedChartModel, this.widgetModel)
             }
 
             return formattedChartModel

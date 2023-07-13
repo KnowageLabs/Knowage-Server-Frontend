@@ -1,4 +1,4 @@
-import { IWidgetExports, IWidgetInteractions, IWidgetResponsive } from "../Dashboard";
+import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from "../Dashboard";
 
 export interface IImageWidgetSettings {
     updatable: boolean,

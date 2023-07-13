@@ -134,11 +134,11 @@ export default defineComponent({
             if (event.dataTransfer.getData('text/plain') === 'b') return
             const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
             const tempColumn = createNewWidgetColumn(eventData, this.widgetType)
-            if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'vega'].includes(this.widgetModel.type)) {
+            if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'vega', 'python', 'r'].includes(this.widgetModel.type)) {
                 if (['chartJS', 'highcharts', 'vega'].includes(this.widgetModel.type)) {
                     if (this.axis) tempColumn.axis = this.axis
                     addChartColumnToTable(tempColumn, this.rows, this.chartType, this.settings.attributesOnly, this.settings.measuresOnly, this.widgetModel)
-                } else if (['table'].includes(this.widgetModel.type) || !this.checkIfColumnIsAlreadyPresent(tempColumn)) this.rows.push(tempColumn as IWidgetColumn)
+                } else if (['table', 'python', 'r'].includes(this.widgetModel.type) || !this.checkIfColumnIsAlreadyPresent(tempColumn)) this.rows.push(tempColumn as IWidgetColumn)
             } else {
                 this.rows = [tempColumn]
             }

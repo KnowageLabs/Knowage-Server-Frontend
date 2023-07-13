@@ -1,5 +1,5 @@
 <template>
-    <WidgetEditorSettingsList v-if="descriptor" :widget-model="propWidget" :options="descriptor.settingsListOptions" @itemClicked="onItemClicked"></WidgetEditorSettingsList>
+    <WidgetEditorSettingsList v-if="descriptor" :widget-model="propWidget" :options="descriptor.settingsListOptions" :propSelectedItem="selectedSetting" @itemClicked="onItemClicked"></WidgetEditorSettingsList>
     <div v-if="propWidget" class="p-d-flex kn-flex kn-overflow">
         <TableWidgetSettingsContainer
             v-if="propWidget.type === 'table'"
@@ -139,6 +139,28 @@
             :variables="variables"
             :dashboard-id="dashboardId"
         ></VegaChartsSettingsContainer>
+        <cePivotTableWidgetSettingsContainer
+            v-else-if="propWidget.type === 'ce-pivot-table'"
+            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
+            :widget-model="propWidget"
+            :selected-setting="selectedSetting"
+            :datasets="datasets"
+            :selected-datasets="selectedDatasets"
+            :variables="variables"
+            :dashboard-id="dashboardId"
+        ></cePivotTableWidgetSettingsContainer>
+        <PythonWidgetSettingsContainer
+            v-else-if="propWidget.type === 'python'"
+            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
+            :widget-model="propWidget"
+            :selected-setting="selectedSetting"
+            :datasets="datasets"
+            :selected-datasets="selectedDatasets"
+            :dashboard-id="dashboardId"
+            :python-gallery-prop="pythonGalleryProp"
+            @galleryItemSelected="onGalleryItemSelected"
+        ></PythonWidgetSettingsContainer>
+        <RWidgetSettingsContainer v-else-if="propWidget.type === 'r'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></RWidgetSettingsContainer>
     </div>
 </template>
 
@@ -157,9 +179,12 @@ import ChartJSWidgetSettingsContainer from './ChartWidget/chartJS/ChartJSWidgetS
 import ImageWidgetSettingsContainer from './ImageWidget/ImageWidgetSettingsContainer.vue'
 import CustomChartWidgetSettingsContainer from './CustomChartWidget/CustomChartWidgetSettingsContainer.vue'
 import PivotTableWidgetSettingsContainer from './PivotTableWidget/PivotTableWidgetSettingsContainer.vue'
+import cePivotTableWidgetSettingsContainer from './cePivotTableWidget/cePivotTableWidgetSettingsContainer.vue'
 import DiscoveryWidgetSettingsContainer from './DiscoveryWidget/DiscoveryWidgetSettingsContainer.vue'
 import MapWidgetSettingsContainer from './MapWidget/MapWidgetSettingsContainer.vue'
 import VegaChartsSettingsContainer from './ChartWidget/vega/VegaChartsSettingsContainer.vue'
+import PythonWidgetSettingsContainer from './PythonWidget/PythonWidgetSettingsContainer.vue'
+import RWidgetSettingsContainer from './RWidget/RWidgetSettingsContainer.vue'
 import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescriptor.json'
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
 import WidgetEditorSettingsList from './WidgetEditorSettingsList.vue'
@@ -178,12 +203,19 @@ import HighchartsScatterSettingsDescriptor from './ChartWidget/highcharts/descri
 import HighchartsLineSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsLineSettingsDescriptor.json'
 import HighchartsSunburstSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSunburstSettingsDescriptor.json'
 import HighchartsTreemapSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsTreemapSettingsDescriptor.json'
+import HighchartsChordSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsChordSettingsDescriptor.json'
+import HighchartsParallelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsParallelSettingsDescriptor.json'
+import HighchartsPictorialSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPictorialSettingsDescriptor.json'
+import HighchartsSankeySettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSankeySettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
+import cePivotTableDescriptor from './cePivotTableWidget/cePivotTableSettingsDescriptor.json'
 import discoveryDescriptor from './DiscoveryWidget/DiscoveryWidgetSettingsDescriptor.json'
 import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
 import vegaChartsDescriptor from './ChartWidget/vega/VegaChartsSettingsDescriptor.json'
+import pythonWidgetDescriptor from './PythonWidget/PythonWidgetSettingsDescriptor.json'
+import rWidgetDescriptor from './RWidget/RWidgetSettingsDescriptor.json'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
@@ -203,21 +235,19 @@ export default defineComponent({
         PivotTableWidgetSettingsContainer,
         DiscoveryWidgetSettingsContainer,
         MapWidgetSettingsContainer,
-        VegaChartsSettingsContainer
+        VegaChartsSettingsContainer,
+        cePivotTableWidgetSettingsContainer,
+        PythonWidgetSettingsContainer,
+        RWidgetSettingsContainer
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: {
-            type: Array as PropType<IGalleryItem[]>,
-            required: true
-        },
-        customChartGalleryProp: {
-            type: Array as PropType<IGalleryItem[]>,
-            required: true
-        },
+        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
+        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
+        customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
         dashboardId: { type: String, required: true },
         layers: { type: Array as PropType<ILayer[]>, required: true }
     },
@@ -279,6 +309,9 @@ export default defineComponent({
                 case 'static-pivot-table':
                     this.descriptor = pivotTableDescriptor
                     break
+                case 'ce-pivot-table':
+                    this.descriptor = cePivotTableDescriptor
+                    break
                 case 'discovery':
                     this.descriptor = discoveryDescriptor
                     break
@@ -287,6 +320,12 @@ export default defineComponent({
                     break
                 case 'vega':
                     this.descriptor = vegaChartsDescriptor
+                    break
+                case 'python':
+                    this.descriptor = pythonWidgetDescriptor
+                    break
+                case 'r':
+                    this.descriptor = rWidgetDescriptor
             }
         },
         getHighchartsDescriptor() {
@@ -317,6 +356,14 @@ export default defineComponent({
                     return HighchartsTreemapSettingsDescriptor
                 case 'sunburst':
                     return HighchartsSunburstSettingsDescriptor
+                case 'dependencywheel':
+                    return HighchartsChordSettingsDescriptor
+                case 'spline':
+                    return HighchartsParallelSettingsDescriptor
+                case 'pictorial':
+                    return HighchartsPictorialSettingsDescriptor
+                case 'sankey':
+                    return HighchartsSankeySettingsDescriptor
             }
         },
         onItemClicked(item: any) {

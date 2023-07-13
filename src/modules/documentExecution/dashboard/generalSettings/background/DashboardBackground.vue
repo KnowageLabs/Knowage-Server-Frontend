@@ -51,11 +51,8 @@ export default defineComponent({
             this.dashboard = this.dashboardModelProp
             if (!this.dashboard.configuration?.background) this.dashboard.configuration.background = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '' } as IBackground
             this.background = this.dashboard.configuration.background as IBackground
-
-            console.log('this.dashboard.configuration.background', this.dashboard.configuration.background)
         },
         onSelectionColorChanged(event: string | null) {
-            console.log('this.dashboard.configuration.background', !this.background.sheetsBackgroundColor)
             if (!event) return
             else this.background.sheetsBackgroundColor = event
         }

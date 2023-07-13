@@ -71,6 +71,18 @@
             "measuresOnly": true
         }
     ],
+    "pictorialChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.pictorial.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.pictorial.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "pieChartColumnTableSettings": [
         {
             "attributesOnly": true,
@@ -95,6 +107,23 @@
             "measuresOnly": true
         }
     ],
+    "sankeyChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.sankey.fromTableHint",
+            "label": "common.from"
+        },
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.sankey.toTableHint",
+            "label": "common.to"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.sankey.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "scatterChartColumnTableSettings": [
         {
             "attributesOnly": true,
@@ -110,6 +139,18 @@
     "solidgaugeChartColumnTableSettings": [
         {
             "hint": "dashboard.widgetEditor.highcharts.solidGauge.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "splineChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.spline.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.spline.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }

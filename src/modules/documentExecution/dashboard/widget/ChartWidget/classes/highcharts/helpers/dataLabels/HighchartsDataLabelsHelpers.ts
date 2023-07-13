@@ -13,7 +13,7 @@ const setAllSeriesSettings = (model: any, widgetModel: IWidget) => {
     const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
     if (allSeriesSettings.label.enabled) {
         model.series?.forEach((serie: any) =>
-            updateSeriesDataWithSerieSettings(serie, allSeriesSettings))
+            updateSeriesDataWithSerieSettings(model, serie, allSeriesSettings))
     } else {
         resetSeriesSettings(model)
     }
@@ -33,23 +33,25 @@ const setSpecificSeriesSettings = (model: any, widgetModel: IWidget) => {
 const updateSpecificSeriesLabelSettings = (model: any, serieName: string, seriesSettings: IHighchartsSeriesLabelsSetting) => {
     if (!model.series) return
     const index = model.series.findIndex((serie: any) => serie.name === serieName)
-    if (index !== undefined && index !== -1) updateSeriesDataWithSerieSettings(model.series[index], seriesSettings)
+    if (index !== undefined && index !== -1) updateSeriesDataWithSerieSettings(model, model.series[index], seriesSettings)
 }
 
-const updateSeriesDataWithSerieSettings = (serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) => {
+const updateSeriesDataWithSerieSettings = (model: any, serie: any, seriesSettings: IHighchartsSeriesLabelsSetting) => {
     serie.data.forEach((data: any) => {
-        data.dataLabels = {
-            backgroundColor: seriesSettings.label.backgroundColor ?? '',
-            enabled: true,
-            position: '',
-            style: {
-                fontFamily: seriesSettings.label.style.fontFamily,
-                fontSize: seriesSettings.label.style.fontSize,
-                fontWeight: seriesSettings.label.style.fontWeight,
-                color: seriesSettings.label.style.color ?? ''
-            },
-            formatter: function () {
-                return KnowageHighcharts.prototype.handleFormatter(this, seriesSettings.label)
+        if (data instanceof Object) {
+            data.dataLabels = {
+                backgroundColor: seriesSettings.label.backgroundColor ?? '',
+                enabled: true,
+                position: '',
+                style: {
+                    fontFamily: seriesSettings.label.style.fontFamily,
+                    fontSize: seriesSettings.label.style.fontSize,
+                    fontWeight: seriesSettings.label.style.fontWeight,
+                    color: seriesSettings.label.style.color ?? ''
+                },
+                formatter: function () {
+                    return KnowageHighcharts.prototype.handleFormatter(this, seriesSettings.label, model.chart.type)
+                }
             }
         }
     })
@@ -62,6 +64,7 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
     model.series.forEach((serie: any) => {
         serie.data?.forEach((data: any) => {
             data.dataLabels = {
+                alignTo: 'plotEdges',
                 backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
                 distance: 30,
                 enabled: true,
@@ -73,7 +76,7 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
                     color: seriesLabelSetting.label.style.color ?? ''
                 },
                 formatter: function () {
-                    return KnowageHighcharts.prototype.handleFormatter(this, seriesLabelSetting.label)
+                    return KnowageHighcharts.prototype.handleFormatter(this, seriesLabelSetting.label, model.chart.type)
                 }
             }
         })

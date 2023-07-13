@@ -1,6 +1,6 @@
-import { createNewDiscoveryWidgetSettings } from './discoveryWidget/DiscoveryWidgetFunctions';
-import { formatVegaForSave } from './chartWidget/vega/VegaBackendSaveHelper';
-import { formatVegaWidget, createNewVegaSettings } from './chartWidget/vega/VegaHelpers';
+import { createNewDiscoveryWidgetSettings } from './discoveryWidget/DiscoveryWidgetFunctions'
+import { formatVegaForSave } from './chartWidget/vega/VegaBackendSaveHelper'
+import { formatVegaWidget, createNewVegaSettings } from './chartWidget/vega/VegaHelpers'
 import { IWidget, IWidgetColumn } from '../../../Dashboard'
 import { formatTableWidgetForSave } from './tableWidget/TableWidgetBackendSaveHelper'
 import { createNewTableWidgetSettings } from '../helpers/tableWidget/TableWidgetFunctions'
@@ -18,7 +18,10 @@ import { createNewPivotTableWidgetSettings } from './pivotTableWidget/PivotTable
 import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import useStore from '@/App.store'
-import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions';
+import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
+import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
+import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
+import { createNewRWidgetSettings } from './rWidget/RWidgetFunctions'
 
 const store = useStore()
 
@@ -31,7 +34,7 @@ export function createNewWidget(type: string) {
         columns: [],
         settings: {}
     } as IWidget
-    if (widget.type === 'static-pivot-table') widget.fields = { columns: [], rows: [], data: [], filters: [] }
+    if (widget.type === 'static-pivot-table' || widget.type === 'ce-pivot-table') widget.fields = { columns: [], rows: [], data: [], filters: [] }
 
     createNewWidgetSettings(widget)
 
@@ -84,6 +87,9 @@ const createNewWidgetSettings = (widget: IWidget) => {
         case 'static-pivot-table':
             widget.settings = createNewPivotTableWidgetSettings()
             break
+        case 'ce-pivot-table':
+            widget.settings = createCeNewPivotTableWidgetSettings()
+            break
         case 'discovery':
             widget.settings = createNewDiscoveryWidgetSettings()
             break
@@ -94,6 +100,11 @@ const createNewWidgetSettings = (widget: IWidget) => {
             widget.layers = []
             widget.settings = createNewMapWidgetSettings()
             break
+        case 'python':
+            widget.settings = createNewPythonWidgetSettings()
+            break
+        case 'r':
+            widget.settings = createNewRWidgetSettings()
     }
 }
 
@@ -113,10 +124,9 @@ export function formatWidgetForSave(tempWidget: IWidget) {
             formatChartJSForSave(widget)
             break
         case 'vega':
-
             formatVegaForSave(widget)
     }
-    ['state', 'search', 'invalid'].forEach((property: string) => delete widget[property])
+    ;['state', 'search', 'invalid'].forEach((property: string) => delete widget[property])
     return widget
 }
 

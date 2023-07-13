@@ -5,7 +5,7 @@
                 <template #value="slotProps">
                     <div class="p-d-flex p-flex-row p-ai-center">
                         <img class="chart-type-image p-mr-2" :src="getImageSource(slotProps.value)" />
-                        <span>{{ slotProps.value }}</span>
+                        <span>{{ getTranslatedLabel(slotProps.value, chartTypeOptions, $t) }}</span>
                     </div>
                 </template>
                 <template #option="slotProps">
@@ -26,6 +26,7 @@ import { mapState } from 'pinia'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import mainStore from '@/App.store'
+import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 
 export default defineComponent({
     name: 'chart-widget-chart-type-dropdown',
@@ -35,7 +36,8 @@ export default defineComponent({
     data() {
         return {
             commonDescriptor,
-            selectedType: ''
+            selectedType: '',
+            getTranslatedLabel
         }
     },
     computed: {
@@ -55,6 +57,8 @@ export default defineComponent({
             const chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
             if (chartModel?.chart.type) {
                 this.selectedType = chartModel.chart.type
+                if (this.selectedType === 'sankey' && chartModel.chart.inverted) this.selectedType = 'sankeyInverted'
+                if (['area', 'bar', 'line'].includes(this.selectedType) && chartModel.plotOptions.series.stacking === 'normal') this.selectedType = this.selectedType + 'Stacked'
             }
         },
         getImageSource(chartValue: string) {
