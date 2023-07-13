@@ -8,14 +8,14 @@ export const getRData = async (dashboardId: any, widget: IWidget, datasets: IDas
     const selectedDataset = datasets[datasetIndex]
 
     if (selectedDataset) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
         const postData = formatRModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -40,7 +40,7 @@ export const getRData = async (dashboardId: any, widget: IWidget, datasets: IDas
         }
 
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/backendservices/widgets/RWidget/edit/${widget.settings.editor.outputType == 'img' ? 'img' : 'html'}`, imgPostData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/RWidget/edit/${widget.settings.editor.outputType == 'img' ? 'img' : 'html'}`, imgPostData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
