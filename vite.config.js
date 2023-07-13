@@ -98,7 +98,7 @@ export default defineConfig((command, mode) => {
         },
         base: env.VITE_PUBLIC_PATH,
         build: {
-            outDir: `./target${env.VITE_KNOWAGE_VUE_CONTEXT}`,
+            outDir: `./target/knowage-vue`,
             sourcemap: true,
             rollupOptions: {
                 output: {
