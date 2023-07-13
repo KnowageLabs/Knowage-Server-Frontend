@@ -259,7 +259,6 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
             break
         case 'r':
             formattedWidget = formatRWidget(widget)
-
     }
 
     return formattedWidget
@@ -274,10 +273,10 @@ const getFormattedChartWidget = (widget: any, user: any) => {
 
 const getFormattedPivotWidget = (widget: any, user: any) => {
     // TODO widgetChange
-    // if (user?.enterprise) return formatPivotTabletWidget(widget)
-    // else return formatPivotTabletWidget(widget)
+    // return formatCEPivotTabletWidget(widget)
 
-    return formatCEPivotTabletWidget(widget)
+    if (user?.enterprise) return formatPivotTabletWidget(widget)
+    else return formatPivotTabletWidget(widget)
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {
