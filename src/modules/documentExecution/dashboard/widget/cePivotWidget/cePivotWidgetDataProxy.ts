@@ -8,14 +8,14 @@ export const getCePivotData = async (dashboardId: any, widget: IWidget, datasets
     const selectedDataset = datasets[datasetIndex]
 
     if (selectedDataset && hasFields(widget)) {
-        const url = `2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
         const postData = formatPivotModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
-            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
@@ -100,7 +100,7 @@ export const getCePivotData = async (dashboardId: any, widget: IWidget, datasets
         }
 
         await $http
-            .post(import.meta.env.VITE_DASHBOARD_PATH + '1.0/crosstab/update', formattedPivotData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + '/api/1.0/crosstab/update', formattedPivotData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
