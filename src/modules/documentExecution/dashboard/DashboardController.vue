@@ -291,7 +291,7 @@ export default defineComponent({
         },
         async loadPythonGallery() {
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `1.0/widgetgallery/widgets/python`)
+                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
                 .then((response: AxiosResponse<any>) => (this.pythonGallery = response.data))
                 .catch(() => {})
         },
