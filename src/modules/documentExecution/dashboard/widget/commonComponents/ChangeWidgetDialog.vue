@@ -1,14 +1,8 @@
 <template>
     <Dialog :visible="true" :modal="true" header="Change Widget Type" class="kn-dialog--toolbar--primary" :closable="false" style="width: 550px">
         <div class="p-grid gap-1 p-m-0 p-pt-4" style="column-gap: 0.5em; row-gap: 0.5em">
-            <div
-                v-for="(widgetType, index) in availableChartOptions"
-                :key="index"
-                v-tooltip.bottom="$t(widgetType.tooltip)"
-                class="widgetTypeCards"
-                :class="{ selected: selectedWidget === widgetType.name, starredChart: starredChartOptionsMap[widgetType.name] ?? false }"
-                @click="selectWidget(widgetType.name)"
-            >
+            <div v-for="(widgetType, index) in availableChartOptions" :key="index" v-tooltip.bottom="$t(widgetType.tooltip)" class="widgetTypeCards" :class="{ selected: selectedWidget === widgetType.name }" @click="selectWidget(widgetType.name)">
+                <i v-if="starredChartOptionsMap[widgetType.name]" class="fa fa-star suggestedStar"></i>
                 <img :src="getImageSource(widgetType.name)" />
             </div>
         </div>
@@ -205,6 +199,7 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .widgetTypeCards {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -214,9 +209,6 @@ export default defineComponent({
     width: 80px;
     &.selected {
         background-color: #bbd6ed;
-    }
-    &.starredChart {
-        border: 1px solid red;
     }
     &:hover {
         background-color: darken(#bbd6ed, 15%);
@@ -231,5 +223,17 @@ export default defineComponent({
         height: 80%;
         width: 80%;
     }
+}
+.suggestedStar {
+    text-align: center;
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: #3b678c;
+    border-radius: 50px;
+    color: white;
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
 }
 </style>

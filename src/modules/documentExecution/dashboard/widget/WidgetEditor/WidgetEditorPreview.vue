@@ -36,6 +36,7 @@
                 <VegaContainer v-if="propWidget.type === 'vega' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections"></VegaContainer>
                 <PythonWidgetContainer v-if="propWidget.type === 'python' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
                 <RWidgetContainer v-if="propWidget.type === 'r' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
+                <CEPivotWidget v-if="propWidget.type == 'ce-pivot-table' && !loading" :prop-widget="propWidget" :datasets="datasets" :data-to-show="widgetData" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             </div>
         </div>
     </div>
@@ -66,10 +67,11 @@ import DiscoveryWidget from '../DiscoveryWidget/DiscoveryWidget.vue'
 import VegaContainer from '../ChartWidget/Vega/VegaContainer.vue'
 import PythonWidgetContainer from '../PythonWidget/PythonWidgetContainer.vue'
 import RWidgetContainer from '../RWidget/RWidgetContainer.vue'
+import CEPivotWidget from '../cePivotWidget/cePivotWidget.vue'
 
 export default defineComponent({
     name: 'widget-editor-preview',
-    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, ProgressBar, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, DiscoveryWidget, VegaContainer, PythonWidgetContainer, RWidgetContainer },
+    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, ProgressBar, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, DiscoveryWidget, VegaContainer, PythonWidgetContainer, RWidgetContainer, CEPivotWidget },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDashboardDataset[]>, required: true },
