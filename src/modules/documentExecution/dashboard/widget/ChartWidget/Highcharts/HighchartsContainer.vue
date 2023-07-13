@@ -102,7 +102,6 @@ export default defineComponent({
         },
         onRefreshChart(widgetId: any | null = null) {
             if (widgetId && widgetId !== this.widgetModel.id) return
-            console.log('----------- WIDGET MODEL IN HIGHCHARTS CONTAINER: ', this.widgetModel)
             this.chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
             if (this.chartModel?.chart.type === 'wordcloud') return
             this.updateChartModel()
@@ -133,13 +132,10 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
 
-            console.log('------------ MODEL TO RENDER: ', modelToRender)
-
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
-                console.log('--------- ERROR: ', error)
                 this.setError({
                     title: this.$t('common.toast.errorTitle'),
                     msg: error ? error.message : ''
@@ -192,7 +188,6 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            console.log('-------- EVENT: ', event)
             if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey'].includes(this.chartModel.chart.type) || this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 if (!event.point) return
