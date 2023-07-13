@@ -418,6 +418,7 @@
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
         "selectionsList": "Selections List",
+        "sheet": "Sheet",
         "sheets": {
             "add": "Add Sheet",
             "confirmDeleteMessage": "Are you sure you want to delete the selected sheet? ",
@@ -950,6 +951,7 @@
                     "delete": "Delete Widget",
                     "edit": "Edit Widget",
                     "expand": "Expand to Fullscreen",
+                    "moveWidget": "Move Widget",
                     "quickWidget": "Add Quick Widget",
                     "search": "Search on Widget",
                     "xor": "View One Layer"
