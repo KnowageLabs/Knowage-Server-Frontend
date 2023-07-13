@@ -37,7 +37,14 @@
 
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" />
     <WidgetSearchDialog v-if="searchDialogVisible" :visible="searchDialogVisible" :widget="widget" :prop-search="search" @close="searchDialogVisible = false" @search="onSearch"></WidgetSearchDialog>
-    <WidgetSearchDialog v-if="sheetPickerDialogVisible" :visible="sheetPickerDialogVisible" @close="sheetPickerDialogVisible = false" @save="onSheetSelected"></WidgetSearchDialog>
+    <SheetPickerDialog
+        v-if="sheetPickerDialogVisible"
+        :visible="sheetPickerDialogVisible"
+        :prop-sheets="dashboards && dashboards[dashboardId] ? dashboards[dashboardId].sheets : []"
+        :active-sheet="activeSheet"
+        @close="sheetPickerDialogVisible = false"
+        @sheetSelected="onSheetSelected"
+    ></SheetPickerDialog>
 </template>
 
 <script lang="ts">
@@ -45,7 +52,7 @@
  * ! this component will be in charge of managing the widget behaviour related to data and interactions, not related to view elements.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
+import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
 import { emitter, canEditDashboard } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getWidgetData } from '../DashboardDataProxy'
@@ -71,7 +78,7 @@ export default defineComponent({
     props: {
         model: { type: Object },
         item: { required: true, type: Object },
-        activeSheet: { type: Boolean },
+        activeSheet: { type: Object as PropType<IDashboardSheet>, required: true },
         document: { type: Object },
         widget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
@@ -124,7 +131,6 @@ export default defineComponent({
         }
     },
     async created() {
-        console.log('-------- this.dashboards[this.dashboardId]: ', this.dashboards[this.dashboardId])
         this.setWidgetLoading(true)
         this.loadMenuItems()
         this.setEventListeners()
@@ -137,7 +143,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView']),
+        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -162,7 +168,7 @@ export default defineComponent({
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget.type === 'map' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget.type === 'table' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false && canEditDashboard },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: true },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: true }
             ]
@@ -318,9 +324,11 @@ export default defineComponent({
             if (currentState && this.widgetModel.id) currentState.settings.states[this.widgetModel.id] = { type: this.widgetModel.type, search: this.search }
             this.reloadWidgetData(null)
         },
-        onSheetSelected(sheet: string | null) {
-            console.log('-------- ON SHEEEET SELECTED: ', sheet)
+        onSheetSelected(sheet: IDashboardSheet | null) {
             this.sheetPickerDialogVisible = false
+            if (!sheet) return
+
+            this.moveWidget(this.dashboardId, this.widgetModel, sheet, this.activeSheet)
         }
     }
 })

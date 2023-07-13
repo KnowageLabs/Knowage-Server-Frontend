@@ -1,8 +1,8 @@
 <template>
     <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="$t('dashboard.widgetEditor.map.qMenu.moveWidget')" :style="descriptor.dialogStyle" :closable="false" modal>
-        <div class="p-field p-col-12">
+        <div class="p-field p-col-12 p-mt-4">
             <span class="p-float-label">
-                <Dropdown v-model="selectedSheet" class="kn-material-input kn-width-full" :options="sheets" />
+                <Dropdown v-model="selectedSheet" class="kn-material-input kn-width-full" :options="sheets" option-label="label" />
                 <label for="type" class="kn-material-input-label">{{ $t('dashboard.sheet') }}</label>
             </span>
         </div>
@@ -17,21 +17,23 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { PropType, defineComponent } from 'vue'
+import { IDashboardSheet } from '../../Dashboard'
 import Dialog from 'primevue/dialog'
 import descriptor from './SheetPickerDialogDescriptor.json'
 import Dropdown from 'primevue/dropdown'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'sheet-picker-dialog',
     components: { Dialog, Dropdown },
-    props: { visible: { required: true, type: Boolean } },
+    props: { visible: { required: true, type: Boolean }, propSheets: { type: Array as PropType<IDashboardSheet[]>, required: true }, activeSheet: { type: Object as PropType<IDashboardSheet>, required: true } },
     emits: ['close', 'sheetSelected'],
     data() {
         return {
             descriptor,
-            sheets: [] as string[],
-            selectedSheet: null as string | null
+            sheets: [] as IDashboardSheet[],
+            selectedSheet: null as IDashboardSheet | null
         }
     },
     computed: {},
@@ -45,12 +47,16 @@ export default defineComponent({
     },
     methods: {
         loadSheets() {
-            if (!this.propSearch) return
-            this.searchText = this.propSearch.searchText
-            this.searchColumns = [...this.propSearch.searchColumns]
+            this.sheets = deepcopy(this.propSheets)
+            if (this.activeSheet) this.removeActiveSheetFromOptions()
+        },
+        removeActiveSheetFromOptions() {
+            const index = this.sheets.findIndex((sheet: IDashboardSheet) => sheet.label === this.activeSheet.label)
+            if (index !== -1) this.sheets.splice(index, 1)
         },
         closeDialog() {
             this.$emit('close')
+            this.selectedSheet = null
         },
         save() {
             this.$emit('sheetSelected', this.selectedSheet)

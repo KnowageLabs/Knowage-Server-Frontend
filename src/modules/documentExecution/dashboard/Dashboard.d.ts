@@ -2,12 +2,30 @@ import { IDrillOrderItem, IHighchartsDrilldown } from './interfaces/highcharts/D
 import { IPivotFields } from './interfaces/pivotTable/DashboardPivotTableWidget'
 
 export interface IDashboard {
-    sheets: []
+    sheets: IDashboardSheet[]
     widgets: IWidget[]
     configuration: IDashboardConfiguration
     version: string
     allDatasetsLoaded?: boolean
 }
+
+export interface IDashboardSheet {
+    id: string,
+    index: number,
+    label: string,
+    widgets: { lg: IWidgetSheetItem[] }
+}
+
+export interface IWidgetSheetItem {
+    id: string,
+    h: number,
+    i: string,
+    w: number,
+    x: number,
+    y: number,
+    moved: boolean
+}
+
 
 export interface IDashboardConfiguration {
     id: string

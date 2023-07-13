@@ -1,4 +1,4 @@
-import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn } from './Dashboard'
+import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetSheetItem } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
 import mitt from 'mitt'
@@ -163,4 +163,32 @@ const setStatesForWidgets = (dashboardModel: IDashboard, states: any) => {
             widget.search = states[widget.id].search
         }
     })
+}
+
+export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboard: IDashboard, selectedSheet: IDashboardSheet, widget: IWidget) => {
+    const selectedSheetInDashboard = dashboard.sheets.find((sheet: IDashboardSheet) => sheet.id === selectedSheet.id)
+    const sheetWidgets = selectedSheetInDashboard?.widgets
+    if (!widgetToAdd || !sheetWidgets) return
+    widgetToAdd.x = 0
+    widgetToAdd.y = 0
+    let overlap = false
+    let maxWidth = 50;
+    for (let i = 0; i < sheetWidgets.lg.length; i++) {
+        const existingItem = sheetWidgets.lg[i];
+        if (widgetToAdd.x < existingItem.x + existingItem.w && widgetToAdd.x + widgetToAdd.w > existingItem.x && widgetToAdd.y < existingItem.y + existingItem.h && widgetToAdd.y + widgetToAdd.h > existingItem.y) {
+            overlap = true;
+            break;
+        }
+
+        if (existingItem.x + existingItem.w > maxWidth) maxWidth = existingItem.x + existingItem.w;
+
+    }
+    if (overlap) {
+        const newX = Math.max(maxWidth + 1, widgetToAdd.x);
+        const newY = Math.max(widgetToAdd.y, sheetWidgets.lg.reduce((maxY, item) => item.y + item.h > maxY ? item.y + item.h : maxY, 0));
+        widgetToAdd.x = newX;
+        widgetToAdd.y = newY;
+    }
+
+    if (sheetWidgets && widgetToAdd) sheetWidgets.lg.push({ id: widget.id ?? '', h: widgetToAdd.h, i: cryptoRandomString({ length: 16, type: 'base64' }), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
 }
