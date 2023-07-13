@@ -153,6 +153,7 @@ export default defineComponent({
             emitter.on('associativeSelectionsLoaded', this.onAssociativeSelectionsLoaded)
             emitter.on('datasetRefreshed', this.onDatasetRefresh)
             emitter.on('setWidgetLoading', this.setWidgetLoading)
+            emitter.on('chartTypeChanged', this.onWidgetUpdated)
         },
         removeEventListeners() {
             emitter.off('selectionsChanged', this.loadActiveSelections)
@@ -161,6 +162,7 @@ export default defineComponent({
             emitter.off('associativeSelectionsLoaded', this.onAssociativeSelectionsLoaded)
             emitter.off('datasetRefreshed', this.onDatasetRefresh)
             emitter.off('setWidgetLoading', this.setWidgetLoading)
+            emitter.off('chartTypeChanged', this.onWidgetUpdated)
         },
         loadWidget(widget: IWidget) {
             this.widgetModel = widget

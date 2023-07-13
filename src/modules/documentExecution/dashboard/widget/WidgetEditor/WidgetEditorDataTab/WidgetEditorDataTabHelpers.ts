@@ -26,6 +26,6 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
         widget.settings.chartModel = createChartJSModel(chartType)
     }
 
-    emitter.emit('chartTypeChanged', widget.id)
+    emitter.emit('chartTypeChanged', widget)
     emitter.emit('refreshWidgetWithData', widget.id)
 }

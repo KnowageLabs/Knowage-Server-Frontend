@@ -100,8 +100,8 @@ export default defineComponent({
             emitter.off('widgetResized', this.resizeChart)
             emitter.off('chartTypeChanged', this.onRefreshChart)
         },
-        onRefreshChart(widgetId: any | null = null) {
-            if (widgetId && widgetId !== this.widgetModel.id) return
+        onRefreshChart(widget: any | null = null) {
+            if (widget && widget.id !== this.widgetModel.id) return
             this.chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
             if (this.chartModel?.chart.type === 'wordcloud') return
             this.updateChartModel()
