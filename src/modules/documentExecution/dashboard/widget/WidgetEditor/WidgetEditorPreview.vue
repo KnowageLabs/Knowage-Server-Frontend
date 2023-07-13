@@ -34,8 +34,8 @@
                 ></CustomChartWidget>
                 <DiscoveryWidget v-if="propWidget.type == 'discovery'" :propWidget="propWidget" :datasets="datasets" :dataToShow="widgetData" :editorMode="true" :dashboardId="dashboardId" :propActiveSelections="activeSelections" @pageChanged="getWidgetData" />
                 <VegaContainer v-if="propWidget.type === 'vega' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections"></VegaContainer>
-                <PythonWidgetContainer v-if="propWidget.type === 'python' && !loading" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" />
-                <RWidgetContainer v-if="propWidget.type === 'r' && !loading" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" />
+                <PythonWidgetContainer v-if="propWidget.type === 'python' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
+                <RWidgetContainer v-if="propWidget.type === 'r' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
             </div>
         </div>
     </div>

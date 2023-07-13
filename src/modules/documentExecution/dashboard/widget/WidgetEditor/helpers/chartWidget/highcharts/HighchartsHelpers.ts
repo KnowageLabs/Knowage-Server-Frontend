@@ -25,7 +25,7 @@ export const createNewHighchartsSettings = () => {
         updatable: true,
         clickable: true,
         chartModel: null,
-        configuration: { exports: { showExcelExport: true, showScreenshot: true }, datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(), grouping: { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } }, limit: { enabled: true, itemsNumber: 5, sortingSerie: '', direction: 'top' }, axisLines: { color: '', crosshairColor: '', crosshairWidth: 8 } },
+        configuration: { exports: { showExcelExport: true, showScreenshot: true }, datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(), grouping: { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } }, limit: { enabled: true, itemsNumber: 5 }, axisLines: { color: '', crosshairColor: '', crosshairWidth: 8 } },
         accesssibility: { seriesAccesibilitySettings: getSeriesAccesibilitySettings() },
         series: { seriesSettings: getSerieSettings(), conditionalStyles: { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } },
         interactions: {
@@ -54,7 +54,6 @@ export const formatHighchartsWidget = (widget: IWidget) => {
     const chartType = chartModel.chart.type
     const isStacking = chartModel.plotOptions?.series?.stacking
     const isInverted = chartModel.chart.inverted
-
     switch (chartType) {
         case 'pie':
             widget.settings.chartModel = new KnowageHighchartsPieChart(chartModel)
@@ -115,6 +114,8 @@ export const formatHighchartsWidget = (widget: IWidget) => {
 }
 
 export const createNewHighchartsModel = (widget: IWidget, chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean, isInverted: boolean) => {
+    console.log('------ IS INVERTED: ', isInverted)
+    console.log('------ IS chartType: ', chartType)
     switch (chartType) {
         case 'pie':
             return new KnowageHighchartsPieChart(model)

@@ -9,31 +9,30 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
     constructor(model: any, inverted: boolean) {
         console.log('------- KnowageHighchartsSankeyChart inverted: ', inverted)
         super()
-        this.setSpecificOptionsDefaultValues(inverted)
+        this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) this.updateModel(deepcopy(model))
         else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'sankey') {
-                this.setSpecificOptionsDefaultValues(inverted)
+                this.setSpecificOptionsDefaultValues()
             }
         }
         this.model.chart.type = 'sankey'
+        this.model.chart.inverted = inverted
     }
 
     updateModel(oldModel: any) {
         updateSankeyChartModel(oldModel, this.model)
     }
 
-    setSpecificOptionsDefaultValues(inverted: boolean) {
-        this.model.chart.inverted = inverted
+    setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
         this.setChordXAxis()
         this.setChordYAxis()
     }
 
     setPlotOptions() {
-        console.log('------------ CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALED!', this.model)
-        this.model.plotOptions.dependencywheel = {
+        this.model.plotOptions.sankey = {
             dataLabels: {
                 enabled: true,
                 align: 'center'
@@ -42,6 +41,7 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
             colorByPoint: true,
             legendType: 'point'
         }
+        console.log('------------ CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALED setPlotOptions!', this.model)
     }
 
 

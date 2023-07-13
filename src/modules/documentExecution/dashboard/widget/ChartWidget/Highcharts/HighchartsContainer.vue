@@ -102,6 +102,7 @@ export default defineComponent({
         },
         onRefreshChart(widgetId: any | null = null) {
             if (widgetId && widgetId !== this.widgetModel.id) return
+            console.log('----------- WIDGET MODEL IN HIGHCHARTS CONTAINER: ', this.widgetModel)
             this.chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
             if (this.chartModel?.chart.type === 'wordcloud') return
             this.updateChartModel()

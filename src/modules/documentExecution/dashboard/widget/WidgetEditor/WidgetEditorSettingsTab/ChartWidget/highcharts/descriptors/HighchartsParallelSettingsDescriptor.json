@@ -18,10 +18,6 @@
         ],
         "Configuration": [
             {
-                "title": "dashboard.widgetEditor.highcharts.limit.title",
-                "type": "LimitSettings"
-            },
-            {
                 "title": "dashboard.widgetEditor.highcharts.axisLines.title",
                 "type": "AxisLinesSettings"
             },

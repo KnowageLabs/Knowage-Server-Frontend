@@ -2,7 +2,7 @@
     <div class="widget-container" :style="getWidgetContainerStyle()">
         <ProgressSpinner v-if="widget.type == 'static-pivot-table' && widgetLoading" class="kn-progress-spinner" />
         <div v-if="widget.settings.style.title && widget.settings.style.title.enabled" class="p-d-flex p-ai-center" style="border-radius: 0px" :style="getWidgetTitleStyle()">
-            {{ widget.settings.style.title.text }}
+            {{ widget.settings?.style.title.text }}
         </div>
         <div class="widget-container-renderer" :style="getWidgetPadding()">
             <TableWidget

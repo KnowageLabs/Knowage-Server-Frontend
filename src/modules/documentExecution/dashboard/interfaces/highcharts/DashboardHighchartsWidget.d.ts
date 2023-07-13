@@ -106,6 +106,7 @@ export interface IHighchartsChartModel {
         line?: any,
         scatter?: any,
         dependencywheel?: any
+        sankey?: any
         series?: any
     },
     legend: any,
