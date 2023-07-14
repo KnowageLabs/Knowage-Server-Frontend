@@ -151,9 +151,11 @@ export const isCrossNavigationActive = (tableNode: any, crossNavigationOptions: 
 
 export const formatRowDataForCrossNavigation = (tableNode: any, dataToShow: any) => {
     const columnDefs = tableNode.columnApi?.columnModel?.columnDefs
+    console.log('----- COLUMN DEFS: ', columnDefs)
+    console.log('----- tableNode: ', tableNode)
     const rowData = tableNode.node.data
     if (!columnDefs || !rowData) return {}
-    const formattedRow = {}
+    const formattedRow = { columnName: tableNode.colDef?.columnName ?? '' }
     columnDefs.forEach((columnDef: any) => (formattedRow[columnDef.columnName] = { value: rowData[columnDef.field], type: getColumnType(columnDef.field, dataToShow) }))
     return formattedRow
 }
@@ -189,7 +191,5 @@ export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRendere
 
 export const isLinkInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
     // TODO
-    console.log('------ isLinkInteractionActive() - TABLE NODE: ', tableNode)
-    console.log('------ isLinkInteractionActive() - linkOptions: ', linkOptions)
     return true
 }
