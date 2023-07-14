@@ -1,5 +1,6 @@
 import { IDashboardDriver, ITableWidgetLink, IWidgetInteractionParameter, IWidgetLinks } from "../../Dashboard";
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
 
 interface IClickedValue { value: string, type: string }
 
@@ -41,6 +42,8 @@ const getFormattedParametersUrl = (link: ITableWidgetLink, formattedRow: any, da
             formattedParametersUrl += getFormattedDynamicParameterUrl(parameter, formattedRow)
         } else if (parameter.type === 'driver') {
             formattedParametersUrl += getFormattedDriverParameterUrl(parameter, driversValuesMap)
+        } else if (parameter.type === 'selection') {
+            formattedParametersUrl += getFormattedSelectionParameterUrl(parameter, dashboardId)
         }
     })
     return formattedParametersUrl
@@ -65,4 +68,13 @@ const getFormattedDriverParameterUrl = (parameter: IWidgetInteractionParameter, 
     const value = parameter.driver && driversValuesMap[parameter.driver] ? driversValuesMap[parameter.driver] : ''
     return `${parameter.name}=${value}&`
 }
+
+const getFormattedSelectionParameterUrl = (parameter: IWidgetInteractionParameter, dashboardId: string) => {
+    const dashStore = dashboardStore()
+    const activeSelections = dashStore.getSelections(dashboardId)
+    const activeSelection = getActiveSelectionByDatasetAndColumn(parameter.dataset, parameter.column, activeSelections)
+    const value = activeSelection ? activeSelection.value : ''
+    return `${parameter.name}=${value}&`
+}
+
 

@@ -289,7 +289,7 @@ const getAcitveSelectionValues = (values: any[], type: string) => {
     })
 }
 
-const getActiveSelectionByDatasetAndColumn = (datasetLabel: string | undefined, columnName: string | undefined, activeSelections: ISelection[]) => {
+export const getActiveSelectionByDatasetAndColumn = (datasetLabel: string | undefined, columnName: string | undefined, activeSelections: ISelection[]) => {
     if (!datasetLabel || !columnName) return null
     const index = activeSelections.findIndex((selection: ISelection) => selection.datasetLabel === datasetLabel && selection.columnName === columnName)
     return index !== -1 ? activeSelections[index] : null
