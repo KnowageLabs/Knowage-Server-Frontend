@@ -15,8 +15,9 @@ import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { IDashboardDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, isLinkInteractionActive } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
+import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import mainStore from '../../../../../App.store'
 import dashboardStore from '../../Dashboard.store'
 import descriptor from '../../dataset/DatasetEditorDescriptor.json'
@@ -469,6 +470,16 @@ export default defineComponent({
             }
         },
         onCellClicked(node) {
+            // TODO - Move this below or somewhere...
+            if (!this.editorMode && isLinkInteractionActive(node, this.widgetModel.settings.interactions.link)) {
+                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+                const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
+                console.log('--------- formattedRow: ', formattedRow)
+                console.log('--------- formattedClickedValue: ', formattedClickedValue)
+                openNewLinkTableWidget(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId)
+                return
+            }
+
             if (!this.editorMode && isCrossNavigationActive(node, this.widgetModel.settings.interactions.crossNavigation)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)

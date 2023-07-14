@@ -1,4 +1,4 @@
-import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle } from '../../Dashboard'
+import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks } from '../../Dashboard'
 
 export const getColumnGroup = (propWidget: IWidget, col: ITableWidgetColumnGroup) => {
     const modelGroups = propWidget.settings.configuration.columnGroups.groups
@@ -185,4 +185,11 @@ export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRendere
             cellRenderer: CellRenderer,
             cellRendererParams: { colId: 'iconColumn', propWidget: propWidget }
         })
+}
+
+export const isLinkInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
+    // TODO
+    console.log('------ isLinkInteractionActive() - TABLE NODE: ', tableNode)
+    console.log('------ isLinkInteractionActive() - linkOptions: ', linkOptions)
+    return true
 }
