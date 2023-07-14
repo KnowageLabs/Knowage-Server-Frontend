@@ -42,8 +42,8 @@
                     :python-environments="pythonEnvironments"
                     :r-environments="rEnvironments"
                     @fileUploaded="selectedDataset.fileUploaded = true"
-                    @touched="$emit('touched')"
                     @queryEdited="showMetadataQueryInfo = true"
+                    @touched="$emit('touched')"
                 />
             </TabPanel>
 
@@ -123,14 +123,6 @@ export default defineComponent({
         availableTags: { type: Array as any, required: true },
         datasetToCloneId: { type: Number as any }
     },
-    computed: {
-        ...mapState(mainStore, {
-            user: 'user'
-        }),
-        buttonDisabled(): any {
-            return this.v$.$invalid
-        }
-    },
     emits: ['close', 'touched', 'loadingOlderVersion', 'olderVersionLoaded', 'updated', 'created', 'showSavingSpinner', 'hideSavingSpinner'],
     data() {
         return {
@@ -157,6 +149,15 @@ export default defineComponent({
             showDataPreparation: false
         }
     },
+    computed: {
+        ...mapState(mainStore, {
+            user: 'user'
+        }),
+        buttonDisabled(): any {
+            return this.v$.$invalid
+        }
+    },
+
     watch: {
         id() {
             this.getAllDatasetData()
@@ -518,6 +519,7 @@ export default defineComponent({
             } else {
                 this.previewDataset = this.selectedDataset
                 this.showPreviewDialog = true
+                console.log('PREVIEW DS', this.previewDataset)
             }
         },
 
