@@ -39,6 +39,7 @@ import { defineComponent, PropType } from 'vue'
 import { IBackground, IDataset, IVariable } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
+import { emitter } from './DashboardHelpers'
 import WidgetController from './widget/WidgetController.vue'
 import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTabsPanel.vue'
 import KnDashboardTab from '@/components/UI/KnDashboardTabs/KnDashboardTab.vue'
@@ -54,7 +55,7 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['addWidget', 'addDataset'],
+    emits: [],
     data() {
         return {
             dashboardModel: {} as any,
@@ -104,10 +105,10 @@ export default defineComponent({
             this.setDashboardSheet({ id: (this as any).dashboardId as any, sheet: index })
         },
         addDataset() {
-            this.$emit('addDataset')
+            emitter.emit('openDatasetManagement', this.dashboardId)
         },
         addWidget() {
-            this.$emit('addWidget')
+            emitter.emit('openNewWidgetPicker', this.dashboardId)
         }
     }
 })

@@ -1204,7 +1204,7 @@
         },
         "wizard": {
             "addDataset": "Add a new dataset to the dashboard",
-            "addWidget": "Add a new Widget to the dashboard"
+            "addWidget": "Add a new Widget to the sheet"
         }
     },
     "documentBrowser": {

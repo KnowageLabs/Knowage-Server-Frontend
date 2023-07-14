@@ -35,7 +35,7 @@
             ></DashboardGeneralSettings>
         </Transition>
 
-        <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @openNewWidgetEditor="openNewWidgetEditor" @closeWidgetPicker="widgetPickerVisible = false" />
+        <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @openNewWidgetEditor="openNewWidgetEditor" @closeWidgetPicker="onWidgetPickerClosed" />
         <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDashboard" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
         <SelectionsListDialog v-if="selectionsDialogVisible" :visible="selectionsDialogVisible" :dashboard-id="dashboardId" @close="selectionsDialogVisible = false" @save="onSelectionsRemove" />
     </div>
@@ -317,9 +317,13 @@ export default defineComponent({
             if (event !== this.dashboardId) return
             this.widgetPickerVisible = true
         },
+        onWidgetPickerClosed() {
+            this.widgetPickerVisible = false
+        },
         openDatasetManagementDialog(event: any) {
             if (event !== this.dashboardId) return
             this.datasetEditorVisible = true
+            emitter.emit('datasetManagementOpened')
             clearAllDatasetIntervals()
         },
         openWidgetEditor(widget: any) {
