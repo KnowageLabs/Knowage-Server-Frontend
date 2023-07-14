@@ -128,6 +128,9 @@ export default defineComponent({
                 this.loadWidget(this.widget)
             },
             deep: true
+        },
+        item() {
+            this.loadMenuItems()
         }
     },
     async created() {
