@@ -8,6 +8,7 @@
                     <InputText
                         id="name"
                         v-model="v$.document.name.$model"
+                        :disabled="true"
                         class="kn-material-input"
                         type="text"
                         max-length="30"
