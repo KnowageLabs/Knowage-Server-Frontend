@@ -1,6 +1,6 @@
 {
     "imageExtension": ".svg",
-    "imagePath": "/knowage-vue/images/dashboard/widgetTypes/",
+    "imagePath": "/images/dashboard/widgetTypes/",
     "style": {
         "dialog": {
             "width": "60%"

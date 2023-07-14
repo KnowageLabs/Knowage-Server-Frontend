@@ -285,7 +285,8 @@ export class CustomChartDatastore {
     }
 
     getState() {
-        return JSON.parse(this.state)
+        if (typeof this.state === 'string') return JSON.parse(this.state)
+        return this.state
     }
 
     setState(state: any) {

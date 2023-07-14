@@ -30,8 +30,8 @@ export default defineComponent({
     methods: {
         documentImageSource(): any {
             return {
-                'mask-image': `url(${descriptor.imagePath}${this.widget.type}${descriptor.imageExtension})`,
-                '-webkit-mask-image': `url(${descriptor.imagePath}${this.widget.type}${descriptor.imageExtension})`
+                'mask-image': `url(${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${descriptor.imagePath}${this.widget.type}${descriptor.imageExtension})`,
+                '-webkit-mask-image': `url(${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${descriptor.imagePath}${this.widget.type}${descriptor.imageExtension})`
             }
         }
     }
