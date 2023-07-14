@@ -90,6 +90,7 @@ export default defineComponent({
     },
     created() {
         this.deleteMultivalueDefault()
+        this.dataset = this.selectedDataset
     },
     updated() {
         this.deleteMultivalueDefault()
