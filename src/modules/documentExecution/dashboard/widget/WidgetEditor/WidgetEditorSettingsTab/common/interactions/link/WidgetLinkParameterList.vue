@@ -4,7 +4,7 @@
             <Button class="kn-button kn-button--primary" @click="$emit('addParameter')"> {{ $t('documentExecution.documentDetails.designerDialog.addParameter') }}</Button>
         </div>
         <div v-for="(parameter, index) in parameters" :key="index" class="p-grid p-col-12 p-ai-center p-p-2">
-            <div class="p-grid p-ai-center p-col-11">
+            <div class="p-grid p-ai-center p-col-10">
                 <div class="p-sm-12 p-md-3 p-d-flex p-flex-column">
                     <label class="kn-material-input-label">{{ $t('common.parameter') }}</label>
                     <InputText v-model="parameter.name" class="kn-material-input p-inputtext-sm" :disabled="disabled" />
@@ -55,8 +55,13 @@
                     </div>
                 </div>
             </div>
-            <div class="p-col-1 p-text-center p-pt-2">
-                <i :class="'pi pi-trash'" class="kn-cursor-pointer" @click="deleteParameter(index)"></i>
+
+            <div class="p-col-2 p-d-flex p-flex-row p-text-center p-pt-2">
+                <div>
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.useAsResource') }}</label>
+                    <InputSwitch v-model="parameter.useAsResource" :disabled="!parameter.useAsResource && useAsResourceSelected" @change="onUseAsResourceSelected(parameter)"></InputSwitch>
+                </div>
+                <i class="pi pi-trash kn-cursor-pointer p-ml-auto" @click="deleteParameter(index)"></i>
             </div>
             <div v-if="parameter.type === 'json'" class="p-grid p-col-12 p-ai-center">
                 <TableWidgetParameterCodeMirror v-if="parameter.type === 'json'" :prop-parameter="parameter" :visible="parameter.type === 'json'"></TableWidgetParameterCodeMirror>
@@ -74,10 +79,11 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import descriptor from '../WidgetInteractionsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import TableWidgetParameterCodeMirror from './WidgetParameterCodeMirror.vue'
+import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'table-widget-link-parameters-list',
-    components: { Dropdown, TableWidgetParameterCodeMirror },
+    components: { Dropdown, TableWidgetParameterCodeMirror, InputSwitch },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         propParameters: { type: Array as PropType<IWidgetInteractionParameter[]>, required: true },
@@ -92,6 +98,7 @@ export default defineComponent({
             parameters: [] as IWidgetInteractionParameter[],
             selectedDatasetNames: [] as string[],
             drivers: [] as IDashboardDriver[],
+            useAsResourceSelected: false,
             getTranslatedLabel
         }
     },
@@ -111,6 +118,15 @@ export default defineComponent({
         },
         loadParameters() {
             this.parameters = this.propParameters
+            this.setUseAsResourceSelectedFromLoadedParameters()
+        },
+        setUseAsResourceSelectedFromLoadedParameters() {
+            for (let i = 0; i < this.parameters.length; i++) {
+                if (this.parameters[i].useAsResource) {
+                    this.useAsResourceSelected = true
+                    break
+                }
+            }
         },
         loadSelectedDatasetNames() {
             if (!this.selectedDatasetsColumnsMap) return
@@ -160,6 +176,9 @@ export default defineComponent({
         },
         deleteParameter(index: number) {
             this.$emit('delete', index)
+        },
+        onUseAsResourceSelected(parameter: IWidgetInteractionParameter) {
+            this.useAsResourceSelected = parameter.useAsResource ?? false
         }
     }
 })

@@ -149,7 +149,7 @@ const getFormattededLinks = (links: any) => {
             type: link.interactionType,
             baseurl: link.baseurl,
             action: link.type,
-            parameters: getFormattedLinkParameters(link.parameters)
+            parameters: getFormattedLinkParameters(link.parameters),
         } as ITableWidgetLink
 
         if (link.icon) formattedLink.icon = link.icon
@@ -164,18 +164,24 @@ const getFormattededLinks = (links: any) => {
 const getFormattedLinkParameters = (linkParameters: any[]) => {
     if (!linkParameters || linkParameters.length === 0) return []
     const formattedParameters = [] as IWidgetInteractionParameter[]
+    let useAsResourceSelected = false;
     linkParameters.forEach((linkParameter: any) => {
         const formattedParameter = {
             enabled: true,
             name: linkParameter.name,
             type: linkParameter.bindType,
-            value: linkParameter.value ?? ''
+            value: linkParameter.value ?? '',
+            useAsResource: false
         } as IWidgetInteractionParameter
 
         if (linkParameter.column) formattedParameter.column = linkParameter.column
         if (linkParameter.dataset) formattedParameter.dataset = linkParameter.dataset
         if (linkParameter.driver) formattedParameter.driver = linkParameter.driver
         if (linkParameter.json) formattedParameter.json = linkParameter.json
+        if (linkParameter.resource && !useAsResourceSelected) {
+            formattedParameter.useAsResource = linkParameter.resource
+            useAsResourceSelected = true
+        }
 
         formattedParameters.push(formattedParameter)
     })

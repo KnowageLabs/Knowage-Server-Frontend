@@ -11,7 +11,7 @@ interface IClickedValue { value: string, type: string }
 
 export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
     const formattedLinks = getFormattedLinks(linkOptions, formattedRow, dashboardId, variables)
-    console.log('--------- openNewLinkTableWidget() - formattedLinks: ', formattedLinks)
+    console.log('--------- FORMATTED LINKS: ', formattedLinks)
     formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
         if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
     })
@@ -28,36 +28,54 @@ const getFormattedLinks = (linkOptions: IWidgetLinks, formattedRow: any, dashboa
 
 const getFormattedLink = (link: ITableWidgetLink, formattedRow: any, dashboardId: string, variables: IVariable[]) => {
     let url = link.baseurl
-    let parameters = link.parameters.length > 0 ? getFormattedParametersUrl(link, formattedRow, dashboardId, variables) : ''
-    if (parameters) parameters = parameters.substring(0, parameters.length - 1)
-    url += `?${parameters}`
+    const parameterToBeUsedAsResource = link.parameters.find((parameter: IWidgetInteractionParameter) => parameter.useAsResource)
+    const resource = parameterToBeUsedAsResource ? getFormattedParametersUrl([parameterToBeUsedAsResource], formattedRow, dashboardId, variables, true) : ''
+    if (resource) url += resource
+    let parameters = link.parameters.length > 0 ? getFormattedParametersUrl(link.parameters, formattedRow, dashboardId, variables, false) : ''
+    if (parameters) {
+        parameters = parameters.substring(0, parameters.length - 1)
+        url += `?${parameters}`
+    }
 
     return { url: url, action: link.action }
 }
 
-const getFormattedParametersUrl = (link: ITableWidgetLink, formattedRow: any, dashboardId: string, variables: IVariable[]) => {
-    console.log('------ LINK: ', link)
+const getFormattedParametersUrl = (parameters: IWidgetInteractionParameter[], formattedRow: any, dashboardId: string, variables: IVariable[], useAsResource: boolean) => {
     let formattedParametersUrl = ''
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const driversValuesMap = getFormattedDriverValuesMap(drivers)
-    link.parameters.forEach((parameter: IWidgetInteractionParameter) => {
-        if (parameter.type === 'static') {
-            formattedParametersUrl += `${parameter.name}=${parameter.value}&`
-        } else if (parameter.type === 'dynamic') {
-            formattedParametersUrl += getFormattedDynamicParameterUrl(parameter, formattedRow)
-        } else if (parameter.type === 'driver') {
-            formattedParametersUrl += getFormattedDriverParameterUrl(parameter, driversValuesMap)
-        } else if (parameter.type === 'selection') {
-            formattedParametersUrl += getFormattedSelectionParameterUrl(parameter, dashboardId)
-        } else if (parameter.type === 'jwt') {
-            formattedParametersUrl += getFormattedJWTParameterUrl(parameter)
-        } else if (parameter.type === 'json') {
-            formattedParametersUrl += getFormattedJSONParameterUrl(parameter, variables, drivers)
+    for (let i = 0; i < parameters.length; i++) {
+        const tempParameter = parameters[i]
+        if (tempParameter.useAsResource && !useAsResource) continue
+        switch (tempParameter.type) {
+            case 'static':
+                formattedParametersUrl += getFormattedStaticParameterUrl(tempParameter, useAsResource)
+                break
+            case 'dynamic':
+                formattedParametersUrl += getFormattedDynamicParameterUrl(tempParameter, formattedRow, useAsResource)
+                break
+            case 'driver':
+                formattedParametersUrl += getFormattedDriverParameterUrl(tempParameter, driversValuesMap, useAsResource)
+                break
+            case 'selection':
+                formattedParametersUrl += getFormattedSelectionParameterUrl(tempParameter, dashboardId, useAsResource)
+                break
+            case 'jwt':
+                formattedParametersUrl += getFormattedJWTParameterUrl(tempParameter, useAsResource)
+                break
+            case 'json':
+                formattedParametersUrl += getFormattedJSONParameterUrl(tempParameter, variables, drivers, useAsResource)
         }
-    })
+    }
+
     return formattedParametersUrl
 }
+
+const getFormattedStaticParameterUrl = (parameter: IWidgetInteractionParameter, useAsResource: boolean) => {
+    return useAsResource ? `${parameter.value}` : `${parameter.name}=${parameter.value}&`
+}
+
 
 const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
     if (!drivers) return {}
@@ -66,48 +84,51 @@ const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
     return driversValuesMap
 }
 
-const getFormattedDynamicParameterUrl = (parameter: IWidgetInteractionParameter, formattedRow: any) => {
+const getFormattedDynamicParameterUrl = (parameter: IWidgetInteractionParameter, formattedRow: any, useAsResource: boolean) => {
     let columnValue = ''
     if (parameter.column === 'column_name_mode') columnValue = formattedRow.columnName
     else if (parameter.column) columnValue = formattedRow[parameter.column].value
-    return `${parameter.name}=${columnValue ?? ''}&`
+    const value = columnValue ?? ''
+    return useAsResource ? `${value}` : `${parameter.name}=${value}&`
 }
 
-const getFormattedDriverParameterUrl = (parameter: IWidgetInteractionParameter, driversValuesMap: any) => {
-    if (!parameter.driver || !driversValuesMap[parameter.driver]) return `${parameter.name}=&`
-    else if (!driversValuesMap[parameter.driver].multivalue) return `${parameter.name}=${driversValuesMap[parameter.driver].value}&`
+const getFormattedDriverParameterUrl = (parameter: IWidgetInteractionParameter, driversValuesMap: any, useAsResource: boolean) => {
+    if (!parameter.driver || !driversValuesMap[parameter.driver]) return useAsResource ? '' : `${parameter.name}=&`
+    else if (!driversValuesMap[parameter.driver].multivalue) return useAsResource ? `${driversValuesMap[parameter.driver].value}` : `${parameter.name}=${driversValuesMap[parameter.driver].value}&`
     else {
         let formattedUrl = ``
         const driverValuesAsArray = driversValuesMap[parameter.driver].value.split(',')
-        driverValuesAsArray.forEach((value: string) => formattedUrl += `${parameter.name}=${value}&`)
+        driverValuesAsArray.forEach((value: string) => formattedUrl += useAsResource ? `${value},` : `${parameter.name}=${value}&`)
+        if (useAsResource) formattedUrl = formattedUrl.slice(0, -1)
         return formattedUrl
     }
 }
 
-const getFormattedSelectionParameterUrl = (parameter: IWidgetInteractionParameter, dashboardId: string) => {
+const getFormattedSelectionParameterUrl = (parameter: IWidgetInteractionParameter, dashboardId: string, useAsResource: boolean) => {
     const dashStore = dashboardStore()
     const activeSelections = dashStore.getSelections(dashboardId)
     const activeSelection = getActiveSelectionByDatasetAndColumn(parameter.dataset, parameter.column, activeSelections)
     const value = activeSelection ? activeSelection.value : ''
-    return `${parameter.name}=${value}&`
+    return useAsResource ? `${value}` : `${parameter.name}=${value}&`
 }
 
-const getFormattedJWTParameterUrl = (parameter: IWidgetInteractionParameter) => {
+const getFormattedJWTParameterUrl = (parameter: IWidgetInteractionParameter, useAsResource: boolean) => {
     const store = mainStore()
     const user = store.getUser()
-    return `${parameter.name}=${user?.userUniqueIdentifier ?? ''}&`
+    const value = user?.userUniqueIdentifier ?? ''
+    return useAsResource ? `${value}` : `${parameter.name}=${value}&`
 }
 
-const getFormattedJSONParameterUrl = (parameter: IWidgetInteractionParameter, variables: IVariable[], drivers: IDashboardDriver[]) => {
+const getFormattedJSONParameterUrl = (parameter: IWidgetInteractionParameter, variables: IVariable[], drivers: IDashboardDriver[], useAsResource: boolean) => {
     const store = mainStore()
     if (!parameter.json) return `${parameter.name}=&`
     let json = replacePlaceholders(parameter.json, variables, drivers)
     try {
         json = JSON.parse(json)
-        return `${parameter.name}=${JSON.stringify(json)}&`
+        return useAsResource ? `${JSON.stringify(json)}&` : `${parameter.name}=${JSON.stringify(json)}&`
     } catch (error: any) {
         store.setError({ title: t('common.error.generic'), msg: t('dashboard.widgetEditor.jsonLinkParsingError') })
-        return `${parameter.name}=&`
+        return useAsResource ? '' : `${parameter.name}=&`
     }
 }
 

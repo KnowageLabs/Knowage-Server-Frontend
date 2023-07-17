@@ -233,7 +233,8 @@ export interface IWidgetInteractionParameter {
     column?: string
     driver?: string
     dataset?: string
-    json?: string
+    json?: string,
+    useAsResource?: boolean
 }
 
 export interface IWidgetPreview {

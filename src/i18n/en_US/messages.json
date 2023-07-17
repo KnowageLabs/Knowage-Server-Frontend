@@ -433,7 +433,6 @@
             "launchSelection": "LAUNCH SELECTION"
         },
         "widgetEditor": {
-            "jsonLinkParsingError": "Error while parsing JSON link.",
             "absolute": "Absolute",
             "accessibility": {
                 "enabelKeyboardNavigation": "Enable Keyboard Navigation",
@@ -902,6 +901,7 @@
                 "title": "Interactions"
             },
             "itemsPerPage": "Items per page",
+            "jsonLinkParsingError": "Error while parsing JSON link.",
             "legend": {
                 "title": "Legend"
             },
@@ -1141,6 +1141,7 @@
                 "customHeader": "Custom Header",
                 "title": "Tooltips"
             },
+            "useAsResource": "Use as resource",
             "valuesManagement": {
                 "alwaysEnableValues": "Always Enable Values",
                 "alwaysEnableValuesHint": "Always enable values hint placeholder",
