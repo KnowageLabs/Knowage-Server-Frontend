@@ -75,7 +75,7 @@ import SheetPickerDialog from './SheetPickerDialog/SheetPickerDialog.vue'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog,SheetPickerDialog },
+    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -111,16 +111,7 @@ export default defineComponent({
             customChartLoading: false,
             showChangeDialog: false,
             canEditDashboard,
-            items: [
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(this.widget), visible: ['highcharts', 'vega'].includes(this.widget.type) },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'map' },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(this.widget), visible: this.widget.type === 'table' },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: true }
-            ] as IMenuItem[],
+            items: [] as IMenuItem[],
             searchDialogVisible: false,
             search: { searchText: '', searchColumns: [] } as IWidgetSearch,
             sheetPickerDialogVisible: false
@@ -132,6 +123,9 @@ export default defineComponent({
         playSelectionButtonVisible(): boolean {
             if (!this.widget || !this.widget.settings.configuration || !this.widget.settings.configuration.selectorType) return false
             return this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
+        },
+        dashboardSheets() {
+            return this.dashboards[this.dashboardId]?.sheets ?? []
         }
     },
     watch: {
@@ -142,6 +136,9 @@ export default defineComponent({
             deep: true
         },
         item() {
+            this.loadMenuItems()
+        },
+        dashboardSheets() {
             this.loadMenuItems()
         }
     },
@@ -181,7 +178,7 @@ export default defineComponent({
             this.items = [
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: true },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.cloneWidget(this.widget), visible: this.widget.type === 'highcharts' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: ['highcharts', 'vega'].includes(this.widget.type) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget.type === 'map' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget.type === 'table' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
