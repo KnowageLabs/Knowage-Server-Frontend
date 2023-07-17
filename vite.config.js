@@ -32,6 +32,9 @@ export default defineConfig((command, mode) => {
                 devOptions: {
                     enabled: true
                 },
+                workbox: {
+                    globPatterns: ['**/*.{css,html,ico,png,svg}']
+                },
                 useCredentials: true,
                 manifest: {
                     name: 'Knowage',

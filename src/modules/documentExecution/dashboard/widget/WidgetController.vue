@@ -75,7 +75,7 @@ import SheetPickerDialog from './SheetPickerDialog/SheetPickerDialog.vue'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, SheetPickerDialog, ChangeWidgetDialog },
+    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog },
     inject: ['dHash'],
     props: {
         model: { type: Object },

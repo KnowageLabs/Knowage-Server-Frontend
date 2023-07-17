@@ -21,15 +21,7 @@ import { IWidget, IGalleryItem } from '@/modules/documentExecution/Dashboard/Das
 
 export default defineComponent({
     name: 'workspace-sidebar',
-    components: {},
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, htmlGalleryItemProp: { type: Object as PropType<IGalleryItem>, required: true } },
-    emits: [],
-    setup() {},
-    data() {
-        return {}
-    },
-    computed: {},
-    methods: {}
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, htmlGalleryItemProp: { type: Object as PropType<IGalleryItem>, required: true } }
 })
 </script>
 <style lang="scss" scoped>
