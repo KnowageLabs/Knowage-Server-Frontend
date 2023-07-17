@@ -15,6 +15,7 @@ export const formatImageWidget = (widget: any) => {
         settings: {} as IImageWidgetSettings
     } as IWidget
     formattedWidget.settings = getFormattedWidgetSettings(widget) as IImageWidgetSettings
+    console.log('------- FORMATTED WIDGET IMAGE: ', formattedWidget)
     return formattedWidget
 }
 

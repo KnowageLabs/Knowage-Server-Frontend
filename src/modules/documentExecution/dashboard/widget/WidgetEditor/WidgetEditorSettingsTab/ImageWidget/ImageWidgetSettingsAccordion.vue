@@ -14,6 +14,7 @@
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
+                <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
             </AccordionTab>
         </Accordion>
     </div>
@@ -36,6 +37,7 @@ import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import ImageWidgetSettingsAccordionHeader from './ImageWidgetSettingsAccordionHeader.vue'
+import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteractionsLinks.vue'
 
 export default defineComponent({
     name: 'image-widget-configuration-container',
@@ -51,7 +53,8 @@ export default defineComponent({
         WidgetPaddingStyle,
         WidgetBackgroundColorStyle,
         WidgetCrossNavigation,
-        ImageWidgetSettingsAccordionHeader
+        ImageWidgetSettingsAccordionHeader,
+        WidgetInteractionsLinks
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

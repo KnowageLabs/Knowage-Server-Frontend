@@ -5,7 +5,7 @@
             {{ linksModel }}
         </div>
         <div v-for="(link, index) in linksModel.links" :key="index" class="dynamic-form-item p-grid p-ai-center p-col-12">
-            <div class="p-sm-11 p-md-10 p-d-flex p-flex-column">
+            <div v-if="widgetType === 'table'" class="p-sm-11 p-md-10 p-d-flex p-flex-column">
                 <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
                 <Dropdown v-model="link.type" class="kn-material-input" :options="descriptor.interactionTypes" option-value="value" :disabled="linksDisabled" @change="onInteractionTypeChanged(link)">
                     <template #value="slotProps">
@@ -103,6 +103,9 @@ export default defineComponent({
     computed: {
         linksDisabled() {
             return !this.linksModel || !this.linksModel.enabled
+        },
+        widgetType() {
+            return this.widgetModel?.type
         }
     },
     watch: {
