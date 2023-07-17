@@ -39,6 +39,7 @@ export default defineComponent({
             if (!this.widgetModel) return
             if (this.totalType == 'Totals' && this.widgetModel.settings?.style?.totals) this.titleStyleModel = this.widgetModel.settings.style.totals
             else if (this.totalType == 'SubTotals' && this.widgetModel.settings?.style?.totals) this.titleStyleModel = this.widgetModel.settings.style.subTotals
+            else if (this.totalType == 'CrossTabHeaders' && this.widgetModel.settings?.style?.crossTabHeaders) this.titleStyleModel = this.widgetModel.settings.style.crossTabHeaders
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.titleStyleModel) return

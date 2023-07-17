@@ -1,0 +1,21 @@
+{
+    "dialogStyle": {
+        "width": "60%"
+    },
+    "hintStyle": {
+        "align-items": "center",
+        "display": "flex",
+        "justify-content": "center",
+        "text-align": "center"
+    },
+    "pythonOutputTypeOptions": [
+        {
+            "label": "common.image",
+            "value": "image"
+        },
+        {
+            "label": "HTML",
+            "value": "html"
+        }
+    ]
+}

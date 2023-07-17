@@ -60,6 +60,8 @@ export default defineComponent({
                     return this.widgetModel.settings.style.totals
                 case 'SubTotals':
                     return this.widgetModel.settings.style.subTotals
+                case 'CrossTabHeaders':
+                    return this.widgetModel.settings.style.crossTabHeaders
                 case 'VisualizationType':
                     return this.widgetModel.settings.visualization.visualizationTypes
                 default:

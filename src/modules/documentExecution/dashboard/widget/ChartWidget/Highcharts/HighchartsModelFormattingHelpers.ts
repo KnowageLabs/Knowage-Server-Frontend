@@ -57,6 +57,7 @@ const formatHeatmapColors = (formattedChartModel: IHighchartsChartModel) => {
 
 export const formatRadar = (formattedChartModel: IHighchartsChartModel) => {
     formattedChartModel.chart.type = 'line'
+    formattedChartModel.chart.polar = true
 }
 
 export const formatBubble = (formattedChartModel: IHighchartsChartModel) => {
@@ -70,4 +71,37 @@ const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
     tooltip.formatter = function (this: Highcharts.TooltipFormatterContextObject) {
         return this.point.options.y ? this.point.options.name + '<br/><b>' + this.series.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.y, tooltip.valueDecimals) + suffix : this.series.name;
     }
+}
+
+export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    formattedChartModel.chart.parallelCoordinates = true
+    formattedChartModel.chart.parallelAxes = { lineWidth: 2 }
+    formatSplineChartVerticalAxisLines(formattedChartModel, widgetModel.settings.configuration?.axisLines)
+}
+
+const formatSplineChartVerticalAxisLines = (formattedChartModel: IHighchartsChartModel, axisLinesSettings: any) => {
+    if (!axisLinesSettings || !formattedChartModel.yAxis) return
+    formattedChartModel.xAxis.forEach((xAxis: any) => {
+        xAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
+    })
+    formattedChartModel.yAxis.forEach((yAxis: any) => {
+        yAxis.lineColor = axisLinesSettings.color ? axisLinesSettings.color : 'black'
+        yAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
+    })
+}
+
+export const formatPictorialChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    if (formattedChartModel.tooltip) formattedChartModel.tooltip.headerFormat = ''
+    formatPictorialPlotOptions(formattedChartModel)
+    formatPictorialSVGPath(formattedChartModel, widgetModel)
+}
+
+const formatPictorialPlotOptions = (formattedChartModel: IHighchartsChartModel) => {
+    formattedChartModel.plotOptions.series.stacking = 'percent'
+    formattedChartModel.plotOptions.series.dataLabels = { enabled: true, align: 'center', }
+}
+
+const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    if (!formattedChartModel.plotOptions.series || !widgetModel.settings.configuration.svgSettings) return
+    formattedChartModel.plotOptions.series.paths = [{ definition: widgetModel.settings.configuration.svgSettings.definition }]
 }

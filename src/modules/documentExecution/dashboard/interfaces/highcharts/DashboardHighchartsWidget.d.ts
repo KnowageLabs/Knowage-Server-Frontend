@@ -26,6 +26,8 @@ export interface IHighchartsWidgetConfiguration {
     splitting?: any
     grouping?: any,
     centerText?: any,
+    limit?: any,
+    axisLines?: any,
     exports: IWidgetExports
 }
 
@@ -88,12 +90,14 @@ export interface IHighchartsChartModel {
         type: string,
         backgroundColor?: any,
         polar?: boolean,
-        events?: any
+        events?: any,
+        parallelCoordinates?: any,
+        parallelAxes?: any
+        inverted?: any
     },
     noData: IHighchartsNoDataConfiguration,
     accessibility: IHighchartsAccessibilitySettings,
     series: any[],
-    settings: IHighchartsChartModelSettings,
     plotOptions: {
         pie?: any,
         gauge?: any,
@@ -101,6 +105,8 @@ export interface IHighchartsChartModel {
         heatmap?: any
         line?: any,
         scatter?: any,
+        dependencywheel?: any
+        sankey?: any
         series?: any
     },
     legend: any,
@@ -191,11 +197,6 @@ export interface IHighchartsSerieAccessibility {
     description: string,
     exposeAsGroupOnly: boolean
     keyboardNavigation: { enabled: boolean }
-}
-
-export interface IHighchartsChartModelSettings {
-    drilldown: any, // TODO
-    categories: any // TODO
 }
 
 export interface IHighchartsLegend {

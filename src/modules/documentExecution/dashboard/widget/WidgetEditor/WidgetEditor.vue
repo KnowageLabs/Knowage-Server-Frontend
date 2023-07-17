@@ -18,9 +18,9 @@
                     :dashboard-id="dashboardId"
                     :selected-setting-prop="selectedSetting"
                     :html-gallery-prop="htmlGalleryProp"
+                    :python-gallery-prop="pythonGalleryProp"
                     :custom-chart-gallery-prop="customChartGalleryProp"
                     @settingChanged="onSettingChanged"
-                    @datasetSelected="onDatasetSelected"
                 />
 
                 <div v-if="selectedSetting != 'Gallery'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px">
@@ -57,6 +57,7 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true },
         htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
+        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
         customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true }
     },
     emits: ['close', 'widgetUpdated', 'widgetSaved'],

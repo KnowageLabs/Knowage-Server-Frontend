@@ -142,6 +142,31 @@
             "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.sunburst",
             "value": "sunburst"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.chord",
+            "value": "dependencywheel"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.parallelChart",
+            "value": "spline"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.pictorial",
+            "value": "pictorial"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.sankey",
+            "value": "sankey"
+        },
+        {
+            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.sankeyInverted",
+            "value": "sankeyInverted"
         }
     ],
     "columnAggregationOptions": [

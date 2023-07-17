@@ -40,7 +40,7 @@
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.precision') }}</label>
                 <InputNumber v-model="serieSetting.label.precision" class="kn-material-input p-inputtext-sm" :disabled="!serieSetting.label.enabled" @blur="modelChanged" />
             </div>
-            <div v-if="formattingSectionAvailable" class="p-col-6 p-d-flex p-flex-column kn-flex p-m-2">
+            <div v-if="scaleVisible" class="p-col-6 p-d-flex p-flex-column kn-flex p-m-2">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.series.scale') }}</label>
                 <div class="p-d-flex p-flex-row p-ai-center">
                     <Dropdown v-model="serieSetting.label.scale" class="kn-material-input" :options="descriptor.scaleOptions" :disabled="!serieSetting.label.enabled" @change="modelChanged"> </Dropdown>
@@ -53,7 +53,7 @@
                 <InputSwitch v-model="serieSetting.label.percentage" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
             </div>
 
-            <div v-if="formattingSectionAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
+            <div v-if="absoluteVisible" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.absolute') }}</label>
                 <InputSwitch v-model="serieSetting.label.absolute" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
             </div>
@@ -77,7 +77,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { IHighchartsChartModel, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
@@ -120,29 +120,32 @@ export default defineComponent({
         }
     },
     computed: {
-        modelSerieNames() {
-            return this.model ? this.model.series.map((serie: IHighchartsChartSerie) => serie.name) : []
-        },
         allSeriesOptionEnabled() {
-            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap'].includes(this.model.chart.type)
+            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial'].includes(this.model.chart.type)
         },
         formattingSectionAvailable() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial'].includes(this.model.chart.type)
+        },
+        scaleVisible() {
             return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
         },
         percentageAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
         },
+        absoluteVisible() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
+        },
         advancedSectionAvailable() {
             return this.model?.chart.type === 'gauge'
         },
         styleToolbarVisible() {
-            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial'].includes(this.model.chart.type)
         },
         serieColorPickerVisible() {
             return this.model?.chart.type === 'activitygauge'
         },
         labelOptionsVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial'].includes(this.model.chart.type)
         }
     },
     watch: {

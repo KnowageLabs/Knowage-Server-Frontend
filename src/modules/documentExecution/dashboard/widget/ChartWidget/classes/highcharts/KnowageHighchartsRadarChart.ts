@@ -18,7 +18,6 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'radar'
-        this.model.chart.polar = true
     }
 
     updateModel(oldModel: any) {

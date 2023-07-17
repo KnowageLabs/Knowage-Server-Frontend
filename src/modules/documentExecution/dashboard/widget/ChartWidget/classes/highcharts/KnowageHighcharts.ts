@@ -165,10 +165,11 @@ export class KnowageHighcharts {
         this.model.colors = widgetModel.settings.chart.colors
     }
 
-    handleFormatter(that: any, seriesLabelSetting: IHighchartsSerieLabelSettings) {
+    handleFormatter(that: any, seriesLabelSetting: IHighchartsSerieLabelSettings, chartType: string) {
         const prefix = seriesLabelSetting.prefix
         const suffix = seriesLabelSetting.suffix
 
+        if (['dependencywheel', 'sankey'].includes(chartType)) return `${prefix}${that.point.weight}${suffix}`
         if (!that.y && that.key && typeof that.key === 'string') return that.point?.id === 'root' ? that.key : `${prefix}${that.key}${suffix}`
 
         const precision = seriesLabelSetting.precision

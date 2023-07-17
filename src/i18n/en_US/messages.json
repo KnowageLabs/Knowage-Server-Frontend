@@ -168,6 +168,7 @@
         "output": "Output",
         "owner": "Owner",
         "packages": "Packages",
+        "padding": "Padding",
         "parameter": "Parameter",
         "parameters": "Parameters",
         "password": "Password",
@@ -415,6 +416,7 @@
             "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "rWidgetError": "Error loading R widget.",
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
         "selectionsList": "Selections List",
@@ -483,6 +485,7 @@
                 "areaChart": "Area Chart",
                 "barChart": "Bar Chart",
                 "bubbleChart": "Bubble Chart",
+                "chord": "Chord Chart",
                 "columnChart": "Column Chart",
                 "donutChart": "Donut Chart",
                 "funnelChart": "Funnel Chart",
@@ -490,8 +493,11 @@
                 "heatmap": "Heatmap",
                 "lineChart": "Line Chart",
                 "parallelChart": "Parallel Chart",
+                "pictorial": "Pictorial",
                 "pieChart": "Pie Chart",
                 "radar": "Radar",
+                "sankey": "Sankey",
+                "sankeyInverted": "Sankey Inverted",
                 "scatterChart": "Scatter Chart",
                 "solidgauge": "Solid Gauge",
                 "stackedAreaChart": "Stacked Area Chart",
@@ -632,6 +638,11 @@
                 },
                 "areaRangeHigh": "Area Range High",
                 "areaRangeLow": "Area Range Low",
+                "axisLines": {
+                    "crosshairColor": "Crosshair Color",
+                    "crosshairWidth": "Crosshair Width",
+                    "title": "Axis Line Details"
+                },
                 "axisTickSettings": {
                     "endOnTick": "End On Tick",
                     "endOnTickHint": "Whether to force the axis to end on a tick.",
@@ -710,6 +721,12 @@
                     "layoutHint": "The layout of the legend items. Can be one of horizontal or vertical or proximate. When proximate, the legend items will be placed as close as possible to the graphs they're representing, except in inverted charts or when the legend position doesn't allow it.",
                     "verticalAlignHint": "The vertical alignment of the legend box. Can be one of top, middle or bottom. Vertical position can be further determined by the y option. In the case that the legend is aligned in a corner position, the layout option will determine whether to place it above/below or on the side of the plot area. When the layout option is proximate, the verticalAlign option doesn't apply."
                 },
+                "limit": {
+                    "direction": "Direction",
+                    "itemsNumber": "Maximum number of records",
+                    "sortBySerie": "Sort by Serie",
+                    "title": "Limit"
+                },
                 "lines": {
                     "lineColor": "Line Color",
                     "lineInterval": "Line Interval",
@@ -729,6 +746,10 @@
                     "startAngle": "Start Angle",
                     "startAngleHint": "The start angle of the polar X axis or gauge axis, given in degrees where 0 is north."
                 },
+                "pictorial": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on exactly one measure to define series."
+                },
                 "piechart": {
                     "dimensionsTableHint": "Attributes only. Each different value in the selected column will create a different slice. If more than one dimension is present, the list will be the drill-down sequence.",
                     "valuesTableHint": "Measures only. The selected column will be used as values for every slice."
@@ -742,6 +763,11 @@
                 "radar": {
                     "dimensionsTableHint": "Click on at least one attribute to define categories If you enable splitting serie using second category, you need to define exactly two categories and one serie.",
                     "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second category, you need to define exactly one serie."
+                },
+                "sankey": {
+                    "fromTableHint": "Click on exactly one attributes to define from category",
+                    "toTableHint": "Click on exactly one attributes to define to category",
+                    "valuesTableHint": "Click on exactly one measure to define series"
                 },
                 "scale": {
                     "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
@@ -764,6 +790,10 @@
                     "simultaneous": "Simultaneous",
                     "title": "Sonification"
                 },
+                "spline": {
+                    "dimensionsTableHint": "Click on at exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on at least two measures to define series."
+                },
                 "splitting": {
                     "hint": "Options available only if you are not using datetime and Group by categories. You can use only one Splitting function.",
                     "secondCategory": "Series to use on second category options",
@@ -780,6 +810,13 @@
                     "relativePositionHint": "Solid gauge series only. Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
                     "stopsHint": "Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
                     "title": "Stops"
+                },
+                "svg": {
+                    "definition": "Definition",
+                    "error": "No path element with d attribute found in SVG file.",
+                    "hint": "SVG Hint Placeholder",
+                    "title": "SVG",
+                    "upload": "Upload SVG"
                 },
                 "tick": {
                     "minorTickInterval": "Minor Tick Interval",
@@ -1004,6 +1041,7 @@
                 },
                 "style": {
                     "columnHeaders": "Column Headers",
+                    "crossTabHeaders": "Cross Tab Headers",
                     "fieldHeaders": "Field Headers",
                     "rowHeaders": "Row Headers",
                     "subTotals": "SubTotals",
@@ -1017,6 +1055,16 @@
             "position": "Position",
             "precision": "Precision",
             "prefix": "Prefix",
+            "python": {
+                "error": "Error loading Python widget.",
+                "outputFileName": "Output File Name",
+                "tagsDialog": {
+                    "hint": {
+                        "columnsData": "This tag is used to select a specific column from the selected dataset",
+                        "parameters": "This tag is used to choose an analytical driver from the ones available"
+                    }
+                }
+            },
             "radius": "Radius",
             "recentlyUsed": "Recently Used",
             "responsive": {

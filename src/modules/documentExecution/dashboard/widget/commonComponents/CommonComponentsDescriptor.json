@@ -1,4 +1,58 @@
 {
+    "availableWidgets": [
+        {
+            "name": "scatter",
+            "tooltip": "dashboard.widgetEditor.chartTypes.scatterChart"
+        },
+        {
+            "name": "bubble",
+            "tooltip": "dashboard.widgetEditor.chartTypes.bubbleChart"
+        },
+        {
+            "name": "bar",
+            "tooltip": "dashboard.widgetEditor.chartTypes.barChart"
+        },
+        {
+            "name": "line",
+            "tooltip": "dashboard.widgetEditor.chartTypes.lineChart"
+        },
+        {
+            "name": "parallel",
+            "tooltip": "dashboard.widgetEditor.chartTypes.parallelChart"
+        },
+        {
+            "name": "chord",
+            "tooltip": "dashboard.widgetEditor.chartTypes.chord"
+        },
+        {
+            "name": "sunburst",
+            "tooltip": "dashboard.widgetEditor.chartTypes.sunburst"
+        },
+        {
+            "name": "pie",
+            "tooltip": "dashboard.widgetEditor.chartTypes.pieChart"
+        },
+        {
+            "name": "gauge",
+            "tooltip": "dashboard.widgetEditor.chartTypes.gauge"
+        },
+        {
+            "name": "radar",
+            "tooltip": "dashboard.widgetEditor.chartTypes.radar"
+        },
+        {
+            "name": "heatmap",
+            "tooltip": "dashboard.widgetEditor.chartTypes.heatmap"
+        },
+        {
+            "name": "treemap",
+            "tooltip": "dashboard.widgetEditor.chartTypes.treemap"
+        },
+        {
+            "name": "wordcloud",
+            "tooltip": "dashboard.widgetEditor.chartTypes.wordcloud"
+        }
+    ],
     "quickWidgets": [
         {
             "class": "fas fa-circle",
