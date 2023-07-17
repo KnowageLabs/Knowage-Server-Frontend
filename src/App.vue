@@ -150,6 +150,7 @@ export default defineComponent({
                 }
             })
         await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response) => {
+            this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
         })
         if (this.isEnterprise) {
@@ -180,6 +181,13 @@ export default defineComponent({
         ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization']),
         closeDialog() {
             this.$emit('update:visibility', false)
+        },
+        checkTopLevelIframe(configs) {
+            if (configs?.["KNOWAGE.EMBEDDING_APPLICATION_VALUE"]) {
+                if (window.parent !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs["KNOWAGE.EMBEDDING_APPLICATION_VALUE"]) {
+                    this.$router.push({ name: 'unauthorized', params:{message:this.$t('unauthorized.outsideIframe')}})
+                }
+            }
         },
         async onLoad() {
             this.showMenu = true

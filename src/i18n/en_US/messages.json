@@ -1697,6 +1697,9 @@
         "welcome": "Welcome to Knowage",
         "welcomeText": "<b>Knowage</b> is the full open source suite for analytics and business intelligence combining traditional and big data sources to provide valuable and meaningful information.<br>Start your analysis now!"
     },
+    "unauthorized": {
+        "outsideIframe": "You are not allowed to access Knowage from outside the application"
+    },
     "importExport": {
         "catalogFunction": {
             "column": {
