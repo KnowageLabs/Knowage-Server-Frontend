@@ -8,7 +8,7 @@ export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow
     const formattedLinks = getFormattedLinks(linkOptions, formattedRow, dashboardId)
     console.log('--------- openNewLinkTableWidget() - formattedLinks: ', formattedLinks)
     formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
-        // if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
+        if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
     })
 }
 
@@ -52,8 +52,7 @@ const getFormattedParametersUrl = (link: ITableWidgetLink, formattedRow: any, da
 const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
     if (!drivers) return {}
     const driversValuesMap = {}
-    // TODO - Ask about multivalue drivers
-    drivers.forEach((driver: IDashboardDriver) => driversValuesMap[driver.urlName] = driver.value)
+    drivers.forEach((driver: IDashboardDriver) => driversValuesMap[driver.urlName] = { value: driver.value, multivalue: driver.multivalue })
     return driversValuesMap
 }
 
@@ -65,8 +64,15 @@ const getFormattedDynamicParameterUrl = (parameter: IWidgetInteractionParameter,
 }
 
 const getFormattedDriverParameterUrl = (parameter: IWidgetInteractionParameter, driversValuesMap: any) => {
-    const value = parameter.driver && driversValuesMap[parameter.driver] ? driversValuesMap[parameter.driver] : ''
-    return `${parameter.name}=${value}&`
+    if (!parameter.driver || !driversValuesMap[parameter.driver]) return `${parameter.name}=&`
+    else if (!driversValuesMap[parameter.driver].multivalue) return `${parameter.name}=${driversValuesMap[parameter.driver].value}&`
+    else {
+        let formattedUrl = ``
+        const driverValuesAsArray = driversValuesMap[parameter.driver].value.split(',')
+        console.log('--------- driverValuesAsArray: ', driverValuesAsArray)
+        driverValuesAsArray.forEach((value: string) => formattedUrl += `${parameter.name}=${value}&`)
+        return formattedUrl
+    }
 }
 
 const getFormattedSelectionParameterUrl = (parameter: IWidgetInteractionParameter, dashboardId: string) => {
