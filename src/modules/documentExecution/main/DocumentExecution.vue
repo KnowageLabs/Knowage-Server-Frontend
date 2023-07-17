@@ -1060,12 +1060,14 @@ export default defineComponent({
             emitter.emit('openDatasetManagement', this.document.dashboardId)
         },
         setEventListeners() {
+            emitter.on('datasetManagementOpened', this.onWidgetEditorOpened)
             emitter.on('datasetManagementClosed', this.onDatasetManagementClosed)
             emitter.on('widgetEditorOpened', this.onWidgetEditorOpened)
             emitter.on('widgetEditorClosed', this.onWidgetEditorClosed)
             emitter.on('dashboardGeneralSettingsClosed', this.onDashboardGeneralSettingsClosed)
         },
         removeEventListeners() {
+            emitter.off('datasetManagementOpened', this.onWidgetEditorOpened)
             emitter.off('datasetManagementClosed', this.onDatasetManagementClosed)
             emitter.off('widgetEditorOpened', this.onWidgetEditorOpened)
             emitter.off('widgetEditorClosed', this.onWidgetEditorClosed)

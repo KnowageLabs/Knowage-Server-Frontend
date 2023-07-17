@@ -15,7 +15,7 @@
                 :margin="[0, 0]"
                 @breakpoint-changed="breakpointChangedEvent"
             >
-                <WidgetController v-for="item in sheet.widgets['lg']" :key="item.i" :active-sheet="activeSheet(index)" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
+                <WidgetController v-for="item in sheet.widgets['lg']" :key="item.i" :active-sheet="sheet" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
                 <div v-if="canEditDashboard(document)" class="emptyDashboardWizard">
                     <div v-if="dashboardModel?.configuration?.datasets.length === 0" class="dashboardWizardContainer" @click="addDataset">
                         <img :src="getImageSource('images/dashboard/common/databaseWizardDashboard.svg')" />
@@ -39,6 +39,7 @@ import { defineComponent, PropType } from 'vue'
 import { IBackground, IDataset, IVariable } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
+import { emitter } from './DashboardHelpers'
 import WidgetController from './widget/WidgetController.vue'
 import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTabsPanel.vue'
 import KnDashboardTab from '@/components/UI/KnDashboardTabs/KnDashboardTab.vue'
@@ -54,7 +55,7 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['addWidget', 'addDataset'],
+    emits: [],
     data() {
         return {
             dashboardModel: {} as any,
@@ -90,14 +91,8 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
-        activeSheet(index) {
-            // @ts-ignore
-            if ((!this.dashboard[this.dashboardId] && index === 0) || this.dashboard[this.dashboardId] === index) return true
-            return false
-        },
         breakpointChangedEvent: function () {
             // breakpointChangedEvent: function(newBreakpoint, newLayout) {
-            // console.log('BREAKPOINT CHANGED breakpoint=', newBreakpoint, ', layout: ', newLayout)
         },
         getImageSource(chartValue: string) {
             return `${import.meta.env.VITE_PUBLIC_PATH}${chartValue}`
@@ -106,15 +101,14 @@ export default defineComponent({
             return this.dashboardModel.widgets.find((item) => item.id === id)
         },
         sheetChange(index) {
-            console.log(this)
             this.setSelectedSheetIndex(index)
             this.setDashboardSheet({ id: (this as any).dashboardId as any, sheet: index })
         },
         addDataset() {
-            this.$emit('addDataset')
+            emitter.emit('openDatasetManagement', this.dashboardId)
         },
         addWidget() {
-            this.$emit('addWidget')
+            emitter.emit('openNewWidgetPicker', this.dashboardId)
         }
     }
 })

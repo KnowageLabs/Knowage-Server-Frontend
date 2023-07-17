@@ -61,6 +61,7 @@
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import type { ISheet } from '@/modules/documentExecution/dashboard/Dashboard'
+import cryptoRandomString from 'crypto-random-string'
 
 export default defineComponent({
     name: 'kn-dashboard-tabs-panel',
@@ -102,7 +103,7 @@ export default defineComponent({
     },
     methods: {
         addSheet(): void {
-            this.$emit('update:sheets', [...this.sheets, { label: 'new sheet', widgets: { lg: [] } }])
+            this.$emit('update:sheets', [...this.sheets, { label: 'new sheet', widgets: { lg: [] }, id: cryptoRandomString({ length: 16, type: 'base64' }) }])
         },
         renameSheet(index): void {
             if (this.edit) {

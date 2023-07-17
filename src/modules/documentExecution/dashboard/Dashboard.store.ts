@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { deleteWidgetHelper, emitter, updateWidgetHelper } from './DashboardHelpers'
-import { IDashboardDriver, IDashboardView, IDataset, ISelection, IWidget } from './Dashboard'
+import { deleteWidgetHelper, emitter, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
+import { IDashboardDriver, IDashboardSheet, IDashboardView, IDataset, ISelection, IWidget, IWidgetSheetItem } from './Dashboard'
 import { selectionsUseDatasetWithAssociation } from './widget/interactionsHelpers/DatasetAssociationsHelper'
 import { loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
 import { recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
@@ -50,6 +50,18 @@ const store = defineStore('dashboardStore', {
         },
         deleteWidget(dashboardId: string, widget: IWidget) {
             deleteWidgetHelper(dashboardId, widget, this.dashboards)
+        },
+        moveWidget(dashboardId: string, widget: IWidget, selectedSheet: IDashboardSheet, currentSheet: IDashboardSheet) {
+            if (!this.dashboards[dashboardId]) return
+            let widgetInSheet = null as IWidgetSheetItem | null
+            if (currentSheet) {
+                const index = currentSheet.widgets.lg.findIndex((el: any) => el.id === widget.id)
+                widgetInSheet = deepcopy(currentSheet.widgets.lg[index])
+                if (index !== -1) {
+                    currentSheet.widgets.lg.splice(index, 1)
+                }
+            }
+            moveWidgetToSheet(widgetInSheet, this.dashboards[dashboardId], selectedSheet, widget)
         },
         setSelectedSheetIndex(index: number) {
             this.selectedSheetIndex = index

@@ -35,7 +35,8 @@ export function formatDateWithLocale(dateString?: string | number, format?: any,
 }
 
 export function formatNumberWithLocale(number: number, precision?: number, format?: any) {
-    return Intl.NumberFormat(getLocale(true), { ...format, minimumFractionDigits: precision || 2, maximumFractionDigits: precision || 2 }).format(number)
+    // return Intl.NumberFormat(getLocale(true), { ...format, minimumFractionDigits: precision || 2, maximumFractionDigits: precision || 2 }).format(number)
+    return Intl.NumberFormat(getLocale(true), { ...format, minimumFractionDigits: precision != null ? precision : 2, maximumFractionDigits: precision != null ? precision : 2 }).format(number)
 }
 
 export function luxonFormatDate(dateString: any | Date, inputFormat?: string, outputFormat?: string) {
