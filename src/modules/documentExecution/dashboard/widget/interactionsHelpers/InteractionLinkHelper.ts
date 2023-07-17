@@ -1,6 +1,7 @@
 import { IDashboardDriver, ITableWidgetLink, IWidgetInteractionParameter, IWidgetLinks } from "../../Dashboard";
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
+import mainStore from '@/App.store'
 
 interface IClickedValue { value: string, type: string }
 
@@ -8,7 +9,7 @@ export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow
     const formattedLinks = getFormattedLinks(linkOptions, formattedRow, dashboardId)
     console.log('--------- openNewLinkTableWidget() - formattedLinks: ', formattedLinks)
     formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
-        if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
+        // if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
     })
 }
 
@@ -31,6 +32,7 @@ const getFormattedLink = (link: ITableWidgetLink, formattedRow: any, dashboardId
 }
 
 const getFormattedParametersUrl = (link: ITableWidgetLink, formattedRow: any, dashboardId: string) => {
+    console.log('------ LINK: ', link)
     let formattedParametersUrl = ''
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
@@ -44,6 +46,10 @@ const getFormattedParametersUrl = (link: ITableWidgetLink, formattedRow: any, da
             formattedParametersUrl += getFormattedDriverParameterUrl(parameter, driversValuesMap)
         } else if (parameter.type === 'selection') {
             formattedParametersUrl += getFormattedSelectionParameterUrl(parameter, dashboardId)
+        } else if (parameter.type === 'jwt') {
+            formattedParametersUrl += getFormattedJWTParameterUrl(parameter)
+        } else if (parameter.type === 'json') {
+
         }
     })
     return formattedParametersUrl
@@ -69,7 +75,6 @@ const getFormattedDriverParameterUrl = (parameter: IWidgetInteractionParameter, 
     else {
         let formattedUrl = ``
         const driverValuesAsArray = driversValuesMap[parameter.driver].value.split(',')
-        console.log('--------- driverValuesAsArray: ', driverValuesAsArray)
         driverValuesAsArray.forEach((value: string) => formattedUrl += `${parameter.name}=${value}&`)
         return formattedUrl
     }
@@ -81,6 +86,12 @@ const getFormattedSelectionParameterUrl = (parameter: IWidgetInteractionParamete
     const activeSelection = getActiveSelectionByDatasetAndColumn(parameter.dataset, parameter.column, activeSelections)
     const value = activeSelection ? activeSelection.value : ''
     return `${parameter.name}=${value}&`
+}
+
+const getFormattedJWTParameterUrl = (parameter: IWidgetInteractionParameter) => {
+    const store = mainStore()
+    const user = store.getUser()
+    return `${parameter.name}=&${user?.userUniqueIdentifier ?? ''}`
 }
 
 
