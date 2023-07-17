@@ -433,6 +433,7 @@
             "launchSelection": "LAUNCH SELECTION"
         },
         "widgetEditor": {
+            "jsonLinkParsingError": "Error while parsing JSON link.",
             "absolute": "Absolute",
             "accessibility": {
                 "enabelKeyboardNavigation": "Enable Keyboard Navigation",

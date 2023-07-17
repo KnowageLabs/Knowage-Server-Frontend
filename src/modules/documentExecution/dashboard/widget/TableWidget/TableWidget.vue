@@ -474,7 +474,7 @@ export default defineComponent({
             if (!this.editorMode && isLinkInteractionActive(node, this.widgetModel.settings.interactions.link)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
-                openNewLinkTableWidget(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId)
+                openNewLinkTableWidget(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
                 return
             }
 
