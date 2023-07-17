@@ -123,6 +123,9 @@ export default defineComponent({
         playSelectionButtonVisible(): boolean {
             if (!this.widget || !this.widget.settings.configuration || !this.widget.settings.configuration.selectorType) return false
             return this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
+        },
+        dashboardSheets() {
+            return this.dashboards[this.dashboardId]?.sheets ?? []
         }
     },
     watch: {
@@ -133,6 +136,9 @@ export default defineComponent({
             deep: true
         },
         item() {
+            this.loadMenuItems()
+        },
+        dashboardSheets() {
             this.loadMenuItems()
         }
     },
