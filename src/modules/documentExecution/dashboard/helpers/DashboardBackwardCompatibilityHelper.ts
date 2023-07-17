@@ -189,6 +189,7 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
     if (!sheet.widgets) return
 
     const formattedSheet = deepcopy(sheet)
+    formattedSheet.id = cryptoRandomString({ length: 16, type: 'base64' })
     formattedSheet.widgets = { lg: [] }
 
     for (let i = 0; i < sheet.widgets.length; i++) {

@@ -66,12 +66,12 @@ export default defineComponent({
         },
         loadSelectorTypes() {
             this.selectorTypes = this.descriptor.selectorTypes.map((type: { imageUrl: string; label: string; value: string }) => {
-                return { imageUrl: type.imageUrl, label: type.label, value: type.value }
+                return { imageUrl: `${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${type.imageUrl}`, label: type.label, value: type.value }
             })
         },
         loadSelectionTypes() {
             this.selectionTypes = this.descriptor.selectionTypes.map((type: { imageUrl: string; label: string; value: string }) => {
-                return { imageUrl: type.imageUrl, label: type.label, value: type.value }
+                return { imageUrl: `${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${type.imageUrl}`, label: type.label, value: type.value }
             })
         }
     }
