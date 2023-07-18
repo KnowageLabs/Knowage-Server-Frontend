@@ -99,6 +99,7 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
         this.loadCrossNavigationModel()
         this.loadCrossNavigationOptions()
         this.loadOutputParameters()
