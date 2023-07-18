@@ -10,22 +10,21 @@ export interface IDashboard {
 }
 
 export interface IDashboardSheet {
-    id: string,
-    index: number,
-    label: string,
+    id: string
+    index: number
+    label: string
     widgets: { lg: IWidgetSheetItem[] }
 }
 
 export interface IWidgetSheetItem {
-    id: string,
-    h: number,
-    i: string,
-    w: number,
-    x: number,
-    y: number,
+    id: string
+    h: number
+    i: string
+    w: number
+    x: number
+    y: number
     moved: boolean
 }
-
 
 export interface IDashboardConfiguration {
     id: string
@@ -233,7 +232,7 @@ export interface IWidgetInteractionParameter {
     column?: string
     driver?: string
     dataset?: string
-    json?: string,
+    json?: string
     useAsResource?: boolean
 }
 
@@ -269,17 +268,17 @@ export interface ITableWidgetPagination {
 }
 
 export interface ITableWidgetStyle {
-    title: IWidgetTitle
-    borders: IWidgetBordersStyle
     columns: ITableWidgetColumnStyles
     columnGroups: ITableWidgetColumnStyles
     headers: ITableWidgetHeadersStyle
-    padding: IWidgetPaddingStyle
     rows: IWidgetRowsStyle
-    shadows: IWidgetShadowsStyle
     summary: ITableWidgetSummaryStyle
-    background: IWidgetBackgroundStyle
     paginator: ITableWidgetPaginatorStyle
+    title: IWidgetTitle
+    background: IWidgetBackgroundStyle
+    borders: IWidgetBordersStyle
+    padding: IWidgetPaddingStyle
+    shadows: IWidgetShadowsStyle
 }
 
 export interface IWidgetBordersStyle {
