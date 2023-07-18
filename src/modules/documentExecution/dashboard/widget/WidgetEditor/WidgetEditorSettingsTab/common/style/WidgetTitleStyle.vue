@@ -5,7 +5,7 @@
             <InputText v-model="(titleStyleModel as IWidgetTitle).text" class="kn-material-input p-inputtext-sm kn-flex" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
         </div>
         <div id="height-input-container" class="p-col-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
+            <label class="kn-material-input-label">{{ $t('common.height') }}</label>
             <InputNumber v-model="titleStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="titleStyleDisabled" @blur="titleStyleChanged" />
         </div>
 
@@ -48,6 +48,7 @@ export default defineComponent({
             if (!this.widgetModel) return
             this.widgetType = this.widgetModel.type
             if (this.widgetModel.settings?.style?.title) this.titleStyleModel = this.widgetModel.settings.style.title
+            console.log('TITLE _--------- this.widgetModel.type', this.widgetModel)
         },
         titleStyleChanged() {
             switch (this.widgetType) {
