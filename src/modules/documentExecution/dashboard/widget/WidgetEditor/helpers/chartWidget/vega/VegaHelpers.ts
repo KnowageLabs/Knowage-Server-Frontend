@@ -17,6 +17,7 @@ export const createNewVegaSettings = () => {
         },
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
+            link: widgetCommonDefaultValues.getDefaultLinks(),
             selection: { enabled: true }
         },
         style: {

@@ -76,6 +76,7 @@ export default defineComponent({
             this.updateChartModel()
         },
         async updateChartModel() {
+            console.log('---------------- VEGA: ', this.chartModel)
             if (!this.chartModel) return
             this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel)
 

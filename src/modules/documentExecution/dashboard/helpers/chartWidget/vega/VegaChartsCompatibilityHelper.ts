@@ -22,7 +22,6 @@ export const formatVegaChartsWidget = (widget: any) => {
     formattedWidget.settings = getFormattedWidgetSettings(widget) as IVegaChartsSettings
     getFiltersForColumns(formattedWidget, widget)
     formattedWidget.settings.chartModel = createChartModel(widget)
-
     return formattedWidget
 }
 
