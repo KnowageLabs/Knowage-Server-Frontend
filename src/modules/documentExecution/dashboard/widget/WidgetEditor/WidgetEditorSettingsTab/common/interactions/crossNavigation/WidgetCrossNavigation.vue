@@ -72,6 +72,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widget: null as IWidget | null,
             crossNavigationModel: null as IWidgetCrossNavigation | null,
             crossNavigationOptions: [] as string[],
             outputParameters: [] as any[],
@@ -91,8 +92,14 @@ export default defineComponent({
             return this.widgetModel && this.widgetModel.type === 'table' ? this.descriptor.interactionTypes : this.descriptor.interactionTypes.slice(0, 2)
         }
     },
+    watch: {
+        crossNavigationDisabled() {
+            this.onCrossNavigationEnabledChange()
+        }
+    },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
         this.loadCrossNavigationModel()
         this.loadCrossNavigationOptions()
         this.loadOutputParameters()
@@ -111,6 +118,9 @@ export default defineComponent({
         },
         onColumnRemovedFromCrossNavigation() {
             this.onColumnRemoved()
+        },
+        loadWidgetModel() {
+            this.widget = this.widgetModel
         },
         loadCrossNavigationModel() {
             if (this.widgetModel?.settings?.interactions?.crossNavigation) this.crossNavigationModel = this.widgetModel.settings.interactions.crossNavigation
@@ -165,6 +175,13 @@ export default defineComponent({
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (this.crossNavigationModel) this.crossNavigationModel.icon = model.icon
+        },
+        onCrossNavigationEnabledChange() {
+            if (this.widget && this.crossNavigationModel?.enabled && this.widgetType !== 'table') {
+                if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
+                if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
+                if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
+            }
         }
     }
 })

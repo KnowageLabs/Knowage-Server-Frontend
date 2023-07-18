@@ -17,6 +17,14 @@ export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow
     })
 }
 
+export const openNewLinkImageWidget = (linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
+    const formattedLinks = getFormattedLinks(linkOptions, null, dashboardId, variables)
+    console.log('--------- FORMATTED LINKS: ', formattedLinks)
+    formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
+        if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
+    })
+}
+
 const getFormattedLinks = (linkOptions: IWidgetLinks, formattedRow: any, dashboardId: string, variables: IVariable[]) => {
     const formattedLinks = [] as { url: string, action: string }[]
     linkOptions.links?.forEach((link: ITableWidgetLink) => {
@@ -53,7 +61,7 @@ const getFormattedParametersUrl = (parameters: IWidgetInteractionParameter[], fo
                 formattedParametersUrl += getFormattedStaticParameterUrl(tempParameter, useAsResource)
                 break
             case 'dynamic':
-                formattedParametersUrl += getFormattedDynamicParameterUrl(tempParameter, formattedRow, useAsResource)
+                formattedParametersUrl += formattedRow ? getFormattedDynamicParameterUrl(tempParameter, formattedRow, useAsResource) : ''
                 break
             case 'driver':
                 formattedParametersUrl += getFormattedDriverParameterUrl(tempParameter, driversValuesMap, useAsResource)

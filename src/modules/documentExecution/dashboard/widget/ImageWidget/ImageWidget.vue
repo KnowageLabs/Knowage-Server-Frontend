@@ -4,14 +4,15 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '../../Dashboard'
+import { IVariable, IWidget } from '../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings } from '../interactionsHelpers/InteractionHelper'
+import { openNewLinkImageWidget } from '../interactionsHelpers/InteractionLinkHelper'
 
 export default defineComponent({
     name: 'image-widget',
     components: {},
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: String, required: true }, editorMode: { type: Boolean } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, dashboardId: { type: String, required: true }, editorMode: { type: Boolean }, propVariables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['close'],
     data() {
         return {
@@ -55,9 +56,11 @@ export default defineComponent({
             this.backgroundPositionY = this.widgetModel.settings.configuration.image.style['background-position-y']
         },
         executeInteractions() {
+            if (this.editorMode) return
             const crossNavigation = this.widgetModel.settings.interactions.crossNavigation
-            if (!crossNavigation.enabled) return
-            executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings(crossNavigation, this.dashboardId)
+            if (crossNavigation.enabled) executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings(crossNavigation, this.dashboardId)
+            const linkSettings = this.widgetModel.settings.interactions.link
+            if (linkSettings.enabled) openNewLinkImageWidget(linkSettings, this.dashboardId, this.propVariables)
         }
     }
 })

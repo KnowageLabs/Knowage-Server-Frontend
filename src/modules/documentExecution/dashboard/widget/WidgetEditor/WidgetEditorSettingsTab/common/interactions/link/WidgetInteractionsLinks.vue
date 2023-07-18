@@ -95,6 +95,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widget: null as IWidget | null,
             linksModel: null as IWidgetLinks | null,
             selectedDatasetColumnNameMap: {},
             getTranslatedLabel
@@ -115,6 +116,7 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
         this.loadLinksModel()
         this.loadSelectedDatasetColumnNames()
     },
@@ -130,6 +132,9 @@ export default defineComponent({
         },
         onColumnRemovedFromLinks() {
             this.onColumnRemoved()
+        },
+        loadWidgetModel() {
+            this.widget = this.widgetModel
         },
         loadLinksModel() {
             if (this.widgetModel?.settings?.interactions?.link) this.linksModel = this.widgetModel.settings.interactions.link
@@ -167,6 +172,14 @@ export default defineComponent({
             if (!this.linksModel) return
             if (this.linksModel.enabled && this.linksModel.links.length === 0) {
                 this.linksModel.links.push({ type: '', baseurl: '', action: '', parameters: [] })
+            }
+            this.updateOtherInteractions()
+        },
+        updateOtherInteractions() {
+            if (this.widget && this.linksModel?.enabled && this.widgetType !== 'table') {
+                if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
+                if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
+                if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
             }
         },
         addLink() {

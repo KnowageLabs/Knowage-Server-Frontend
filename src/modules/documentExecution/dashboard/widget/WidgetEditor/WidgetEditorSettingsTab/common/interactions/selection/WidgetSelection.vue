@@ -46,13 +46,31 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widget: null as IWidget | null,
             selectionModel: null as IWidgetSelection | null
         }
     },
+    computed: {
+        selectionsDisabled() {
+            return !this.selectionModel || !this.selectionModel.enabled
+        },
+        widgetType() {
+            return this.widgetModel?.type
+        }
+    },
+    watch: {
+        selectionsDisabled() {
+            this.onSelectionsEnabledChange()
+        }
+    },
     created() {
+        this.loadWidgetModel()
         this.loadSelectionModel()
     },
     methods: {
+        loadWidgetModel() {
+            this.widget = this.widgetModel
+        },
         loadSelectionModel() {
             if (this.widgetModel?.settings?.interactions?.selection) this.selectionModel = this.widgetModel.settings.interactions.selection
         },
@@ -67,6 +85,13 @@ export default defineComponent({
                 this.selectionModel.multiselection.properties['background-color'] = model['background-color'] ?? ''
             }
             this.selectionChanged()
+        },
+        onSelectionsEnabledChange() {
+            if (this.widget && this.selectionModel?.enabled && this.widgetType !== 'table') {
+                if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
+                if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
+                if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
+            }
         }
     }
 })

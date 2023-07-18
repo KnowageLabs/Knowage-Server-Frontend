@@ -85,6 +85,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widget: null as IWidget | null,
             previewModel: null as IWidgetPreview | null,
             dashboardModel: null as any,
             dashboardDatasets: [] as any[],
@@ -96,10 +97,19 @@ export default defineComponent({
     computed: {
         previewDisabled() {
             return !this.previewModel || !this.previewModel.enabled
+        },
+        widgetType() {
+            return this.widgetModel?.type
+        }
+    },
+    watch: {
+        previewDisabled() {
+            this.onPreviewEnabledChange()
         }
     },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
         this.loadDashboardModel()
         this.loadPreviewModel()
         this.loadSelectedDatasetColumnNames()
@@ -116,6 +126,9 @@ export default defineComponent({
         },
         onColumnRemovedFromPreview() {
             this.onColumnRemoved()
+        },
+        loadWidgetModel() {
+            this.widget = this.widgetModel
         },
         loadPreviewModel() {
             if (this.widgetModel?.settings?.interactions?.preview) this.previewModel = this.widgetModel.settings.interactions.preview
@@ -180,6 +193,13 @@ export default defineComponent({
                         value: ''
                     }
                 })
+        },
+        onPreviewEnabledChange() {
+            if (this.widget && this.previewModel?.enabled && this.widgetType !== 'table') {
+                if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
+                if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
+                if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
+            }
         }
     }
 })

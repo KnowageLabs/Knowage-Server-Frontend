@@ -12,7 +12,7 @@ export const getFormattedInteractions = (widget: any) => {
     const chartType = getChartType(widget)
     if (['table', 'chart', 'static-pivot-table', 'map'].includes(widget.type) && chartType !== 'GAUGE') interactions.selection = getFormattedSelection(widget, chartType) as IWidgetSelection
     if (['table', 'html', 'text', 'chart', 'discovery', 'image', 'customchart', 'static-pivot-table', 'map'].includes(widget.type)) interactions.crossNavigation = getFormattedCrossNavigation(widget) as IWidgetCrossNavigation
-    if (['table', 'image', 'chart', 'discovery', 'static-pivot-table', 'map'].includes(widget.type)) interactions.link = getFormattedLinkInteraction(widget) as IWidgetLinks
+    if (['table', 'image', 'chart', 'discovery'].includes(widget.type)) interactions.link = getFormattedLinkInteraction(widget) as IWidgetLinks
     if (['table', 'html', 'text', 'chart', 'discovery', 'customchart', 'map'].includes(widget.type)) interactions.preview = getFormattedPreview(widget) as IWidgetPreview
     if (['chart'].includes(widget.type)) interactions.drilldown = { enabled: false } as IHighchartsDrilldown
     return interactions
@@ -134,7 +134,6 @@ const addFormattedCrossNavigationParameters = (outputParameterList: any, formatt
 }
 
 export const getFormattedLinkInteraction = (widget: any) => {
-    console.log('------- WIDGET CROSS: ', widget.cross)
     if (!widget.cross || !widget.cross.link) return widgetCommonDefaultValues.getDefaultLinks()
 
     return {
