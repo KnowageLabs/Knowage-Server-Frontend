@@ -3,18 +3,25 @@ import { IChartInteractionValues } from './../../../interfaces/vega/VegaChartsWi
 
 export const formatForCrossNavigation = (event: any, widgetModel: IWidget) => {
     const crossNavigationOptions = widgetModel.settings.interactions.crossNavigation as IWidgetCrossNavigation
-    const formattedChartValues = { serieName: '', serieValue: event.count, categoryName: '', categoryValue: event.textValue, categoryId: '' }
-    const category = getColumnFromWidgetModel(widgetModel, 'ATTRIBUTE')
-    if (category) {
-        formattedChartValues.categoryId = category.id ?? ''
-        formattedChartValues.categoryName = category.columnName
-    }
+    const formattedChartValues = getFormattedChartValues(event, widgetModel)
+
     const serie = getColumnFromWidgetModel(widgetModel, 'MEASURE')
     if (serie) formattedChartValues.serieName = serie.columnName
 
     const formattedOutputParameters = getFormattedOutputParameters(formattedChartValues, crossNavigationOptions.parameters)
     return formattedOutputParameters
 }
+
+export const getFormattedChartValues = (event: any, widgetModel: IWidget) => {
+    const formattedChartValues = { serieName: '', serieValue: event.count, categoryName: '', categoryValue: event.textValue, categoryId: '' }
+    const category = getColumnFromWidgetModel(widgetModel, 'ATTRIBUTE')
+    if (category) {
+        formattedChartValues.categoryId = category.id ?? ''
+        formattedChartValues.categoryName = category.columnName
+    }
+    return formattedChartValues
+}
+
 
 const getColumnFromWidgetModel = (widgetModel: IWidget, columnType: 'ATTRIBUTE' | 'MEASURE') => {
     const index = widgetModel.columns.findIndex((column: IWidgetColumn) => column.fieldType === columnType)

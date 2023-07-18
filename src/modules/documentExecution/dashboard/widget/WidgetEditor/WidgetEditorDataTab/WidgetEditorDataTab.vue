@@ -24,7 +24,7 @@ import { IHighchartsWidgetSettings } from '../../../interfaces/highcharts/Dashbo
 import { IChartJSWidgetSettings } from '../../../interfaces/chartJS/DashboardChartJSWidget'
 import { createVegaModel, createNewVegaSettings } from '../helpers/chartWidget/vega/VegaHelpers'
 import { IVegaChartsSettings } from '../../../interfaces/vega/VegaChartsWidget'
-import {changeChartType} from './WidgetEditorDataTabHelpers'
+import { changeChartType } from './WidgetEditorDataTabHelpers'
 import mainStore from '@/App.store'
 import WidgetEditorDataList from './WidgetEditorDataList/WidgetEditorDataList.vue'
 import WidgetEditorHint from '../WidgetEditorHint.vue'

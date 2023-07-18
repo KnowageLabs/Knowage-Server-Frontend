@@ -8,7 +8,6 @@ import { getHighchartsSunburstData } from './dataProxy/HighchartsSunburstDataPro
 
 export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const chartType = widget.settings.chartModel?.model?.chart.type
-    console.log('CHART', widget)
     switch (chartType) {
         case 'area':
         case 'bar':

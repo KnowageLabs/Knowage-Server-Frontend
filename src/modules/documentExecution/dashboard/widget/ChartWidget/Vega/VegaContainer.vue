@@ -7,15 +7,16 @@
 import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { mapActions } from 'pinia'
-import { IWidget, ISelection, IWidgetColumn } from '../../../Dashboard'
+import { IWidget, ISelection, IWidgetColumn, IVariable } from '../../../Dashboard'
 import { IVegaChartsModel, IVegaChartsTextConfiguration, IVegaChartsTooltipSettings } from '../../../interfaces/vega/VegaChartsWidget'
 import { executeChartCrossNavigation, updateStoreSelections } from '../../interactionsHelpers/InteractionHelper'
-import { formatForCrossNavigation } from './VegaContainerHelpers'
+import { formatForCrossNavigation, getFormattedChartValues } from './VegaContainerHelpers'
 import VegaContainerNoData from './VegaContainerNoData.vue'
 import cryptoRandomString from 'crypto-random-string'
 import vegaEmbed from 'vega-embed'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
 
 export default defineComponent({
     name: 'vega-container',
@@ -25,7 +26,8 @@ export default defineComponent({
         dataToShow: { type: Object as any, required: true },
         dashboardId: { type: String, required: true },
         editorMode: { type: Boolean },
-        propActiveSelections: { type: Array as PropType<ISelection[]>, required: true }
+        propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
+        propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
     data() {
         return {
@@ -74,6 +76,7 @@ export default defineComponent({
             this.updateChartModel()
         },
         async updateChartModel() {
+            console.log('---------------- VEGA: ', this.chartModel)
             if (!this.chartModel) return
             this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel)
 
@@ -130,6 +133,9 @@ export default defineComponent({
             if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
+            } else if (this.widgetModel.settings.interactions.link.enabled) {
+                const formattedChartValues = getFormattedChartValues(event, this.dataToShow)
+                openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
             } else {
                 this.setSelection(event)
             }
