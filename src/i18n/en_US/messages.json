@@ -591,7 +591,7 @@
                     "repeatIndex": "This tag is used inside a kn-repeat to get the current row value of the repeater..Dynamic fields from dataset will take the value of the repeated row.",
                     "repeater": "This tag is used to repeat the HTML section delimited by the tag ending for every row in the dataset if the condition is verified. Set the condition to \"true\" to always show.The limit attribute limits the number of rows shown. Dynamic fields from dataset will take the value of the repeated row.",
                     "selection": "This tag is used to create an interactive element generating a selection on the specified column with the specified value.",
-                    "toLocale": "TODO: Add to locale hint",
+                    "toLocale": "This tag is used to show a label set in the internationalization section of the product.s",
                     "variables": "This tag is used to show the value of the selected variable."
                 },
                 "i18n": "i18n",
@@ -983,7 +983,7 @@
                     "pies3d": "Pies 3D"
                 },
                 "qMenu": {
-                    "changeType": "Chage Chart Type",
+                    "changeType": "Change Chart Type",
                     "clone": "Clone Widget",
                     "delete": "Delete Widget",
                     "edit": "Edit Widget",
@@ -1024,7 +1024,7 @@
                 "paddingRight": "Padding Right",
                 "paddingTop": "Padding Top",
                 "title": "Padding",
-                "unlinkAllHint": "Unink all paddings"
+                "unlinkAllHint": "Unlink all paddings"
             },
             "pagination": "Pagination",
             "paginator": "Paginator",
@@ -1263,7 +1263,7 @@
         "closeCurrentDocument": "Close current document",
         "closeDocumentConfirmMessage": "Are you sure you want to continue?",
         "closeDocumentConfirmTitle": "You are closing {numberOfDocuments} documents.",
-        "closeDocumentRight": "Close documents on right",
+        "closeDocumentRight": "Close documents to the right",
         "closeOtherDocuments": "Close other documents",
         "deleteDocument": "Delete Document",
         "development": "Development",
@@ -1696,9 +1696,6 @@
         "saveAndShare": "save and share",
         "welcome": "Welcome to Knowage",
         "welcomeText": "<b>Knowage</b> is the full open source suite for analytics and business intelligence combining traditional and big data sources to provide valuable and meaningful information.<br>Start your analysis now!"
-    },
-    "unauthorized": {
-        "outsideIframe": "You are not allowed to access Knowage from outside the application"
     },
     "importExport": {
         "catalogFunction": {
@@ -3524,6 +3521,9 @@
     "role": {
         "defaultRolePlaceholder": "No default role selected",
         "roleSelection": "Role Selection"
+    },
+    "unauthorized": {
+        "outsideIframe": "You are not allowed to access Knowage from outside the application"
     },
     "workspace": {
         "addViewFolderHint": "Please add at least one folder in your workspace.",
