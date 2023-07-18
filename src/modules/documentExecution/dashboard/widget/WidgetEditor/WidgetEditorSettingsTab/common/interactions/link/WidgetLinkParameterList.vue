@@ -11,7 +11,7 @@
                 </div>
                 <div class="p-sm-12 p-md-3 kn-flex p-d-flex p-flex-column p-p-2">
                     <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
-                    <Dropdown v-model="parameter.type" class="kn-material-input" :options="descriptor.linkParameterTypeOptions" option-value="value" :disabled="disabled" @change="onParameterTypeChanged(parameter)">
+                    <Dropdown v-model="parameter.type" class="kn-material-input" :options="linkParameterTypeOptions" option-value="value" :disabled="disabled" @change="onParameterTypeChanged(parameter)">
                         <template #value="slotProps">
                             <div>
                                 <span>{{ getTranslatedLabel(slotProps.value, descriptor.linkParameterTypeOptions, $t) }}</span>
@@ -31,7 +31,7 @@
                 <div v-else-if="parameter.type === 'driver'" class="p-sm-11 p-md-5 p-d-flex p-flex-row p-ai-center">
                     <div class="p-d-flex p-flex-column kn-flex">
                         <label class="kn-material-input-label"> {{ $t('common.driver') }}</label>
-                        <Dropdown v-model="parameter.driver" class="kn-material-input" :options="drivers" option-label="name" option-value="name" :disabled="disabled" @change="parametersChanged"> </Dropdown>
+                        <Dropdown v-model="parameter.driver" class="kn-material-input" :options="drivers" option-label="name" option-value="urlName" :disabled="disabled" @change="parametersChanged"> </Dropdown>
                     </div>
                 </div>
                 <div v-else-if="parameter.type === 'dynamic'" class="p-sm-11 p-md-5 p-d-flex p-flex-row p-ai-center">
@@ -102,6 +102,14 @@ export default defineComponent({
             getTranslatedLabel
         }
     },
+    computed: {
+        widgetType() {
+            return this.widgetModel.type
+        },
+        linkParameterTypeOptions() {
+            return this.widgetType === 'table' ? this.descriptor.linkParameterTypeOptions : this.descriptor.linkParameterTypeOptions.filter((typeOptions: { value: string; label: string }) => typeOptions.value !== 'dynamic')
+        }
+    },
     watch: {
         propParameters() {
             this.loadParameters()
@@ -109,6 +117,7 @@ export default defineComponent({
     },
     created() {
         this.loadParameters()
+        this.loadDrivers()
         this.loadSelectedDatasetNames()
     },
     methods: {

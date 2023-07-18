@@ -134,7 +134,6 @@ const addFormattedCrossNavigationParameters = (outputParameterList: any, formatt
 }
 
 export const getFormattedLinkInteraction = (widget: any) => {
-    console.log('------- WIDGET CROSS: ', widget.cross)
     if (!widget.cross || !widget.cross.link) return widgetCommonDefaultValues.getDefaultLinks()
 
     return {

@@ -13,6 +13,7 @@ export const createNewImageWidgetSettings = () => {
         },
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
+            link: widgetCommonDefaultValues.getDefaultLinks(),
         },
         style: {
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
