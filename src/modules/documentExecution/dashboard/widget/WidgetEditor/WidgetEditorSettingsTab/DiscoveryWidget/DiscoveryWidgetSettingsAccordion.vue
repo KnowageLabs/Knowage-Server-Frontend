@@ -20,6 +20,7 @@
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widgetModel="widgetModel"></WidgetResponsive>
                 <TableWidgetTooltips v-else-if="accordion.type === 'Tooltips'" :widgetModel="widgetModel"></TableWidgetTooltips>
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widgetModel="widgetModel" :datasets="datasets" :selectedDatasets="selectedDatasets" :dashboardId="dashboardId"></WidgetCrossNavigation>
+                <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widgetModel="widgetModel" :datasets="datasets" :selectedDatasets="selectedDatasets" :dashboardId="dashboardId"></WidgetPreview>
             </AccordionTab>
         </Accordion>
@@ -50,6 +51,7 @@ import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorSty
 import DiscoveryWidgetSettingsAccordionHeader from './DiscoveryWidgetSettingsAccordionHeader.vue'
 import DiscoveryWidgetFacetsSettings from './configuration/DiscoveryWidgetFacetsSettings.vue'
 import DiscoveryWidgetSearchSettings from './configuration/DiscoveryWidgetSearchSettings.vue'
+import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteractionsLinks.vue'
 
 export default defineComponent({
     name: 'discovery-widget-configuration-container',
@@ -72,7 +74,8 @@ export default defineComponent({
         WidgetPreview,
         DiscoveryWidgetSettingsAccordionHeader,
         DiscoveryWidgetFacetsSettings,
-        DiscoveryWidgetSearchSettings
+        DiscoveryWidgetSearchSettings,
+        WidgetInteractionsLinks
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

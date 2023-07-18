@@ -107,7 +107,7 @@ export default defineComponent({
             return this.widgetModel.type
         },
         linkParameterTypeOptions() {
-            return this.widgetType === 'table' ? this.descriptor.linkParameterTypeOptions : this.descriptor.linkParameterTypeOptions.filter((typeOptions: { value: string; label: string }) => typeOptions.value !== 'dynamic')
+            return ['table', 'discovery'].includes(this.widgetType) ? this.descriptor.linkParameterTypeOptions : this.descriptor.linkParameterTypeOptions.filter((typeOptions: { value: string; label: string }) => typeOptions.value !== 'dynamic')
         }
     },
     watch: {

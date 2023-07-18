@@ -46,6 +46,7 @@
                 :prop-active-selections="activeSelections"
                 :dashboard-id="dashboardId"
                 :widget-loading="widgetLoading"
+                :prop-variables="variables"
                 @pageChanged="$emit('reloadData')"
                 @facetsChanged="$emit('reloadData')"
                 @searchWordChanged="$emit('reloadData')"

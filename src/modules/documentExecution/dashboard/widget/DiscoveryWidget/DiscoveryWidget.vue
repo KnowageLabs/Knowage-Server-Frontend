@@ -45,11 +45,12 @@
 <script lang="ts">
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, IWidget } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
-import { createNewTableSelection, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, isCrossNavigationActive } from '../TableWidget/TableWidgetHelper'
+import { createNewTableSelection, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, isCrossNavigationActive, isLinkInteractionActive } from '../TableWidget/TableWidgetHelper'
+import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
 import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
 import mainStore from '../../../../../App.store'
@@ -69,7 +70,8 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dataToShow: { type: Object as any, required: true },
         propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
-        dashboardId: { type: String, required: true }
+        dashboardId: { type: String, required: true },
+        propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
     emits: ['pageChanged', 'facetsChanged', 'searchWordChanged', 'launchSelection', 'sortingChanged'],
     setup() {
@@ -410,6 +412,14 @@ export default defineComponent({
             return columntooltipConfig
         },
         onCellClicked(node) {
+            // TODO - Move this below or somewhere...
+            if (!this.editorMode && isLinkInteractionActive(node, this.propWidget.settings.interactions.link)) {
+                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+                const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
+                openNewLinkTableWidget(formattedClickedValue, formattedRow, this.propWidget.settings.interactions.link, this.dashboardId, this.propVariables)
+                return
+            }
+
             if (!this.editorMode && isCrossNavigationActive(node, this.propWidget.settings.interactions.crossNavigation)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
