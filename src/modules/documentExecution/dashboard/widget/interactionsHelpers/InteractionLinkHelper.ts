@@ -1,4 +1,5 @@
 import { IDashboardDriver, ITableWidgetLink, IVariable, IWidgetInteractionParameter, IWidgetLinks } from "../../Dashboard";
+import { IChartInteractionValues } from "../../interfaces/chartJS/DashboardChartJSWidget";
 import { parameterTextCompatibilityRegex, variableTextCompatibilityRegex } from "../../helpers/common/DashboardRegexHelper";
 import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
 import mainStore from '@/App.store'
@@ -10,7 +11,7 @@ const { t } = i18n.global
 interface IClickedValue { value: string, type: string }
 
 export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
-    const formattedLinks = getFormattedLinks(linkOptions, formattedRow, dashboardId, variables)
+    const formattedLinks = getFormattedLinks(linkOptions, formattedRow, null, dashboardId, variables)
     console.log('--------- FORMATTED LINKS: ', formattedLinks)
     formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
         if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
@@ -18,28 +19,37 @@ export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow
 }
 
 export const openNewLinkImageWidget = (linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
-    const formattedLinks = getFormattedLinks(linkOptions, null, dashboardId, variables)
+    const formattedLinks = getFormattedLinks(linkOptions, null, null, dashboardId, variables)
     console.log('--------- FORMATTED LINKS: ', formattedLinks)
     formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
         if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
     })
 }
 
-const getFormattedLinks = (linkOptions: IWidgetLinks, formattedRow: any, dashboardId: string, variables: IVariable[]) => {
+export const openNewLinkChartWidget = (formattedChartValues: IChartInteractionValues, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
+    console.log('----- formattedChartValues: ', formattedChartValues)
+    const formattedLinks = getFormattedLinks(linkOptions, null, formattedChartValues, dashboardId, variables)
+    console.log('--------- FORMATTED LINKS: ', formattedLinks)
+    formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
+        //  if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
+    })
+}
+
+const getFormattedLinks = (linkOptions: IWidgetLinks, formattedRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string, variables: IVariable[]) => {
     const formattedLinks = [] as { url: string, action: string }[]
     linkOptions.links?.forEach((link: ITableWidgetLink) => {
-        const formattedLink = getFormattedLink(link, formattedRow, dashboardId, variables)
+        const formattedLink = getFormattedLink(link, formattedRow, formattedChartValues, dashboardId, variables)
         if (formattedLink) formattedLinks.push(formattedLink)
     })
     return formattedLinks
 }
 
-const getFormattedLink = (link: ITableWidgetLink, formattedRow: any, dashboardId: string, variables: IVariable[]) => {
+const getFormattedLink = (link: ITableWidgetLink, formattedRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string, variables: IVariable[]) => {
     let url = link.baseurl
     const parameterToBeUsedAsResource = link.parameters.find((parameter: IWidgetInteractionParameter) => parameter.useAsResource)
-    const resource = parameterToBeUsedAsResource ? getFormattedParametersUrl([parameterToBeUsedAsResource], formattedRow, dashboardId, variables, true) : ''
+    const resource = parameterToBeUsedAsResource ? getFormattedParametersUrl([parameterToBeUsedAsResource], formattedRow, formattedChartValues, dashboardId, variables, true) : ''
     if (resource) url += resource
-    let parameters = link.parameters.length > 0 ? getFormattedParametersUrl(link.parameters, formattedRow, dashboardId, variables, false) : ''
+    let parameters = link.parameters.length > 0 ? getFormattedParametersUrl(link.parameters, formattedRow, formattedChartValues, dashboardId, variables, false) : ''
     if (parameters) {
         parameters = parameters.substring(0, parameters.length - 1)
         url += `?${parameters}`
@@ -48,7 +58,7 @@ const getFormattedLink = (link: ITableWidgetLink, formattedRow: any, dashboardId
     return { url: url, action: link.action }
 }
 
-const getFormattedParametersUrl = (parameters: IWidgetInteractionParameter[], formattedRow: any, dashboardId: string, variables: IVariable[], useAsResource: boolean) => {
+const getFormattedParametersUrl = (parameters: IWidgetInteractionParameter[], formattedColumnRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string, variables: IVariable[], useAsResource: boolean) => {
     let formattedParametersUrl = ''
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
@@ -61,7 +71,8 @@ const getFormattedParametersUrl = (parameters: IWidgetInteractionParameter[], fo
                 formattedParametersUrl += getFormattedStaticParameterUrl(tempParameter, useAsResource)
                 break
             case 'dynamic':
-                formattedParametersUrl += formattedRow ? getFormattedDynamicParameterUrl(tempParameter, formattedRow, useAsResource) : ''
+                if (formattedColumnRow) formattedParametersUrl += getFormattedTableDynamicParameterUrl(tempParameter, formattedColumnRow, useAsResource)
+                else if (formattedChartValues) formattedParametersUrl += getFormattedChartDynamicParameterUrl(tempParameter, formattedChartValues, useAsResource)
                 break
             case 'driver':
                 formattedParametersUrl += getFormattedDriverParameterUrl(tempParameter, driversValuesMap, useAsResource)
@@ -92,12 +103,36 @@ const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
     return driversValuesMap
 }
 
-const getFormattedDynamicParameterUrl = (parameter: IWidgetInteractionParameter, formattedRow: any, useAsResource: boolean) => {
+const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParameter, formattedRow: any, useAsResource: boolean) => {
     let columnValue = ''
     if (parameter.column === 'column_name_mode') columnValue = formattedRow.columnName
     else if (parameter.column) columnValue = formattedRow[parameter.column].value
     const value = columnValue ?? ''
     return useAsResource ? `${value}` : `${parameter.name}=${value}&`
+}
+
+const getFormattedChartDynamicParameterUrl = (parameter: IWidgetInteractionParameter, formattedChartValues: IChartInteractionValues | null, useAsResource: boolean) => {
+    const columnValue = getChartDynamicParameterValue(formattedChartValues, parameter.column ?? '')
+    const value = columnValue ?? ''
+    return useAsResource ? `${value}` : `${parameter.name}=${value}&`
+}
+
+const getChartDynamicParameterValue = (formattedChartValues: IChartInteractionValues | null, column: string) => {
+    if (!formattedChartValues) return ''
+    switch (column) {
+        case "SERIE_NAME":
+            return formattedChartValues.serieName;
+        case "SERIE_VALUE":
+            return formattedChartValues.serieValue;
+        case "CATEGORY_NAME":
+            return formattedChartValues.categoryName;
+        case "CATEGORY_VALUE":
+            return formattedChartValues.categoryValue;
+        case "GROUPING_NAME":
+            return formattedChartValues.groupingName;
+        case "GROUPING_VALUE":
+            return formattedChartValues.groupingValue;
+    }
 }
 
 const getFormattedDriverParameterUrl = (parameter: IWidgetInteractionParameter, driversValuesMap: any, useAsResource: boolean) => {

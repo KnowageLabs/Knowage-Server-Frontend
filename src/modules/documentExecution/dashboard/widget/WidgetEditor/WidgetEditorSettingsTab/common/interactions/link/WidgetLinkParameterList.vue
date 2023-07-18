@@ -35,9 +35,20 @@
                     </div>
                 </div>
                 <div v-else-if="parameter.type === 'dynamic'" class="p-sm-11 p-md-5 p-d-flex p-flex-row p-ai-center">
-                    <div class="p-d-flex p-flex-column kn-flex">
+                    <div v-if="['table', 'discovery'].includes(widgetType)" class="p-d-flex p-flex-column kn-flex">
                         <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
                         <Dropdown v-model="parameter.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="alias" :disabled="disabled" @change="parametersChanged"> </Dropdown>
+                    </div>
+                    <div v-else-if="['highcharts', 'vega'].includes(widgetType)" class="p-d-flex p-flex-column kn-flex">
+                        <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
+                        <Dropdown v-model="parameter.column" class="kn-material-input" :options="chartColumnOptions" option-value="value" :disabled="disabled" @change="parametersChanged">
+                            <template #value="slotProps">
+                                <span>{{ getTranslatedLabel(slotProps.value, chartColumnOptions, $t) }}</span>
+                            </template>
+                            <template #option="slotProps">
+                                <span>{{ $t(slotProps.option.label) }}</span>
+                            </template>
+                        </Dropdown>
                     </div>
                 </div>
                 <div v-else-if="parameter.type === 'selection'" class="p-grid p-sm-11 p-md-5 p-ai-center">
@@ -107,7 +118,16 @@ export default defineComponent({
             return this.widgetModel.type
         },
         linkParameterTypeOptions() {
-            return ['table', 'discovery'].includes(this.widgetType) ? this.descriptor.linkParameterTypeOptions : this.descriptor.linkParameterTypeOptions.filter((typeOptions: { value: string; label: string }) => typeOptions.value !== 'dynamic')
+            return ['table', 'discovery', 'highcharts', 'vega'].includes(this.widgetType) ? this.descriptor.linkParameterTypeOptions : this.descriptor.linkParameterTypeOptions.filter((typeOptions: { value: string; label: string }) => typeOptions.value !== 'dynamic')
+        },
+        chartColumnOptions() {
+            if (['vega'].includes(this.widgetType)) {
+                return descriptor.vegaChartInteractionDynamicOptions
+            } else if (this.widgetModel.settings.chartModel?.model?.chart?.type === 'heatmap') {
+                return descriptor.chartInteractionDynamicOptions.concat(descriptor.chartInteractionAdditionalDynamicOptions)
+            } else {
+                return descriptor.chartInteractionDynamicOptions
+            }
         }
     },
     watch: {

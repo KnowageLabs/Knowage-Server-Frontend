@@ -9,7 +9,7 @@ export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions
 
 }
 
-const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartType: string) => {
+export const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartType: string) => {
     const categoryName = dataToShow?.metaData?.fields[1] ? dataToShow.metaData.fields[1].header : ''
     const chartPoint = chartEvent.point
 
@@ -52,7 +52,7 @@ const getFormattedOutputParameters = (formattedChartValues: IChartInteractionVal
     return formattedOutputParameters
 }
 
-const getFormattedDynamicOutputParameter = (formattedChartValues: IChartInteractionValues, outputParameter: IWidgetInteractionParameter) => {
+export const getFormattedDynamicOutputParameter = (formattedChartValues: IChartInteractionValues, outputParameter: IWidgetInteractionParameter) => {
     let value = ''
     switch (outputParameter.column) {
         case "SERIE_NAME":
