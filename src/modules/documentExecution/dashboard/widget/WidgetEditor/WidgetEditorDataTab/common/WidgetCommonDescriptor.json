@@ -99,11 +99,6 @@
             "value": "funnel"
         },
         {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.parallelChart",
-            "value": "parallel"
-        },
-        {
             "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.gauge",
             "value": "gauge"

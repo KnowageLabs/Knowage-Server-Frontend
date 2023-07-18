@@ -26,20 +26,6 @@
                 "type": "Export"
             }
         ],
-        "Interactions": [
-            {
-                "title": "dashboard.widgetEditor.interactions.crossNavigation",
-                "type": "CrossNavigation"
-            },
-            {
-                "title": "dashboard.widgetEditor.interactions.link",
-                "type": "Link"
-            },
-            {
-                "title": "dashboard.widgetEditor.interactions.preview",
-                "type": "Preview"
-            }
-        ],
         "Legend": [
             {
                 "title": "dashboard.widgetEditor.legend.title",
@@ -149,11 +135,6 @@
             "icon": "pi pi-table",
             "label": "common.colors",
             "value": "Colors"
-        },
-        {
-            "icon": "fa fa-hand-pointer",
-            "label": "dashboard.widgetEditor.interactions.title",
-            "value": "Interactions"
         },
         {
             "icon": "pi pi-tablet",
