@@ -1,53 +1,69 @@
 <template>
-    <div v-if="bordersStyleModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-grid p-ai-center">
-            <div class="p-col-12 p-md-4 p-d-flex p-flex-column p-px-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.bordersStyle') }}</label>
-                <Dropdown v-model="bordersStyleModel.properties['border-style']" class="kn-material-input" :options="descriptor.bordersStyleOptions" option-value="value" :disabled="bordersStyleDisabled" @change="bordersStyleChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.bordersStyleOptions, $t) }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-            </div>
-            <div class="p-col-12 p-md-4 p-d-flex p-flex-column p-px-2 p-pt-4">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.bordersThickness') }}</label>
-                <InputText v-model="bordersStyleModel.properties['border-width']" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
-                <small>{{ $t('dashboard.widgetEditor.borders.bordersThicknessHint') }}</small>
-            </div>
-            <div class="p-col-12 p-md-4 p-px-2 p-pt-4">
-                <WidgetEditorColorPicker :initial-value="bordersStyleModel.properties['border-color']" :label="$t('dashboard.widgetEditor.borders.bordersColor')" :disabled="bordersStyleDisabled" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
-            </div>
-        </div>
+    <div v-if="bordersStyleModel" class="p-ai-center kn-flex p-p-4">
+        <span v-if="themeManagerMode" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="bordersStyleModel.enabled" /> </span>
 
-        <div class="p-col-12 p-grid p-ai-center">
-            <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-px-2 p-pt-4">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusTopLeft') }}</label>
-                <InputText v-model="bordersStyleModel.properties['border-top-left-radius']" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
-                <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small>
+        <form class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-12 p-lg-4">
+                <span class="p-float-label">
+                    <Dropdown v-model="bordersStyleModel.properties['border-style']" class="kn-material-input p-inputtext-sm" :options="descriptor.bordersStyleOptions" option-value="value" :disabled="bordersStyleDisabled" @change="bordersStyleChanged">
+                        <template #value="slotProps">
+                            <div>
+                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.bordersStyleOptions, $t) }}</span>
+                            </div>
+                        </template>
+                        <template #option="slotProps">
+                            <div>
+                                <span>{{ $t(slotProps.option.label) }}</span>
+                            </div>
+                        </template>
+                    </Dropdown>
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.bordersStyle') }}</label>
+                </span>
             </div>
-            <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-px-2 p-pt-4">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusTopRight') }}</label>
-                <InputText v-model="bordersStyleModel.properties['border-top-right-radius']" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
-                <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small>
+            <div class="p-field p-col-12 p-md-6 p-lg-4">
+                <span class="p-float-label">
+                    <InputText v-model="bordersStyleModel.properties['border-width']" v-tooltip.top="$t('dashboard.widgetEditor.borders.bordersThicknessHint')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.bordersThickness') }}</label>
+                    <!-- TODO: Remove commented smalls if not necessary -->
+                    <!-- <small>{{ $t('dashboard.widgetEditor.borders.bordersThicknessHint') }}</small> -->
+                </span>
             </div>
-            <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-px-2 p-pt-4">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusBottomLeft') }}</label>
-                <InputText v-model="bordersStyleModel.properties['border-bottom-left-radius']" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
-                <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small>
+            <div class="p-field p-col-12 p-md-6 p-lg-4">
+                <span class="">
+                    <!-- TODO: Fix this shit component holy damn is it bad :<<<< -->
+                    <WidgetEditorColorPicker :initial-value="bordersStyleModel.properties['border-color']" :label="$t('dashboard.widgetEditor.borders.bordersColor')" :disabled="bordersStyleDisabled" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
+                </span>
             </div>
-            <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-px-2 p-pt-4">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusBottomRight') }}</label>
-                <InputText v-model="bordersStyleModel.properties['border-bottom-right-radius']" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
-                <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small>
+            <label class="kn-material-input-label p-field p-col-12" style="color: black !important">{{ $t('dashboard.widgetEditor.borders.borderRadius') }}</label>
+            <div class="p-field p-col-12 p-md-6 p-lg-3">
+                <span class="p-float-label">
+                    <InputText v-model="bordersStyleModel.properties['border-top-left-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusTopLeft') }}</label>
+                    <!-- <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small> -->
+                </span>
             </div>
-        </div>
+            <div class="p-field p-col-12 p-md-6 p-lg-3">
+                <span class="p-float-label">
+                    <InputText v-model="bordersStyleModel.properties['border-top-right-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusTopRight') }}</label>
+                    <!-- <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small> -->
+                </span>
+            </div>
+            <div class="p-field p-col-12 p-md-6 p-lg-3">
+                <span class="p-float-label">
+                    <InputText v-model="bordersStyleModel.properties['border-bottom-left-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusBottomLeft') }}</label>
+                    <!-- <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small> -->
+                </span>
+            </div>
+            <div class="p-field p-col-12 p-md-6 p-lg-3">
+                <span class="p-float-label">
+                    <InputText v-model="bordersStyleModel.properties['border-bottom-right-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusBottomRight') }}</label>
+                    <!-- <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small> -->
+                </span>
+            </div>
+        </form>
     </div>
 </template>
 
@@ -64,7 +80,8 @@ export default defineComponent({
     name: 'widget-borders-style',
     components: { Dropdown, WidgetEditorColorPicker },
     props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
+        widgetModel: { type: Object as PropType<IWidget>, required: true },
+        themeManagerMode: { default: false, type: Boolean }
     },
     data() {
         return {

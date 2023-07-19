@@ -1,6 +1,6 @@
 <template>
     <div v-if="titleStyleModel" class="p-ai-center kn-flex p-p-4">
-        <span class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" /> </span>
+        <span v-if="themeManagerMode" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" /> </span>
 
         <form class="p-fluid p-formgrid p-grid">
             <div class="p-field p-col-12 p-lg-8">
@@ -33,7 +33,8 @@ export default defineComponent({
     components: { InputNumber, WidgetEditorStyleToolbar },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        toolbarStyleSettings: { type: Array, required: true }
+        toolbarStyleSettings: { type: Array, required: true },
+        themeManagerMode: { default: false, type: Boolean }
     },
     data() {
         return {
