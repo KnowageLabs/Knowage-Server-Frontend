@@ -5,6 +5,8 @@
                 <template #header>
                     <TableWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></TableWidgetSettingsAccordionHeader>
                 </template>
+
+                <WidgetEditorThemePicker v-if="['Title'].includes(accordion.type)" :widget-model="widgetModel"></WidgetEditorThemePicker>
                 <TableWidgetRows v-if="accordion.type === 'Rows'" :widget-model="widgetModel"></TableWidgetRows>
                 <TableWidgetSummaryRows v-else-if="accordion.type === 'SummaryRows'" :widget-model="widgetModel"></TableWidgetSummaryRows>
                 <TableWidgetHeader v-else-if="accordion.type === 'Header'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></TableWidgetHeader>
@@ -71,6 +73,7 @@ import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorSty
 import TableWidgetSettingsAccordionHeader from './TableWidgetSettingsAccordionHeader.vue'
 import TableWidgetPaginator from './style/TableWidgetPaginator.vue'
 import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
+import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 
 export default defineComponent({
     name: 'table-widget-configuration-container',
@@ -103,7 +106,8 @@ export default defineComponent({
         WidgetPreview,
         TableWidgetSettingsAccordionHeader,
         TableWidgetPaginator,
-        WidgetInteractionsIframe
+        WidgetInteractionsIframe,
+        WidgetEditorThemePicker
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

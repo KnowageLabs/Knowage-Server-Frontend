@@ -274,6 +274,7 @@ export interface ITableWidgetPagination {
 }
 
 export interface ITableWidgetStyle {
+    themeName: string,
     columns: ITableWidgetColumnStyles
     columnGroups: ITableWidgetColumnStyles
     headers: ITableWidgetHeadersStyle
