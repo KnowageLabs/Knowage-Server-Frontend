@@ -1,17 +1,23 @@
 <template>
-    <div v-if="titleStyleModel" class="p-grid p-ai-center kn-flex p-p-4">
-        <div class="p-col-8 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.text') }}</label>
-            <InputText v-model="(titleStyleModel as IWidgetTitle).text" class="kn-material-input p-inputtext-sm kn-flex" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
-        </div>
-        <div id="height-input-container" class="p-col-4">
-            <label class="kn-material-input-label">{{ $t('common.height') }}</label>
-            <InputNumber v-model="titleStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="titleStyleDisabled" @blur="titleStyleChanged" />
-        </div>
+    <div v-if="titleStyleModel" class="p-ai-center kn-flex p-p-4">
+        <span class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" /> </span>
 
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="titleStyleModel.properties" :disabled="titleStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
-        </div>
+        <form class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-lg-8">
+                <span class="p-float-label">
+                    <InputText v-model="(titleStyleModel as IWidgetTitle).text" class="kn-material-input p-inputtext-sm kn-flex" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('common.text') }}</label>
+                </span>
+            </div>
+            <div class="p-field p-col-12 p-lg-4">
+                <span class="p-float-label">
+                    <InputNumber v-model="titleStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="titleStyleDisabled" @blur="titleStyleChanged" />
+                    <label class="kn-material-input-label">{{ $t('common.height') }}</label>
+                </span>
+            </div>
+        </form>
+
+        <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="titleStyleModel.properties" :disabled="titleStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
     </div>
 </template>
 

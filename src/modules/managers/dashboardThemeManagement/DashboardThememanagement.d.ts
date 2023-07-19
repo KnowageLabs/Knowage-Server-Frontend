@@ -5,7 +5,6 @@ import { ITextWidgetStyle as IGenericStyle } from '@/modules/documentExecution/d
 
 export interface IDashboardTheme {
     id?: string
-    active: boolean
     themeName: string
     config: IDashboardThemeConfig
 }

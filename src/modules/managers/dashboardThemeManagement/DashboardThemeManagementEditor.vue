@@ -5,7 +5,6 @@
                 <InputText v-model="selectedTheme.themeName" class="kn-material-input" />
                 <label class="kn-material-input-label">{{ $t('common.name') }}</label>
             </span>
-            <!-- {{ selectedTheme }} -->
         </div>
 
         <div class="q-pa-md q-gutter-sm">
@@ -40,80 +39,7 @@ export default defineComponent({
             descriptor,
             test: descriptor.widgetModelMock as any,
             selectedTheme: null as any | null,
-            widgetTree: [] as any,
-            simple: [
-                {
-                    key: 'chart',
-                    label: this.$t('common.chart'),
-                    children: [
-                        {
-                            key: 'title',
-                            label: this.$t('dashboard.widgetEditor.titles.title'),
-                            children: [
-                                {
-                                    widgetType: 'chart',
-                                    key: 'titleEditor',
-                                    body: 'generic'
-                                }
-                            ]
-                        },
-                        {
-                            key: 'background',
-                            label: this.$t('dashboard.widgetEditor.background'),
-                            children: [
-                                {
-                                    widgetType: 'chart',
-                                    key: 'backgroundEditor',
-                                    body: 'generic'
-                                }
-                            ]
-                        },
-                        {
-                            key: 'borders',
-                            label: this.$t('dashboard.widgetEditor.borders.title'),
-                            children: [
-                                {
-                                    widgetType: 'chart',
-                                    key: 'bordersEditor',
-                                    body: 'generic'
-                                }
-                            ]
-                        },
-                        {
-                            key: 'padding',
-                            label: this.$t('dashboard.widgetEditor.padding.title'),
-                            children: [
-                                {
-                                    widgetType: 'chart',
-                                    key: 'paddingEditor',
-                                    body: 'generic'
-                                }
-                            ]
-                        },
-                        {
-                            key: 'shadows',
-                            label: this.$t('dashboard.widgetEditor.shadows.title'),
-                            children: [
-                                {
-                                    widgetType: 'chart',
-                                    key: 'shadowsEditor',
-                                    body: 'generic'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    key: 1,
-                    label: this.$t('common.table.table'),
-                    children: [{ label: 'Prompt attention' }, { label: 'Professional waiter' }]
-                },
-                {
-                    key: 3,
-                    label: 'HTML',
-                    children: [{ label: 'Happy atmosphere' }, { label: 'Good table presentation' }, { label: 'Pleasing decor' }]
-                }
-            ]
+            widgetTree: [] as any
         }
     },
     computed: {},
@@ -171,7 +97,7 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
-// .q-tree__node.relative-position.q-tree__node--child {
-//     padding: 0;
-// }
+.q-tree__node.relative-position.q-tree__node--child {
+    padding-left: 0;
+}
 </style>
