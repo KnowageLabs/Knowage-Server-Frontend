@@ -10,6 +10,7 @@ import { formatHighchartsWidget } from './widget/WidgetEditor/helpers/chartWidge
 import { AxiosResponse } from 'axios'
 import mainStore from '@/App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega/VegaHelpers'
 
 const store = mainStore()
 
@@ -99,6 +100,9 @@ const formatWidget = (widget: IWidget) => {
             break
         case 'highcharts':
             formatHighchartsWidget(widget)
+            break
+        case 'vega':
+            formatVegaWidget(widget)
     }
 }
 
