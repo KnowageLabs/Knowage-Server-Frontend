@@ -5,6 +5,7 @@
                 <InputText v-model="selectedTheme.themeName" class="kn-material-input" />
                 <label class="kn-material-input-label">{{ $t('common.name') }}</label>
             </span>
+            <!-- {{ selectedTheme }} -->
         </div>
 
         <div class="q-pa-md q-gutter-sm">
@@ -44,6 +45,7 @@ export default defineComponent({
                             label: this.$t('dashboard.widgetEditor.titles.title'),
                             children: [
                                 {
+                                    widgetType: 'chart',
                                     key: 'titleEditor',
                                     body: 'generic'
                                 }
@@ -54,6 +56,7 @@ export default defineComponent({
                             label: this.$t('dashboard.widgetEditor.background'),
                             children: [
                                 {
+                                    widgetType: 'chart',
                                     key: 'backgroundEditor',
                                     body: 'generic'
                                 }
@@ -64,6 +67,7 @@ export default defineComponent({
                             label: this.$t('dashboard.widgetEditor.borders.title'),
                             children: [
                                 {
+                                    widgetType: 'chart',
                                     key: 'bordersEditor',
                                     body: 'generic'
                                 }
@@ -74,6 +78,7 @@ export default defineComponent({
                             label: this.$t('dashboard.widgetEditor.padding.title'),
                             children: [
                                 {
+                                    widgetType: 'chart',
                                     key: 'paddingEditor',
                                     body: 'generic'
                                 }
@@ -84,6 +89,7 @@ export default defineComponent({
                             label: this.$t('dashboard.widgetEditor.shadows.title'),
                             children: [
                                 {
+                                    widgetType: 'chart',
                                     key: 'shadowsEditor',
                                     body: 'generic'
                                 }

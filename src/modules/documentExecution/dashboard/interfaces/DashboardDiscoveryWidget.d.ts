@@ -1,4 +1,18 @@
-import { ITableWidgetColumnStyles, ITableWidgetCustomMessages, ITableWidgetTooltipStyle, IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetRowsStyle, IWidgetShadowsStyle, IWidgetTitle } from '../Dashboard'
+import {
+    ITableWidgetColumnStyles,
+    ITableWidgetCustomMessages,
+    ITableWidgetHeadersStyle,
+    ITableWidgetTooltipStyle,
+    IWidgetBackgroundStyle,
+    IWidgetBordersStyle,
+    IWidgetExports,
+    IWidgetInteractions,
+    IWidgetPaddingStyle,
+    IWidgetResponsive,
+    IWidgetRowsStyle,
+    IWidgetShadowsStyle,
+    IWidgetTitle
+} from '../Dashboard'
 
 export interface IDiscoveryWidgetSettings {
     updatable: boolean
@@ -20,6 +34,7 @@ export interface IDiscoveryWidgetStyle {
     rows: IWidgetRowsStyle
     shadows: IWidgetShadowsStyle
     background: IWidgetBackgroundStyle
+    headers: ITableWidgetHeadersStyle
 }
 
 export interface IDiscoveryWidgetFacetsSettings {
