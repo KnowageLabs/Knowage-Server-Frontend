@@ -1196,6 +1196,7 @@
                 "textAndIcon": "Text & Icon",
                 "title": "Visualization Type"
             },
+            "widgetTheme": "Widget Theme",
             "xAxis": "X Axis",
             "yAxis": "Y Axis"
         },
@@ -1988,40 +1989,66 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        "dayNames": [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ],
+        "dayNamesMin": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "dayNamesShort": [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "monthNamesShort": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ],
         "today": "Today",
         "weekHeader": "Wk"
     },
     "managers": {
-        "dashboardThemeManager": {
-            "widgetNames": {
-                "text": "Text",
-                "image": "Image",
-                "chart": "Chart",
-                "html": "HTML",
-                "map": "Map",
-                "customChart": "Custom Chart",
-                "python": "Python",
-                "r": "R",
-                "table": "Table",
-                "pivot": "Pivot",
-                "discovery": "Discovery",
-                "activeSelections": "Active Selections",
-                "selector": "Selector"
-            },
-            "styleTypes": {
-                "title": "Title",
-                "borders": "Borders",
-                "padding": "Padding",
-                "shadows": "Shadows",
-                "background": "Background"
-            }
-        },
         "bml": {
             "drivers": "Analytical Drivers",
             "lovsTitle": "Lovs",
@@ -2211,6 +2238,30 @@
             "title": "Cross Navigation",
             "width": "Window width",
             "widthHelp": "Width in px of the popup window."
+        },
+        "dashboardThemeManager": {
+            "styleTypes": {
+                "background": "Background",
+                "borders": "Borders",
+                "padding": "Padding",
+                "shadows": "Shadows",
+                "title": "Title"
+            },
+            "widgetNames": {
+                "activeSelections": "Active Selections",
+                "chart": "Chart",
+                "customChart": "Custom Chart",
+                "discovery": "Discovery",
+                "html": "HTML",
+                "image": "Image",
+                "map": "Map",
+                "pivot": "Pivot",
+                "python": "Python",
+                "r": "R",
+                "selector": "Selector",
+                "table": "Table",
+                "text": "Text"
+            }
         },
         "dataSourceManagement": {
             "form": {
