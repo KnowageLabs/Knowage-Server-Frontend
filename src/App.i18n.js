@@ -1,16 +1,18 @@
 import { createI18n } from 'vue-i18n'
 import store from './App.store'
 
-const messages = {
-    en_US: import('@/i18n/en_US/messages.json')
-}
-
 const currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : store.locale
 
 const i18n = createI18n({
     locale: currentLocale,
-    fallbackLocale: 'en_US',
-    messages: messages
+    fallbackLocale: 'en_US'
+})
+
+import('@/i18n/en_US/messages.json').then((messages) => {
+    import('@/i18n/en_US/helper-messages.json').then((m) => {
+        i18n.global.setLocaleMessage('en_US', messages.default)
+        i18n.global.mergeLocaleMessage('en_US', m.default)
+    })
 })
 
 const loadedLanguages = []
