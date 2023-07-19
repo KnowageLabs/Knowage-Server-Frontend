@@ -13,7 +13,7 @@
                 <template #body-generic="prop">
                     <div style="color: black">
                         <!-- {{ prop.node }} -->
-                        <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="test" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" style="padding: 0 !important"/>
+                        <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="test" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" style="padding: 0 !important" />
                     </div>
                 </template>
             </q-tree>
@@ -132,31 +132,28 @@ export default defineComponent({
         buildWidgetTree() {
             const themeConfig = this.selectedTheme.config as IDashboardThemeConfig
             const widgetTree = [] as any
-            let index = 0
 
             for (const widgetType in themeConfig) {
                 widgetTree.push({
-                    key: `widget-${index}`,
-                    label: `translate.${widgetType}`,
-                    children: this.buildChildren(themeConfig, widgetType, index)
+                    key: `${widgetType}`,
+                    label: this.$t(`managers.dashboardThemeManager.widgetNames.${widgetType}`),
+                    children: this.buildChildren(themeConfig, widgetType)
                 })
-
-                index++
             }
 
             console.log(widgetTree)
             return widgetTree
         },
-        buildChildren(themeConfig, widgetType, index) {
+        buildChildren(themeConfig, widgetType) {
             const childrenArray = [] as any
 
             for (const styleType in themeConfig[widgetType].style) {
                 childrenArray.push({
-                    key: `widget-${index}-${styleType}`,
-                    label: `translate.${styleType}`,
+                    key: `${widgetType}-${styleType}`,
+                    label: this.$t(`managers.dashboardThemeManager.styleTypes.${styleType}`),
                     children: [
                         {
-                            key: `widget-${index}-${styleType}-editor`,
+                            key: `${widgetType}-${styleType}-editor`,
                             widgetType: widgetType,
                             body: 'generic' //TODO: Create method that takes whole key into account, and changes body depending on widget type. Only GENERIC is present so far.
                         }
@@ -169,3 +166,8 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss">
+// .q-tree__node.relative-position.q-tree__node--child {
+//     padding: 0;
+// }
+</style>
