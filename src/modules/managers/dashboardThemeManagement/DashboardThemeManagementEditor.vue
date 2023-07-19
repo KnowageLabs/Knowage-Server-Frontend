@@ -13,6 +13,10 @@
                 <template #body-generic="prop">
                     <div style="color: black">
                         <!-- {{ prop.node }} -->
+                        <!-- <br /> -->
+
+                        <!-- {{ selectedTheme.config[prop.node.widgetType] }} -->
+                        <!-- OVO JE LOKACIJA STILA U selectedTheme OBJEKTU! -->
                         <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="test" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" style="padding: 0 !important" />
                     </div>
                 </template>
