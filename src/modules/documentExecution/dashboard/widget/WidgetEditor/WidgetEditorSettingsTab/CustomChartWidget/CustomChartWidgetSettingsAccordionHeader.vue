@@ -47,6 +47,8 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.crossNavigation
                 case 'Preview':
                     return this.widgetModel.settings.interactions.preview
+                case 'IFrameInteraction':
+                    return this.widgetModel.settings.interactions.iframe
                 default:
                     return null
             }

@@ -17,6 +17,7 @@
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
             </AccordionTab>
         </Accordion>
     </div>
@@ -42,6 +43,7 @@ import CustomChartWidgetSettingsAccordionHeader from './CustomChartWidgetSetting
 import CustomChartHTMLEditor from './editor/CustomChartHTMLEditor.vue'
 import CustomChartCSSEditor from './editor/CustomChartCSSEditor.vue'
 import CustomChartJSEditor from './editor/CustomChartJSEditor.vue'
+import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 
 export default defineComponent({
     name: 'custom-chart-widget-settings-container',
@@ -60,7 +62,8 @@ export default defineComponent({
         CustomChartWidgetSettingsAccordionHeader,
         CustomChartHTMLEditor,
         CustomChartCSSEditor,
-        CustomChartJSEditor
+        CustomChartJSEditor,
+        WidgetInteractionsIframe
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

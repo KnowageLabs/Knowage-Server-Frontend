@@ -197,6 +197,7 @@ export interface IWidgetInteractions {
     preview?: IWidgetPreview
     selection?: IWidgetSelection
     drilldown?: IHighchartsDrilldown
+    iframe?: IFrameInteractionSettings
 }
 
 export interface IWidgetCrossNavigation {
@@ -256,6 +257,11 @@ export interface IWidgetSelection {
             color: string
         }
     }
+}
+
+export interface IFrameInteractionSettings {
+    enabled: boolean
+    json: string
 }
 
 export interface ITableWidgetPagination {

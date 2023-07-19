@@ -14,6 +14,7 @@ export const createNewHtmlWidgetSettings = () => {
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
             preview: widgetCommonDefaultValues.getDefaultPreview(),
+            iframe: widgetCommonDefaultValues.getDefaultIFrameInteraction()
         },
         style: {
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),

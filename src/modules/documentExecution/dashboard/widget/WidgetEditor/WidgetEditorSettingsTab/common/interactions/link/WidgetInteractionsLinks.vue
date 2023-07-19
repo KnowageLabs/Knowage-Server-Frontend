@@ -180,6 +180,7 @@ export default defineComponent({
                 if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
                 if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
                 if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
+                if (this.widget.settings.interactions.iframe) this.widget.settings.interactions.iframe.enabled = false
             }
         },
         addLink() {

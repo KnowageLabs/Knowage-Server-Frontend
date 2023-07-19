@@ -35,6 +35,10 @@
         "parameters": [],
         "type": ""
     },
+    "defaultIFrameInteraction": {
+        "enabled": false,
+        "json": ""
+    },
     "defaultLinks": {
         "enabled": false,
         "links": []

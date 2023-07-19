@@ -107,6 +107,7 @@
         "horizontalAlign": "Horizontal Align",
         "icon": "Icon",
         "id": "id",
+        "iframe": "Iframe",
         "image": "image",
         "import": "import",
         "inUse": "In use",
@@ -887,6 +888,10 @@
                 "enableClickOnSingleColumn": "Enable click on a single column",
                 "enableClickOnWholeRow": "Enable click on whole row",
                 "enableMultiselection": "Enable Multiselection",
+                "iframeInteractionHint": {
+                    "partOne": "Write the JSON message in the following editor. By clicking over the widget it will be propagated to a container window.",
+                    "partTwo": "You can use $P{}, $V{} and {value} placeholder to retrieve dynamic data."
+                },
                 "json": "JSON",
                 "jwt": "JWT",
                 "link": "Link",

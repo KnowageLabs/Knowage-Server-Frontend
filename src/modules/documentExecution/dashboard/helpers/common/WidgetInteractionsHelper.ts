@@ -15,6 +15,7 @@ export const getFormattedInteractions = (widget: any) => {
     if (['table', 'image', 'chart', 'discovery'].includes(widget.type)) interactions.link = getFormattedLinkInteraction(widget) as IWidgetLinks
     if (['table', 'html', 'text', 'chart', 'discovery', 'customchart', 'map'].includes(widget.type)) interactions.preview = getFormattedPreview(widget) as IWidgetPreview
     if (['chart'].includes(widget.type)) interactions.drilldown = { enabled: false } as IHighchartsDrilldown
+    if (['table', 'html', 'customchart'].includes(widget.type)) interactions.iframe = getFormattedIFrameInteraction(widget)
     return interactions
 }
 
@@ -224,4 +225,11 @@ const getFormattedPreviewParameters = (previewParameters: any) => {
     })
 
     return formattedParameters
+}
+
+const getFormattedIFrameInteraction = (widget: any) => {
+    let iFrameInteraction = widgetCommonDefaultValues.getDefaultIFrameInteraction()
+    if (!widget.cross || !widget.cross.message) return iFrameInteraction
+    iFrameInteraction = { enabled: widget.cross.message.enable, json: widget.cross.message.json }
+    return iFrameInteraction
 }

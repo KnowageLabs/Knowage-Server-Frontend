@@ -207,6 +207,10 @@
             {
                 "title": "dashboard.widgetEditor.interactions.preview",
                 "type": "Preview"
+            },
+            {
+                "title": "common.iframe",
+                "type": "IFrameInteraction"
             }
         ],
         "Responsive": [

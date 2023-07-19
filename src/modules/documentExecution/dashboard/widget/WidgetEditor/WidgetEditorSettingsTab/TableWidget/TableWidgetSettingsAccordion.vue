@@ -31,6 +31,7 @@
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
                 <TableWidgetPaginator v-else-if="accordion.type === 'PaginatorStyle'" :widget-model="widgetModel"></TableWidgetPaginator>
+                <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
             </AccordionTab>
         </Accordion>
     </div>
@@ -69,6 +70,7 @@ import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import TableWidgetSettingsAccordionHeader from './TableWidgetSettingsAccordionHeader.vue'
 import TableWidgetPaginator from './style/TableWidgetPaginator.vue'
+import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 
 export default defineComponent({
     name: 'table-widget-configuration-container',
@@ -100,7 +102,8 @@ export default defineComponent({
         WidgetInteractionsLinks,
         WidgetPreview,
         TableWidgetSettingsAccordionHeader,
-        TableWidgetPaginator
+        TableWidgetPaginator,
+        WidgetInteractionsIframe
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

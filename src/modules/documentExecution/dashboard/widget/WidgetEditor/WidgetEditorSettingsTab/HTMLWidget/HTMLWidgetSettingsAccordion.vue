@@ -17,6 +17,7 @@
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
             </AccordionTab>
         </Accordion>
     </div>
@@ -42,6 +43,7 @@ import WidgetCrossNavigation from '../common/interactions/crossNavigation/Widget
 import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteractionsLinks.vue'
 import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import HTMLWidgetSettingsAccordionHeader from './HTMLWidgetSettingsAccordionHeader.vue'
+import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 
 export default defineComponent({
     name: 'html-widget-settings-container',
@@ -60,7 +62,8 @@ export default defineComponent({
         WidgetCrossNavigation,
         WidgetInteractionsLinks,
         WidgetPreview,
-        HTMLWidgetSettingsAccordionHeader
+        HTMLWidgetSettingsAccordionHeader,
+        WidgetInteractionsIframe
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
