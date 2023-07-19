@@ -100,6 +100,7 @@ const formatWidget = (widget: IWidget) => {
             break
         case 'highcharts':
             formatHighchartsWidget(widget)
+            break
         case 'vega':
             formatVegaWidget(widget)
     }
