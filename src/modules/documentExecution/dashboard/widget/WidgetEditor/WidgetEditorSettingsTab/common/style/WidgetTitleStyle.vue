@@ -48,7 +48,6 @@ export default defineComponent({
             if (!this.widgetModel) return
             this.widgetType = this.widgetModel.type
             if (this.widgetModel.settings?.style?.title) this.titleStyleModel = this.widgetModel.settings.style.title
-            console.log('TITLE _--------- this.widgetModel.type', this.widgetModel)
         },
         titleStyleChanged() {
             switch (this.widgetType) {

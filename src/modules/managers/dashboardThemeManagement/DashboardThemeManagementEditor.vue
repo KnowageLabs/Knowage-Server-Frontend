@@ -9,11 +9,15 @@
         </div>
 
         <div class="q-pa-md q-gutter-sm">
-            <q-tree :nodes="simple" node-key="key">
+            <q-tree :nodes="widgetTree" node-key="key">
                 <template #body-generic="prop">
                     <div style="color: black">
                         <!-- {{ prop.node }} -->
-                        <WidgetTitleStyle v-if="prop.node.key === 'titleEditor'" :widget-model="test" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" class="p-p-0" />
+                        <!-- <br /> -->
+
+                        <!-- {{ selectedTheme.config[prop.node.widgetType] }} -->
+                        <!-- OVO JE LOKACIJA STILA U selectedTheme OBJEKTU! -->
+                        <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="test" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" style="padding: 0 !important" />
                     </div>
                 </template>
             </q-tree>
@@ -25,6 +29,7 @@
 import { defineComponent } from 'vue'
 import descriptor from './DashboardThemeManagementEditorDescriptor.json'
 import WidgetTitleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetTitleStyle.vue'
+import { IDashboardThemeConfig } from './DashboardThememanagement'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
@@ -35,6 +40,7 @@ export default defineComponent({
             descriptor,
             test: descriptor.widgetModelMock as any,
             selectedTheme: null as any | null,
+            widgetTree: [] as any,
             simple: [
                 {
                     key: 'chart',
@@ -122,7 +128,50 @@ export default defineComponent({
     methods: {
         loadSelectedTheme() {
             this.selectedTheme = this.selectedThemeProp
+            this.widgetTree = this.buildWidgetTree()
+        },
+        containsSubstring(str) {
+            return str.includes('title-editor')
+        },
+        buildWidgetTree() {
+            const themeConfig = this.selectedTheme.config as IDashboardThemeConfig
+            const widgetTree = [] as any
+
+            for (const widgetType in themeConfig) {
+                widgetTree.push({
+                    key: `${widgetType}`,
+                    label: this.$t(`managers.dashboardThemeManager.widgetNames.${widgetType}`),
+                    children: this.buildChildren(themeConfig, widgetType)
+                })
+            }
+
+            console.log(widgetTree)
+            return widgetTree
+        },
+        buildChildren(themeConfig, widgetType) {
+            const childrenArray = [] as any
+
+            for (const styleType in themeConfig[widgetType].style) {
+                childrenArray.push({
+                    key: `${widgetType}-${styleType}`,
+                    label: this.$t(`managers.dashboardThemeManager.styleTypes.${styleType}`),
+                    children: [
+                        {
+                            key: `${widgetType}-${styleType}-editor`,
+                            widgetType: widgetType,
+                            body: 'generic' //TODO: Create method that takes whole key into account, and changes body depending on widget type. Only GENERIC is present so far.
+                        }
+                    ]
+                })
+            }
+
+            return childrenArray
         }
     }
 })
 </script>
+<style lang="scss">
+// .q-tree__node.relative-position.q-tree__node--child {
+//     padding: 0;
+// }
+</style>

@@ -1998,6 +1998,30 @@
         "weekHeader": "Wk"
     },
     "managers": {
+        "dashboardThemeManager": {
+            "widgetNames": {
+                "text": "Text",
+                "image": "Image",
+                "chart": "Chart",
+                "html": "HTML",
+                "map": "Map",
+                "customChart": "Custom Chart",
+                "python": "Python",
+                "r": "R",
+                "table": "Table",
+                "pivot": "Pivot",
+                "discovery": "Discovery",
+                "activeSelections": "Active Selections",
+                "selector": "Selector"
+            },
+            "styleTypes": {
+                "title": "Title",
+                "borders": "Borders",
+                "padding": "Padding",
+                "shadows": "Shadows",
+                "background": "Background"
+            }
+        },
         "bml": {
             "drivers": "Analytical Drivers",
             "lovsTitle": "Lovs",
