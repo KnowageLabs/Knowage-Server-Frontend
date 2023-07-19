@@ -1,6 +1,6 @@
 <template>
     <div v-if="bordersStyleModel" class="p-ai-center kn-flex p-p-4">
-        <span v-if="themeManagerMode" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="bordersStyleModel.enabled" /> </span>
+        <span v-if="themeManagerMode" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="bordersStyleModel.enabled" color="black" /> </span>
 
         <form class="p-fluid p-formgrid p-grid">
             <div class="p-field p-col-12 p-md-12 p-lg-4">
@@ -34,7 +34,9 @@
                     <WidgetEditorColorPicker :initial-value="bordersStyleModel.properties['border-color']" :label="$t('dashboard.widgetEditor.borders.bordersColor')" :disabled="bordersStyleDisabled" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
                 </span>
             </div>
-            <label class="kn-material-input-label p-field p-col-12" style="color: black !important">{{ $t('dashboard.widgetEditor.borders.borderRadius') }}</label>
+
+            <label class="kn-material-input-label p-col-12 p-mb-3" style="color: black !important">{{ $t('dashboard.widgetEditor.borders.borderRadius') }}</label>
+
             <div class="p-field p-col-12 p-md-6 p-lg-3">
                 <span class="p-float-label">
                     <InputText v-model="bordersStyleModel.properties['border-top-left-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
