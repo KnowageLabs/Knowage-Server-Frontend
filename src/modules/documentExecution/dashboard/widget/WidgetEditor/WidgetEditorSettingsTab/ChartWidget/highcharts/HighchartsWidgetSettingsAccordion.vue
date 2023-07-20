@@ -1,5 +1,6 @@
 <template>
     <div v-show="widgetModel">
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in filteredSettings" :key="index">
                 <template #header>
@@ -24,12 +25,12 @@
                 <HighchartsBandsSettings v-else-if="accordion.type === 'YAxisBandsSettings'" :widget-model="widgetModel" axis="y"></HighchartsBandsSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
+                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel"></WidgetRowsStyle>
-                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel"></WidgetBackgroundColorStyle>
-                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel"></WidgetBordersStyle>
-                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel"></WidgetPaddingStyle>
-                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel"></WidgetShadowsStyle>
+                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :theme-style="null" :widget-model="widgetModel" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
@@ -107,6 +108,7 @@ import HighchartsGroupingSettings from './configuration/HighchartsGroupingSettin
 import HighchartsStackingSettings from './configuration/HighchartsStackingSettings.vue'
 import HighchartsAxisLinesSettings from './configuration/HighchartsAxisLinesSettings.vue'
 import HighchartsSVGSettings from './configuration/HighchartsSVGSettings.vue'
+import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -154,7 +156,8 @@ export default defineComponent({
         HighchartsStackingSettings,
         HighchartsCenterTextSettings,
         HighchartsAxisLinesSettings,
-        HighchartsSVGSettings
+        HighchartsSVGSettings,
+        WidgetEditorThemePicker
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -169,13 +172,17 @@ export default defineComponent({
         return {
             settingsTabDescriptor,
             filteredSettings: [] as { title: string; type: string }[],
-            activeIndex: -1
+            activeIndex: -1,
+            styleChangedFlag: false
         }
     },
     computed: {
         isStacked() {
             if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.series?.stacking) return true
             return false
+        },
+        showThemePicker() {
+            return this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         }
     },
     watch: {
@@ -202,6 +209,9 @@ export default defineComponent({
         },
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
+        },
+        onStyleChanged() {
+            this.styleChangedFlag = !this.styleChangedFlag
         }
     }
 })
