@@ -1,5 +1,7 @@
 <template>
     <div v-if="paddingStyleModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="paddingStyleModel.enabled" color="black" /> </span>
+
         <div class="p-col-12 p-grid p-ai-center">
             <div class="p-d-flex p-jc-center p-ai-center">
                 <i
@@ -37,14 +39,12 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetPaddingStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
 
 export default defineComponent({
     name: 'widget-padding-style',
     components: {},
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetPaddingStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             paddingStyleModel: null as IWidgetPaddingStyle | null,
@@ -56,26 +56,21 @@ export default defineComponent({
             return !this.paddingStyleModel || !this.paddingStyleModel.enabled
         }
     },
+    watch: {
+        paddingStyleDisabled() {
+            this.paddingStyleChanged()
+        }
+    },
     created() {
         this.loadPaddingStyle()
     },
     methods: {
         loadPaddingStyle() {
-            if (!this.widgetModel) return
-            this.widgetType = this.widgetModel.type
-            if (this.widgetModel.settings?.style?.padding) this.paddingStyleModel = this.widgetModel.settings.style.padding
+            if (this.widgetModel?.settings?.style?.padding) this.paddingStyleModel = this.widgetModel.settings.style.padding
+            else if (this.themeStyle) this.paddingStyleModel = this.themeStyle
         },
         paddingStyleChanged() {
-            switch (this.widgetType) {
-                case 'table':
-                    emitter.emit('refreshTable', this.widgetModel.id)
-                    break
-                case 'selector':
-                    emitter.emit('refreshSelector', this.widgetModel.id)
-                    break
-                case 'selection':
-                    emitter.emit('refreshSelection', this.widgetModel.id)
-            }
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onLinkIconClicked() {
             if (!this.paddingStyleModel) return

@@ -1,6 +1,6 @@
 <template>
     <div v-if="bordersStyleModel" class="p-ai-center kn-flex p-p-4">
-        <span v-if="themeManagerMode" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="bordersStyleModel.enabled" color="black" /> </span>
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="bordersStyleModel.enabled" color="black" /> </span>
 
         <form class="p-fluid p-formgrid p-grid">
             <div class="p-field p-col-12 p-md-12 p-lg-4">
@@ -30,7 +30,6 @@
             </div>
             <div class="p-field p-col-12 p-md-6 p-lg-4">
                 <span class="">
-                    <!-- TODO: Fix this shit component holy damn is it bad :<<<< -->
                     <WidgetEditorColorPicker :initial-value="bordersStyleModel.properties['border-color']" :label="$t('dashboard.widgetEditor.borders.bordersColor')" :disabled="bordersStyleDisabled" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
                 </span>
             </div>
@@ -72,7 +71,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetBordersStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import Dropdown from 'primevue/dropdown'
@@ -81,10 +79,8 @@ import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
 export default defineComponent({
     name: 'widget-borders-style',
     components: { Dropdown, WidgetEditorColorPicker },
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true },
-        themeManagerMode: { default: false, type: Boolean }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetBordersStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             descriptor,
@@ -98,26 +94,21 @@ export default defineComponent({
             return !this.bordersStyleModel || !this.bordersStyleModel.enabled
         }
     },
+    watch: {
+        bordersStyleDisabled() {
+            this.bordersStyleChanged()
+        }
+    },
     created() {
         this.loadBordersStyle()
     },
     methods: {
         loadBordersStyle() {
-            if (!this.widgetModel) return
-            this.widgetType = this.widgetModel.type
             if (this.widgetModel?.settings?.style?.borders) this.bordersStyleModel = this.widgetModel.settings.style.borders
+            else if (this.themeStyle) this.bordersStyleModel = this.themeStyle
         },
         bordersStyleChanged() {
-            switch (this.widgetType) {
-                case 'table':
-                    emitter.emit('refreshTable', this.widgetModel.id)
-                    break
-                case 'selector':
-                    emitter.emit('refreshSelector', this.widgetModel.id)
-                    break
-                case 'selection':
-                    emitter.emit('refreshSelection', this.widgetModel.id)
-            }
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onSelectionColorChanged(event: string | null) {
             if (!event || !this.bordersStyleModel) return
