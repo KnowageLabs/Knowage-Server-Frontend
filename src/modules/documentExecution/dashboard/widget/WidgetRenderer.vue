@@ -122,6 +122,11 @@ export default defineComponent({
     created() {
         this.loadActiveSelections()
         this.loadDataToShow()
+
+        console.group(this.widget.type)
+        console.log('this.widget', this.widget)
+        console.log('widgetData', this.widgetData)
+        console.groupEnd()
     },
     methods: {
         async loadDataToShow() {

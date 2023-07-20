@@ -26,7 +26,9 @@
             <DashboardThemeManagementEditor v-if="selectedTheme.themeName" :selected-theme-prop="selectedTheme" />
         </div>
 
-        <div v-if="selectedTheme.themeName" class="kn-list--column kn-page p-col-2 p-sm-2 p-md-3 p-p-0">EXAMPLES</div>
+        <div v-if="selectedTheme.themeName" class="theme-manager-examples kn-page p-p-0 kn-overflow dashboard-scrollbar">
+            <ThemeExamples :selected-theme-prop="selectedTheme" />
+        </div>
     </div>
 </template>
 
@@ -48,10 +50,11 @@ import { IDashboardTheme } from './DashboardThememanagement'
 import deepcopy from 'deepcopy'
 import { getDefaultDashboardThemeConfig } from './DashboardThemeHelper'
 import { IDashboardThemeConfig } from './DashboardThememanagement'
+import ThemeExamples from './dashboardThemeManagementExamples/DashboardThemeManagementExamples.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management',
-    components: { FabButton, Menu, KnInputFile, KnListBox, KnHint, DashboardThemeManagementEditor },
+    components: { FabButton, Menu, KnInputFile, KnListBox, KnHint, DashboardThemeManagementEditor, ThemeExamples },
     data() {
         return {
             descriptor: ThemeManagementDescriptor,
@@ -209,6 +212,20 @@ export default defineComponent({
     }
     .form-container {
         border-right: 1px solid #cccccc;
+    }
+    @media screen and (max-width: 1100px) {
+        .theme-manager-examples {
+            -webkit-transition: width 0.3s;
+            transition: flex 0.3s;
+            flex: 0;
+        }
+    }
+    @media screen and (min-width: 1101px) {
+        .theme-manager-examples {
+            -webkit-transition: width 0.3s;
+            transition: flex 0.3s;
+            flex: 0.75;
+        }
     }
 }
 </style>

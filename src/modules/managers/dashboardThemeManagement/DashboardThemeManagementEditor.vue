@@ -1,5 +1,5 @@
 <template>
-    <div v-if="selectedTheme" class="kn-overflow">
+    <div v-if="selectedTheme" class="kn-overflow dashboard-scrollbar">
         <div class="p-field p-mt-2 p-col-12">
             <span class="p-float-label">
                 <InputText v-model="selectedTheme.themeName" class="kn-material-input" />
@@ -7,7 +7,7 @@
             </span>
         </div>
 
-        <div class="q-pa-md q-gutter-sm">
+        <div class="q-pa-md q-gutter-sm p-pl-0">
             <q-tree :nodes="widgetTree" node-key="key">
                 <template #body-generic="prop">
                     <div style="color: black">
@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { IDashboardThemeConfig } from './DashboardThememanagement'
+import { IDashboardTheme, IDashboardThemeConfig } from './DashboardThememanagement'
 import descriptor from './DashboardThemeManagementEditorDescriptor.json'
 import WidgetTitleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetTitleStyle.vue'
 import WidgetBordersStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetBordersStyle.vue'
@@ -46,7 +46,7 @@ export default defineComponent({
         return {
             descriptor,
             test: descriptor.widgetModelMock as any,
-            selectedTheme: null as any | null,
+            selectedTheme: {} as IDashboardTheme,
             widgetTree: [] as any
         }
     },
