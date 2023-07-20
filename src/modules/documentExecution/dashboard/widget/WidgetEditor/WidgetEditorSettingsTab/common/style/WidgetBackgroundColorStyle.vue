@@ -1,5 +1,7 @@
 <template>
     <div v-if="backgroundStyleModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="backgroundStyleModel.enabled" color="black" /> </span>
+
         <div class="p-col-12">
             <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="backgroundStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
         </div>
@@ -9,7 +11,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetBackgroundStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetEditorColorPicker from '../WidgetEditorColorPicker.vue'
@@ -17,9 +18,8 @@ import WidgetEditorColorPicker from '../WidgetEditorColorPicker.vue'
 export default defineComponent({
     name: 'widget-background-color-style',
     components: { WidgetEditorColorPicker },
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetBackgroundStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             descriptor,
@@ -33,26 +33,21 @@ export default defineComponent({
             return !this.backgroundStyleModel || !this.backgroundStyleModel.enabled
         }
     },
+    watch: {
+        backgroundStyleDisabled() {
+            this.backgroundColorStyleChanged()
+        }
+    },
     created() {
         this.loadBackgroundColor()
     },
     methods: {
         loadBackgroundColor() {
-            if (!this.widgetModel) return
-            this.widgetType = this.widgetModel.type
-            if (this.widgetModel.settings?.style?.background) this.backgroundStyleModel = this.widgetModel.settings.style.background
+            if (this.widgetModel?.settings?.style?.background) this.backgroundStyleModel = this.widgetModel.settings.style.background
+            else if (this.themeStyle) this.backgroundStyleModel = this.themeStyle
         },
         backgroundColorStyleChanged() {
-            switch (this.widgetType) {
-                case 'table':
-                    emitter.emit('refreshTable', this.widgetModel.id)
-                    break
-                case 'selector':
-                    emitter.emit('refreshSelector', this.widgetModel.id)
-                    break
-                case 'selection':
-                    emitter.emit('refreshSelection', this.widgetModel.id)
-            }
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onBackroundColorChanged(event: string | null) {
             if (!event || !this.backgroundStyleModel) return

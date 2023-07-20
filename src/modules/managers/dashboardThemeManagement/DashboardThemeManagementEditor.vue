@@ -19,6 +19,8 @@
                         <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.title" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" class="no-padding" />
                         <WidgetBordersStyle v-else-if="prop.node.key.includes('borders-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.borders" class="no-padding" />
                         <WidgetPaddingStyle v-else-if="prop.node.key.includes('padding-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.padding" class="no-padding" />
+                        <WidgetShadowsStyle v-else-if="prop.node.key.includes('shadows-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.shadows" class="no-padding" />
+                        <WidgetBackgroundColorStyle v-else-if="prop.node.key.includes('background-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.background" class="no-padding" />
                     </div>
                 </template>
             </q-tree>
@@ -33,10 +35,12 @@ import descriptor from './DashboardThemeManagementEditorDescriptor.json'
 import WidgetTitleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetTitleStyle.vue'
 import WidgetBordersStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetBordersStyle.vue'
 import WidgetPaddingStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetPaddingStyle.vue'
+import WidgetShadowsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetShadowsStyle.vue'
+import WidgetBackgroundColorStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetBackgroundColorStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle },
+    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {
