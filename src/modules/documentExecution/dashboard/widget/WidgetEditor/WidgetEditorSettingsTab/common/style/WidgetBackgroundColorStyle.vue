@@ -1,10 +1,13 @@
 <template>
-    <div v-if="backgroundStyleModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
+    <div v-if="backgroundStyleModel" class="kn-flex p-p-4">
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="backgroundStyleModel.enabled" color="black" /> </span>
-
-        <div class="p-col-12">
-            <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="backgroundStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
-        </div>
+        <form class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12">
+                <span class="">
+                    <WidgetEditorColorPicker :initial-value="backgroundStyleModel.properties['background-color']" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="backgroundStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
+                </span>
+            </div>
+        </form>
     </div>
 </template>
 
