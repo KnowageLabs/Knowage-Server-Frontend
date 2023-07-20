@@ -20,7 +20,7 @@
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.shadows.shadowSize') }}</label>
                 </span>
             </div>
-            <div class="p-field p-col-12 p-md-6 p-lg-4">
+            <div class="p-field p-col-12 p-lg-4">
                 <span class="">
                     <WidgetEditorColorPicker :initial-value="shadowsStyleModel.properties.color" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="shadowsStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
                 </span>
