@@ -15,11 +15,11 @@
                 <TableWidgetCustomMessages v-else-if="accordion.type === 'CustomMessages'" :widget-model="widgetModel"></TableWidgetCustomMessages>
                 <TableWidgetVisualizationType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel"></TableWidgetVisualizationType>
                 <TableWidgetVisibilityConditions v-else-if="accordion.type === 'VisibilityConditions'" :widget-model="widgetModel" :variables="variables"></TableWidgetVisibilityConditions>
-                <TableWidgetHeaders v-else-if="accordion.type === 'Headers'" :widget-model="widgetModel"></TableWidgetHeaders>
+                <TableWidgetHeaders v-else-if="accordion.type === 'Headers'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetHeaders>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnStyle'" :widget-model="widgetModel"></TableWidgetColumnStyle>
-                <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnGroupsStyle'" :widget-model="widgetModel" mode="columnGroups"></TableWidgetColumnStyle>
-                <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel"></WidgetRowsStyle>
+                <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetColumnStyle>
+                <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnGroupsStyle'" :widget-model="widgetModel" :theme-style="null" mode="columnGroups" @styleChanged="onStyleChanged"></TableWidgetColumnStyle>
+                <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetRowsStyle>
                 <TableWidgetSummaryStyle v-else-if="accordion.type === 'SummaryStyle'" :widget-model="widgetModel"></TableWidgetSummaryStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>

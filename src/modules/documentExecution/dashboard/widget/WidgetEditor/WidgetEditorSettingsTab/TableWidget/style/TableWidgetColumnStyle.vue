@@ -1,6 +1,8 @@
 <!-- eslint-disable vue/valid-v-model -->
 <template>
     <div v-if="columnStyles" class="p-grid p-p-4">
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="columnStyles.enabled" color="black" /> </span>
+
         <div v-for="(columnStyle, index) in columnStyles.styles" :key="index" class="dynamic-form-item p-col-12 p-grid p-ai-center">
             <div v-if="mode !== 'columnGroups'" class="p-col-12 p-grid">
                 <div class="p-col-4 p-d-flex p-flex-column kn-flex">
@@ -9,7 +11,7 @@
                 </div>
                 <div class="p-col-8 p-d-flex p-flex-column p-p-2">
                     <label class="kn-material-input-label"> {{ $t('common.verticalAlign') }}</label>
-                    <Dropdown v-model="columnStyle.properties['align-items']" class="kn-material-input" :options="descriptor.verticalAlignmentOptions" option-value="value" :disabled="columnStylesDisabled">
+                    <Dropdown v-model="columnStyle.properties['align-items']" class="kn-material-input" :options="descriptor.verticalAlignmentOptions" option-value="value" :disabled="columnStylesDisabled" @change="columnStylesChanged">
                         <template #value="slotProps">
                             <div>
                                 <span>{{ getTranslatedLabel(slotProps.value, descriptor.verticalAlignmentOptions, $t) }}</span>
@@ -39,7 +41,7 @@
                     >
                     </WidgetEditorColumnsMultiselect>
                 </div>
-                <div class="p-col-2 p-md-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
+                <div v-if="widgetModel" class="p-col-2 p-md-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
                     <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', columnStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer" @click="index === 0 ? addColumnStyle() : removeColumnStyle(index)"></i>
                 </div>
             </div>
@@ -66,7 +68,8 @@ import WidgetEditorColumnsMultiselect from '../../common/WidgetEditorColumnsMult
 export default defineComponent({
     name: 'table-widget-column-style',
     components: { Dropdown, InputNumber, WidgetEditorColumnsMultiselect, WidgetEditorStyleToolbar },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, mode: { type: String } },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ITableWidgetColumnStyles | null>, required: true }, mode: { type: String } },
+    emits: ['styleChanged'],
     data() {
         return {
             descriptor,
@@ -80,6 +83,11 @@ export default defineComponent({
     computed: {
         columnStylesDisabled() {
             return !this.columnStyles || !this.columnStyles.enabled
+        }
+    },
+    watch: {
+        columnStylesDisabled() {
+            this.columnStylesChanged()
         }
     },
     created() {
@@ -114,10 +122,13 @@ export default defineComponent({
             this.addColumnAsOption()
         },
         loadColumnStyles() {
-            this.columnStyles = this.mode === 'columnGroups' ? this.widgetModel.settings.style.columnGroups : this.widgetModel.settings.style.columns
-            this.removeColumnsFromAvailableOptions()
+            if (this.widgetModel) {
+                this.columnStyles = this.mode === 'columnGroups' ? this.widgetModel.settings.style.columnGroups : this.widgetModel.settings.style.columns
+                this.removeColumnsFromAvailableOptions()
+            } else if (this.themeStyle) this.columnStyles = this.themeStyle
         },
         loadColumnOptions() {
+            if (!this.widgetModel) return
             this.availableColumnOptions =
                 this.mode === 'columnGroups'
                     ? this.widgetModel.settings.configuration.columnGroups.groups?.map((columnGroup: ITableWidgetColumnGroup) => {
@@ -126,17 +137,20 @@ export default defineComponent({
                     : [...this.widgetModel.columns]
         },
         columnStylesChanged() {
+            if (!this.widgetModel) return
             const event = this.mode === 'columnGroups' ? 'columnGroupStylesChanged' : 'columnStylesChanged'
             emitter.emit(event, this.columnStyles)
-            emitter.emit('refreshTable', this.widgetModel.id)
+            this.$emit('styleChanged')
         },
         loadWidgetColumnMaps() {
+            if (!this.widgetModel) return
             const array = this.mode === 'columnGroups' ? this.widgetModel.settings.configuration.columnGroups.groups : this.widgetModel.columns
             array.forEach((column: IWidgetColumn | ITableWidgetColumnGroup) => {
                 if (column.id) this.widgetColumnsAliasMap[column.id] = this.mode === 'columnGroups' ? (column as ITableWidgetColumnGroup).label : (column as IWidgetColumn).alias
             })
         },
         removeColumnsFromAvailableOptions() {
+            if (!this.widgetModel) return
             const array = this.mode === 'columnGroups' ? this.widgetModel.settings.style.columnGroups.styles : this.widgetModel.settings.style.columns.styles
             for (let i = 1; i < array.length; i++) {
                 for (let j = 0; j < array[i].target.length; j++) {
@@ -201,10 +215,10 @@ export default defineComponent({
             this.columnStylesChanged()
         },
         addColumnAsOption() {
-            this.reloadModel()
+            if (this.widgetModel) this.reloadModel()
         },
         onColumnRemoved() {
-            this.reloadModel()
+            if (this.widgetModel) this.reloadModel()
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, columnStyle: ITableWidgetColumnStyle) {
             ;(columnStyle.properties['background-color'] = model['background-color'] ?? 'rgb(0, 0, 0)'),
@@ -222,11 +236,12 @@ export default defineComponent({
             this.loadWidgetColumnMaps()
         },
         updateColumnAliases() {
-            setTimeout(() => {
-                this.loadColumnOptions()
-                this.loadColumnStyles()
-                this.loadWidgetColumnMaps()
-            }, 1000)
+            if (this.widgetModel)
+                setTimeout(() => {
+                    this.loadColumnOptions()
+                    this.loadColumnStyles()
+                    this.loadWidgetColumnMaps()
+                }, 1000)
         }
     }
 })

@@ -14,16 +14,15 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetHeadersStyle, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
 import settingsDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
+
 export default defineComponent({
     name: 'table-widget-headers',
     components: { InputNumber, WidgetEditorStyleToolbar },
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ITableWidgetHeadersStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             settingsDescriptor,
@@ -36,12 +35,10 @@ export default defineComponent({
     methods: {
         loadHeaderModel() {
             if (this.widgetModel?.settings?.style?.headers) this.headersStyleModel = this.widgetModel.settings.style.headers
+            else if (this.themeStyle) this.headersStyleModel = this.themeStyle
         },
         headersStyleChanged() {
-            setTimeout(() => {
-                emitter.emit('headersStyleChanged', this.headersStyleModel)
-                emitter.emit('refreshTable', this.widgetModel.id)
-            }, 0)
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.headersStyleModel) return
