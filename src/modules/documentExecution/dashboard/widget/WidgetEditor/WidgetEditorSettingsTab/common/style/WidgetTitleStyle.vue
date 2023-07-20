@@ -1,5 +1,4 @@
 <template>
-    {{ themeStyle }}
     <div v-if="titleStyleModel" class="p-ai-center kn-flex p-p-4">
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" color="black" /> </span>
 
@@ -34,8 +33,7 @@ export default defineComponent({
     props: {
         widgetModel: { type: Object as PropType<IWidget | null>, required: true },
         themeStyle: { type: Object as PropType<IWidgetTitle | null>, required: true },
-        toolbarStyleSettings: { type: Array, required: true },
-        themeManagerMode: { default: false, type: Boolean }
+        toolbarStyleSettings: { type: Array, required: true }
     },
     emits: ['styleChanged'],
     data() {
