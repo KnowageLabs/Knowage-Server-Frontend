@@ -23,7 +23,7 @@
                         <WidgetBackgroundColorStyle v-else-if="prop.node.key.includes('background-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.background" class="no-padding" />
                         <TableWidgetHeaders v-else-if="prop.node.key.includes('headers-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.headers" class="no-padding" />
                         <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columns-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columns" class="no-padding" />
-                        <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columnGroups-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columnGroups" class="no-padding" />
+                        <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columnGroups-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columnGroups" :mode="'columnGroups'" class="no-padding" />
                         <WidgetRowsStyle v-else-if="prop.node.key.includes('rows-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.rows" class="no-padding" />
                     </div>
                 </template>
