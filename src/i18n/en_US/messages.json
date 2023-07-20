@@ -2195,8 +2195,14 @@
             "styleTypes": {
                 "background": "Background",
                 "borders": "Borders",
+                "columnGroups": "Column Groups",
+                "columns": "Columns",
+                "headers": "Headers",
                 "padding": "Padding",
+                "paginator": "Paginator",
+                "rows": "Rows",
                 "shadows": "Shadows",
+                "summary": "Summary",
                 "title": "Title"
             },
             "widgetNames": {
