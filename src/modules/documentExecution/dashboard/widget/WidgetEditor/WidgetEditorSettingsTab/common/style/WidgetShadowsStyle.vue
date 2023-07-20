@@ -57,11 +57,6 @@ export default defineComponent({
             return !this.shadowsStyleModel || !this.shadowsStyleModel.enabled
         }
     },
-    watch: {
-        shadowsStyleDisabled() {
-            this.shadowStyleChanged()
-        }
-    },
     created() {
         this.loadShadowsStyle()
     },

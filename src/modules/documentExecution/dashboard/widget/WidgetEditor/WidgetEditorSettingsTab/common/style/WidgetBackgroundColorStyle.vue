@@ -36,11 +36,6 @@ export default defineComponent({
             return !this.backgroundStyleModel || !this.backgroundStyleModel.enabled
         }
     },
-    watch: {
-        backgroundStyleDisabled() {
-            this.backgroundColorStyleChanged()
-        }
-    },
     created() {
         this.loadBackgroundColor()
     },

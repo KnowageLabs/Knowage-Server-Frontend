@@ -51,15 +51,14 @@ export default defineComponent({
             if (this.widgetModel) this.$emit('styleChanged')
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
-            this.summaryStyleModel = {
-                'background-color': model['background-color'] ?? '',
-                color: model.color ?? '',
-                'justify-content': model['justify-content'] ?? '',
-                'font-size': model['font-size'] ?? '14px',
-                'font-family': model['font-family'] ?? '',
-                'font-style': model['font-style'] ?? '',
-                'font-weight': model['font-weight'] ?? ''
-            }
+            if (!this.summaryStyleModel) return
+            this.summaryStyleModel['background-color'] = model['background-color'] ?? ''
+            this.summaryStyleModel.color = model.color ?? ''
+            this.summaryStyleModel['justify-content'] = model['justify-content'] ?? ''
+            this.summaryStyleModel['font-size'] = model['font-size'] ?? ''
+            this.summaryStyleModel['font-family'] = model['font-family'] ?? ''
+            this.summaryStyleModel['font-style'] = model['font-style'] ?? ''
+            this.summaryStyleModel['font-weight'] = model['font-weight'] ?? ''
             if (this.model) this.model.settings.style.summary = this.summaryStyleModel
             this.summaryStyleChanged()
         }

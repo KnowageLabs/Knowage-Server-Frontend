@@ -16,6 +16,7 @@ export default defineComponent({
     name: 'widget-editor-theme-picker',
     components: { Dropdown },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, styleChangedFlag: { type: Boolean, required: true } },
+    emits: ['themeSelected'],
     data() {
         return {
             widget: null as IWidget | null,
@@ -42,6 +43,7 @@ export default defineComponent({
         },
         onThemeSelected(themeName: string) {
             console.log('----------- THEME SELECTED: ', themeName)
+            this.$emit('themeSelected', themeName)
         }
     }
 })

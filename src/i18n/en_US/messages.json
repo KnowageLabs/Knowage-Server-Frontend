@@ -1134,6 +1134,7 @@
                 "wordPadding": "Word Padding"
             },
             "textParsingError": "Text Parsing Error",
+            "themeChangedWarning": "By changing one of the theme properties the connection to the theme is no longer active. If you want to inherit future theme changes select one of the available themes.",
             "thresholds": "Thresholds",
             "title": "Widget Editor",
             "titles": {
