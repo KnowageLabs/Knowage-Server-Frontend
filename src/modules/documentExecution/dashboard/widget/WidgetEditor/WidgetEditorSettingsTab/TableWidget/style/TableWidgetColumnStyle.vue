@@ -140,11 +140,11 @@ export default defineComponent({
                       })
                     : [...this.widgetModel.columns]
         },
-        columnStylesChanged() {
+        columnStylesChanged(index: number | null = null) {
             if (!this.widgetModel) return
             const event = this.mode === 'columnGroups' ? 'columnGroupStylesChanged' : 'columnStylesChanged'
             emitter.emit(event, this.columnStyles)
-            this.$emit('styleChanged')
+            if (!index || index === 0) this.$emit('styleChanged')
         },
         loadWidgetColumnMaps() {
             if (!this.widgetModel) return
@@ -169,12 +169,12 @@ export default defineComponent({
             const index = this.availableColumnOptions.findIndex((targetOption: IWidgetColumn | ITableWidgetColumnGroup | { id: string; alias: string }) => targetOption.id === tempColumn.id)
             if (index !== -1) this.availableColumnOptions.splice(index, 1)
         },
-        onColumnsSelected(event: any, columnStyle: ITableWidgetColumnStyle) {
+        onColumnsSelected(event: any, columnStyle: ITableWidgetColumnStyle, index: number | null = null) {
             const intersection = (columnStyle.target as string[]).filter((el: string) => !event.value.includes(el))
             columnStyle.target = event.value
 
             intersection.length > 0 ? this.onColumnsRemovedFromMultiselect(intersection) : this.onColumnsAddedFromMultiselect(columnStyle)
-            this.columnStylesChanged()
+            this.columnStylesChanged(index)
         },
         onColumnsAddedFromMultiselect(columnStyle: ITableWidgetColumnStyle) {
             ;(columnStyle.target as string[]).forEach((target: string) => {
@@ -224,7 +224,7 @@ export default defineComponent({
         onColumnRemoved() {
             if (this.widgetModel) this.reloadModel()
         },
-        onStyleToolbarChange(model: IWidgetStyleToolbarModel, columnStyle: ITableWidgetColumnStyle) {
+        onStyleToolbarChange(model: IWidgetStyleToolbarModel, columnStyle: ITableWidgetColumnStyle, index: number | null = null) {
             ;(columnStyle.properties['background-color'] = model['background-color'] ?? 'rgb(0, 0, 0)'),
                 (columnStyle.properties.color = model.color ?? 'rgb(255, 255, 255)'),
                 (columnStyle.properties['justify-content'] = model['justify-content'] ?? 'center'),
@@ -232,7 +232,7 @@ export default defineComponent({
                 (columnStyle.properties['font-family'] = model['font-family'] ?? ''),
                 (columnStyle.properties['font-style'] = model['font-style'] ?? 'normal'),
                 (columnStyle.properties['font-weight'] = model['font-weight'] ?? '')
-            this.columnStylesChanged()
+            this.columnStylesChanged(index)
         },
         reloadModel() {
             this.loadColumnOptions()

@@ -9,26 +9,25 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetSummaryStyle, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
 import settingsDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'table-widget-summary-style',
     components: { WidgetEditorStyleToolbar },
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ITableWidgetSummaryStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             settingsDescriptor,
-            model: {} as IWidget,
+            model: {} as IWidget | null,
             summaryStyleModel: null as ITableWidgetSummaryStyle | null
         }
     },
     computed: {
         summaryStyleDisabled() {
-            return !this.model.settings?.configuration?.summaryRows?.enabled
+            if (this.themeStyle) return false
+            return !this.model || !this.model.settings?.configuration?.summaryRows?.enabled
         }
     },
     watch: {
@@ -45,11 +44,11 @@ export default defineComponent({
             this.model = this.widgetModel
         },
         loadSummaryRowsStyle() {
-            if (this.model?.settings?.style?.summary) this.summaryStyleModel = this.model.settings.style.summary
+            if (this.widgetModel?.settings?.style?.summary) this.summaryStyleModel = this.widgetModel.settings.style.summary
+            else if (this.themeStyle) this.summaryStyleModel = this.themeStyle
         },
         summaryStyleChanged() {
-            emitter.emit('summaryStyleChanged', this.summaryStyleModel)
-            emitter.emit('refreshTable', this.model.id)
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             this.summaryStyleModel = {
@@ -61,7 +60,7 @@ export default defineComponent({
                 'font-style': model['font-style'] ?? '',
                 'font-weight': model['font-weight'] ?? ''
             }
-            this.model.settings.style.summary = this.summaryStyleModel
+            if (this.model) this.model.settings.style.summary = this.summaryStyleModel
             this.summaryStyleChanged()
         }
     }
