@@ -21,6 +21,7 @@ export const createNewChartJSSettings = () => {
         },
         chart: { colors: descriptor.defaultColors },
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
@@ -32,11 +33,6 @@ export const createNewChartJSSettings = () => {
     settings.chartModel = null
     return settings
 }
-
-// export const formatChartJSWidget = (widget: IWidget) => {
-//     let chartJSType = widget.settings.
-//     widget.settings.chartModel = new KnowageChartJSPieChart(widget.settings.chartModel.model ?? widget.settings.chartModel)
-// }
 
 export const formatChartJSWidget = (widget: IWidget) => {
     const chartModel = widget.settings.chartModel.model ?? widget.settings.chartModel

@@ -144,6 +144,7 @@ export interface IVegaChartsTooltipSettings {
 }
 
 export interface IVegaChartsStyle {
+    themeName: string
     title: IWidgetTitle,
     padding: IWidgetPaddingStyle,
     borders: IWidgetBordersStyle,

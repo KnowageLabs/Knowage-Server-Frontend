@@ -37,6 +37,7 @@ export const createNewHighchartsSettings = () => {
         },
         chart: { colors: descriptor.defaultColors },
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

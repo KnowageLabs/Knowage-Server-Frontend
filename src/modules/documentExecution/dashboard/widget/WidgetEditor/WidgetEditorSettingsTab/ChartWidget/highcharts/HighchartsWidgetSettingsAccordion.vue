@@ -1,10 +1,11 @@
 <template>
     <div v-show="widgetModel">
-        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag"></WidgetEditorThemePicker>
+        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in filteredSettings" :key="index">
                 <template #header>
-                    <HighchartsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></HighchartsWidgetSettingsAccordionHeader>
+                    <HighchartsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></HighchartsWidgetSettingsAccordionHeader>
                 </template>
 
                 <Highcharts3DConfiguration v-if="accordion.type === 'ConfigurationOf3D'" :widget-model="widgetModel"></Highcharts3DConfiguration>
@@ -26,7 +27,6 @@
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel"></WidgetRowsStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :theme-style="null" :widget-model="widgetModel" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
@@ -67,7 +67,6 @@ import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import settingsTabDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../../common/configuration/WidgetExport.vue'
-import WidgetRowsStyle from '../../common/style/WidgetRowsStyle.vue'
 import WidgetBordersStyle from '../../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../../common/responsive/WidgetResponsive.vue'
@@ -109,6 +108,7 @@ import HighchartsStackingSettings from './configuration/HighchartsStackingSettin
 import HighchartsAxisLinesSettings from './configuration/HighchartsAxisLinesSettings.vue'
 import HighchartsSVGSettings from './configuration/HighchartsSVGSettings.vue'
 import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.vue'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -117,7 +117,6 @@ export default defineComponent({
         AccordionTab,
         WidgetExport,
         WidgetTitleStyle,
-        WidgetRowsStyle,
         WidgetBordersStyle,
         WidgetShadowsStyle,
         WidgetResponsive,
@@ -157,7 +156,8 @@ export default defineComponent({
         HighchartsCenterTextSettings,
         HighchartsAxisLinesSettings,
         HighchartsSVGSettings,
-        WidgetEditorThemePicker
+        WidgetEditorThemePicker,
+        Message
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -173,7 +173,9 @@ export default defineComponent({
             settingsTabDescriptor,
             filteredSettings: [] as { title: string; type: string }[],
             activeIndex: -1,
-            styleChangedFlag: false
+            styleChangedFlag: false,
+            themePropertyChanged: false,
+            themeName: ''
         }
     },
     computed: {
@@ -212,6 +214,11 @@ export default defineComponent({
         },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag
+            this.themePropertyChanged = true
+        },
+        onThemeSelected(themeName: string) {
+            this.themeName = themeName
+            this.themePropertyChanged = false
         }
     }
 })

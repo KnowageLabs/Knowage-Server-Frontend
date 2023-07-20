@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'highcharts-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any,
@@ -93,6 +94,14 @@ export default defineComponent({
                 case 'Tooltip':
                 case 'ActivityGaugeTooltip':
                     setTimeout(() => emitter.emit('refreshChart', this.widgetModel.id), 250)
+                    break
+                case 'Header':
+                case 'Title':
+                case 'BackgroundColorStyle':
+                case 'BordersStyle':
+                case 'PaddingStyle':
+                case 'ShadowsStyle':
+                    this.$emit('styleChanged')
             }
         }
     }

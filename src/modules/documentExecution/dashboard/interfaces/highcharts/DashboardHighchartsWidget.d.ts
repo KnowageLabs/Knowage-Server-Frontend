@@ -73,6 +73,7 @@ export interface IHighchartsSerieLabelSettings {
 }
 
 export interface IHighchartsWidgetStyle {
+    themeName: string
     title: IWidgetTitle,
     padding: IWidgetPaddingStyle,
     borders: IWidgetBordersStyle,
