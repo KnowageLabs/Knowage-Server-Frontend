@@ -197,6 +197,7 @@ export interface IMapTooltipSettings {
 }
 
 export interface IMapWidgetStyle {
+    themeName: string
     title: IWidgetTitle
     borders: IWidgetBordersStyle
     background: IWidgetBackgroundStyle

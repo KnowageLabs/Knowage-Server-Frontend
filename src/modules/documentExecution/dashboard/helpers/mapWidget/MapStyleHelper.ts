@@ -3,6 +3,7 @@ import { getFormattedTitleStyle, getFormattedBorderStyle, getFormattedBackground
 
 export const getFormattedStyle = (widget: any) => {
     return {
+        themeName: '',
         title: getFormattedTitleStyle(widget),
         borders: getFormattedBorderStyle(widget),
         background: getFormattedBackgroundStyle(widget),
