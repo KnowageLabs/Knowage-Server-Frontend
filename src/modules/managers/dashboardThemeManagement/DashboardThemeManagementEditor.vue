@@ -16,7 +16,8 @@
 
                         <!-- {{ selectedTheme.config[prop.node.widgetType]}} -->
                         <!-- OVO JE LOKACIJA STILA U selectedTheme OBJEKTU! -->
-                        <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.title" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" style="padding: 0 !important" />
+                        <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.title" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" class="no-padding" />
+                        <WidgetBordersStyle v-else-if="prop.node.key.includes('borders-editor')" :widget-model="test" theme-manager-mode class="no-padding" />
                     </div>
                 </template>
             </q-tree>
@@ -28,11 +29,12 @@
 import { defineComponent } from 'vue'
 import descriptor from './DashboardThemeManagementEditorDescriptor.json'
 import WidgetTitleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetTitleStyle.vue'
+import WidgetBordersStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetBordersStyle.vue'
 import { IDashboardThemeConfig } from './DashboardThememanagement'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetTitleStyle },
+    components: { WidgetTitleStyle, WidgetBordersStyle },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {
@@ -99,5 +101,8 @@ export default defineComponent({
 <style lang="scss">
 .q-tree__node.relative-position.q-tree__node--child {
     padding-left: 0;
+}
+.no-padding {
+    padding: 0 !important;
 }
 </style>

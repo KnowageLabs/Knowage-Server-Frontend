@@ -1,7 +1,7 @@
 <template>
     {{ themeStyle }}
     <div v-if="titleStyleModel" class="p-ai-center kn-flex p-p-4">
-        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" /> </span>
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" color="black" /> </span>
 
         <form class="p-fluid p-formgrid p-grid">
             <div class="p-field p-col-12 p-lg-8">
@@ -34,7 +34,8 @@ export default defineComponent({
     props: {
         widgetModel: { type: Object as PropType<IWidget | null>, required: true },
         themeStyle: { type: Object as PropType<IWidgetTitle | null>, required: true },
-        toolbarStyleSettings: { type: Array, required: true }
+        toolbarStyleSettings: { type: Array, required: true },
+        themeManagerMode: { default: false, type: Boolean }
     },
     emits: ['styleChanged'],
     data() {
