@@ -46,11 +46,6 @@ export default defineComponent({
             return !this.titleStyleModel || !this.titleStyleModel.enabled
         }
     },
-    watch: {
-        titleStyleDisabled() {
-            this.titleStyleChanged()
-        }
-    },
     created() {
         this.loadTitleStyleModel()
     },

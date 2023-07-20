@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'table-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -78,11 +79,13 @@ export default defineComponent({
                 case 'SummaryRows':
                     setTimeout(() => emitter.emit('refreshWidgetWithData', this.widgetModel.id), 250)
                     break
-                case 'Header':
-                case 'ColumnGroups':
                 case 'VisualizationType':
                 case 'VisibilityConditions':
+                case 'ColumnGroups':
                 case 'Conditions':
+                    setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
+                    break
+                case 'Header':
                 case 'Title':
                 case 'ColumnStyle':
                 case 'ColumnGroupsStyle':
@@ -90,6 +93,7 @@ export default defineComponent({
                 case 'BordersStyle':
                 case 'PaddingStyle':
                 case 'ShadowsStyle':
+                    this.$emit('styleChanged')
                     setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
             }
         }

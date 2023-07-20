@@ -94,11 +94,6 @@ export default defineComponent({
             return !this.bordersStyleModel || !this.bordersStyleModel.enabled
         }
     },
-    watch: {
-        bordersStyleDisabled() {
-            this.bordersStyleChanged()
-        }
-    },
     created() {
         this.loadBordersStyle()
     },

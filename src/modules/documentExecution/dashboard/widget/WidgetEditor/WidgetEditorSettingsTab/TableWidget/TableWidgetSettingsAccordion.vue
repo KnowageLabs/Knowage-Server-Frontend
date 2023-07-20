@@ -1,10 +1,11 @@
 <template>
     <div v-show="widgetModel">
-        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag"></WidgetEditorThemePicker>
+        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
-                    <TableWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></TableWidgetSettingsAccordionHeader>
+                    <TableWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></TableWidgetSettingsAccordionHeader>
                 </template>
 
                 <TableWidgetRows v-if="accordion.type === 'Rows'" :widget-model="widgetModel"></TableWidgetRows>
@@ -74,6 +75,7 @@ import TableWidgetSettingsAccordionHeader from './TableWidgetSettingsAccordionHe
 import TableWidgetPaginator from './style/TableWidgetPaginator.vue'
 import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'table-widget-configuration-container',
@@ -107,7 +109,8 @@ export default defineComponent({
         TableWidgetSettingsAccordionHeader,
         TableWidgetPaginator,
         WidgetInteractionsIframe,
-        WidgetEditorThemePicker
+        WidgetEditorThemePicker,
+        Message
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -122,7 +125,9 @@ export default defineComponent({
             descriptor,
             settingsTabDescriptor,
             activeIndex: -1,
-            styleChangedFlag: false
+            styleChangedFlag: false,
+            themePropertyChanged: false,
+            themeName: ''
         }
     },
     computed: {
@@ -146,6 +151,12 @@ export default defineComponent({
         onStyleChanged() {
             console.log('--------- TODO - STYLE CHANGED FLAG CALLED!')
             this.styleChangedFlag = !this.styleChangedFlag
+            this.themePropertyChanged = true
+        },
+        onThemeSelected(themeName: string) {
+            console.log('------- THEME SELECTED!')
+            this.themeName = themeName
+            this.themePropertyChanged = false
         }
     }
 })

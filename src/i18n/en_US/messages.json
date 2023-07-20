@@ -458,11 +458,11 @@
             "background": "Background",
             "blur": "Blur",
             "borders": {
+                "borderRadius": "Border Radius",
                 "borderRadiusBottomLeft": "Bottom left",
                 "borderRadiusBottomRight": "Bottom right",
                 "borderRadiusTopLeft": "Top left",
                 "borderRadiusTopRight": "Top right",
-                "borderRadius": "Border Radius",
                 "bordersColor": "Borders Color",
                 "bordersStyle": "Borders Style",
                 "bordersThickness": "Borders Thickness",
@@ -1134,6 +1134,7 @@
                 "wordPadding": "Word Padding"
             },
             "textParsingError": "Text Parsing Error",
+            "themeChangedWarning": "By changing one of the theme properties the connection to the theme is no longer active. If you want to inherit future theme changes select one of the available themes.",
             "thresholds": "Thresholds",
             "title": "Widget Editor",
             "titles": {

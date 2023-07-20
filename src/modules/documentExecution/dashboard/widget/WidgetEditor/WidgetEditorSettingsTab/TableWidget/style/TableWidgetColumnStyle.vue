@@ -85,11 +85,6 @@ export default defineComponent({
             return !this.columnStyles || !this.columnStyles.enabled
         }
     },
-    watch: {
-        columnStylesDisabled() {
-            this.columnStylesChanged()
-        }
-    },
     created() {
         this.setEventListeners()
         this.loadColumnOptions()

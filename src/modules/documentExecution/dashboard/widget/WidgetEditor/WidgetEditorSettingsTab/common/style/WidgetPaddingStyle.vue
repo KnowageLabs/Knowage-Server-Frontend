@@ -59,11 +59,6 @@ export default defineComponent({
             return !this.paddingStyleModel || !this.paddingStyleModel.enabled
         }
     },
-    watch: {
-        paddingStyleDisabled() {
-            this.paddingStyleChanged()
-        }
-    },
     created() {
         this.loadPaddingStyle()
     },
