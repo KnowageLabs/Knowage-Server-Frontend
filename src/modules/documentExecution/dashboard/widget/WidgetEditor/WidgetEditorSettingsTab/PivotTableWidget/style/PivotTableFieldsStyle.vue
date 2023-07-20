@@ -168,7 +168,6 @@ export default defineComponent({
             this.loadWidgetFieldMaps()
         },
         pivotTableFieldsStyleChanged(index: number | null = null) {
-            console.log('------- INDEX" ', index)
             if (this.widgetModel && (!index || index === 0)) this.$emit('styleChanged')
         }
     }
