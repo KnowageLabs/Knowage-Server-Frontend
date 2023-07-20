@@ -458,11 +458,11 @@
             "background": "Background",
             "blur": "Blur",
             "borders": {
+                "borderRadius": "Border Radius",
                 "borderRadiusBottomLeft": "Bottom left",
                 "borderRadiusBottomRight": "Bottom right",
                 "borderRadiusTopLeft": "Top left",
                 "borderRadiusTopRight": "Top right",
-                "borderRadius": "Border Radius",
                 "bordersColor": "Borders Color",
                 "bordersStyle": "Borders Style",
                 "bordersThickness": "Borders Thickness",
@@ -2194,8 +2194,14 @@
             "styleTypes": {
                 "background": "Background",
                 "borders": "Borders",
+                "columnGroups": "Column Groups",
+                "columns": "Columns",
+                "headers": "Headers",
                 "padding": "Padding",
+                "paginator": "Paginator",
+                "rows": "Rows",
                 "shadows": "Shadows",
+                "summary": "Summary",
                 "title": "Title"
             },
             "widgetNames": {
