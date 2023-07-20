@@ -13,6 +13,7 @@ export const createNewSelectionsWidgetSettings = () => {
             exports: { showExcelExport: true }
         },
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             chips: selectionsWidgetDefaultValues.getDefaultChipsStyle(),
             rows: selectionsWidgetDefaultValues.getDefaultRowsStyle(),

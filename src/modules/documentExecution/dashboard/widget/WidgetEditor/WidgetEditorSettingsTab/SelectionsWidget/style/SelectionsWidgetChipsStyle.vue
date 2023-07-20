@@ -15,7 +15,6 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { ISelectionWidgetChipsStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget'
-import { emitter } from '../../../../../DashboardHelpers'
 import descriptor from '../SelectionsWidgetSettingsDescriptor.json'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
@@ -23,7 +22,8 @@ import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyl
 export default defineComponent({
     name: 'selections-widget-chips-style',
     components: { InputNumber, WidgetEditorStyleToolbar },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ISelectionWidgetChipsStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             descriptor,
@@ -32,6 +32,7 @@ export default defineComponent({
     },
     computed: {
         chipsStyleDisabled() {
+            if (this.themeStyle) return false
             return !this.widgetModel || this.widgetModel.settings.configuration.type !== 'chips'
         }
     },
@@ -40,23 +41,21 @@ export default defineComponent({
     },
     methods: {
         loadChipsStyleModel() {
-            if (this.widgetModel.settings?.style?.chips) this.chipsStyleModel = this.widgetModel.settings.style.chips
+            if (this.widgetModel?.settings?.style?.chips) this.chipsStyleModel = this.widgetModel.settings.style.chips
+            else if (this.themeStyle) this.chipsStyleModel = this.themeStyle
         },
         chipsStyleChanged() {
-            emitter.emit('chipsStyleChanged', this.chipsStyleModel)
-            emitter.emit('refreshSelection', this.widgetModel.id)
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.chipsStyleModel) return
-            this.chipsStyleModel.properties = {
-                'background-color': model['background-color'] ?? 'rgb(137, 158, 175)',
-                color: model.color ?? 'rgb(255, 255, 255)',
-                'justify-content': model['justify-content'] ?? 'center',
-                'font-size': model['font-size'] ?? '14px',
-                'font-family': model['font-family'] ?? '',
-                'font-style': model['font-style'] ?? 'normal',
-                'font-weight': model['font-weight'] ?? ''
-            }
+            this.chipsStyleModel.properties['background-color'] = model['background-color'] ?? 'rgb(137, 158, 175)'
+            this.chipsStyleModel.properties.color = model.color ?? 'rgb(255, 255, 255)'
+            this.chipsStyleModel.properties['justify-content'] = model['justify-content'] ?? 'center'
+            ;(this.chipsStyleModel.properties['font-size'] = model['font-size'] ?? '14px'),
+                (this.chipsStyleModel.properties['font-family'] = model['font-family'] ?? ''),
+                (this.chipsStyleModel.properties['font-style'] = model['font-style'] ?? 'normal'),
+                (this.chipsStyleModel.properties['font-weight'] = model['font-weight'] ?? '')
             this.chipsStyleChanged()
         }
     }

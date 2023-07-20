@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'selections-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -53,6 +54,7 @@ export default defineComponent({
         },
         onModelChange() {
             if (this.type) this.refreshSelections()
+            if (this.type !== 'NoSelections') this.$emit('styleChanged')
         },
         refreshSelections() {
             setTimeout(() => emitter.emit('refreshSelections', this.widgetModel.id), 250)

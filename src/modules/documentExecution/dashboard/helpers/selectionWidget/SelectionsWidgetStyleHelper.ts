@@ -5,6 +5,7 @@ import * as selectionsWidgetDefaultValues from '../../widget/WidgetEditor/helper
 
 export const getFormattedStyle = (widget: any) => {
     return {
+        themeName: '',
         title: getFormattedTitleStyle(widget),
         chips: getFormattedChipsStyle(widget),
         rows: getFormattedRowsStyle(widget),

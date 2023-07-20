@@ -1,18 +1,19 @@
 <template>
     <div v-show="widgetModel">
-        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag"></WidgetEditorThemePicker>
+        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="selectorAccordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index" :disabled="accordionIsDisabled(accordion.type)">
                 <template #header>
-                    <SelectionsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></SelectionsWidgetSettingsAccordionHeader>
+                    <SelectionsWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectionsWidgetSettingsAccordionHeader>
                 </template>
                 <SelectorWidgetType v-if="accordion.type === 'SelectorType'" :widget-model="widgetModel"></SelectorWidgetType>
                 <SelectionsWidgetValuesManagement v-if="accordion.type === 'ValuesManagement'" :widget-model="widgetModel"></SelectionsWidgetValuesManagement>
                 <SelectionsNoSelectionConfiguration v-else-if="accordion.type === 'NoSelections'" :widget-model="widgetModel"></SelectionsNoSelectionConfiguration>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
-                <SelectionsWidgetChipsStyle v-else-if="accordion.type === 'ChipsStyle'" :widget-model="widgetModel"></SelectionsWidgetChipsStyle>
-                <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel"></WidgetRowsStyle>
+                <SelectionsWidgetChipsStyle v-else-if="accordion.type === 'ChipsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectionsWidgetChipsStyle>
+                <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetRowsStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
@@ -44,6 +45,7 @@ import WidgetShadowsStyle from '../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
 import SelectionsWidgetSettingsAccordionHeader from './SelectionsWidgetSettingsAccordionHeader.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'selections-widget-settings-container',
@@ -63,7 +65,8 @@ export default defineComponent({
         WidgetShadowsStyle,
         WidgetResponsive,
         SelectionsWidgetSettingsAccordionHeader,
-        WidgetEditorThemePicker
+        WidgetEditorThemePicker,
+        Message
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -78,7 +81,9 @@ export default defineComponent({
             descriptor,
             settingsTabDescriptor,
             activeIndex: -1,
-            styleChangedFlag: false
+            styleChangedFlag: false,
+            themePropertyChanged: false,
+            themeName: ''
         }
     },
     computed: {
@@ -107,6 +112,11 @@ export default defineComponent({
         },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag
+            this.themePropertyChanged = true
+        },
+        onThemeSelected(themeName: string) {
+            this.themeName = themeName
+            this.themePropertyChanged = false
         }
     }
 })

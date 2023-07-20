@@ -1,4 +1,4 @@
-import { IWidgetBackgroundStyle, IWidgetResponsive, IWidgetRowsStyle, IWidgetTitle } from '../Dashboard'
+import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetPaddingStyle, IWidgetResponsive, IWidgetRowsStyle, IWidgetShadowsStyle, IWidgetTitle } from '../Dashboard'
 
 export interface ISelectionsWidgetSettings {
     updatable: boolean,
@@ -26,6 +26,7 @@ export interface ISelectionsWidgetNoSelections {
 }
 
 export interface ISelectionWidgetStyle {
+    themeName: string
     title: IWidgetTitle,
     chips: ISelectionWidgetChipsStyle,
     rows: IWidgetRowsStyle,
