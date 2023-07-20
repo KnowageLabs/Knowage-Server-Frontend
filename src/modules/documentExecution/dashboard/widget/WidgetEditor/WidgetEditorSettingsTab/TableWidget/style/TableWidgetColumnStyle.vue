@@ -1,6 +1,8 @@
 <!-- eslint-disable vue/valid-v-model -->
 <template>
     <div v-if="columnStyles" class="p-grid p-p-4">
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="columnStyles.enabled" color="black" /> </span>
+
         <div v-for="(columnStyle, index) in columnStyles.styles" :key="index" class="dynamic-form-item p-col-12 p-grid p-ai-center">
             <div v-if="mode !== 'columnGroups'" class="p-col-12 p-grid">
                 <div class="p-col-4 p-d-flex p-flex-column kn-flex">

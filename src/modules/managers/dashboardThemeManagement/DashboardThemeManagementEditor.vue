@@ -24,6 +24,7 @@
                         <TableWidgetHeaders v-else-if="prop.node.key.includes('headers-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.headers" class="no-padding" />
                         <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columns-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columns" class="no-padding" />
                         <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columnGroups-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columnGroups" class="no-padding" />
+                        <WidgetRowsStyle v-else-if="prop.node.key.includes('rows-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.rows" class="no-padding" />
                     </div>
                 </template>
             </q-tree>
@@ -42,10 +43,11 @@ import WidgetShadowsStyle from '@/modules/documentExecution/dashboard/widget/Wid
 import WidgetBackgroundColorStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetBackgroundColorStyle.vue'
 import TableWidgetHeaders from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetHeaders.vue'
 import TableWidgetColumnStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetColumnStyle.vue'
+import WidgetRowsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetRowsStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle, TableWidgetHeaders, TableWidgetColumnStyle },
+    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle, TableWidgetHeaders, TableWidgetColumnStyle, WidgetRowsStyle },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {

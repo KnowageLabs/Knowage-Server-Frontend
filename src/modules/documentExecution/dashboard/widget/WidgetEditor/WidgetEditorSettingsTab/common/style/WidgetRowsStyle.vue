@@ -23,7 +23,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetRowsStyle } from '@/modules/documentExecution/dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
 import InputNumber from 'primevue/inputnumber'
 import InputSwitch from 'primevue/inputswitch'
 import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
@@ -31,9 +30,8 @@ import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
 export default defineComponent({
     name: 'widget-rows-style',
     components: { InputNumber, InputSwitch, WidgetEditorColorPicker },
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetRowsStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             rowsStyleModel: null as IWidgetRowsStyle | null,
@@ -45,20 +43,11 @@ export default defineComponent({
     },
     methods: {
         loadRowsModel() {
-            if (!this.widgetModel) return
-            this.widgetType = this.widgetModel.type
-            if (this.widgetModel.settings?.style?.rows) this.rowsStyleModel = this.widgetModel.settings.style.rows
+            if (this.widgetModel?.settings?.style?.rows) this.rowsStyleModel = this.widgetModel.settings.style.rows
+            else if (this.themeStyle) this.rowsStyleModel = this.themeStyle
         },
         rowsStyleChanged() {
-            emitter.emit('rowsStyleChanged', this.rowsStyleModel)
-            switch (this.widgetType) {
-                case 'table':
-                case 'discovery':
-                    emitter.emit('refreshTable', this.widgetModel.id)
-                    break
-                case 'selection':
-                    emitter.emit('refreshSelection', this.widgetModel.id)
-            }
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onBackroundColorChanged(event: string | null, type: 'even' | 'odd') {
             if (!event || !this.rowsStyleModel) return
