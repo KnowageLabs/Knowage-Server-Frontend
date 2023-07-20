@@ -14,7 +14,7 @@
                         <!-- {{ prop.node }} -->
                         <!-- <br /> -->
 
-                        <!-- {{ selectedTheme.config[prop.node.widgetType].style.columns }} -->
+                        <!-- {{ selectedTheme.config[prop.node.widgetType].style.summary }} -->
                         <!-- Zakomentarisi ovo iznad ako ti smeta -->
                         <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.title" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" class="no-padding" />
                         <WidgetBordersStyle v-else-if="prop.node.key.includes('borders-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.borders" class="no-padding" />
@@ -25,6 +25,8 @@
                         <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columns-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columns" class="no-padding" />
                         <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columnGroups-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columnGroups" class="no-padding" />
                         <WidgetRowsStyle v-else-if="prop.node.key.includes('rows-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.rows" class="no-padding" />
+                        <TableWidgetSummaryStyle v-else-if="prop.node.key.includes('summary-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.summary" class="no-padding" />
+                        <TableWidgetPaginator v-else-if="prop.node.key.includes('paginator-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.paginator" class="no-padding" />
                     </div>
                 </template>
             </q-tree>
@@ -44,10 +46,12 @@ import WidgetBackgroundColorStyle from '@/modules/documentExecution/dashboard/wi
 import TableWidgetHeaders from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetHeaders.vue'
 import TableWidgetColumnStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetColumnStyle.vue'
 import WidgetRowsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetRowsStyle.vue'
+import TableWidgetSummaryStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetSummaryStyle.vue'
+import TableWidgetPaginator from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetPaginator.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle, TableWidgetHeaders, TableWidgetColumnStyle, WidgetRowsStyle },
+    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle, TableWidgetHeaders, TableWidgetColumnStyle, WidgetRowsStyle, TableWidgetSummaryStyle, TableWidgetPaginator },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {

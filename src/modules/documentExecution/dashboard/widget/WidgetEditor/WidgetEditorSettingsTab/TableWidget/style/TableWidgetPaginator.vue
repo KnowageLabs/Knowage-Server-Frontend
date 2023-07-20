@@ -15,9 +15,8 @@ import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyl
 export default defineComponent({
     name: 'table-widget-paginator',
     components: { WidgetEditorStyleToolbar },
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ITableWidgetPaginatorStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             descriptor,
@@ -29,14 +28,18 @@ export default defineComponent({
     },
     methods: {
         loadPaginatorStyleModel() {
-            if (!this.widgetModel) return
-            if (this.widgetModel.settings?.style?.paginator) this.paginatorStyleModel = this.widgetModel.settings.style.paginator
+            if (this.widgetModel?.settings?.style?.paginator) this.paginatorStyleModel = this.widgetModel.settings.style.paginator
+            else if (this.themeStyle) this.paginatorStyleModel = this.themeStyle
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.paginatorStyleModel) return
             this.paginatorStyleModel['background-color'] = model['background-color'] ?? ''
             this.paginatorStyleModel.color = model.color ?? ''
             this.paginatorStyleModel['justify-content'] = model['justify-content'] ?? ''
+            this.paginatorStyleChanged()
+        },
+        paginatorStyleChanged() {
+            if (this.widgetModel) this.$emit('styleChanged')
         }
     }
 })
