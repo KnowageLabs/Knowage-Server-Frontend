@@ -1,10 +1,11 @@
 <template>
     <div v-show="widgetModel">
-        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag"></WidgetEditorThemePicker>
+        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
-                    <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></PythonWidgetSettingsAccordionHeader>
+                    <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></PythonWidgetSettingsAccordionHeader>
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <HTMLWidgetGallery v-if="accordion.type === 'Gallery'" :widget-model="widgetModel"></HTMLWidgetGallery>
@@ -46,6 +47,7 @@ import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteracti
 import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import PythonWidgetSettingsAccordionHeader from './PythonWidgetSettingsAccordionHeader.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'python-widget-settings-container',
@@ -66,7 +68,8 @@ export default defineComponent({
         WidgetPreview,
         PythonWidgetSettingsAccordionHeader,
         HTMLWidgetGallery,
-        WidgetEditorThemePicker
+        WidgetEditorThemePicker,
+        Message
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -80,7 +83,9 @@ export default defineComponent({
             descriptor,
             settingsTabDescriptor,
             activeIndex: -1,
-            styleChangedFlag: false
+            styleChangedFlag: false,
+            themePropertyChanged: false,
+            themeName: ''
         }
     },
     computed: {
@@ -104,6 +109,11 @@ export default defineComponent({
         },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag
+            this.themePropertyChanged = true
+        },
+        onThemeSelected(themeName: string) {
+            this.themeName = themeName
+            this.themePropertyChanged = false
         }
     }
 })
