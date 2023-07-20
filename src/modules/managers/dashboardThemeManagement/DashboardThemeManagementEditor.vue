@@ -14,13 +14,16 @@
                         <!-- {{ prop.node }} -->
                         <!-- <br /> -->
 
-                        <!-- {{ selectedTheme.config[prop.node.widgetType]}} -->
-                        <!-- OVO JE LOKACIJA STILA U selectedTheme OBJEKTU! -->
+                        <!-- {{ selectedTheme.config[prop.node.widgetType].style.columns }} -->
+                        <!-- Zakomentarisi ovo iznad ako ti smeta -->
                         <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.title" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" class="no-padding" />
                         <WidgetBordersStyle v-else-if="prop.node.key.includes('borders-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.borders" class="no-padding" />
                         <WidgetPaddingStyle v-else-if="prop.node.key.includes('padding-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.padding" class="no-padding" />
                         <WidgetShadowsStyle v-else-if="prop.node.key.includes('shadows-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.shadows" class="no-padding" />
                         <WidgetBackgroundColorStyle v-else-if="prop.node.key.includes('background-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.background" class="no-padding" />
+                        <TableWidgetHeaders v-else-if="prop.node.key.includes('headers-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.headers" class="no-padding" />
+                        <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columns-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columns" class="no-padding" />
+                        <TableWidgetColumnStyle v-else-if="prop.node.key.includes('columnGroups-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.columnGroups" class="no-padding" />
                     </div>
                 </template>
             </q-tree>
@@ -37,10 +40,12 @@ import WidgetBordersStyle from '@/modules/documentExecution/dashboard/widget/Wid
 import WidgetPaddingStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetPaddingStyle.vue'
 import WidgetShadowsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetShadowsStyle.vue'
 import WidgetBackgroundColorStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetBackgroundColorStyle.vue'
+import TableWidgetHeaders from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetHeaders.vue'
+import TableWidgetColumnStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetColumnStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle },
+    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle, TableWidgetHeaders, TableWidgetColumnStyle },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {
