@@ -1,28 +1,31 @@
 <template>
-    <div v-if="shadowsStyleModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
+    <div v-if="shadowsStyleModel" class="kn-flex p-p-4">
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="shadowsStyleModel.enabled" color="black" /> </span>
 
-        <div class="p-col-12 p-grid p-ai-center p-p-0">
-            <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-pb-3">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.shadows.shadowSize') }}</label>
-                <Dropdown v-model="shadowSize" class="kn-material-input" :options="descriptor.shadowsSizeOptions" option-value="value" :disabled="shadowsStyleDisabled" @change="onShadowsSizeChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.shadowsSizeOptions, $t) }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
+        <form class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-lg-8">
+                <span class="p-float-label">
+                    <Dropdown v-model="shadowSize" class="kn-material-input p-inputtext-sm" :options="descriptor.shadowsSizeOptions" option-value="value" :disabled="shadowsStyleDisabled" @change="onShadowsSizeChanged">
+                        <template #value="slotProps">
+                            <div>
+                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.shadowsSizeOptions, $t) }}</span>
+                            </div>
+                        </template>
+                        <template #option="slotProps">
+                            <div>
+                                <span>{{ $t(slotProps.option.label) }}</span>
+                            </div>
+                        </template>
+                    </Dropdown>
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.shadows.shadowSize') }}</label>
+                </span>
             </div>
-
-            <div class="p-col-12 p-md-6 p-px-2 p-pt-3">
-                <WidgetEditorColorPicker :initial-value="shadowsStyleModel.properties.color" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="shadowsStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
+            <div class="p-field p-col-12 p-md-6 p-lg-4">
+                <span class="">
+                    <WidgetEditorColorPicker :initial-value="shadowsStyleModel.properties.color" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="shadowsStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
+                </span>
             </div>
-        </div>
+        </form>
     </div>
 </template>
 

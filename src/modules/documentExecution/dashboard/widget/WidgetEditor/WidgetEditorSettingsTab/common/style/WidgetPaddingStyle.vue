@@ -1,37 +1,40 @@
 <template>
-    <div v-if="paddingStyleModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
+    <div v-if="paddingStyleModel" class="p-ai-center kn-flex p-p-4">
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="paddingStyleModel.enabled" color="black" /> </span>
 
-        <div class="p-col-12 p-grid p-ai-center">
-            <div class="p-d-flex p-jc-center p-ai-center">
-                <i
-                    v-tooltip="paddingStyleModel.properties.unlinked ? $t('dashboard.widgetEditor.padding.linkAllHint') : $t('dashboard.widgetEditor.padding.unlinkAllHint')"
-                    :class="paddingStyleModel.properties.unlinked ? 'fa fa-link' : 'fa fa-unlink'"
-                    class="kn-cursor-pointer p-mr-2"
-                    @click="onLinkIconClicked"
-                ></i>
-            </div>
-
-            <div id="padding-left-container" class="p-col-11 p-md-5 p-lg-2 p-d-flex p-flex-column kn-flex p-px-2">
-                <label class="kn-material-input-label p-mr-2">{{ paddingStyleModel.properties.unlinked ? $t('dashboard.widgetEditor.padding.paddingLeft') : $t('dashboard.widgetEditor.padding.title') }}</label>
-                <InputText v-model="paddingStyleModel.properties['padding-left']" class="kn-material-input p-inputtext-sm" :disabled="paddingStyleDisabled" @input="onPaddingLeftInputChange" />
-                <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small>
-            </div>
-            <div v-if="paddingStyleModel.properties.unlinked" class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column p-px-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.padding.paddingTop') }}</label>
-                <InputText v-model="paddingStyleModel.properties['padding-top']" class="kn-material-input p-inputtext-sm" :disabled="paddingStyleDisabled" @change="paddingStyleChanged" />
-                <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small>
-            </div>
-            <div v-if="paddingStyleModel.properties.unlinked" class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column p-px-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.padding.paddingRight') }}</label>
-                <InputText v-model="paddingStyleModel.properties['padding-right']" class="kn-material-input p-inputtext-sm" :disabled="paddingStyleDisabled" @change="paddingStyleChanged" />
-                <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small>
-            </div>
-            <div v-if="paddingStyleModel.properties.unlinked" class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column p-px-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.padding.paddingBottom') }}</label>
-                <InputText v-model="paddingStyleModel.properties['padding-bottom']" class="kn-material-input p-inputtext-sm" :disabled="paddingStyleDisabled" @change="paddingStyleChanged" />
-                <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small>
-            </div>
+        <div class="p-d-flex p-flex-row">
+            <i
+                v-tooltip="paddingStyleModel.properties.unlinked ? $t('dashboard.widgetEditor.padding.linkAllHint') : $t('dashboard.widgetEditor.padding.unlinkAllHint')"
+                :class="paddingStyleModel.properties.unlinked ? 'fa fa-link' : 'fa fa-unlink'"
+                class="kn-cursor-pointer p-mr-2 p-mb-3 p-as-center"
+                @click="onLinkIconClicked"
+            />
+            <form class="p-fluid p-formgrid p-grid kn-flex">
+                <div :class="paddingStyleModel.properties.unlinked ? 'p-field p-col-12 p-md-6 p-lg-3' : 'p-field p-col-12'">
+                    <span class="p-float-label">
+                        <InputText v-model="paddingStyleModel.properties['padding-left']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="paddingStyleDisabled" @input="onPaddingLeftInputChange" />
+                        <label class="kn-material-input-label p-mr-2">{{ paddingStyleModel.properties.unlinked ? $t('dashboard.widgetEditor.padding.paddingLeft') : $t('dashboard.widgetEditor.padding.title') }}</label>
+                    </span>
+                </div>
+                <div v-if="paddingStyleModel.properties.unlinked" class="p-field p-col-12 p-md-6 p-lg-3">
+                    <span class="p-float-label">
+                        <InputText v-model="paddingStyleModel.properties['padding-top']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="paddingStyleDisabled" @change="paddingStyleChanged" />
+                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.padding.paddingTop') }}</label>
+                    </span>
+                </div>
+                <div v-if="paddingStyleModel.properties.unlinked" class="p-field p-col-12 p-md-6 p-lg-3">
+                    <span class="p-float-label">
+                        <InputText v-model="paddingStyleModel.properties['padding-right']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="paddingStyleDisabled" @change="paddingStyleChanged" />
+                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.padding.paddingRight') }}</label>
+                    </span>
+                </div>
+                <div v-if="paddingStyleModel.properties.unlinked" class="p-field p-col-12 p-md-6 p-lg-3">
+                    <span class="p-float-label">
+                        <InputText v-model="paddingStyleModel.properties['padding-bottom']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="paddingStyleDisabled" @change="paddingStyleChanged" />
+                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.padding.paddingBottom') }}</label>
+                    </span>
+                </div>
+            </form>
         </div>
     </div>
 </template>
