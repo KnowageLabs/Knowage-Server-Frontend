@@ -154,7 +154,6 @@ export default defineComponent({
             this.themePropertyChanged = true
         },
         onThemeSelected(themeName: string) {
-            console.log('------- THEME SELECTED!')
             this.themeName = themeName
             this.themePropertyChanged = false
         }
