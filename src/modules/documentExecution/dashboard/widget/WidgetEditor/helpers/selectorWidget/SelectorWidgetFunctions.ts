@@ -15,6 +15,7 @@ export const createNewSelectorWidgetSettings = () => {
             exports: { showExcelExport: true }
         },
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             label: selectorWidgetDefaultValues.getDefaultLabelStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),

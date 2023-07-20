@@ -27,6 +27,7 @@
                         <WidgetRowsStyle v-else-if="prop.node.key.includes('rows-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.rows" class="no-padding" />
                         <TableWidgetSummaryStyle v-else-if="prop.node.key.includes('summary-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.summary" class="no-padding" />
                         <TableWidgetPaginator v-else-if="prop.node.key.includes('paginator-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.paginator" class="no-padding" />
+                        <SelectorWidgetLabelStyle v-else-if="prop.node.key.includes('label-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.label" class="no-padding" />
                     </div>
                 </template>
             </q-tree>
@@ -48,10 +49,11 @@ import TableWidgetColumnStyle from '@/modules/documentExecution/dashboard/widget
 import WidgetRowsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetRowsStyle.vue'
 import TableWidgetSummaryStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetSummaryStyle.vue'
 import TableWidgetPaginator from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetPaginator.vue'
+import SelectorWidgetLabelStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetLabelStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle, TableWidgetHeaders, TableWidgetColumnStyle, WidgetRowsStyle, TableWidgetSummaryStyle, TableWidgetPaginator },
+    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle, TableWidgetHeaders, TableWidgetColumnStyle, WidgetRowsStyle, TableWidgetSummaryStyle, TableWidgetPaginator, SelectorWidgetLabelStyle },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {

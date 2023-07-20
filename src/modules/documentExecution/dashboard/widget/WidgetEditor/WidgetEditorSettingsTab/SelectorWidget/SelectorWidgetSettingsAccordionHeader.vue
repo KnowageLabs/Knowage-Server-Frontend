@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'selector-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -63,6 +64,7 @@ export default defineComponent({
                 case 'BordersStyle':
                 case 'PaddingStyle':
                 case 'ShadowsStyle':
+                    this.$emit('styleChanged')
                     this.refreshSelector()
             }
         },
