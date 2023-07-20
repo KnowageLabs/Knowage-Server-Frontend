@@ -14,9 +14,9 @@
                         <!-- {{ prop.node }} -->
                         <!-- <br /> -->
 
-                        <!-- {{ selectedTheme.config[prop.node.widgetType] }} -->
+                        <!-- {{ selectedTheme.config[prop.node.widgetType]}} -->
                         <!-- OVO JE LOKACIJA STILA U selectedTheme OBJEKTU! -->
-                        <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="test" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" style="padding: 0 !important" />
+                        <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.title" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" style="padding: 0 !important" />
                     </div>
                 </template>
             </q-tree>
@@ -33,7 +33,7 @@ import { IDashboardThemeConfig } from './DashboardThememanagement'
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
     components: { WidgetTitleStyle },
-    props: { selectedThemeProp: { required: true, type: Object as any } },
+    props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {
             descriptor,

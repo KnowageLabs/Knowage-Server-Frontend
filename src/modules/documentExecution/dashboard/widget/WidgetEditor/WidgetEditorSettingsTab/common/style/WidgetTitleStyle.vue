@@ -1,6 +1,7 @@
 <template>
+    {{ themeStyle }}
     <div v-if="titleStyleModel" class="p-ai-center kn-flex p-p-4">
-        <span class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" /> </span>
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" /> </span>
 
         <form class="p-fluid p-formgrid p-grid">
             <div class="p-field p-col-12 p-lg-8">
@@ -24,7 +25,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel, IWidgetTitle } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../styleToolbar/WidgetEditorStyleToolbar.vue'
 
@@ -32,13 +32,14 @@ export default defineComponent({
     name: 'widget-title-style',
     components: { InputNumber, WidgetEditorStyleToolbar },
     props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true },
+        widgetModel: { type: Object as PropType<IWidget | null>, required: true },
+        themeStyle: { type: Object as PropType<IWidgetTitle | null>, required: true },
         toolbarStyleSettings: { type: Array, required: true }
     },
+    emits: ['styleChanged'],
     data() {
         return {
-            titleStyleModel: null as IWidgetTitle | null,
-            widgetType: '' as string
+            titleStyleModel: null as IWidgetTitle | null
         }
     },
     computed: {
@@ -46,30 +47,25 @@ export default defineComponent({
             return !this.titleStyleModel || !this.titleStyleModel.enabled
         }
     },
+    watch: {
+        titleStyleDisabled() {
+            this.titleStyleChanged()
+        }
+    },
     created() {
         this.loadTitleStyleModel()
     },
     methods: {
         loadTitleStyleModel() {
-            if (!this.widgetModel) return
-            this.widgetType = this.widgetModel.type
-            if (this.widgetModel.settings?.style?.title) this.titleStyleModel = this.widgetModel.settings.style.title
+            if (this.widgetModel?.settings?.style?.title) this.titleStyleModel = this.widgetModel.settings.style.title
+            else if (this.themeStyle) this.titleStyleModel = this.themeStyle
         },
         titleStyleChanged() {
-            switch (this.widgetType) {
-                case 'table':
-                    emitter.emit('refreshTable', this.widgetModel.id)
-                    break
-                case 'selector':
-                    emitter.emit('refreshSelector', this.widgetModel.id)
-                    break
-                case 'selection':
-                    emitter.emit('refreshSelection', this.widgetModel.id)
-            }
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.titleStyleModel) return
-            this.titleStyleModel.properties = {
+            ;(this.titleStyleModel.properties = {
                 'background-color': model['background-color'] ?? 'rgb(137, 158, 175)',
                 color: model.color ?? 'rgb(255, 255, 255)',
                 'justify-content': model['justify-content'] ?? 'center',
@@ -77,8 +73,8 @@ export default defineComponent({
                 'font-family': model['font-family'] ?? '',
                 'font-style': model['font-style'] ?? 'normal',
                 'font-weight': model['font-weight'] ?? ''
-            }
-            this.titleStyleChanged()
+            }),
+                this.titleStyleChanged()
         }
     }
 })

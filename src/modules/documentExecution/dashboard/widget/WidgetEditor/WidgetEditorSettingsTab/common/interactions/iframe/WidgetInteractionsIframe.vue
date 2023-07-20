@@ -3,7 +3,7 @@
         <Message class="p-col-12 p-mb-3" :closable="false">
             {{ $t('dashboard.widgetEditor.interactions.iframeInteractionHint.partOne') }}
             <br />
-            {{ $t('dashboard.widgetEditor.interactions.iframeInteractionHint.partTwo') }}
+            {{ $t('dashboard.widgetEditor.interactions.iframeInteractionHint.partTwo', { parameterPlaceholder: '{}', variablePlaceholder: '{}', value: '{value}' }) }}
         </Message>
         <div v-if="iframeModel" class="p-col-12">
             {{ 'TODO' }}

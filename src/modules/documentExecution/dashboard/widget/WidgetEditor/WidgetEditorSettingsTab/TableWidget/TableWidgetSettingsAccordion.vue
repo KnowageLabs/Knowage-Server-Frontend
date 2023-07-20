@@ -1,12 +1,12 @@
 <template>
     <div v-show="widgetModel">
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
                     <TableWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></TableWidgetSettingsAccordionHeader>
                 </template>
 
-                <WidgetEditorThemePicker v-if="['Title'].includes(accordion.type)" :widget-model="widgetModel"></WidgetEditorThemePicker>
                 <TableWidgetRows v-if="accordion.type === 'Rows'" :widget-model="widgetModel"></TableWidgetRows>
                 <TableWidgetSummaryRows v-else-if="accordion.type === 'SummaryRows'" :widget-model="widgetModel"></TableWidgetSummaryRows>
                 <TableWidgetHeader v-else-if="accordion.type === 'Header'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></TableWidgetHeader>
@@ -16,7 +16,7 @@
                 <TableWidgetVisualizationType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel"></TableWidgetVisualizationType>
                 <TableWidgetVisibilityConditions v-else-if="accordion.type === 'VisibilityConditions'" :widget-model="widgetModel" :variables="variables"></TableWidgetVisibilityConditions>
                 <TableWidgetHeaders v-else-if="accordion.type === 'Headers'" :widget-model="widgetModel"></TableWidgetHeaders>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
+                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnStyle'" :widget-model="widgetModel"></TableWidgetColumnStyle>
                 <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnGroupsStyle'" :widget-model="widgetModel" mode="columnGroups"></TableWidgetColumnStyle>
                 <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel"></WidgetRowsStyle>
@@ -121,7 +121,13 @@ export default defineComponent({
         return {
             descriptor,
             settingsTabDescriptor,
-            activeIndex: -1
+            activeIndex: -1,
+            styleChangedFlag: false
+        }
+    },
+    computed: {
+        showThemePicker() {
+            return this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         }
     },
     watch: {
@@ -136,6 +142,9 @@ export default defineComponent({
     methods: {
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
+        },
+        onStyleChanged() {
+            this.styleChangedFlag = !this.styleChangedFlag
         }
     }
 })

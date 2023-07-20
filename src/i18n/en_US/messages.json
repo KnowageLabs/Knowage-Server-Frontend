@@ -890,7 +890,7 @@
                 "enableMultiselection": "Enable Multiselection",
                 "iframeInteractionHint": {
                     "partOne": "Write the JSON message in the following editor. By clicking over the widget it will be propagated to a container window.",
-                    "partTwo": "You can use $P{}, $V{} and {value} placeholder to retrieve dynamic data."
+                    "partTwo": "You can use $P{parameterPlaceholder}, $V{variablePlaceholder} and {value} placeholder to retrieve dynamic data."
                 },
                 "json": "JSON",
                 "jwt": "JWT",
@@ -1989,62 +1989,12 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday"
-        ],
-        "dayNamesMin": [
-            "Su",
-            "Mo",
-            "Tu",
-            "We",
-            "Th",
-            "Fr",
-            "Sa"
-        ],
-        "dayNamesShort": [
-            "Sun",
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat"
-        ],
+        "dayNames": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         "firstDayOfWeek": 0,
-        "monthNames": [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
-        ],
-        "monthNamesShort": [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        ],
+        "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         "today": "Today",
         "weekHeader": "Wk"
     },
