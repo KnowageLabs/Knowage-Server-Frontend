@@ -19,6 +19,7 @@ export default defineComponent({
         title: { type: String },
         type: { type: String, required: true }
     },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -67,12 +68,15 @@ export default defineComponent({
             switch (this.type) {
                 case 'FacetsSettings':
                 case 'SearchSettings':
+                    setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
+                    break
                 case 'Title':
                 case 'ColumnStyle':
                 case 'BackgroundColorStyle':
                 case 'BordersStyle':
                 case 'PaddingStyle':
                 case 'ShadowsStyle':
+                    this.$emit('styleChanged')
                     setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
             }
         }
