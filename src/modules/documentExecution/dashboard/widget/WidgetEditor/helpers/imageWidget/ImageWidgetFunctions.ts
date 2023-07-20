@@ -16,6 +16,7 @@ export const createNewImageWidgetSettings = () => {
             link: widgetCommonDefaultValues.getDefaultLinks(),
         },
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

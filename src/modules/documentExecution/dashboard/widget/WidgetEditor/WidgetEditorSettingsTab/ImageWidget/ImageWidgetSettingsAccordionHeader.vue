@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'image-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -59,6 +60,7 @@ export default defineComponent({
                 case 'PaddingStyle':
                 case 'ShadowsStyle':
                     setTimeout(() => emitter.emit('refreshImageWidget', this.widgetModel.id), 250)
+                    this.$emit('styleChanged')
             }
         }
     }

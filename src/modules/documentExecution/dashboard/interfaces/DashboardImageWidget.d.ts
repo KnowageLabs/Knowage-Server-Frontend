@@ -25,6 +25,7 @@ export interface IImageWidgetImageSettings {
 }
 
 export interface IImageWidgetStyle {
+    themeName: string,
     title: IWidgetTitle,
     padding: IWidgetPaddingStyle,
     borders: IWidgetBordersStyle,
