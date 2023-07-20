@@ -7,11 +7,11 @@
             <div v-if="mode !== 'columnGroups'" class="p-col-12 p-grid">
                 <div class="p-col-4 p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.width') }}</label>
-                    <InputNumber v-model="(columnStyle.properties.width as number)" class="kn-material-input p-inputtext-sm" :disabled="columnStylesDisabled" @blur="columnStylesChanged" />
+                    <InputNumber v-model="(columnStyle.properties.width as number)" class="kn-material-input p-inputtext-sm" :disabled="columnStylesDisabled" @blur="columnStylesChanged(index)" />
                 </div>
                 <div class="p-col-8 p-d-flex p-flex-column p-p-2">
                     <label class="kn-material-input-label"> {{ $t('common.verticalAlign') }}</label>
-                    <Dropdown v-model="columnStyle.properties['align-items']" class="kn-material-input" :options="descriptor.verticalAlignmentOptions" option-value="value" :disabled="columnStylesDisabled" @change="columnStylesChanged">
+                    <Dropdown v-model="columnStyle.properties['align-items']" class="kn-material-input" :options="descriptor.verticalAlignmentOptions" option-value="value" :disabled="columnStylesDisabled" @change="columnStylesChanged(index)">
                         <template #value="slotProps">
                             <div>
                                 <span>{{ getTranslatedLabel(slotProps.value, descriptor.verticalAlignmentOptions, $t) }}</span>
@@ -37,7 +37,7 @@
                         option-label="alias"
                         option-value="id"
                         :disabled="columnStylesDisabled"
-                        @change="onColumnsSelected($event, columnStyle)"
+                        @change="onColumnsSelected($event, columnStyle, index)"
                     >
                     </WidgetEditorColumnsMultiselect>
                 </div>
@@ -47,7 +47,7 @@
             </div>
 
             <div class="p-col-12 p-md-12 p-py-2">
-                <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="columnStyle.properties" :disabled="columnStylesDisabled" @change="onStyleToolbarChange($event, columnStyle)"> </WidgetEditorStyleToolbar>
+                <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="columnStyle.properties" :disabled="columnStylesDisabled" @change="onStyleToolbarChange($event, columnStyle, index)"> </WidgetEditorStyleToolbar>
             </div>
         </div>
     </div>
@@ -136,11 +136,11 @@ export default defineComponent({
                       })
                     : [...this.widgetModel.columns]
         },
-        columnStylesChanged() {
+        columnStylesChanged(index: number | null = null) {
             if (!this.widgetModel) return
             const event = this.mode === 'columnGroups' ? 'columnGroupStylesChanged' : 'columnStylesChanged'
             emitter.emit(event, this.columnStyles)
-            this.$emit('styleChanged')
+            if (!index || index === 0) this.$emit('styleChanged')
         },
         loadWidgetColumnMaps() {
             if (!this.widgetModel) return
@@ -165,12 +165,12 @@ export default defineComponent({
             const index = this.availableColumnOptions.findIndex((targetOption: IWidgetColumn | ITableWidgetColumnGroup | { id: string; alias: string }) => targetOption.id === tempColumn.id)
             if (index !== -1) this.availableColumnOptions.splice(index, 1)
         },
-        onColumnsSelected(event: any, columnStyle: ITableWidgetColumnStyle) {
+        onColumnsSelected(event: any, columnStyle: ITableWidgetColumnStyle, index: number | null = null) {
             const intersection = (columnStyle.target as string[]).filter((el: string) => !event.value.includes(el))
             columnStyle.target = event.value
 
             intersection.length > 0 ? this.onColumnsRemovedFromMultiselect(intersection) : this.onColumnsAddedFromMultiselect(columnStyle)
-            this.columnStylesChanged()
+            this.columnStylesChanged(index)
         },
         onColumnsAddedFromMultiselect(columnStyle: ITableWidgetColumnStyle) {
             ;(columnStyle.target as string[]).forEach((target: string) => {
@@ -220,7 +220,7 @@ export default defineComponent({
         onColumnRemoved() {
             if (this.widgetModel) this.reloadModel()
         },
-        onStyleToolbarChange(model: IWidgetStyleToolbarModel, columnStyle: ITableWidgetColumnStyle) {
+        onStyleToolbarChange(model: IWidgetStyleToolbarModel, columnStyle: ITableWidgetColumnStyle, index: number | null = null) {
             ;(columnStyle.properties['background-color'] = model['background-color'] ?? 'rgb(0, 0, 0)'),
                 (columnStyle.properties.color = model.color ?? 'rgb(255, 255, 255)'),
                 (columnStyle.properties['justify-content'] = model['justify-content'] ?? 'center'),
@@ -228,7 +228,7 @@ export default defineComponent({
                 (columnStyle.properties['font-family'] = model['font-family'] ?? ''),
                 (columnStyle.properties['font-style'] = model['font-style'] ?? 'normal'),
                 (columnStyle.properties['font-weight'] = model['font-weight'] ?? '')
-            this.columnStylesChanged()
+            this.columnStylesChanged(index)
         },
         reloadModel() {
             this.loadColumnOptions()
