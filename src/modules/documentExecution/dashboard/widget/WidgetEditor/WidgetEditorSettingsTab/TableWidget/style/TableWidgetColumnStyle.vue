@@ -24,7 +24,7 @@
                 </div>
                 <div class="p-field p-col-4">
                     <span class="p-float-label">
-                        <InputNumber v-model="(columnStyle.properties.width as number)" class="kn-material-input p-inputtext-sm" :disabled="columnStylesDisabled" @blur="columnStylesChanged" />
+                        <InputNumber v-model="(columnStyle.properties.width as number)" class="kn-material-input p-inputtext-sm" :disabled="columnStylesDisabled" @blur="columnStylesChanged(index)" />
                         <label class="kn-material-input-label p-mr-2">{{ $t('common.width') }}</label>
                     </span>
                 </div>
@@ -49,7 +49,7 @@
                 </div>
             </form>
 
-            <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="columnStyle.properties" :disabled="columnStylesDisabled" @change="onStyleToolbarChange($event, columnStyle)"> </WidgetEditorStyleToolbar>
+            <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="columnStyle.properties" :disabled="columnStylesDisabled" @change="onStyleToolbarChange($event, columnStyle, index)"> </WidgetEditorStyleToolbar>
 
             <br v-if="widgetModel" />
             <br v-if="widgetModel" />

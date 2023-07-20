@@ -17,13 +17,13 @@
                     >
                     </WidgetEditorColumnsMultiselect>
                 </div>
-                <div class="p-col-2 p-md-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                    <i v-if="fieldType != 'fieldHeaders' && widgetModel.type === 'ce-pivot-table'" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
+                <div v-if="widgetModel" class="p-col-2 p-md-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
+                    <i v-if="fieldType != 'fieldHeaders' && widgetModel?.type === 'ce-pivot-table'" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
                 </div>
             </div>
 
             <div class="p-col-12 p-md-12 p-py-2">
-                <WidgetEditorStyleToolbar :options="descriptor.defaultToolbarStyleOptions" :prop-model="fieldStyle.properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyle)"> </WidgetEditorStyleToolbar>
+                <WidgetEditorStyleToolbar :options="descriptor.defaultToolbarStyleOptions" :prop-model="fieldStyle.properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyle, index)"> </WidgetEditorStyleToolbar>
             </div>
         </div>
     </div>
@@ -42,7 +42,8 @@ import WidgetEditorColumnsMultiselect from '../../common/WidgetEditorColumnsMult
 export default defineComponent({
     name: 'pivot-table-fields-style',
     components: { Dropdown, WidgetEditorColumnsMultiselect, WidgetEditorStyleToolbar },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, fieldType: { type: String, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IPivotTableColumnStyles | null>, required: true }, fieldType: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             descriptor,
@@ -53,6 +54,7 @@ export default defineComponent({
     },
     computed: {
         combinedArray(): any {
+            if (!this.widgetModel) return []
             const modelFields = this.widgetModel.fields
             const combinedArray = modelFields?.columns.concat(modelFields.rows, modelFields.data, modelFields.filters)
             return combinedArray
@@ -86,7 +88,7 @@ export default defineComponent({
             this.addFieldAsOption()
         },
         loadFieldStyles() {
-            this.fieldStyles = this.widgetModel.settings.style[this.fieldType]
+            this.fieldStyles = this.widgetModel?.settings.style[this.fieldType]
             this.removeFieldsFromAvailableOptions()
         },
         loadFieldOptions() {
@@ -98,7 +100,7 @@ export default defineComponent({
             })
         },
         removeFieldsFromAvailableOptions() {
-            const array = this.widgetModel.settings.style.fields.styles
+            const array = this.widgetModel?.settings.style.fields.styles
             for (let i = 1; i < array.length; i++) {
                 for (let j = 0; j < array[i].target.length; j++) {
                     this.removeFieldFromAvailableOptions({ id: array[i].target[j], alias: array[i].target[j] })
@@ -109,10 +111,11 @@ export default defineComponent({
             const index = this.availableFieldOptions.findIndex((targetOption: IWidgetColumn | { id: string; alias: string }) => targetOption.id === tempField.id)
             if (index !== -1) this.availableFieldOptions.splice(index, 1)
         },
-        onFieldsSelected(event: any, fieldStyle: IPivotTableColumnStyle) {
+        onFieldsSelected(event: any, fieldStyle: IPivotTableColumnStyle, index: number | null = null) {
             const intersection = (fieldStyle.target as string[]).filter((el: string) => !event.value.includes(el))
             fieldStyle.target = event.value
             intersection.length > 0 ? this.onFieldsRemovedFromMultiselect(intersection) : this.onFieldsAddedFromMultiselect(fieldStyle)
+            this.pivotTableFieldsStyleChanged(index)
         },
         onFieldsAddedFromMultiselect(fieldStyle: IPivotTableColumnStyle) {
             ;(fieldStyle.target as string[]).forEach((target: string) => {
@@ -149,7 +152,7 @@ export default defineComponent({
         onFieldRemoved() {
             this.reloadModel()
         },
-        onStyleToolbarChange(model: IWidgetStyleToolbarModel, fieldStyle: IPivotTableColumnStyle) {
+        onStyleToolbarChange(model: IWidgetStyleToolbarModel, fieldStyle: IPivotTableColumnStyle, index: number | null = null) {
             ;(fieldStyle.properties['background-color'] = model['background-color'] ?? 'rgb(0, 0, 0)'),
                 (fieldStyle.properties.color = model.color ?? 'rgb(255, 255, 255)'),
                 (fieldStyle.properties['text-align'] = model['text-align'] ?? 'center'),
@@ -157,11 +160,16 @@ export default defineComponent({
                 (fieldStyle.properties['font-family'] = model['font-family'] ?? ''),
                 (fieldStyle.properties['font-style'] = model['font-style'] ?? 'normal'),
                 (fieldStyle.properties['font-weight'] = model['font-weight'] ?? '')
+            this.pivotTableFieldsStyleChanged(index)
         },
         reloadModel() {
             this.loadFieldOptions()
             this.loadFieldStyles()
             this.loadWidgetFieldMaps()
+        },
+        pivotTableFieldsStyleChanged(index: number | null = null) {
+            console.log('------- INDEX" ', index)
+            if (this.widgetModel && (!index || index === 0)) this.$emit('styleChanged')
         }
     }
 })

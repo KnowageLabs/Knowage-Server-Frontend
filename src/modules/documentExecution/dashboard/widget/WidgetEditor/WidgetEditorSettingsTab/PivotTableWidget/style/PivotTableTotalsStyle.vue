@@ -1,7 +1,9 @@
 <template>
-    <div v-if="titleStyleModel" class="p-grid p-ai-center kn-flex p-p-4">
+    <div v-if="totalsStyleModel" class="p-grid p-ai-center kn-flex p-p-4">
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="totalsStyleModel.enabled" color="black" /> </span>
+
         <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="titleStyleModel.properties" :disabled="titleStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
+            <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="totalsStyleModel.properties" :disabled="totalsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
         </div>
     </div>
 </template>
@@ -9,26 +11,28 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { IPivotTotal } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import * as pivotTableDefaultValues from '../../../helpers/pivotTableWidget/PivotTableDefaultValues'
-import { IPivotTotal } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 
 export default defineComponent({
-    name: 'widget-title-style',
+    name: 'pivot-table-total-style',
     components: { WidgetEditorStyleToolbar },
     props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true },
+        widgetModel: { type: Object as PropType<IWidget | null>, required: true },
+        themeStyle: { type: Object as PropType<IPivotTotal | null>, required: true },
         toolbarStyleSettings: { type: Array, required: true },
         totalType: { type: String, required: true }
     },
+    emits: ['styleChanged'],
     data() {
         return {
-            titleStyleModel: null as IPivotTotal | null
+            totalsStyleModel: null as IPivotTotal | null
         }
     },
     computed: {
-        titleStyleDisabled() {
-            return !this.titleStyleModel || !this.titleStyleModel.enabled
+        totalsStyleDisabled() {
+            return !this.totalsStyleModel || !this.totalsStyleModel.enabled
         }
     },
     created() {
@@ -37,14 +41,16 @@ export default defineComponent({
     methods: {
         loadStyle() {
             if (!this.widgetModel) return
-            if (this.totalType == 'Totals' && this.widgetModel.settings?.style?.totals) this.titleStyleModel = this.widgetModel.settings.style.totals
-            else if (this.totalType == 'SubTotals' && this.widgetModel.settings?.style?.totals) this.titleStyleModel = this.widgetModel.settings.style.subTotals
-            else if (this.totalType == 'CrossTabHeaders' && this.widgetModel.settings?.style?.crossTabHeaders) this.titleStyleModel = this.widgetModel.settings.style.crossTabHeaders
+            if (this.widgetModel) {
+                if (this.totalType == 'Totals' && this.widgetModel.settings?.style?.totals) this.totalsStyleModel = this.widgetModel.settings.style.totals
+                else if (this.totalType == 'SubTotals' && this.widgetModel.settings?.style?.subTotals) this.totalsStyleModel = this.widgetModel.settings.style.subTotals
+                else if (this.totalType == 'CrossTabHeaders' && this.widgetModel.settings?.style?.crossTabHeaders) this.totalsStyleModel = this.widgetModel.settings.style.crossTabHeaders
+            } else this.totalsStyleModel = this.themeStyle
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
-            if (!this.titleStyleModel) return
+            if (!this.totalsStyleModel) return
             const defaultTotalsStyle = pivotTableDefaultValues.getDefaultTotals()
-            this.titleStyleModel.properties = {
+            this.totalsStyleModel.properties = {
                 'background-color': model['background-color'] ?? defaultTotalsStyle.properties['background-color'],
                 color: model.color ?? defaultTotalsStyle.properties.color,
                 'text-align': model['text-align'] ?? defaultTotalsStyle.properties['text-align'],
@@ -53,6 +59,7 @@ export default defineComponent({
                 'font-style': model['font-style'] ?? defaultTotalsStyle.properties['font-style'],
                 'font-weight': model['font-weight'] ?? defaultTotalsStyle.properties['font-weight']
             }
+            if (this.widgetModel) this.$emit('styleChanged')
         }
     }
 })

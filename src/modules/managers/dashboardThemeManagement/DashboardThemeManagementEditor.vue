@@ -29,6 +29,32 @@
                         <TableWidgetPaginator v-else-if="prop.node.key.includes('paginator-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.paginator" class="no-padding" />
                         <SelectorWidgetLabelStyle v-else-if="prop.node.key.includes('label-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.label" class="no-padding" />
                         <SelectionsWidgetChipsStyle v-else-if="prop.node.key.includes('chips-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.chips" class="no-padding" />
+                        <PivotTableTotalsStyle
+                            v-else-if="prop.node.key.includes('totals-editor')"
+                            :widget-model="null"
+                            :theme-style="selectedTheme.config[prop.node.widgetType].style.totals"
+                            :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions"
+                            :total-type="'totals'"
+                            class="no-padding"
+                        />
+                        <PivotTableTotalsStyle
+                            v-else-if="prop.node.key.includes('subTotals-editor')"
+                            :widget-model="null"
+                            :theme-style="selectedTheme.config[prop.node.widgetType].style.subTotals"
+                            :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions"
+                            :total-type="'subTotals'"
+                            class="no-padding"
+                        />
+                        <PivotTableTotalsStyle
+                            v-else-if="prop.node.key.includes('crossTabHeaders-editor')"
+                            :widget-model="null"
+                            :theme-style="selectedTheme.config[prop.node.widgetType].style.crossTabHeaders"
+                            :toolbar-style-settings="pivotDescriptor.columnHeadersToolbarStyleOptions"
+                            :total-type="'crossTabHeaders'"
+                            class="no-padding"
+                        />
+                        <PivotTableFieldsStyle v-else-if="prop.node.key.includes('fields-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.fields" :field-type="'fields'" class="no-padding" />
+                        <PivotTableFieldsStyle v-else-if="prop.node.key.includes('fieldHeaders-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.fieldHeaders" :field-type="'fieldHeaders'" class="no-padding" />
                     </div>
                 </template>
             </q-tree>
@@ -40,6 +66,7 @@
 import { defineComponent } from 'vue'
 import { IDashboardTheme, IDashboardThemeConfig } from './DashboardThememanagement'
 import descriptor from './DashboardThemeManagementEditorDescriptor.json'
+import pivotDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/PivotTableWidget/PivotTableSettingsDescriptor.json'
 import WidgetTitleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetTitleStyle.vue'
 import WidgetBordersStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetBordersStyle.vue'
 import WidgetPaddingStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetPaddingStyle.vue'
@@ -52,14 +79,32 @@ import TableWidgetSummaryStyle from '@/modules/documentExecution/dashboard/widge
 import TableWidgetPaginator from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/TableWidget/style/TableWidgetPaginator.vue'
 import SelectorWidgetLabelStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectorWidget/style/SelectorWidgetLabelStyle.vue'
 import SelectionsWidgetChipsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/SelectionsWidget/style/SelectionsWidgetChipsStyle.vue'
+import PivotTableTotalsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/PivotTableWidget/style/PivotTableTotalsStyle.vue'
+import PivotTableFieldsStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/PivotTableWidget/style/PivotTableFieldsStyle.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetTitleStyle, WidgetBordersStyle, WidgetPaddingStyle, WidgetShadowsStyle, WidgetBackgroundColorStyle, TableWidgetHeaders, TableWidgetColumnStyle, WidgetRowsStyle, TableWidgetSummaryStyle, TableWidgetPaginator, SelectorWidgetLabelStyle, SelectionsWidgetChipsStyle },
+    components: {
+        WidgetTitleStyle,
+        WidgetBordersStyle,
+        WidgetPaddingStyle,
+        WidgetShadowsStyle,
+        WidgetBackgroundColorStyle,
+        TableWidgetHeaders,
+        TableWidgetColumnStyle,
+        WidgetRowsStyle,
+        TableWidgetSummaryStyle,
+        TableWidgetPaginator,
+        SelectorWidgetLabelStyle,
+        SelectionsWidgetChipsStyle,
+        PivotTableTotalsStyle,
+        PivotTableFieldsStyle
+    },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {
             descriptor,
+            pivotDescriptor,
             test: descriptor.widgetModelMock as any,
             selectedTheme: {} as IDashboardTheme,
             widgetTree: [] as any

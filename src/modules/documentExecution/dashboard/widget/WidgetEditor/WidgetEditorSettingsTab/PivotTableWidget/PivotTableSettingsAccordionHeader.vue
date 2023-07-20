@@ -1,6 +1,6 @@
 <template>
     <div class="p-d-flex p-flex-row p-ai-center">
-        <InputSwitch v-if="model" v-model="model.enabled" class="p-mr-3" @click.stop="() => {}"></InputSwitch>
+        <InputSwitch v-if="model" v-model="model.enabled" class="p-mr-3" @click.stop="onModelChange"></InputSwitch>
         <label class="kn-material-input-label">{{ title ? $t(title) : '' }}</label>
     </div>
 </template>
@@ -14,6 +14,7 @@ export default defineComponent({
     name: 'pivot-table-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -66,6 +67,21 @@ export default defineComponent({
                     return this.widgetModel.settings.visualization.visualizationTypes
                 default:
                     return null
+            }
+        },
+        onModelChange() {
+            switch (this.type) {
+                case 'Title':
+                case 'BackgroundColorStyle':
+                case 'BordersStyle':
+                case 'PaddingStyle':
+                case 'ShadowsStyle':
+                case 'Totals':
+                case 'SubTotals':
+                case 'CrossTabHeaders':
+                case 'FieldsStyle':
+                case 'FieldHeadersStyle':
+                    this.$emit('styleChanged')
             }
         }
     }
