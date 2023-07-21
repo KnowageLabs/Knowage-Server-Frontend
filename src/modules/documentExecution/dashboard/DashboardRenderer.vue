@@ -1,10 +1,10 @@
 <template>
     <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
         <div id="dashboard-css" v-html="dashboardCss" />
-        <KnDashboardTab v-for="(sheet, index) in dashboardModel.sheets" :key="index" :index="index">
+        <div v-if="activeDashboardSheet" class="sheet-container">
             <grid-layout
-                v-model:layout="sheet.widgets['lg']"
-                :responsive-layouts="sheet.widgets"
+                v-model:layout="activeDashboardSheet.widgets['lg']"
+                :responsive-layouts="activeDashboardSheet.widgets"
                 :responsive="true"
                 :cols="{ lg: 50, md: 100, sm: 50, xs: 20, xxs: 10 }"
                 :row-height="30"
@@ -15,19 +15,30 @@
                 :margin="[0, 0]"
                 @breakpoint-changed="breakpointChangedEvent"
             >
-                <WidgetController v-for="item in sheet.widgets['lg']" :key="item.i" :active-sheet="sheet" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
+                <WidgetController
+                    v-for="item in activeDashboardSheet.widgets['lg']"
+                    :key="item.i"
+                    :active-sheet="activeDashboardSheet"
+                    :document="document"
+                    :widget="currentWidget(item.id)"
+                    :item="item"
+                    :datasets="datasets"
+                    :dashboard-id="dashboardId"
+                    :variables="variables"
+                    :model="model"
+                ></WidgetController>
                 <div v-if="canEditDashboard(document)" class="emptyDashboardWizard">
                     <div v-if="dashboardModel?.configuration?.datasets.length === 0" class="dashboardWizardContainer" @click="addDataset">
                         <img :src="getImageSource('images/dashboard/common/databaseWizardDashboard.svg')" />
                         <span>{{ $t('dashboard.wizard.addDataset') }}</span>
                     </div>
-                    <div v-if="sheet.widgets?.lg?.length === 0" class="dashboardWizardContainer" @click="addWidget">
+                    <div v-if="activeDashboardSheet.widgets?.lg?.length === 0" class="dashboardWizardContainer" @click="addWidget">
                         <img :src="getImageSource('images/dashboard/common/widgetWizardDashboard.svg')" />
                         <span>{{ $t('dashboard.wizard.addWidget') }}</span>
                     </div>
                 </div>
             </grid-layout>
-        </KnDashboardTab>
+        </div>
     </KnDashboardTabsPanel>
 </template>
 
@@ -36,18 +47,17 @@
  * ! this component will be in charge of creating the dashboard visualizazion, specifically to manage responsive structure and sheets.
  */
 import { defineComponent, PropType } from 'vue'
-import { IBackground, IDataset, IVariable } from './Dashboard'
+import { IBackground, IDashboardSheet, IDataset, IVariable } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { emitter } from './DashboardHelpers'
 import WidgetController from './widget/WidgetController.vue'
 import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTabsPanel.vue'
-import KnDashboardTab from '@/components/UI/KnDashboardTabs/KnDashboardTab.vue'
 import dashboardStore from './Dashboard.store'
 
 export default defineComponent({
     name: 'dashboard-manager',
-    components: { KnDashboardTab, KnDashboardTabsPanel, WidgetController },
+    components: { KnDashboardTabsPanel, WidgetController },
     props: {
         model: { type: Object },
         document: { type: Object },
@@ -60,6 +70,7 @@ export default defineComponent({
         return {
             dashboardModel: {} as any,
             startingBreakpoint: '' as string,
+            activeDashboardSheet: null as IDashboardSheet | null,
             canEditDashboard
         }
     },
@@ -88,6 +99,7 @@ export default defineComponent({
         this.dashboardModel = this.model ?? {}
         if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
         if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
+        this.activeDashboardSheet = this.dashboardModel.sheets[0]
     },
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
@@ -103,6 +115,7 @@ export default defineComponent({
         sheetChange(index) {
             this.setSelectedSheetIndex(index)
             this.setDashboardSheet({ id: (this as any).dashboardId as any, sheet: index })
+            this.activeDashboardSheet = this.dashboardModel.sheets[index]
         },
         addDataset() {
             emitter.emit('openDatasetManagement', this.dashboardId)
@@ -114,6 +127,13 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
+.sheet-container {
+    height: 100%;
+    min-width: 100%;
+    overflow-y: auto;
+    overflow-x: clip;
+}
+
 .vue-grid-layout {
     min-height: 100%;
     .vue-grid-item {
