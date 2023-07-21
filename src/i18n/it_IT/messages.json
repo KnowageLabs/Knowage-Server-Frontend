@@ -305,6 +305,56 @@
         "yearly": "annuale"
     },
     "dashboard": {
+        "dashboardBeta": "Dashboard (Beta)",
+        "datasetEditor": {
+            "addAssociation": "Aggiungi Associazione",
+            "addIndexes": "Aggiungi indici",
+            "association": "Associazione",
+            "associationsDetailMsg": "TODO: Write whatever we need to write here after PR",
+            "associationsDetailTitle": "Associazione tra Dataset",
+            "associationsTabTitle": "Associazioni",
+            "cached": "Salvato in cache",
+            "dataDetailMsg": "Aggiungi o seleziona dataset",
+            "dataDetailTitle": "Gestione Dataset",
+            "dataTabTitle": "Dati",
+            "datasetDriversWarningMsg1": "Si può selezionare solo un dataset con driver! ",
+            "datasetDriversWarningMsg2": " i Dataset non sono stati aggiunti!",
+            "duplicateAssociationsMsg": "L'associazione esiste già!",
+            "dynamic": "Dinamico",
+            "emptyAssociationError": "Devi selezionare almeno due campi per creare un'associazione.",
+            "indexHint": "Gli indici saranno creati nella sola colonna selezionata.",
+            "indexPresentMsg": "L'indice esiste già!",
+            "indexesTitle": "Indici",
+            "pendingChanges": "Hai cambiamenti non salvati, sei sicuro di voler uscire dall'editor?",
+            "selectDatasets": "Seleziona Dataset",
+            "static": "Statico",
+            "title": "Gestione Dataset"
+        },
+        "generalSettings": {
+            "attribute": "Attributo",
+            "background": {
+                "sheetsColor": "Colore di sfondo dei fogli",
+                "sheetsImage": "Indirizzo immagine di sfondo dei fogli",
+                "sheetsSize": "Dimensione sfondo dei fogli"
+            },
+            "css": "Editor CSS",
+            "menuWidgets": {
+                "showExcelExport": "Abilita la funzionalità 'Esporta in Excel' nei widget",
+                "showScreenshot": "Abilita la funzionalità screenshot nei widget",
+                "showSelectionButton": "Mostra sempre il pulsante selezioni",
+                "title": "Menu & Widget"
+            },
+            "profile": "Profilo",
+            "title": "Configurazioni Generali",
+            "variableColumnHint": "Se nessuna colonna viene selezionata verrà utilizzato l'intero dataset.",
+            "variablesHint": "Le variabili possono essere usate ovunque nei widget della dashboard. Possono essere valori statici o dinamici e valorizzati in diversi modi. Controlla la documentazione o singoli widget per imparare come usarle."
+        },
+        "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "rWidgetError": "Error loading R widget.",
+        "saveCockpit": "Save Cockpit",
+        "saveCockpitHint": "Please enter a valid name",
+        "selectionsList": "Selections List",
+        "sheet": "Foglio",
         "sheets": {
             "add": "Aggiungi Foglio",
             "confirmDeleteMessage": "Confermi di voler eliminare il foglio selezionato? ",
@@ -312,6 +362,831 @@
             "moveLeft": "Sposta foglio a sinistra",
             "moveRight": "Sposta foglio a destra",
             "rename": "Rinomina foglio"
+        },
+        "tableWidget": {
+            "launchSelection": "AVVIA SELEZIONE"
+        },
+        "widgetEditor": {
+            "absolute": "Absolute",
+            "accessibility": {
+                "enabelKeyboardNavigation": "Enable Keyboard Navigation",
+                "exposeAsGroupOnly": "Expose As Group Only",
+                "exposeAsGroupOnlyHint": "Expose only the series element to screen readers, not its points.",
+                "keyboardNavigationOrder": "Keyboard Navigation Order",
+                "keyboardNavigationOrderHint": "Order of tab navigation in the chart. Determines which elements are tabbed to first. Available elements are: series, zoom, rangeSelector, chartMenu, legend and container. In addition, any custom components can be added here. Adding container first in order will make the keyboard focus stop on the chart container first, requiring the user to tab again to enter the chart.",
+                "keyboardNavigationOrderOptions": {
+                    "chartMenu": "Chart Menu",
+                    "container": "Container",
+                    "legend": "Legend",
+                    "rangeSelector": "Range Selector",
+                    "zoom": "Zoom"
+                },
+                "title": "Accessibility"
+            },
+            "addWidget": "Aggiungi Widget",
+            "aggregation": "Aggregation",
+            "area": "Area",
+            "ascending": "Ascending",
+            "axis": "Axis",
+            "background": "Background",
+            "blur": "Blur",
+            "borders": {
+                "borderRadiusBottomLeft": "Border radius bottom left",
+                "borderRadiusBottomRight": "Border radius bottom right",
+                "borderRadiusTopLeft": "Border radius top left",
+                "borderRadiusTopRight": "Border radius top right",
+                "bordersColor": "Borders Color",
+                "bordersStyle": "Borders Style",
+                "bordersThickness": "Borders Thickness",
+                "bordersThicknessHint": "px, rem or % measure units are available",
+                "dashed": "Dashed",
+                "dotted": "Dotted",
+                "solid": "Solid",
+                "title": "Borders"
+            },
+            "chartJS": {
+                "legend": {
+                    "alignHint": "Alignment of the legend",
+                    "positionHint": "Position of the legend."
+                },
+                "piechart": {
+                    "dimensionsTableHint": "Attributes only.",
+                    "valuesTableHint": "Measures only."
+                }
+            },
+            "chartTypes": {
+                "activitygauge": "Activity Gauge",
+                "areaChart": "Area Chart",
+                "barChart": "Bar Chart",
+                "bubbleChart": "Bubble Chart",
+                "chord": "Chord Chart",
+                "columnChart": "Column Chart",
+                "donutChart": "Donut Chart",
+                "funnelChart": "Funnel Chart",
+                "gauge": "Gauge",
+                "heatmap": "Heatmap",
+                "lineChart": "Line Chart",
+                "parallelChart": "Parallel Chart",
+                "pictorial": "Pictorial",
+                "pieChart": "Pie Chart",
+                "radar": "Radar",
+                "sankey": "Sankey",
+                "sankeyInverted": "Sankey Inverted",
+                "scatterChart": "Scatter Chart",
+                "solidgauge": "Solid Gauge",
+                "stackedAreaChart": "Stacked Area Chart",
+                "stackedBarChart": "Stacked Bar Chart",
+                "stackedColumnChart": "Stacked Column Chart",
+                "stackedColumnsChart": "Stacked Columns Chart",
+                "sunburst": "Sunburst",
+                "treemap": "Treemap",
+                "wordcloud": "Wordcloud"
+            },
+            "chips": "Chips",
+            "colors": {
+                "title": "Colors"
+            },
+            "columnDetails": "Column Details",
+            "columnFilterHint": "Select the filter operator and the value for the column. Remember to use the correct database sintax for the value. ie: %LIKE%",
+            "columnGroups": {
+                "title": "Column Groups"
+            },
+            "compareValueType": "Compare value type",
+            "conditionalStyle": "Conditional Style",
+            "conditions": {
+                "applyToWholeRow": "Apply to whole row",
+                "compareValueType": "Value type",
+                "formulaHint": "Formula hint placeholder",
+                "title": "Conditions",
+                "useAdvancedFormula": "Use Advanced Formula"
+            },
+            "configuration": "Configurazione",
+            "configurationOf3D": {
+                "alphaAngle": "Alpha Angle",
+                "alphaAngleHint": "One of the two rotation angles for the chart.",
+                "betaAngle": "Beta Angle",
+                "betaAngleHint": "One of the two rotation angles for the chart.",
+                "title": "3D",
+                "totalDepth": "Total Depth",
+                "totalDepthHint": "The total depth of the chart.",
+                "viewDistance": "View Distance",
+                "viewDistanceHint": "Defines the distance the viewer is standing in front of the chart, this setting is important to calculate the perspective effect in column and scatter charts. It is not used for 3D pie charts."
+            },
+            "customHeaderTooltip": "Custom Header Tooltip",
+            "customMessages": {
+                "customEmptyRowsMessage": "Custom empty rows message",
+                "hideNoRowsAvailable": "Hide \"No Rows Available\" message",
+                "title": "Custom Messages"
+            },
+            "defaultValues": {
+                "columnsFirstItem": "Main column's first item",
+                "columnsLastItem": "Main column's last item",
+                "hint": "Default values hint placeholder",
+                "selectDafaultValue": "Select Default Value",
+                "title": "Default Values"
+            },
+            "descending": "Descending",
+            "dimensions": "Dimensions",
+            "discoveryWidget": {
+                "facets": {
+                    "closedByDefault": "Chiuso di default",
+                    "columnWidth": "Larghezza colonna faccette",
+                    "decimalPrecision": "Precisione decimale dei valori",
+                    "enableSelection": "Abilita selezione sulle faccette",
+                    "maxNumber": "Massimo numero di faccette",
+                    "title": "Faccette"
+                },
+                "search": {
+                    "defaultTextSearch": "Ricerca testuale di default",
+                    "title": "Ricerca Testuale"
+                }
+            },
+            "dragColumnsHint": "Drag columns here",
+            "drilldown": {
+                "title": "Drilldown"
+            },
+            "editor": "Editor",
+            "editorTags": {
+                "activesel": "Selezioni attive",
+                "calc": "Calculation",
+                "calculator": "Calculator",
+                "columnsData": "Columns Data",
+                "conditional": "Conditional Container",
+                "crossnav": "Cross-Navigation",
+                "hint": {
+                    "activesel": "This tag is used to show the selected value of a column of the selected parameter.",
+                    "calculator": "This tag is used to calculate a result number from standard operations and other tags like kn-column and kn-parameter.",
+                    "columnsData": "This tag is used to show a field value from the selected dataset column. The optional attribute ROW make the tag show the field value of the specified row for that column. If a row is not specified the tag will show the first occurrence for the column.",
+                    "conditional": "This tag is used to conditionally show a specific HTML section delimited by the tag ending. If the condition is verified the tag will be displayed, else it will be hidden. Other tags can be used to dinamically get a value for the condition.",
+                    "crossnav": "This tag is used to create an interactive element bind to the selected cross-navigation. Cross-navigation must be enabled in the 'Cross' tab of this widget setting. If you selected \"Dynamic\" output you can add a value to the kn-cross attribute.",
+                    "internationalization": "This tag is used to show a label value depending on the user locale and using the internationalization manager.",
+                    "parameters": "This tag is used to show a parameter value from the ones available to the selected dataset.",
+                    "preview": "This tag is used to create an interactive element creating a link to a popup showing the specified dataset preview.",
+                    "repeatIndex": "This tag is used inside a kn-repeat to get the current row value of the repeater..Dynamic fields from dataset will take the value of the repeated row.",
+                    "repeater": "This tag is used to repeat the HTML section delimited by the tag ending for every row in the dataset if the condition is verified. Set the condition to \"true\" to always show.The limit attribute limits the number of rows shown. Dynamic fields from dataset will take the value of the repeated row.",
+                    "selection": "This tag is used to create an interactive element generating a selection on the specified column with the specified value.",
+                    "toLocale": "This tag is used to show a label set in the internationalization section of the product.s",
+                    "variables": "This tag is used to show the value of the selected variable."
+                },
+                "i18n": "i18n",
+                "internationalization": "Internationalization",
+                "limit": "Limit",
+                "parameters": "Parameters",
+                "preview": "Preview",
+                "repeatIndex": "Repeat Index",
+                "repeater": "Repeater",
+                "selection": "Selection",
+                "selectionVal": "Selection Value",
+                "toLocale": "Format to locale",
+                "variables": "Variables"
+            },
+            "enableFilter": "Enable Filter",
+            "enableTooltip": "Enable Tooltip",
+            "export": {
+                "a4landscape": "A4 Landscape",
+                "a4portrait": "A4 Portrait",
+                "enableScreenshots": "Enable Screenshots",
+                "exportPdf": "Export PDF",
+                "showExcelExport": "Enable show excel export (when available)",
+                "title": "Export"
+            },
+            "fontawesome": "Fontawesome",
+            "format": "Format",
+            "formatter": "Formatter",
+            "gallery": "Gallery",
+            "galleryWarning": "Are you sure you want to overwrite changes in editor with the template?",
+            "headers": {
+                "action": "Action",
+                "enableCustomHeaders": "Enable Custom Headers",
+                "enableMultiline": "Enable Multiline",
+                "headerHeight": "Header height",
+                "headerHeightHint": "Header height in px (default is 25px)",
+                "hideHeader": "Hide header",
+                "setLabel": "Set label",
+                "title": "Headers"
+            },
+            "hidden": "Hidden",
+            "highcharts": {
+                "activityGauge": {
+                    "valuesTableHint": "Measures only."
+                },
+                "areaRangeHigh": "Area Range High",
+                "areaRangeLow": "Area Range Low",
+                "axisLines": {
+                    "crosshairColor": "Crosshair Color",
+                    "crosshairWidth": "Crosshair Width",
+                    "title": "Axis Line Details"
+                },
+                "axisTickSettings": {
+                    "endOnTick": "End On Tick",
+                    "endOnTickHint": "Whether to force the axis to end on a tick.",
+                    "showLastLabel": "Show Last Label",
+                    "showLastLabelHint": "Whether to show the last tick label.",
+                    "startOnTick": "Start On Tick",
+                    "startOnTickHint": "Whether to force the axis to start on a tick."
+                },
+                "bands": {
+                    "bandsGaugeHint": "In a gauge, a plot band on the Y axis (value axis) will stretch along the perimeter of the gauge.",
+                    "bandsHint": "An array of colored bands stretching across the plot area marking an interval on the axis.",
+                    "colorHint": "The color of the plot band.",
+                    "fromHint": "The start position of the plot band in axis units.",
+                    "thickness": "Thickness",
+                    "thicknessHint": "In a gauge chart, this option sets the width of the plot band stretching along the perimeter. It can be given as a percentage string, like \"10%\", or as a pixel number, like 10. The default value 10 is the same as the default tickLength, thus making the plot band act as a background for the tick markers.",
+                    "title": "bands",
+                    "toHint": "The end position of the plot band in axis units."
+                },
+                "barchart": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories. The item that precedes should have a lower granularity. If you enable grouping categories, you need to define exactly two categories. If you enable splitting serie using second category, you need to define exactly two categories and one serie. If you enable splitting serie using second serie, you need to define exactly one category and two series.",
+                    "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second serie, you need to define exactly two series. If you enable splitting serie using second category, you need to define exactly one serie."
+                },
+                "bubblechart": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories. If you want to use split function, you can select maximum 2 categories",
+                    "valuesTableHint": "Click on at least one measure to define series.",
+                    "xAndZAxesHint": "Click on exactly one measure to define series."
+                },
+                "centerText": {
+                    "hint": "Center Text Hint",
+                    "title": "Center Text"
+                },
+                "datetype": "Date Type",
+                "dial": {
+                    "dialBaseWitdh": "Dial Base Width",
+                    "dialColor": "Dial Color",
+                    "dialRadius": "Dial Radius",
+                    "dialRadiusHint": "The radius or length of the dial, in percentages relative to the radius of the gauge itself."
+                },
+                "gauge": {
+                    "valuesTableHint": "Measures only."
+                },
+                "grouping": {
+                    "groupByCategories": "Group by categories",
+                    "groupByCategoriesHint": "Option available only if you are not using datetime, splitting functions and 3d option.",
+                    "secondCategory": "Second Category",
+                    "secondCategoryHint": "Option available only if you are not using datetime and group by categories. You can use only one splitting function.",
+                    "secondCategoryToUse": "Series to use on second category options",
+                    "secondSerie": "Second Serie",
+                    "secondSerieHint": "Option available only if you are not using datetime and group by categories. You can use only one splitting function.",
+                    "title": "Grouping"
+                },
+                "heatmap": {
+                    "axisMaxHint": "The minimum value of the axis. If null the min value is automatically calculated.",
+                    "axisMinHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
+                    "datetype": "Datetype",
+                    "dimensionsTableHint": "Exactly two attributes to define categories. If the attribute is of type Date (Timestamp) it must be the first one. You are not able to reorder categories.",
+                    "labelRotation": "Label Rotation",
+                    "nullValues": {
+                        "connectNulls": "Connect Nulls",
+                        "nullColor": "Null Color",
+                        "title": "Null Values"
+                    },
+                    "rotation": "Rotation",
+                    "valuesTableHint": "Exactly one measure only to define series"
+                },
+                "labels": {
+                    "distance": "Distance",
+                    "distanceHint": "The distance of the data label from the pie's edge. Negative numbers put the data label on top of the pie slices. Can also be defined as a percentage of pie's radius. Connectors are only shown for data labels outside the pie.",
+                    "formatHint": "A format string for the data label. Available variables are the same as for formatter.",
+                    "formatterHint": "Callback JavaScript function to format the data label. Note that if a format is defined, the format takes precedence and the formatter is ignored."
+                },
+                "legend": {
+                    "alignHint": "The horizontal alignment of the legend box within the chart area. Valid values are left, center and right. In the case that the legend is aligned in a corner position, the layout option will determine whether to place it above/below or on the side of the plot area.",
+                    "formatHint": "A format string for each legend label. Available variables relates to properties on the series, or the point in case of pies.",
+                    "formatterHint": "Callback function to format each of the series' labels. The this keyword refers to the series object, or the point object in case of pie charts. By default the series or point name is printed.",
+                    "layoutHint": "The layout of the legend items. Can be one of horizontal or vertical or proximate. When proximate, the legend items will be placed as close as possible to the graphs they're representing, except in inverted charts or when the legend position doesn't allow it.",
+                    "verticalAlignHint": "The vertical alignment of the legend box. Can be one of top, middle or bottom. Vertical position can be further determined by the y option. In the case that the legend is aligned in a corner position, the layout option will determine whether to place it above/below or on the side of the plot area. When the layout option is proximate, the verticalAlign option doesn't apply."
+                },
+                "limit": {
+                    "direction": "Direction",
+                    "itemsNumber": "Maximum number of records",
+                    "sortBySerie": "Sort by Serie",
+                    "title": "Limit"
+                },
+                "lines": {
+                    "lineColor": "Line Color",
+                    "lineInterval": "Line Interval",
+                    "lineType": "Line Type",
+                    "linesHint": "An array of lines stretching across the plot area, marking a specific value on one of the axes.",
+                    "title": "Lines",
+                    "valueHint": "The position of the line in axis units.",
+                    "widthHint": "The width or thickness of the plot line."
+                },
+                "majorGridDetails": "Axis major grid details",
+                "minorGridDetails": "Axis minor grid details",
+                "paneSettings": {
+                    "centralHorizontalPosition": "Centar Horizontal Position",
+                    "centralVerticalPosition": "Centar Vertical Position",
+                    "endAngle": "End Angle",
+                    "endAngleHint": "The end angle of the polar X axis or gauge value axis, given in degrees where 0 is north.",
+                    "startAngle": "Start Angle",
+                    "startAngleHint": "The start angle of the polar X axis or gauge axis, given in degrees where 0 is north."
+                },
+                "pictorial": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on exactly one measure to define series."
+                },
+                "piechart": {
+                    "dimensionsTableHint": "Attributes only. Each different value in the selected column will create a different slice. If more than one dimension is present, the list will be the drill-down sequence.",
+                    "valuesTableHint": "Measures only. The selected column will be used as values for every slice."
+                },
+                "pivot": {
+                    "pivotColor": "Pivot Color",
+                    "pivotRadius": "Pivot Radius",
+                    "pivotRadiusHint": "The pixel radius of the pivot."
+                },
+                "proximate": "Proximate",
+                "radar": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories If you enable splitting serie using second category, you need to define exactly two categories and one serie.",
+                    "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second category, you need to define exactly one serie."
+                },
+                "sankey": {
+                    "fromTableHint": "Click on exactly one attributes to define from category",
+                    "toTableHint": "Click on exactly one attributes to define to category",
+                    "valuesTableHint": "Click on exactly one measure to define series"
+                },
+                "scale": {
+                    "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
+                    "minHint": "The minimum value of the axis. If null the min value is automatically calculated."
+                },
+                "scatterchart": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on at least one measure to define series."
+                },
+                "showChekboxes": "Show Checkboxes",
+                "solidGauge": {
+                    "valuesTableHint": "Measures only."
+                },
+                "sonification": {
+                    "duration": "Duration",
+                    "durationHint": "The total duration of the sonification, in milliseconds.",
+                    "order": "Order",
+                    "orderHint": "What order to play the data series in, either sequential where the series play individually one after the other, or simultaneous where the series play all at once.",
+                    "sequential": "Sequential",
+                    "simultaneous": "Simultaneous",
+                    "title": "Sonification"
+                },
+                "spline": {
+                    "dimensionsTableHint": "Click on at exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on at least two measures to define series."
+                },
+                "splitting": {
+                    "hint": "Options available only if you are not using datetime and Group by categories. You can use only one Splitting function.",
+                    "secondCategory": "Series to use on second category options",
+                    "title": "Serie splitting"
+                },
+                "stacking": {
+                    "normal": "Normal",
+                    "percent": "Percent",
+                    "title": "Stacking"
+                },
+                "stops": {
+                    "colorHint": "Solid gauge series only. Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
+                    "relativePosition": "Relative Position",
+                    "relativePositionHint": "Solid gauge series only. Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
+                    "stopsHint": "Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
+                    "title": "Stops"
+                },
+                "svg": {
+                    "definition": "Definition",
+                    "error": "No path element with d attribute found in SVG file.",
+                    "hint": "SVG Hint Placeholder",
+                    "title": "SVG",
+                    "upload": "Upload SVG"
+                },
+                "tick": {
+                    "minorTickInterval": "Minor Tick Interval",
+                    "minorTickIntervalHint": "Specific tick interval in axis units for the minor ticks. On a linear axis, if \"auto\", the minor tick interval is calculated as a fifth of the tickInterval. If null or undefined, minor ticks are not shown. On logarithmic axes, the unit is the power of the value. For example, setting the minorTickInterval to 1 puts one tick on each of 0.1, 1, 10, 100 etc. Setting the minorTickInterval to 0.1 produces 9 ticks between 1 and 10, 10 and 100 etc. If user settings dictate minor ticks to become too dense, they don't make sense, and will be ignored to prevent performance problems.",
+                    "tickColor": "Tick Color",
+                    "tickLength": "Tick Length",
+                    "tickLengthHint": "The pixel length of the main tick marks.",
+                    "tickPosition": "Tick Position",
+                    "tickPositionHint": "The position of the major tick marks relative to the axis line. Can be one of inside and outside.",
+                    "tickWidth": "Tick Width",
+                    "tickWidthHint": "The pixel width of the major tick marks.",
+                    "title": "Tick"
+                },
+                "tooltip": {
+                    "activityGaugeFormatterHint": "Activity Gauge Formatter Hint Placeholder.",
+                    "formatterHint": "Callback function to format the text of the tooltip from scratch. In case of single or shared tooltips, a string should be returned. In case of split tooltips, it should return an array where the first item is the header, and subsequent items are mapped to the points. Return false to disable tooltip for a specific point on series. A subset of HTML is supported. Unless useHTML is true, the HTML of the tooltip is parsed and converted to SVG, therefore this isn't a complete HTML renderer. The following HTML tags are supported: b, br, em, i, span, strong. Spans can be styled with a style attribute, but only text-related CSS, that is shared with SVG, is handled. The available data in the formatter differ a bit depending on whether the tooltip is shared or split, or belongs to a single point. In a shared/split tooltip, all properties except x, which is common for all points, are kept in an array, this.points.",
+                    "pointFormatter": "Point Formatter",
+                    "pointFormatterHint": "A callback function for formatting the HTML output for a single point in the tooltip. Like the pointFormat string, but with more flexibility."
+                },
+                "treemapchart": {
+                    "dimensionsTableHint": "Click on at least two attribute to define categories. The item that precedes should have a lower granularity.",
+                    "valuesTableHint": "Click on at exactly one measure to define series."
+                }
+            },
+            "hint": "Select dataset",
+            "htmlParsingError": "HTML Parsing Error",
+            "iconTooltips": {
+                "backgroundColor": "Background color",
+                "bold": "Bold",
+                "borderColor": "Border color",
+                "fontColor": "Font color",
+                "fontFamily": "Font family",
+                "fontSize": "Font size",
+                "iconPicker": "Icon picker",
+                "italic": "Italic",
+                "textAlignment": "Text alignment"
+            },
+            "imageWidget": {
+                "imageUploadErrors": {
+                    "fileIsNotAnImage": "File is not an image",
+                    "fileTypeIsNotAllowed": "File type is not allowed",
+                    "noMoreImages": "No more images can be added",
+                    "tooBigImage": "Image is too big",
+                    "tooManyUserImages": "No more images can be added by this user. Delete some or ask the administrator to put an higher limit"
+                },
+                "uploadImage": "Upload Image"
+            },
+            "inputHintForPixels": "use px measure unit, ie: 5px",
+            "inputHintForTooltips": "This text will overwrite the column's header default tooltip. Variables and parameters placeholders are available.",
+            "inside": "Inside",
+            "interactions": {
+                "analyticalDriver": "Analytical Driver",
+                "basicUrl": "Basic Url",
+                "chartDynamicOptions": {
+                    "categoryId": "Category Id",
+                    "categoryName": "Category name",
+                    "categoryValue": "Category value",
+                    "groupingName": "Grouping name",
+                    "groupingValue": "Grouping value",
+                    "serieName": "Serie name",
+                    "serieValue": "Serie value"
+                },
+                "crossNavigation": "Cross-navigation",
+                "crossNavigationName": "Cross Navigation Name",
+                "directDownload": "Direct download",
+                "dynamic": "Dynamic",
+                "enableClickOnIcon": "Enable click on an icon",
+                "enableClickOnSingleColumn": "Enable click on a single column",
+                "enableClickOnWholeRow": "Enable click on whole row",
+                "enableMultiselection": "Enable Multiselection",
+                "json": "JSON",
+                "jwt": "JWT",
+                "link": "Link",
+                "linkType": "Link type",
+                "modalColumn": "Modal Column",
+                "openInNewPage": "Open in new page",
+                "openInSamePage": "Open in the same page",
+                "outputParameter": "Output Parameter",
+                "preview": "Preview",
+                "selection": "Selection",
+                "static": "Static",
+                "title": "Interactions"
+            },
+            "itemsPerPage": "Items per page",
+            "legend": {
+                "title": "Legend"
+            },
+            "line": "Line",
+            "manualInput": "Manual input",
+            "map": {
+                "addThreshold": "Add Threshold",
+                "baseLayer": {
+                    "autoCentering": "Auto centering",
+                    "selectBackgroundLayer": "Select Background Layer",
+                    "showScale": "Show scale",
+                    "title": "Enable Base Layer",
+                    "zoomFactor": "Zoom factor"
+                },
+                "categorizeBy": "Categorize By",
+                "categorizeByOptions": {
+                    "description": "DESCRIPTION",
+                    "id": "ID"
+                },
+                "classesMethodOptions": {
+                    "byEqualIntervals": "Classify by equal intervals",
+                    "byQuantils": "Classify by equal quantils",
+                    "byRanges": "Classify by ranges",
+                    "title": "Classes method"
+                },
+                "classesNumber": "Classes number",
+                "controlPanel": {
+                    "alwaysShow": "Always show control panel",
+                    "dimension": "Control Panel Dimension",
+                    "dimensionHint": "Control Panel Dimension Hint",
+                    "title": "Control Panel"
+                },
+                "crossNavigationLabelHint": "This is the label of the link. If empty it will be \"Go to detail\"",
+                "dialogHint": "The selected elements will be visible when clicking on the map",
+                "fromColor": "From color",
+                "fromThreshold": "From (>=)",
+                "imagesGallery": "Images Gallery",
+                "layerInfo": {
+                    "catalogLayer": "Catalog Layer",
+                    "catalogLayerColumn": "Catalog Layer Column",
+                    "datasetColumn": "Dataset column",
+                    "defaultVisible": "Default visible",
+                    "defaultVisibleHint": "Default visible hint",
+                    "linkHint": "Catalog type layer will link a dataset Column value to a catalog Column one. Select them for the dataset join",
+                    "staticHint": "Static hint",
+                    "target": "Target",
+                    "targetHint": "Target hint"
+                },
+                "legendText": "Legend Text",
+                "legendTitle": "Legend Title",
+                "linearGradient": "Linear Gradient",
+                "manageRanges": "Manage Ranges",
+                "markerTypes": {
+                    "default": "Default Marker",
+                    "icon": "Icon Marker",
+                    "iconUrl": "Icon URL",
+                    "image": "Image Marker",
+                    "scale%": "Scale %",
+                    "web": "Web Image Marker"
+                },
+                "metadata": {
+                    "addField": "Add Field",
+                    "aggregateBy": "Aggregate by",
+                    "aggregateByHint": "Aggregate by hint",
+                    "coordFormat": "Coord Format",
+                    "coordType": "Coord Type",
+                    "latLon": "lat lon",
+                    "lonLat": "lon lat",
+                    "modalHint": "Modal Hint",
+                    "showOnFilters": "Show on filters",
+                    "showOnMap": "Show on map",
+                    "spatialAttribute": "Spatial Attribute",
+                    "wktFormat": "WKT Format"
+                },
+                "north": "North",
+                "pieTypeOptions": {
+                    "bars": "Bars",
+                    "donuts": "Donuts",
+                    "pies": "Pies",
+                    "pies3d": "Pies 3D"
+                },
+                "qMenu": {
+                    "changeType": "Change Chart Type",
+                    "clone": "Clone Widget",
+                    "delete": "Delete Widget",
+                    "edit": "Edit Widget",
+                    "expand": "Expand to Fullscreen",
+                    "moveWidget": "Move Widget",
+                    "quickWidget": "Add Quick Widget",
+                    "search": "Search on Widget",
+                    "xor": "View One Layer"
+                },
+                "range": "Range",
+                "rangeLabel": "Min size (%)/Max size (%)",
+                "south": "South",
+                "toColor": "To color",
+                "toThreshold": "To (<)",
+                "tooltipHint": "The selected elements will be visible on mouse hover",
+                "visTypes": {
+                    "balloons": "Balloons",
+                    "choropleth": "Choropleth",
+                    "clusters": "Clusters",
+                    "heatmap": "Heatmap",
+                    "markers": "Markers",
+                    "pies": "Pies"
+                }
+            },
+            "noData": {
+                "title": "Nessun dato"
+            },
+            "noSelections": {
+                "customMessage": "Custom Message",
+                "customMessageHint": "If left empty the message will be 'No Active Selections'",
+                "title": "No Selection Message"
+            },
+            "outside": "Outside",
+            "padding": {
+                "linkAllHint": "Link all paddings",
+                "paddingBottom": "Padding Bottom",
+                "paddingLeft": "Padding Left",
+                "paddingRight": "Padding Right",
+                "paddingTop": "Padding Top",
+                "title": "Padding",
+                "unlinkAllHint": "Unlink all paddings"
+            },
+            "pagination": "Paginazione",
+            "paginator": "Paginatore",
+            "percentage": "Percentuale",
+            "pivot": {
+                "configuration": {
+                    "fieldPanel": "Field Panel",
+                    "fieldPicker": "Field Picker",
+                    "grandTotal": "Show Totals",
+                    "grandTotalLabel": "Labels for Totals",
+                    "showFieldPicker": "Show Integrated Field Picker",
+                    "subTotalLabel": "Labels for SubTotals",
+                    "subtotal": "Show Subtotals"
+                },
+                "style": {
+                    "columnHeaders": "Column Headers",
+                    "crossTabHeaders": "Cross Tab Headers",
+                    "fieldHeaders": "Field Headers",
+                    "rowHeaders": "Row Headers",
+                    "subTotals": "SubTotals",
+                    "totals": "Totals"
+                }
+            },
+            "pivotColumns": "Columns",
+            "pivotData": "Data",
+            "pivotFilters": "Filters",
+            "pivotRows": "Rows",
+            "position": "Position",
+            "precision": "Precision",
+            "prefix": "Prefix",
+            "python": {
+                "error": "Error loading Python widget.",
+                "outputFileName": "Output File Name",
+                "tagsDialog": {
+                    "hint": {
+                        "columnsData": "This tag is used to select a specific column from the selected dataset",
+                        "parameters": "This tag is used to choose an analytical driver from the ones available"
+                    }
+                }
+            },
+            "radius": "Raggio",
+            "recentlyUsed": "Usati di recente",
+            "responsive": {
+                "extraLargeDevices": "Mostra su dispositivi Extra Large",
+                "extraSmallDevices": "Mostra su dispositivi Extra Small",
+                "largeDevices": "Mostra su dispositivi di grandi dimensioni",
+                "smallerDevices": "Mostra su dispositivi di piccole dimensioni",
+                "tablets": "Mostra su Tablet",
+                "title": "Responsive"
+            },
+            "rows": {
+                "alternatedRowsEven": "Alternated Rows Even",
+                "alternatedRowsOdd": "Alternated Rows Odd",
+                "enableIndexColumn": "Enable Index Column",
+                "enableRowspan": "Enable Row Span",
+                "enabledAlternatedRows": "Enabled Alternated Rows",
+                "multiselectable": "Multiselectable",
+                "rowSpanColumn": "Row span column",
+                "selectionColor": "Selection color",
+                "showIndexesColumn": "Show indexes column",
+                "title": "Rows"
+            },
+            "selectDataset": "Select Dataset",
+            "selectedColumns": "Selected Columns",
+            "selectorType": {
+                "title": "Selector Type"
+            },
+            "series": {
+                "enableColor": "Enable Color",
+                "scale": "Scale",
+                "scaleHint": "Scale Hint Placeholder",
+                "title": "Series"
+            },
+            "seriesAccessibility": {
+                "title": "Series Accessibility"
+            },
+            "settingsListOptions": {
+                "tooltip": "Tooltip"
+            },
+            "shadows": {
+                "shadowSize": "Shadow Size",
+                "title": "Shadows"
+            },
+            "showLabel": "Show Label",
+            "sortingColumn": "Sorting column",
+            "sortingOrder": "Sorting order",
+            "suffix": "Suffix",
+            "summary": "Summary",
+            "summaryRows": {
+                "pinnedColumnsOnly": "Pinned columns only",
+                "title": "Summary rows"
+            },
+            "textConfiguration": {
+                "font": "Font",
+                "maximumFontSize": "Maximum Font Size",
+                "maximumWords": "Maximum Words",
+                "minimumFontSize": "Minimum Font Size",
+                "wordAngle": "Word Angle",
+                "wordAngleHint": "Word Angle Hint Placeholder",
+                "wordPadding": "Word Padding"
+            },
+            "textParsingError": "Text Parsing Error",
+            "thresholds": "Thresholds",
+            "title": "Widget Editor",
+            "titles": {
+                "title": "Title"
+            },
+            "tooltip": {
+                "title": "Tooltip"
+            },
+            "tooltipTextHint": "This text will overwrite the columns header default tooltip, variables and parameters placeholders ($V{placeholder} and $P{placeholder}) are available.",
+            "tooltips": {
+                "customHeader": "Custom Header",
+                "title": "Tooltips"
+            },
+            "valuesManagement": {
+                "alwaysEnableValues": "Always Enable Values",
+                "alwaysEnableValuesHint": "Always enable values hint placeholder",
+                "hideDisabledValues": "Hide Disabled Values",
+                "hideDisabledValuesHint": "Hide disabled values hint placeholder",
+                "showColumn": "Show Selection Column",
+                "showColumnHint": "Show selection column hint placeholder",
+                "showDataset": "Show Selection Dataset",
+                "showDatasetHint": "Show Selection dataset hint placeholder",
+                "title": "Values Management",
+                "wrapText": "Wrap Text",
+                "wrapTextHint": "Wrap text hint placeholder"
+            },
+            "vega": {
+                "fontOptions": {
+                    "calibri": "Calibri",
+                    "cambria": "Cambria",
+                    "georgia": "Georiga",
+                    "gungsuh": "Gungsuh",
+                    "impact": "Impact"
+                },
+                "wordcloud": {
+                    "dimensionsTableHint": "Attributes only.",
+                    "valuesTableHint": "Measures only."
+                }
+            },
+            "visibilityConditions": {
+                "always": "Always",
+                "hideColumn": "Hide Column",
+                "hideFromSummary": "Hide Summary",
+                "hideOnPdf": "Hide on PDF",
+                "onVariableValue": "On Variable Value",
+                "title": "Visibility Conditions"
+            },
+            "visualization": "Visualization",
+            "visualizationOptions": {
+                "chart": "Chart",
+                "iconOnly": "Icon only",
+                "textAndChart": "Text & Chart"
+            },
+            "visualizationType": {
+                "alignment": "Alignment",
+                "bar": "Bar",
+                "barAndText": "Bar & Text",
+                "pinned": "Pinned",
+                "sparkline": "Sparkline",
+                "textAndIcon": "Text & Icon",
+                "title": "Visualization Type"
+            },
+            "xAxis": "X Axis",
+            "yAxis": "Y Axis"
+        },
+        "widgets": {
+            "chart": {
+                "description": "Grafico personalizzato legato ai dati di un datasource. Sono disponibili grafici a torta, a barre e numerosi altri.",
+                "title": "grafico"
+            },
+            "customchart": {
+                "description": "Widget personalizzato che fa uso di HTML, CSS e JS. E' possibile inserire il proprio codice o quello di librerie esterne.",
+                "title": "Personalizzato"
+            },
+            "discovery": {
+                "description": "Tabella con funzionalità avanzate e faccette per interagire con dataset di tipo Solr.",
+                "title": "Discovery"
+            },
+            "document": {
+                "description": "Custom document upload as databind or datasource.",
+                "title": "document"
+            },
+            "html": {
+                "description": "Editor di codice HTML personalizzato con la possibilità di integrare contenuti dinamici.",
+                "title": "HTML"
+            },
+            "image": {
+                "description": "Immagine caricabile dal proprio pc o disponibile nel web.",
+                "title": "immagine"
+            },
+            "map": {
+                "description": "Mappa interattiva con rappresenzatione di livelli multipli e dati.",
+                "title": "mappa"
+            },
+            "python": {
+                "description": "Visualizzazione di elementi grafici generabili con codice Python personalizzato.",
+                "title": "python"
+            },
+            "r": {
+                "description": "Visualizzazione di elementi grafici generabili con codice R personalizzato.",
+                "title": "r"
+            },
+            "selection": {
+                "description": "Visualizzazione delle attuali selezioni sui widget.",
+                "title": "Selezioni attive"
+            },
+            "selector": {
+                "description": "Widget selettore per filtrare con semplicità i dati.",
+                "title": "Selettore"
+            },
+            "static-pivot-table": {
+                "description": "Tabella Pivot o cross.",
+                "title": "Pivot"
+            },
+            "table": {
+                "description": "Tabella standard e personalizzabile con collegamento ai dataset.",
+                "title": "Tabella"
+            },
+            "text": {
+                "description": "Testo statico o dinamico. Usa un editor WYSIWYG e shortcodes per integrare contenuti dinamici.",
+                "title": "Testo"
+            }
+        },
+        "wizard": {
+            "addDataset": "Aggiungi un nuovo Dataset alla Dashboard",
+            "addWidget": "Aggiungi un nuovo Widget alla scheda"
         }
     },
     "documentBrowser": {
