@@ -1,15 +1,13 @@
 <template>
-    <div v-if="labelStyleModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
+    <div v-if="labelStyleModel" class="p-ai-center kn-flex p-p-4">
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="labelStyleModel.enabled" color="black" /> </span>
 
-        <div class="p-col-6 p-mt-1">
+        <div class="p-field p-col-12 p-mb-2 p-d-flex p-flex-row p-ai-center">
             <InputSwitch v-model="labelStyleModel.wrapText" :disabled="labelStyleDisabled" @change="labelStyleChanged"></InputSwitch>
-            <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.widgetEditor.valuesManagement.wrapText') }}</label>
+            <label class="kn-material-input-label p-mb-0 p-ml-3">{{ $t('dashboard.widgetEditor.valuesManagement.wrapText') }}</label>
         </div>
-        <div class="p-col-6"></div>
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="descriptor.labelToolbarStyleOptions" :prop-model="labelStyleModel.properties" :disabled="labelStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
-        </div>
+
+        <WidgetEditorStyleToolbar :options="descriptor.labelToolbarStyleOptions" :prop-model="labelStyleModel.properties" :disabled="labelStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
     </div>
 </template>
 
