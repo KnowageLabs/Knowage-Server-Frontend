@@ -1,11 +1,23 @@
 <template>
-    <div class="p-p-2 p-d-flex" style="min-height: 415px">
-        <!-- <WidgetRenderer :widget="tableModel" :widget-data="tableWidgetMock.tableDataMock" :widget-initial-data="tableWidgetMock.tableDataMock" :datasets="[]" :dashboard-id="'table'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
-        <div :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div>
-        <Pie :chart-options="chartJSOptions" :chart-data="chartJSData" :chart-id="'pie-chart'" :dataset-id-key="'label'" />
-        <SelectorWidgetExample></SelectorWidgetExample> -->
-        <!-- <ActiveSelectionsExample></ActiveSelectionsExample> -->
-        <WidgetPictureExamples widget-type="image"></WidgetPictureExamples>
+    <div class="p-p-2 p-d-flex p-flex-column" style="gap: 25px">
+        <!-- <div :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div> -->
+        <!-- <Pie :chart-options="chartJSOptions" :chart-data="chartJSData" :chart-id="'pie-chart'" :dataset-id-key="'label'" /> -->
+
+        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="text" />
+        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="image" />
+        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="chart" />
+        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="html" />
+        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="map" />
+        <!-- <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="customChart" /> -->
+        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="python" />
+        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="r" />
+        <div class="p-p-2 p-d-flex" style="min-height: 415px">
+            <WidgetRenderer :widget="tableModel" :widget-data="tableWidgetMock.tableDataMock" :widget-initial-data="tableWidgetMock.tableDataMock" :datasets="[]" :dashboard-id="'table'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        </div>
+        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="pivot" />
+        <!-- <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="discovery" /> -->
+        <SelectorWidgetExample></SelectorWidgetExample>
+        <ActiveSelectionsExample></ActiveSelectionsExample>
     </div>
 </template>
 
@@ -52,6 +64,7 @@ export default defineComponent({
         }
     },
     created() {
+        console.log('THEME PROP ------------- \n', this.selectedThemeProp)
         this.loadSelectedTheme()
         this.loadWidgetModels()
     },
