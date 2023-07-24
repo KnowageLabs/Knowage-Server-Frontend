@@ -1,10 +1,8 @@
 <template>
-    <div v-if="totalsStyleModel" class="p-grid p-ai-center kn-flex p-p-4">
+    <div v-if="totalsStyleModel" class="p-ai-center kn-flex p-p-4">
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="totalsStyleModel.enabled" color="black" /> </span>
 
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="totalsStyleModel.properties" :disabled="totalsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
-        </div>
+        <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="totalsStyleModel.properties" :disabled="totalsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
     </div>
 </template>
 
@@ -40,7 +38,7 @@ export default defineComponent({
     },
     methods: {
         loadStyle() {
-            if (!this.widgetModel) return
+            // if (!this.widgetModel) return
             if (this.widgetModel) {
                 if (this.totalType == 'Totals' && this.widgetModel.settings?.style?.totals) this.totalsStyleModel = this.widgetModel.settings.style.totals
                 else if (this.totalType == 'SubTotals' && this.widgetModel.settings?.style?.subTotals) this.totalsStyleModel = this.widgetModel.settings.style.subTotals

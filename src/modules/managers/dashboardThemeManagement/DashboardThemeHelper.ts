@@ -8,6 +8,8 @@ import * as widgetCommonDefaultValues from '@/modules/documentExecution/dashboar
 import * as tableWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/tableWidget/TableWidgetDefaultValues'
 import * as selectorWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/selectorWidget/SelectorWidgetDefaultValues'
 import * as selectionsWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetDefaultValues'
+import * as pivotWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/pivotTableWidget/PivotTableDefaultValues'
+import { IPivotTableStyle } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 
 export const getDefaultDashboardThemeConfig = () => {
     const defaultDashboardThemeConfig = {} as IDashboardThemeConfig
@@ -16,6 +18,7 @@ export const getDefaultDashboardThemeConfig = () => {
     widgets.forEach((widget) => (defaultDashboardThemeConfig[widget] = createGenericWidgetStyle()))
 
     addUniqueTableWidgetStyles(defaultDashboardThemeConfig.table.style)
+    addUniquePivotWidgetStyles(defaultDashboardThemeConfig.pivot.style)
     addUniqueDiscoveryWidgetStyles(defaultDashboardThemeConfig.discovery.style)
     addUniqueActiveSelectionsWidgetStyles(defaultDashboardThemeConfig.activeSelections.style)
     addUniqueSelectorWidgetStyles(defaultDashboardThemeConfig.selector.style)
@@ -42,6 +45,13 @@ const addUniqueTableWidgetStyles = (config: ITableWidgetStyle) => {
     config.rows = tableWidgetDefaultValues.getDefaultRowsStyle()
     config.summary = tableWidgetDefaultValues.getDefualtSummryStyle()
     config.paginator = tableWidgetDefaultValues.getDefaultPaginatorStyle()
+}
+
+const addUniquePivotWidgetStyles = (config: IPivotTableStyle) => {
+    config.fieldHeaders = pivotWidgetDefaultValues.getDefaultColumnStyles()
+    config.fields = pivotWidgetDefaultValues.getDefaultColumnStyles()
+    config.totals = pivotWidgetDefaultValues.getDefaultTotals()
+    config.subTotals = pivotWidgetDefaultValues.getDefaultTotals()
 }
 
 const addUniqueDiscoveryWidgetStyles = (config: IDiscoveryWidgetStyle) => {
