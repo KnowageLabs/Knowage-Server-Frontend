@@ -51,8 +51,8 @@
 
             <WidgetEditorStyleToolbar :options="settingsDescriptor.defaultToolbarStyleOptions" :prop-model="columnStyle.properties" :disabled="columnStylesDisabled" @change="onStyleToolbarChange($event, columnStyle, index)"> </WidgetEditorStyleToolbar>
 
-            <br v-if="widgetModel" />
-            <br v-if="widgetModel" />
+            <br v-if="widgetModel && index < columnStyles.styles.length - 1" />
+            <br v-if="widgetModel && index < columnStyles.styles.length - 1" />
         </div>
     </div>
 </template>

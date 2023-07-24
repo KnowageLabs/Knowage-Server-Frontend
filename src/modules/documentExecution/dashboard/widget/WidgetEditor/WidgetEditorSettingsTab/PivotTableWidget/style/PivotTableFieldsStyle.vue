@@ -25,27 +25,6 @@
 
             <br v-if="widgetModel && index < fieldStyles.styles.length - 1" />
             <br v-if="widgetModel && index < fieldStyles.styles.length - 1" />
-            <!-- 
-            <div class="p-col-12 p-md-12 p-grid p-ai-center">
-                <div class="p-col-10 p-md-11 p-d-flex p-flex-column p-p-2">
-                    <label class="kn-material-input-label"> {{ $t('common.fields') }}</label>
-                    <Dropdown v-if="index === 0" v-model="fieldStyle.target" class="kn-material-input" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
-                    <WidgetEditorColumnsMultiselect
-                        v-else
-                        :value="(fieldStyle.target as string[])"
-                        :available-target-options="availableFieldOptions"
-                        :widget-columns-alias-map="widgetFieldsAliasMap"
-                        option-label="alias"
-                        option-value="id"
-                        :disabled="fieldStylesDisabled"
-                        @change="onFieldsSelected($event, fieldStyle)"
-                    />
-                </div>
-                <div v-if="widgetModel" class="p-col-2 p-md-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                    <i v-if="fieldType != 'fieldHeaders' && widgetModel?.type === 'ce-pivot-table'" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
-                    <i v-if="widgetModel" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', columnStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-as-center p-ml-3" @click="index === 0 ? addColumnStyle() : removeColumnStyle(index)"></i>
-                </div>
-            </div> -->
         </div>
     </div>
 </template>
