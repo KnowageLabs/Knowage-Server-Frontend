@@ -1,9 +1,11 @@
 <template>
     <div class="p-p-2 p-d-flex" style="min-height: 415px">
-        <WidgetRenderer :widget="tableModel" :widget-data="tableWidgetMock.tableDataMock" :widget-initial-data="tableWidgetMock.tableDataMock" :datasets="[]" :dashboard-id="'table'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        <!-- <WidgetRenderer :widget="tableModel" :widget-data="tableWidgetMock.tableDataMock" :widget-initial-data="tableWidgetMock.tableDataMock" :datasets="[]" :dashboard-id="'table'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         <div :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div>
         <Pie :chart-options="chartJSOptions" :chart-data="chartJSData" :chart-id="'pie-chart'" :dataset-id-key="'label'" />
-        <SelectorWidgetExample></SelectorWidgetExample>
+        <SelectorWidgetExample></SelectorWidgetExample> -->
+        <!-- <ActiveSelectionsExample></ActiveSelectionsExample> -->
+        <WidgetPictureExamples widget-type="image"></WidgetPictureExamples>
     </div>
 </template>
 
@@ -22,10 +24,12 @@ import HighchartsWidgetMock from './mocks/HighchartsWidgetMock.json'
 import ChartJSWidgetMock from './mocks/ChartJSWidgetMock.json'
 import appStore from '@/App.store'
 import SelectorWidgetExample from './examples/SelectorWidgetExample.vue'
+import ActiveSelectionsExample from './examples/ActiveSelectionsExample.vue'
+import WidgetPictureExamples from './examples/WidgetPictureExamples.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetRenderer, Pie, SelectorWidgetExample },
+    components: { WidgetRenderer, Pie, SelectorWidgetExample, ActiveSelectionsExample, WidgetPictureExamples },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {
@@ -44,7 +48,7 @@ export default defineComponent({
         selectedThemeProp() {
             this.loadSelectedTheme()
             this.loadWidgetModels()
-            this.loadChartExample()
+            //  this.loadChartExample()
         }
     },
     created() {
@@ -52,7 +56,7 @@ export default defineComponent({
         this.loadWidgetModels()
     },
     mounted() {
-        this.loadChartExample()
+        // this.loadChartExample()
     },
     methods: {
         loadSelectedTheme() {
