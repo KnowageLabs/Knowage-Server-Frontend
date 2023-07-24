@@ -1,6 +1,31 @@
 <template>
-    <div v-if="fieldStyles" class="p-grid p-p-4">
-        <div v-for="(fieldStyle, index) in fieldStyles.styles" :key="index" class="dynamic-form-item p-col-12 p-grid p-ai-center">
+    <div v-if="fieldStyles" class="kn-flex p-p-4">
+        <div v-for="(fieldStyle, index) in fieldStyles.styles" :key="index">
+            <form class="p-fluid p-formgrid p-grid">
+                <div class="p-field p-col-12 p-d-flex p-flex-row">
+                    <span class="p-float-label kn-flex">
+                        <Dropdown v-if="index === 0" v-model="fieldStyle.target" class="kn-material-input" :options="descriptor.allColumnOption" option-value="value" option-label="label" :disabled="true"> </Dropdown>
+                        <WidgetEditorColumnsMultiselect
+                            v-else
+                            :value="(fieldStyle.target as string[])"
+                            :available-target-options="availableFieldOptions"
+                            :widget-columns-alias-map="widgetFieldsAliasMap"
+                            option-label="alias"
+                            option-value="id"
+                            :disabled="fieldStylesDisabled"
+                            @change="onFieldsSelected($event, fieldStyle)"
+                        />
+                        <label class="kn-material-input-label"> {{ $t('common.fields') }}</label>
+                    </span>
+                    <i v-if="widgetModel" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-as-center p-ml-3" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
+                </div>
+            </form>
+
+            <WidgetEditorStyleToolbar :options="descriptor.defaultToolbarStyleOptions" :prop-model="fieldStyle.properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyle, index)"> </WidgetEditorStyleToolbar>
+
+            <br v-if="widgetModel && index < fieldStyles.styles.length - 1" />
+            <br v-if="widgetModel && index < fieldStyles.styles.length - 1" />
+            <!-- 
             <div class="p-col-12 p-md-12 p-grid p-ai-center">
                 <div class="p-col-10 p-md-11 p-d-flex p-flex-column p-p-2">
                     <label class="kn-material-input-label"> {{ $t('common.fields') }}</label>
@@ -14,17 +39,13 @@
                         option-value="id"
                         :disabled="fieldStylesDisabled"
                         @change="onFieldsSelected($event, fieldStyle)"
-                    >
-                    </WidgetEditorColumnsMultiselect>
+                    />
                 </div>
                 <div v-if="widgetModel" class="p-col-2 p-md-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
                     <i v-if="fieldType != 'fieldHeaders' && widgetModel?.type === 'ce-pivot-table'" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', fieldStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer" @click="index === 0 ? addFieldStyle() : removeFieldStyle(index)"></i>
+                    <i v-if="widgetModel" :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', columnStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-as-center p-ml-3" @click="index === 0 ? addColumnStyle() : removeColumnStyle(index)"></i>
                 </div>
-            </div>
-
-            <div class="p-col-12 p-md-12 p-py-2">
-                <WidgetEditorStyleToolbar :options="descriptor.defaultToolbarStyleOptions" :prop-model="fieldStyle.properties" :disabled="fieldStylesDisabled" @change="onStyleToolbarChange($event, fieldStyle, index)"> </WidgetEditorStyleToolbar>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
@@ -88,8 +109,10 @@ export default defineComponent({
             this.addFieldAsOption()
         },
         loadFieldStyles() {
-            this.fieldStyles = this.widgetModel?.settings.style[this.fieldType]
-            this.removeFieldsFromAvailableOptions()
+            if (this.widgetModel) {
+                this.fieldStyles = this.widgetModel?.settings.style[this.fieldType]
+                this.removeFieldsFromAvailableOptions()
+            } else this.fieldStyles = this.themeStyle
         },
         loadFieldOptions() {
             this.availableFieldOptions = [...this.combinedArray]

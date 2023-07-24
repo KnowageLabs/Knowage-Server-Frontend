@@ -53,8 +53,8 @@
                             :total-type="'crossTabHeaders'"
                             class="no-padding"
                         />
-                        <!-- <PivotTableFieldsStyle v-else-if="prop.node.key.includes('fields-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.fields" :field-type="'fields'" class="no-padding" /> -->
-                        <!-- <PivotTableFieldsStyle v-else-if="prop.node.key.includes('fieldHeaders-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.fieldHeaders" :field-type="'fieldHeaders'" class="no-padding" /> -->
+                        <PivotTableFieldsStyle v-else-if="prop.node.key.includes('fields-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.fields" :field-type="'fields'" class="no-padding" />
+                        <PivotTableFieldsStyle v-else-if="prop.node.key.includes('fieldHeaders-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.fieldHeaders" :field-type="'fieldHeaders'" class="no-padding" />
                     </div>
                 </template>
             </q-tree>
