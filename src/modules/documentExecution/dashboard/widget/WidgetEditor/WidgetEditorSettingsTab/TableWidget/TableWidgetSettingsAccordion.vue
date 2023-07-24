@@ -33,8 +33,8 @@
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
                 <TableWidgetPaginator v-else-if="accordion.type === 'PaginatorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetPaginator>
-                <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
             </AccordionTab>
         </Accordion>
     </div>
@@ -68,12 +68,12 @@ import WidgetSelection from '../common/interactions/selection/WidgetSelection.vu
 import WidgetCrossNavigation from '../common/interactions/crossNavigation/WidgetCrossNavigation.vue'
 import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteractionsLinks.vue'
 import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
+import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
 import TableWidgetSettingsAccordionHeader from './TableWidgetSettingsAccordionHeader.vue'
 import TableWidgetPaginator from './style/TableWidgetPaginator.vue'
-import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
 
@@ -110,7 +110,8 @@ export default defineComponent({
         TableWidgetPaginator,
         WidgetInteractionsIframe,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        WidgetInteractionsIframe
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

@@ -36,8 +36,10 @@
         "type": ""
     },
     "defaultIFrameInteraction": {
+        "column": "",
         "enabled": false,
-        "json": ""
+        "json": "",
+        "type": ""
     },
     "defaultLinks": {
         "enabled": false,
