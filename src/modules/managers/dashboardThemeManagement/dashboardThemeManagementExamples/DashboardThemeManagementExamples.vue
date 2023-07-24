@@ -3,6 +3,7 @@
         <WidgetRenderer :widget="tableModel" :widget-data="tableWidgetMock.tableDataMock" :widget-initial-data="tableWidgetMock.tableDataMock" :datasets="[]" :dashboard-id="'table'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         <div :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div>
         <Pie :chart-options="chartJSOptions" :chart-data="chartJSData" :chart-id="'pie-chart'" :dataset-id-key="'label'" />
+        <SelectorWidgetExample></SelectorWidgetExample>
     </div>
 </template>
 
@@ -20,10 +21,11 @@ import Highcharts from 'highcharts'
 import HighchartsWidgetMock from './mocks/HighchartsWidgetMock.json'
 import ChartJSWidgetMock from './mocks/ChartJSWidgetMock.json'
 import appStore from '@/App.store'
+import SelectorWidgetExample from './examples/SelectorWidgetExample.vue'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
-    components: { WidgetRenderer, Pie },
+    components: { WidgetRenderer, Pie, SelectorWidgetExample },
     props: { selectedThemeProp: { type: Object as any, required: true } },
     data() {
         return {
