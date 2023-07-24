@@ -15,9 +15,10 @@ import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { IDashboardDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, isLinkInteractionActive } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, isLinkInteractionActive, isIframeInteractionActive } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
+import { startTableWidgetIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 import mainStore from '../../../../../App.store'
 import dashboardStore from '../../Dashboard.store'
 import descriptor from '../../dataset/DatasetEditorDescriptor.json'
@@ -470,6 +471,13 @@ export default defineComponent({
             }
         },
         onCellClicked(node) {
+            // TODO - Move this below or somewhere...
+            if (!this.editorMode && isIframeInteractionActive(node, this.widgetModel.settings.interactions.iframe)) {
+                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+                const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
+                startTableWidgetIFrameInteractions(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window.parent)
+                return
+            }
             // TODO - Move this below or somewhere...
             if (!this.editorMode && isLinkInteractionActive(node, this.widgetModel.settings.interactions.link)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)

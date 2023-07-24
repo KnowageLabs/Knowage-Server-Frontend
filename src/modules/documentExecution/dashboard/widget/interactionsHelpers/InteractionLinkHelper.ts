@@ -182,7 +182,7 @@ const replacePlaceholders = (originalString: string, variables: IVariable[], dri
 }
 
 // TODO - Move to common?
-const replaceVariablesPlaceholdersByVariableName = (originalString: string, variables: IVariable[]) => {
+export const replaceVariablesPlaceholdersByVariableName = (originalString: string, variables: IVariable[]) => {
     originalString = originalString.replace(variableTextCompatibilityRegex, (match: string, variableName: string) => {
         if (variables && variables.length > 0) {
             const dashboardVariable = variables.find((variable: IVariable) => variable.name === variableName)
@@ -194,7 +194,7 @@ const replaceVariablesPlaceholdersByVariableName = (originalString: string, vari
 }
 
 // TODO - Move to common?
-const replaceDriversPlaceholdersByDriverUrlName = (originalString: string, drivers: IDashboardDriver[]) => {
+export const replaceDriversPlaceholdersByDriverUrlName = (originalString: string, drivers: IDashboardDriver[]) => {
     originalString = originalString.replace(parameterTextCompatibilityRegex, (match: string, parameterName: string) => {
         if (drivers && drivers.length > 0) {
             const dashboardVariable = drivers.find((driver: IDashboardDriver) => driver.urlName === parameterName)
