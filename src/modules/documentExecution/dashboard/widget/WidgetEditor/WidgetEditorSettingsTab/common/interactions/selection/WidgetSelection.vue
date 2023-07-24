@@ -87,7 +87,7 @@ export default defineComponent({
             this.selectionChanged()
         },
         onSelectionsEnabledChange() {
-            if (this.widget && this.selectionModel?.enabled && this.widgetType !== 'table') {
+            if (this.widget && this.selectionModel?.enabled) {
                 if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
                 if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
                 if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false

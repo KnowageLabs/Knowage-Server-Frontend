@@ -261,6 +261,10 @@ export interface IWidgetSelection {
 
 export interface IFrameInteractionSettings {
     enabled: boolean
+    type: string
+    column: string
+    icon?: string
+    label?: string
     json: string
 }
 

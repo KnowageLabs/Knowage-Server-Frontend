@@ -230,6 +230,6 @@ const getFormattedPreviewParameters = (previewParameters: any) => {
 const getFormattedIFrameInteraction = (widget: any) => {
     let iFrameInteraction = widgetCommonDefaultValues.getDefaultIFrameInteraction()
     if (!widget.cross || !widget.cross.message) return iFrameInteraction
-    iFrameInteraction = { enabled: widget.cross.message.enable, json: widget.cross.message.json }
+    iFrameInteraction = { enabled: widget.cross.message.enable, json: widget.cross.message.json, type: '', column: widget.cross.message.column ?? '' }
     return iFrameInteraction
 }
