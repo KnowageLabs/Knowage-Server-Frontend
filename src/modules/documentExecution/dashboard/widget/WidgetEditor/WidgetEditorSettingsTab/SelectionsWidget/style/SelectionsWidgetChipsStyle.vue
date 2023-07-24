@@ -1,13 +1,15 @@
 <template>
-    <div v-if="chipsStyleModel" class="p-grid p-ai-center kn-flex p-p-4">
-        <div id="height-input-container" class="p-col-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
-            <InputNumber v-model="chipsStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="chipsStyleDisabled" @blur="chipsStyleChanged" />
-        </div>
+    <div v-if="chipsStyleModel" class="p-ai-center kn-flex p-p-4">
+        <form class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12">
+                <span class="p-float-label">
+                    <InputNumber v-model="chipsStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="chipsStyleDisabled" @blur="chipsStyleChanged" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
+                </span>
+            </div>
+        </form>
 
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="descriptor.chipsToolbarStyleOptions" :prop-model="chipsStyleModel.properties" :disabled="chipsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
-        </div>
+        <WidgetEditorStyleToolbar :options="descriptor.chipsToolbarStyleOptions" :prop-model="chipsStyleModel.properties" :disabled="chipsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
     </div>
 </template>
 
