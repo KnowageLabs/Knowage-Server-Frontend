@@ -5,6 +5,7 @@ import builtins from 'rollup-plugin-node-builtins'
 import forwardToTrailingSlashPlugin from './forward-to-trailing-slash-plugin.js'
 import { VitePWA } from 'vite-plugin-pwa'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
+import loadVersion from 'vite-plugin-package-version'
 
 const path = require('path')
 
@@ -22,6 +23,7 @@ export default defineConfig((command, mode) => {
     const env = loadEnv(mode, process.cwd())
     return {
         plugins: [
+            loadVersion(),
             vue({
                 template: { transformAssetUrls }
             }),
@@ -82,9 +84,6 @@ export default defineConfig((command, mode) => {
             }),
             quasar()
         ],
-        define: {
-            _KNOWAGE_VERSION: JSON.stringify(env.npm_package_version)
-        },
         resolve: {
             extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
             alias: {

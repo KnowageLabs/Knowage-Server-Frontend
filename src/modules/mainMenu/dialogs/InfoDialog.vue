@@ -44,7 +44,7 @@ export default defineComponent({
         return {
             currentYear: moment().year(),
             // eslint-disable-next-line no-undef
-            currentVersion: _KNOWAGE_VERSION,
+            currentVersion: import.meta.env.PACKAGE_VERSION,
             publicPath: import.meta.env.VITE_PUBLIC_PATH
         }
     },
