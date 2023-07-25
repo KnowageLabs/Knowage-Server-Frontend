@@ -20,11 +20,6 @@ const baseRoutes = [
         component: () => import('@/views/Home.vue')
     },
     {
-        path: '/about',
-        name: 'about',
-        component: () => import('@/views/About.vue')
-    },
-    {
         path: '/externalUrl/',
         name: 'externalUrl',
         component: IframeRenderer,
@@ -62,6 +57,13 @@ const baseRoutes = [
         redirect: `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOGOUT_ACTION&LIGHT_NAVIGATOR_DISABLED=TRUE&NEW_SESSION=TRUE`
     },
     {
+        path: '/unauthorized',
+        name: 'unauthorized',
+        component: () => import('@/views/Unauthorized.vue'),
+        props: true,
+        meta: { hideMenu: true }
+    },
+    {
         path: '/:catchAll(.*)',
         component: () => import('@/modules/commons/404.vue')
     }
@@ -87,7 +89,7 @@ router.beforeEach((to, from, next) => {
 
     const validRoutes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', '/kpi/', 'dossier', 'etl']
     const invalidRoutes = ['olap-designer']
-    if (typeof to.query.menu != 'undefined' && to.query.menu === 'false') {
+    if (to.meta.hideMenu || (to.query.menu != 'undefined' && to.query.menu === 'false')) {
         store.hideMainMenu()
     } else store.showMainMenu()
 

@@ -89,7 +89,7 @@ export default defineComponent({
     async beforeCreate() {
         await this.$http
             .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/currentuser')
-            .then((response) => {
+            .then(async (response) => {
                 const currentUser = response.data
                 if (localStorage.getItem('sessionRole')) {
                     currentUser.sessionRole = localStorage.getItem('sessionRole')
@@ -108,11 +108,13 @@ export default defineComponent({
                 this.setLocale(storedLocale)
                 this.$i18n.locale = storedLocale
 
+                await loadLanguageAsync(localStorage.getItem('locale'))
                 // @ts-ignore
                 if (this.$i18n.messages[this.$i18n.locale.replaceAll('-', '_')]) {
                     // @ts-ignore
                     this.$primevue.config.locale = { ...this.$primevue.config.locale, ...this.$i18n.messages[this.$i18n.locale.replaceAll('-', '_')].locale }
                 }
+
                 this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
 
                 const language = this.$i18n
@@ -138,7 +140,7 @@ export default defineComponent({
                 } else {
                     this.showMenu = true
                 }
-                loadLanguageAsync(localStorage.getItem('locale'))
+
                 this.setLoading(false)
             })
             .catch(function (error) {
@@ -150,6 +152,7 @@ export default defineComponent({
                 }
             })
         await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response) => {
+            this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
         })
         if (this.isEnterprise) {
@@ -180,6 +183,13 @@ export default defineComponent({
         ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization']),
         closeDialog() {
             this.$emit('update:visibility', false)
+        },
+        checkTopLevelIframe(configs) {
+            if (configs?.['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
+                if (window.parent !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
+                    this.$router.push({ name: 'unauthorized', params: { message: this.$t('unauthorized.outsideIframe') } })
+                }
+            }
         },
         async onLoad() {
             this.showMenu = true

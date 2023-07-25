@@ -101,6 +101,7 @@ export function getFormattedParameters(loadedParameters: { filterStatus: iParame
             const dateValue = getFormattedDateParameterValue(parameter, userDateFormat)
             parameters.push({ urlName: parameter.urlName, value: dateValue, description: dateValue })
         } else if (!parameter.multivalue) {
+            if (!parameter.parameterValue[0]) parameter.parameterValue[0] = { value: '', description: '' }
             parameters.push({ urlName: parameter.urlName, value: parameter.parameterValue[0].value, description: parameter.parameterValue[0].description })
         } else {
             parameters.push({ urlName: parameter.urlName, value: parameter.parameterValue?.map((el: any) => el.value), description: parameter.parameterDescription ?? '' })

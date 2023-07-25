@@ -95,11 +95,18 @@ export default defineComponent({
             startTranslateX: 0,
             startTime: 0,
             swipeType: 'init',
-            tempLabel: ''
+            tempLabel: '',
+            initialLoad: true
+        }
+    },
+    watch: {
+        sheets() {
+            this.loadActiveSheetFromQuery()
         }
     },
     mounted() {
         this.initDPR()
+        this.loadActiveSheetFromQuery()
     },
     methods: {
         addSheet(): void {
@@ -145,7 +152,7 @@ export default defineComponent({
             this.currentPage = index
             this.$emit('sheetChange', index)
             this.translateX = -this.sheets.reduce((total, item, i) => {
-                return i > index - 1 ? total : total + document.querySelectorAll('#sheet_' + index)[0].clientWidth
+                return i > index - 1 ? total : total + document.querySelectorAll('#sheet_' + index)[0]?.clientWidth
             }, 0)
         },
         next() {
@@ -229,6 +236,12 @@ export default defineComponent({
             // eslint-disable-next-line
             // @ts-ignore
             this.$refs[`menu_${index}`][0].show()
+        },
+        loadActiveSheetFromQuery() {
+            if (this.initialLoad && this.$route.query.sheet !== undefined && this.$route.query.sheet !== null && this.sheets?.length > +this.$route.query.sheet) {
+                this.setPage(+this.$route.query.sheet)
+                this.initialLoad = false
+            }
         }
     }
 })
