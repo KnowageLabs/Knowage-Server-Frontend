@@ -112,7 +112,7 @@ export default defineComponent({
             if (this.editorMode || !event.detail || !this.propWidget) return
             const iframeMessageValue = event.detail.iframeMessage
             const iframeInteractionSettings = this.propWidget.settings.interactions.iframe
-            startHTMLAndCustomChartIFrameInteractions(iframeMessageValue, iframeInteractionSettings, this.dashboardId, this.variables, window.parent)
+            startHTMLAndCustomChartIFrameInteractions(iframeMessageValue, iframeInteractionSettings, this.dashboardId, this.variables, window)
         }
     }
 })

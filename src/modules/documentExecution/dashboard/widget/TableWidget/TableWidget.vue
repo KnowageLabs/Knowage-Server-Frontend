@@ -474,8 +474,7 @@ export default defineComponent({
             // TODO - Move this below or somewhere...
             if (!this.editorMode && isIframeInteractionActive(node, this.widgetModel.settings.interactions.iframe)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-                const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
-                startTableWidgetIFrameInteractions(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window.parent)
+                startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
                 return
             }
             // TODO - Move this below or somewhere...

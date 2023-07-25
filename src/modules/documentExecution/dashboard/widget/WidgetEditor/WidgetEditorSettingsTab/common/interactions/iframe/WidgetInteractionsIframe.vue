@@ -1,9 +1,5 @@
 <template>
     <div v-if="iframeModel" class="p-grid p-p-4">
-        <div class="p-col-12">
-            {{ 'TODO' }}
-            {{ iframeModel }}
-        </div>
         <Message class="p-col-12 p-mb-3" :closable="false">
             {{ $t('dashboard.widgetEditor.interactions.iframeInteractionHint.partOne') }}
             <br />
@@ -37,7 +33,7 @@
         </div>
 
         <div v-if="iframeModel" class="p-col-12">
-            <KnMonaco ref="monacoEditor" v-model="iframeModel.json" style="height: 500px" :options="{ theme: 'vs-light' }" :language="'json'" />
+            <KnMonaco ref="monacoEditor" v-model="iframeModel.json" style="height: 500px" :options="{ theme: 'vs-light' }" :language="'json'" :text-to-insert="''" />
         </div>
     </div>
 </template>

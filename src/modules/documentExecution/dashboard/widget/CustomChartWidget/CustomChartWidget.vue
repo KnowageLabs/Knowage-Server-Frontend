@@ -229,7 +229,7 @@ export default defineComponent({
                 const formattedOutputParameters = formatForCrossNavigation(columnValue, this.propWidget.settings.interactions.crossNavigation)
                 executeChartCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.propWidget.settings.interactions.iframe.enabled) {
-                startHTMLAndCustomChartIFrameInteractions(columnValue, this.propWidget.settings.interactions.iframe, this.dashboardId, this.variables, window.parent)
+                startHTMLAndCustomChartIFrameInteractions(columnValue, this.propWidget.settings.interactions.iframe, this.dashboardId, this.variables, window)
             } else {
                 if (!columnName) return
                 updateStoreSelections(this.createNewSelection([columnValue], columnName), this.activeSelections, this.dashboardId, this.setSelections, this.$http)

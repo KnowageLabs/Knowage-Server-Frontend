@@ -1,7 +1,7 @@
 import { IDashboardDriver, ITableWidgetLink, IVariable, IWidgetInteractionParameter, IWidgetLinks } from "../../Dashboard";
 import { IChartInteractionValues } from "../../interfaces/chartJS/DashboardChartJSWidget";
-import { parameterTextCompatibilityRegex, variableTextCompatibilityRegex } from "../../helpers/common/DashboardRegexHelper";
 import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
+import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from "./InteractionsParserHelper";
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import i18n from '@/App.i18n'
@@ -178,29 +178,5 @@ const getFormattedJSONParameterUrl = (parameter: IWidgetInteractionParameter, va
 const replacePlaceholders = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[]) => {
     originalString = replaceVariablesPlaceholdersByVariableName(originalString, variables)
     originalString = replaceDriversPlaceholdersByDriverUrlName(originalString, drivers)
-    return originalString
-}
-
-// TODO - Move to common?
-export const replaceVariablesPlaceholdersByVariableName = (originalString: string, variables: IVariable[]) => {
-    originalString = originalString.replace(variableTextCompatibilityRegex, (match: string, variableName: string) => {
-        if (variables && variables.length > 0) {
-            const dashboardVariable = variables.find((variable: IVariable) => variable.name === variableName)
-            if (dashboardVariable) return dashboardVariable.value ?? ''
-        }
-        return ''
-    })
-    return originalString
-}
-
-// TODO - Move to common?
-export const replaceDriversPlaceholdersByDriverUrlName = (originalString: string, drivers: IDashboardDriver[]) => {
-    originalString = originalString.replace(parameterTextCompatibilityRegex, (match: string, parameterName: string) => {
-        if (drivers && drivers.length > 0) {
-            const dashboardVariable = drivers.find((driver: IDashboardDriver) => driver.urlName === parameterName)
-            if (dashboardVariable) return dashboardVariable.value ?? ''
-        }
-        return ''
-    })
     return originalString
 }

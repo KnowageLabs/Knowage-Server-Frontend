@@ -151,8 +151,6 @@ export const isCrossNavigationActive = (tableNode: any, crossNavigationOptions: 
 
 export const formatRowDataForCrossNavigation = (tableNode: any, dataToShow: any) => {
     const columnDefs = tableNode.columnApi?.columnModel?.columnDefs
-    console.log('----- COLUMN DEFS: ', columnDefs)
-    console.log('----- tableNode: ', tableNode)
     const rowData = tableNode.node.data
     if (!columnDefs || !rowData) return {}
     const formattedRow = { columnName: tableNode.colDef?.columnName ?? '' }
