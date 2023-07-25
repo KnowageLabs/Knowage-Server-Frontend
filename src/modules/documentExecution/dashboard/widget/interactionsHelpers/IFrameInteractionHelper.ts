@@ -17,15 +17,26 @@ export const startTableWidgetIFrameInteractions = (clickedValue: IClickedValue, 
     if (!parentWindow) return
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
-    const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, formattedRow)
-    console.log('--------- parentWindow: ', parentWindow)
+    const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, formattedRow, null)
+    console.log('--------- PARENT WINDOW: ', parentWindow)
     sendMessageToParentWindow(parentWindow, formattedJSON)
 }
 
-const getFormattedJSON = (iFrameInteractionSettings: IFrameInteractionSettings, variables: IVariable[], drivers: IDashboardDriver[], formattedRow: any) => {
+export const startHTMLIFrameInteractions = (iframeMessage: string, iFrameInteractionSettings: IFrameInteractionSettings, dashboardId: string, variables: IVariable[], parentWindow: any) => {
+    // TODO - FOR TESTING ONLY!
+    parentWindow.addEventListener('message', test)
+
+    if (!parentWindow) return
+    const dashStore = dashboardStore()
+    const drivers = dashStore.getDashboardDrivers(dashboardId)
+    const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, null, iframeMessage)
+    sendMessageToParentWindow(parentWindow, formattedJSON)
+}
+
+const getFormattedJSON = (iFrameInteractionSettings: IFrameInteractionSettings, variables: IVariable[], drivers: IDashboardDriver[], formattedRow: any, iframeMessage: string | null) => {
     if (!iFrameInteractionSettings.json) return ''
     const store = mainStore()
-    let json = replacePlaceholders(iFrameInteractionSettings.json, variables, drivers, formattedRow)
+    let json = formattedRow ? replacePlaceholdersForTable(iFrameInteractionSettings.json, variables, drivers, formattedRow) : replacePlaheoldersForHTMLAndCustomChart(iFrameInteractionSettings.json, variables, drivers, iframeMessage)
     try {
         json = JSON.parse(json)
         return json
@@ -35,7 +46,7 @@ const getFormattedJSON = (iFrameInteractionSettings: IFrameInteractionSettings, 
     }
 }
 
-const replacePlaceholders = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[], formattedRow: any) => {
+const replacePlaceholdersForTable = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[], formattedRow: any) => {
     originalString = replaceVariablesPlaceholdersByVariableName(originalString, variables)
     originalString = replaceDriversPlaceholdersByDriverUrlName(originalString, drivers)
     originalString = replaceFieldPlaceholdersByColumnName(originalString, formattedRow)
@@ -57,6 +68,18 @@ export const replaceFieldPlaceholdersByColumnName = (originalString: string, for
         return formattedRow[fieldName] ? formattedRow[fieldName].value : ''
     })
     return originalString
+}
+
+const replacePlaheoldersForHTMLAndCustomChart = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[], iframeMessage: string | null) => {
+    originalString = replaceVariablesPlaceholdersByVariableName(originalString, variables)
+    originalString = replaceDriversPlaceholdersByDriverUrlName(originalString, drivers)
+    originalString = replaceFieldPlaceholdersMessagePlaceholder(originalString, iframeMessage)
+    return originalString
+}
+
+const replaceFieldPlaceholdersMessagePlaceholder = (originalString, iframeMessage: string | null) => {
+    const valueRegex = /\$\{value\}/g;
+    return iframeMessage ? originalString.replaceAll(valueRegex, iframeMessage) : ''
 }
 
 

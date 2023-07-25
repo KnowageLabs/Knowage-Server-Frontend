@@ -133,6 +133,10 @@ export default defineComponent({
                         {
                             label: this.$t('dashboard.widgetEditor.editorTags.crossnav'),
                             command: () => this.openTagsDialog('crossnav')
+                        },
+                        {
+                            label: this.$t('dashboard.widgetEditor.editorTags.iframe'),
+                            command: () => this.openTagsDialog('iframe')
                         }
                     ]
                 },

@@ -212,6 +212,9 @@ const parseAttrs = (allElements: any) => {
         if (allElements[j] && allElements[j].hasAttribute('kn-selection-column')) {
             allElements[j].classList.add('select-class-temp')
         }
+        if (allElements[j] && allElements[j].hasAttribute('kn-message')) {
+            allElements[j].classList.add('iframe-class-temp')
+        }
         j++
     } while (j < nodesNumber)
     return allElements
