@@ -9,30 +9,30 @@ import i18n from '@/App.i18n'
 const { t } = i18n.global
 
 interface IClickedValue { value: string, type: string }
+interface IFormattedLink { url: string, action: string }[]
 
 export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
     const formattedLinks = getFormattedLinks(linkOptions, formattedRow, null, dashboardId, variables)
-    console.log('--------- FORMATTED LINKS: ', formattedLinks)
-    formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
-        if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
-    })
+    executeFormattedLinks(formattedLinks)
 }
 
 export const openNewLinkImageWidget = (linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
     const formattedLinks = getFormattedLinks(linkOptions, null, null, dashboardId, variables)
-    console.log('--------- FORMATTED LINKS: ', formattedLinks)
-    formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
-        if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
-    })
+    executeFormattedLinks(formattedLinks)
 }
 
 export const openNewLinkChartWidget = (formattedChartValues: IChartInteractionValues, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
     console.log('----- formattedChartValues: ', formattedChartValues)
     const formattedLinks = getFormattedLinks(linkOptions, null, formattedChartValues, dashboardId, variables)
+    executeFormattedLinks(formattedLinks)
+}
+
+const executeFormattedLinks = (formattedLinks: IFormattedLink[]) => {
     console.log('--------- FORMATTED LINKS: ', formattedLinks)
-    formattedLinks.forEach((formattedLink: { url: string, action: string }) => {
-        //  if (formattedLink.action === 'blank') window.open(formattedLink.url, '_blank');
-    })
+    const linksForNewTab = formattedLinks.filter((formattedLink: IFormattedLink) => formattedLink.action === 'blank')
+    const linkForReplace = formattedLinks.find((formattedLink: IFormattedLink) => formattedLink.action === 'replace')
+    linksForNewTab.forEach((formattedLink: IFormattedLink) => window.open(formattedLink.url, '_blank'))
+    if (linkForReplace) window.open(linkForReplace.url, '_self');
 }
 
 const getFormattedLinks = (linkOptions: IWidgetLinks, formattedRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string, variables: IVariable[]) => {
