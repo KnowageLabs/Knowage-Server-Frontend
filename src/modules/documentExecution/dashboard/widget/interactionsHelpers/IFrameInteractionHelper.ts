@@ -18,11 +18,10 @@ export const startTableWidgetIFrameInteractions = (clickedValue: IClickedValue, 
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, formattedRow, null)
-    console.log('--------- PARENT WINDOW: ', parentWindow)
     sendMessageToParentWindow(parentWindow, formattedJSON)
 }
 
-export const startHTMLIFrameInteractions = (iframeMessage: string, iFrameInteractionSettings: IFrameInteractionSettings, dashboardId: string, variables: IVariable[], parentWindow: any) => {
+export const startHTMLAndCustomChartIFrameInteractions = (iframeMessage: string | number, iFrameInteractionSettings: IFrameInteractionSettings, dashboardId: string, variables: IVariable[], parentWindow: any) => {
     // TODO - FOR TESTING ONLY!
     parentWindow.addEventListener('message', test)
 
@@ -30,10 +29,11 @@ export const startHTMLIFrameInteractions = (iframeMessage: string, iFrameInterac
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, null, iframeMessage)
+    console.log('--------- PARENT WINDOW: ', parentWindow)
     sendMessageToParentWindow(parentWindow, formattedJSON)
 }
 
-const getFormattedJSON = (iFrameInteractionSettings: IFrameInteractionSettings, variables: IVariable[], drivers: IDashboardDriver[], formattedRow: any, iframeMessage: string | null) => {
+const getFormattedJSON = (iFrameInteractionSettings: IFrameInteractionSettings, variables: IVariable[], drivers: IDashboardDriver[], formattedRow: any, iframeMessage: string | number | null) => {
     if (!iFrameInteractionSettings.json) return ''
     const store = mainStore()
     let json = formattedRow ? replacePlaceholdersForTable(iFrameInteractionSettings.json, variables, drivers, formattedRow) : replacePlaheoldersForHTMLAndCustomChart(iFrameInteractionSettings.json, variables, drivers, iframeMessage)
@@ -70,14 +70,14 @@ export const replaceFieldPlaceholdersByColumnName = (originalString: string, for
     return originalString
 }
 
-const replacePlaheoldersForHTMLAndCustomChart = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[], iframeMessage: string | null) => {
+const replacePlaheoldersForHTMLAndCustomChart = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[], iframeMessage: string | number | null) => {
     originalString = replaceVariablesPlaceholdersByVariableName(originalString, variables)
     originalString = replaceDriversPlaceholdersByDriverUrlName(originalString, drivers)
     originalString = replaceFieldPlaceholdersMessagePlaceholder(originalString, iframeMessage)
     return originalString
 }
 
-const replaceFieldPlaceholdersMessagePlaceholder = (originalString, iframeMessage: string | null) => {
+const replaceFieldPlaceholdersMessagePlaceholder = (originalString, iframeMessage: string | number | null) => {
     const valueRegex = /\$\{value\}/g;
     return iframeMessage ? originalString.replaceAll(valueRegex, iframeMessage) : ''
 }

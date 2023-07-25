@@ -12,7 +12,7 @@ import appStore from '../../../../../App.store'
 import { IWidget } from '../../Dashboard'
 import { parseHtml, parseText } from '../WidgetEditor/helpers/htmlParser/ParserHelper'
 import { executeHTMLandTextWidgetCrossNavigation, executePreview, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
-import { startHTMLIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
+import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 
 export default defineComponent({
     name: 'widget-component-container',
@@ -112,7 +112,7 @@ export default defineComponent({
             if (this.editorMode || !event.detail || !this.propWidget) return
             const iframeMessageValue = event.detail.iframeMessage
             const iframeInteractionSettings = this.propWidget.settings.interactions.iframe
-            startHTMLIFrameInteractions(iframeMessageValue, iframeInteractionSettings, this.dashboardId, this.variables, window)
+            startHTMLAndCustomChartIFrameInteractions(iframeMessageValue, iframeInteractionSettings, this.dashboardId, this.variables, window.parent)
         }
     }
 })
