@@ -1,9 +1,5 @@
 <template>
     <div v-if="linksModel" class="p-grid p-p-4">
-        <div class="p-col-12">
-            {{ 'TODO' }}
-            {{ linksModel }}
-        </div>
         <div v-for="(link, index) in linksModel.links" :key="index" class="dynamic-form-item p-grid p-ai-center p-col-12">
             <div v-if="widgetType === 'table'" class="p-sm-12 p-md-12 p-d-flex p-flex-column">
                 <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
