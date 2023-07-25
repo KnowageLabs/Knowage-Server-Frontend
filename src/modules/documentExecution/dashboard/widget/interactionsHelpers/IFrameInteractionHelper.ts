@@ -3,6 +3,7 @@ import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholders
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import i18n from '@/App.i18n'
+import { columnFieldRegex } from "../../helpers/common/DashboardRegexHelper"
 
 const { t } = i18n.global
 
@@ -16,15 +17,15 @@ export const startTableWidgetIFrameInteractions = (clickedValue: IClickedValue, 
     if (!parentWindow) return
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
-    const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers)
+    const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, formattedRow)
     console.log('--------- parentWindow: ', parentWindow)
     sendMessageToParentWindow(parentWindow, formattedJSON)
 }
 
-const getFormattedJSON = (iFrameInteractionSettings: IFrameInteractionSettings, variables: IVariable[], drivers: IDashboardDriver[]) => {
+const getFormattedJSON = (iFrameInteractionSettings: IFrameInteractionSettings, variables: IVariable[], drivers: IDashboardDriver[], formattedRow: any) => {
     if (!iFrameInteractionSettings.json) return ''
     const store = mainStore()
-    let json = replacePlaceholders(iFrameInteractionSettings.json, variables, drivers)
+    let json = replacePlaceholders(iFrameInteractionSettings.json, variables, drivers, formattedRow)
     try {
         json = JSON.parse(json)
         return json
@@ -34,14 +35,15 @@ const getFormattedJSON = (iFrameInteractionSettings: IFrameInteractionSettings, 
     }
 }
 
-const replacePlaceholders = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[]) => {
+const replacePlaceholders = (originalString: string, variables: IVariable[], drivers: IDashboardDriver[], formattedRow: any) => {
     originalString = replaceVariablesPlaceholdersByVariableName(originalString, variables)
     originalString = replaceDriversPlaceholdersByDriverUrlName(originalString, drivers)
+    originalString = replaceFieldPlaceholdersByColumnName(originalString, formattedRow)
     return originalString
 }
 
 const sendMessageToParentWindow = (parentWindow: any, formattedJSON: string) => {
-    console.log('--------- CAAAAAAAAAAALED!', formattedJSON)
+    console.log('--------- JSON TO SEND: ', formattedJSON)
     parentWindow.postMessage({
         "source": "knowage",
         "type": "message",
@@ -49,8 +51,17 @@ const sendMessageToParentWindow = (parentWindow: any, formattedJSON: string) => 
     }, "*")
 }
 
+// TODO - Move to common?
+export const replaceFieldPlaceholdersByColumnName = (originalString: string, formattedRow: any) => {
+    originalString = originalString.replace(columnFieldRegex, (match: string, fieldName: string) => {
+        return formattedRow[fieldName] ? formattedRow[fieldName].value : ''
+    })
+    return originalString
+}
+
+
 // TODO - FOR TESTING!
 const test = (event: any) => {
-    console.log('----- TEST: ', event)
-    console.log('----- TEST MESSAGE: ', event.data)
+    // console.log('----- TEST: ', event)
+    //console.log('----- TEST MESSAGE: ', event.data)
 }
