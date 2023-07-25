@@ -1,16 +1,17 @@
 <template>
-    <div v-if="model || mode === 'map'" class="dashboard-card-shadow kn-height-full p-ml-1 p-d-flex p-flex-row">
-        <div class="p-grid p-m-2 kn-flex kn-overflow dashboard-scrollbar">
-            <Message v-if="images.length == 0" class="kn-flex p-m-2" severity="info" :closable="false">
-                {{ $t('common.info.noDataFound') }}
-            </Message>
-            <div v-else id="image-widget-gallery-content" class="p-grid p-m-2 kn-flex kn-overflow dashboard-scrollbar">
-                <div v-if="sidebarVisible" id="image-widget-gallery-backdrop" class="kn-flex" @click="sidebarVisible = false"></div>
-                <div class="p-col-12 p-d-flex p-jc-center p-ai-center">
-                    <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" @click="setImageUploadType" />
-                    <KnInputFile :change-function="setImageForUpload" accept=".png, .jpg, .jpeg" :trigger-input="triggerImageUpload" />
-                    <label class="kn-material-input-label p-mr-5"> {{ $t('dashboard.widgetEditor.imageWidget.uploadImage') }} </label>
-                </div>
+    <div v-if="model || mode === 'map'" class="imageGallery dashboard-card-shadow kn-height-full p-ml-1 p-d-flex p-flex-column p-grid">
+        <Toolbar class="kn-toolbar kn-toolbar--default p-col-12">
+            <template #end>
+                <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" :label="$t('common.upload')" @click="setImageUploadType" />
+                <KnInputFile :change-function="setImageForUpload" accept=".png, .jpg, .jpeg" :trigger-input="triggerImageUpload" />
+            </template>
+        </Toolbar>
+        <div v-if="sidebarVisible" id="image-widget-gallery-backdrop" class="kn-flex" @click="sidebarVisible = false"></div>
+        <div class="p-grid p-col-12 p-m-2 kn-flex kn-overflow dashboard-scrollbar">
+            <div id="image-widget-gallery-content" class="p-grid p-m-2 p-jc-center p-ai-center kn-flex kn-overflow dashboard-scrollbar">
+                <Message v-if="images.length == 0" class="p-col-10 p-m-2" severity="info" :closable="false">
+                    {{ $t('common.info.noImageFound') }}
+                </Message>
                 <ImageWidgetGalleryCard
                     v-for="(image, index) of images"
                     :key="index"
@@ -172,7 +173,11 @@ export default defineComponent({
 .gallery-card:hover {
     border-color: #43749e !important;
 }
-
+.imageGallery {
+    .imageUploader {
+        width: 100%;
+    }
+}
 #image-widget-gallery-card-sidebar-container {
     position: absolute;
     max-width: 350px;

@@ -2,7 +2,7 @@
     <div>
         <div class="card-container">
             <Toolbar class="kn-toolbar p-p-0 p-m-0 p-col-12" :class="[isSelected ? 'kn-toolbar--primary' : 'kn-toolbar--secondary']">
-                <template #start> {{ imageProp.name }} </template>
+                <template #start>{{ imageProp.name }} </template>
                 <template #end>
                     <Button v-if="mode !== 'map'" v-tooltip.top="$t('common.view')" icon="pi pi-eye" class="p-button-link" :class="[isSelected ? 'active-image-toolbar-buttons' : '']" @click="openImageSidebar" />
                     <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" :class="[isSelected ? 'active-image-toolbar-buttons' : '']" @click="deleteImageConfirm" />
@@ -28,7 +28,7 @@ export default defineComponent({
     },
     methods: {
         getImageUrl(image: IImage) {
-            return import.meta.env.VITE_KNOWAGE_CONTEXT + `1.0/images/getImage?IMAGES_ID=${image.imgId}`
+            return import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/images/getImage?IMAGES_ID=${image.imgId}`
         },
         openImageSidebar() {
             this.$emit('openSidebar', this.imageProp)
@@ -57,6 +57,14 @@ export default defineComponent({
     &:hover {
         background-color: var(--kn-color-secondary);
         transition: 0.3s;
+    }
+    &:deep(.p-toolbar) {
+        .p-toolbar-group-left {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: calc(100% - 70px);
+        }
     }
 }
 
