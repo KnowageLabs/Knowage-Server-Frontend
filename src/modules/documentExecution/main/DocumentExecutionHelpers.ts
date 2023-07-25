@@ -9,7 +9,7 @@ import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSideba
 export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) {
     const toolbarMenuItems = [] as any[]
 
-    if (mode === 'dashboard') {
+    if (mode === 'dashboard' && user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT)) {
         toolbarMenuItems.push({
             label: $t('common.settings'),
             items: [
@@ -38,8 +38,9 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     toolbarMenuItems.push({
         label: $t('documentExecution.main.views'),
         items: [
-            { icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => document.typeCode === 'DASHBOARD' ? emitter.emit('openSaveCurrentViewDialog', document.dashboardId) : functions.openSaveCurrentViewDialog() },
-            { icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => document.typeCode === 'DASHBOARD' ? emitter.emit('openSavedViewsListDialog', document.dashboardId) : functions.openSavedViewsListDialog() }]
+            { icon: 'fa-solid fa-floppy-disk', label: $t('documentExecution.main.saveCurrentView'), command: () => (document.typeCode === 'DASHBOARD' ? emitter.emit('openSaveCurrentViewDialog', document.dashboardId) : functions.openSaveCurrentViewDialog()) },
+            { icon: 'pi pi-list', label: $t('documentExecution.main.savedViewsList'), command: () => (document.typeCode === 'DASHBOARD' ? emitter.emit('openSavedViewsListDialog', document.dashboardId) : functions.openSavedViewsListDialog()) }
+        ]
     })
 
     if (user.enterprise && !newDashboardMode) {
@@ -101,16 +102,6 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
             toolbarMenuItems[index].items.push({ icon: 'fa fa-share', label: $t('documentExecution.main.copyLink'), command: () => functions.copyLink(false) })
             toolbarMenuItems[index].items.push({ icon: 'fa fa-share', label: $t('documentExecution.main.embedInHtml'), command: () => functions.copyLink(true) })
         }
-    }
-
-    if (mode === 'dashboard' && !newDashboardMode) {
-        toolbarMenuItems.push({
-            label: $t('common.view'),
-            items: [
-                { icon: 'pi pi-eye', label: $t('documentExecution.main.asFinalUser') },
-                { icon: 'pi pi-print', label: $t('documentExecution.main.inFullScreen') }
-            ]
-        })
     }
 
     if (filtersData && filtersData.filterStatus?.length > 0) toolbarMenuItems.push({ icon: 'fa fa-eraser', label: $t('documentExecution.main.resetParameters'), command: () => parameterSidebarEmitter.emit('resetAllParameters') })
