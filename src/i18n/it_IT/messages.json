@@ -88,7 +88,8 @@
             "emptySearch": "la ricerca non ritorna dati",
             "info": "informazioni",
             "noDataFound": "nessun dato trovato",
-            "noElementSelected": "nessun elemento selezionato"
+            "noElementSelected": "nessun elemento selezionato",
+            "noImageFound": "Nessuna immagine disponibile"
         },
         "information": "informazioni",
         "input": "input",

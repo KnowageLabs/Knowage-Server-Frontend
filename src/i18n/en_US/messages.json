@@ -117,6 +117,7 @@
             "emptySearch": "The search returns no data",
             "info": "Info",
             "noDataFound": "No data found",
+            "noImageFound": "No image available",
             "noElementSelected": "No element selected"
         },
         "information": "information",

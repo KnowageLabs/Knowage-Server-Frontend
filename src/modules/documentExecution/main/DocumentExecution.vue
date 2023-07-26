@@ -8,7 +8,7 @@
             <template #end>
                 <div class="p-d-flex p-jc-around">
                     <Button
-                        v-if="mode == 'dashboard' && propMode !== 'document-execution-cross-navigation-popup'"
+                        v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.datasets')"
                         icon="fas fa-database"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
@@ -16,7 +16,7 @@
                         @click="openDashboardDatasetManagement"
                     ></Button>
                     <Button
-                        v-if="mode == 'dashboard' && propMode !== 'document-execution-cross-navigation-popup'"
+                        v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.save')"
                         icon="pi pi-save"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
@@ -35,7 +35,7 @@
                         @click="refresh"
                     ></Button>
                     <Button
-                        v-if="isParameterSidebarVisible && !newDashboardMode"
+                        v-if="isParameterSidebarVisible && !newDashboardMode && canSeeDashboardFunctions()"
                         v-tooltip.left="$t('common.parameters')"
                         icon="fa fa-filter"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
@@ -45,8 +45,8 @@
                     ></Button>
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
-                    <Button v-if="mode == 'dashboard'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
-                    <Button v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
+                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions()" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
+                    <Button v-if="canSeeDashboardFunctions()" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
                 </div>
             </template>
         </Toolbar>
@@ -433,6 +433,11 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
+        canSeeDashboardFunctions() {
+            if (!this.user || !this.document) return false
+            if (!this.document.dashboardId) return true
+            else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
+        },
         ...mapActions(mainStore, ['setInfo', 'setError', 'setDocumentExecutionEmbed']),
         iframeEventsListener(event) {
             if (event.data.type === 'crossNavigation') {

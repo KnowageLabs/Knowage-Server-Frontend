@@ -290,7 +290,8 @@ export class CustomChartDatastore {
     }
 
     setState(state: any) {
-        window?.parent?.postMessage({ type: 'setState', payload: JSON.stringify(state) }, '*')
+        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'setState', payload: JSON.stringify(state) }, '*')
+        else window?.parent?.postMessage({ type: 'setState', payload: JSON.stringify(state) }, '*')
     }
 }
 
