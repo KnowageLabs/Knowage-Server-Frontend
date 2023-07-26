@@ -103,98 +103,6 @@ export default defineComponent({
         selectTheme(event) {
             console.log('selectTheme.item', event.item)
         }
-        // setActiveTheme(theme) {
-        //     const newTheme = { ...this.defaultTheme, ...theme.config }
-        //     this.setTheme(newTheme)
-        //     this.themeHelper.setTheme(newTheme)
-        // }
-        // overrideDefaultValues(newValues) {
-        //     // no default theme
-        //     if (newValues) {
-        //         this.themeToSend = { ...newValues }
-        //         this.selectedTheme.id = newValues.id
-        //         this.selectedTheme.themeName = newValues.themeName
-        //         this.selectedTheme.active = newValues.active
-        //         // this.selectedTheme.config = { ...this.currentTheme, ...newValues.config }
-        //     } else {
-        //         this.setTheme({})
-        //         this.themeHelper.setTheme(this.defaultTheme)
-        //     }
-        // }
-        // async getAllThemes(fullRefresh = true) {
-        //     this.loading = true
-        //     await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement`).then((response: AxiosResponse<any>) => {
-        //         this.availableThemes = response.data
-
-        //         if (fullRefresh) this.overrideDefaultValues(this.availableThemes.filter((item) => item.active === true)[0])
-
-        //         if (this.availableThemes.filter((item) => item.active === true).length == 0) {
-        //             this.setActiveTheme({})
-        //             this.themeToSend = { config: {} }
-        //             this.selectedTheme = { config: {} }
-        //         }
-        //     })
-        //     this.loading = false
-        // },
-
-        // async handleSave() {
-        //     await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement`, this.themeToSend).then((response) => {
-        //         this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.updateSuccess') })
-        //         if (!this.themeToSend.id) {
-        //             this.themeToSend.id = response.data
-        //             this.selectedTheme.id = response.data
-        //         }
-        //     })
-        //     await this.getAllThemes(false)
-        //     if (this.themeToSend.active) {
-        //         this.setActiveTheme(this.themeToSend)
-        //     }
-        //     this.loading = false
-        // },
-        // uploadTheme(event): void {
-        //     const reader = new FileReader()
-        //     reader.onload = this.onReaderLoad
-        //     reader.readAsText(event.target.files[0])
-        //     this.triggerInputFile(false)
-        //     event.target.value = ''
-        // },
-        // onReaderLoad(event) {
-        //     const json = JSON.parse(event.target.result)
-        //     json.active = false
-        //     this.importWidget(json)
-        // },
-        // importWidget(json: JSON) {
-        //     this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/thememanagement', json).then(() => {
-        //         this.setInfo({ title: this.$t('managers.themeManagement.uploadTheme'), msg: this.$t('managers.themeManagement.themeSuccessfullyUploaded') })
-
-        //         this.getAllThemes()
-        //     })
-        // },
-        // downloadTheme(): void {
-        //     const themeToDownload = { ...this.selectedTheme }
-        //     if (themeToDownload.id) delete themeToDownload.id
-        //     downloadDirect(JSON.stringify(themeToDownload), themeToDownload.themeName, 'application/json')
-        // }
-        // deleteThemeConfirm(event: any) {
-        //     this.$confirm.require({
-        //         message: this.$t('common.toast.deleteMessage'),
-        //         header: this.$t('common.toast.deleteTitle'),
-        //         icon: 'pi pi-exclamation-triangle',
-        //         accept: () => this.deleteTheme(event)
-        //     })
-        // },
-        // async deleteTheme(event) {
-        //     this.loading = true
-        //     await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/${event.item.id}`).then(() => {
-        //         this.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
-
-        //         this.themeToSend = { config: {} }
-        //         this.selectedTheme = { config: {} }
-
-        //         this.getAllThemes()
-        //     })
-        //     this.loading = false
-        // },
     }
 })
 </script>
@@ -224,7 +132,7 @@ export default defineComponent({
         .theme-manager-examples {
             -webkit-transition: width 0.3s;
             transition: flex 0.3s;
-            flex: 0.75;
+            flex: 0.9;
         }
     }
 }

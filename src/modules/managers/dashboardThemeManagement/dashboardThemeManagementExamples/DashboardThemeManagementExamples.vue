@@ -1,23 +1,45 @@
 <template>
     <div class="p-p-2 p-d-flex p-flex-column" style="gap: 25px">
-        <!-- <div :id="chartID" style="width: 100%; height: 100%; margin: 0 auto"></div> -->
-        <!-- <Pie :chart-options="chartJSOptions" :chart-data="chartJSData" :chart-id="'pie-chart'" :dataset-id-key="'label'" /> -->
-
-        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="text" />
-        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="image" />
-        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="chart" />
-        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="html" />
-        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="map" />
-        <!-- <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="customChart" /> -->
-        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="python" />
-        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="r" />
-        <div class="p-p-2 p-d-flex" style="min-height: 415px">
-            <WidgetRenderer :widget="tableModel" :widget-data="tableWidgetMock.tableDataMock" :widget-initial-data="tableWidgetMock.tableDataMock" :datasets="[]" :dashboard-id="'table'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
+        <WidgetPictureExamples ref="text" :selected-theme-prop="selectedThemeProp" widget-type="text" />
+        <WidgetPictureExamples ref="image" :selected-theme-prop="selectedThemeProp" widget-type="image" />
+        <WidgetPictureExamples ref="chart" :selected-theme-prop="selectedThemeProp" widget-type="chart" />
+        <WidgetPictureExamples ref="html" :selected-theme-prop="selectedThemeProp" widget-type="html" />
+        <WidgetPictureExamples ref="map" :selected-theme-prop="selectedThemeProp" widget-type="map" />
+        <WidgetPictureExamples ref="customChart" :selected-theme-prop="selectedThemeProp" widget-type="customChart" />
+        <WidgetPictureExamples ref="python" :selected-theme-prop="selectedThemeProp" widget-type="python" />
+        <WidgetPictureExamples ref="r" :selected-theme-prop="selectedThemeProp" widget-type="r" />
+        <div ref="table" class="p-p-2 p-d-flex" style="min-height: 415px">
+            <WidgetRenderer ref="table" :widget="tableModel" :widget-data="tableWidgetMock.tableDataMock" :widget-initial-data="tableWidgetMock.tableDataMock" :datasets="[]" :dashboard-id="'table'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
-        <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="pivot" />
-        <!-- <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="discovery" /> -->
-        <SelectorWidgetExample></SelectorWidgetExample>
-        <ActiveSelectionsExample></ActiveSelectionsExample>
+        <WidgetPictureExamples ref="pivot" :selected-theme-prop="selectedThemeProp" widget-type="pivot" />
+        <div ref="discovery" class="p-p-2 p-d-flex" style="min-height: 415px">
+            <WidgetRenderer
+                :widget="discoveryModel"
+                :widget-data="discoveryWidgetMock.discoveryDataMock"
+                :widget-initial-data="discoveryWidgetMock.discoveryDataMock"
+                :datasets="[]"
+                :dashboard-id="'discovery'"
+                :selection-is-locked="true"
+                :prop-active-selections="[]"
+                :variables="[]"
+                :widget-loading="false"
+            />
+        </div>
+        <ActiveSelectionsExample ref="activeSelections" :selected-theme-prop="selectedThemeProp" widget-type="activeSelections" />
+        <div class="p-p-2 p-d-flex" style="height: 200px">
+            <WidgetRenderer
+                ref="selector"
+                :widget="selectorModel"
+                :widget-data="selectorWidgetMock.selectorDataMock"
+                :widget-initial-data="selectorWidgetMock.selectorDataMock"
+                :datasets="[]"
+                :dashboard-id="'selector'"
+                :selection-is-locked="true"
+                :prop-active-selections="[]"
+                :variables="[]"
+                :widget-loading="false"
+            />
+        </div>
     </div>
 </template>
 
@@ -28,6 +50,8 @@ import { mapState } from 'pinia'
 import { IChartJSData, IChartJSOptions } from '@/modules/documentExecution/dashboard/interfaces/chartJS/DashboardChartJSWidget'
 import { Pie } from 'vue-chartjs'
 import tableWidgetMock from './mocks/TableWidgetMock.json'
+import discoveryWidgetMock from './mocks/DiscoveryWidgetMock.json'
+import selectorWidgetMock from './mocks/SelectorWidgetMock.json'
 import WidgetRenderer from '@/modules/documentExecution/dashboard/widget/WidgetRenderer.vue'
 import deepcopy from 'deepcopy'
 import cryptoRandomString from 'crypto-random-string'
@@ -38,6 +62,7 @@ import appStore from '@/App.store'
 import SelectorWidgetExample from './examples/SelectorWidgetExample.vue'
 import ActiveSelectionsExample from './examples/ActiveSelectionsExample.vue'
 import WidgetPictureExamples from './examples/WidgetPictureExamples.vue'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
@@ -46,8 +71,12 @@ export default defineComponent({
     data() {
         return {
             tableWidgetMock,
-            selectedTheme: {} as IDashboardTheme,
+            discoveryWidgetMock,
+            selectorWidgetMock,
             tableModel: {} as any,
+            discoveryModel: {} as any,
+            selectorModel: {} as any,
+            selectedTheme: {} as IDashboardTheme,
             chartID: cryptoRandomString({ length: 16, type: 'base64' }),
             chartJSData: { labels: [], datasets: [] } as IChartJSData,
             chartJSOptions: {} as IChartJSOptions
@@ -69,7 +98,11 @@ export default defineComponent({
         this.loadWidgetModels()
     },
     mounted() {
+        this.setEventListeners()
         // this.loadChartExample()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
         loadSelectedTheme() {
@@ -78,6 +111,12 @@ export default defineComponent({
         loadWidgetModels() {
             this.tableModel = deepcopy(this.tableWidgetMock.tableModelMock)
             this.tableModel.settings.style = this.selectedTheme.config.table.style
+
+            this.discoveryModel = deepcopy(this.discoveryWidgetMock.discoveryModelMock)
+            this.discoveryModel.settings.style = this.selectedTheme.config.discovery.style
+
+            this.selectorModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.selectorModel.settings.style = this.selectedTheme.config.selector.style
         },
         loadChartExample() {
             if (this.isEnterprise) {
@@ -91,6 +130,24 @@ export default defineComponent({
                     maintainAspectRatio: false
                 }
             }
+        },
+        setEventListeners() {
+            emitter.on('scrollToExample', this.scrollToExample)
+        },
+        removeEventListeners() {
+            emitter.off('scrollToExample', this.scrollToExample)
+        },
+        scrollToExample(widgetType: any) {
+            console.log('CLICKED TYPE', this.$refs[widgetType])
+            if (widgetType === 'activeSelections') {
+                // @ts-ignore
+                this.$refs[widgetType].$el.nextSibling.scrollIntoView({ behavior: 'smooth' })
+                return
+            }
+            // @ts-ignore
+            if (this.$refs[widgetType].$el) this.$refs[widgetType].$el.scrollIntoView({ behavior: 'smooth' })
+            // @ts-ignore
+            else this.$refs[widgetType].scrollIntoView({ behavior: 'smooth' })
         }
     }
 })

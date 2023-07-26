@@ -9,13 +9,14 @@
 
         <div class="q-pa-md q-gutter-sm p-pl-0">
             <q-tree :nodes="widgetTree" node-key="key">
-                <template #body-generic="prop">
+                <template #default-header="prop">
+                    <div class="row items-center kn-width-full">
+                        <div>{{ prop.node.label }}</div>
+                        <Button v-if="prop.node.isParent" icon="fas fa-magnifying-glass" class="p-button-text p-button-rounded p-button-plain p-ml-auto" :title="$t('managers.themeManagement.download')" @click.stop="scrollToExample(prop.node.key)" />
+                    </div>
+                </template>
+                <template #body-generic="prop" @click="scrollToExample">
                     <div style="color: black">
-                        <!-- {{ prop.node }} -->
-                        <!-- <br /> -->
-
-                        <!-- {{ selectedTheme.config[prop.node.widgetType].style.summary }} -->
-                        <!-- Zakomentarisi ovo iznad ako ti smeta -->
                         <WidgetTitleStyle v-if="prop.node.key.includes('title-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.title" :toolbar-style-settings="descriptor.defaultToolbarStyleOptions" class="no-padding" />
                         <WidgetBordersStyle v-else-if="prop.node.key.includes('borders-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.borders" class="no-padding" />
                         <WidgetPaddingStyle v-else-if="prop.node.key.includes('padding-editor')" :widget-model="null" :theme-style="selectedTheme.config[prop.node.widgetType].style.padding" class="no-padding" />
@@ -65,6 +66,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { IDashboardTheme, IDashboardThemeConfig } from './DashboardThememanagement'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from './DashboardThemeManagementEditorDescriptor.json'
 import pivotDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/PivotTableWidget/PivotTableSettingsDescriptor.json'
 import WidgetTitleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetTitleStyle.vue'
@@ -133,6 +135,7 @@ export default defineComponent({
 
             for (const widgetType in themeConfig) {
                 widgetTree.push({
+                    isParent: true,
                     key: `${widgetType}`,
                     label: this.$t(`managers.dashboardThemeManager.widgetNames.${widgetType}`),
                     children: this.buildChildren(themeConfig, widgetType)
@@ -160,6 +163,9 @@ export default defineComponent({
             }
 
             return childrenArray
+        },
+        scrollToExample(event: any) {
+            emitter.emit('scrollToExample', event)
         }
     }
 })
