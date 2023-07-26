@@ -13,7 +13,9 @@ export const formatForCrossNavigation = (event: any, widgetModel: IWidget) => {
 }
 
 export const getFormattedChartValues = (event: any, widgetModel: IWidget) => {
-    const formattedChartValues = { serieName: '', serieValue: event.count, categoryName: '', categoryValue: event.textValue, categoryId: '' }
+    const serie = widgetModel.columns.find((column: IWidgetColumn) => column.fieldType === 'MEASURE')
+    const serieName = serie ? serie.columnName : ''
+    const formattedChartValues = { serieName: serieName, serieValue: event.count, categoryName: '', categoryValue: event.text, categoryId: '' }
     const category = getColumnFromWidgetModel(widgetModel, 'ATTRIBUTE')
     if (category) {
         formattedChartValues.categoryId = category.id ?? ''

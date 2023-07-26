@@ -133,7 +133,7 @@ export default defineComponent({
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.widgetModel.settings.interactions.link.enabled) {
-                const formattedChartValues = getFormattedChartValues(event, this.dataToShow)
+                const formattedChartValues = getFormattedChartValues(event, this.widgetModel)
                 openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
             } else {
                 this.setSelection(event)
