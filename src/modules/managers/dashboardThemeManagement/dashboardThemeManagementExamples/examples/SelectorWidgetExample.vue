@@ -2,7 +2,7 @@
     <div v-if="options" class="selector-widget dashboard-scrollbar">
         <div class="vertical-layout">
             <div v-for="(value, index) in options.rows" :key="index" class="multi-select p-p-1">
-                <RadioButton v-model="selectedValue" :input-id="`radio-${index}`" class="p-mr-2" :name="value.column_1" :value="value.column_1" />
+                <RadioButton v-model="selectedValue" :input-id="`radio-${index}`" class="p-mr-2" :name="value.column_1" :value="value.column_1" :disabled="true" />
                 <label :for="`radio-${index}`" class="multi-select-label">{{ value.column_1 }}</label>
             </div>
         </div>

@@ -1,21 +1,35 @@
 <template>
-    <div class="p-d-flex p-flex-row p-flex-wrap active-selections-container">
-        <div v-for="(activeSelection, index) of activeSelections" :key="index" class="active-selections-chip">
-            <span>{{ activeSelection.datasetLabel }}</span>
-            <span class="p-mx-2">{{ activeSelection.columnName }}</span>
-            <span>{{ activeSelection.value.join() }}</span>
-            <Button v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" :disabled="false" />
+    <div class="widget-container" :style="getWidgetContainerStyle()">
+        <div v-if="titleEnabled" class="p-d-flex p-ai-center" style="border-radius: 0px" :style="getWidgetTitleStyle()">
+            {{ selectedThemeProp.config[widgetType].style.title.text }}
+        </div>
+        <div class="p-d-flex p-flex-row p-flex-wrap" :style="getWidgetPadding()">
+            <ActiveSelectionsChips v-for="(activeSelection, index) of activeSelections" :key="index" :active-selection="activeSelection" :show-dataset="true" :show-column="true" :style="getChipsStyle()" :editor-mode="true" />
+        </div>
+        <!-- <div class="p-d-flex p-flex-row p-flex-wrap" :style="getWidgetPadding()">
+            <ActiveSelectionsList :active-selections="activeSelections" :prop-widget="propWidgetMock" :show-dataset="true" :show-column="true" :editor-mode="true" />
+        </div> -->
+    </div>
+    <div class="widget-container" :style="getWidgetContainerStyle()">
+        <div v-if="titleEnabled" class="p-d-flex p-ai-center" style="border-radius: 0px" :style="getWidgetTitleStyle()">
+            {{ selectedThemeProp.config[widgetType].style.title.text }}
+        </div>
+        <div class="p-d-flex p-flex-row p-flex-wrap" :style="getWidgetPadding()">
+            <ActiveSelectionsList :active-selections="activeSelections" :prop-widget="propWidgetMock" :show-dataset="true" :show-column="true" :editor-mode="true" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { ISelection } from '@/modules/documentExecution/dashboard/Dashboard'
+import { ISelection, IWidgetTitle } from '@/modules/documentExecution/dashboard/Dashboard'
+import ActiveSelectionsChips from '@/modules/documentExecution/dashboard/widget/ActiveSelectionsWidget/ActiveSelectionsWidgetChips.vue'
+import ActiveSelectionsList from '@/modules/documentExecution/dashboard/widget/ActiveSelectionsWidget/ActiveSelectionsWidgetList.vue'
 
 export default defineComponent({
     name: 'active-selections-example',
-    components: {},
+    components: { ActiveSelectionsChips, ActiveSelectionsList },
+    props: { widgetType: { type: String, requried: true, default: 'table' }, selectedThemeProp: { type: Object as any, required: true } },
     emits: ['close'],
     data() {
         return {
@@ -23,11 +37,62 @@ export default defineComponent({
                 { datasetId: 1, datasetLabel: 'TEST_02', columnName: 'QUARTER', value: ['Q2'], aggregated: false, timestamp: 1689937296670 },
                 { datasetId: 1, datasetLabel: 'TEST_02', columnName: 'QUARTER', value: ['Q4'], aggregated: false, timestamp: 1689937296671 },
                 { datasetId: 2, datasetLabel: 'TEST_04', columnName: 'PRODUCT_FAMILY', value: ['FOOD', 'CAR'], aggregated: false, timestamp: 16899372966702 }
-            ] as ISelection[]
+            ] as ISelection[],
+            propWidgetMock: { settings: { style: {} } } as any
         }
     },
-    created() {},
-    methods: {}
+    computed: {
+        titleEnabled() {
+            const widgetTitle = this.selectedThemeProp.config[this.widgetType].style.title as IWidgetTitle
+            if (widgetTitle) return widgetTitle.enabled
+            else return false
+        }
+    },
+    created() {
+        this.propWidgetMock.settings.style = this.selectedThemeProp.config[this.widgetType].style
+    },
+    methods: {
+        getWidgetStyleByType(styleSettings: any) {
+            if (styleSettings?.enabled) {
+                const styleString = Object.entries(styleSettings.properties ?? styleSettings)
+                    .map(([k, v]) => `${k}:${v}`)
+                    .join(';')
+                return styleString + ';'
+            } else return ''
+        },
+        getWidgetTitleStyle() {
+            const widgetTitle = this.selectedThemeProp.config[this.widgetType].style.title
+            const styleString = this.getWidgetStyleByType(widgetTitle)
+            return styleString + `height: ${widgetTitle.height ?? 25}px;`
+        },
+        getWidgetContainerStyle() {
+            console.group('getWidgetContainerStyle ---------------------')
+            console.log('selectedThemeProp', this.selectedThemeProp)
+            console.log('widgetType', this.widgetType)
+            console.groupEnd()
+
+            const widgetBorders = this.selectedThemeProp.config[this.widgetType].style.borders
+            const widgetShadows = this.selectedThemeProp.config[this.widgetType].style.shadows
+            const widgetBackground = this.selectedThemeProp.config[this.widgetType].style.background
+
+            const styleString = this.getWidgetStyleByType(widgetBorders) + this.getWidgetStyleByType(widgetShadows) + this.getWidgetStyleByType(widgetBackground)
+            return styleString
+        },
+        getWidgetPadding() {
+            const widgetPadding = this.selectedThemeProp.config[this.widgetType].style.padding
+            const styleString = this.getWidgetStyleByType(widgetPadding)
+            return styleString
+        },
+        getChipsStyle() {
+            const height = this.selectedThemeProp.config[this.widgetType].style.chips.height
+            const styleSettings = this.selectedThemeProp.config[this.widgetType].style.chips
+            const styleString = Object.entries(styleSettings.properties ?? styleSettings)
+                .map(([k, v]) => `${k}:${v}`)
+                .join(';')
+
+            return styleString + ';' + `height: ${height != 0 ? height : 25}px`
+        }
+    }
 })
 </script>
 

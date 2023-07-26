@@ -15,9 +15,33 @@
             <WidgetRenderer :widget="tableModel" :widget-data="tableWidgetMock.tableDataMock" :widget-initial-data="tableWidgetMock.tableDataMock" :datasets="[]" :dashboard-id="'table'" :selection-is-locked="true" :prop-active-selections="[]" :variables="[]" :widget-loading="false" />
         </div>
         <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="pivot" />
-        <!-- <WidgetPictureExamples :selected-theme-prop="selectedThemeProp" widget-type="discovery" /> -->
-        <SelectorWidgetExample></SelectorWidgetExample>
-        <ActiveSelectionsExample></ActiveSelectionsExample>
+        <div class="p-p-2 p-d-flex" style="min-height: 415px">
+            <WidgetRenderer
+                :widget="discoveryModel"
+                :widget-data="discoveryWidgetMock.discoveryDataMock"
+                :widget-initial-data="discoveryWidgetMock.discoveryDataMock"
+                :datasets="[]"
+                :dashboard-id="'discovery'"
+                :selection-is-locked="true"
+                :prop-active-selections="[]"
+                :variables="[]"
+                :widget-loading="false"
+            />
+        </div>
+        <ActiveSelectionsExample :selected-theme-prop="selectedThemeProp" widget-type="activeSelections" />
+        <div class="p-p-2 p-d-flex" style="height: 240px">
+            <WidgetRenderer
+                :widget="selectorModel"
+                :widget-data="selectorWidgetMock.selectorDataMock"
+                :widget-initial-data="selectorWidgetMock.selectorDataMock"
+                :datasets="[]"
+                :dashboard-id="'selector'"
+                :selection-is-locked="true"
+                :prop-active-selections="[]"
+                :variables="[]"
+                :widget-loading="false"
+            />
+        </div>
     </div>
 </template>
 
@@ -28,6 +52,8 @@ import { mapState } from 'pinia'
 import { IChartJSData, IChartJSOptions } from '@/modules/documentExecution/dashboard/interfaces/chartJS/DashboardChartJSWidget'
 import { Pie } from 'vue-chartjs'
 import tableWidgetMock from './mocks/TableWidgetMock.json'
+import discoveryWidgetMock from './mocks/DiscoveryWidgetMock.json'
+import selectorWidgetMock from './mocks/SelectorWidgetMock.json'
 import WidgetRenderer from '@/modules/documentExecution/dashboard/widget/WidgetRenderer.vue'
 import deepcopy from 'deepcopy'
 import cryptoRandomString from 'crypto-random-string'
@@ -46,8 +72,12 @@ export default defineComponent({
     data() {
         return {
             tableWidgetMock,
-            selectedTheme: {} as IDashboardTheme,
+            discoveryWidgetMock,
+            selectorWidgetMock,
             tableModel: {} as any,
+            discoveryModel: {} as any,
+            selectorModel: {} as any,
+            selectedTheme: {} as IDashboardTheme,
             chartID: cryptoRandomString({ length: 16, type: 'base64' }),
             chartJSData: { labels: [], datasets: [] } as IChartJSData,
             chartJSOptions: {} as IChartJSOptions
@@ -78,6 +108,12 @@ export default defineComponent({
         loadWidgetModels() {
             this.tableModel = deepcopy(this.tableWidgetMock.tableModelMock)
             this.tableModel.settings.style = this.selectedTheme.config.table.style
+
+            this.discoveryModel = deepcopy(this.discoveryWidgetMock.discoveryModelMock)
+            this.discoveryModel.settings.style = this.selectedTheme.config.discovery.style
+
+            this.selectorModel = deepcopy(this.selectorWidgetMock.selectorModelMock)
+            this.selectorModel.settings.style = this.selectedTheme.config.selector.style
         },
         loadChartExample() {
             if (this.isEnterprise) {
