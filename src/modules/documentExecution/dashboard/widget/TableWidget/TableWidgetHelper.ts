@@ -171,7 +171,8 @@ const getColumnType = (columnField: string, dataToShow: any) => {
 
 export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRenderer: any, CellRenderer: any) => {
     const crossNavigationOptions = propWidget.settings.interactions.crossNavigation as IWidgetCrossNavigation
-    if (crossNavigationOptions.enabled && crossNavigationOptions.type === 'icon')
+    const linkIconOptionsIsPresent = iconTypeLinkIsPresent(propWidget.settings.interactions.link)
+    if ((crossNavigationOptions.enabled && crossNavigationOptions.type === 'icon') || linkIconOptionsIsPresent)
         columns.push({
             colId: 'iconColumn',
             valueGetter: `node.rowIndex + 1`,
@@ -201,7 +202,11 @@ const isLinkColumnInteractionActive = (tableNode: any, linkOptions: IWidgetLinks
 
 const isLinkIconInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
     if (!tableNode.colDef || tableNode.colDef.colId !== 'iconColumn') return false
-    const index = linkOptions.links.findIndex((link: ITableWidgetLink) => link.type === 'link')
+    return iconTypeLinkIsPresent(linkOptions)
+}
+
+const iconTypeLinkIsPresent = (linkOptions: IWidgetLinks) => {
+    const index = linkOptions.links.findIndex((link: ITableWidgetLink) => link.type === 'icon')
     return index !== -1
 }
 
