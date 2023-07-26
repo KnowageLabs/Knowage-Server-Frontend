@@ -13,7 +13,7 @@ interface IFormattedLink { url: string, action: string }[]
 
 export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
     const formattedLinks = getFormattedLinks(linkOptions, formattedRow, null, dashboardId, variables)
-    executeFormattedLinks(formattedLinks)
+    //executeFormattedLinks(formattedLinks)
 }
 
 export const openNewLinkImageWidget = (linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {

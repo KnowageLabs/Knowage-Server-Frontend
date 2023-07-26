@@ -1,4 +1,4 @@
-import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings } from '../../Dashboard'
+import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink } from '../../Dashboard'
 
 export const getColumnGroup = (propWidget: IWidget, col: ITableWidgetColumnGroup) => {
     const modelGroups = propWidget.settings.configuration.columnGroups.groups
@@ -188,9 +188,24 @@ export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRendere
 }
 
 export const isLinkInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
-    // TODO
+    if (!linkOptions.enabled) return false
+    if (isLinkColumnInteractionActive(tableNode, linkOptions) || isLinkIconInteractionActive(tableNode, linkOptions)) return true
     return true
 }
+
+const isLinkColumnInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
+    if (!tableNode.colDef?.columnName) return false
+    const index = linkOptions.links.findIndex((link: ITableWidgetLink) => link.type === 'singleColumn' && link.column === tableNode.colDef.columnName)
+    return index !== -1
+}
+
+const isLinkIconInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
+    if (!tableNode.colDef || tableNode.colDef.colId !== 'iconColumn') return false
+    const index = linkOptions.links.findIndex((link: ITableWidgetLink) => link.type === 'link')
+    return index !== -1
+}
+
+
 
 export const isIframeInteractionActive = (tableNode: any, iFrameInteractionSettings: IFrameInteractionSettings) => {
     if (!iFrameInteractionSettings.enabled) return false
