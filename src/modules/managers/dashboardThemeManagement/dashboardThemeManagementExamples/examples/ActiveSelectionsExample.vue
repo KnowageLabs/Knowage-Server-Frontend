@@ -6,9 +6,6 @@
         <div class="p-d-flex p-flex-row p-flex-wrap" :style="getWidgetPadding()">
             <ActiveSelectionsChips v-for="(activeSelection, index) of activeSelections" :key="index" :active-selection="activeSelection" :show-dataset="true" :show-column="true" :style="getChipsStyle()" :editor-mode="true" />
         </div>
-        <!-- <div class="p-d-flex p-flex-row p-flex-wrap" :style="getWidgetPadding()">
-            <ActiveSelectionsList :active-selections="activeSelections" :prop-widget="propWidgetMock" :show-dataset="true" :show-column="true" :editor-mode="true" />
-        </div> -->
     </div>
     <div class="widget-container" :style="getWidgetContainerStyle()">
         <div v-if="titleEnabled" class="p-d-flex p-ai-center" style="border-radius: 0px" :style="getWidgetTitleStyle()">
