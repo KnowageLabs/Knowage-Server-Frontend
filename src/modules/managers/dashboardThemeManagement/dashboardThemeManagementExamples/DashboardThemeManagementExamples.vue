@@ -29,7 +29,7 @@
             />
         </div>
         <ActiveSelectionsExample :selected-theme-prop="selectedThemeProp" widget-type="activeSelections" />
-        <div class="p-p-2 p-d-flex" style="height: 240px">
+        <div class="p-p-2 p-d-flex" style="height: 200px">
             <WidgetRenderer
                 :widget="selectorModel"
                 :widget-data="selectorWidgetMock.selectorDataMock"
