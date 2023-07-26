@@ -205,8 +205,6 @@ const isLinkIconInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) 
     return index !== -1
 }
 
-
-
 export const isIframeInteractionActive = (tableNode: any, iFrameInteractionSettings: IFrameInteractionSettings) => {
     if (!iFrameInteractionSettings.enabled) return false
     if (iFrameInteractionSettings.type === 'singleColumn' && (!iFrameInteractionSettings.column || tableNode.colDef?.colId !== iFrameInteractionSettings.column)) return false
