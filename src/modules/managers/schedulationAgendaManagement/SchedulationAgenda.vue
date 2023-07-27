@@ -201,7 +201,7 @@ export default defineComponent({
         runSearch() {
             this.loading = true
 
-            let path = import.meta.env.VITE_KNOWAGE_CONTEXT + `scheduleree/nextExecutions?start=${this.formatDateTime(this.startDateTime)}&end=${this.formatDateTime(this.endDateTime)}`
+            let path = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/nextExecutions?start=${this.formatDateTime(this.startDateTime)}&end=${this.formatDateTime(this.endDateTime)}`
             if (this.selectedPackage) {
                 path += `&jobPackageName=${this.selectedPackage.id}`
             }
