@@ -48,7 +48,7 @@
             "height": "30px"
         }
     },
-    "responsiveInputSwiitches": ["xs", "sm", "md", "lg", "xl"],
+    "responsiveInputSwiitches": ["xss", "xs", "sm", "md", "lg"],
     "shadowsSizeOptions": [
         {
             "label": "common.small",

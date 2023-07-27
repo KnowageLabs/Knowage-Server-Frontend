@@ -28,7 +28,17 @@ export const createNewDashboardModel = () => {
             datasets: [],
             variables: [],
             themes: {},
-            selections: []
+            selections: [],
+            background: {
+                sheetsBackgroundColor: '',
+                imageBackgroundUrl: '',
+                imageBackgroundSize: ''
+            },
+            menuWidgets: {
+                showExcelExport: true,
+                showScreenshot: true,
+                showSelectionButton: true
+            }
         },
         version: '8.2.0'
     } as IDashboard
@@ -165,6 +175,25 @@ const setStatesForWidgets = (dashboardModel: IDashboard, states: any) => {
         if (widget.id && states[widget.id]) {
             widget.state = states[widget.id].state
             widget.search = states[widget.id].search
+        }
+    })
+}
+
+export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
+    console.log("-------------- createNewWidget() - dashboardModel: ", dashboardModel)
+    console.log("-------------- createNewWidget() - widget: ", widget)
+    console.log("-------------- createNewWidget() -  widget responsive", widget?.settings?.responsive)
+    if (!widget.settings.responsive) return
+    const sizes = Object.keys(widget.settings.responsive)
+    console.log("-------------- createNewWidget() -  sizes", sizes)
+    if (!dashboardModel.sheets[selectedSheetIndex].widgets) dashboardModel.sheets[selectedSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
+    sizes.forEach((size: string) => {
+        if (widget.settings.responsive[size]) {
+            if (dashboardModel.sheets[selectedSheetIndex].widgets[size]) {
+                dashboardModel.sheets[selectedSheetIndex].widgets[size].push({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false })
+            } else {
+                dashboardModel.sheets[selectedSheetIndex].widgets[size] = [{ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }]
+            }
         }
     })
 }

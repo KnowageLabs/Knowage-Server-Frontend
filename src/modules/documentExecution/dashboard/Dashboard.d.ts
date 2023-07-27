@@ -13,7 +13,7 @@ export interface IDashboardSheet {
     id: string
     index: number
     label: string
-    widgets: { lg: IWidgetSheetItem[] }
+    widgets: { xxs: IWidgetSheetItem[], xs: IWidgetSheetItem[], sm: IWidgetSheetItem[], md: IWidgetSheetItem[], lg: IWidgetSheetItem[] }
 }
 
 export interface IWidgetSheetItem {
@@ -441,11 +441,11 @@ export interface ITableWidgetVisibilityCondition {
 }
 
 export interface IWidgetResponsive {
+    xss: boolean
     xs: boolean
     sm: boolean
     md: boolean
     lg: boolean
-    xl: boolean
 }
 
 export interface IWidgetColumn {
