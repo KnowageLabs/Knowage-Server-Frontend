@@ -16,7 +16,6 @@ import { formatImageWidget } from './imageWidget/ImageWidgetCompatibilityHelper'
 import { formatCustomChartWidget } from './customChart/CustomChartWidgetCompatibilityHelper'
 import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHelper'
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
-import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
 import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
 
@@ -190,11 +189,12 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
 
     const formattedSheet = deepcopy(sheet)
     formattedSheet.id = cryptoRandomString({ length: 16, type: 'base64' })
-    formattedSheet.widgets = { lg: [] }
+    formattedSheet.widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
 
     for (let i = 0; i < sheet.widgets.length; i++) {
         const tempWidget = sheet.widgets[i]
-        formattedSheet.widgets.lg.push({ id: tempWidget.id, h: tempWidget.sizeY, w: tempWidget.sizeX, x: tempWidget.col, y: tempWidget.row, i: cryptoRandomString({ length: 16, type: 'base64' }), moved: false })
+        const sizes = ['lg', 'md', 'sm', 'xs', 'xxs']
+        sizes.forEach((size: string) => formattedSheet.widgets[size].push({ id: tempWidget.id, h: tempWidget.sizeY, w: tempWidget.sizeX, x: tempWidget.col, y: tempWidget.row, i: cryptoRandomString({ length: 16, type: 'base64' }), moved: false }))
         addWidgetToModel(tempWidget, formattedModel, user, drivers)
     }
 
