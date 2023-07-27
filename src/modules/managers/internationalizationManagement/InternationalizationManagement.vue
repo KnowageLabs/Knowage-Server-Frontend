@@ -266,7 +266,7 @@ export default defineComponent({
             return this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/internationalization/languages')
                 .then((response: AxiosResponse<any>) => {
-                    this.languages = response.data.wrappedObject
+                    this.languages = response.data
                 })
                 .finally(() => (this.loading = false))
         },
