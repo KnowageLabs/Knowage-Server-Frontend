@@ -20,7 +20,7 @@ export default class CellRenderer {
         let applyConditionalStyleToBar = false
 
         const getMultiselectStyle = () => {
-            if (params.colDef.colId === 'indexColumn') return null
+            if (params.colDef.colId === 'indexColumn' || params.colDef.colId === 'iconColumn') return null
             const selection = params.propWidget.settings.interactions.selection
             const celectedCellValues = params.multiSelectedCells
             const selectedColumn = params.selectedColumnArray[0]
@@ -86,7 +86,9 @@ export default class CellRenderer {
         }
 
         const styleObject = getCellStyle()
-        this.setStyle(styleObject)
+        //TODO - HARDCODED ICON COLUMN STYLES, ADD NEW OPTIONS IN EDITOR OR TWEAK THIS
+        if (params.colId === 'iconColumn') this.setStyle({ 'align-items': 'center', 'justify-content': 'center' })
+        else this.setStyle(styleObject)
 
         let visType = {} as any
         const visualizationTypeConfiguration = params.propWidget.settings.visualization.visualizationTypes as ITableWidgetVisualizationTypes
@@ -136,7 +138,7 @@ export default class CellRenderer {
         function setCellContent() {
             if (isColumnOfType('date')) return dateFormatter(params.value)
             else if (isColumnOfType('timestamp')) return dateTimeFormatter(params.value)
-            else if (params.colId === 'iconColumn') return `ICON`
+            else if (params.colId === 'iconColumn') return `<i class="${params.propWidget.settings.interactions.crossNavigation.icon}"></i>` ?? 'ICON ERROR'
             else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') return params.value
             else return params.value
         }
