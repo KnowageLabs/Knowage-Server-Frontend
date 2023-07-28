@@ -28,7 +28,18 @@ export const createNewDashboardModel = () => {
             datasets: [],
             variables: [],
             themes: {},
-            selections: []
+            selections: [],
+            background: {
+                sheetsBackgroundColor: '',
+                imageBackgroundUrl: '',
+                imageBackgroundSize: ''
+            },
+            menuWidgets: {
+                showExcelExport: true,
+                showScreenshot: true,
+                showSelectionButton: true,
+                enableChartChange: true
+            }
         },
         version: '8.2.0'
     } as IDashboard

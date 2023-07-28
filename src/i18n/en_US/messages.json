@@ -117,8 +117,8 @@
             "emptySearch": "The search returns no data",
             "info": "Info",
             "noDataFound": "No data found",
-            "noImageFound": "No image available",
-            "noElementSelected": "No element selected"
+            "noElementSelected": "No element selected",
+            "noImageFound": "No image available"
         },
         "information": "information",
         "input": "Input",
@@ -407,6 +407,7 @@
             },
             "css": "CSS Editor",
             "menuWidgets": {
+                "enableChartChange": "Enable chart changing",
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",

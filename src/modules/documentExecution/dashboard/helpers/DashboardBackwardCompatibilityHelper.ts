@@ -16,7 +16,6 @@ import { formatImageWidget } from './imageWidget/ImageWidgetCompatibilityHelper'
 import { formatCustomChartWidget } from './customChart/CustomChartWidgetCompatibilityHelper'
 import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHelper'
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
-import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
 import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
 
@@ -84,7 +83,7 @@ const getFormattedSheetBackground = (model: any) => {
 
 const getFormattedMenuAndWidgets = (model: any) => {
     const modelConfig = model.configuration
-    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true } as IMenuAndWidgets
+    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true, enableChartChange: true } as IMenuAndWidgets
 
     return formattedMenuAndWIdgets
 }

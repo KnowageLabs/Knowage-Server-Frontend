@@ -619,6 +619,7 @@ interface IMenuAndWidgets {
     showExcelExport: boolean
     showScreenshot: boolean
     showSelectionButton: boolean
+    enableChartChange: boolean
 }
 
 interface IAssociationField {
