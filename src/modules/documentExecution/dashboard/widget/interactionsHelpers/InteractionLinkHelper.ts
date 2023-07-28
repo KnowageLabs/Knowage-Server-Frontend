@@ -22,13 +22,11 @@ export const openNewLinkImageWidget = (linkOptions: IWidgetLinks, dashboardId: s
 }
 
 export const openNewLinkChartWidget = (formattedChartValues: IChartInteractionValues, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
-    console.log('----- formattedChartValues: ', formattedChartValues)
     const formattedLinks = getFormattedLinks(linkOptions, null, formattedChartValues, dashboardId, variables)
     executeFormattedLinks(formattedLinks)
 }
 
 const executeFormattedLinks = (formattedLinks: IFormattedLink[]) => {
-    console.log('--------- FORMATTED LINKS: ', formattedLinks)
     const linksForNewTab = formattedLinks.filter((formattedLink: IFormattedLink) => formattedLink.action === 'blank')
     const linkForReplace = formattedLinks.find((formattedLink: IFormattedLink) => formattedLink.action === 'replace')
     linksForNewTab.forEach((formattedLink: IFormattedLink) => window.open(formattedLink.url, '_blank'))

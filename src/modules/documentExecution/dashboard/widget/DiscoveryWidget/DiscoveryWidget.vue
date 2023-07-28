@@ -412,7 +412,6 @@ export default defineComponent({
             return columntooltipConfig
         },
         onCellClicked(node) {
-            // TODO - Move this below or somewhere...
             if (!this.editorMode && isLinkInteractionActive(node, this.propWidget.settings.interactions.link)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)

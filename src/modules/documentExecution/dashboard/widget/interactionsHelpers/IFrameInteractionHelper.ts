@@ -9,9 +9,6 @@ const { t } = i18n.global
 
 export const startTableWidgetIFrameInteractions = (formattedRow: any, iFrameInteractionSettings: IFrameInteractionSettings, dashboardId: string, variables: IVariable[], window: any) => {
     if (!window.parent || window.parent !== window.top) return
-    // TODO - FOR TESTING ONLY!
-    window.parent.addEventListener('message', test)
-
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, formattedRow, null)
@@ -20,9 +17,6 @@ export const startTableWidgetIFrameInteractions = (formattedRow: any, iFrameInte
 
 export const startHTMLAndCustomChartIFrameInteractions = (iframeMessage: string | number, iFrameInteractionSettings: IFrameInteractionSettings, dashboardId: string, variables: IVariable[], window: any) => {
     if (!window.parent || window.parent !== window.top) return
-    // TODO - FOR TESTING ONLY!
-    window.parent.addEventListener('message', test)
-
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, null, iframeMessage)
@@ -50,7 +44,6 @@ const replacePlaceholdersForTable = (originalString: string, variables: IVariabl
 }
 
 const sendMessageToParentWindow = (parentWindow: any, formattedJSON: string) => {
-    console.log('--------- JSON TO SEND: ', formattedJSON)
     parentWindow.postMessage({
         "source": "knowage",
         "type": "message",
@@ -68,9 +61,4 @@ const replacePlaheoldersForHTMLAndCustomChart = (originalString: string, variabl
 const replaceFieldPlaceholdersMessagePlaceholder = (originalString, iframeMessage: string | number | null) => {
     const valueRegex = /\$\{value\}/g;
     return iframeMessage ? originalString.replaceAll(valueRegex, iframeMessage) : ''
-}
-
-// TODO - FOR TESTING!
-const test = (event: any) => {
-    console.log('----- TEST MESSAGE: ', event.data)
 }

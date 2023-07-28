@@ -471,13 +471,12 @@ export default defineComponent({
             }
         },
         onCellClicked(node) {
-            // TODO - Move this below or somewhere...
             if (!this.editorMode && isIframeInteractionActive(node, this.widgetModel.settings.interactions.iframe)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
                 return
             }
-            // TODO - Move this below or somewhere...
+
             if (!this.editorMode && isLinkInteractionActive(node, this.widgetModel.settings.interactions.link)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)

@@ -24,8 +24,6 @@
                 <span class="p-float-label">
                     <InputText v-model="bordersStyleModel.properties['border-width']" v-tooltip.top="$t('dashboard.widgetEditor.borders.bordersThicknessHint')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.bordersThickness') }}</label>
-                    <!-- TODO: Remove commented smalls if not necessary -->
-                    <!-- <small>{{ $t('dashboard.widgetEditor.borders.bordersThicknessHint') }}</small> -->
                 </span>
             </div>
             <div class="p-field p-col-12 p-md-6 p-lg-4">
@@ -40,28 +38,24 @@
                 <span class="p-float-label">
                     <InputText v-model="bordersStyleModel.properties['border-top-left-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusTopLeft') }}</label>
-                    <!-- <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small> -->
                 </span>
             </div>
             <div class="p-field p-col-12 p-md-6 p-lg-3">
                 <span class="p-float-label">
                     <InputText v-model="bordersStyleModel.properties['border-top-right-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusTopRight') }}</label>
-                    <!-- <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small> -->
                 </span>
             </div>
             <div class="p-field p-col-12 p-md-6 p-lg-3">
                 <span class="p-float-label">
                     <InputText v-model="bordersStyleModel.properties['border-bottom-left-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusBottomLeft') }}</label>
-                    <!-- <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small> -->
                 </span>
             </div>
             <div class="p-field p-col-12 p-md-6 p-lg-3">
                 <span class="p-float-label">
                     <InputText v-model="bordersStyleModel.properties['border-bottom-right-radius']" v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" :disabled="bordersStyleDisabled" @change="bordersStyleChanged" />
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.borders.borderRadiusBottomRight') }}</label>
-                    <!-- <small>{{ $t('dashboard.widgetEditor.inputHintForPixels') }}</small> -->
                 </span>
             </div>
         </form>

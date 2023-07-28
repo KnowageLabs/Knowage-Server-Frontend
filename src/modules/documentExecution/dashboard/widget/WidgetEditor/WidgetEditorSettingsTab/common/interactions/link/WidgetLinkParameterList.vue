@@ -74,8 +74,8 @@
                 </div>
                 <i class="pi pi-trash kn-cursor-pointer p-ml-auto" @click="deleteParameter(index)"></i>
             </div>
-            <div v-if="parameter.type === 'json'" class="p-grid p-col-12 p-ai-center">
-                <TableWidgetParameterCodeMirror v-if="parameter.type === 'json'" :prop-parameter="parameter" :visible="parameter.type === 'json'"></TableWidgetParameterCodeMirror>
+            <div v-if="parameter.type === 'json' && parameter.json" class="p-grid p-col-12 p-ai-center">
+                <KnMonaco ref="monacoEditor" v-model="parameter.json" style="height: 500px" :options="{ theme: 'vs-light' }" :language="'json'" :text-to-insert="''" />
             </div>
         </div>
     </div>
@@ -89,12 +89,12 @@ import { mapActions } from 'pinia'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import descriptor from '../WidgetInteractionsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
-import TableWidgetParameterCodeMirror from './WidgetParameterCodeMirror.vue'
 import InputSwitch from 'primevue/inputswitch'
+import KnMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 
 export default defineComponent({
     name: 'table-widget-link-parameters-list',
-    components: { Dropdown, TableWidgetParameterCodeMirror, InputSwitch },
+    components: { Dropdown, InputSwitch, KnMonaco },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         propParameters: { type: Array as PropType<IWidgetInteractionParameter[]>, required: true },
