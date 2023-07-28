@@ -1,7 +1,7 @@
 <template>
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
-        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
+        <!-- <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker> -->
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
@@ -46,7 +46,7 @@ import CustomChartHTMLEditor from './editor/CustomChartHTMLEditor.vue'
 import CustomChartCSSEditor from './editor/CustomChartCSSEditor.vue'
 import CustomChartJSEditor from './editor/CustomChartJSEditor.vue'
 import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
-import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
+// import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
 
 export default defineComponent({
@@ -68,7 +68,7 @@ export default defineComponent({
         CustomChartCSSEditor,
         CustomChartJSEditor,
         WidgetInteractionsIframe,
-        WidgetEditorThemePicker,
+        //  WidgetEditorThemePicker,
         Message
     },
     props: {

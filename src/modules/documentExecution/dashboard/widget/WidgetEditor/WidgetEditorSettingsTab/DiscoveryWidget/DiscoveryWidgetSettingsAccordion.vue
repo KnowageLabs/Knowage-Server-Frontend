@@ -1,7 +1,7 @@
 <template>
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
-        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
+        <!-- <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker> -->
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
@@ -54,7 +54,7 @@ import DiscoveryWidgetSettingsAccordionHeader from './DiscoveryWidgetSettingsAcc
 import DiscoveryWidgetFacetsSettings from './configuration/DiscoveryWidgetFacetsSettings.vue'
 import DiscoveryWidgetSearchSettings from './configuration/DiscoveryWidgetSearchSettings.vue'
 import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteractionsLinks.vue'
-import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
+// import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
 
 export default defineComponent({
@@ -80,7 +80,7 @@ export default defineComponent({
         DiscoveryWidgetFacetsSettings,
         DiscoveryWidgetSearchSettings,
         WidgetInteractionsLinks,
-        WidgetEditorThemePicker,
+        // WidgetEditorThemePicker,
         Message
     },
     props: {
