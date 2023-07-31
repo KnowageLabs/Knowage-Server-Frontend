@@ -74,7 +74,7 @@
                 </div>
                 <i class="pi pi-trash kn-cursor-pointer p-ml-auto" @click="deleteParameter(index)"></i>
             </div>
-            <div v-if="parameter.type === 'json' && parameter.json" class="p-grid p-col-12 p-ai-center">
+            <div v-if="parameter.type === 'json' && parameter.json !== undefined" class="p-grid p-col-12 p-ai-center">
                 <KnMonaco ref="monacoEditor" v-model="parameter.json" style="height: 500px" :options="{ theme: 'vs-light' }" :language="'json'" :text-to-insert="''" />
             </div>
         </div>
