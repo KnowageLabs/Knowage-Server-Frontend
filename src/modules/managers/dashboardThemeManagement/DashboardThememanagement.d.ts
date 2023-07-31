@@ -1,5 +1,6 @@
 import { ITableWidgetStyle } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IDiscoveryWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardDiscoveryWidget'
+import { ISelectionWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget'
 import { ISelectorWidgetStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import { ITextWidgetStyle as IGenericStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardTextWidget'
 
@@ -19,8 +20,8 @@ export interface IDashboardThemeConfig {
     python: { style: IGenericStyle }
     r: { style: IGenericStyle }
     table: { style: ITableWidgetStyle }
-    pivot: { style: any } //TODO: Pitati sta raditi za enterprise i basic pivot....
+    pivot: { style: any }
     discovery: { style: IDiscoveryWidgetStyle }
-    activeSelections: { style: any } //TODO: Nmg da nadjem interface za active selections
+    activeSelections: { style: ISelectionWidgetStyle }
     selector: { style: ISelectorWidgetStyle }
 }
