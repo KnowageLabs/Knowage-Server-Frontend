@@ -4,28 +4,28 @@
             "property": "dsTypeCd",
             "values": {
                 "Ckan": {
-                    "icon": "fas fa-database",
+                    "icon": "db-network",
                     "style": {
                         "background-color": "#ffc107",
                         "color": "white"
                     }
                 },
                 "Custom": {
-                    "icon": "fas fa-database",
+                    "icon": "db-db",
                     "style": {
                         "background-color": "#607d8b",
                         "color": "white"
                     }
                 },
                 "Derived": {
-                    "icon": "fas fa-diagram-successor",
+                    "icon": "db-db",
                     "style": {
                         "background-color": "#ffc107",
                         "color": "white"
                     }
                 },
                 "Federated": {
-                    "icon": "fas fa-database",
+                    "icon": "db-archivenetwork-add",
                     "style": {
                         "background-color": "#795548",
                         "color": "white"
@@ -39,7 +39,7 @@
                     }
                 },
                 "Flat": {
-                    "icon": "fas fa-database",
+                    "icon": "db-table",
                     "style": {
                         "background-color": "#9e9e9e",
                         "color": "white"
@@ -53,7 +53,7 @@
                     }
                 },
                 "Prepared": {
-                    "icon": "fas fa-database",
+                    "icon": "db-db",
                     "style": {
                         "background-color": "#673ab7",
                         "color": "white"
@@ -88,7 +88,7 @@
                     }
                 },
                 "SPARQL": {
-                    "icon": "fas fa-database",
+                    "icon": "db-apache-spark",
                     "style": {
                         "background-color": "#009688",
                         "color": "white"
@@ -102,7 +102,7 @@
                     }
                 },
                 "Solr": {
-                    "icon": "fas fa-database",
+                    "icon": "db-solr-logo-on-white",
                     "style": {
                         "background-color": "#673ab7",
                         "color": "white"
