@@ -245,7 +245,7 @@ export default defineComponent({
             })
         },
         async deleteDossier(selectedDossier) {
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `dossier/activity/${selectedDossier.id}`
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedDossier.id}`
             if (selectedDossier.status == 'DOWNLOAD' || selectedDossier.status == 'ERROR' || !this.dateCheck(selectedDossier)) {
                 await this.$http
                     .delete(url, { headers: { Accept: 'application/json, text/plain, */*' } })
