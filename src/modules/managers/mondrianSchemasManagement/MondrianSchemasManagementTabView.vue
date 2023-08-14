@@ -171,15 +171,21 @@ export default defineComponent({
                 return
             }
             this.selectedSchema.type = 'MONDRIAN_SCHEMA'
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/mondrianSchemasResource/`
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/mondrianSchemasResource/`
             if (this.selectedSchema.id) {
                 url += this.selectedSchema.id
             }
             await this.createOrUpdate(url).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
-                    this.store.setError({ title: this.$t('managers.mondrianSchemasManagement.toast.schema.error'), msg: response.data.errors })
+                    this.store.setError({
+                        title: this.$t('managers.mondrianSchemasManagement.toast.schema.error'),
+                        msg: response.data.errors
+                    })
                 } else {
-                    this.store.setInfo({ title: this.$t(this.tabViewDescriptor.operation[this.operation].toastTitle), msg: this.$t(this.tabViewDescriptor.operation.success) })
+                    this.store.setInfo({
+                        title: this.$t(this.tabViewDescriptor.operation[this.operation].toastTitle),
+                        msg: this.$t(this.tabViewDescriptor.operation.success)
+                    })
                     this.onSaveSuccess(response)
                 }
             })
@@ -221,14 +227,24 @@ export default defineComponent({
             }
             const formData = new FormData()
             formData.append('file', this.versionToSave)
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/mondrianSchemasResource/${this.selectedSchema.id}` + '/versions'
-            await this.$http.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((response: AxiosResponse<any>) => {
-                if (response.data.errors) {
-                    this.store.setError({ title: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.error'), msg: response.data.errors })
-                } else {
-                    this.store.setInfo({ title: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.uploaded'), msg: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.ok') })
-                }
-            })
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/mondrianSchemasResource/${this.selectedSchema.id}` + '/versions'
+            await this.$http
+                .post(url, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                })
+                .then((response: AxiosResponse<any>) => {
+                    if (response.data.errors) {
+                        this.store.setError({
+                            title: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.error'),
+                            msg: response.data.errors
+                        })
+                    } else {
+                        this.store.setInfo({
+                            title: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.uploaded'),
+                            msg: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.ok')
+                        })
+                    }
+                })
         }
     }
 })
