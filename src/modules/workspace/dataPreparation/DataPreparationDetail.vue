@@ -244,7 +244,7 @@ export default defineComponent({
 
             const url = new URL(window.location.origin)
             url.protocol = url.protocol.replace('http', 'ws')
-            const uri = url + 'knowage-data-preparation/ws?' + import.meta.env.VITE_DEFAULT_AUTH_HEADER + '=' + localStorage.getItem('token')
+            const uri = url.origin + import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/ws?' + import.meta.env.VITE_DEFAULT_AUTH_HEADER + '=' + localStorage.getItem('token')
             this.client = new Client({
                 brokerURL: uri,
                 connectHeaders: {},
