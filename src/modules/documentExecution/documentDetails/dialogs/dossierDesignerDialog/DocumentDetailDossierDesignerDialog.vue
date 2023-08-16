@@ -315,11 +315,16 @@
 
         <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDossier" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
         <template #footer>
-            <Button v-if="step >= 0 && step < 2" class="kn-button kn-button--secondary p-jc-start" @click="back"> {{ $t('common.back') }}</Button>
-            <Button v-if="step == 0" class="kn-button kn-button--primary p-jc-end" :disabled="v$.$invalid" @click="next"> {{ $t('common.next') }}</Button>
+            <div class="left">
+                <Button class="kn-button kn-button--warning" @click="cancel()"> {{ $t('common.close') }}</Button>
+            </div>
+            <div class="right">
+                <Button v-if="step >= 0 && step < 2" class="kn-button kn-button--secondary" @click="back"> {{ $t('common.back') }}</Button>
+                <Button v-if="step == 0" class="kn-button kn-button--primary" :disabled="v$.$invalid" @click="next"> {{ $t('common.next') }}</Button>
 
-            <Button v-if="step == 1" class="kn-button kn-button--primary p-jc-end" @click="saveAndClose()"> {{ $t('common.save') }}</Button>
-            <Button v-if="step == 1" class="kn-button kn-button--primary p-jc-end" @click="saveAndRun()"> {{ $t('documentExecution.dossier.designerDialog.saveAndRun') }}</Button>
+                <Button v-if="step == 1" class="kn-button kn-button--primary" @click="saveAndClose()"> {{ $t('common.save') }}</Button>
+                <Button v-if="step == 1" class="kn-button kn-button--primary" @click="saveAndRun()"> {{ $t('documentExecution.dossier.designerDialog.saveAndRun') }}</Button>
+            </div>
         </template>
     </Dialog>
 </template>
@@ -722,6 +727,25 @@ export default defineComponent({
                 this.closeDialog(false, false)
             }
         },
+        cancel() {
+            console.log(this.dirty)
+            if (this.dirty) {
+                this.$confirm.require({
+                    message: this.$t('documentExecution.dossier.designerDialog.closeConfirm'),
+                    header: this.$t('documentExecution.dossier.designerDialog.closeTitle'),
+                    icon: 'pi pi-exclamation-triangle',
+                    accept: () => {
+                        this.dirty = false
+                        this.step = 0
+                        this.closeDialog(false, false)
+                    }
+                })
+            } else {
+                this.dirty = false
+                this.step = 0
+                this.closeDialog(false, false)
+            }
+        },
         setUploadType() {
             this.triggerUpload = false
             setTimeout(() => (this.triggerUpload = true), 200)
@@ -1040,6 +1064,16 @@ export default defineComponent({
         height: calc(100% - 35px);
         padding: 0;
         overflow-x: hidden;
+    }
+    .p-dialog-footer {
+        display: flex;
+        .left {
+            justify-content: flex-start;
+        }
+        .right {
+            flex: 1;
+            justify-content: flex-end;
+        }
     }
 
     .p-fileupload-buttonbar {

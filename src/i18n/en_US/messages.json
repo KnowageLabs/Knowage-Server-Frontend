@@ -116,8 +116,8 @@
             "emptySearch": "The search returns no data",
             "info": "Info",
             "noDataFound": "No data found",
-            "noImageFound": "No image available",
-            "noElementSelected": "No element selected"
+            "noElementSelected": "No element selected",
+            "noImageFound": "No image available"
         },
         "information": "information",
         "input": "Input",
@@ -1383,6 +1383,8 @@
             "deleteSuccess": "Successfully deleted selected activity.",
             "deleteTitle": "Delete dossier activity",
             "designerDialog": {
+                "closeConfirm": "Are you sure you want to close the designer? All changes will be lost.",
+                "closeTitle": "Close Designer",
                 "deviceScaleFactor": "Device scale factor",
                 "dossierUrlName": "Dossier url name",
                 "downloadable": "Downloadable",
