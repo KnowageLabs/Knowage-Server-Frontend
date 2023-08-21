@@ -47,7 +47,7 @@
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
                     <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions()" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
                     <Button v-if="canSeeDashboardFunctions()" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
-                    <Button class="hidden-button" @click="export('XLSX')"></Button>
+                    <Button class="hidden-button" @click="hiddenExport('XLSX')"></Button>
                 </div>
             </template>
         </Toolbar>
@@ -505,6 +505,9 @@ export default defineComponent({
         },
         print() {
             window.print()
+        },
+        hiddenExport(type: string) {
+            this.export(type)
         },
         export(type: string) {
             if (this.document.typeCode === 'OLAP') {
