@@ -13,7 +13,7 @@
     "main": "main.ts",
     "dependencies": {
         "@fortawesome/fontawesome-free": "6.4.0",
-        "@guolao/vue-monaco-editor": "^1.1.4",
+        "@guolao/vue-monaco-editor": "1.2.0",
         "@quasar/extras": "^1.16.3",
         "@stomp/stompjs": "^6.1.2",
         "@vue-toys/resize-observer": "^1.0.4",
@@ -41,7 +41,7 @@
         "luxon": "^2.5.2",
         "mitt": "^3.0.0",
         "moment": "2.29.4",
-        "monaco-editor": "0.35.0",
+        "monaco-editor": "0.41.0",
         "parchment": "^2.0.1",
         "pinia": "^2.0.28",
         "pleaserotate.js": "^0.1.2",
