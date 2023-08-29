@@ -275,7 +275,7 @@ export default defineComponent({
             this.launchClicked = true
             setTimeout(() => (this.launchClicked = false), 3000)
 
-            if (!this.jsonTemplate) this.jsonTemplate.executionRole = this.userRole
+            if (this.jsonTemplate) this.jsonTemplate.executionRole = this.userRole
 
             const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossier/run?activityName=${this.activity.activityName}&documentId=${this.id}`
             await this.$http.post(url, this.jsonTemplate, { headers: { Accept: 'application/json, text/plain, */*' } }).then((response: AxiosResponse<any>) => {
