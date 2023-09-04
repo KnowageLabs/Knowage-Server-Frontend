@@ -1396,6 +1396,8 @@
             "deleteSuccess": "Successfully deleted selected activity.",
             "deleteTitle": "Delete dossier activity",
             "designerDialog": {
+                "closeConfirm": "Are you sure you want to close the designer? All changes will be lost.",
+                "closeTitle": "Close Designer",
                 "deviceScaleFactor": "Device scale factor",
                 "dossierUrlName": "Dossier url name",
                 "downloadable": "Downloadable",

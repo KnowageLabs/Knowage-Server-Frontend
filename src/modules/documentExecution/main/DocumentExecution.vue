@@ -47,6 +47,7 @@
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
                     <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions()" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
                     <Button v-if="canSeeDashboardFunctions()" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
+                    <Button class="hidden-button" @click="hiddenExport('XLSX')"></Button>
                 </div>
             </template>
         </Toolbar>
@@ -55,7 +56,7 @@
             <div v-if="parameterSidebarVisible" :class="propMode === 'document-execution-cross-navigation-popup' ? 'document-execution-backdrop-popup-dialog' : 'document-execution-backdrop'" @click="parameterSidebarVisible = false"></div>
             <div v-show="showExecutedDocument || newDashboardMode" class="kn-flex">
                 <Registry v-if="showExecutedDocument && mode === 'registry'" :id="urlData?.sbiExecutionId" :reload-trigger="reloadTrigger"></Registry>
-                <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData"></Dossier>
+                <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData" :user-role="userRole"></Dossier>
                 <Olap
                     v-else-if="showExecutedDocument && mode === 'olap'"
                     :id="urlData?.sbiExecutionId"
@@ -504,6 +505,9 @@ export default defineComponent({
         },
         print() {
             window.print()
+        },
+        hiddenExport(type: string) {
+            this.export(type)
         },
         export(type: string) {
             if (this.document.typeCode === 'OLAP') {
@@ -1186,6 +1190,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+.hidden-button {
+    display: none;
+}
 .document-execution-view {
     position: relative;
     height: 100%;

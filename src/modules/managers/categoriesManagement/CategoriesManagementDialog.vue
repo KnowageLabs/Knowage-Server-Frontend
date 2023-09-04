@@ -153,17 +153,17 @@ export default defineComponent({
         getCategoryTagsUrl() {
             switch (this.propCategory.type) {
                 case 'DATASET_CATEGORY':
-                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `3.0/category/dataset/${this.propCategory.id}`
+                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/category/dataset/${this.propCategory.id}`
                 case 'BM_CATEGORY':
-                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `3.0/category/metamodel/${this.propCategory.id}`
+                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/category/metamodel/${this.propCategory.id}`
                 case 'GEO_CATEGORY':
-                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `3.0/category/geolayer/${this.propCategory.id}`
+                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/category/geolayer/${this.propCategory.id}`
                 case 'KPI_KPI_CATEGORY':
-                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `3.0/category/kpi/${this.propCategory.id}`
+                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/category/kpi/${this.propCategory.id}`
                 case 'KPI_TARGET_CATEGORY':
-                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `3.0/category/kpitarget/${this.propCategory.id}`
+                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/category/kpitarget/${this.propCategory.id}`
                 case 'KPI_MEASURE_CATEGORY':
-                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `3.0/category/kpiruleoutput/${this.propCategory.id}`
+                    return import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/category/kpiruleoutput/${this.propCategory.id}`
             }
         },
         async handleSubmit() {

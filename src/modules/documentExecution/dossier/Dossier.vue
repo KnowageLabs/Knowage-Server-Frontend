@@ -123,7 +123,7 @@ import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSideba
 export default defineComponent({
     name: 'dossier',
     components: { KnInputFile, Menu, Card, Column, DataTable, KnHint, KnValidationMessages },
-    props: { id: { type: String, required: false }, reloadTrigger: { type: Boolean }, filterData: Object },
+    props: { id: { type: String, required: false }, reloadTrigger: { type: Boolean }, filterData: Object, userRole: String },
     setup() {
         const store = mainStore()
         return { store }
@@ -245,7 +245,7 @@ export default defineComponent({
             })
         },
         async deleteDossier(selectedDossier) {
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `dossier/activity/${selectedDossier.id}`
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedDossier.id}`
             if (selectedDossier.status == 'DOWNLOAD' || selectedDossier.status == 'ERROR' || !this.dateCheck(selectedDossier)) {
                 await this.$http
                     .delete(url, { headers: { Accept: 'application/json, text/plain, */*' } })
@@ -274,6 +274,8 @@ export default defineComponent({
         async createNewActivity() {
             this.launchClicked = true
             setTimeout(() => (this.launchClicked = false), 3000)
+
+            if (this.jsonTemplate) this.jsonTemplate.executionRole = this.userRole
 
             const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossier/run?activityName=${this.activity.activityName}&documentId=${this.id}`
             await this.$http.post(url, this.jsonTemplate, { headers: { Accept: 'application/json, text/plain, */*' } }).then((response: AxiosResponse<any>) => {

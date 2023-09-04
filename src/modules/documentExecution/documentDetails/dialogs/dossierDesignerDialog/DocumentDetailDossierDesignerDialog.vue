@@ -7,12 +7,14 @@
 
         <div v-if="step == 0">
             <Accordion :active-index="0" class="p-px-3">
-                <AccordionTab :header="$t('common.generalSettings')">
+                <AccordionTab :header="$t('common.settings')">
                     <div class="p-grid p-pl-2 p-ml-2 p-pr-2 p-mr-2">
                         <div class="p-col-6 p-d-flex p-mt-2 p-mb-4">
                             <span class="p-float-label kn-width-full">
                                 <InputText id="fileName" v-model="v$.activeTemplate.name.$model" class="kn-material-input kn-width-full" :disabled="true" @change="setDirty()" />
-                                <label for="fileName" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.uploadTemplate') }} </label>
+                                <label for="fileName" class="kn-material-input-label">
+                                    {{ $t('documentExecution.documentDetails.info.uploadTemplate') }}
+                                </label>
                             </span>
                             <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" @click="setUploadType" />
                             <KnInputFile v-if="!uploading" :label="$t('documentExecution.dossier.designerDialog.templateFile')" :change-function="startTemplateUpload" accept=".docx, .pptx" :trigger-input="triggerUpload" />
@@ -36,7 +38,13 @@
                                 <small id="prefix-help" class="hint">{{ $t('documentExecution.dossier.designerDialog.prefixHint') }}</small>
                             </span>
 
-                            <KnValidationMessages class="p-mt-1" :v-comp="v$.activeTemplate.prefix" :additional-translate-params="{ fieldName: $t('dashboard.widgetEditor.prefix') }" />
+                            <KnValidationMessages
+                                class="p-mt-1"
+                                :v-comp="v$.activeTemplate.prefix"
+                                :additional-translate-params="{
+                                    fieldName: $t('dashboard.widgetEditor.prefix')
+                                }"
+                            />
                         </div>
 
                         <div class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
@@ -71,7 +79,9 @@
             >
                 <template #option="slotProps">
                     <div :class="['kn-list-item', 'selected']">
-                        <div class="kn-list-item-text">{{ slotProps.option.imageName }}</div>
+                        <div class="kn-list-item-text">
+                            {{ slotProps.option.imageName }}
+                        </div>
 
                         <Button
                             v-if="slotProps.option.label"
@@ -145,7 +155,9 @@
                                     </div>
                                     <div v-if="activeTemplate.placeholders[currentSelectedIndex].source === 'VIEWS'">
                                         <Message severity="info" :closable="true" class="p-mx-2 p-message-small"
-                                            ><p class="p-m-1">{{ $t('documentExecution.dossier.designerDialog.viewsHelp.hint') }}</p>
+                                            ><p class="p-m-1">
+                                                {{ $t('documentExecution.dossier.designerDialog.viewsHelp.hint') }}
+                                            </p>
                                         </Message>
                                         <DataTable
                                             ref="dt"
@@ -160,7 +172,13 @@
                                             :rows-per-page-options="[10, 15, 20]"
                                             responsive-layout="stack"
                                             breakpoint="960px"
-                                            :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
+                                            :current-page-report-template="
+                                                $t('common.table.footer.paginated', {
+                                                    first: '{first}',
+                                                    last: '{last}',
+                                                    totalRecords: '{totalRecords}'
+                                                })
+                                            "
                                             :global-filter-fields="['name', 'type', 'tags']"
                                         >
                                             <Column selection-mode="single" header-style="width: 3rem"></Column>
@@ -178,10 +196,18 @@
                                     </div>
                                     <div v-else-if="activeTemplate.placeholders[currentSelectedIndex].source === 'DRIVERS'">
                                         <Message severity="info" :closable="true" class="p-mx-2 p-message-small"
-                                            ><p class="p-m-1">{{ $t('documentExecution.dossier.designerDialog.driversHelp.hint') }}</p>
-                                            <p class="p-m-1">{{ $t('documentExecution.dossier.designerDialog.driversHelp.static') }}</p>
-                                            <p class="p-m-1">{{ $t('documentExecution.dossier.designerDialog.driversHelp.dynamic') }}</p>
-                                            <p class="p-m-1">{{ $t('documentExecution.dossier.designerDialog.driversHelp.inherit') }}</p>
+                                            ><p class="p-m-1">
+                                                {{ $t('documentExecution.dossier.designerDialog.driversHelp.hint') }}
+                                            </p>
+                                            <p class="p-m-1">
+                                                {{ $t('documentExecution.dossier.designerDialog.driversHelp.static') }}
+                                            </p>
+                                            <p class="p-m-1">
+                                                {{ $t('documentExecution.dossier.designerDialog.driversHelp.dynamic') }}
+                                            </p>
+                                            <p class="p-m-1">
+                                                {{ $t('documentExecution.dossier.designerDialog.driversHelp.inherit') }}
+                                            </p>
                                         </Message>
                                         <div v-for="driver in activeTemplate.placeholders[currentSelectedIndex].parameters" :key="driver.label" class="kn-card p-m-2 p-p-2">
                                             <span class="p-text-bold p-text-italic">{{ driver.urlName || driver.parameterUrlName }} </span>
@@ -197,21 +223,39 @@
                                                             <InputText id="dossierUrlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" />
                                                             <label for="dossierUrlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.dossierUrlName') }}</label>
                                                         </span>
-                                                        <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName') }" />
+                                                        <KnValidationMessages
+                                                            class="p-mt-1"
+                                                            :v-comp="driver.dossierUrlName"
+                                                            :additional-translate-params="{
+                                                                fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName')
+                                                            }"
+                                                        />
                                                     </div>
                                                     <div class="p-field p-col p-mb-0">
                                                         <span class="p-float-label">
                                                             <InputText id="urlName" v-model="driver.urlName" class="kn-material-input" type="text" />
                                                             <label for="urlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.urlName') }}</label>
                                                         </span>
-                                                        <KnValidationMessages class="p-mt-1" :v-comp="driver.urlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
+                                                        <KnValidationMessages
+                                                            class="p-mt-1"
+                                                            :v-comp="driver.urlName"
+                                                            :additional-translate-params="{
+                                                                fieldName: $t('documentExecution.dossier.designerDialog.urlName')
+                                                            }"
+                                                        />
                                                     </div>
                                                     <div class="p-field p-col p-mb-0">
                                                         <span class="p-float-label">
                                                             <InputText id="value" v-model="driver.value" class="kn-material-input" type="text" />
                                                             <label for="value" class="kn-material-input-label"> {{ $t('common.value') }}</label>
                                                         </span>
-                                                        <KnValidationMessages class="p-mt-1" :v-comp="driver.value" :additional-translate-params="{ fieldName: $t('common.value') }" />
+                                                        <KnValidationMessages
+                                                            class="p-mt-1"
+                                                            :v-comp="driver.value"
+                                                            :additional-translate-params="{
+                                                                fieldName: $t('common.value')
+                                                            }"
+                                                        />
                                                     </div>
                                                 </div>
                                                 <div v-else-if="driver.type == 'dynamic'" class="p-grid p-col">
@@ -220,14 +264,26 @@
                                                             <Dropdown v-model="driver.dossierUrlName" class="kn-material-input kn-width-full" :options="document?.drivers" option-label="label" option-value="parameterUrlName" />
                                                             <label for="dossierUrlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.dossierUrlName') }}</label>
                                                         </span>
-                                                        <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName') }" />
+                                                        <KnValidationMessages
+                                                            class="p-mt-1"
+                                                            :v-comp="driver.dossierUrlName"
+                                                            :additional-translate-params="{
+                                                                fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName')
+                                                            }"
+                                                        />
                                                     </div>
                                                     <div class="p-field p-col p-mb-0">
                                                         <span class="p-float-label">
-                                                            <InputText id="urlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" :disabled="true" />
+                                                            <InputText id="urlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" />
                                                             <label for="urlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.urlName') }}</label>
                                                         </span>
-                                                        <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
+                                                        <KnValidationMessages
+                                                            class="p-mt-1"
+                                                            :v-comp="driver.dossierUrlName"
+                                                            :additional-translate-params="{
+                                                                fieldName: $t('documentExecution.dossier.designerDialog.urlName')
+                                                            }"
+                                                        />
                                                     </div>
                                                 </div>
                                                 <div v-else-if="driver.type == 'inherit'" class="p-grid p-col">
@@ -235,7 +291,13 @@
                                                         <span class="p-float-label">
                                                             <InputText id="urlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" :disabled="true" :hidden="true" />
                                                         </span>
-                                                        <KnValidationMessages class="p-mt-1" :v-comp="driver.dossierUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.dossier.designerDialog.urlName') }" />
+                                                        <KnValidationMessages
+                                                            class="p-mt-1"
+                                                            :v-comp="driver.dossierUrlName"
+                                                            :additional-translate-params="{
+                                                                fieldName: $t('documentExecution.dossier.designerDialog.urlName')
+                                                            }"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
@@ -253,11 +315,16 @@
 
         <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDossier" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
         <template #footer>
-            <Button v-if="step >= 0 && step < 2" class="kn-button kn-button--secondary p-jc-start" @click="back"> {{ $t('common.back') }}</Button>
-            <Button v-if="step == 0" class="kn-button kn-button--primary p-jc-end" :disabled="v$.$invalid" @click="next"> {{ $t('common.next') }}</Button>
+            <div class="left">
+                <Button class="kn-button kn-button--warning" @click="cancel()"> {{ $t('common.close') }}</Button>
+            </div>
+            <div class="right">
+                <Button v-if="step >= 0 && step < 2" class="kn-button kn-button--secondary" @click="back"> {{ $t('common.back') }}</Button>
+                <Button v-if="step == 0" class="kn-button kn-button--primary" :disabled="v$.$invalid" @click="next"> {{ $t('common.next') }}</Button>
 
-            <Button v-if="step == 1" class="kn-button kn-button--primary p-jc-end" @click="saveAndClose()"> {{ $t('common.save') }}</Button>
-            <Button v-if="step == 1" class="kn-button kn-button--primary p-jc-end" @click="saveAndRun()"> {{ $t('documentExecution.dossier.designerDialog.saveAndRun') }}</Button>
+                <Button v-if="step == 1" class="kn-button kn-button--primary" @click="saveAndClose()"> {{ $t('common.save') }}</Button>
+                <Button v-if="step == 1" class="kn-button kn-button--primary" @click="saveAndRun()"> {{ $t('documentExecution.dossier.designerDialog.saveAndRun') }}</Button>
+            </div>
         </template>
     </Dialog>
 </template>
@@ -295,7 +362,24 @@ import { v4 as uuidv4 } from 'uuid'
 
 export default defineComponent({
     name: 'document-detail-dossier-designer-dialog',
-    components: { Accordion, AccordionTab, Divider, Column, DataTable, Dialog, Dropdown, DocDialog, KnInputFile, KnHint, InputNumber, InputSwitch, Listbox, Message, ProgressSpinner, DashboardControllerSaveDialog },
+    components: {
+        Accordion,
+        AccordionTab,
+        Divider,
+        Column,
+        DataTable,
+        Dialog,
+        Dropdown,
+        DocDialog,
+        KnInputFile,
+        KnHint,
+        InputNumber,
+        InputSwitch,
+        Listbox,
+        Message,
+        ProgressSpinner,
+        DashboardControllerSaveDialog
+    },
     props: {
         visible: { type: Boolean },
         selectedDocument: { type: Object as PropType<iDocument> },
@@ -385,7 +469,9 @@ export default defineComponent({
         await this.setActiveTemplate()
     },
     validations() {
-        const validationObject = { activeTemplate: createValidations('activeTemplate', descriptor.validations.activeTemplate) }
+        const validationObject = {
+            activeTemplate: createValidations('activeTemplate', descriptor.validations.activeTemplate)
+        }
         return validationObject
     },
     methods: {
@@ -451,7 +537,10 @@ export default defineComponent({
         },
         closeDialog(refreshDrivers: boolean, refreshHistory: boolean) {
             if (!this.isFromWorkspace) {
-                this.$emit('close', { refreshDrivers: refreshDrivers, refreshHistory: refreshHistory })
+                this.$emit('close', {
+                    refreshDrivers: refreshDrivers,
+                    refreshHistory: refreshHistory
+                })
             } else {
                 this.$emit('close', { refreshHistory: refreshHistory })
             }
@@ -505,10 +594,18 @@ export default defineComponent({
 
                 this.loading = true
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'X-Disable-Errors': 'true'
+                        }
+                    })
                     .then(async (response: any) => {
                         if (response.status === 'KO') {
-                            this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') })
+                            this.setError({
+                                title: this.$t('common.error.generic'),
+                                msg: this.$t('documentExecution.dossier.templateUploadError')
+                            })
                             valid = false
                         } else {
                             if (!(await this.isValidFile())) {
@@ -517,7 +614,10 @@ export default defineComponent({
                         }
                     })
                     .catch(() => {
-                        this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateUploadError') })
+                        this.setError({
+                            title: this.$t('common.error.generic'),
+                            msg: this.$t('documentExecution.dossier.templateUploadError')
+                        })
                         valid = false
                     })
                     .finally(() => (this.triggerUpload = false))
@@ -552,14 +652,22 @@ export default defineComponent({
                                     return
                                 }
                             }
-                            const item = { imageName: element.name, sheetHeight: this.sheetHeight, sheetWidth: this.sheetWidth, deviceScaleFactor: this.deviceScaleFactor } as iPlaceholder
+                            const item = {
+                                imageName: element.name,
+                                sheetHeight: this.sheetHeight,
+                                sheetWidth: this.sheetWidth,
+                                deviceScaleFactor: this.deviceScaleFactor
+                            } as iPlaceholder
                             this.activeTemplate.placeholders.push(item)
                         })
                     })
                     .finally(() => (this.loading = false))
 
                 if (this.activeTemplate.placeholders.length == 0) {
-                    this.setInfo({ title: this.$t('common.toast.info'), msg: this.$t('documentExecution.dossier.noPlaceholdersFound') })
+                    this.setInfo({
+                        title: this.$t('common.information'),
+                        msg: this.$t('documentExecution.dossier.designerDialog.noPlaceholdersFound')
+                    })
                     return
                 }
 
@@ -619,6 +727,25 @@ export default defineComponent({
                 this.closeDialog(false, false)
             }
         },
+        cancel() {
+            console.log(this.dirty)
+            if (this.dirty) {
+                this.$confirm.require({
+                    message: this.$t('documentExecution.dossier.designerDialog.closeConfirm'),
+                    header: this.$t('documentExecution.dossier.designerDialog.closeTitle'),
+                    icon: 'pi pi-exclamation-triangle',
+                    accept: () => {
+                        this.dirty = false
+                        this.step = 0
+                        this.closeDialog(false, false)
+                    }
+                })
+            } else {
+                this.dirty = false
+                this.step = 0
+                this.closeDialog(false, false)
+            }
+        },
         setUploadType() {
             this.triggerUpload = false
             setTimeout(() => (this.triggerUpload = true), 200)
@@ -641,7 +768,10 @@ export default defineComponent({
             const pos = this.activeTemplate.placeholders.map((e) => e.imageName).indexOf(event.value.imageName)
 
             if (pos == -1) {
-                this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.designerDialog.errorSelectingPlaceholder') })
+                this.setError({
+                    title: this.$t('common.error.generic'),
+                    msg: this.$t('documentExecution.dossier.designerDialog.errorSelectingPlaceholder')
+                })
                 return
             }
 
@@ -650,7 +780,11 @@ export default defineComponent({
         async handleDoc(doc) {
             this.docDialogVisible = false
 
-            this.activeTemplate.placeholders[this.currentSelectedIndex] = { ...this.activeTemplate.placeholders[this.currentSelectedIndex], label: doc.DOCUMENT_LABEL, source: '' }
+            this.activeTemplate.placeholders[this.currentSelectedIndex] = {
+                ...this.activeTemplate.placeholders[this.currentSelectedIndex],
+                label: doc.DOCUMENT_LABEL,
+                source: ''
+            }
 
             if (!this.isFromWorkspace) await this.loadParameters(doc.DOCUMENT_ID)
             await this.loadViews(doc.DOCUMENT_ID)
@@ -753,7 +887,10 @@ export default defineComponent({
                 .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/saveTemplate?user_id=${this.user?.userUniqueIdentifier}`, objToSend)
                 .then(() => {
                     this.closeDialog(this.inheritedDrivers, true)
-                    this.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
+                    this.setInfo({
+                        title: this.$t('common.toast.success'),
+                        msg: this.$t('common.toast.uploadSuccess')
+                    })
                 })
                 .finally(() => (this.loading = false))
         },
@@ -805,7 +942,12 @@ export default defineComponent({
 
                                 this.loading = true
                                 await this.$http
-                                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, {
+                                        headers: {
+                                            Accept: 'application/json, text/plain, */*',
+                                            'X-Disable-Errors': 'true'
+                                        }
+                                    })
                                     .then(() => {
                                         placeholder.parameters[j] = {
                                             urlName: newDriver.parameterUrlName,
@@ -813,7 +955,12 @@ export default defineComponent({
                                             dossierUrlName: newDriver.dossierUrlName
                                         }
                                     })
-                                    .catch(() => this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
+                                    .catch(() =>
+                                        this.setError({
+                                            title: this.$t('common.error.generic'),
+                                            msg: this.$t('documentExecution.documentDetails.drivers.persistError')
+                                        })
+                                    )
                                     .finally(() => (this.loading = false))
 
                                 this.loading = true
@@ -827,7 +974,10 @@ export default defineComponent({
                         } else {
                             this.setError({
                                 title: this.$t('common.error.generic'),
-                                msg: this.$t('documentExecution.dossier.designerDialog.driverNotHandled', { driverName: placeholder.parameters[j].label, placeholderName: placeholder.imageName })
+                                msg: this.$t('documentExecution.dossier.designerDialog.driverNotHandled', {
+                                    driverName: placeholder.parameters[j].label,
+                                    placeholderName: placeholder.imageName
+                                })
                             })
                             return
                         }
@@ -859,10 +1009,18 @@ export default defineComponent({
             formData.append('fileName', fileName)
             this.loading = true
             await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossiervalidator/validateDocument?user_id=${this.user?.userUniqueIdentifier}`, formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossiervalidator/validateDocument?user_id=${this.user?.userUniqueIdentifier}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-Disable-Errors': 'true'
+                    }
+                })
                 .then(() => (valid = true))
                 .catch(() => {
-                    this.setError({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.designerDialog.errorDuringValidation') })
+                    this.setError({
+                        title: this.$t('common.error.generic'),
+                        msg: this.$t('documentExecution.dossier.designerDialog.errorDuringValidation')
+                    })
                     valid = false
                 })
                 .finally(() => (this.loading = false))
@@ -885,7 +1043,10 @@ export default defineComponent({
             return true
         },
         formatDate(date) {
-            return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })
+            return formatDateWithLocale(date, {
+                dateStyle: 'short',
+                timeStyle: 'short'
+            })
         }
     }
 })
@@ -903,6 +1064,16 @@ export default defineComponent({
         height: calc(100% - 35px);
         padding: 0;
         overflow-x: hidden;
+    }
+    .p-dialog-footer {
+        display: flex;
+        .left {
+            justify-content: flex-start;
+        }
+        .right {
+            flex: 1;
+            justify-content: flex-end;
+        }
     }
 
     .p-fileupload-buttonbar {

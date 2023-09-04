@@ -120,14 +120,14 @@ export default defineComponent({
         },
         saveOrUpdateMessage(layer) {
             let toSend = layer
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'layers'
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/layers'
             if (this.layer.layerFile) {
                 const formData = new FormData()
                 formData.append('data', JSON.stringify(this.layer))
                 formData.append('layerFile', this.layer.layerFile.file)
                 if (layer.layerId) {
-                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'layers/updateData'
-                } else url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'layers/addData'
+                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/layers/updateData'
+                } else url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/layers/addData'
                 toSend = formData
             }
             if (layer.layerId) {

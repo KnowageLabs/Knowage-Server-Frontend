@@ -48,7 +48,7 @@
             >
                 <Avatar v-if="settings.avatar && settings.avatar.values[slotProps.option[settings.avatar.property]]" :icon="settings.avatar.values[slotProps.option[settings.avatar.property]].icon" shape="circle" :style="settings.avatar.values[slotProps.option[settings.avatar.property]].style" />
                 <div class="kn-list-item-text">
-                    <span v-if="settings.titleField !== false">{{ slotProps.option[settings.titleField || 'label'] }}</span>
+                    <span v-if="settings.titleField !== false" v-tooltip.top="slotProps.option[settings.titleField || 'label']" class="kn-list-item-label">{{ slotProps.option[settings.titleField || 'label'] }}</span>
                     <span v-if="settings.textField !== false && !settings.textFieldType" class="kn-list-item-text-secondary kn-truncated">{{ slotProps.option[settings.textField || 'name'] }}</span>
                     <span v-if="settings.textField !== false && settings.textFieldType && settings.textFieldType === 'date'" class="kn-list-item-text-secondary kn-truncated">{{ getTime(slotProps.option[settings.textField || 'name']) }}</span>
                 </div>
@@ -154,6 +154,15 @@ export default defineComponent({
     position: relative;
     flex: 1;
     overflow-y: auto;
+
+    .kn-list-item {
+        .kn-list-item-label {
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
 
     .headerButton {
         position: absolute;

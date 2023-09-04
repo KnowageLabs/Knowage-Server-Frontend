@@ -438,6 +438,24 @@ export default defineComponent({
         }
     }
 }
+@supports (-moz-appearance: none) {
+    .layout-menu-container {
+        .layout-menu {
+            & > li {
+                & > span {
+                    width: var(--kn-mainmenu-width);
+                    padding-left: 0px;
+                    padding-right: 0px;
+                }
+            }
+            &:deep(a[role='menuitem']) {
+                width: var(--kn-mainmenu-width);
+                padding-left: 0px;
+                padding-right: 0px;
+            }
+        }
+    }
+}
 .p-tieredmenu {
     padding: 0;
     border: none;
