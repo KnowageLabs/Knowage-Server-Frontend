@@ -26,7 +26,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
                 })
         }
 
-        const postData = formatWebComponentModelForService(null, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+        const postData = formatWebComponentModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         await $http
