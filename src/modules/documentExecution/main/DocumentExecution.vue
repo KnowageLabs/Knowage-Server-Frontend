@@ -76,7 +76,7 @@
                     :reload-trigger="reloadTrigger"
                     :hidden-form-data="document.hiddenFormData"
                     :mode="'dashboard-popup'"
-                    :filters-data="document.filtersData"
+                    :filters-data="filtersData"
                     :new-dashboard-mode="false"
                 ></DashboardController>
                 <div v-show="mode === 'dashboard' || newDashboardMode" class="p-d-flex p-flex-row" style="height: 100%">
