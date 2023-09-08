@@ -918,15 +918,16 @@
                     "pies3d": "Pies 3D"
                 },
                 "qMenu": {
-                    "changeType": "Change Chart Type",
-                    "clone": "Clone Widget",
-                    "delete": "Delete Widget",
-                    "edit": "Edit Widget",
-                    "expand": "Expand to Fullscreen",
-                    "moveWidget": "Move Widget",
-                    "quickWidget": "Add Quick Widget",
-                    "search": "Search on Widget",
-                    "xor": "View One Layer"
+                    "changeType": "Modifica Tipo Grafico",
+                    "clone": "Clona Widget",
+                    "delete": "Elimina Widget",
+                    "edit": "Modifica Widget",
+                    "expand": "Espandi a tutti schermo",
+                    "moveWidget": "Sposta Widget",
+                    "quickWidget": "Aggiungi Quick Widget",
+                    "screenshot": "Cattura Immagine",
+                    "search": "Cerca nel Widget",
+                    "xor": "Visualizza un layer"
                 },
                 "range": "Range",
                 "rangeLabel": "Min size (%)/Max size (%)",
