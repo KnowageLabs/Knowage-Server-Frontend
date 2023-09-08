@@ -420,6 +420,9 @@
         "rWidgetError": "Error loading R widget.",
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
+        "errors": {
+            "screenshotError": "An error occurred during the screenshot capture"
+        },
         "selectionsList": "Selections List",
         "sheet": "Sheet",
         "sheets": {

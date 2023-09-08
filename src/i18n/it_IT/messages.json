@@ -331,6 +331,9 @@
             "static": "Statico",
             "title": "Gestione Dataset"
         },
+        "errors": {
+            "screenshotError": "Errore durante la cattura dell'immagine"
+        },
         "generalSettings": {
             "attribute": "Attributo",
             "background": {

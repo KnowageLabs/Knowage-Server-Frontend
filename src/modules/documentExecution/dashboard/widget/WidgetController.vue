@@ -157,6 +157,7 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget']),
+        ...mapState(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -178,15 +179,17 @@ export default defineComponent({
         captureScreenshot(widget) {
             domtoimage
                 .toPng(document.getElementById(`widget${widget.id}`))
-                .then(function (dataUrl) {
+                .then( (dataUrl)=>{
                     const link = document.createElement('a')
                     link.download = `${widget.type}-widget.png`
                     link.href = dataUrl
                     link.click()
                 })
-                .catch(function (error) {
-                    console.error('oops, something went wrong!', error)
-                })
+                .catch((error)=> {
+                    this.setError({
+                        title: this.$t('common.toast.errorTitle'),
+                        msg: `${this.$t('dashboard.errors.screenshotError')}: ${error}`,
+                    })
         },
         loadMenuItems() {
             this.items = [
