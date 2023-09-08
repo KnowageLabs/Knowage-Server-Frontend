@@ -744,8 +744,7 @@ export default defineComponent({
                 }
             }
             this.hiddenFormData.append('documentMode', this.documentMode)
-
-            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
+            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE', 'DASHBOARD'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             if (index !== -1) this.breadcrumbs[index].hiddenFormData = this.hiddenFormData
         },
