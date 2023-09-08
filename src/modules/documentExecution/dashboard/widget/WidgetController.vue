@@ -179,17 +179,18 @@ export default defineComponent({
         captureScreenshot(widget) {
             domtoimage
                 .toPng(document.getElementById(`widget${widget.id}`))
-                .then( (dataUrl)=>{
+                .then((dataUrl) => {
                     const link = document.createElement('a')
                     link.download = `${widget.type}-widget.png`
                     link.href = dataUrl
                     link.click()
                 })
-                .catch((error)=> {
+                .catch((error) => {
                     this.setError({
                         title: this.$t('common.toast.errorTitle'),
-                        msg: `${this.$t('dashboard.errors.screenshotError')}: ${error}`,
+                        msg: `${this.$t('dashboard.errors.screenshotError')}: ${error}`
                     })
+                })
         },
         loadMenuItems() {
             this.items = [
