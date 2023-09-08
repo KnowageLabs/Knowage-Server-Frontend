@@ -217,7 +217,7 @@ export default defineComponent({
         },
         async getData() {
             this.loading = true
-            this.dashboardId = cryptoRandomString({ length: 16, type: 'base64' })
+            if (!this.dashboardId) this.dashboardId = cryptoRandomString({ length: 16, type: 'base64' })
             this.$emit('dashboardIdSet', this.dashboardId)
             if (this.filtersData) {
                 this.drivers = loadDrivers(this.filtersData, this.model)
