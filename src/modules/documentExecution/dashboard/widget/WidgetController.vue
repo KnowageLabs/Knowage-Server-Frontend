@@ -177,8 +177,13 @@ export default defineComponent({
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
         },
         captureScreenshot(widget) {
+            let targetElement = document.getElementById(`widget${widget.id}`)
+            const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
+            if (document.querySelector(escapedSelector)) {
+                targetElement = document.querySelector(escapedSelector)
+            }
             domtoimage
-                .toPng(document.getElementById(`widget${widget.id}`))
+                .toPng(targetElement)
                 .then((dataUrl) => {
                     const link = document.createElement('a')
                     link.download = `${widget.type}-widget.png`
