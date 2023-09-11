@@ -180,7 +180,7 @@ export default defineComponent({
             let targetElement = document.getElementById(`widget${widget.id}`)
             const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
             if (document.querySelector(escapedSelector)) {
-                targetElement = document.querySelector(escapedSelector)
+                targetElement = document.querySelector(escapedSelector)?.contentWindow.document
             }
             domtoimage
                 .toPng(targetElement)
