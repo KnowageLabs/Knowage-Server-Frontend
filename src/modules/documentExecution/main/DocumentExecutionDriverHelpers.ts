@@ -169,6 +169,11 @@ const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExec
 }
 
 const formatDateDriver = (el: any) => {
+    if (!el.paramterValue || !el.paramterValue[0]) {
+        el.paramterValue = [{ value: null, description: '' }]
+        return
+    }
+
     if (el.type === 'DATE' && !el.selectionType && el.valueSelection === 'man_in' && el.showOnPanel === 'true' && el.visible) {
         el.parameterValue[0].value = getValidDate('' + el.parameterValue[0].value)
     }
