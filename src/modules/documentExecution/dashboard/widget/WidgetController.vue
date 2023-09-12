@@ -157,7 +157,7 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget']),
-        ...mapState(mainStore, ['setError']),
+        ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -180,7 +180,7 @@ export default defineComponent({
             let targetElement = document.getElementById(`widget${widget.id}`)
             const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
             if (document.querySelector(escapedSelector)) {
-                targetElement = document.querySelector(escapedSelector)?.contentWindow.document
+                targetElement = document.querySelector(escapedSelector)?.contentWindow.document.getElementsByTagName('html')[0]
             }
             domtoimage
                 .toPng(targetElement)
