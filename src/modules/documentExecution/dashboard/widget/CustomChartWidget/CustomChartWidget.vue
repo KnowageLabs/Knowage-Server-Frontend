@@ -165,8 +165,7 @@ export default defineComponent({
             for (let i = 0; i < userImports.length; i++) {
                 if (userImports.item(i)?.attributes?.src?.textContent) {
                     const textContent = userImports.item(i).attributes.src.textContent
-                    const url = textContent.startsWith('http') ? textContent : import.meta.env.VITE_HOST_URL + '/' + userImports.item(i).attributes.src.textContent
-                    this.userScriptsURLs.push(url)
+                    this.userScriptsURLs.push(textContent)
                 }
             }
         },
