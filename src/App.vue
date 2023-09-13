@@ -86,7 +86,7 @@ export default defineComponent({
             /* if (!oldUser.userId && oldUser != newUser)  */
         }
     },
-    async beforeCreate() {
+    async created() {
         await this.$http
             .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/currentuser')
             .then(async (response) => {
