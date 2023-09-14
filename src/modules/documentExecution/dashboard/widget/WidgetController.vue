@@ -392,6 +392,8 @@ export default defineComponent({
     &.full-grid-widget {
         width: 100% !important;
         height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
     }
     &.vue-grid-item > .vue-resizable-handle {
         display: none;
