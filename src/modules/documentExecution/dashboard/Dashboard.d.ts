@@ -10,22 +10,21 @@ export interface IDashboard {
 }
 
 export interface IDashboardSheet {
-    id: string,
-    index: number,
-    label: string,
+    id: string
+    index: number
+    label: string
     widgets: { lg: IWidgetSheetItem[] }
 }
 
 export interface IWidgetSheetItem {
-    id: string,
-    h: number,
-    i: string,
-    w: number,
-    x: number,
-    y: number,
+    id: string
+    h: number
+    i: string
+    w: number
+    x: number
+    y: number
     moved: boolean
 }
-
 
 export interface IDashboardConfiguration {
     id: string
@@ -430,6 +429,7 @@ export interface ITableWidgetVisibilityCondition {
 }
 
 export interface IWidgetResponsive {
+    fullGrid: boolean
     xs: boolean
     sm: boolean
     md: boolean

@@ -1,5 +1,18 @@
 <template>
-    <grid-item :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) }" @resized="resizedEvent">
+    <grid-item
+        :id="`widget${item.id}`"
+        :ref="`widget${item.id}`"
+        :key="item.id"
+        class="p-d-flex widget-grid-item"
+        :x="item.x"
+        :y="item.y"
+        :w="item.w"
+        :h="item.h"
+        :i="item.i"
+        drag-allow-from=".drag-handle"
+        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget.settings.responsive.fullGrid }"
+        @resized="resizedEvent"
+    >
         <div v-if="initialized" class="drag-handle"></div>
         <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
@@ -376,6 +389,10 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .widget-grid-item {
+    &.full-grid-widget {
+        width: 100% !important;
+        height: 100% !important;
+    }
     &.vue-grid-item > .vue-resizable-handle {
         display: none;
     }

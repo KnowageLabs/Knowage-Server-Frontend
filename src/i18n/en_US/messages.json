@@ -1075,6 +1075,7 @@
             "responsive": {
                 "extraLargeDevices": "Show On Extra Large Devices",
                 "extraSmallDevices": "Show On Extra Small Devices",
+                "fullGrid": "Show the widget at full grid dimension. (Only one widget per dashboard)",
                 "largeDevices": "Show On Large Devices",
                 "smallerDevices": "Show On Smaller Devices",
                 "tablets": "Show On Tablets",

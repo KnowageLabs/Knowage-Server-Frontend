@@ -1009,6 +1009,7 @@
             "responsive": {
                 "extraLargeDevices": "Mostra su dispositivi Extra Large",
                 "extraSmallDevices": "Mostra su dispositivi Extra Small",
+                "fullGrid": "Mosta il widget a pieno schermo. (Può essere applicato ad un solo widget per dashboard)",
                 "largeDevices": "Mostra su dispositivi di grandi dimensioni",
                 "smallerDevices": "Mostra su dispositivi di piccole dimensioni",
                 "tablets": "Mostra su Tablet",

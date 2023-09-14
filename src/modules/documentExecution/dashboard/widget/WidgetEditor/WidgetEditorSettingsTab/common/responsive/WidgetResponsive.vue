@@ -36,6 +36,8 @@ export default defineComponent({
         },
         getLabel(field: string) {
             switch (field) {
+                case 'fullGrid':
+                    return this.$t('dashboard.widgetEditor.responsive.fullGrid')
                 case 'xs':
                     return this.$t('dashboard.widgetEditor.responsive.extraSmallDevices')
                 case 'sm':
