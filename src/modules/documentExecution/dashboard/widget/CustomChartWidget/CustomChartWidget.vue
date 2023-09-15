@@ -128,6 +128,7 @@ export default defineComponent({
             this.insertUsersHtmlContent()
             this.insertUsersCssContent()
             this.setDatastoreObjectInFrame(iframe)
+            iframe.sandbox = 'allow-scripts'
             this.loadUserImportScripts()
         },
         recreateIframeElement() {
