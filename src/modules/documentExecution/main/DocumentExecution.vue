@@ -35,7 +35,7 @@
                         @click="refresh"
                     ></Button>
                     <Button
-                        v-if="isParameterSidebarVisible && !newDashboardMode && canSeeDashboardFunctions()"
+                        v-if="isParameterSidebarVisible && !newDashboardMode"
                         v-tooltip.left="$t('common.parameters')"
                         icon="fa fa-filter"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
