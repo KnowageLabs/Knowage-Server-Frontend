@@ -1009,7 +1009,7 @@
             "responsive": {
                 "extraLargeDevices": "Mostra su dispositivi Extra Large",
                 "extraSmallDevices": "Mostra su dispositivi Extra Small",
-                "fullGrid": "Mosta il widget a pieno schermo. (Può essere applicato ad un solo widget per dashboard)",
+                "fullGrid": "Mostra il widget a pieno schermo. (Può essere applicato ad un solo widget per dashboard)",
                 "largeDevices": "Mostra su dispositivi di grandi dimensioni",
                 "smallerDevices": "Mostra su dispositivi di piccole dimensioni",
                 "tablets": "Mostra su Tablet",
@@ -3457,11 +3457,13 @@
             "title": "My Models"
         },
         "myRepository": {
-            "destinationFolder": "Destination folder",
-            "folderCreatedMessage": "Folder is created and added to the current path",
-            "folderDeleteError": "Folder could not be deleted. It contains at least one subfolder or at least one document",
-            "moveDocument": "Move Document",
-            "newFolderTitle": "Create new folder"
+            "deleteView": "Elimina Vista",
+            "destinationFolder": "Cartella di destinazione",
+            "folderCreatedMessage": "La cartella è creata e verrà aggiunta all'elemento selezionato",
+            "folderDeleteError": "La cartella non può essere eliminata, contiene almeno una sotto-cartella o un documento",
+            "moveDocument": "Sposta Documento",
+            "moveView": "Sposta Vista",
+            "newFolderTitle": "Crea nuova cartella"
         },
         "recent": {
             "sidebarLabels": {

@@ -397,6 +397,9 @@
             "static": "Static",
             "title": "Dataset Management"
         },
+        "errors": {
+            "screenshotError": "An error occurred during the screenshot capture"
+        },
         "generalSettings": {
             "attribute": "Attribute",
             "background": {
@@ -420,9 +423,6 @@
         "rWidgetError": "Error loading R widget.",
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
-        "errors": {
-            "screenshotError": "An error occurred during the screenshot capture"
-        },
         "selectionsList": "Selections List",
         "sheet": "Sheet",
         "sheets": {
@@ -3675,10 +3675,12 @@
             "userRoleError": "User does not have valid roles for the execution of the selected model"
         },
         "myRepository": {
+            "deleteView": "Delete View",
             "destinationFolder": "Destination folder",
             "folderCreatedMessage": "Folder is created and added to the current path",
             "folderDeleteError": "Folder could not be deleted. It contains at least one subfolder or at least one document",
             "moveDocument": "Move Document",
+            "moveView": "Move View",
             "newFolderTitle": "Create new folder"
         },
         "recent": {
