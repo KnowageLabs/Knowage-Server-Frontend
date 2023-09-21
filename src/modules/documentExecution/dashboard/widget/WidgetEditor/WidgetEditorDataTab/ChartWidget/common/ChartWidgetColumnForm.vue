@@ -12,27 +12,6 @@
                     <Dropdown v-model="column.aggregation" class="kn-material-input" :options="commonDescriptor.columnAggregationOptions" option-value="value" option-label="label" @change="selectedColumnUpdated"> </Dropdown>
                 </div>
             </div>
-            <div v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="p-d-flex p-flex-row p-ai-center p-mt-2">
-                <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
-                    <Dropdown v-model="column.drillOrder.orderColumnId" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" @change="sortingChanged"> </Dropdown>
-                </div>
-                <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                    <Dropdown v-model="column.drillOrder.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ slotProps.value }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                </div>
-            </div>
 
             <div class="p-d-flex p-flex-row p-ai-center kn-flex p-mt-2">
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
@@ -51,7 +30,7 @@
                     </Dropdown>
                 </div>
 
-                <div v-if="['area', 'bar', 'column', 'line', 'radar'].includes(chartType)" class="p-d-flex p-flex-column kn-flex">
+                <div v-if="['area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.fieldType === 'MEASURE'" class="p-d-flex p-flex-column kn-flex">
                     <div class="p-d-flex p-flex-column kn-flex p-m-2">
                         <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
                         <Dropdown v-model="column.serieType" class="kn-material-input" :options="descriptor.serieTypeOptions" option-value="value" @change="selectedColumnUpdated">
@@ -67,6 +46,28 @@
                             </template>
                         </Dropdown>
                     </div>
+                </div>
+            </div>
+
+            <div v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="p-d-flex p-flex-row p-ai-center p-mt-2">
+                <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.drillSortingColumn') }}</label>
+                    <Dropdown v-model="column.drillOrder.orderColumnId" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" @change="sortingChanged"> </Dropdown>
+                </div>
+                <div class="p-d-flex p-flex-column kn-flex p-m-2">
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.drillSortingOrder') }}</label>
+                    <Dropdown v-model="column.drillOrder.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
+                        <template #value="slotProps">
+                            <div>
+                                <span>{{ slotProps.value }}</span>
+                            </div>
+                        </template>
+                        <template #option="slotProps">
+                            <div>
+                                <span>{{ $t(slotProps.option.label) }}</span>
+                            </div>
+                        </template>
+                    </Dropdown>
                 </div>
             </div>
         </div>

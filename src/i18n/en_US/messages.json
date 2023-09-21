@@ -572,6 +572,8 @@
                 }
             },
             "dragColumnsHint": "Drag columns here",
+            "drillSortingColumn": "Drill sorting column",
+            "drillSortingOrder": "Drill sorting order",
             "drilldown": {
                 "title": "Drilldown"
             },
