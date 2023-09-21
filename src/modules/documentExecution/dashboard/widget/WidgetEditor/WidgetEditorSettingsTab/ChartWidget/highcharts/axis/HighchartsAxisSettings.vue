@@ -1,13 +1,13 @@
 <template>
     <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="chartType === 'heatmap'" class="p-col-12 p-md-3 p-d-flex p-flex-column">
+        <div v-if="['heatmap', 'area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.min') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                 <InputNumber v-model="axisModel.min" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMinHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
-        <div v-if="chartType === 'heatmap'" class="p-col-12 p-md-3 p-d-flex p-flex-column">
+        <div v-if="['heatmap', 'area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.max') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                 <InputNumber v-model="axisModel.max" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
@@ -110,7 +110,7 @@ export default defineComponent({
             descriptor,
             settingsDescriptor,
             axisModel: null as any,
-            toolbarModel: {} as { 'font-family': string; 'font-size': string; 'font-weight': string; color: string },
+            toolbarModel: {} as { 'font-style': string; 'font-family': string; 'font-size': string; 'font-weight': string; color: string },
             advancedVisible: false,
             getTranslatedLabel
         }
@@ -132,6 +132,7 @@ export default defineComponent({
         loadToolbarModel() {
             if (this.axisModel && this.axisModel.labels)
                 this.toolbarModel = {
+                    'font-style': this.axisModel.labels.style.fontStyle,
                     'font-family': this.axisModel.labels.style.fontFamily,
                     'font-size': this.axisModel.labels.style.fontSize,
                     'font-weight': this.axisModel.labels.style.fontWeight,
@@ -146,8 +147,8 @@ export default defineComponent({
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.axisModel || !this.axisModel.labels) return
-            this.toolbarModel = { 'font-family': model['font-family'] ?? '', 'font-size': model['font-size'] ?? '14px', 'font-weight': model['font-weight'] ?? '', color: model.color ?? '' }
-            this.axisModel.labels.style = { color: this.toolbarModel.color ?? '', fontSize: this.toolbarModel['font-size'] ?? '14px', fontFamily: this.toolbarModel['font-family'] ?? '', fontWeight: this.toolbarModel['font-weight'] ?? '' }
+            this.toolbarModel = { 'font-style': model['font-style'] ?? '', 'font-family': model['font-family'] ?? '', 'font-size': model['font-size'] ?? '14px', 'font-weight': model['font-weight'] ?? '', color: model.color ?? '' }
+            this.axisModel.labels.style = { color: this.toolbarModel.color ?? '', fontSize: this.toolbarModel['font-size'] ?? '14px', fontFamily: this.toolbarModel['font-family'] ?? '', fontWeight: this.toolbarModel['font-weight'] ?? '', fontStyle: this.toolbarModel['font-style'] }
             this.modelChanged()
         },
         onFormatterChange(newValue: string) {
