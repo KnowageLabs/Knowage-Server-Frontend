@@ -8,7 +8,7 @@
         "coverage": "vitest run --coverage",
         "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src --quiet",
         "dev": "vite",
-        "build": "vite build --base=/knowage-vue"
+        "build": "vite build --base=/sgdt-knowage/knowage-vue"
     },
     "main": "main.ts",
     "dependencies": {
