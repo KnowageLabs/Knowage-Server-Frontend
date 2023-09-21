@@ -143,11 +143,11 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
     }
 
     setHeatmapXAxis() {
-        this.model.xAxis = highchartsDefaultValues.getDefaultHeatmapXAxis()
+        this.model.xAxis = [highchartsDefaultValues.getDefaultHeatmapXAxis()]
     }
 
     setHeatmapYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultHeatmapYAxis()
+        this.model.yAxis = [highchartsDefaultValues.getDefaultHeatmapYAxis()]
     }
 
     formatSeriesFromOtherChartTypeSeries() {
