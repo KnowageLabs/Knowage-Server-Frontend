@@ -141,7 +141,7 @@ export default defineComponent({
             iframe.id = 'iframe-' + this.id
             iframe.src = 'about:blank'
             iframe.style = 'width: 100%; height: 100%; border: none;'
-            wrapper.appendChild(iframe)
+            if (wrapper) wrapper.appendChild(iframe)
             return iframe
         },
         createWrapperDiv(containerElement: Element) {

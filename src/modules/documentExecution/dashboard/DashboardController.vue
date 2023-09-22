@@ -335,8 +335,9 @@ export default defineComponent({
             emitter.emit('datasetManagementOpened')
             clearAllDatasetIntervals()
         },
-        openWidgetEditor(widget: any) {
-            this.selectedWidget = widget
+        openWidgetEditor(payload: { widget: any; dashboardId: string }) {
+            if (payload.dashboardId !== this.dashboardId) return
+            this.selectedWidget = payload.widget
             this.setWidgetEditorToVisible()
         },
         openNewWidgetEditor(widget: any) {
@@ -345,7 +346,7 @@ export default defineComponent({
         },
         setWidgetEditorToVisible() {
             this.widgetPickerVisible = false
-            this.widgetEditorVisible = true
+            if (!this.widgetEditorVisible) this.widgetEditorVisible = true
             emitter.emit('widgetEditorOpened')
             clearAllDatasetIntervals()
         },
