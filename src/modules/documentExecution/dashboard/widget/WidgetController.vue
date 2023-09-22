@@ -297,7 +297,7 @@ export default defineComponent({
             return widgetUsesSelection
         },
         toggleEditMode() {
-            emitter.emit('openWidgetEditor', this.widget)
+            emitter.emit('openWidgetEditor', { widget: this.widget, dashboardId: this.dashboardId })
         },
         checkIfSelectionIsLocked() {
             if (this.widgetModel.type !== 'selector' || (this.widgetModel.settings as ISelectorWidgetSettings).configuration.valuesManagement.enableAll) return false
