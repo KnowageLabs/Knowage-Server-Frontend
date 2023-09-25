@@ -64,7 +64,11 @@ export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIn
 }
 
 const addNewFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
-    SIZES.forEach((size: string) => dashboardModel.sheets[selectedSheetIndex].widgets[size].push({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }))
+    SIZES.forEach((size: string) => dashboardModel.sheets[selectedSheetIndex].widgets[size].push(createDashboardSheetWidgetItem(widget)))
+    disableOtherWidgetFullGridInASheet(dashboardModel, widget)
+}
+
+const disableOtherWidgetFullGridInASheet = (dashboardModel: IDashboard, widget: IWidget) => {
     dashboardModel.widgets.forEach((tempWidget: IWidget) => {
         if (tempWidget.id !== widget.id && tempWidget.settings.responsive.fullGrid) tempWidget.settings.responsive.fullGrid = false
     })
@@ -74,9 +78,9 @@ const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: s
     console.log("------------- addNewWidgetToSheetsWidgetSizeArray() - size: ", size)
     if (widget.settings.responsive[size]) {
         if (dashboardModel.sheets[selectedSheetIndex].widgets[size]) {
-            dashboardModel.sheets[selectedSheetIndex].widgets[size].push({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false })
+            dashboardModel.sheets[selectedSheetIndex].widgets[size].push(createDashboardSheetWidgetItem(widget))
         } else {
-            dashboardModel.sheets[selectedSheetIndex].widgets[size] = [{ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }]
+            dashboardModel.sheets[selectedSheetIndex].widgets[size] = [createDashboardSheetWidgetItem(widget)]
         }
     }
 }
@@ -127,21 +131,30 @@ const updateWidgetInSheets = (dashboardModel: IDashboard, widget: IWidget) => {
     if (!widget.settings.responsive) return
     const sizes = Object.keys(widget.settings.responsive)
     dashboardModel.sheets.forEach((sheet: IDashboardSheet) => {
-        if (sizes.includes('fullGrid')) {
-            ["xss", "xs", "sm", "md", "lg"].forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
-        } else {
+        if (sizes.includes('fullGrid'))
+            updateFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, sheet, widget)
+        else
             sizes.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
-        }
     })
+}
+
+const updateFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, sheet: IDashboardSheet, widget: IWidget) => {
+    console.log("updateFullGridWidgetToSheetsWidgetSizeArray() - widget: ", widget)
+    SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
+    disableOtherWidgetFullGridInASheet(dashboardModel, widget)
 }
 
 const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widget: IWidget) => {
     const index = sheet.widgets[size].findIndex((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
-    if (index === -1 && widget.settings.responsive[size]) {
-        sheet.widgets[size].push(({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }))
-    } else if (index !== -1 && !widget.settings.responsive[size]) {
+    if (index === -1 && (widget.settings.responsive[size] || widget.settings.responsive.fullGrid)) {
+        sheet.widgets[size].push((createDashboardSheetWidgetItem(widget)))
+    } else if (index !== -1 && !widget.settings.responsive[size] && !widget.settings.responsive.fullGrid) {
         sheet.widgets[size].splice(index, 1)
     }
+}
+
+const createDashboardSheetWidgetItem = (widget: IWidget) => {
+    return { id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }
 }
 
 export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
