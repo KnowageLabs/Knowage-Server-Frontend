@@ -85,7 +85,6 @@ export default defineComponent({
         toggleColorPicker(index) {
             this.colorPickerVisible = !this.colorPickerVisible
             this.editIndex = index
-            this.customColorValue = this.widgetModel.settings.chart.colors[this.editIndex]
         },
         onRowReorder(event) {
             this.widget.settings.chart.colors = event.value
