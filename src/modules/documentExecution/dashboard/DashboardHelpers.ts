@@ -14,6 +14,8 @@ import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega
 
 const store = mainStore()
 
+const SIZES = ["xss", "xs", "sm", "md", "lg"]
+
 export const createNewDashboardModel = () => {
     const dashboardModel = {
         sheets: [],
@@ -55,15 +57,28 @@ export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIn
     const sizes = Object.keys(widget.settings.responsive)
     console.log("-------------- createNewWidget() -  sizes", sizes)
     if (!dashboardModel.sheets[selectedSheetIndex].widgets) dashboardModel.sheets[selectedSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
-    sizes.forEach((size: string) => {
-        if (widget.settings.responsive[size]) {
-            if (dashboardModel.sheets[selectedSheetIndex].widgets[size]) {
-                dashboardModel.sheets[selectedSheetIndex].widgets[size].push({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false })
-            } else {
-                dashboardModel.sheets[selectedSheetIndex].widgets[size] = [{ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }]
-            }
-        }
+    if (sizes.includes('fullGrid'))
+        addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget)
+    else
+        sizes.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget))
+}
+
+const addNewFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
+    SIZES.forEach((size: string) => dashboardModel.sheets[selectedSheetIndex].widgets[size].push({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }))
+    dashboardModel.widgets.forEach((tempWidget: IWidget) => {
+        if (tempWidget.id !== widget.id && tempWidget.settings.responsive.fullGrid) tempWidget.settings.responsive.fullGrid = false
     })
+}
+
+const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: string, selectedSheetIndex: number, widget: IWidget) => {
+    console.log("------------- addNewWidgetToSheetsWidgetSizeArray() - size: ", size)
+    if (widget.settings.responsive[size]) {
+        if (dashboardModel.sheets[selectedSheetIndex].widgets[size]) {
+            dashboardModel.sheets[selectedSheetIndex].widgets[size].push({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false })
+        } else {
+            dashboardModel.sheets[selectedSheetIndex].widgets[size] = [{ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }]
+        }
+    }
 }
 
 export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboard: IDashboard, selectedSheet: IDashboardSheet, widget: IWidget) => {
@@ -112,15 +127,21 @@ const updateWidgetInSheets = (dashboardModel: IDashboard, widget: IWidget) => {
     if (!widget.settings.responsive) return
     const sizes = Object.keys(widget.settings.responsive)
     dashboardModel.sheets.forEach((sheet: IDashboardSheet) => {
-        sizes.forEach((size: string) => {
-            const index = sheet.widgets[size].findIndex((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
-            if (index === -1 && widget.settings.responsive[size]) {
-                sheet.widgets[size].push(({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }))
-            } else if (index !== -1 && !widget.settings.responsive[size]) {
-                sheet.widgets[size].splice(index, 1)
-            }
-        })
+        if (sizes.includes('fullGrid')) {
+            ["xss", "xs", "sm", "md", "lg"].forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
+        } else {
+            sizes.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
+        }
     })
+}
+
+const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widget: IWidget) => {
+    const index = sheet.widgets[size].findIndex((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
+    if (index === -1 && widget.settings.responsive[size]) {
+        sheet.widgets[size].push(({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }))
+    } else if (index !== -1 && !widget.settings.responsive[size]) {
+        sheet.widgets[size].splice(index, 1)
+    }
 }
 
 export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
