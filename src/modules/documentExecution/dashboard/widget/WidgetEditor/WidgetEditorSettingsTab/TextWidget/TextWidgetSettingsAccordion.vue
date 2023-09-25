@@ -1,7 +1,7 @@
 <template>
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
-        <!-- <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker> -->
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
@@ -40,7 +40,7 @@ import WidgetCrossNavigation from '../common/interactions/crossNavigation/Widget
 import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import TextWidgetEditor from './editor/TextWidgetEditor.vue'
 import TextWidgetSettingsAccordionHeader from './TextWidgetSettingsAccordionHeader.vue'
-// import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
+import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
 
 export default defineComponent({
@@ -59,7 +59,7 @@ export default defineComponent({
         WidgetPreview,
         TextWidgetEditor,
         TextWidgetSettingsAccordionHeader,
-        // WidgetEditorThemePicker,
+        WidgetEditorThemePicker,
         Message
     },
     props: {

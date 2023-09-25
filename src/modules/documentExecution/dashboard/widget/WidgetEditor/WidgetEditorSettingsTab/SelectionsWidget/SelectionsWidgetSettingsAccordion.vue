@@ -1,7 +1,7 @@
 <template>
     <div v-show="widgetModel">
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
-        <!-- <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker> -->
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="selectorAccordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index" :disabled="accordionIsDisabled(accordion.type)">
                 <template #header>
@@ -44,7 +44,7 @@ import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
 import SelectionsWidgetSettingsAccordionHeader from './SelectionsWidgetSettingsAccordionHeader.vue'
-// import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
+import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
 
 export default defineComponent({
@@ -65,7 +65,7 @@ export default defineComponent({
         WidgetShadowsStyle,
         WidgetResponsive,
         SelectionsWidgetSettingsAccordionHeader,
-        // WidgetEditorThemePicker,
+        WidgetEditorThemePicker,
         Message
     },
     props: {
