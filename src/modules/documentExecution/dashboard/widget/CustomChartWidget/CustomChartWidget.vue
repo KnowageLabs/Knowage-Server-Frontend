@@ -114,7 +114,7 @@ export default defineComponent({
         renderCustomWidget() {
             this.loadedScriptsCount = 0
             const iframe = this.recreateIframeElement()
-            setTimeout(() => this.createIframeContent(iframe), 10)
+            setTimeout(() => this.createIframeContent(iframe), 300)
         },
         createIframeContent(iframe: any) {
             this.iframeDocument = iframe.contentWindow.document
