@@ -394,7 +394,6 @@ export default defineComponent({
         height: 100% !important;
         top: 0 !important;
         left: 0 !important;
-        z-index: 99999999;
     }
     &.vue-grid-item > .vue-resizable-handle {
         display: none;

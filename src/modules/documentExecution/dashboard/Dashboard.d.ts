@@ -442,7 +442,7 @@ export interface ITableWidgetVisibilityCondition {
 
 export interface IWidgetResponsive {
     fullGrid: boolean
-    xss: boolean
+    xxs: boolean
     xs: boolean
     sm: boolean
     md: boolean

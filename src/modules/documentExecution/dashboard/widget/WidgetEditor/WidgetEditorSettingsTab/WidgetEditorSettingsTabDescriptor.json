@@ -48,7 +48,7 @@
             "height": "30px"
         }
     },
-    "responsiveInputSwiitches": ["fullGrid", "xss", "xs", "sm", "md", "lg"],
+    "responsiveInputSwiitches": ["fullGrid", "xxs", "xs", "sm", "md", "lg"],
     "shadowsSizeOptions": [
         {
             "label": "common.small",

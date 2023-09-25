@@ -14,7 +14,7 @@ import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega
 
 const store = mainStore()
 
-const SIZES = ["xss", "xs", "sm", "md", "lg"]
+const SIZES = ["xxs", "xs", "sm", "md", "lg"]
 
 export const createNewDashboardModel = () => {
     const dashboardModel = {
@@ -86,31 +86,58 @@ const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: s
 }
 
 export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboard: IDashboard, selectedSheet: IDashboardSheet, widget: IWidget) => {
+    console.log('--------- moveWidgetToSheet() - widgetToAdd ', widgetToAdd)
+    console.log('--------- moveWidgetToSheet() - dashboard ', dashboard)
+    console.log('--------- moveWidgetToSheet() - selectedSheet ', selectedSheet)
+    console.log('--------- moveWidgetToSheet() - widget ', widget)
     const selectedSheetInDashboard = dashboard.sheets.find((sheet: IDashboardSheet) => sheet.id === selectedSheet.id)
+    console.log('--------- moveWidgetToSheet() - selectedSheetInDashboard ', selectedSheetInDashboard)
     const sheetWidgets = selectedSheetInDashboard?.widgets
     if (!widgetToAdd || !sheetWidgets) return
+    SIZES.forEach((size: string) => moveWidgetItemToSpecificSizeArray(widgetToAdd, size, sheetWidgets, widget))
+
+}
+
+const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: string, sheetWidgets: IWidgetSheetItem[], widget: IWidget) => {
     widgetToAdd.x = 0
     widgetToAdd.y = 0
     let overlap = false
-    let maxWidth = 50;
-    for (let i = 0; i < sheetWidgets.lg.length; i++) {
-        const existingItem = sheetWidgets.lg[i];
+    let maxWidth = getMaxWidthForSpecificSize(size);
+    console.log('--------- sheetWidgets: ', sheetWidgets)
+    console.log('--------- sheetWidgets size: ', size, sheetWidgets[size])
+    for (let i = 0; i < sheetWidgets[size].length; i++) {
+        const existingItem = sheetWidgets[size][i];
         if (widgetToAdd.x < existingItem.x + existingItem.w && widgetToAdd.x + widgetToAdd.w > existingItem.x && widgetToAdd.y < existingItem.y + existingItem.h && widgetToAdd.y + widgetToAdd.h > existingItem.y) {
             overlap = true;
             break;
         }
-
         if (existingItem.x + existingItem.w > maxWidth) maxWidth = existingItem.x + existingItem.w;
-
-    }
-    if (overlap) {
-        const newX = Math.max(maxWidth + 1, widgetToAdd.x);
-        const newY = Math.max(widgetToAdd.y, sheetWidgets.lg.reduce((maxY, item) => item.y + item.h > maxY ? item.y + item.h : maxY, 0));
-        widgetToAdd.x = newX;
-        widgetToAdd.y = newY;
     }
 
-    if (sheetWidgets && widgetToAdd) sheetWidgets.lg.push({ id: widget.id ?? '', h: widgetToAdd.h, i: cryptoRandomString({ length: 16, type: 'base64' }), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
+    if (overlap) updateWidgetCoordinatesIfOverlaping(widgetToAdd, maxWidth, sheetWidgets[size])
+    if (sheetWidgets && widgetToAdd) sheetWidgets[size].push({ id: widget.id ?? '', h: widgetToAdd.h, i: cryptoRandomString({ length: 16, type: 'base64' }), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
+}
+
+const getMaxWidthForSpecificSize = (size: string) => {
+    switch (size) {
+        case 'xxs':
+            return 10
+        case 'xs':
+            return 20
+        case 'sm':
+        case 'lg':
+            return 50
+        case 'md':
+            return 100
+    }
+}
+
+
+const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxWidth: number, sheetWidgets: IWidgetSheetItem[]) => {
+    const newX = Math.max(maxWidth + 1, widgetToAdd.x);
+    const newY = Math.max(widgetToAdd.y, sheetWidgets.reduce((maxY, item) => item.y + item.h > maxY ? item.y + item.h : maxY, 0));
+    widgetToAdd.x = newX;
+    widgetToAdd.y = newY;
 }
 
 export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
@@ -158,6 +185,9 @@ const createDashboardSheetWidgetItem = (widget: IWidget) => {
 }
 
 export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
+    console.log("---------- deleteWidgetHelper() - dashboards: ", dashboards)
+    console.log("---------- deleteWidgetHelper() - dashboardId: ", dashboardId)
+    console.log("---------- deleteWidgetHelper() - widget: ", widget)
     if (!dashboards[dashboardId]) return
     const index = dashboards[dashboardId].widgets.findIndex((tempWidget: IWidget) => tempWidget.id === widget.id)
     if (index !== -1) {
@@ -169,12 +199,13 @@ export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboa
 const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
     const sheets = dashboard.sheets as any
     for (let i = sheets.length - 1; i >= 0; i--) {
-        const widgets = sheets[i].widgets.lg
-        for (let j = widgets.length - 1; j >= 0; j--) {
-            if (widgets[j].id === widgetId) {
-                widgets.splice(j, 1)
+        SIZES.forEach((size: string) => {
+            const widgetsInSheet = sheets[i].widgets[size]
+            for (let j = widgetsInSheet.length - 1; j >= 0; j--) {
+                if (widgetsInSheet[j].id === widgetId) widgetsInSheet.splice(j, 1)
             }
-        }
+        })
+        console.log("---------- deleteWidgetFromSheets() - sheet: ", sheets[i])
     }
 }
 

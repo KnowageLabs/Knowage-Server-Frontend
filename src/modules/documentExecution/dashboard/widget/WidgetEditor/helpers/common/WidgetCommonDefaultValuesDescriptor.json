@@ -67,7 +67,7 @@
         "md": true,
         "sm": true,
         "xs": true,
-        "xss": true
+        "xxs": true
     },
     "defaultShadowsStyle": {
         "enabled": false,
