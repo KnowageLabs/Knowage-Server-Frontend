@@ -110,7 +110,7 @@ export default defineComponent({
     },
     methods: {
         addSheet(): void {
-            this.$emit('update:sheets', [...this.sheets, { label: 'new sheet', widgets: { lg: [] }, id: cryptoRandomString({ length: 16, type: 'base64' }) }])
+            this.$emit('update:sheets', [...this.sheets, { label: 'new sheet', widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] }, id: cryptoRandomString({ length: 16, type: 'base64' }) }])
         },
         renameSheet(index): void {
             if (this.edit) {

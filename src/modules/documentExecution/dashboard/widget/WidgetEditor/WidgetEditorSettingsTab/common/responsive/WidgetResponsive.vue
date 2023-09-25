@@ -38,15 +38,15 @@ export default defineComponent({
             switch (field) {
                 case 'fullGrid':
                     return this.$t('dashboard.widgetEditor.responsive.fullGrid')
-                case 'xs':
+                case 'xss':
                     return this.$t('dashboard.widgetEditor.responsive.extraSmallDevices')
-                case 'sm':
+                case 'xs':
                     return this.$t('dashboard.widgetEditor.responsive.smallerDevices')
-                case 'md':
+                case 'sm':
                     return this.$t('dashboard.widgetEditor.responsive.tablets')
-                case 'lg':
+                case 'md':
                     return this.$t('dashboard.widgetEditor.responsive.largeDevices')
-                case 'xl':
+                case 'lg':
                     return this.$t('dashboard.widgetEditor.responsive.extraLargeDevices')
             }
         }

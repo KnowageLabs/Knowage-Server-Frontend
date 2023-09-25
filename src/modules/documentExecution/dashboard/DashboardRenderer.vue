@@ -3,7 +3,7 @@
         <div id="dashboard-css" v-html="dashboardCss" />
         <div v-if="activeDashboardSheet" class="sheet-container">
             <grid-layout
-                v-model:layout="activeDashboardSheet.widgets['lg']"
+                v-model:layout="activeDashboardSheet.widgets[currentScreenSize]"
                 :responsive-layouts="activeDashboardSheet.widgets"
                 :responsive="true"
                 :cols="{ lg: 50, md: 100, sm: 50, xs: 20, xxs: 10 }"
@@ -16,7 +16,7 @@
                 @breakpoint-changed="breakpointChangedEvent"
             >
                 <WidgetController
-                    v-for="item in activeDashboardSheet.widgets['lg']"
+                    v-for="item in activeDashboardSheet.widgets[currentScreenSize]"
                     :key="item.i"
                     :active-sheet="activeDashboardSheet"
                     :document="document"
@@ -71,6 +71,7 @@ export default defineComponent({
             dashboardModel: {} as any,
             startingBreakpoint: '' as string,
             activeDashboardSheet: null as IDashboardSheet | null,
+            currentScreenSize: 'lg',
             canEditDashboard
         }
     },
@@ -100,11 +101,14 @@ export default defineComponent({
         if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
         if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
         this.activeDashboardSheet = this.dashboardModel.sheets[0]
+        console.log('--------- DASHBOARD ID: ', this.dashboardId)
     },
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
-        breakpointChangedEvent: function () {
-            // breakpointChangedEvent: function(newBreakpoint, newLayout) {
+        breakpointChangedEvent(size: string) {
+            this.currentScreenSize = size
+            console.log('--------- DASHBOARD ID: ', this.dashboardId)
+            console.log('--------- DASHBOARD MODEL: ', this.dashboard)
         },
         getImageSource(chartValue: string) {
             return `${import.meta.env.VITE_PUBLIC_PATH}${chartValue}`
