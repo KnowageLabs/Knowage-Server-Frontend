@@ -1,5 +1,18 @@
 <template>
-    <grid-item :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) }" @resized="resizedEvent">
+    <grid-item
+        :id="`widget${item.id}`"
+        :ref="`widget${item.id}`"
+        :key="item.id"
+        class="p-d-flex widget-grid-item"
+        :x="item.x"
+        :y="item.y"
+        :w="item.w"
+        :h="item.h"
+        :i="item.i"
+        drag-allow-from=".drag-handle"
+        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget.settings.responsive.fullGrid }"
+        @resized="resizedEvent"
+    >
         <div v-if="initialized" class="drag-handle"></div>
         <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
@@ -72,6 +85,7 @@ import QuickWidgetDialog from './commonComponents/QuickWidgetDialog.vue'
 import ChangeWidgetDialog from './commonComponents/ChangeWidgetDialog.vue'
 import WidgetSearchDialog from './WidgetSearchDialog/WidgetSearchDialog.vue'
 import SheetPickerDialog from './SheetPickerDialog/SheetPickerDialog.vue'
+import domtoimage from 'dom-to-image-more'
 
 export default defineComponent({
     name: 'widget-manager',
@@ -156,6 +170,7 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget']),
+        ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -174,22 +189,39 @@ export default defineComponent({
             emitter.off('setWidgetLoading', this.setWidgetLoading)
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
         },
+        captureScreenshot(widget) {
+            let targetElement = document.getElementById(`widget${widget.id}`)
+            const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
+            if (document.querySelector(escapedSelector)) {
+                targetElement = document.querySelector(escapedSelector)?.contentWindow.document.getElementsByTagName('html')[0]
+            }
+            domtoimage
+                .toPng(targetElement)
+                .then((dataUrl) => {
+                    const link = document.createElement('a')
+                    link.download = `${widget.type}-widget.png`
+                    link.href = dataUrl
+                    link.click()
+                })
+                .catch((error) => {
+                    this.setError({
+                        title: this.$t('common.toast.errorTitle'),
+                        msg: `${this.$t('dashboard.errors.screenshotError')}: ${error}`
+                    })
+                })
+        },
         loadMenuItems() {
             this.items = [
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: true },
-                {
-                    label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'),
-                    icon: 'fa-solid fa-chart-column',
-                    command: () => this.toggleChangeDialog(),
-                    visible: ['highcharts', 'vega'].includes(this.widget.type) && this.dashboards[this.dashboardId]?.configuration?.menuWidgets?.enableChartChange
-                },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: true },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: canEditDashboard(this.document) && ['highcharts', 'vega'].includes(this.widget.type) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget.type === 'map' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget.type === 'table' },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false && canEditDashboard },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: canEditDashboard(this.document) },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: true }
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: canEditDashboard(this.document) }
             ]
         },
         loadWidget(widget: IWidget) {
@@ -265,7 +297,7 @@ export default defineComponent({
             return widgetUsesSelection
         },
         toggleEditMode() {
-            emitter.emit('openWidgetEditor', this.widget)
+            emitter.emit('openWidgetEditor', { widget: this.widget, dashboardId: this.dashboardId })
         },
         checkIfSelectionIsLocked() {
             if (this.widgetModel.type !== 'selector' || (this.widgetModel.settings as ISelectorWidgetSettings).configuration.valuesManagement.enableAll) return false
@@ -357,6 +389,12 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .widget-grid-item {
+    &.full-grid-widget {
+        width: 100% !important;
+        height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
     &.vue-grid-item > .vue-resizable-handle {
         display: none;
     }

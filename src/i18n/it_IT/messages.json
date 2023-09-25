@@ -331,6 +331,9 @@
             "static": "Statico",
             "title": "Gestione Dataset"
         },
+        "errors": {
+            "screenshotError": "Errore durante la cattura dell'immagine"
+        },
         "generalSettings": {
             "attribute": "Attributo",
             "background": {
@@ -918,15 +921,16 @@
                     "pies3d": "Pies 3D"
                 },
                 "qMenu": {
-                    "changeType": "Change Chart Type",
-                    "clone": "Clone Widget",
-                    "delete": "Delete Widget",
-                    "edit": "Edit Widget",
-                    "expand": "Expand to Fullscreen",
-                    "moveWidget": "Move Widget",
-                    "quickWidget": "Add Quick Widget",
-                    "search": "Search on Widget",
-                    "xor": "View One Layer"
+                    "changeType": "Modifica Tipo Grafico",
+                    "clone": "Clona Widget",
+                    "delete": "Elimina Widget",
+                    "edit": "Modifica Widget",
+                    "expand": "Espandi a tutti schermo",
+                    "moveWidget": "Sposta Widget",
+                    "quickWidget": "Aggiungi Quick Widget",
+                    "screenshot": "Cattura Immagine",
+                    "search": "Cerca nel Widget",
+                    "xor": "Visualizza un layer"
                 },
                 "range": "Range",
                 "rangeLabel": "Min size (%)/Max size (%)",
@@ -1005,6 +1009,7 @@
             "responsive": {
                 "extraLargeDevices": "Mostra su dispositivi Extra Large",
                 "extraSmallDevices": "Mostra su dispositivi Extra Small",
+                "fullGrid": "Mostra il widget a pieno schermo. (Può essere applicato ad un solo widget per dashboard)",
                 "largeDevices": "Mostra su dispositivi di grandi dimensioni",
                 "smallerDevices": "Mostra su dispositivi di piccole dimensioni",
                 "tablets": "Mostra su Tablet",
@@ -3452,11 +3457,13 @@
             "title": "My Models"
         },
         "myRepository": {
-            "destinationFolder": "Destination folder",
-            "folderCreatedMessage": "Folder is created and added to the current path",
-            "folderDeleteError": "Folder could not be deleted. It contains at least one subfolder or at least one document",
-            "moveDocument": "Move Document",
-            "newFolderTitle": "Create new folder"
+            "deleteView": "Elimina Vista",
+            "destinationFolder": "Cartella di destinazione",
+            "folderCreatedMessage": "La cartella è creata e verrà aggiunta all'elemento selezionato",
+            "folderDeleteError": "La cartella non può essere eliminata, contiene almeno una sotto-cartella o un documento",
+            "moveDocument": "Sposta Documento",
+            "moveView": "Sposta Vista",
+            "newFolderTitle": "Crea nuova cartella"
         },
         "recent": {
             "sidebarLabels": {

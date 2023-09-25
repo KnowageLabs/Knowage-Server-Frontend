@@ -115,6 +115,9 @@ export default defineComponent({
         renderCustomWidget() {
             this.loadedScriptsCount = 0
             const iframe = this.recreateIframeElement()
+            setTimeout(() => this.createIframeContent(iframe), 10)
+        },
+        createIframeContent(iframe: any) {
             this.iframeDocument = iframe.contentWindow.document
             this.iframeDocument.body.innerHTML = `<html>
                 <head></head>
@@ -129,6 +132,7 @@ export default defineComponent({
             this.insertUsersHtmlContent()
             this.insertUsersCssContent()
             this.setDatastoreObjectInFrame(iframe)
+            iframe.sandbox = 'allow-scripts'
             this.loadUserImportScripts()
         },
         recreateIframeElement() {
@@ -138,7 +142,7 @@ export default defineComponent({
             iframe.id = 'iframe-' + this.id
             iframe.src = 'about:blank'
             iframe.style = 'width: 100%; height: 100%; border: none;'
-            wrapper.appendChild(iframe)
+            if (wrapper) wrapper.appendChild(iframe)
             return iframe
         },
         createWrapperDiv(containerElement: Element) {
@@ -166,8 +170,7 @@ export default defineComponent({
             for (let i = 0; i < userImports.length; i++) {
                 if (userImports.item(i)?.attributes?.src?.textContent) {
                     const textContent = userImports.item(i).attributes.src.textContent
-                    const url = textContent.startsWith('http') ? textContent : import.meta.env.VITE_HOST_URL + '/' + userImports.item(i).attributes.src.textContent
-                    this.userScriptsURLs.push(url)
+                    this.userScriptsURLs.push(textContent)
                 }
             }
         },

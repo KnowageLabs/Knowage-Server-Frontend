@@ -91,7 +91,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfC
     if (categories.length >= categoryLength) {
         for (let index = 0; index < categoryLength; index++) {
             const category = categories[index]
-            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderType: '', funct: 'NONE' } as any
+            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderType: category.orderType, funct: 'NONE' } as any
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }

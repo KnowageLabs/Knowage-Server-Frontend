@@ -29,6 +29,9 @@
     ],
     "styleToolbarSettings": [
         {
+            "type": "font-style"
+        },
+        {
             "type": "font-weight"
         },
         {

@@ -35,7 +35,7 @@
                         @click="refresh"
                     ></Button>
                     <Button
-                        v-if="isParameterSidebarVisible && !newDashboardMode && canSeeDashboardFunctions()"
+                        v-if="isParameterSidebarVisible && !newDashboardMode"
                         v-tooltip.left="$t('common.parameters')"
                         icon="fa fa-filter"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
@@ -76,7 +76,7 @@
                     :reload-trigger="reloadTrigger"
                     :hidden-form-data="document.hiddenFormData"
                     :mode="'dashboard-popup'"
-                    :filters-data="document.filtersData"
+                    :filters-data="filtersData"
                     :new-dashboard-mode="false"
                 ></DashboardController>
                 <div v-show="mode === 'dashboard' || newDashboardMode" class="p-d-flex p-flex-row" style="height: 100%">
@@ -744,8 +744,7 @@ export default defineComponent({
                 }
             }
             this.hiddenFormData.append('documentMode', this.documentMode)
-
-            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
+            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE', 'DASHBOARD'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             if (index !== -1) this.breadcrumbs[index].hiddenFormData = this.hiddenFormData
         },
