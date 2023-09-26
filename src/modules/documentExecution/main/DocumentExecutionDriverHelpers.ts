@@ -57,7 +57,10 @@ export const loadFilters = async (
 const getFormattedDriversFromURL = (driversFromUrl: IURLDriver[], filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) => {
     driversFromUrl.forEach((driver: IURLDriver) => {
         const index = filtersData.filterStatus.findIndex((parameter: iParameter) => driver.urlName === parameter.urlName)
-        if (index !== -1) filtersData.filterStatus[index].parameterValue = driver.value
+        if (index !== -1) {
+            filtersData.filterStatus[index].parameterValue = driver.value
+            addDefaultEmptyParameterValuesIfNoValuesPresent(filtersData.filterStatus[index])
+        }
     })
     updateFiltersDataIsReadyForExecution(filtersData)
     return filtersData
@@ -158,14 +161,13 @@ const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExec
             el.visible = false
         }
 
-        if (!el.parameterValue || (!el.parameterValue[0] && !el.multivalue)) {
-            el.parameterValue = [{ value: '', description: '' }]
-        }
-
-        if (el.parameterValue[0] && !el.parameterValue[0].description) {
-            el.parameterValue[0].description = el.parameterDescription ? el.parameterDescription[0] : ''
-        }
+        addDefaultEmptyParameterValuesIfNoValuesPresent(el)
     })
+}
+
+const addDefaultEmptyParameterValuesIfNoValuesPresent = (el: iParameter) => {
+    if (!el.parameterValue || (!el.parameterValue[0] && !el.multivalue)) el.parameterValue = [{ value: '', description: '' }]
+    if (el.parameterValue[0] && !el.parameterValue[0].description) el.parameterValue[0].description = el.parameterDescription ? el.parameterDescription[0] : ''
 }
 
 const formatDateDriver = (el: any) => {
