@@ -15,7 +15,7 @@ import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { IDashboardDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, isLinkInteractionActive, isIframeInteractionActive } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, isLinkInteractionActive, isPreviewInteractionActive, isIframeInteractionActive } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import { startTableWidgetIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
@@ -31,6 +31,7 @@ import SummaryRowRenderer from './SummaryRowRenderer.vue'
 import HeaderGroupRenderer from './HeaderGroupRenderer.vue'
 import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
+import { executeTablePreview } from '../interactionsHelpers/PreviewHelper'
 
 export default defineComponent({
     name: 'table-widget',
@@ -471,6 +472,12 @@ export default defineComponent({
             }
         },
         onCellClicked(node) {
+            if (!this.editorMode && isPreviewInteractionActive(node, this.widgetModel.settings.interactions.preview)) {
+                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+                executeTablePreview(formattedRow, this.widgetModel.settings.interactions.preview)
+                return
+            }
+
             if (!this.editorMode && isIframeInteractionActive(node, this.widgetModel.settings.interactions.iframe)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)

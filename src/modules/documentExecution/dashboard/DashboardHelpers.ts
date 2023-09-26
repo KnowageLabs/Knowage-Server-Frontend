@@ -92,13 +92,13 @@ export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboar
     console.log('--------- moveWidgetToSheet() - widget ', widget)
     const selectedSheetInDashboard = dashboard.sheets.find((sheet: IDashboardSheet) => sheet.id === selectedSheet.id)
     console.log('--------- moveWidgetToSheet() - selectedSheetInDashboard ', selectedSheetInDashboard)
-    const sheetWidgets = selectedSheetInDashboard?.widgets
+    const sheetWidgets = selectedSheetInDashboard?.widgets as { xxs: IWidgetSheetItem[], xs: IWidgetSheetItem[], sm: IWidgetSheetItem[], md: IWidgetSheetItem[], lg: IWidgetSheetItem[] }
     if (!widgetToAdd || !sheetWidgets) return
     SIZES.forEach((size: string) => moveWidgetItemToSpecificSizeArray(widgetToAdd, size, sheetWidgets, widget))
 
 }
 
-const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: string, sheetWidgets: IWidgetSheetItem[], widget: IWidget) => {
+const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: string, sheetWidgets: { xxs: IWidgetSheetItem[], xs: IWidgetSheetItem[], sm: IWidgetSheetItem[], md: IWidgetSheetItem[], lg: IWidgetSheetItem[] }, widget: IWidget) => {
     widgetToAdd.x = 0
     widgetToAdd.y = 0
     let overlap = false
@@ -124,11 +124,10 @@ const getMaxWidthForSpecificSize = (size: string) => {
             return 10
         case 'xs':
             return 20
-        case 'sm':
-        case 'lg':
-            return 50
         case 'md':
             return 100
+        default:
+            return 50
     }
 }
 
@@ -172,6 +171,7 @@ const updateFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard,
 }
 
 const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widget: IWidget) => {
+    if (!sheet.widgets[size]) return
     const index = sheet.widgets[size].findIndex((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
     if (index === -1 && (widget.settings.responsive[size] || widget.settings.responsive.fullGrid)) {
         sheet.widgets[size].push((createDashboardSheetWidgetItem(widget)))

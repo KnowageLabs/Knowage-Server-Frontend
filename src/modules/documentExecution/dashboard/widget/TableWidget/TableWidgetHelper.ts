@@ -1,4 +1,4 @@
-import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink } from '../../Dashboard'
+import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink, IWidgetPreview } from '../../Dashboard'
 
 export const getColumnGroup = (propWidget: IWidget, col: ITableWidgetColumnGroup) => {
     const modelGroups = propWidget.settings.configuration.columnGroups.groups
@@ -210,6 +210,12 @@ const iconTypeLinkIsPresent = (linkOptions: IWidgetLinks) => {
     return index !== -1
 }
 
+export const isPreviewInteractionActive = (tableNode: any, previewSettings: IWidgetPreview) => {
+    if (!previewSettings.enabled) return false
+    if (previewSettings.type === 'singleColumn' && (!previewSettings.column || tableNode.colDef?.colId !== previewSettings.column)) return false
+    if (previewSettings.type === 'icon' && tableNode.colDef?.colId !== 'iconColumn') return false
+    return true
+}
 export const isIframeInteractionActive = (tableNode: any, iFrameInteractionSettings: IFrameInteractionSettings) => {
     if (!iFrameInteractionSettings.enabled) return false
     if (iFrameInteractionSettings.type === 'singleColumn' && (!iFrameInteractionSettings.column || tableNode.colDef?.colId !== iFrameInteractionSettings.column)) return false

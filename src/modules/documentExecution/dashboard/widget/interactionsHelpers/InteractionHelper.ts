@@ -318,8 +318,3 @@ const getDriverParameterTypeFromOutputParameterType = (outputParameterType: stri
             return 'STRING'
     }
 }
-
-export const executePreview = (datasetLabel: string) => {
-    console.log("TODO: executePreview() - datasetLabel: ", datasetLabel)
-}
-

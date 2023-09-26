@@ -11,8 +11,9 @@ import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import { IWidget } from '../../Dashboard'
 import { parseHtml, parseText } from '../WidgetEditor/helpers/htmlParser/ParserHelper'
-import { executeHTMLandTextWidgetCrossNavigation, executePreview, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
+import { executeHTMLandTextWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
+import { executeHTMLWidgetPreview } from '../interactionsHelpers/PreviewHelper'
 
 export default defineComponent({
     name: 'widget-component-container',
@@ -100,7 +101,8 @@ export default defineComponent({
         onPreview(event: any) {
             if (this.editorMode || !event.detail) return
             const datasetLabel = event.detail.datasetLabel
-            executePreview(datasetLabel)
+            const previewConfiguration = this.propWidget.settings.interactions.preview
+            executeHTMLWidgetPreview(datasetLabel, previewConfiguration)
         },
         onCrossNavigation(event: any) {
             if (this.editorMode || !event.detail || !this.propWidget) return
