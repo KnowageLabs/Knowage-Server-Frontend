@@ -1,6 +1,6 @@
 <template>
     <div v-if="previewModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-grid p-col-12 p-pt-4 p-ai-center">
+        <div v-if="['table', 'discovery'].includes(widgetModel.type)" class="p-grid p-col-12 p-pt-4 p-ai-center">
             <div v-if="widgetModel.type !== 'chart' && widgetModel.type !== 'customchart'" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
                 <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
                 <Dropdown v-model="previewModel.type" class="kn-material-input" :options="descriptor.interactionTypes" option-value="value" :disabled="previewDisabled" @change="onInteractionTypeChanged">
