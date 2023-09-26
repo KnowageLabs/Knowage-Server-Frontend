@@ -31,14 +31,31 @@
             </div>
             <div v-else-if="parameter.type === 'driver'" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
                 <div class="p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
+                    <label class="kn-material-input-label"> {{ $t('common.driver') }}</label>
                     <Dropdown v-model="parameter.driver" class="kn-material-input" :options="drivers" option-label="name" option-value="name" :disabled="disabled" @change="parametersChanged"> </Dropdown>
                 </div>
             </div>
-            <div v-else-if="parameter.type === 'dynamic'" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
+            <div v-else-if="parameter.type === 'dynamic' && ['table', 'discovery', 'highcharts', 'chartJS', 'html', 'customchart'].includes(widgetType)" class="p-sm-12 p-md-7 p-d-flex p-flex-row p-ai-center kn-flex">
                 <div class="p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown v-model="parameter.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="alias" :disabled="disabled" @change="parametersChanged"> </Dropdown>
+                    <Dropdown
+                        v-if="['table', 'discovery', 'static-pivot-table', 'ce-pivot-table'].includes(widgetType)"
+                        v-model="parameter.column"
+                        class="kn-material-input"
+                        :options="widgetModel.columns"
+                        option-label="alias"
+                        option-value="columnName"
+                        :disabled="disabled"
+                        @change="parametersChanged"
+                    ></Dropdown>
+                    <Dropdown v-else v-model="parameter.column" class="kn-material-input" :options="chartColumnOptions" option-value="value" :disabled="disabled" @change="parametersChanged">
+                        <template #value="slotProps">
+                            <span>{{ getTranslatedLabel(slotProps.value, chartColumnOptions, $t) }}</span>
+                        </template>
+                        <template #option="slotProps">
+                            <span>{{ $t(slotProps.option.label) }}</span>
+                        </template>
+                    </Dropdown>
                 </div>
             </div>
             <div v-else-if="parameter.type === 'selection'" class="p-grid p-sm-12 p-md-7 p-ai-center kn-flex">
@@ -87,6 +104,19 @@ export default defineComponent({
             selectedDatasetNames: [] as string[],
             drivers: [] as IDashboardDriver[],
             getTranslatedLabel
+        }
+    },
+    computed: {
+        widgetType() {
+            return this.widgetModel.type
+        },
+        chartColumnOptions() {
+            if (['table', 'discovery', 'static-pivot-table'].includes(this.widgetType)) return []
+            if (this.widgetModel.settings.chartModel?.model?.chart?.type === 'heatmap') {
+                return descriptor.chartInteractionDynamicOptions.concat(descriptor.chartInteractionAdditionalDynamicOptions)
+            } else {
+                return descriptor.chartInteractionDynamicOptions
+            }
         }
     },
     watch: {
