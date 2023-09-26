@@ -158,7 +158,7 @@ const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExec
             el.visible = false
         }
 
-        if (!el.parameterValue) {
+        if (!el.parameterValue || (!el.parameterValue[0] && !el.multivalue)) {
             el.parameterValue = [{ value: '', description: '' }]
         }
 
