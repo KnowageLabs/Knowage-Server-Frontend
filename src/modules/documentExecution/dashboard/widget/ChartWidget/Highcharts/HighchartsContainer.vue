@@ -11,7 +11,6 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { executeChartPreview } from '../../interactionsHelpers/PreviewHelper'
 import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart } from './HighchartsModelFormattingHelpers'
 import { formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
@@ -212,7 +211,6 @@ export default defineComponent({
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.widgetModel.settings.interactions.preview.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
-                // executeChartPreview(formattedChartValues, this.widgetModel.settings.interactions.preview)
                 this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview })
             } else if (this.widgetModel.settings.interactions.link.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)

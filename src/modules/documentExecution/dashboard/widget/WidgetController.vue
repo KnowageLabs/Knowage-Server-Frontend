@@ -90,6 +90,7 @@ import SheetPickerDialog from './SheetPickerDialog/SheetPickerDialog.vue'
 import domtoimage from 'dom-to-image-more'
 import { AxiosResponse } from 'axios'
 import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
+import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
 
 export default defineComponent({
     name: 'widget-manager',
@@ -401,10 +402,14 @@ export default defineComponent({
             console.groupEnd()
 
             const previewSettings = event.previewSettings as IWidgetPreview
+            if (!previewSettings.dataset || previewSettings.dataset < 0) return
+            console.log('------------ previewSettings: ', previewSettings)
             this.selectedDataset = deepcopy(this.datasets.find((dataset) => dataset.id.dsId === previewSettings.dataset))
 
             const storeDashboardDatasets = this.dashStore.$state.dashboards[this.dashboardId].configuration.datasets
             const storeDashboardDataset = storeDashboardDatasets.find((dataset) => dataset.id === previewSettings.dataset)
+
+            console.log('------------ selectedDataset: ', this.selectedDataset)
 
             if (this.selectedDataset.id.dsId === storeDashboardDataset.id) {
                 this.selectedDataset.modelParams = storeDashboardDataset.parameters
@@ -416,12 +421,15 @@ export default defineComponent({
             if (this.selectedDataset.parameters.length > 0) {
                 this.selectedDataset.parameters.forEach((parameter) => {
                     console.group('%c previewInteractionDataset - parameter ', 'background: #222; color: #bada55')
-                    console.log(parameter)
+                    console.log('------------ WIDGET TYPE: ', this.widget.type)
+                    console.log('------------ event: ', event)
+                    formatParameterForPreview(event, parameter, this.widget.type, this.dashboardId)
+                    console.log(' ----------------- FORMATTED PARAMETER: ', parameter)
                     console.groupEnd()
 
                     // ovde custom helper koji hvata pravi value, modelType moze da bude bilo sta nebitno je
-                    parameter.value = 'TESTVALUE'
-                    parameter.modelType = 'TESTTYPE'
+                    // parameter.value = 'TESTVALUE'
+                    // parameter.modelType = 'TESTTYPE'
 
                     // this.selectedDataset.modelParams.forEach((modelParam) => {
                     //     if (parameter.name === modelParam.name) {
