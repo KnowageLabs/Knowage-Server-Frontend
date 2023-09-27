@@ -5,7 +5,7 @@
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context"></ag-grid-vue>
-        <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @pageChanged="$emit('pageChanged')" />
+        <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @page-changed="$emit('pageChanged')" />
     </div>
 </template>
 
@@ -13,7 +13,7 @@
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import { IDashboardDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, isLinkInteractionActive, isPreviewInteractionActive, isIframeInteractionActive } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
@@ -50,7 +50,7 @@ export default defineComponent({
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         editorMode: { type: Boolean, required: false },
-        datasets: { type: Array as PropType<IDashboardDataset[]>, required: true },
+        datasets: { type: Array as PropType<IDataset[]>, required: true },
         dataToShow: { type: Object as any, required: true },
         propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
         dashboardId: { type: String, required: true },

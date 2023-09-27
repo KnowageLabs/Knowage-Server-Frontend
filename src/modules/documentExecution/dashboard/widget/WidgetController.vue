@@ -203,7 +203,7 @@ export default defineComponent({
             let targetElement = document.getElementById(`widget${widget.id}`)
             const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
             if (document.querySelector(escapedSelector)) {
-                targetElement = document.querySelector(escapedSelector)?.contentWindow.document.getElementsByTagName('html')[0]
+                targetElement = (document.querySelector(escapedSelector) as any)?.contentWindow.document.getElementsByTagName('html')[0]
             }
             domtoimage
                 .toPng(targetElement)
@@ -396,27 +396,39 @@ export default defineComponent({
         },
 
         async previewInteractionDataset(event: any) {
+            console.group('%c previewInteractionDataset - event ', 'background: #222; color: #bada55')
+            console.log(event)
+            console.groupEnd()
+
             const previewSettings = event.previewSettings as IWidgetPreview
             this.selectedDataset = deepcopy(this.datasets.find((dataset) => dataset.id.dsId === previewSettings.dataset))
 
-            const dashboardDatasets = this.dashStore.$state.dashboards[this.dashboardId].configuration.datasets
-            const dashboardDataset = dashboardDatasets.find((dataset) => dataset.id === previewSettings.dataset)
+            const storeDashboardDatasets = this.dashStore.$state.dashboards[this.dashboardId].configuration.datasets
+            const storeDashboardDataset = storeDashboardDatasets.find((dataset) => dataset.id === previewSettings.dataset)
 
-            if (this.selectedDataset.id.dsId === dashboardDataset.id) {
-                this.selectedDataset.modelParams = dashboardDataset.parameters
-                this.selectedDataset.modelDrivers = dashboardDataset.drivers ? dashboardDataset.drivers : []
-                this.selectedDataset.modelCache = dashboardDataset.cache
-                this.selectedDataset.modelIndexes = dashboardDataset.indexes
+            if (this.selectedDataset.id.dsId === storeDashboardDataset.id) {
+                this.selectedDataset.modelParams = storeDashboardDataset.parameters
+                this.selectedDataset.modelDrivers = storeDashboardDataset.drivers ? storeDashboardDataset.drivers : []
+                this.selectedDataset.modelCache = storeDashboardDataset.cache
+                this.selectedDataset.modelIndexes = storeDashboardDataset.indexes
             }
 
-            if (this.selectedDataset.parameters.length > 0 && this.selectedDataset.modelParams.length > 0) {
+            if (this.selectedDataset.parameters.length > 0) {
                 this.selectedDataset.parameters.forEach((parameter) => {
-                    this.selectedDataset.modelParams.forEach((modelParam) => {
-                        if (parameter.name === modelParam.name) {
-                            parameter.value = modelParam.value
-                            parameter.modelType = modelParam.type
-                        }
-                    })
+                    console.group('%c previewInteractionDataset - parameter ', 'background: #222; color: #bada55')
+                    console.log(parameter)
+                    console.groupEnd()
+
+                    // ovde custom helper koji hvata pravi value, modelType moze da bude bilo sta nebitno je
+                    parameter.value = 'TESTVALUE'
+                    parameter.modelType = 'TESTTYPE'
+
+                    // this.selectedDataset.modelParams.forEach((modelParam) => {
+                    //     if (parameter.name === modelParam.name) {
+                    //         parameter.value = modelParam.value
+                    //         parameter.modelType = modelParam.type
+                    //     }
+                    // })
                 })
             }
 
