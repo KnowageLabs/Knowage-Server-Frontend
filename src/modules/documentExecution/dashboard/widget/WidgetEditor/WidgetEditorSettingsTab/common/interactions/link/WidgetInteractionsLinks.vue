@@ -172,7 +172,7 @@ export default defineComponent({
             this.updateOtherInteractions()
         },
         updateOtherInteractions() {
-            if (this.widget && this.linksModel?.enabled) {
+            if (this.widget && this.linksModel?.enabled && this.widgetType !== 'table') {
                 if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
                 if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
                 if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false

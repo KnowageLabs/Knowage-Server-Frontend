@@ -195,7 +195,7 @@ export default defineComponent({
                 })
         },
         onPreviewEnabledChange() {
-            if (this.widget && this.previewModel?.enabled) {
+            if (this.widget && this.previewModel?.enabled && this.widgetType !== 'table') {
                 if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
                 if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
                 if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
