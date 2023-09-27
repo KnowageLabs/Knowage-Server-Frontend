@@ -33,7 +33,6 @@ import SummaryRowRenderer from './SummaryRowRenderer.vue'
 import HeaderGroupRenderer from './HeaderGroupRenderer.vue'
 import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
-import { executeTablePreview } from '../interactionsHelpers/PreviewHelper'
 import ContextMenu from 'primevue/contextmenu'
 
 export default defineComponent({
@@ -482,7 +481,11 @@ export default defineComponent({
         onCellClicked(node) {
             if (!this.editorMode && isPreviewInteractionActive(node, this.widgetModel.settings.interactions.preview)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-                executeTablePreview(formattedRow, this.widgetModel.settings.interactions.preview)
+                console.log('formattedRow', formattedRow)
+
+                // @ts-ignore
+                this.$refs.interactionMenu.toggle(node.event)
+
                 return
             }
 
