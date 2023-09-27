@@ -14,7 +14,6 @@ import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import cryptoRandomString from 'crypto-random-string'
 import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
-import { executeCustomChartPreview } from '../interactionsHelpers/PreviewHelper'
 
 export default defineComponent({
     name: 'custom-chart-widget',
@@ -233,7 +232,8 @@ export default defineComponent({
                 const formattedOutputParameters = formatForCrossNavigation(columnValue, this.propWidget.settings.interactions.crossNavigation)
                 executeChartCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.propWidget.settings.interactions.preview.enabled) {
-                executeCustomChartPreview(columnValue, this.propWidget.settings.interactions.preview, this.dashboardId)
+                // TODO - Darko replace this
+                // executeCustomChartPreview(columnValue, this.propWidget.settings.interactions.preview, this.dashboardId)
             } else if (this.propWidget.settings.interactions.iframe.enabled) {
                 startHTMLAndCustomChartIFrameInteractions(columnValue, this.propWidget.settings.interactions.iframe, this.dashboardId, this.variables, window)
             } else {

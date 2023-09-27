@@ -115,7 +115,8 @@ const getFormattedChartDynamicParameterUrl = (parameter: IWidgetInteractionParam
     return useAsResource ? `${value}` : `${parameter.name}=${value}&`
 }
 
-const getChartDynamicParameterValue = (formattedChartValues: IChartInteractionValues | null, column: string) => {
+// TODO - Move to some common file?
+export const getChartDynamicParameterValue = (formattedChartValues: IChartInteractionValues | null, column: string) => {
     if (!formattedChartValues) return ''
     switch (column) {
         case "SERIE_NAME":

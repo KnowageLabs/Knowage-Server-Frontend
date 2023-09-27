@@ -31,7 +31,6 @@ import SummaryRowRenderer from './SummaryRowRenderer.vue'
 import HeaderGroupRenderer from './HeaderGroupRenderer.vue'
 import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
-import { executeTablePreview } from '../interactionsHelpers/PreviewHelper'
 
 export default defineComponent({
     name: 'table-widget',

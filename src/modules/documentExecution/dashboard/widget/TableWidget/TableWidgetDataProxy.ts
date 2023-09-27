@@ -7,7 +7,7 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex] as IDashboardDataset
 
-    const datasetLabel = selectedDataset.dsLabel as string
+    const datasetLabel = selectedDataset?.dsLabel as string
 
     if (selectedDataset) {
         let url = ''

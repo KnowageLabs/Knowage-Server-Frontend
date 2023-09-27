@@ -1,3 +1,4 @@
+p
 <template>
     <div class="htmlMirrorContainer" style="height: 500px; width: 100%">
         <Button v-tooltip.left="$t('common.menu')" icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain editor-tags-menu-button" @click="toggle"></Button>

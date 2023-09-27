@@ -1,3 +1,4 @@
+import { getChartDynamicParameterValue } from './InteractionLinkHelper';
 import { IDashboardDriver, IWidgetInteractionParameter, IWidgetPreview } from "../../Dashboard";
 import { IChartInteractionValues } from "../../interfaces/chartJS/DashboardChartJSWidget";
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -7,19 +8,51 @@ export const formatParameterForPreview = (event: any, parameter: any, widgetType
     parameter.value = parameter.defaultValue ?? ''
     // console.log("---------- formatParameterForPreview() - event: ", event)
     // console.log("---------- formatParameterForPreview() - parameter: ", parameter)
+    const parameterSettings = event.previewSettings.parameters.find((tempParameter: IWidgetInteractionParameter) => tempParameter.name === parameter.name)
+    if (!parameterSettings) return
     switch (widgetType) {
         case 'highcharts':
-            executeChartPreview(parameter, event.formattedChartValues, event.previewSettings, dashboardId)
+            formatChartParameterValue(parameter, parameterSettings, event.formattedChartValues, dashboardId)
+            break
+        case 'table':
+            formatTableParameterValue(parameter, parameterSettings, event.formattedRow, dashboardId)
+            break
+        case 'html':
+            formatHTMLWidgetParameterValue(parameter, parameterSettings, event.datasetLabel, dashboardId)
+            break;
+        case 'customchart':
+            formatCustomChartParameterValue(parameter, parameterSettings, event.columnValue, dashboardId)
     }
 }
 
-export const executeChartPreview = (parameter: any, formattedChartValues: IChartInteractionValues, previewSettings: IWidgetPreview, dashboardId: string) => {
-    console.log("---------- executeChartPreview() - formattedChartValues: ", formattedChartValues)
-    console.log("---------- executeChartPreview() - previewSettings: ", previewSettings)
-    const parameterSettings = previewSettings.parameters.find((tempParameter: IWidgetInteractionParameter) => tempParameter.name === parameter.name)
-    if (!parameterSettings) return
+const formatChartParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedChartValues: IChartInteractionValues, dashboardId: string) => {
+    console.log("---------- formatChartParameterValue() - formattedChartValues: ", formattedChartValues)
+    console.log("---------- formatChartParameterValue() - parameterSettings: ", parameterSettings)
+
     updateParameterValue(parameter, parameterSettings, null, formattedChartValues, dashboardId)
 }
+
+
+const formatTableParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedRow: any, dashboardId: string) => {
+    console.log("---------- formatTableParameterValue() - formattedRow: ", formattedRow)
+    console.log("---------- formatTableParameterValue() - parameterSettings: ", parameterSettings)
+    updateParameterValue(parameter, parameterSettings, formattedRow, null, dashboardId)
+}
+
+const formatHTMLWidgetParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, datasetLabel: string, dashboardId: string) => {
+    console.log("---------- formatHTMLWidgetParameterValue() - datasetLabel: ", datasetLabel)
+    console.log("---------- formatHTMLWidgetParameterValue() - parameterSettings: ", parameterSettings)
+    console.log("---------- formatHTMLWidgetParameterValue() - dashboardId: ", dashboardId)
+    updateParameterValue(parameter, parameterSettings, null, null, dashboardId)
+}
+
+const formatCustomChartParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, columnValue: string | number, dashboardId: string) => {
+    console.log('---------- formatCustomChartParameterValue() - columnValue: ', columnValue)
+    console.log('---------- formatCustomChartParameterValue() - parameterSettings: ', parameterSettings)
+    console.log('---------- formatCustomChartParameterValue() - dashboardId: ', dashboardId)
+    updateParameterValue(parameter, parameterSettings, null, null, dashboardId)
+}
+
 
 const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedColumnRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string) => {
     const dashStore = dashboardStore()
@@ -30,13 +63,14 @@ const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteract
         case 'static':
             updateStaticParameterValue(parameter, parameterSettings)
             break
-        // case 'dynamic':
-        //     if (formattedColumnRow) formattedParametersUrl += getFormattedTableDynamicParameterUrl(tempParameter, formattedColumnRow, useAsResource)
-        //     else if (formattedChartValues) formattedParametersUrl += getFormattedChartDynamicParameterUrl(tempParameter, formattedChartValues, useAsResource)
-        //     break
-        // case 'driver':
-        //     formattedParametersUrl += getFormattedDriverParameterUrl(tempParameter, driversValuesMap, useAsResource)
-        //   break
+        case 'dynamic':
+            parameter.columnName = parameterSettings.column
+            if (formattedColumnRow) getFormattedTableDynamicParameterUrl(parameter, parameterSettings, formattedColumnRow)
+            else if (formattedChartValues) getFormattedChartDynamicParameterUrl(parameter, parameterSettings, formattedChartValues)
+            break
+        case 'driver':
+            updateParameterValueFromDriver(parameter, parameterSettings, driversValuesMap)
+            break
         case 'selection':
             updateParameterValueFromSelections(parameter, dashboardId)
 
@@ -46,6 +80,24 @@ const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteract
 const updateStaticParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter) => {
     parameter.value = parameterSettings.value
 }
+
+const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParameter, parameterSettings: IWidgetInteractionParameter, formattedRow: anyn) => {
+    let columnValue = ''
+    if (parameterSettings.column === 'column_name_mode') parameterSettings = formattedRow.columnName
+    else if (parameterSettings.column) columnValue = formattedRow[parameterSettings.column].value
+    parameter.value = columnValue ?? ''
+}
+
+const getFormattedChartDynamicParameterUrl = (parameter: IWidgetInteractionParameter, parameterSettings: IWidgetInteractionParameter, formattedChartValues: IChartInteractionValues | null) => {
+    const columnValue = getChartDynamicParameterValue(formattedChartValues, parameter.column ?? '')
+    parameter.value = columnValue ?? ''
+}
+
+const updateParameterValueFromDriver = (parameter: any, parameterSettings: IWidgetInteractionParameter, driversValuesMap: any) => {
+    if (!parameterSettings.driver || !driversValuesMap[parameterSettings.driver]) return
+    else parameter.value = driversValuesMap[parameter.driver].value
+}
+
 
 const updateParameterValueFromSelections = (parameter: any, dashboardId: string) => {
     const dashStore = dashboardStore()
@@ -59,21 +111,4 @@ const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
     const driversValuesMap = {}
     drivers.forEach((driver: IDashboardDriver) => driversValuesMap[driver.urlName] = { value: driver.value, multivalue: driver.multivalue })
     return driversValuesMap
-}
-
-export const executeTablePreview = (formattedRow: any, previewSettings: IWidgetPreview) => {
-    console.log("---------- executeTablePreview() - formattedRow: ", formattedRow)
-    console.log("---------- executeTablePreview() - previewSettings: ", previewSettings)
-}
-
-
-export const executeHTMLWidgetPreview = (datasetLabel: string, previewSettings: IWidgetPreview) => {
-    console.log("---------- executeHTMLWidgetPreview() - datasetLabel: ", datasetLabel)
-    console.log("---------- executeHTMLWidgetPreview() - previewSettings: ", previewSettings)
-}
-
-export const executeCustomChartPreview = (columnValue: string | number, previewSettings: IWidgetPreview, dashboardId: string) => {
-    console.log('---------- executeCustomChartPreview() - columnValue: ', columnValue)
-    console.log('---------- executeCustomChartPreview() - previewSettings: ', previewSettings)
-    console.log('---------- executeCustomChartPreview() - dashboardId: ', dashboardId)
 }

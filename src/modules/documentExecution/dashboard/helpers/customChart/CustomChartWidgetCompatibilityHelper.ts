@@ -11,7 +11,7 @@ const columnNameIdMap = {}
 export const formatCustomChartWidget = (widget: any) => {
     const formattedWidget = {
         id: widget.id,
-        dataset: widget.dataset.dsId,
+        dataset: widget.dataset ? widget.dataset.dsId : '',
         type: widget.type,
         columns: getFormattedWidgetColumns(widget, columnNameIdMap),
         theme: '',
