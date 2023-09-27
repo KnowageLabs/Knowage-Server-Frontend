@@ -1,5 +1,5 @@
 import { getChartDynamicParameterValue } from './InteractionLinkHelper';
-import { IDashboardDriver, IWidgetInteractionParameter, IWidgetPreview } from "../../Dashboard";
+import { IDashboardDriver, IWidgetInteractionParameter } from "../../Dashboard";
 import { IChartInteractionValues } from "../../interfaces/chartJS/DashboardChartJSWidget";
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
@@ -15,6 +15,7 @@ export const formatParameterForPreview = (event: any, parameter: any, widgetType
             formatChartParameterValue(parameter, parameterSettings, event.formattedChartValues, dashboardId)
             break
         case 'table':
+        case 'discovery':
             formatTableParameterValue(parameter, parameterSettings, event.formattedRow, dashboardId)
             break
         case 'html':
