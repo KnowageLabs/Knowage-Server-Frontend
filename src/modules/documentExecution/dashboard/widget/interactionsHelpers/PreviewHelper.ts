@@ -81,7 +81,7 @@ const updateStaticParameterValue = (parameter: any, parameterSettings: IWidgetIn
     parameter.value = parameterSettings.value
 }
 
-const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParameter, parameterSettings: IWidgetInteractionParameter, formattedRow: anyn) => {
+const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParameter, parameterSettings: IWidgetInteractionParameter, formattedRow: any) => {
     let columnValue = ''
     if (parameterSettings.column === 'column_name_mode') parameterSettings = formattedRow.columnName
     else if (parameterSettings.column) columnValue = formattedRow[parameterSettings.column].value
