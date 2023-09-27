@@ -479,7 +479,11 @@ export default defineComponent({
             }
         },
         onCellClicked(node) {
-            if (!this.editorMode && isPreviewInteractionActive(node, this.widgetModel.settings.interactions.preview)) {
+            if (this.editorMode) return
+
+            const activeInteractions = [] as any[]
+
+            if (isPreviewInteractionActive(node, this.widgetModel.settings.interactions.preview)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 console.log('formattedRow', formattedRow)
 
@@ -489,68 +493,66 @@ export default defineComponent({
                 return
             }
 
-            if (!this.editorMode && isIframeInteractionActive(node, this.widgetModel.settings.interactions.iframe)) {
+            if (isIframeInteractionActive(node, this.widgetModel.settings.interactions.iframe)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
                 return
             }
 
-            if (!this.editorMode && isLinkInteractionActive(node, this.widgetModel.settings.interactions.link)) {
+            if (isLinkInteractionActive(node, this.widgetModel.settings.interactions.link)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
                 openNewLinkTableWidget(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
                 return
             }
 
-            if (!this.editorMode && isCrossNavigationActive(node, this.widgetModel.settings.interactions.crossNavigation)) {
+            if (isCrossNavigationActive(node, this.widgetModel.settings.interactions.crossNavigation)) {
                 const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
                 const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
                 executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
                 return
             }
 
-            if (!this.editorMode) {
-                if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
-                //SELECTION LOGIC -------------------------------------------------------------------
-                const modalSelection = this.widgetModel.settings.interactions.selection
+            if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
+            //SELECTION LOGIC -------------------------------------------------------------------
+            const modalSelection = this.widgetModel.settings.interactions.selection
 
-                if (modalSelection.enabled) {
-                    if (modalSelection.multiselection.enabled) {
-                        //first check to see it the column selected is the same, if not clear the past selections
-                        if (!this.selectedColumn || this.selectedColumn != node.colDef.field) {
-                            this.multiSelectedCells.splice(0, this.multiSelectedCells.length)
-                            this.selectedColumn = node.colDef.field
-                        }
+            if (modalSelection.enabled) {
+                if (modalSelection.multiselection.enabled) {
+                    //first check to see it the column selected is the same, if not clear the past selections
+                    if (!this.selectedColumn || this.selectedColumn != node.colDef.field) {
+                        this.multiSelectedCells.splice(0, this.multiSelectedCells.length)
+                        this.selectedColumn = node.colDef.field
+                    }
 
-                        if (modalSelection.modalColumn) {
-                            const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
-                            const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
+                    if (modalSelection.modalColumn) {
+                        const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
+                        const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
 
-                            if (!this.multiSelectedCells.includes(modalColumnValue)) this.multiSelectedCells.push(modalColumnValue)
-                            else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(modalColumnValue), 1)
-                            if (this.multiSelectedCells.length == 0) this.selectedColumn = false
-                        } else {
-                            if (!this.multiSelectedCells.includes(node.value)) this.multiSelectedCells.push(node.value)
-                            else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(node.value), 1)
-                            if (this.multiSelectedCells.length == 0) this.selectedColumn = false
-                        }
-                    } else if (!modalSelection.multiselection.enabled) {
-                        if (modalSelection.modalColumn) {
-                            const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
-                            const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
-                            updateStoreSelections(createNewTableSelection([modalColumnValue], this.widgetModel.columns[modalColumnIndex].columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-                        } else {
-                            updateStoreSelections(createNewTableSelection([node.value], node.colDef.columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-                        }
+                        if (!this.multiSelectedCells.includes(modalColumnValue)) this.multiSelectedCells.push(modalColumnValue)
+                        else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(modalColumnValue), 1)
+                        if (this.multiSelectedCells.length == 0) this.selectedColumn = false
+                    } else {
+                        if (!this.multiSelectedCells.includes(node.value)) this.multiSelectedCells.push(node.value)
+                        else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(node.value), 1)
+                        if (this.multiSelectedCells.length == 0) this.selectedColumn = false
+                    }
+                } else if (!modalSelection.multiselection.enabled) {
+                    if (modalSelection.modalColumn) {
+                        const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
+                        const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
+                        updateStoreSelections(createNewTableSelection([modalColumnValue], this.widgetModel.columns[modalColumnIndex].columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+                    } else {
+                        updateStoreSelections(createNewTableSelection([node.value], node.colDef.columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
                     }
                 }
-
-                this.selectedColumnArray.pop()
-                this.selectedColumnArray.push(node.colDef.field)
-
-                const params = { force: true }
-                this.gridApi?.refreshCells(params)
             }
+
+            this.selectedColumnArray.pop()
+            this.selectedColumnArray.push(node.colDef.field)
+
+            const params = { force: true }
+            this.gridApi?.refreshCells(params)
         },
         applyMultiSelection() {
             const modalSelection = this.widgetModel.settings.interactions.selection

@@ -9,7 +9,7 @@ export const formatParameterForPreview = (event: any, parameter: any, widgetType
     // console.log("---------- formatParameterForPreview() - event: ", event)
     // console.log("---------- formatParameterForPreview() - parameter: ", parameter)
     const parameterSettings = event.previewSettings.parameters.find((tempParameter: IWidgetInteractionParameter) => tempParameter.name === parameter.name)
-    if (!parameterSettings) return
+    if (!parameterSettings || !parameterSettings.enabled) return
     switch (widgetType) {
         case 'highcharts':
             formatChartParameterValue(parameter, parameterSettings, event.formattedChartValues, dashboardId)
