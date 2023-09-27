@@ -32,6 +32,7 @@
             @mouseover="toggleFocus"
             @mouseleave="startUnfocusTimer(500)"
             @loading="customChartLoading = $event"
+            @dataset-interaction-preview="previewInteractionDataset"
         ></WidgetRenderer>
         <WidgetButtonBar
             :widget="widget"
@@ -59,6 +60,7 @@
         @close="sheetPickerDialogVisible = false"
         @sheetSelected="onSheetSelected"
     ></SheetPickerDialog>
+    <DatasetEditorPreview v-if="datasetPreviewShown" :visible="datasetPreviewShown" :prop-dataset="datasetToPreview" :dashboard-id="dashboardId" @close="datasetPreviewShown = false" />
 </template>
 
 <script lang="ts">
@@ -66,7 +68,7 @@
  * ! this component will be in charge of managing the widget behaviour related to data and interactions, not related to view elements.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
+import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetPreview, IWidgetSearch } from '../Dashboard'
 import { emitter, canEditDashboard } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getWidgetData } from '../DashboardDataProxy'
@@ -86,10 +88,12 @@ import ChangeWidgetDialog from './commonComponents/ChangeWidgetDialog.vue'
 import WidgetSearchDialog from './WidgetSearchDialog/WidgetSearchDialog.vue'
 import SheetPickerDialog from './SheetPickerDialog/SheetPickerDialog.vue'
 import domtoimage from 'dom-to-image-more'
+import { AxiosResponse } from 'axios'
+import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog },
+    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog, DatasetEditorPreview },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -100,6 +104,10 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dashboardId: { type: String, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
+    },
+    setup() {
+        const dashStore = store()
+        return { dashStore }
     },
     data() {
         return {
@@ -128,7 +136,9 @@ export default defineComponent({
             items: [] as IMenuItem[],
             searchDialogVisible: false,
             search: { searchText: '', searchColumns: [] } as IWidgetSearch,
-            sheetPickerDialogVisible: false
+            sheetPickerDialogVisible: false,
+            datasetToPreview: {} as any,
+            datasetPreviewShown: false
         }
     },
     computed: {
@@ -383,6 +393,58 @@ export default defineComponent({
             if (!sheet) return
 
             this.moveWidget(this.dashboardId, this.widgetModel, sheet, this.activeSheet)
+        },
+
+        async previewInteractionDataset(event: any) {
+            const previewSettings = event.previewSettings as IWidgetPreview
+            this.selectedDataset = deepcopy(this.datasets.find((dataset) => dataset.id.dsId === previewSettings.dataset))
+
+            const dashboardDatasets = this.dashStore.$state.dashboards[this.dashboardId].configuration.datasets
+            const dashboardDataset = dashboardDatasets.find((dataset) => dataset.id === previewSettings.dataset)
+
+            if (this.selectedDataset.id.dsId === dashboardDataset.id) {
+                this.selectedDataset.modelParams = dashboardDataset.parameters
+                this.selectedDataset.modelDrivers = dashboardDataset.drivers ? dashboardDataset.drivers : []
+                this.selectedDataset.modelCache = dashboardDataset.cache
+                this.selectedDataset.modelIndexes = dashboardDataset.indexes
+            }
+
+            if (this.selectedDataset.parameters.length > 0 && this.selectedDataset.modelParams.length > 0) {
+                this.selectedDataset.parameters.forEach((parameter) => {
+                    this.selectedDataset.modelParams.forEach((modelParam) => {
+                        if (parameter.name === modelParam.name) {
+                            parameter.value = modelParam.value
+                            parameter.modelType = modelParam.type
+                        }
+                    })
+                })
+            }
+
+            if (this.selectedDataset.drivers && this.selectedDataset.modelDrivers) {
+                this.selectedDataset.formattedDrivers = this.selectedDataset.modelDrivers
+            }
+
+            await this.loadDatasetToPreview(this.selectedDataset.label)
+
+            this.datasetToPreview.drivers = this.getPreviewDrivers()
+            this.datasetToPreview.pars = [...this.selectedDataset.parameters]
+
+            setTimeout(() => {
+                this.datasetPreviewShown = !this.datasetPreviewShown
+            }, 100)
+        },
+        async loadDatasetToPreview(datasetLabel: string) {
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${datasetLabel}`)
+                .then((response: AxiosResponse<any>) => {
+                    this.datasetToPreview = response.data[0]
+                })
+                .catch(() => {})
+        },
+        getPreviewDrivers() {
+            if (this.selectedDataset.modelDrivers) return [...this.selectedDataset.modelDrivers]
+            else if (this.selectedDataset.formattedDrivers) return [...this.selectedDataset.formattedDrivers]
+            else return []
         }
     }
 })

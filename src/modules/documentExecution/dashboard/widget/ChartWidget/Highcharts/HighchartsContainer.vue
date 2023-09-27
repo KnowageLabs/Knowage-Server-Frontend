@@ -65,6 +65,7 @@ export default defineComponent({
         datasets: { type: Array as any, required: true },
         propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
+    emits: ['datasetInteractionPreview'],
     data() {
         return {
             chartID: cryptoRandomString({ length: 16, type: 'base64' }),
@@ -211,7 +212,8 @@ export default defineComponent({
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.widgetModel.settings.interactions.preview.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
-                executeChartPreview(formattedChartValues, this.widgetModel.settings.interactions.preview)
+                // executeChartPreview(formattedChartValues, this.widgetModel.settings.interactions.preview)
+                this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview })
             } else if (this.widgetModel.settings.interactions.link.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
                 openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
