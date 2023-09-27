@@ -4,7 +4,9 @@
             <i class="fas fa-bolt" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
-        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context"></ag-grid-vue>
+        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context"> </ag-grid-vue>
+        <ContextMenu ref="interactionMenu" :model="items" />
+
         <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @page-changed="$emit('pageChanged')" />
     </div>
 </template>
@@ -32,6 +34,7 @@ import HeaderGroupRenderer from './HeaderGroupRenderer.vue'
 import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
 import { executeTablePreview } from '../interactionsHelpers/PreviewHelper'
+import ContextMenu from 'primevue/contextmenu'
 
 export default defineComponent({
     name: 'table-widget',
@@ -45,7 +48,8 @@ export default defineComponent({
         HeaderGroupRenderer,
         // eslint-disable-next-line vue/no-unused-components
         TooltipRenderer,
-        PaginatorRenderer
+        PaginatorRenderer,
+        ContextMenu
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -79,7 +83,11 @@ export default defineComponent({
             multiSelectedCells: [] as any,
             selectedColumn: false as any,
             selectedColumnArray: [] as any,
-            context: null as any
+            context: null as any,
+            items: [
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand' }
+            ] as any
         }
     },
     watch: {
