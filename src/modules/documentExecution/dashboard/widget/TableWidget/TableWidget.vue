@@ -17,7 +17,7 @@ import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, isLinkInteractionActive, isPreviewInteractionActive, isIframeInteractionActive, getActiveInteractions } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, getActiveInteractions } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import { startTableWidgetIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
@@ -522,55 +522,58 @@ export default defineComponent({
             this.gridApi?.refreshCells(params)
         },
         executeInteractions(node: any) {
-            const activeInteractions = getActiveInteractions(node, this.widgetModel.settings.interactions)
+            const activeInteractions = getActiveInteractions(node, this.widgetModel.settings.interactions) as any[]
             console.log('------- activeInteractions: ', activeInteractions)
 
             if (activeInteractions.length > 1) {
-                this.createInteractionsMenuItems(activeInteractions)
+                this.createInteractionsMenuItems(node, activeInteractions)
                 const interactionsMenuRef = this.$refs.interactionMenu as any
                 interactionsMenuRef.toggle(node.event)
-            } else {
-                // TODO
+            } else if (activeInteractions.length === 1) {
+                this.startInteraction(node, activeInteractions[1].interactionType)
             }
-
-            // if (isPreviewInteractionActive(node, this.widgetModel.settings.interactions.preview)) {
-            //     const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            //     console.log('formattedRow', formattedRow)
-
-            //     // @ts-ignore
-            //     this.$refs.interactionMenu.toggle(node.event)
-
-            //     return
-            // }
-
-            // if (isIframeInteractionActive(node, this.widgetModel.settings.interactions.iframe)) {
-            //     const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            //     startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
-            //     return
-            // }
-
-            // if (isLinkInteractionActive(node, this.widgetModel.settings.interactions.link)) {
-            //     const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            //     const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
-            //     openNewLinkTableWidget(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
-            //     return
-            // }
-
-            // if (isCrossNavigationActive(node, this.widgetModel.settings.interactions.crossNavigation)) {
-            //     const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            //     const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
-            //     executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-            //     return
-            // }
         },
-        createInteractionsMenuItems(activeInteractions: any[]) {
+        createInteractionsMenuItems(node: any, activeInteractions: any[]) {
             this.interactionsMenuItems = []
             activeInteractions.forEach((activeInteraction: any) => {
-                this.interactionsMenuItems.push({ interaction: activeInteraction, label: activeInteraction.interactionType, command: () => this.startInteraction(activeInteraction) })
+                this.interactionsMenuItems.push({ node: node, interaction: activeInteraction, label: activeInteraction.interactionType, command: () => this.startInteraction(node, activeInteraction) })
             })
         },
-        startInteraction(activeInteractions: any) {
-            console.log('----- startInteraction() - activeInteractions: ', activeInteractions)
+        startInteraction(node: any, activeInteraction: any) {
+            console.log('----- startInteraction() - activeInteraction: ', activeInteraction)
+            switch (activeInteraction.interactionType) {
+                case 'crossNavigation':
+                    this.startCrossNavigation(node)
+                    break
+                case 'link':
+                    this.startPreview(node)
+                    break
+                case 'preview':
+                    this.startLinkInteraction(node)
+                    break
+                case 'iframe':
+                    this.startIframeInteraction(node)
+                    break
+            }
+        },
+        startCrossNavigation(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
+            executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
+        },
+        startPreview(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            console.log('formattedRow', formattedRow)
+            // TODO - Darko start preview here
+        },
+        startLinkInteraction(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
+            openNewLinkTableWidget(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
+        },
+        startIframeInteraction(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
         },
         applyMultiSelection() {
             const modalSelection = this.widgetModel.settings.interactions.selection
