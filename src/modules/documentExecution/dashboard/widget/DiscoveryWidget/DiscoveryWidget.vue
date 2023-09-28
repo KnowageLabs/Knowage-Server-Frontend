@@ -49,7 +49,7 @@ import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles
 import { defineComponent, PropType } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
-import { createNewTableSelection, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, isCrossNavigationActive, isLinkInteractionActive } from '../TableWidget/TableWidgetHelper'
+import { createNewTableSelection, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation } from '../TableWidget/TableWidgetHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
 import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
