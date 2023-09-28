@@ -1,11 +1,12 @@
 import moment from 'moment'
 import { getCellConditionalStyles } from './TableWidgetHelper'
 import { getLocale } from '@/helpers/commons/localeHelper'
-import { ITableWidgetLink, ITableWidgetVisualizationTypes } from '../../Dashboard'
+import { ITableWidgetLink, ITableWidgetVisualizationTypes, IWidgetInteractions } from '../../Dashboard'
 // import helpersDecriptor from '../WidgetEditor/helpers/tableWidget/TableWidgetHelpersDescriptor.json'
 
 export default class CellRenderer {
     eGui!: HTMLSpanElement
+    eButton!: any
     setStyle(style: any) {
         for (const property in style) {
             if (style[property]) this.eGui.style[property] = style[property]
@@ -123,7 +124,46 @@ export default class CellRenderer {
                                         <div class="innerBar" style="color: black;width:${percentage}%;background-color:${applyConditionalStyleToBar ? styleObject.color : visType.color};text-align:${visType['alignment']}">${visType.prefix}${setCellContent()}${visType.suffix}</div>
                                       </div>`
             }
+        } else if (params.colId === 'iconColumn') {
+            this.eGui.innerHTML = createIconColumnIcons()
+            // this.eGui.innerHTML = `<i class="${getActiveIconFromWidget()} interaction-button"></i>`
+
+            this.eButton = this.eGui.querySelectorAll('.interaction-button')
+            this.eButton.forEach((button) => button.addEventListener('click', invokeParentMethod))
+
+            // console.log('EBUTTON', this.eButton)
         } else this.eGui.innerHTML = setCellContent()
+
+        function invokeParentMethod(e) {
+            console.log('EEEE', e.srcElement)
+
+            const clickedInteraction = {
+                type: e.srcElement.id,
+                index: e.srcElement.getAttribute('index') ?? null,
+                icon: e.srcElement.getAttribute('icon')
+            }
+
+            params.context.componentParent.methodFromParent(clickedInteraction)
+        }
+
+        //TODO: Darko | Maybe create DOM buttons directly and insert them in innerHTML instead of strings, maybe it would let us pass whole objects as props
+        function createIconColumnIcons() {
+            let iconCellContent = ''
+
+            const interactions = params.propWidget.settings.interactions as IWidgetInteractions
+            for (const interactionName in interactions) {
+                const interaction = interactions[interactionName]
+
+                if (interaction.enabled === true && interaction.type === 'icon' && interactionName !== 'link') {
+                    iconCellContent += `<i id="${interactionName}" icon="${interaction.icon}" class="${interaction.icon} interaction-button"></i>`
+                } else if (interaction.enabled === true && interactionName === 'link' && interaction.links.length > 0) {
+                    interaction.links.forEach((link, index) => {
+                        iconCellContent += `<i id="${interactionName}" index="${index}" icon="${link.icon}" class="${link.icon} interaction-button"></i>`
+                    })
+                }
+            }
+            return iconCellContent
+        }
 
         function getBarFillPercentage() {
             const minValue = visType.min || 0

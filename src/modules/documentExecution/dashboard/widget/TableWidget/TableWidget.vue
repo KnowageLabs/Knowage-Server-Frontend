@@ -15,7 +15,7 @@
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, getActiveInteractions } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
@@ -396,9 +396,45 @@ export default defineComponent({
                 }
             }
 
-            addIconColumn(columns, this.widgetModel, HeaderRenderer, CellRenderer)
+            //ICON COLUMN STUFF --------------------------------------------------------------------------
+            let createIconColumn = false
+            const interactions = this.widgetModel.settings.interactions as IWidgetInteractions
+            for (const interactionName in interactions) {
+                const interaction = interactions[interactionName]
+                if (interaction.enabled === true && interaction.type === 'icon') {
+                    createIconColumn = true
+                    break
+                } else if (interaction.enabled === true && interaction.links.length > 0) {
+                    interaction.links.forEach((link) => {
+                        if (link.type === 'icon') createIconColumn = true
+                    })
+                }
+            }
+
+            if (createIconColumn) {
+                columns.push({
+                    colId: 'iconColumn',
+                    valueGetter: `node.rowIndex + 1`,
+                    headerName: '',
+                    pinned: 'right',
+                    width: 100,
+                    sortable: false,
+                    filter: false,
+                    headerComponent: HeaderRenderer,
+                    headerComponentParams: { propWidget: this.widgetModel },
+                    cellRenderer: CellRenderer,
+                    cellRendererParams: {
+                        colId: 'iconColumn',
+                        propWidget: this.widgetModel
+                    }
+                })
+            }
 
             return columns
+        },
+
+        methodFromParent(cell: any) {
+            console.log(cell)
         },
         getColumnGroup(col) {
             const modelGroups = this.widgetModel.settings.configuration.columnGroups.groups
@@ -478,9 +514,13 @@ export default defineComponent({
         onCellClicked(node: any) {
             if (this.editorMode) return
 
-            this.executeInteractions(node)
+            if (node.colDef.colId == 'iconColumn') {
+                console.log('icon column')
+            }
 
             if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
+            this.executeInteractions(node)
+
             //SELECTION LOGIC -------------------------------------------------------------------
             const modalSelection = this.widgetModel.settings.interactions.selection
 

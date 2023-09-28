@@ -162,6 +162,7 @@ const getColumnType = (columnField: string, dataToShow: any) => {
     return index !== -1 ? dataToShow.metaData.fields[index].type : ''
 }
 
+//TODO Bojan: Maybe delete these methods coz they are unnused?
 export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRenderer: any, CellRenderer: any) => {
     let createIconColumn = false
     console.log('propWidget.settings.interactions', propWidget.settings.interactions)
