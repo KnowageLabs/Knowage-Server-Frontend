@@ -10,10 +10,9 @@ const { t } = i18n.global
 
 interface IFormattedLink { url: string, action: string }[]
 
-export const openNewLinkTableWidget = (formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[], activeInteraction: any) => {
+export const openNewLinkTableWidget = (formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[], activeLink: ITableWidgetLink) => {
     console.log('%c ----------- LINK INTERACTIONS STARTED!', "color: green")
-    console.log('----------- LINK ACTIVE INTERACTION', activeInteraction)
-    const formattedLinks = getFormattedLinks(linkOptions, formattedRow, null, dashboardId, variables)
+    const formattedLinks = [getFormattedLink(activeLink, formattedRow, null, dashboardId, variables)]
     executeFormattedLinks(formattedLinks)
 }
 
