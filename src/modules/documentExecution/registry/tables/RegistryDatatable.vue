@@ -387,7 +387,8 @@ export default defineComponent({
             const newRow = { uniqueId: cryptoRandomString({ length: 16, type: 'base64' }), id: this.rows.length + 1, isNew: true }
             this.columns.forEach((el: any) => {
                 if (el.isVisible && el.field && el.field !== 'id') {
-                    newRow[el.field] = el.defaultValue ?? ''
+                    if (el.defaultValue) newRow[el.field] = el.defaultValue
+                    else newRow[el.field] = ['int', 'float', 'double'].includes(el.type) ? 0 : ''
                 }
             })
             this.addRowToFirstPosition(newRow)
