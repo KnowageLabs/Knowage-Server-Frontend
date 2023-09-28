@@ -201,8 +201,10 @@ const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
     for (let i = sheets.length - 1; i >= 0; i--) {
         SIZES.forEach((size: string) => {
             const widgetsInSheet = sheets[i].widgets[size]
-            for (let j = widgetsInSheet.length - 1; j >= 0; j--) {
-                if (widgetsInSheet[j].id === widgetId) widgetsInSheet.splice(j, 1)
+            if (widgetsInSheet) {
+                for (let j = widgetsInSheet.length - 1; j >= 0; j--) {
+                    if (widgetsInSheet[j].id === widgetId) widgetsInSheet.splice(j, 1)
+                }
             }
         })
         console.log("---------- deleteWidgetFromSheets() - sheet: ", sheets[i])
