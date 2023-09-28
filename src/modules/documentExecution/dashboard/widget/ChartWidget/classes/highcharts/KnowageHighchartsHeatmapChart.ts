@@ -82,10 +82,10 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
 
     setXAxisCategories(xAxisCategoriesSet: Set<string>, dateFormat: string, modelAttributeColumn: IWidgetColumn | null) {
         const sortType = modelAttributeColumn?.orderType ? modelAttributeColumn.orderType : 'ASC'
-        if (this.model.xAxis?.categories) {
-            this.model.xAxis.categories = Array.from(xAxisCategoriesSet) as string[]
-            this.sortCategories(this.model.xAxis.categories, dateFormat, sortType)
-            return this.model.xAxis.categories
+        if (this.model.xAxis && this.model.xAxis[0]?.categories) {
+            this.model.xAxis[0].categories = Array.from(xAxisCategoriesSet) as string[]
+            this.sortCategories(this.model.xAxis[0].categories, dateFormat, sortType)
+            return this.model.xAxis[0].categories
         } else return []
     }
 
@@ -100,10 +100,10 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
     setYAxisCategories(yAxisCategoriesSet: Set<string>, dateFormat: '', modelAttributeColumn: IWidgetColumn | null) {
         let sortType = modelAttributeColumn?.orderType ? modelAttributeColumn.orderType : 'ASC'
         sortType = sortType === 'ASC' ? 'DESC' : 'ASC'
-        if (this.model.yAxis?.categories) {
-            this.model.yAxis.categories = Array.from(yAxisCategoriesSet) as string[]
-            this.sortCategories(this.model.yAxis.categories, dateFormat, sortType)
-            return this.model.yAxis.categories
+        if (this.model.yAxis && this.model.yAxis[0]?.categories) {
+            this.model.yAxis[0].categories = Array.from(yAxisCategoriesSet) as string[]
+            this.sortCategories(this.model.yAxis[0].categories, dateFormat, sortType)
+            return this.model.yAxis[0].categories
         } else return []
     }
 
