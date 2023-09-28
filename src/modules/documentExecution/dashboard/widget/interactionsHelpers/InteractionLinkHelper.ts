@@ -8,11 +8,11 @@ import i18n from '@/App.i18n'
 
 const { t } = i18n.global
 
-interface IClickedValue { value: string, type: string }
 interface IFormattedLink { url: string, action: string }[]
 
-export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
+export const openNewLinkTableWidget = (formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[], activeInteraction: any) => {
     console.log('%c ----------- LINK INTERACTIONS STARTED!', "color: green")
+    console.log('----------- LINK ACTIVE INTERACTION', activeInteraction)
     const formattedLinks = getFormattedLinks(linkOptions, formattedRow, null, dashboardId, variables)
     executeFormattedLinks(formattedLinks)
 }

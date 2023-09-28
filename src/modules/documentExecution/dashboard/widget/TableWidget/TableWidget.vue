@@ -546,7 +546,7 @@ export default defineComponent({
                     this.startCrossNavigation(node)
                     break
                 case 'link':
-                    this.startLinkInteraction(node)
+                    this.startLinkInteraction(node, activeInteraction)
                     break
                 case 'preview':
                     this.startPreview(node)
@@ -566,10 +566,9 @@ export default defineComponent({
             console.log('formattedRow', formattedRow)
             // TODO - Darko start preview here
         },
-        startLinkInteraction(node: any) {
+        startLinkInteraction(node: any, activeInteraction: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
-            openNewLinkTableWidget(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
+            openNewLinkTableWidget(formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables, activeInteraction)
         },
         startIframeInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
