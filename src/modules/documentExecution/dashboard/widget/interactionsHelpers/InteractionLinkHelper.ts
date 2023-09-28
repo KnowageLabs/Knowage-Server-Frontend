@@ -12,6 +12,7 @@ interface IClickedValue { value: string, type: string }
 interface IFormattedLink { url: string, action: string }[]
 
 export const openNewLinkTableWidget = (clickedValue: IClickedValue, formattedRow: any, linkOptions: IWidgetLinks, dashboardId: string, variables: IVariable[]) => {
+    console.log('%c ----------- LINK INTERACTIONS STARTED!', "color: green")
     const formattedLinks = getFormattedLinks(linkOptions, formattedRow, null, dashboardId, variables)
     executeFormattedLinks(formattedLinks)
 }

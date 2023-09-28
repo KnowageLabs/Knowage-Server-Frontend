@@ -530,7 +530,7 @@ export default defineComponent({
                 const interactionsMenuRef = this.$refs.interactionMenu as any
                 interactionsMenuRef.toggle(node.event)
             } else if (activeInteractions.length === 1) {
-                this.startInteraction(node, activeInteractions[1].interactionType)
+                this.startInteraction(node, activeInteractions[0])
             }
         },
         createInteractionsMenuItems(node: any, activeInteractions: any[]) {
@@ -546,10 +546,10 @@ export default defineComponent({
                     this.startCrossNavigation(node)
                     break
                 case 'link':
-                    this.startPreview(node)
+                    this.startLinkInteraction(node)
                     break
                 case 'preview':
-                    this.startLinkInteraction(node)
+                    this.startPreview(node)
                     break
                 case 'iframe':
                     this.startIframeInteraction(node)
