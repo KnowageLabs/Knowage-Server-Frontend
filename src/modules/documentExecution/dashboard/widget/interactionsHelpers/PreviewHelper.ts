@@ -1,5 +1,5 @@
 import { getChartDynamicParameterValue } from './InteractionLinkHelper';
-import { IDashboardDriver, IWidgetInteractionParameter, IWidgetPreview } from "../../Dashboard";
+import { IDashboardDriver, IWidgetInteractionParameter } from "../../Dashboard";
 import { IChartInteractionValues } from "../../interfaces/chartJS/DashboardChartJSWidget";
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
@@ -9,12 +9,13 @@ export const formatParameterForPreview = (event: any, parameter: any, widgetType
     // console.log("---------- formatParameterForPreview() - event: ", event)
     // console.log("---------- formatParameterForPreview() - parameter: ", parameter)
     const parameterSettings = event.previewSettings.parameters.find((tempParameter: IWidgetInteractionParameter) => tempParameter.name === parameter.name)
-    if (!parameterSettings) return
+    if (!parameterSettings || !parameterSettings.enabled) return
     switch (widgetType) {
         case 'highcharts':
             formatChartParameterValue(parameter, parameterSettings, event.formattedChartValues, dashboardId)
             break
         case 'table':
+        case 'discovery':
             formatTableParameterValue(parameter, parameterSettings, event.formattedRow, dashboardId)
             break
         case 'html':
@@ -81,7 +82,7 @@ const updateStaticParameterValue = (parameter: any, parameterSettings: IWidgetIn
     parameter.value = parameterSettings.value
 }
 
-const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParameter, parameterSettings: IWidgetInteractionParameter, formattedRow: anyn) => {
+const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParameter, parameterSettings: IWidgetInteractionParameter, formattedRow: any) => {
     let columnValue = ''
     if (parameterSettings.column === 'column_name_mode') parameterSettings = formattedRow.columnName
     else if (parameterSettings.column) columnValue = formattedRow[parameterSettings.column].value

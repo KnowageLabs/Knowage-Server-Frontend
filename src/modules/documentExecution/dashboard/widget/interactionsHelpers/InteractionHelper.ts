@@ -34,6 +34,7 @@ export const executeCrossNavigation = (documentCrossNavigationOutputParameters: 
 }
 
 export const executeTableWidgetCrossNavigation = (clickedValue: IClickedValue, formattedRow: any, crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
+    console.log('%c----------- TABLE INTERACTIONS STARTED!', "color: green")
     const outputParameters = getFormattedTableOutputParameters(clickedValue, formattedRow, crossNavigationModel, dashboardId)
     executeCrossNavigation(outputParameters, crossNavigationModel.name)
 }

@@ -142,13 +142,6 @@ const getDatasetLabel = (datasetId: number, datasets: IDataset[]) => {
     return index !== -1 ? datasets[index].label : ''
 }
 
-export const isCrossNavigationActive = (tableNode: any, crossNavigationOptions: IWidgetCrossNavigation) => {
-    if (!crossNavigationOptions.enabled) return false
-    if (crossNavigationOptions.type === 'singleColumn' && (!crossNavigationOptions.column || tableNode.colDef?.colId !== crossNavigationOptions.column)) return false
-    if (crossNavigationOptions.type === 'icon' && tableNode.colDef?.colId !== 'iconColumn') return false
-    return true
-}
-
 export const formatRowDataForCrossNavigation = (tableNode: any, dataToShow: any) => {
     const columnDefs = tableNode.columnApi?.columnModel?.columnDefs
     const rowData = tableNode.node.data
@@ -214,10 +207,34 @@ export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRendere
     //     })
 }
 
-export const isLinkInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
-    if (!linkOptions.enabled) return false
-    if (isLinkColumnInteractionActive(tableNode, linkOptions) || isLinkIconInteractionActive(tableNode, linkOptions)) return true
-    return true
+// const iconTypeLinkIsPresent = (linkOptions: IWidgetLinks) => {
+//     const index = linkOptions.links.findIndex((link: ITableWidgetLink) => link.type === 'icon')
+//     return index !== -1
+// }
+
+export const getActiveInteractions = (tableNode: any, widgetInteracitonsConfiguration: IWidgetInteractions) => {
+    console.log('------ tableNode ', tableNode)
+    console.log('------ WIDGET INTERACTIONS CONFIGURATION: ', widgetInteracitonsConfiguration)
+    const activeInteractions = []
+    addActiveCrossNavigationInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.crossNavigation)
+    addActiveLinkInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.link)
+    addActivePreviewInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.preview)
+    addActiveIFrameInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.iframe)
+    return activeInteractions
+}
+
+const addActiveCrossNavigationInteractions = (tableNode: any, activeInteractions: any[], crossNavigationSettings: IWidgetCrossNavigation | undefined) => {
+    if (!crossNavigationSettings || !crossNavigationSettings.enabled) return
+    const isSingleColumnNavigationActiveForSelectedColumn = crossNavigationSettings.type === 'singleColumn' && crossNavigationSettings.column && tableNode.colDef?.colId === crossNavigationSettings.column
+    if (crossNavigationSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...crossNavigationSettings, interactionType: 'crossNavigation' })
+}
+
+const addActiveLinkInteractions = (tableNode: any, activeInteractions: any[], linkSettings: IWidgetLinks | undefined) => {
+    if (!linkSettings || !linkSettings.enabled) return
+    linkSettings.links.forEach((link: ITableWidgetLink) => {
+        const isSingleColumnNavigationActiveForSelectedColumn = isLinkColumnInteractionActive(tableNode, linkSettings)
+        if (link.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...link, interactionType: 'link' })
+    })
 }
 
 const isLinkColumnInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
@@ -226,25 +243,14 @@ const isLinkColumnInteractionActive = (tableNode: any, linkOptions: IWidgetLinks
     return index !== -1
 }
 
-const isLinkIconInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
-    if (!tableNode.colDef || tableNode.colDef.colId !== 'iconColumn') return false
-    return iconTypeLinkIsPresent(linkOptions)
+const addActivePreviewInteractions = (tableNode: any, activeInteractions: any[], previewSettings: IWidgetPreview | undefined) => {
+    if (!previewSettings || !previewSettings.enabled) return
+    const isSingleColumnNavigationActiveForSelectedColumn = previewSettings.type === 'singleColumn' && previewSettings.column && tableNode.colDef?.colId === previewSettings.column
+    if (previewSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...previewSettings, interactionType: 'preview' })
 }
 
-const iconTypeLinkIsPresent = (linkOptions: IWidgetLinks) => {
-    const index = linkOptions.links.findIndex((link: ITableWidgetLink) => link.type === 'icon')
-    return index !== -1
-}
-
-export const isPreviewInteractionActive = (tableNode: any, previewSettings: IWidgetPreview) => {
-    if (!previewSettings.enabled) return false
-    if (previewSettings.type === 'singleColumn' && (!previewSettings.column || tableNode.colDef?.colId !== previewSettings.column)) return false
-    if (previewSettings.type === 'icon' && tableNode.colDef?.colId !== 'iconColumn') return false
-    return true
-}
-export const isIframeInteractionActive = (tableNode: any, iFrameInteractionSettings: IFrameInteractionSettings) => {
-    if (!iFrameInteractionSettings.enabled) return false
-    if (iFrameInteractionSettings.type === 'singleColumn' && (!iFrameInteractionSettings.column || tableNode.colDef?.colId !== iFrameInteractionSettings.column)) return false
-    if (iFrameInteractionSettings.type === 'icon' && tableNode.colDef?.colId !== 'iconColumn') return false
-    return true
+const addActiveIFrameInteractions = (tableNode: any, activeInteractions: any[], iFrameInteractionSettings: IFrameInteractionSettings | undefined) => {
+    if (!iFrameInteractionSettings || !iFrameInteractionSettings.enabled) return
+    const isSingleColumnNavigationActiveForSelectedColumn = iFrameInteractionSettings.type === 'singleColumn' && iFrameInteractionSettings.column && tableNode.colDef?.colId === iFrameInteractionSettings.column
+    if (iFrameInteractionSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...iFrameInteractionSettings, interactionType: 'iframe' })
 }
