@@ -139,16 +139,14 @@ export default class CellRenderer {
             if (isColumnOfType('date')) return dateFormatter(params.value)
             else if (isColumnOfType('timestamp')) return dateTimeFormatter(params.value)
             else if (params.colId === 'iconColumn') {
-
                 return `<i class="${getActiveIconFromWidget()}"></i>` ?? 'ICON ERROR'
-            }
-            else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') return params.value
+            } else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') return params.value
             else return params.value
         }
 
         function getActiveIconFromWidget() {
-            if (params.propWidget.settings.interactions.crossNavigation.enabled)
-                return params.propWidget.settings.interactions.crossNavigation.icon
+            if (params.propWidget.settings.interactions.crossNavigation.enabled) return params.propWidget.settings.interactions.crossNavigation.icon
+            else if (params.propWidget.settings.interactions.preview.enabled) return params.propWidget.settings.interactions.preview.icon
             else if (params.propWidget.settings.interactions.link.enabled) {
                 const index = params.propWidget.settings.interactions.link.links.findIndex((link: ITableWidgetLink) => link.type === 'icon')
                 return index !== -1 ? params.propWidget.settings.interactions.link.links[index].icon : ''
@@ -178,8 +176,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY')
-                    .locale(getLocale(true))
-                    .format(visType?.dateFormat || 'LL')
+                      .locale(getLocale(true))
+                      .format(visType?.dateFormat || 'LL')
                 : cellValue
         }
         function dateTimeFormatter(cellValue) {
@@ -188,8 +186,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS')
-                    .locale(getLocale(true))
-                    .format(visType?.dateFormat || 'LLL')
+                      .locale(getLocale(true))
+                      .format(visType?.dateFormat || 'LLL')
                 : cellValue
         }
     }

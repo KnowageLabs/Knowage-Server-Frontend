@@ -420,23 +420,12 @@ export default defineComponent({
 
             if (this.selectedDataset.parameters.length > 0) {
                 this.selectedDataset.parameters.forEach((parameter) => {
+                    formatParameterForPreview(event, parameter, this.widget.type, this.dashboardId)
                     console.group('%c previewInteractionDataset - parameter ', 'background: #222; color: #bada55')
                     console.log('------------ WIDGET TYPE: ', this.widget.type)
                     console.log('------------ event: ', event)
-                    formatParameterForPreview(event, parameter, this.widget.type, this.dashboardId)
                     console.log(' ----------------- FORMATTED PARAMETER: ', parameter)
                     console.groupEnd()
-
-                    // ovde custom helper koji hvata pravi value, modelType moze da bude bilo sta nebitno je
-                    // parameter.value = 'TESTVALUE'
-                    // parameter.modelType = 'TESTTYPE'
-
-                    // this.selectedDataset.modelParams.forEach((modelParam) => {
-                    //     if (parameter.name === modelParam.name) {
-                    //         parameter.value = modelParam.value
-                    //         parameter.modelType = modelParam.type
-                    //     }
-                    // })
                 })
             }
 

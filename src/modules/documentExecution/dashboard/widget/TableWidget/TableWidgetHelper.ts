@@ -1,4 +1,4 @@
-import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink, IWidgetPreview } from '../../Dashboard'
+import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink, IWidgetPreview, IWidgetInteractions } from '../../Dashboard'
 
 export const getColumnGroup = (propWidget: IWidget, col: ITableWidgetColumnGroup) => {
     const modelGroups = propWidget.settings.configuration.columnGroups.groups
@@ -170,9 +170,18 @@ const getColumnType = (columnField: string, dataToShow: any) => {
 }
 
 export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRenderer: any, CellRenderer: any) => {
-    const crossNavigationOptions = propWidget.settings.interactions.crossNavigation as IWidgetCrossNavigation
-    const linkIconOptionsIsPresent = iconTypeLinkIsPresent(propWidget.settings.interactions.link)
-    if ((crossNavigationOptions.enabled && crossNavigationOptions.type === 'icon') || linkIconOptionsIsPresent)
+    let createIconColumn = false
+    console.log('propWidget.settings.interactions', propWidget.settings.interactions)
+    const interactions = propWidget.settings.interactions as IWidgetInteractions
+    for (const interactionName in interactions) {
+        const interaction = interactions[interactionName]
+        if (interaction.enabled === true && interaction.type === 'icon') {
+            createIconColumn = true
+            break
+        } else createIconColumn = false
+    }
+
+    if (createIconColumn) {
         columns.push({
             colId: 'iconColumn',
             valueGetter: `node.rowIndex + 1`,
@@ -186,6 +195,23 @@ export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRendere
             cellRenderer: CellRenderer,
             cellRendererParams: { colId: 'iconColumn', propWidget: propWidget }
         })
+    }
+    // const crossNavigationOptions = propWidget.settings.interactions.crossNavigation as IWidgetCrossNavigation
+    // const linkIconOptionsIsPresent = iconTypeLinkIsPresent(propWidget.settings.interactions.link)
+    // if ((crossNavigationOptions.enabled && crossNavigationOptions.type === 'icon') || linkIconOptionsIsPresent)
+    //     columns.push({
+    //         colId: 'iconColumn',
+    //         valueGetter: `node.rowIndex + 1`,
+    //         headerName: '',
+    //         pinned: 'right',
+    //         width: 55,
+    //         sortable: false,
+    //         filter: false,
+    //         headerComponent: HeaderRenderer,
+    //         headerComponentParams: { propWidget: propWidget },
+    //         cellRenderer: CellRenderer,
+    //         cellRendererParams: { colId: 'iconColumn', propWidget: propWidget }
+    //     })
 }
 
 export const isLinkInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
