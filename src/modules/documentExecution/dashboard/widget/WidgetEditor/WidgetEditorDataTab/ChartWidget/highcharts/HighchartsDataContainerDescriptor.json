@@ -128,11 +128,11 @@
         {
             "attributesOnly": true,
             "hint": "dashboard.widgetEditor.highcharts.scatterchart.dimensionsTableHint",
-            "label": "dashboard.widgetEditor.dimensions"
+            "label": "X"
         },
         {
             "hint": "dashboard.widgetEditor.highcharts.scatterchart.valuesTableHint",
-            "label": "common.values",
+            "label": "Y",
             "measuresOnly": true
         }
     ],
