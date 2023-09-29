@@ -780,7 +780,7 @@
                     "minHint": "The minimum value of the axis. If null the min value is automatically calculated."
                 },
                 "scatterchart": {
-                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories. Numerical values only.",
                     "valuesTableHint": "Click on at least one measure to define series."
                 },
                 "showChekboxes": "Show Checkboxes",
