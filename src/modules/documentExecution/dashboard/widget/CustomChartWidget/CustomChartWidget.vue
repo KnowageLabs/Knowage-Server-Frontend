@@ -108,14 +108,14 @@ export default defineComponent({
             this.htmlContent = this.propWidget.settings.editor.html
             this.webComponentCss = this.propWidget.settings.editor.css
             this.webComponentJs = this.propWidget.settings.editor.js
-            this.$emit('loading', false)
 
             this.renderCustomWidget()
+            this.$emit('loading', false)
         },
         renderCustomWidget() {
             this.loadedScriptsCount = 0
             const iframe = this.recreateIframeElement()
-            setTimeout(() => this.createIframeContent(iframe), 10)
+            setTimeout(() => this.createIframeContent(iframe), 300)
         },
         createIframeContent(iframe: any) {
             this.iframeDocument = iframe.contentWindow.document
@@ -187,11 +187,9 @@ export default defineComponent({
 
             setTimeout(() => {
                 this.iframeDocument?.body?.appendChild(userScript)
-                this.$emit('loading', false)
             }, 1000)
         },
         loadUserImportScripts() {
-            this.$emit('loading', true)
             if (this.loadedScriptsCount === this.userScriptsURLs.length) this.createScriptTagFromUsersJSScript()
             else this.loadUserImportScript(this.userScriptsURLs[this.loadedScriptsCount])
         },
