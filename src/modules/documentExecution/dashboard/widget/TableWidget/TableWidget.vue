@@ -15,7 +15,7 @@
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetLink, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, getActiveInteractions } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
@@ -404,7 +404,7 @@ export default defineComponent({
                 if (interaction.enabled === true && interaction.type === 'icon') {
                     createIconColumn = true
                     break
-                } else if (interaction.enabled === true && interaction.links.length > 0) {
+                } else if (interaction.enabled === true && interaction.links?.length > 0) {
                     interaction.links.forEach((link) => {
                         if (link.type === 'icon') createIconColumn = true
                     })
@@ -432,9 +432,22 @@ export default defineComponent({
 
             return columns
         },
-
-        methodFromParent(cell: any) {
-            console.log(cell)
+        activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string }) {
+            console.log('--- activateInteractionFromClickedIcon(): ', cell)
+            // switch (cell.type) {
+            //     case 'crossNavigation':
+            //         this.startCrossNavigation(node)
+            //         break
+            //     case 'link':
+            //         this.startLinkInteraction(node, this.widgetModel.settings.interactions.link?.links[cell.index ?? 0])  // TODO za index
+            //         break
+            //     case 'preview':
+            //         this.startPreview(node)
+            //         break
+            //     case 'iframe':
+            //         this.startIframeInteraction(node)
+            //         break
+            // }
         },
         getColumnGroup(col) {
             const modelGroups = this.widgetModel.settings.configuration.columnGroups.groups
@@ -512,11 +525,7 @@ export default defineComponent({
             }
         },
         onCellClicked(node: any) {
-            if (this.editorMode) return
-
-            if (node.colDef.colId == 'iconColumn') {
-                console.log('icon column')
-            }
+            if (this.editorMode || node.colDef.colId === 'iconColumn') return
 
             if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
             this.executeInteractions(node)
@@ -607,8 +616,10 @@ export default defineComponent({
             // TODO - Darko start preview here
         },
         startLinkInteraction(node: any, activeInteraction: any) {
+            console.log('------- ACTIVE LINK INTERACTION: ', activeInteraction)
+            if (!activeInteraction) return
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            openNewLinkTableWidget(formattedRow, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables, activeInteraction)
+            openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, activeInteraction)
         },
         startIframeInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)

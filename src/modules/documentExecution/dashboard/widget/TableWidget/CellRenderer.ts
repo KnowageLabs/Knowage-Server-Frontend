@@ -135,6 +135,7 @@ export default class CellRenderer {
         } else this.eGui.innerHTML = setCellContent()
 
         function invokeParentMethod(e) {
+            console.log('EEEE just e', e)
             console.log('EEEE', e.srcElement)
 
             const clickedInteraction = {
@@ -143,7 +144,7 @@ export default class CellRenderer {
                 icon: e.srcElement.getAttribute('icon')
             }
 
-            params.context.componentParent.methodFromParent(clickedInteraction)
+            params.context.componentParent.activateInteractionFromClickedIcon(clickedInteraction)
         }
 
         //TODO: Darko | Maybe create DOM buttons directly and insert them in innerHTML instead of strings, maybe it would let us pass whole objects as props
@@ -191,6 +192,8 @@ export default class CellRenderer {
                 const index = params.propWidget.settings.interactions.link.links.findIndex((link: ITableWidgetLink) => link.type === 'icon')
                 return index !== -1 ? params.propWidget.settings.interactions.link.links[index].icon : ''
             }
+            else if (params.propWidget.settings.interactions.iframe.enabled) return params.propWidget.settings.interactions.iframe.icon
+
         }
 
         function isColumnOfType(columnType: string) {
@@ -216,8 +219,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY')
-                      .locale(getLocale(true))
-                      .format(visType?.dateFormat || 'LL')
+                    .locale(getLocale(true))
+                    .format(visType?.dateFormat || 'LL')
                 : cellValue
         }
         function dateTimeFormatter(cellValue) {
@@ -226,8 +229,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS')
-                      .locale(getLocale(true))
-                      .format(visType?.dateFormat || 'LLL')
+                    .locale(getLocale(true))
+                    .format(visType?.dateFormat || 'LLL')
                 : cellValue
         }
     }
