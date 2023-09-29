@@ -434,20 +434,20 @@ export default defineComponent({
         },
         activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
             console.log('--- activateInteractionFromClickedIcon(): ', cell)
-            // switch (cell.type) {
-            //     case 'crossNavigation':
-            //         this.startCrossNavigation(node)
-            //         break
-            //     case 'link':
-            //         this.startLinkInteraction(node, this.widgetModel.settings.interactions.link?.links[cell.index ?? 0])  // TODO za index
-            //         break
-            //     case 'preview':
-            //         this.startPreview(node)
-            //         break
-            //     case 'iframe':
-            //         this.startIframeInteraction(node)
-            //         break
-            // }
+            switch (cell.type) {
+                case 'crossNavigation':
+                    this.startCrossNavigation({ node: cell.node })
+                    break
+                case 'link':
+                    this.startLinkInteraction({ node: cell.node }, this.widgetModel.settings.interactions.link?.links[cell.index ?? 0])
+                    break
+                case 'preview':
+                    this.startPreview({ node: cell.node }, this.widgetModel.settings.interactions.preview)
+                    break
+                case 'iframe':
+                    this.startIframeInteraction({ node: cell.node })
+                    break
+            }
         },
         getColumnGroup(col) {
             const modelGroups = this.widgetModel.settings.configuration.columnGroups.groups
@@ -598,7 +598,7 @@ export default defineComponent({
                     this.startLinkInteraction(node, activeInteraction)
                     break
                 case 'preview':
-                    this.startPreview(node, activeInteraction)
+                    this.startPreview(node, this.widgetModel.settings.interactions.preview)
                     break
                 case 'iframe':
                     this.startIframeInteraction(node)

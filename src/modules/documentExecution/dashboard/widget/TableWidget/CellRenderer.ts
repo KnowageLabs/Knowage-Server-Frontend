@@ -152,7 +152,7 @@ export default class CellRenderer {
         else this.eGui.innerHTML = setCellContent()
 
         function invokeParentMethod(interaction, params, index) {
-            // console.log('EEEE just e', interaction, params)
+            console.log('EEEE just e', interaction)
 
             const clickedInteraction = { type: interaction.type, index: index, icon: interaction.icon, node: params.node }
             params.context.componentParent.activateInteractionFromClickedIcon(clickedInteraction)
@@ -209,8 +209,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY')
-                      .locale(getLocale(true))
-                      .format(visType?.dateFormat || 'LL')
+                    .locale(getLocale(true))
+                    .format(visType?.dateFormat || 'LL')
                 : cellValue
         }
         function dateTimeFormatter(cellValue) {
@@ -219,8 +219,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS')
-                      .locale(getLocale(true))
-                      .format(visType?.dateFormat || 'LLL')
+                    .locale(getLocale(true))
+                    .format(visType?.dateFormat || 'LLL')
                 : cellValue
         }
     }
