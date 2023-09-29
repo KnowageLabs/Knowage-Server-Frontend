@@ -31,7 +31,16 @@
                 :selection-is-locked="selectionIsLocked"
             />
             <ActiveSelectionsWidget v-if="widget.type == 'selection'" :prop-widget="widget" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" />
-            <WebComponentContainer v-if="widget.type == 'html' || widget.type == 'text'" :prop-widget="widget" :widget-data="dataToShow" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables"></WebComponentContainer>
+            <WebComponentContainer
+                v-if="widget.type == 'html' || widget.type == 'text'"
+                :prop-widget="widget"
+                :widget-data="dataToShow"
+                :prop-active-selections="activeSelections"
+                :editor-mode="false"
+                :dashboard-id="dashboardId"
+                :variables="variables"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
+            ></WebComponentContainer>
             <HighchartsContainer
                 v-if="widget.type === 'highcharts' && isEnterprise"
                 :widget-model="widget"

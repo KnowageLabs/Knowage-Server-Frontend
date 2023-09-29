@@ -25,7 +25,7 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]>, required: true },
         editorMode: { type: Boolean }
     },
-    emits: ['interaction', 'pageChanged', 'launchSelection', 'sortingChanged'],
+    emits: ['interaction', 'pageChanged', 'launchSelection', 'sortingChanged', 'datasetInteractionPreview'],
     data() {
         return {
             dataToShow: {} as any,
@@ -102,6 +102,7 @@ export default defineComponent({
             const datasetLabel = event.detail.datasetLabel
             const previewConfiguration = this.propWidget.settings.interactions.preview
             // TODO - Darko replace this
+            this.$emit('datasetInteractionPreview', { formattedChartValues: datasetLabel, previewSettings: previewConfiguration })
             // executeHTMLWidgetPreview(datasetLabel, previewConfiguration)
         },
         onCrossNavigation(event: any) {
