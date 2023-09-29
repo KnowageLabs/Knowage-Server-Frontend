@@ -15,9 +15,9 @@
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetLink, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn, getActiveInteractions } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import { startTableWidgetIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
@@ -432,7 +432,7 @@ export default defineComponent({
 
             return columns
         },
-        activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string }) {
+        activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
             console.log('--- activateInteractionFromClickedIcon(): ', cell)
             // switch (cell.type) {
             //     case 'crossNavigation':

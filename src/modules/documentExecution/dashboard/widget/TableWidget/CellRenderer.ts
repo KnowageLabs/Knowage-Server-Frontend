@@ -20,6 +20,30 @@ export default class CellRenderer {
 
         let applyConditionalStyleToBar = false
 
+        const createIconColumnIcons = () => {
+            const interactions = params.propWidget.settings.interactions as IWidgetInteractions
+            for (const interactionName in interactions) {
+                const interaction = interactions[interactionName]
+
+                if (interaction.enabled === true && interaction.type === 'icon' && interactionName !== 'link') {
+                    const interactionButton = createInteractionIcons(interaction, null)
+                    this.eGui.appendChild(interactionButton)
+                } else if (interaction.enabled === true && interactionName === 'link' && interaction.links.length > 0) {
+                    interaction.links.forEach((link, index) => {
+                        const interactionButton = createInteractionIcons(link, index)
+                        this.eGui.appendChild(interactionButton)
+                    })
+                }
+            }
+
+            function createInteractionIcons(interaction, index) {
+                const interactionButton = document.createElement('icon')
+                interactionButton.setAttribute('class', interaction.icon)
+                interactionButton.addEventListener('click', () => invokeParentMethod(interaction, params, index))
+                return interactionButton
+            }
+        }
+
         const getMultiselectStyle = () => {
             if (params.colDef.colId === 'indexColumn' || params.colDef.colId === 'iconColumn') return null
             const selection = params.propWidget.settings.interactions.selection
@@ -124,46 +148,14 @@ export default class CellRenderer {
                                         <div class="innerBar" style="color: black;width:${percentage}%;background-color:${applyConditionalStyleToBar ? styleObject.color : visType.color};text-align:${visType['alignment']}">${visType.prefix}${setCellContent()}${visType.suffix}</div>
                                       </div>`
             }
-        } else if (params.colId === 'iconColumn') {
-            this.eGui.innerHTML = createIconColumnIcons()
-            // this.eGui.innerHTML = `<i class="${getActiveIconFromWidget()} interaction-button"></i>`
+        } else if (params.colId === 'iconColumn') createIconColumnIcons()
+        else this.eGui.innerHTML = setCellContent()
 
-            this.eButton = this.eGui.querySelectorAll('.interaction-button')
-            this.eButton.forEach((button) => button.addEventListener('click', invokeParentMethod))
+        function invokeParentMethod(interaction, params, index) {
+            // console.log('EEEE just e', interaction, params)
 
-            // console.log('EBUTTON', this.eButton)
-        } else this.eGui.innerHTML = setCellContent()
-
-        function invokeParentMethod(e) {
-            console.log('EEEE just e', e)
-            console.log('EEEE', e.srcElement)
-
-            const clickedInteraction = {
-                type: e.srcElement.id,
-                index: e.srcElement.getAttribute('index') ?? null,
-                icon: e.srcElement.getAttribute('icon')
-            }
-
+            const clickedInteraction = { type: interaction.type, index: index, icon: interaction.icon, node: params.node }
             params.context.componentParent.activateInteractionFromClickedIcon(clickedInteraction)
-        }
-
-        //TODO: Darko | Maybe create DOM buttons directly and insert them in innerHTML instead of strings, maybe it would let us pass whole objects as props
-        function createIconColumnIcons() {
-            let iconCellContent = ''
-
-            const interactions = params.propWidget.settings.interactions as IWidgetInteractions
-            for (const interactionName in interactions) {
-                const interaction = interactions[interactionName]
-
-                if (interaction.enabled === true && interaction.type === 'icon' && interactionName !== 'link') {
-                    iconCellContent += `<i id="${interactionName}" icon="${interaction.icon}" class="${interaction.icon} interaction-button"></i>`
-                } else if (interaction.enabled === true && interactionName === 'link' && interaction.links.length > 0) {
-                    interaction.links.forEach((link, index) => {
-                        iconCellContent += `<i id="${interactionName}" index="${index}" icon="${link.icon}" class="${link.icon} interaction-button"></i>`
-                    })
-                }
-            }
-            return iconCellContent
         }
 
         function getBarFillPercentage() {
@@ -191,9 +183,7 @@ export default class CellRenderer {
             else if (params.propWidget.settings.interactions.link.enabled) {
                 const index = params.propWidget.settings.interactions.link.links.findIndex((link: ITableWidgetLink) => link.type === 'icon')
                 return index !== -1 ? params.propWidget.settings.interactions.link.links[index].icon : ''
-            }
-            else if (params.propWidget.settings.interactions.iframe.enabled) return params.propWidget.settings.interactions.iframe.icon
-
+            } else if (params.propWidget.settings.interactions.iframe.enabled) return params.propWidget.settings.interactions.iframe.icon
         }
 
         function isColumnOfType(columnType: string) {
@@ -219,8 +209,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY')
-                    .locale(getLocale(true))
-                    .format(visType?.dateFormat || 'LL')
+                      .locale(getLocale(true))
+                      .format(visType?.dateFormat || 'LL')
                 : cellValue
         }
         function dateTimeFormatter(cellValue) {
@@ -229,8 +219,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS')
-                    .locale(getLocale(true))
-                    .format(visType?.dateFormat || 'LLL')
+                      .locale(getLocale(true))
+                      .format(visType?.dateFormat || 'LLL')
                 : cellValue
         }
     }
