@@ -102,7 +102,7 @@ export default defineComponent({
             const datasetLabel = event.detail.datasetLabel
             const previewConfiguration = this.propWidget.settings.interactions.preview
             // TODO - Darko replace this
-            this.$emit('datasetInteractionPreview', { formattedChartValues: datasetLabel, previewSettings: previewConfiguration })
+            this.$emit('datasetInteractionPreview', { datasetLabel: datasetLabel, previewSettings: previewConfiguration })
             // executeHTMLWidgetPreview(datasetLabel, previewConfiguration)
         },
         onCrossNavigation(event: any) {

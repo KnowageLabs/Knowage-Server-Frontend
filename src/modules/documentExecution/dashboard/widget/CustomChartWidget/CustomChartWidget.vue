@@ -26,7 +26,7 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]>, required: true },
         editorMode: { type: Boolean }
     },
-    emits: ['loading'],
+    emits: ['loading', 'datasetInteractionPreview'],
     data() {
         return {
             id: cryptoRandomString({ length: 16, type: 'base64' }),
@@ -232,6 +232,7 @@ export default defineComponent({
             } else if (this.propWidget.settings.interactions.preview.enabled) {
                 // TODO - Darko replace this
                 // executeCustomChartPreview(columnValue, this.propWidget.settings.interactions.preview, this.dashboardId)
+                this.$emit('datasetInteractionPreview', { columnValue: columnValue, previewSettings: this.propWidget.settings.interactions.preview })
             } else if (this.propWidget.settings.interactions.iframe.enabled) {
                 startHTMLAndCustomChartIFrameInteractions(columnValue, this.propWidget.settings.interactions.iframe, this.dashboardId, this.variables, window)
             } else {

@@ -76,7 +76,7 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['pageChanged', 'facetsChanged', 'searchWordChanged', 'launchSelection', 'sortingChanged'],
+    emits: ['pageChanged', 'facetsChanged', 'searchWordChanged', 'launchSelection', 'sortingChanged', 'datasetInteractionPreview'],
     setup() {
         const store = dashboardStore()
         const appStore = mainStore()
@@ -464,6 +464,7 @@ export default defineComponent({
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
             console.log('formattedRow', formattedRow)
             // TODO - Darko start preview here
+            this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: this.propWidget.settings.interactions.preview })
         },
         startLinkInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)

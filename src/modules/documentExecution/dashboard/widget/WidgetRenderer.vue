@@ -54,7 +54,17 @@
             ></HighchartsContainer>
             <ChartJSContainer v-if="widget.type === 'chartJS'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId"></ChartJSContainer>
             <ImageWidget v-if="widget.type === 'image'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" :prop-variables="variables" />
-            <CustomChartWidget v-if="widget.type == 'customchart'" :prop-widget="widget" :widget-data="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables" @loading="$emit('loading', $event)"></CustomChartWidget>
+            <CustomChartWidget
+                v-if="widget.type == 'customchart'"
+                :prop-widget="widget"
+                :widget-data="widgetData"
+                :prop-active-selections="activeSelections"
+                :editor-mode="false"
+                :dashboard-id="dashboardId"
+                :variables="variables"
+                @loading="$emit('loading', $event)"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
+            ></CustomChartWidget>
             <PivotWidget v-if="widget.type == 'static-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             <CEPivotWidget v-if="widget.type == 'ce-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             <DiscoveryWidget
@@ -70,6 +80,7 @@
                 @page-changed="$emit('reloadData')"
                 @facets-changed="$emit('reloadData')"
                 @search-word-changed="$emit('reloadData')"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
             />
             <VegaContainer v-if="widget.type === 'vega'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :prop-variables="variables"></VegaContainer>
             <PythonWidgetContainer v-if="widget.type === 'python'" :widget-model="widget" :data-to-show="dataToShow" :dashboard-id="dashboardId" :editor-mode="false" />
