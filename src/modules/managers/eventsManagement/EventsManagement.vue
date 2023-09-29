@@ -65,10 +65,10 @@
                                     {{ $t('common.info.noDataFound') }}
                                 </div>
                             </template>
-                            <Column field="user" class="kn-truncated" :header="$t('managers.eventsManagement.user')" :sortable="true"></Column>
-                            <Column field="formattedDate" class="kn-truncated" :header="$t('cron.date')" :sortable="true"></Column>
-                            <Column field="type" class="kn-truncated" :header="$t('common.type')" :sortable="true"></Column>
-                            <Column :header="$t('common.description')" class="kn-truncated" :sortable="true">
+                            <Column field="user" class="kn-truncated" :header="$t('managers.eventsManagement.user')" :sortable="true" style="max-width: 20%"></Column>
+                            <Column field="formattedDate" class="kn-truncated" :header="$t('cron.date')" :sortable="true" style="max-width: 20%"></Column>
+                            <Column field="type" class="kn-truncated" :header="$t('common.type')" :sortable="true" style="max-width: 10%"></Column>
+                            <Column :header="$t('common.description')" class="kn-truncated" :sortable="true" style="max-width: 50%">
                                 <template #body="slotProps">
                                     <span v-tooltip.top="slotProps.data.desc" class="kn-truncated"> {{ slotProps.data.desc }}</span>
                                 </template>
