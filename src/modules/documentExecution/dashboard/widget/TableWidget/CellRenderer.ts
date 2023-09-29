@@ -26,11 +26,11 @@ export default class CellRenderer {
                 const interaction = interactions[interactionName]
 
                 if (interaction.enabled === true && interaction.type === 'icon' && interactionName !== 'link') {
-                    const interactionButton = createInteractionIcons(interaction, null)
+                    const interactionButton = createInteractionIcons({ ...interaction, interactionType: interactionName }, null)
                     this.eGui.appendChild(interactionButton)
                 } else if (interaction.enabled === true && interactionName === 'link' && interaction.links.length > 0) {
                     interaction.links.forEach((link, index) => {
-                        const interactionButton = createInteractionIcons(link, index)
+                        const interactionButton = createInteractionIcons({ ...link, interactionType: 'link' }, index)
                         this.eGui.appendChild(interactionButton)
                     })
                 }
@@ -154,7 +154,7 @@ export default class CellRenderer {
         function invokeParentMethod(interaction, params, index) {
             console.log('EEEE just e', interaction)
 
-            const clickedInteraction = { type: interaction.type, index: index, icon: interaction.icon, node: params.node }
+            const clickedInteraction = { type: interaction.interactionType, index: index, icon: interaction.icon, node: params.node }
             params.context.componentParent.activateInteractionFromClickedIcon(clickedInteraction)
         }
 
