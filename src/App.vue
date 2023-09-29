@@ -186,7 +186,7 @@ export default defineComponent({
         },
         checkTopLevelIframe(configs) {
             if (configs?.['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
-                if (window.parent !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
+                if (window.self !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
                     this.$router.push({ name: 'unauthorized', params: { message: this.$t('unauthorized.outsideIframe') } })
                 }
             }
