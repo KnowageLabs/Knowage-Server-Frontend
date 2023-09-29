@@ -14,9 +14,10 @@
                 :prop-active-selections="activeSelections"
                 :dashboard-id="dashboardId"
                 :prop-variables="variables"
-                @pageChanged="$emit('reloadData')"
-                @sortingChanged="$emit('reloadData')"
-                @launchSelection="$emit('launchSelection', $event)"
+                @page-changed="$emit('reloadData')"
+                @sorting-changed="$emit('reloadData')"
+                @launch-selection="$emit('launchSelection', $event)"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
             />
             <SelectorWidget
                 v-if="widget.type == 'selector'"
@@ -57,9 +58,9 @@
                 :dashboard-id="dashboardId"
                 :widget-loading="widgetLoading"
                 :prop-variables="variables"
-                @pageChanged="$emit('reloadData')"
-                @facetsChanged="$emit('reloadData')"
-                @searchWordChanged="$emit('reloadData')"
+                @page-changed="$emit('reloadData')"
+                @facets-changed="$emit('reloadData')"
+                @search-word-changed="$emit('reloadData')"
             />
             <VegaContainer v-if="widget.type === 'vega'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :prop-variables="variables"></VegaContainer>
             <PythonWidgetContainer v-if="widget.type === 'python'" :widget-model="widget" :data-to-show="dataToShow" :dashboard-id="dashboardId" :editor-mode="false" />

@@ -59,7 +59,7 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['pageChanged', 'sortingChanged', 'launchSelection'],
+    emits: ['pageChanged', 'sortingChanged', 'launchSelection', 'datasetInteractionPreview'],
     setup() {
         const store = dashboardStore()
         const appStore = mainStore()
@@ -598,7 +598,7 @@ export default defineComponent({
                     this.startLinkInteraction(node, activeInteraction)
                     break
                 case 'preview':
-                    this.startPreview(node)
+                    this.startPreview(node, activeInteraction)
                     break
                 case 'iframe':
                     this.startIframeInteraction(node)
@@ -610,10 +610,11 @@ export default defineComponent({
             const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
             executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
         },
-        startPreview(node: any) {
+        startPreview(node: any, activeInteraction: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
             console.log('formattedRow', formattedRow)
             // TODO - Darko start preview here
+            this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction })
         },
         startLinkInteraction(node: any, activeInteraction: any) {
             console.log('------- ACTIVE LINK INTERACTION: ', activeInteraction)
