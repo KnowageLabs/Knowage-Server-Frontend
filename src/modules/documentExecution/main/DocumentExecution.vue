@@ -436,7 +436,7 @@ export default defineComponent({
     methods: {
         canSeeDashboardFunctions() {
             if (!this.user || !this.document) return false
-            if (!this.document.dashboardId) return true
+            if (!this.document.dashboardId && this.document.crossType != 1) return true
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
         ...mapActions(mainStore, ['setInfo', 'setError', 'setDocumentExecutionEmbed']),
