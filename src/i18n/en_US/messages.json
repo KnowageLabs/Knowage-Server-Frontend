@@ -2238,7 +2238,8 @@
                 "selector": "Selector",
                 "table": "Table",
                 "text": "Text"
-            }
+            },
+            "scrollToWidget": "Find Widget in Preview"
         },
         "dataSourceManagement": {
             "form": {

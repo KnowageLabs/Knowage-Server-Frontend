@@ -50,11 +50,6 @@ export default defineComponent({
             return styleString + `height: ${widgetTitle.height ?? 25}px;`
         },
         getWidgetContainerStyle() {
-            console.group('getWidgetContainerStyle ---------------------')
-            console.log('selectedThemeProp', this.selectedThemeProp)
-            console.log('widgetType', this.widgetType)
-            console.groupEnd()
-
             const widgetBorders = this.selectedThemeProp.config[this.widgetType].style.borders
             const widgetShadows = this.selectedThemeProp.config[this.widgetType].style.shadows
             const widgetBackground = this.selectedThemeProp.config[this.widgetType].style.background
