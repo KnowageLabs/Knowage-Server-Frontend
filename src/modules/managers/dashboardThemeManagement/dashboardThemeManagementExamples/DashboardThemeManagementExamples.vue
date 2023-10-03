@@ -98,6 +98,7 @@ export default defineComponent({
     },
     methods: {
         loadSelectedTheme() {
+            console.log('THEME CHANGED')
             this.selectedTheme = this.selectedThemeProp as IDashboardTheme
         },
         loadWidgetModels() {

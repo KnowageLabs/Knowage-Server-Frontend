@@ -32,6 +32,11 @@
             "icon": "fa-brands fa-diaspora",
             "label": "common.variables",
             "value": "Variables"
+        },
+        {
+            "icon": "fa-solid fa-paint-roller",
+            "label": "common.themes",
+            "value": "Themes"
         }
     ],
     "settingsListFilterFields": ["label"],

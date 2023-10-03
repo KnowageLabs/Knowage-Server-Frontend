@@ -417,6 +417,11 @@
                 "title": "Menu & Widgets"
             },
             "profile": "Profile",
+            "themes": {
+                "dashboardTheme": "Dashboard Theme",
+                "editTheme": "Edit Theme",
+                "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager"
+            },
             "title": "General Settings",
             "variableColumnHint": "If no column is defined the whole dataset will be used.",
             "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."
@@ -2205,6 +2210,7 @@
             "widthHelp": "Width in px of the popup window."
         },
         "dashboardThemeManager": {
+            "scrollToWidget": "Find Widget in Preview",
             "styleTypes": {
                 "background": "Background",
                 "borders": "Borders",
@@ -2238,8 +2244,7 @@
                 "selector": "Selector",
                 "table": "Table",
                 "text": "Text"
-            },
-            "scrollToWidget": "Find Widget in Preview"
+            }
         },
         "dataSourceManagement": {
             "form": {

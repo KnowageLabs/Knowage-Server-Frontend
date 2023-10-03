@@ -62,7 +62,7 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
         datasets: getFormattedDatasets(model),
         variables: await getFormattedVariables(model, drivers, profileAttributes, datasets, $http),
         selections: getFormattedSelections(model),
-        themes: {},
+        theme: {},
         background: getFormattedSheetBackground(model),
         menuWidgets: getFormattedMenuAndWidgets(model)
     } as IDashboardConfiguration

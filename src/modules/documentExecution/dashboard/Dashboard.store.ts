@@ -4,6 +4,7 @@ import { IDashboardDriver, IDashboardSheet, IDashboardView, IDataset, ISelection
 import { selectionsUseDatasetWithAssociation } from './widget/interactionsHelpers/DatasetAssociationsHelper'
 import { loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
 import { recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import deepcopy from 'deepcopy'
 
 const store = defineStore('dashboardStore', {
@@ -13,7 +14,8 @@ const store = defineStore('dashboardStore', {
             selectedSheetIndex: 0,
             allDatasets: [] as IDataset[],
             internationalization: {},
-            profileAttributes: [] as { name: string; value: string }[]
+            profileAttributes: [] as { name: string; value: string }[],
+            allThemes: [] as IDashboardTheme[]
         }
     },
     actions: {
@@ -146,6 +148,12 @@ const store = defineStore('dashboardStore', {
         },
         setCurrentDashboardView(dashboardId: string, currentDashboardView: IDashboardView) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].currentView = currentDashboardView
+        },
+        setAllThemes(themes: IDashboardTheme[]) {
+            this.allThemes = themes
+        },
+        getAllThemes() {
+            return this.allThemes
         }
     }
 })
