@@ -1,7 +1,7 @@
 <template>
     <div class="kn-page">
         <ProgressSpinner v-if="loading" class="kn-progress-spinner" data-test="progress-spinner" />
-        <div class="p-d-flex p-flex-column kn-flex">
+        <div class="p-d-flex p-flex-column kn-flex pageContent">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
                 <template #start>
                     {{ $t('managers.eventsManagement.title') }}
@@ -149,6 +149,9 @@ export default defineComponent({
 })
 </script>
 <style lang="scss" scoped>
+.pageContent {
+    max-width: 100vw;
+}
 .domainCard {
     &:deep(.p-card-body) {
         height: calc(100% - 35px);
