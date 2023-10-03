@@ -70,7 +70,7 @@
                             <Column field="type" class="kn-truncated" :header="$t('common.type')" :sortable="true" style="max-width: 10%"></Column>
                             <Column :header="$t('common.description')" class="kn-truncated" :sortable="true" style="max-width: 50%">
                                 <template #body="slotProps">
-                                    <span v-tooltip.top="slotProps.data.desc" class="kn-truncated"> {{ slotProps.data.desc }}</span>
+                                    <span v-tooltip.top="slotProps.data.formattedDescription" class="kn-truncated"> {{ slotProps.data.formattedDescription }}</span>
                                 </template>
                             </Column>
                         </DataTable>
