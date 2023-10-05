@@ -1,5 +1,5 @@
 <template>
-    <div v-if="selectedTheme" class="kn-overflow dashboard-scrollbar">
+    <div v-if="selectedTheme" class="kn-overflow dashboard-scrollbar kn-flex">
         <div class="p-field p-mt-2 p-col-12">
             <span class="p-float-label">
                 <InputText v-model="selectedTheme.themeName" class="kn-material-input" />
@@ -8,11 +8,11 @@
         </div>
 
         <div class="q-pa-md q-gutter-sm p-pl-0">
-            <q-tree :nodes="widgetTree" node-key="key">
+            <q-tree v-if="!treeLoading" :nodes="widgetTree" node-key="key">
                 <template #default-header="prop">
                     <div class="row items-center kn-width-full">
                         <div>{{ prop.node.label }}</div>
-                        <Button v-if="prop.node.isParent" icon="fas fa-magnifying-glass" class="p-button-text p-button-rounded p-button-plain p-ml-auto" :title="$t('managers.themeManagement.download')" @click.stop="scrollToExample(prop.node.key)" />
+                        <Button v-if="prop.node.isParent" icon="fas fa-magnifying-glass" class="p-button-text p-button-rounded p-button-plain p-ml-auto" :title="$t('managers.dashboardThemeManager.scrollToWidget')" @click.stop="scrollToExample(prop.node.key)" />
                     </div>
                 </template>
                 <template #body-generic="prop" @click="scrollToExample">
@@ -60,6 +60,7 @@
                 </template>
             </q-tree>
         </div>
+        <ProgressSpinner v-if="treeLoading" class="kn-progress-spinner" style="position: relative; background-color: #a7a7a74d" />
     </div>
 </template>
 
@@ -67,6 +68,7 @@
 import { defineComponent } from 'vue'
 import { IDashboardTheme, IDashboardThemeConfig } from './DashboardThememanagement'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import ProgressSpinner from 'primevue/progressspinner'
 import descriptor from './DashboardThemeManagementEditorDescriptor.json'
 import pivotDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/PivotTableWidget/PivotTableSettingsDescriptor.json'
 import WidgetTitleStyle from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/common/style/WidgetTitleStyle.vue'
@@ -87,6 +89,7 @@ import PivotTableFieldsStyle from '@/modules/documentExecution/dashboard/widget/
 export default defineComponent({
     name: 'dashboard-theme-management-editor',
     components: {
+        ProgressSpinner,
         WidgetTitleStyle,
         WidgetBordersStyle,
         WidgetPaddingStyle,
@@ -109,7 +112,8 @@ export default defineComponent({
             pivotDescriptor,
             test: descriptor.widgetModelMock as any,
             selectedTheme: {} as IDashboardTheme,
-            widgetTree: [] as any
+            widgetTree: [] as any,
+            treeLoading: false
         }
     },
     computed: {},
@@ -124,17 +128,18 @@ export default defineComponent({
     methods: {
         loadSelectedTheme() {
             this.selectedTheme = this.selectedThemeProp
-            this.widgetTree = this.buildWidgetTree()
+            this.buildWidgetTree()
         },
         containsSubstring(str) {
             return str.includes('title-editor')
         },
-        buildWidgetTree() {
+        async buildWidgetTree() {
+            this.treeLoading = true
             const themeConfig = this.selectedTheme.config as IDashboardThemeConfig
-            const widgetTree = [] as any
+            this.widgetTree = [] as any
 
             for (const widgetType in themeConfig) {
-                widgetTree.push({
+                this.widgetTree.push({
                     isParent: true,
                     key: `${widgetType}`,
                     label: this.$t(`managers.dashboardThemeManager.widgetNames.${widgetType}`),
@@ -142,8 +147,12 @@ export default defineComponent({
                 })
             }
 
-            console.log(widgetTree)
-            return widgetTree
+            function sleep(ms) {
+                return new Promise((resolve) => setTimeout(resolve, ms))
+            }
+            await sleep(250)
+
+            this.treeLoading = false
         },
         buildChildren(themeConfig, widgetType) {
             const childrenArray = [] as any
@@ -156,7 +165,7 @@ export default defineComponent({
                         {
                             key: `${widgetType}-${styleType}-editor`,
                             widgetType: widgetType,
-                            body: 'generic' //TODO: Create method that takes whole key into account, and changes body depending on widget type. Only GENERIC is present so far.
+                            body: 'generic'
                         }
                     ]
                 })

@@ -8,38 +8,37 @@
                     <Menu ref="menu" :model="addMenuItems" :popup="true" style="width: 240px"></Menu>
                 </template>
             </Toolbar>
-            <!-- <KnInputFile label="" :change-function="uploadTheme" accept="application/json,application/zip" :trigger-input="triggerInput" /> -->
-            <KnInputFile label="" accept="application/json,application/zip" :trigger-input="triggerInput" />
+            <KnInputFile label="" :change-function="uploadTheme" accept="application/json,application/zip" :trigger-input="triggerInput" />
             <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-            <!-- <KnListBox :options="availableThemes" :selected="selectedTheme" :settings="descriptor.knListSettings" @click="selectTheme" @delete.stop="deleteThemeConfirm" /> -->
-            <KnListBox :options="availableThemes" :selected="selectedTheme" :settings="descriptor.knListSettings" @click="selectTheme" />
+            <KnListBox :options="availableThemes" :selected="selectedTheme" :settings="descriptor.knListSettings" @click="selectTheme" @delete.stop="deleteThemeConfirm" />
         </div>
 
         <div class="p-col p-p-0 p-m-0 kn-page form-container">
-            <KnHint v-if="!selectedTheme.themeName" :title="$t('managers.themeManagement.title')" :hint="$t('managers.themeManagement.hint')"></KnHint>
-            <Toolbar v-if="selectedTheme.themeName" class="kn-toolbar kn-toolbar--secondary">
+            <KnHint v-if="selectedTheme.themeName == null" :title="$t('managers.themeManagement.title')" :hint="$t('managers.themeManagement.hint')"></KnHint>
+            <Toolbar v-if="selectedTheme.themeName != null" class="kn-toolbar kn-toolbar--secondary">
                 <template #start> {{ selectedTheme.themeName }} </template>
                 <template #end>
-                    <Button icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.download')" />
+                    <Button v-if="selectedTheme.id" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.download')" @click="downloadTheme" />
+                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.save')" @click="handleSave" />
                 </template>
             </Toolbar>
-            <DashboardThemeManagementEditor v-if="selectedTheme.themeName" :selected-theme-prop="selectedTheme" />
+            <DashboardThemeManagementEditor v-if="selectedTheme.themeName != null" :selected-theme-prop="selectedTheme" />
         </div>
 
-        <div v-if="selectedTheme.themeName" class="theme-manager-examples kn-page p-p-0 kn-overflow dashboard-scrollbar">
+        <div v-if="selectedTheme.themeName != null" class="theme-manager-examples kn-page p-p-0 kn-overflow dashboard-scrollbar">
             <ThemeExamples :selected-theme-prop="selectedTheme" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-// import { AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { defineComponent } from 'vue'
 import FabButton from '@/components/UI/KnFabButton.vue'
 import ThemeManagementDescriptor from '@/modules/managers/dashboardThemeManagement/DashboardThemeManagementDescriptor.json'
 import themeHelper from '@/helpers/themeHelper/themeHelper'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
-// import { downloadDirect } from '@/helpers/commons/fileHelper'
+import { downloadDirect } from '@/helpers/commons/fileHelper'
 import Menu from 'primevue/menu'
 import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
 import { mapActions, mapState } from 'pinia'
@@ -80,7 +79,7 @@ export default defineComponent({
     },
     mounted() {
         this.loading = true
-        // this.getAllThemes()
+        this.getAllThemes()
         this.loading = false
     },
     methods: {
@@ -91,8 +90,6 @@ export default defineComponent({
         addTheme() {
             this.selectedTheme = deepcopy(this.descriptor.emptyTheme) as IDashboardTheme
             this.selectedTheme.config = getDefaultDashboardThemeConfig() as IDashboardThemeConfig
-
-            console.log(this.selectedTheme)
         },
         toggleAddThemeMenu(event) {
             // eslint-disable-next-line
@@ -101,7 +98,67 @@ export default defineComponent({
             this.triggerInputFile(false)
         },
         selectTheme(event) {
-            console.log('selectTheme.item', event.item)
+            this.selectedTheme = deepcopy(event.item) as IDashboardTheme
+        },
+        async getAllThemes() {
+            this.loading = true
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardtheme`).then((response: AxiosResponse<any>) => {
+                this.availableThemes = response.data
+            })
+            this.loading = false
+        },
+        deleteThemeConfirm(event: any) {
+            this.$confirm.require({
+                message: this.$t('common.toast.deleteMessage'),
+                header: this.$t('common.toast.deleteTitle'),
+                icon: 'pi pi-exclamation-triangle',
+                accept: () => this.deleteTheme(event)
+            })
+        },
+        async deleteTheme(event) {
+            this.loading = true
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardtheme/${event.item.id}`).then(() => {
+                this.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
+
+                this.getAllThemes()
+            })
+            this.loading = false
+        },
+        async handleSave() {
+            const sendRequest = () => {
+                const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardtheme`
+                return this.selectedTheme.id ? this.$http.put(url + `/${this.selectedTheme.id}`, this.selectedTheme) : this.$http.post(url, this.selectedTheme)
+            }
+
+            await sendRequest().then((response: AxiosResponse<any>) => {
+                this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.updateSuccess') })
+                if (!this.selectedTheme.id) this.selectedTheme.id = response.data.id
+            })
+
+            await this.getAllThemes()
+            this.loading = false
+        },
+        uploadTheme(event): void {
+            const reader = new FileReader()
+            reader.onload = this.onReaderLoad
+            reader.readAsText(event.target.files[0])
+            this.triggerInputFile(false)
+            event.target.value = ''
+        },
+        onReaderLoad(event) {
+            const json = JSON.parse(event.target.result)
+            this.importWidget(json)
+        },
+        importWidget(json: JSON) {
+            this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/dashboardtheme', json).then(() => {
+                this.setInfo({ title: this.$t('managers.themeManagement.uploadTheme'), msg: this.$t('managers.themeManagement.themeSuccessfullyUploaded') })
+                this.getAllThemes()
+            })
+        },
+        downloadTheme(): void {
+            const themeToDownload = { ...this.selectedTheme }
+            if (themeToDownload.id) delete themeToDownload.id
+            downloadDirect(JSON.stringify(themeToDownload), themeToDownload.themeName, 'application/json')
         }
     }
 })

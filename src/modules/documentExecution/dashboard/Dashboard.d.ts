@@ -13,7 +13,7 @@ export interface IDashboardSheet {
     id: string
     index: number
     label: string
-    widgets: { xxs: IWidgetSheetItem[], xs: IWidgetSheetItem[], sm: IWidgetSheetItem[], md: IWidgetSheetItem[], lg: IWidgetSheetItem[] }
+    widgets: { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }
 }
 
 export interface IWidgetSheetItem {
@@ -36,7 +36,7 @@ export interface IDashboardConfiguration {
     datasets: IDashboardDataset[]
     variables: IVariable[]
     selections: ISelection[]
-    themes: any
+    theme: any
     background: IBackground
     menuWidgets: IMenuAndWidgets
 }
@@ -278,7 +278,7 @@ export interface ITableWidgetPagination {
 }
 
 export interface ITableWidgetStyle {
-    themeName: string,
+    themeName: string
     columns: ITableWidgetColumnStyles
     columnGroups: ITableWidgetColumnStyles
     headers: ITableWidgetHeadersStyle

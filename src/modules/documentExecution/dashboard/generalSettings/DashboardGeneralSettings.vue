@@ -15,6 +15,7 @@
             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
             <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :dashboard-model-prop="dashboardModel" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
+            <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
         </div>
     </div>
 </template>
@@ -28,6 +29,7 @@ import DashboardBackground from './background/DashboardBackground.vue'
 import CssEditor from './cssEditor/DashboardCssEditor.vue'
 import MenuWidgets from './menu&widgets/Menu&Widgets.vue'
 import DashboardVariables from './DashboardVariables.vue'
+import DashboardThemes from './themes/DashboardThemes.vue'
 import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
@@ -35,7 +37,7 @@ import { setVariableValueFromDataset } from './VariablesHelper'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
@@ -101,12 +103,68 @@ export default defineComponent({
         setSelectedOption(option: string) {
             this.selectedOption = option
         },
+        applySelectedThemeToWidgets() {
+            const selectedTheme = this.dashboardModel.configuration.theme.config
+            if (!selectedTheme) return
+
+            this.dashboardModel.widgets.forEach((widget) => {
+                switch (widget.type) {
+                    case 'table':
+                        widget.settings.style = selectedTheme.table
+                        break
+                    case 'selector':
+                        widget.settings.style = selectedTheme.selector
+                        break
+                    case 'html':
+                        widget.settings.style = selectedTheme.html
+                        break
+                    case 'text':
+                        widget.settings.style = selectedTheme.text
+                        break
+                    case 'highcharts':
+                    case 'chartJS':
+                    case 'vega':
+                        widget.settings.style = selectedTheme.chart
+                        break
+                    case 'customchart':
+                        widget.settings.style = selectedTheme.customchart
+                        break
+                    case 'static-pivot-table':
+                    case 'ce-pivot-table':
+                        widget.settings.style = selectedTheme.pivot
+                        break
+                    case 'discovery':
+                        widget.settings.style = selectedTheme.discovery
+                        break
+                    case 'python':
+                        widget.settings.style = selectedTheme.python
+                        break
+                    case 'r':
+                        widget.settings.style = selectedTheme.r
+                        break
+                    case 'selection':
+                        widget.settings.style = selectedTheme.activeSelections
+                        break
+                    case 'image':
+                        widget.settings.style = selectedTheme.image
+                        break
+                    case 'map':
+                        widget.settings.style = selectedTheme.map
+                        break
+                    default:
+                        break
+                }
+            })
+        },
         async saveGeneralSettings() {
             for (let i = 0; i < this.variables.length; i++) {
                 if (this.variables[i].type === 'dataset') await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
             }
-
             this.dashboardModel.configuration.variables = this.variables
+
+            this.applySelectedThemeToWidgets()
+            console.log('THEME', this.dashboardModel.configuration.theme)
+            console.log('THEME APPLIED', this.dashboardModel.widgets)
             this.$emit('closeGeneralSettings')
         }
     }
