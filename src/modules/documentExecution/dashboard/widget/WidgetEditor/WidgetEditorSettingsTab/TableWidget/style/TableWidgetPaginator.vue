@@ -9,6 +9,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { ITableWidgetPaginatorStyle, IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from './TableWidgetStyleDescriptor.json'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
@@ -23,10 +24,20 @@ export default defineComponent({
             paginatorStyleModel: null as ITableWidgetPaginatorStyle | null
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadPaginatorStyleModel()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadPaginatorStyleModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadPaginatorStyleModel)
+        },
         loadPaginatorStyleModel() {
             if (this.widgetModel?.settings?.style?.paginator) this.paginatorStyleModel = this.widgetModel.settings.style.paginator
             else if (this.themeStyle) this.paginatorStyleModel = this.themeStyle

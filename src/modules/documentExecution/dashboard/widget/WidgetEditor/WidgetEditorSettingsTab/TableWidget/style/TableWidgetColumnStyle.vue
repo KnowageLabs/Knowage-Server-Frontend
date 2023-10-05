@@ -104,12 +104,14 @@ export default defineComponent({
             emitter.on('columnGroupRemoved', this.onColumnOrGroupRemoved)
             emitter.on('columnAdded', this.onColumnAdded)
             emitter.on('columnAliasRenamed', this.onColumnAliasRenamed)
+            emitter.on('themeSelected', this.loadColumnStyles)
         },
         removeEventListeners() {
             emitter.off('columnRemovedFromColumnStyle', this.onColumnOrGroupRemoved)
             emitter.off('columnGroupRemoved', this.onColumnOrGroupRemoved)
             emitter.off('columnAdded', this.onColumnAdded)
             emitter.off('columnAliasRenamed', this.onColumnAliasRenamed)
+            emitter.off('themeSelected', this.loadColumnStyles)
         },
         onColumnOrGroupRemoved() {
             this.onColumnRemoved()

@@ -1,6 +1,5 @@
 <template>
     <div v-if="bordersStyleModel" class="p-ai-center kn-flex p-p-4">
-        {{ bordersStyleModel }}
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="bordersStyleModel.enabled" color="black" /> </span>
 
         <form class="p-fluid p-formgrid p-grid">
@@ -105,11 +104,8 @@ export default defineComponent({
             emitter.off('themeSelected', this.loadBordersStyle)
         },
         loadBordersStyle() {
-            console.log('---------- CAAAAAAAAAAAAAAAAAAAAAAAAAAAAALED')
             if (this.widgetModel?.settings?.style?.borders) this.bordersStyleModel = this.widgetModel.settings.style.borders
             else if (this.themeStyle) this.bordersStyleModel = this.themeStyle
-            console.log('---------- LOADED 1: ', this.widgetModel?.settings?.style?.borders)
-            console.log('---------- LOADED 2: ', this.bordersStyleModel)
         },
         bordersStyleChanged() {
             if (this.widgetModel) this.$emit('styleChanged')

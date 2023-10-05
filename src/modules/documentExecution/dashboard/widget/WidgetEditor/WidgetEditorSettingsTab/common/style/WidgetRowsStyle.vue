@@ -24,6 +24,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetRowsStyle } from '@/modules/documentExecution/dashboard/Dashboard'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import InputNumber from 'primevue/inputnumber'
 import InputSwitch from 'primevue/inputswitch'
 import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
@@ -39,10 +40,20 @@ export default defineComponent({
             widgetType: '' as string
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadRowsModel()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadRowsModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadRowsModel)
+        },
         loadRowsModel() {
             if (this.widgetModel?.settings?.style?.rows) this.rowsStyleModel = this.widgetModel.settings.style.rows
             else if (this.themeStyle) this.rowsStyleModel = this.themeStyle

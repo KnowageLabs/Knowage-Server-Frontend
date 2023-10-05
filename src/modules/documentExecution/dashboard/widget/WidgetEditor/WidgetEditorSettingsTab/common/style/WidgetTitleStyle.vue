@@ -24,6 +24,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel, IWidgetTitle } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../styleToolbar/WidgetEditorStyleToolbar.vue'
 
@@ -46,10 +47,20 @@ export default defineComponent({
             return !this.titleStyleModel || !this.titleStyleModel.enabled
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadTitleStyleModel()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadTitleStyleModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadTitleStyleModel)
+        },
         loadTitleStyleModel() {
             if (this.widgetModel?.settings?.style?.title) this.titleStyleModel = this.widgetModel.settings.style.title
             else if (this.themeStyle) this.titleStyleModel = this.themeStyle

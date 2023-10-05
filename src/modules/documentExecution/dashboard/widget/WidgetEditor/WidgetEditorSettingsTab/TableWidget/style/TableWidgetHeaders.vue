@@ -16,6 +16,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetHeadersStyle, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import settingsDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
@@ -31,10 +32,20 @@ export default defineComponent({
             headersStyleModel: null as ITableWidgetHeadersStyle | null
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadHeaderModel()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadHeaderModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadHeaderModel)
+        },
         loadHeaderModel() {
             if (this.widgetModel?.settings?.style?.headers) this.headersStyleModel = this.widgetModel.settings.style.headers
             else if (this.themeStyle) this.headersStyleModel = this.themeStyle

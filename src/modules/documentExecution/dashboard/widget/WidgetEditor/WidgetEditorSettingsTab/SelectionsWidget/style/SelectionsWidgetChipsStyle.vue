@@ -17,6 +17,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { ISelectionWidgetChipsStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../SelectionsWidgetSettingsDescriptor.json'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
@@ -38,10 +39,20 @@ export default defineComponent({
             return !this.widgetModel || this.widgetModel.settings.configuration.type !== 'chips'
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadChipsStyleModel()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadChipsStyleModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadChipsStyleModel)
+        },
         loadChipsStyleModel() {
             if (this.widgetModel?.settings?.style?.chips) this.chipsStyleModel = this.widgetModel.settings.style.chips
             else if (this.themeStyle) this.chipsStyleModel = this.themeStyle

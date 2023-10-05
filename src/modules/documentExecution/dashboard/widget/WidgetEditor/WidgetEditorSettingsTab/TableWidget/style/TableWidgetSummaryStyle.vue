@@ -9,6 +9,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetSummaryStyle, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import settingsDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
@@ -35,11 +36,21 @@ export default defineComponent({
             this.loadModel()
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadModel()
         this.loadSummaryRowsStyle()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadSummaryRowsStyle)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadSummaryRowsStyle)
+        },
         loadModel() {
             this.model = this.widgetModel
         },

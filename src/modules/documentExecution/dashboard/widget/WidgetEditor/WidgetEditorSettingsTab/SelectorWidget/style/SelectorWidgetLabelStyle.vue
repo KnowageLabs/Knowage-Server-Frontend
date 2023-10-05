@@ -15,6 +15,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { ISelectorWidgetLabelStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../SelectorWidgetSettingsDescriptor.json'
 import InputSwitch from 'primevue/inputswitch'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
@@ -35,10 +36,20 @@ export default defineComponent({
             return !this.labelStyleModel || !this.labelStyleModel.enabled
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadLabelStyleModel()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadLabelStyleModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadLabelStyleModel)
+        },
         loadLabelStyleModel() {
             if (this.widgetModel?.settings?.style?.label) this.labelStyleModel = this.widgetModel.settings.style.label
             else if (this.themeStyle) this.labelStyleModel = this.themeStyle

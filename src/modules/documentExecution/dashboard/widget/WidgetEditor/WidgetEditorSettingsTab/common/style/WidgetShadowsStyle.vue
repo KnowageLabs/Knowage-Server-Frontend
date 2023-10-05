@@ -33,6 +33,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetShadowsStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
@@ -57,10 +58,20 @@ export default defineComponent({
             return !this.shadowsStyleModel || !this.shadowsStyleModel.enabled
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadShadowsStyle()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadShadowsStyle)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadShadowsStyle)
+        },
         loadShadowsStyle() {
             if (this.widgetModel?.settings?.style?.shadows) this.shadowsStyleModel = this.widgetModel.settings.style.shadows
             else if (this.themeStyle) this.shadowsStyleModel = this.themeStyle

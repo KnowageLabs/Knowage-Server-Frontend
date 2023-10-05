@@ -15,6 +15,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetBackgroundStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetEditorColorPicker from '../WidgetEditorColorPicker.vue'
 
@@ -36,10 +37,20 @@ export default defineComponent({
             return !this.backgroundStyleModel || !this.backgroundStyleModel.enabled
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadBackgroundColor()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadBackgroundColor)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadBackgroundColor)
+        },
         loadBackgroundColor() {
             if (this.widgetModel?.settings?.style?.background) this.backgroundStyleModel = this.widgetModel.settings.style.background
             else if (this.themeStyle) this.backgroundStyleModel = this.themeStyle

@@ -42,6 +42,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetPaddingStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 export default defineComponent({
     name: 'widget-padding-style',
@@ -59,10 +60,20 @@ export default defineComponent({
             return !this.paddingStyleModel || !this.paddingStyleModel.enabled
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadPaddingStyle()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadPaddingStyle)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadPaddingStyle)
+        },
         loadPaddingStyle() {
             if (this.widgetModel?.settings?.style?.padding) this.paddingStyleModel = this.widgetModel.settings.style.padding
             else if (this.themeStyle) this.paddingStyleModel = this.themeStyle

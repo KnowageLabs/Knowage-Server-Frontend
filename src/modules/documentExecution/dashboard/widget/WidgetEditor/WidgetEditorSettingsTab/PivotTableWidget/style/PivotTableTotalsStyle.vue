@@ -10,6 +10,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { IPivotTotal } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import * as pivotTableDefaultValues from '../../../helpers/pivotTableWidget/PivotTableDefaultValues'
 
@@ -33,12 +34,21 @@ export default defineComponent({
             return !this.totalsStyleModel || !this.totalsStyleModel.enabled
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadStyle()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadStyle)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadStyle)
+        },
         loadStyle() {
-            // if (!this.widgetModel) return
             if (this.widgetModel) {
                 if (this.totalType == 'Totals' && this.widgetModel.settings?.style?.totals) this.totalsStyleModel = this.widgetModel.settings.style.totals
                 else if (this.totalType == 'SubTotals' && this.widgetModel.settings?.style?.subTotals) this.totalsStyleModel = this.widgetModel.settings.style.subTotals

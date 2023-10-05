@@ -76,10 +76,12 @@ export default defineComponent({
         setEventListeners() {
             emitter.on('columnRemovedFromColumnStyle', this.onFieldOrGroupRemoved)
             emitter.on('columnAdded', this.onFieldAdded)
+            emitter.on('themeSelected', this.loadFieldStyles)
         },
         removeEventListeners() {
             emitter.off('columnRemovedFromColumnStyle', this.onFieldOrGroupRemoved)
             emitter.off('columnAdded', this.onFieldAdded)
+            emitter.off('themeSelected', this.loadFieldStyles)
         },
         onFieldOrGroupRemoved() {
             this.onFieldRemoved()
