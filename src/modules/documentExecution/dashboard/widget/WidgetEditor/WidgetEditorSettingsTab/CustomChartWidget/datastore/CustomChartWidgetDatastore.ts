@@ -281,7 +281,8 @@ export class CustomChartDatastore {
     }
 
     clickManager(columnName: string, columnValue: string | number) {
-        window?.parent?.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, '*')
+        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, '*')
+        else window?.parent?.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, '*')
     }
 
     getState() {

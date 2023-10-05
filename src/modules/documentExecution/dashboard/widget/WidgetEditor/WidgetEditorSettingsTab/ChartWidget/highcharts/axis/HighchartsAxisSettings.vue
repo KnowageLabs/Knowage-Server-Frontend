@@ -1,13 +1,13 @@
 <template>
     <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="['heatmap', 'area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
+        <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.min') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                 <InputNumber v-model="axisModel.min" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMinHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
-        <div v-if="['heatmap', 'area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
+        <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.max') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                 <InputNumber v-model="axisModel.max" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />

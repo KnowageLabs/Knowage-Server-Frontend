@@ -32,13 +32,16 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
             const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
+            model.xAxis[0].categories = []
             data?.rows?.forEach((row: any) => {
+                const serieName = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex]
                 serieElement.data.push({
-                    name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
+                    name: serieName,
                     y: row[metadata.dataIndex],
                     color: getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex])?.color,
                     drilldown: drilldownEnabled && attributeColumns.length > 1
                 })
+                model.xAxis[0].categories.push(serieName)
             })
             model.series.push(serieElement)
         } else {
@@ -57,14 +60,18 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
     if (!lowAreaRangeColumn || !highAreaRangeColumn) return
     const serieElement = { id: model.series.length, name: lowAreaRangeColumn.column.columnName + ' / ' + highAreaRangeColumn.column.columnName, data: [] as any[], connectNulls: true } as any
     serieElement.type = 'arearange'
+    model.xAxis[0].categories = []
     data?.rows?.forEach((row: any) => {
+        const serieName = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex]
         serieElement.data.push({
-            name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
+            name: serieName,
             low: row[lowAreaRangeColumn.metadata.dataIndex],
             high: row[highAreaRangeColumn.metadata.dataIndex],
             drilldown: false
         })
+        model.xAxis[0].categories.push(serieName)
     })
+
     model.series.push(serieElement)
 }
 

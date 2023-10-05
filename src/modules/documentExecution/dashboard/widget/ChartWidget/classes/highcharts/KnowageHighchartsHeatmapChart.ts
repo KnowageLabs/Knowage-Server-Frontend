@@ -28,8 +28,8 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
     setSpecificOptionsDefaultValues() {
         this.setHeatmapPlotOptions()
         if (!this.model.legend) this.setHeatmapLegend()
-        if (!this.model.xAxis) this.setHeatmapXAxis()
-        if (!this.model.yAxis) this.setHeatmapYAxis()
+        if (!this.model.xAxis || !Array.isArray(this.model.xAxis)) this.setHeatmapXAxis()
+        if (!this.model.yAxis || !Array.isArray(this.model.yAxis)) this.setHeatmapYAxis()
     }
 
     setHeatmapPlotOptions() {
