@@ -34,6 +34,7 @@ import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
 import { setVariableValueFromDataset } from './VariablesHelper'
+import { applySelectedThemeToWidgets } from './themes/ThemesHelper'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
@@ -103,72 +104,18 @@ export default defineComponent({
         setSelectedOption(option: string) {
             this.selectedOption = option
         },
-        applySelectedThemeToWidgets() {
-            const selectedTheme = this.dashboardModel.configuration.theme.config
-            if (!selectedTheme) return
 
-            console.log('----------selectedTheme: ', selectedTheme)
-
-            this.dashboardModel.widgets.forEach((widget) => {
-                switch (widget.type) {
-                    case 'table':
-                        ;['title', 'background', 'borders'].forEach((property: string) => (widget.settings.style[property] = selectedTheme.table.style[property]))
-                        // widget.settings.style.t = { ...selectedTheme.table }
-                        break
-                    case 'selector':
-                        widget.settings.style = selectedTheme.selector
-                        break
-                    case 'html':
-                        widget.settings.style = selectedTheme.html
-                        break
-                    case 'text':
-                        widget.settings.style = selectedTheme.text
-                        break
-                    case 'highcharts':
-                    case 'chartJS':
-                    case 'vega':
-                        widget.settings.style = selectedTheme.chart
-                        break
-                    case 'customchart':
-                        widget.settings.style = selectedTheme.customchart
-                        break
-                    case 'static-pivot-table':
-                    case 'ce-pivot-table':
-                        widget.settings.style = selectedTheme.pivot
-                        break
-                    case 'discovery':
-                        widget.settings.style = selectedTheme.discovery
-                        break
-                    case 'python':
-                        widget.settings.style = selectedTheme.python
-                        break
-                    case 'r':
-                        widget.settings.style = selectedTheme.r
-                        break
-                    case 'selection':
-                        widget.settings.style = selectedTheme.activeSelections
-                        break
-                    case 'image':
-                        widget.settings.style = selectedTheme.image
-                        break
-                    case 'map':
-                        widget.settings.style = selectedTheme.map
-                        break
-                    default:
-                        break
-                }
-            })
-            console.log('------ UPDATED DASHBOARD MODEL: ', this.dashboardModel)
-        },
         async saveGeneralSettings() {
             for (let i = 0; i < this.variables.length; i++) {
                 if (this.variables[i].type === 'dataset') await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
             }
             this.dashboardModel.configuration.variables = this.variables
 
-            this.applySelectedThemeToWidgets()
-            console.log('THEME', this.dashboardModel.configuration.theme)
-            console.log('THEME APPLIED', this.dashboardModel.widgets)
+            if (this.dashboardModel.configuration.theme) {
+                applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
+                console.log('THEME', this.dashboardModel.configuration.theme)
+                console.log('THEME APPLIED', this.dashboardModel.widgets)
+            }
             this.$emit('closeGeneralSettings')
         }
     }
