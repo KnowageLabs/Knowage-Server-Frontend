@@ -54,7 +54,7 @@ export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: I
     })
 }
 
-const applyStylesToWidget = (widgetStyle, themeName, themeStyle) => {
+export const applyStylesToWidget = (widgetStyle, themeName, themeStyle) => {
     widgetStyle.themeName = themeName
     for (const styleProp in themeStyle.style) {
         if (widgetStyle[styleProp]) {

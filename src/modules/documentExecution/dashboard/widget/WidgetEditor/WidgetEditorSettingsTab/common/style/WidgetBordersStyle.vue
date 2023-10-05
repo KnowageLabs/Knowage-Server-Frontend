@@ -1,5 +1,6 @@
 <template>
     <div v-if="bordersStyleModel" class="p-ai-center kn-flex p-p-4">
+        {{ bordersStyleModel }}
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="bordersStyleModel.enabled" color="black" /> </span>
 
         <form class="p-fluid p-formgrid p-grid">
@@ -66,6 +67,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetBordersStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
@@ -88,13 +90,26 @@ export default defineComponent({
             return !this.bordersStyleModel || !this.bordersStyleModel.enabled
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadBordersStyle()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadBordersStyle)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadBordersStyle)
+        },
         loadBordersStyle() {
+            console.log('---------- CAAAAAAAAAAAAAAAAAAAAAAAAAAAAALED')
             if (this.widgetModel?.settings?.style?.borders) this.bordersStyleModel = this.widgetModel.settings.style.borders
             else if (this.themeStyle) this.bordersStyleModel = this.themeStyle
+            console.log('---------- LOADED 1: ', this.widgetModel?.settings?.style?.borders)
+            console.log('---------- LOADED 2: ', this.bordersStyleModel)
         },
         bordersStyleChanged() {
             if (this.widgetModel) this.$emit('styleChanged')
