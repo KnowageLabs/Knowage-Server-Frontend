@@ -130,8 +130,6 @@ export default defineComponent({
                         widget.settings.style = selectedTheme.customchart
                         break
                     case 'static-pivot-table':
-                        widget.settings.style = selectedTheme.pivot
-                        break
                     case 'ce-pivot-table':
                         widget.settings.style = selectedTheme.pivot
                         break
