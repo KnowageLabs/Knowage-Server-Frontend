@@ -101,6 +101,7 @@ export default defineComponent({
         this.loadSelectedModelDatasets()
         this.loadSelectedModel()
         console.log('------------- DASHBOARD ID: ', this.dashboardId)
+        console.log('------------- LOADED WIDGET SETTINGS: ', this.widget?.settings)
     },
     unmounted() {
         this.removeEventListeners()

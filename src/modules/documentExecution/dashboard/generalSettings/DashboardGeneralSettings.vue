@@ -107,10 +107,13 @@ export default defineComponent({
             const selectedTheme = this.dashboardModel.configuration.theme.config
             if (!selectedTheme) return
 
+            console.log('----------selectedTheme: ', selectedTheme)
+
             this.dashboardModel.widgets.forEach((widget) => {
                 switch (widget.type) {
                     case 'table':
-                        widget.settings.style = selectedTheme.table
+                        ;['title', 'background', 'borders'].forEach((property: string) => (widget.settings.style[property] = selectedTheme.table.style[property]))
+                        // widget.settings.style.t = { ...selectedTheme.table }
                         break
                     case 'selector':
                         widget.settings.style = selectedTheme.selector
@@ -155,6 +158,7 @@ export default defineComponent({
                         break
                 }
             })
+            console.log('------ UPDATED DASHBOARD MODEL: ', this.dashboardModel)
         },
         async saveGeneralSettings() {
             for (let i = 0; i < this.variables.length; i++) {
