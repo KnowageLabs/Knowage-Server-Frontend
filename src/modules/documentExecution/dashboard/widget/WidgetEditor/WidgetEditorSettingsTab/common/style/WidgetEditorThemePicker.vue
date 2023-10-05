@@ -1,6 +1,5 @@
 <template>
     <div v-if="widget?.settings?.style" class="p-grid p-p-4">
-        {{ widget.settings.style }}
         <div class="p-col-12 p-d-flex p-flex-column p-pb-2">
             <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.widgetTheme') }}</label>
             <Dropdown v-model="widget.settings.style.themeName" class="kn-material-input kn-full-width" :options="themes" option-label="themeName" option-value="themeName" @change="onThemeSelected"> </Dropdown>
