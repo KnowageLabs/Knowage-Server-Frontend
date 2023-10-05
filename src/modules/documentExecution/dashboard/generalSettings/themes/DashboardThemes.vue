@@ -16,7 +16,7 @@
             </span>
         </form>
 
-        <div v-if="dashboardModelProp.configuration.theme != null" class="theme-manager-examples kn-page p-p-0 kn-overflow dashboard-scrollbar">
+        <div v-if="dashboardModelProp.configuration.theme?.themeName != null" class="theme-manager-examples kn-page p-p-0 kn-overflow dashboard-scrollbar">
             <ThemeExamples :selected-theme-prop="dashboardModelProp.configuration.theme" />
         </div>
     </div>
