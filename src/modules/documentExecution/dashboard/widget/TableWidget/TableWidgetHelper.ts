@@ -194,7 +194,7 @@ const isLinkColumnInteractionActive = (tableNode: any, linkOptions: IWidgetLinks
 
 const addActivePreviewInteractions = (tableNode: any, activeInteractions: any[], previewSettings: IWidgetPreview | undefined) => {
     if (!previewSettings || !previewSettings.enabled) return
-    const isSingleColumnNavigationActiveForSelectedColumn = previewSettings.type === 'singleColumn' && previewSettings.column && tableNode.colDef?.colId === previewSettings.column
+    const isSingleColumnNavigationActiveForSelectedColumn = previewSettings.type === 'singleColumn' && previewSettings.column && tableNode.colDef?.columnName === previewSettings.column
     if (previewSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...previewSettings, interactionType: 'preview' })
 }
 
