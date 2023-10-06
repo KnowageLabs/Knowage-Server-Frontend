@@ -466,7 +466,7 @@ export default defineComponent({
         },
         startLinkInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            openNewLinkTableWidget(formattedRow, this.propWidget.settings.interactions.link, this.dashboardId, this.propVariables)
+            openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, this.propWidget.settings.interactions.link[0])
         },
         sortingChanged() {
             this.$emit('sortingChanged')
