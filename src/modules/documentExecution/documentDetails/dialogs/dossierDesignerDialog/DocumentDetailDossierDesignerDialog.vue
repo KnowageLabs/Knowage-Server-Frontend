@@ -220,19 +220,6 @@
                                                 <div v-if="driver.type == 'static'" class="p-grid p-col">
                                                     <div class="p-field p-col p-mb-0">
                                                         <span class="p-float-label">
-                                                            <InputText id="dossierUrlName" v-model="driver.dossierUrlName" class="kn-material-input" type="text" />
-                                                            <label for="dossierUrlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.dossierUrlName') }}</label>
-                                                        </span>
-                                                        <KnValidationMessages
-                                                            class="p-mt-1"
-                                                            :v-comp="driver.dossierUrlName"
-                                                            :additional-translate-params="{
-                                                                fieldName: $t('documentExecution.dossier.designerDialog.dossierUrlName')
-                                                            }"
-                                                        />
-                                                    </div>
-                                                    <div class="p-field p-col p-mb-0">
-                                                        <span class="p-float-label">
                                                             <InputText id="urlName" v-model="driver.urlName" class="kn-material-input" type="text" />
                                                             <label for="urlName" class="kn-material-input-label"> {{ $t('documentExecution.dossier.designerDialog.urlName') }}</label>
                                                         </span>
@@ -913,7 +900,6 @@ export default defineComponent({
                             placeholder.parameters[j] = {
                                 urlName: placeholder.parameters[j].dossierUrlName || placeholder.parameters[j].parameterUrlName,
                                 type: 'static',
-                                dossierUrlName: placeholder.parameters[j].dossierUrlName,
                                 value: placeholder.parameters[j].value
                             }
                         } else if (placeholder.parameters[j].type === 'dynamic') {
