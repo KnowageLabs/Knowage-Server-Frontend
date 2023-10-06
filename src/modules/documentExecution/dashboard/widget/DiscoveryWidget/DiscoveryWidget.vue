@@ -460,8 +460,6 @@ export default defineComponent({
         },
         startPreview(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            console.log('formattedRow', formattedRow)
-            // TODO - Darko start preview here
             this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: this.propWidget.settings.interactions.preview })
         },
         startLinkInteraction(node: any) {
