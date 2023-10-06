@@ -160,21 +160,3 @@ const getColumnType = (columnField: string, dataToShow: any) => {
     const index = dataToShow.metaData.fields.findIndex((field: any) => field.name === columnField)
     return index !== -1 ? dataToShow.metaData.fields[index].type : ''
 }
-
-export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRenderer: any, CellRenderer: any) => {
-    const crossNavigationOptions = propWidget.settings.interactions.crossNavigation as IWidgetCrossNavigation
-    if (crossNavigationOptions.enabled && crossNavigationOptions.type === 'icon')
-        columns.push({
-            colId: 'iconColumn',
-            valueGetter: `node.rowIndex + 1`,
-            headerName: '',
-            pinned: 'right',
-            width: 55,
-            sortable: false,
-            filter: false,
-            headerComponent: HeaderRenderer,
-            headerComponentParams: { propWidget: propWidget },
-            cellRenderer: CellRenderer,
-            cellRendererParams: { colId: 'iconColumn', propWidget: propWidget }
-        })
-}

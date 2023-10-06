@@ -111,11 +111,8 @@ export default defineComponent({
             }
             this.dashboardModel.configuration.variables = this.variables
 
-            if (this.dashboardModel.configuration.theme) {
-                applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
-                console.log('THEME', this.dashboardModel.configuration.theme)
-                console.log('THEME APPLIED', this.dashboardModel.widgets)
-            }
+            if (this.dashboardModel.configuration.theme) applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
+
             this.$emit('closeGeneralSettings')
         }
     }

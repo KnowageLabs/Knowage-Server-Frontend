@@ -149,7 +149,6 @@ export default defineComponent({
             if (this.settings?.length === 1) this.activeIndex = 0
         },
         onStyleChanged() {
-            console.log('--------- TODO - STYLE CHANGED FLAG CALLED!')
             this.styleChangedFlag = !this.styleChangedFlag
             this.themePropertyChanged = true
         },

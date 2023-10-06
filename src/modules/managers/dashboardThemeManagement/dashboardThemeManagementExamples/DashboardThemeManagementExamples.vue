@@ -98,7 +98,6 @@ export default defineComponent({
     },
     methods: {
         loadSelectedTheme() {
-            console.log('THEME CHANGED')
             this.selectedTheme = this.selectedThemeProp as IDashboardTheme
         },
         loadWidgetModels() {
@@ -118,7 +117,6 @@ export default defineComponent({
             emitter.off('scrollToExample', this.scrollToExample)
         },
         scrollToExample(widgetType: any) {
-            console.log('CLICKED TYPE', this.$refs[widgetType])
             if (widgetType === 'activeSelections') {
                 // @ts-ignore
                 this.$refs[widgetType].$el.nextSibling.scrollIntoView({ behavior: 'smooth' })

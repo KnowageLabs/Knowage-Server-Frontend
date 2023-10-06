@@ -152,8 +152,6 @@ export default class CellRenderer {
         else this.eGui.innerHTML = setCellContent()
 
         function invokeParentMethod(interaction, params, index) {
-            console.log('EEEE just e', interaction)
-
             const clickedInteraction = { type: interaction.interactionType, index: index, icon: interaction.icon, node: params.node }
             params.context.componentParent.activateInteractionFromClickedIcon(clickedInteraction)
         }

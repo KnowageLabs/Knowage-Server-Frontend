@@ -11,7 +11,6 @@ const { t } = i18n.global
 interface IFormattedLink { url: string, action: string }[]
 
 export const openNewLinkTableWidget = (formattedRow: any, dashboardId: string, variables: IVariable[], activeLink: ITableWidgetLink) => {
-    console.log('%c ----------- LINK INTERACTIONS STARTED!', "color: green")
     const formattedLinks = [getFormattedLink(activeLink, formattedRow, null, dashboardId, variables)]
     executeFormattedLinks(formattedLinks)
 }

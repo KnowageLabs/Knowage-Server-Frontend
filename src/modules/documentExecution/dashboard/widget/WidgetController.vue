@@ -397,19 +397,13 @@ export default defineComponent({
         },
 
         async previewInteractionDataset(event: any) {
-            console.group('%c previewInteractionDataset - event ', 'background: #222; color: #bada55')
-            console.log(event)
-            console.groupEnd()
-
             const previewSettings = event.previewSettings as IWidgetPreview
             if (!previewSettings.dataset || previewSettings.dataset < 0) return
-            console.log('------------ previewSettings: ', previewSettings)
+
             this.selectedDataset = deepcopy(this.datasets.find((dataset) => dataset.id.dsId === previewSettings.dataset))
 
             const storeDashboardDatasets = this.dashStore.$state.dashboards[this.dashboardId].configuration.datasets
             const storeDashboardDataset = storeDashboardDatasets.find((dataset) => dataset.id === previewSettings.dataset)
-
-            console.log('------------ selectedDataset: ', this.selectedDataset)
 
             if (this.selectedDataset.id.dsId === storeDashboardDataset.id) {
                 this.selectedDataset.modelParams = storeDashboardDataset.parameters
@@ -419,14 +413,7 @@ export default defineComponent({
             }
 
             if (this.selectedDataset.parameters.length > 0) {
-                this.selectedDataset.parameters.forEach((parameter) => {
-                    formatParameterForPreview(event, parameter, this.widget.type, this.dashboardId)
-                    console.group('%c previewInteractionDataset - parameter ', 'background: #222; color: #bada55')
-                    console.log('------------ WIDGET TYPE: ', this.widget.type)
-                    console.log('------------ event: ', event)
-                    console.log(' ----------------- FORMATTED PARAMETER: ', parameter)
-                    console.groupEnd()
-                })
+                this.selectedDataset.parameters.forEach((parameter) => formatParameterForPreview(event, parameter, this.widget.type, this.dashboardId))
             }
 
             if (this.selectedDataset.drivers && this.selectedDataset.modelDrivers) {

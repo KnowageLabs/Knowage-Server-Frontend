@@ -425,7 +425,6 @@ export default defineComponent({
         },
         executeInteractions(node: any) {
             const activeInteractions = getActiveInteractions(node, this.propWidget.settings.interactions) as any[]
-            console.log('------- activeInteractions: ', activeInteractions)
 
             if (activeInteractions.length > 1) {
                 this.createInteractionsMenuItems(node, activeInteractions)
@@ -442,7 +441,6 @@ export default defineComponent({
             })
         },
         startInteraction(node: any, activeInteraction: any) {
-            console.log('----- startInteraction() - activeInteraction: ', activeInteraction)
             switch (activeInteraction.interactionType) {
                 case 'crossNavigation':
                     this.startCrossNavigation(node)

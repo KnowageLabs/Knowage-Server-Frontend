@@ -14,7 +14,7 @@ import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega
 
 const store = mainStore()
 
-const SIZES = ['xxs', 'xs', 'sm', 'md', 'lg']
+const SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 
 export const createNewDashboardModel = () => {
     const dashboardModel = {
@@ -50,12 +50,8 @@ export const createNewDashboardModel = () => {
 }
 
 export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
-    console.log('-------------- createNewWidget() - dashboardModel: ', dashboardModel)
-    console.log('-------------- createNewWidget() - widget: ', widget)
-    console.log('-------------- createNewWidget() -  widget responsive', widget?.settings?.responsive)
     if (!widget.settings.responsive) return
     const sizes = Object.keys(widget.settings.responsive)
-    console.log('-------------- createNewWidget() -  sizes', sizes)
     if (!dashboardModel.sheets[selectedSheetIndex].widgets) dashboardModel.sheets[selectedSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
     if (sizes.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget)
     else sizes.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget))
@@ -73,7 +69,6 @@ const disableOtherWidgetFullGridInASheet = (dashboardModel: IDashboard, widget: 
 }
 
 const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: string, selectedSheetIndex: number, widget: IWidget) => {
-    console.log('------------- addNewWidgetToSheetsWidgetSizeArray() - size: ', size)
     if (widget.settings.responsive[size]) {
         if (dashboardModel.sheets[selectedSheetIndex].widgets[size]) {
             dashboardModel.sheets[selectedSheetIndex].widgets[size].push(createDashboardSheetWidgetItem(widget))
@@ -84,12 +79,7 @@ const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: s
 }
 
 export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboard: IDashboard, selectedSheet: IDashboardSheet, widget: IWidget) => {
-    console.log('--------- moveWidgetToSheet() - widgetToAdd ', widgetToAdd)
-    console.log('--------- moveWidgetToSheet() - dashboard ', dashboard)
-    console.log('--------- moveWidgetToSheet() - selectedSheet ', selectedSheet)
-    console.log('--------- moveWidgetToSheet() - widget ', widget)
     const selectedSheetInDashboard = dashboard.sheets.find((sheet: IDashboardSheet) => sheet.id === selectedSheet.id)
-    console.log('--------- moveWidgetToSheet() - selectedSheetInDashboard ', selectedSheetInDashboard)
     const sheetWidgets = selectedSheetInDashboard?.widgets as { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }
     if (!widgetToAdd || !sheetWidgets) return
     SIZES.forEach((size: string) => moveWidgetItemToSpecificSizeArray(widgetToAdd, size, sheetWidgets, widget))
@@ -100,8 +90,7 @@ const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: 
     widgetToAdd.y = 0
     let overlap = false
     let maxWidth = getMaxWidthForSpecificSize(size)
-    console.log('--------- sheetWidgets: ', sheetWidgets)
-    console.log('--------- sheetWidgets size: ', size, sheetWidgets[size])
+
     for (let i = 0; i < sheetWidgets[size].length; i++) {
         const existingItem = sheetWidgets[size][i]
         if (widgetToAdd.x < existingItem.x + existingItem.w && widgetToAdd.x + widgetToAdd.w > existingItem.x && widgetToAdd.y < existingItem.y + existingItem.h && widgetToAdd.y + widgetToAdd.h > existingItem.y) {
@@ -139,8 +128,6 @@ const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxW
 }
 
 export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
-    console.log('--------- updateWidgetHelper() - widget ', widget)
-    console.log('--------- updateWidgetHelper() - DASHBOARD ', dashboards[dashboardId])
     for (let i = 0; i < dashboards[dashboardId].widgets.length; i++) {
         if (widget.id === dashboards[dashboardId].widgets[i].id) {
             const tempWidget = deepcopy(widget)
@@ -162,7 +149,6 @@ const updateWidgetInSheets = (dashboardModel: IDashboard, widget: IWidget) => {
 }
 
 const updateFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, sheet: IDashboardSheet, widget: IWidget) => {
-    console.log('updateFullGridWidgetToSheetsWidgetSizeArray() - widget: ', widget)
     SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
     disableOtherWidgetFullGridInASheet(dashboardModel, widget)
 }
@@ -182,9 +168,6 @@ const createDashboardSheetWidgetItem = (widget: IWidget) => {
 }
 
 export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
-    console.log('---------- deleteWidgetHelper() - dashboards: ', dashboards)
-    console.log('---------- deleteWidgetHelper() - dashboardId: ', dashboardId)
-    console.log('---------- deleteWidgetHelper() - widget: ', widget)
     if (!dashboards[dashboardId]) return
     const index = dashboards[dashboardId].widgets.findIndex((tempWidget: IWidget) => tempWidget.id === widget.id)
     if (index !== -1) {
@@ -204,7 +187,6 @@ const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
                 }
             }
         })
-        console.log('---------- deleteWidgetFromSheets() - sheet: ', sheets[i])
     }
 }
 
@@ -265,7 +247,7 @@ export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: a
     await $http
         .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
         .then((response: AxiosResponse<any>) => (datasets = response.data ? response.data.item : []))
-        .catch(() => {})
+        .catch(() => { })
     setAllDatasets(datasets)
     appStore.setLoading(false)
     return datasets

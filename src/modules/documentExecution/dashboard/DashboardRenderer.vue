@@ -101,14 +101,11 @@ export default defineComponent({
         if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
         if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
         this.activeDashboardSheet = this.dashboardModel.sheets[0]
-        console.log('--------- DASHBOARD ID: ', this.dashboardId)
     },
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
         breakpointChangedEvent(size: string) {
             this.currentScreenSize = size
-            console.log('--------- DASHBOARD ID: ', this.dashboardId)
-            console.log('--------- DASHBOARD MODEL: ', this.dashboard)
         },
         getImageSource(chartValue: string) {
             return `${import.meta.env.VITE_PUBLIC_PATH}${chartValue}`

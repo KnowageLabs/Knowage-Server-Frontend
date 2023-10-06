@@ -9,7 +9,7 @@ const { t } = i18n.global
 
 export const startTableWidgetIFrameInteractions = (formattedRow: any, iFrameInteractionSettings: IFrameInteractionSettings, dashboardId: string, variables: IVariable[], window: any) => {
     if (!window.parent || window.parent !== window.top) return
-    console.log('%c ----------- IFRAME INTERACTIONS STARTED!', "color: green")
+
     const dashStore = dashboardStore()
     const drivers = dashStore.getDashboardDrivers(dashboardId)
     const formattedJSON = getFormattedJSON(iFrameInteractionSettings, variables, drivers, formattedRow, null)

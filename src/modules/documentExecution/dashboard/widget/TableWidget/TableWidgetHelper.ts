@@ -162,60 +162,8 @@ const getColumnType = (columnField: string, dataToShow: any) => {
     return index !== -1 ? dataToShow.metaData.fields[index].type : ''
 }
 
-//TODO Bojan: Maybe delete these methods coz they are unnused?
-export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRenderer: any, CellRenderer: any) => {
-    let createIconColumn = false
-    console.log('propWidget.settings.interactions', propWidget.settings.interactions)
-    const interactions = propWidget.settings.interactions as IWidgetInteractions
-    for (const interactionName in interactions) {
-        const interaction = interactions[interactionName]
-        if (interaction.enabled === true && interaction.type === 'icon') {
-            createIconColumn = true
-            break
-        } else createIconColumn = false
-    }
-
-    if (createIconColumn) {
-        columns.push({
-            colId: 'iconColumn',
-            valueGetter: `node.rowIndex + 1`,
-            headerName: '',
-            pinned: 'right',
-            width: 55,
-            sortable: false,
-            filter: false,
-            headerComponent: HeaderRenderer,
-            headerComponentParams: { propWidget: propWidget },
-            cellRenderer: CellRenderer,
-            cellRendererParams: { colId: 'iconColumn', propWidget: propWidget }
-        })
-    }
-    // const crossNavigationOptions = propWidget.settings.interactions.crossNavigation as IWidgetCrossNavigation
-    // const linkIconOptionsIsPresent = iconTypeLinkIsPresent(propWidget.settings.interactions.link)
-    // if ((crossNavigationOptions.enabled && crossNavigationOptions.type === 'icon') || linkIconOptionsIsPresent)
-    //     columns.push({
-    //         colId: 'iconColumn',
-    //         valueGetter: `node.rowIndex + 1`,
-    //         headerName: '',
-    //         pinned: 'right',
-    //         width: 55,
-    //         sortable: false,
-    //         filter: false,
-    //         headerComponent: HeaderRenderer,
-    //         headerComponentParams: { propWidget: propWidget },
-    //         cellRenderer: CellRenderer,
-    //         cellRendererParams: { colId: 'iconColumn', propWidget: propWidget }
-    //     })
-}
-
-// const iconTypeLinkIsPresent = (linkOptions: IWidgetLinks) => {
-//     const index = linkOptions.links.findIndex((link: ITableWidgetLink) => link.type === 'icon')
-//     return index !== -1
-// }
 
 export const getActiveInteractions = (tableNode: any, widgetInteracitonsConfiguration: IWidgetInteractions) => {
-    console.log('------ tableNode ', tableNode)
-    console.log('------ WIDGET INTERACTIONS CONFIGURATION: ', widgetInteracitonsConfiguration)
     const activeInteractions = []
     addActiveCrossNavigationInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.crossNavigation)
     addActiveLinkInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.link)

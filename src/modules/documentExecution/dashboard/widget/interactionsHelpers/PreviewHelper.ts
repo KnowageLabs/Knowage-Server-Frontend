@@ -6,8 +6,6 @@ import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
 
 export const formatParameterForPreview = (event: any, parameter: any, widgetType: string, dashboardId: string) => {
     parameter.value = parameter.defaultValue ?? ''
-    // console.log("---------- formatParameterForPreview() - event: ", event)
-    // console.log("---------- formatParameterForPreview() - parameter: ", parameter)
     const parameterSettings = event.previewSettings.parameters.find((tempParameter: IWidgetInteractionParameter) => tempParameter.name === parameter.name)
     if (!parameterSettings || !parameterSettings.enabled) return
     switch (widgetType) {
@@ -27,30 +25,19 @@ export const formatParameterForPreview = (event: any, parameter: any, widgetType
 }
 
 const formatChartParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedChartValues: IChartInteractionValues, dashboardId: string) => {
-    console.log("---------- formatChartParameterValue() - formattedChartValues: ", formattedChartValues)
-    console.log("---------- formatChartParameterValue() - parameterSettings: ", parameterSettings)
-
     updateParameterValue(parameter, parameterSettings, null, formattedChartValues, dashboardId)
 }
 
 
 const formatTableParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedRow: any, dashboardId: string) => {
-    console.log("---------- formatTableParameterValue() - formattedRow: ", formattedRow)
-    console.log("---------- formatTableParameterValue() - parameterSettings: ", parameterSettings)
     updateParameterValue(parameter, parameterSettings, formattedRow, null, dashboardId)
 }
 
 const formatHTMLWidgetParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, datasetLabel: string, dashboardId: string) => {
-    console.log("---------- formatHTMLWidgetParameterValue() - datasetLabel: ", datasetLabel)
-    console.log("---------- formatHTMLWidgetParameterValue() - parameterSettings: ", parameterSettings)
-    console.log("---------- formatHTMLWidgetParameterValue() - dashboardId: ", dashboardId)
     updateParameterValue(parameter, parameterSettings, null, null, dashboardId)
 }
 
 const formatCustomChartParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, columnValue: string | number, dashboardId: string) => {
-    console.log('---------- formatCustomChartParameterValue() - columnValue: ', columnValue)
-    console.log('---------- formatCustomChartParameterValue() - parameterSettings: ', parameterSettings)
-    console.log('---------- formatCustomChartParameterValue() - dashboardId: ', dashboardId)
     updateParameterValue(parameter, parameterSettings, null, null, dashboardId)
 }
 

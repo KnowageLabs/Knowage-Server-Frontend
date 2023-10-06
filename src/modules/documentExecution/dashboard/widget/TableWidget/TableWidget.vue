@@ -433,7 +433,6 @@ export default defineComponent({
             return columns
         },
         activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
-            console.log('--- activateInteractionFromClickedIcon(): ', cell)
             switch (cell.type) {
                 case 'crossNavigation':
                     this.startCrossNavigation({ node: cell.node })
@@ -572,7 +571,6 @@ export default defineComponent({
         },
         executeInteractions(node: any) {
             const activeInteractions = getActiveInteractions(node, this.widgetModel.settings.interactions) as any[]
-            console.log('------- activeInteractions: ', activeInteractions)
 
             if (activeInteractions.length > 1) {
                 this.createInteractionsMenuItems(node, activeInteractions)
@@ -589,7 +587,6 @@ export default defineComponent({
             })
         },
         startInteraction(node: any, activeInteraction: any) {
-            console.log('----- startInteraction() - activeInteraction: ', activeInteraction)
             switch (activeInteraction.interactionType) {
                 case 'crossNavigation':
                     this.startCrossNavigation(node)
@@ -612,12 +609,9 @@ export default defineComponent({
         },
         startPreview(node: any, activeInteraction: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            console.log('formattedRow', formattedRow)
-            // TODO - Darko start preview here
             this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction })
         },
         startLinkInteraction(node: any, activeInteraction: any) {
-            console.log('------- ACTIVE LINK INTERACTION: ', activeInteraction)
             if (!activeInteraction) return
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
             openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, activeInteraction)
