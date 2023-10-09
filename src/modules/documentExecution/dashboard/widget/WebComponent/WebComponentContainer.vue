@@ -101,9 +101,7 @@ export default defineComponent({
             if (this.editorMode || !event.detail) return
             const datasetLabel = event.detail.datasetLabel
             const previewConfiguration = this.propWidget.settings.interactions.preview
-            // TODO - Darko replace this
             this.$emit('datasetInteractionPreview', { datasetLabel: datasetLabel, previewSettings: previewConfiguration })
-            // executeHTMLWidgetPreview(datasetLabel, previewConfiguration)
         },
         onCrossNavigation(event: any) {
             if (this.editorMode || !event.detail || !this.propWidget) return
