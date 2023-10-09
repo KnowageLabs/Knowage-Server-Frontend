@@ -388,7 +388,7 @@ export default defineComponent({
             this.columns.forEach((el: any) => {
                 if (el.isVisible && el.field && el.field !== 'id') {
                     if (el.defaultValue) newRow[el.field] = el.defaultValue
-                    else newRow[el.field] = ['int', 'float', 'double'].includes(el.type) ? 0 : ''
+                    else newRow[el.field] = ['int', 'float', 'double'].includes(el.columnInfo.type) ? 0 : ''
                 }
             })
             this.addRowToFirstPosition(newRow)
