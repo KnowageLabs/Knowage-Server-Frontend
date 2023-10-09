@@ -249,6 +249,7 @@ export default defineComponent({
                             columnName: this.widgetModel.columns[datasetColumn].columnName,
                             field: responseFields[responseField].name,
                             measure: this.widgetModel.columns[datasetColumn].fieldType,
+                            resizable: true,
                             headerComponent: HeaderRenderer,
                             headerComponentParams: { colId: this.widgetModel.columns[datasetColumn].id, propWidget: this.widgetModel },
                             cellRenderer: CellRenderer,
