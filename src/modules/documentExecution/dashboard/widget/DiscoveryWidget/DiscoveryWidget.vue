@@ -344,7 +344,8 @@ export default defineComponent({
                             measure: modelColumn.fieldType,
                             headerComponent: HeaderRenderer,
                             headerComponentParams: { propWidget: this.propWidget },
-                            suppressMovable: true
+                            suppressMovable: true,
+                            resizable: true
                         } as any
 
                         // COLUMN STYLE ---------------------------------------------------------------------------
