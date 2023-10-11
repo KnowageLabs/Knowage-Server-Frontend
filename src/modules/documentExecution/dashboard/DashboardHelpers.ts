@@ -11,40 +11,15 @@ import { AxiosResponse } from 'axios'
 import mainStore from '@/App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega/VegaHelpers'
+import descriptor from './DashboardDescriptor.json'
 
 const store = mainStore()
 
 const SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 
 export const createNewDashboardModel = () => {
-    const dashboardModel = {
-        sheets: [],
-        widgets: [],
-        configuration: {
-            id: cryptoRandomString({ length: 16, type: 'base64' }),
-            name: '',
-            label: '',
-            description: '',
-            cssToRender: '',
-            associations: [],
-            datasets: [],
-            variables: [],
-            theme: {},
-            selections: [],
-            background: {
-                sheetsBackgroundColor: '',
-                imageBackgroundUrl: '',
-                imageBackgroundSize: ''
-            },
-            menuWidgets: {
-                showExcelExport: true,
-                showScreenshot: true,
-                showSelectionButton: true,
-                enableChartChange: true
-            }
-        },
-        version: '8.2.0'
-    } as IDashboard
+    const dashboardModel = descriptor.newDashboardModel as IDashboard
+    dashboardModel.configuration.id = cryptoRandomString({ length: 16, type: 'base64' });
 
     return dashboardModel
 }
