@@ -38,7 +38,8 @@ export default class CellRenderer {
 
             function createInteractionIcons(interaction, index) {
                 const interactionButton = document.createElement('icon')
-                interactionButton.setAttribute('class', interaction.icon)
+                interactionButton.setAttribute('class', `${interaction.icon} p-mr-1`)
+                interactionButton.setAttribute('style', 'cursor: pointer;')
                 interactionButton.addEventListener('click', () => invokeParentMethod(interaction, params, index))
                 return interactionButton
             }
@@ -111,7 +112,7 @@ export default class CellRenderer {
         }
 
         const styleObject = getCellStyle()
-        //TODO - HARDCODED ICON COLUMN STYLES, ADD NEW OPTIONS IN EDITOR OR TWEAK THIS
+        // HARDCODED ICON COLUMN STYLES, WE CAN ADD NEW OPTIONS IN EDITOR OR TWEAK THIS
         if (params.colId === 'iconColumn') this.setStyle({ 'align-items': 'center', 'justify-content': 'center' })
         else this.setStyle(styleObject)
 
@@ -207,8 +208,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY')
-                    .locale(getLocale(true))
-                    .format(visType?.dateFormat || 'LL')
+                      .locale(getLocale(true))
+                      .format(visType?.dateFormat || 'LL')
                 : cellValue
         }
         function dateTimeFormatter(cellValue) {
@@ -217,8 +218,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS')
-                    .locale(getLocale(true))
-                    .format(visType?.dateFormat || 'LLL')
+                      .locale(getLocale(true))
+                      .format(visType?.dateFormat || 'LLL')
                 : cellValue
         }
     }
