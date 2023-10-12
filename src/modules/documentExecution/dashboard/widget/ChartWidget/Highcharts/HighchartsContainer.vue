@@ -195,7 +195,7 @@ export default defineComponent({
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
-                const tempData = await getChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
+                const tempData = await getChartDrilldownData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
                 const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
                 this.highchartsInstance.hideLoading()
                 newSeries.forEach((serie: any) => {

@@ -17,7 +17,7 @@
                     </Toolbar>
                     <div v-if="!facet.closed">
                         <div
-                            v-for="(row, index) in facet.rows.slice(0, propWidget.settings.facets.limit)"
+                            v-for="(row, index) in facet.rows.slice(0, propWidget.settings.facets.limit ?? 1000)"
                             :key="index"
                             v-tooltip.top="facet.column_1"
                             :class="{ selected: isFacetSelected(facetName, row), blocked: isFacetBlocked(facetName, row) }"
@@ -36,6 +36,7 @@
             </div>
             <div v-if="!gridLoading" class="table-container">
                 <ag-grid-vue class="discovery-grid ag-theme-alpine kn-flex discovery-grid-scrollbar" :grid-options="gridOptions" :context="context"></ag-grid-vue>
+
                 <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
 
                 <PaginationRenderer class="discovery-pagination" :prop-widget="propWidget" :prop-widget-pagination="propWidget.settings.pagination" @pageChanged="$emit('pageChanged')" />
@@ -350,7 +351,8 @@ export default defineComponent({
                             measure: modelColumn.fieldType,
                             headerComponent: HeaderRenderer,
                             headerComponentParams: { propWidget: this.propWidget },
-                            suppressMovable: true
+                            suppressMovable: true,
+                            resizable: true
                         } as any
 
                         // COLUMN STYLE ---------------------------------------------------------------------------
