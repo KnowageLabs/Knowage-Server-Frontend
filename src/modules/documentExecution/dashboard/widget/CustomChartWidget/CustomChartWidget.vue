@@ -13,6 +13,7 @@ import { formatForCrossNavigation } from './CustomChartWidgetHelpers'
 import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import cryptoRandomString from 'crypto-random-string'
+import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 
 export default defineComponent({
     name: 'custom-chart-widget',
@@ -25,7 +26,7 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]>, required: true },
         editorMode: { type: Boolean }
     },
-    emits: ['loading'],
+    emits: ['loading', 'datasetInteractionPreview'],
     data() {
         return {
             id: cryptoRandomString({ length: 16, type: 'base64' }),
@@ -228,6 +229,10 @@ export default defineComponent({
             if (this.propWidget.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(columnValue, this.propWidget.settings.interactions.crossNavigation)
                 executeChartCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
+            } else if (this.propWidget.settings.interactions.preview.enabled) {
+                this.$emit('datasetInteractionPreview', { columnValue: columnValue, previewSettings: this.propWidget.settings.interactions.preview })
+            } else if (this.propWidget.settings.interactions.iframe.enabled) {
+                startHTMLAndCustomChartIFrameInteractions(columnValue, this.propWidget.settings.interactions.iframe, this.dashboardId, this.variables, window)
             } else {
                 if (!columnName) return
                 updateStoreSelections(this.createNewSelection([columnValue], columnName), this.activeSelections, this.dashboardId, this.setSelections, this.$http)

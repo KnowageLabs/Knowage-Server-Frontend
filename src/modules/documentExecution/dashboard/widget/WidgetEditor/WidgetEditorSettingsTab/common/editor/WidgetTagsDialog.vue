@@ -25,6 +25,7 @@
             <WidgetEditorSelection v-else-if="mode === 'selection'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorSelection>
             <WidgetEditorColumnData v-else-if="mode === 'columnsData'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorColumnData>
             <WidgetEditorCrossNavigation v-else-if="mode === 'crossnav'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorCrossNavigation>
+            <WidgetEditorIframeMessage v-else-if="mode === 'iframe'" :widget-model="widgetModel" @insertChanged="onInsertChanged"></WidgetEditorIframeMessage>
         </div>
 
         <template #footer>
@@ -52,6 +53,7 @@ import WidgetEditorPreview from './options/WidgetEditorPreview.vue'
 import WidgetEditorSelection from './options/WidgetEditorSelection.vue'
 import WidgetEditorColumnData from './options/WidgetEditorColumnData.vue'
 import WidgetEditorCrossNavigation from './options/WidgetEditorCrossNavigation.vue'
+import WidgetEditorIframeMessage from './options/WidgetEditorIframeMessage.vue'
 
 export default defineComponent({
     name: 'widget-tags-dialog',
@@ -69,7 +71,8 @@ export default defineComponent({
         WidgetEditorPreview,
         WidgetEditorSelection,
         WidgetEditorColumnData,
-        WidgetEditorCrossNavigation
+        WidgetEditorCrossNavigation,
+        WidgetEditorIframeMessage
     },
     props: {
         visible: Boolean,
@@ -80,7 +83,7 @@ export default defineComponent({
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         dashboardId: { type: String, required: true }
     },
-    emited: ['close', 'insert'],
+    emits: ['close', 'insert'],
     data() {
         return {
             descriptor,

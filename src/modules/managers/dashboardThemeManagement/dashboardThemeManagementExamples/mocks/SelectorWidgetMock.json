@@ -1,0 +1,242 @@
+{
+    "selectorDataMock": {
+        "initialCall": true,
+        "metaData": {
+            "cacheDate": "2023-07-26 11:29:01.301",
+            "fields": [
+                "recNo",
+                {
+                    "dataIndex": "column_1",
+                    "header": "STORE_ID",
+                    "multiValue": false,
+                    "name": "column_1",
+                    "precision": 10,
+                    "scale": 0,
+                    "type": "int"
+                }
+            ],
+            "id": "id",
+            "root": "rows",
+            "totalProperty": "results"
+        },
+        "results": 24,
+        "rows": [
+            {
+                "column_1": 1,
+                "id": 1
+            },
+            {
+                "column_1": 2,
+                "id": 2
+            },
+            {
+                "column_1": 3,
+                "id": 3
+            },
+            {
+                "column_1": 4,
+                "id": 4
+            },
+            {
+                "column_1": 5,
+                "id": 5
+            },
+            {
+                "column_1": 6,
+                "id": 6
+            },
+            {
+                "column_1": 7,
+                "id": 7
+            },
+            {
+                "column_1": 8,
+                "id": 8
+            },
+            {
+                "column_1": 9,
+                "id": 9
+            },
+            {
+                "column_1": 10,
+                "id": 10
+            },
+            {
+                "column_1": 11,
+                "id": 11
+            },
+            {
+                "column_1": 12,
+                "id": 12
+            },
+            {
+                "column_1": 13,
+                "id": 13
+            },
+            {
+                "column_1": 14,
+                "id": 14
+            },
+            {
+                "column_1": 15,
+                "id": 15
+            },
+            {
+                "column_1": 16,
+                "id": 16
+            },
+            {
+                "column_1": 17,
+                "id": 17
+            },
+            {
+                "column_1": 18,
+                "id": 18
+            },
+            {
+                "column_1": 19,
+                "id": 19
+            },
+            {
+                "column_1": 20,
+                "id": 20
+            },
+            {
+                "column_1": 21,
+                "id": 21
+            },
+            {
+                "column_1": 22,
+                "id": 22
+            },
+            {
+                "column_1": 23,
+                "id": 23
+            },
+            {
+                "column_1": 24,
+                "id": 24
+            }
+        ],
+        "stats": {
+            "1": {
+                "cardinality": 24,
+                "distinct": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+                "max": 24,
+                "min": 1
+            }
+        }
+    },
+    "selectorModelMock": {
+        "columns": [
+            {
+                "alias": "STORE_ID",
+                "columnName": "STORE_ID",
+                "fieldType": "ATTRIBUTE",
+                "filter": {},
+                "id": "2zl4e30w/hjzKE7Y",
+                "type": "java.math.BigDecimal"
+            }
+        ],
+        "dataset": 193,
+        "id": "pG+URK+CfxJVAH7X",
+        "settings": {
+            "clickable": true,
+            "configuration": {
+                "defaultValues": {
+                    "enabled": false,
+                    "value": "",
+                    "valueType": ""
+                },
+                "exports": {
+                    "showExcelExport": true
+                },
+                "selectorType": {
+                    "alignment": "vertical",
+                    "columnSize": "",
+                    "modality": "multiValue"
+                },
+                "valuesManagement": {
+                    "enableAll": false,
+                    "hideDisabled": false
+                }
+            },
+            "isDateType": false,
+            "responsive": {
+                "lg": true,
+                "md": true,
+                "sm": true,
+                "xl": true,
+                "xs": true
+            },
+            "sortingOrder": "ASC",
+            "style": {
+                "background": {
+                    "enabled": false,
+                    "properties": {
+                        "background-color": ""
+                    }
+                },
+                "borders": {
+                    "enabled": false,
+                    "properties": {
+                        "border-bottom-left-radius": "",
+                        "border-bottom-right-radius": "",
+                        "border-color": "rgb(212, 212, 212)",
+                        "border-style": "solid",
+                        "border-top-left-radius": "",
+                        "border-top-right-radius": "",
+                        "border-width": "1px"
+                    }
+                },
+                "label": {
+                    "enabled": true,
+                    "properties": {
+                        "background-color": "",
+                        "color": "",
+                        "font-family": "",
+                        "font-size": "",
+                        "font-style": "",
+                        "font-weight": "",
+                        "justify-content": ""
+                    },
+                    "wrapText": false
+                },
+                "padding": {
+                    "enabled": false,
+                    "properties": {
+                        "padding-bottom": "",
+                        "padding-left": "",
+                        "padding-right": "",
+                        "padding-top": "",
+                        "unlinked": false
+                    }
+                },
+                "shadows": {
+                    "enabled": false,
+                    "properties": {
+                        "box-shadow": "",
+                        "color": ""
+                    }
+                },
+                "themeName": "",
+                "title": {
+                    "enabled": false,
+                    "height": 25,
+                    "properties": {
+                        "background-color": "",
+                        "color": "",
+                        "font-family": "",
+                        "font-size": "",
+                        "font-style": "",
+                        "font-weight": "",
+                        "justify-content": ""
+                    },
+                    "text": ""
+                }
+            },
+            "updatable": true
+        },
+        "type": "selector"
+    }
+}

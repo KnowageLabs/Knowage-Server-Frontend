@@ -9,7 +9,7 @@ export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions
 
 }
 
-const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartType: string) => {
+export const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartType: string) => {
     const categoryName = dataToShow?.metaData?.fields[1] ? dataToShow.metaData.fields[1].header : ''
     const chartPoint = chartEvent.point
 
@@ -30,7 +30,8 @@ const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, data
 
 const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) => {
     if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline'].includes(chartType)) return chartPoint.options.y
-    else if (['dependencywheel', 'pictorial'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
+    else if (['dependencywheel', 'pictorial', 'sankey'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
+    else if (['treemap'].includes(chartType)) return chartPoint.value
     else return chartPoint.options.value
 }
 
@@ -52,7 +53,7 @@ const getFormattedOutputParameters = (formattedChartValues: IChartInteractionVal
     return formattedOutputParameters
 }
 
-const getFormattedDynamicOutputParameter = (formattedChartValues: IChartInteractionValues, outputParameter: IWidgetInteractionParameter) => {
+export const getFormattedDynamicOutputParameter = (formattedChartValues: IChartInteractionValues, outputParameter: IWidgetInteractionParameter) => {
     let value = ''
     switch (outputParameter.column) {
         case "SERIE_NAME":

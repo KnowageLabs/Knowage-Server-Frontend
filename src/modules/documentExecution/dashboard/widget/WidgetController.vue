@@ -32,6 +32,7 @@
             @mouseover="toggleFocus"
             @mouseleave="startUnfocusTimer(500)"
             @loading="customChartLoading = $event"
+            @dataset-interaction-preview="previewInteractionDataset"
         ></WidgetRenderer>
         <WidgetButtonBar
             :widget="widget"
@@ -59,6 +60,7 @@
         @close="sheetPickerDialogVisible = false"
         @sheetSelected="onSheetSelected"
     ></SheetPickerDialog>
+    <DatasetEditorPreview v-if="datasetPreviewShown" :visible="datasetPreviewShown" :prop-dataset="datasetToPreview" :dashboard-id="dashboardId" @close="datasetPreviewShown = false" />
 </template>
 
 <script lang="ts">
@@ -66,7 +68,7 @@
  * ! this component will be in charge of managing the widget behaviour related to data and interactions, not related to view elements.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetSearch } from '../Dashboard'
+import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetPreview, IWidgetSearch } from '../Dashboard'
 import { emitter, canEditDashboard } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getWidgetData } from '../DashboardDataProxy'
@@ -86,10 +88,13 @@ import ChangeWidgetDialog from './commonComponents/ChangeWidgetDialog.vue'
 import WidgetSearchDialog from './WidgetSearchDialog/WidgetSearchDialog.vue'
 import SheetPickerDialog from './SheetPickerDialog/SheetPickerDialog.vue'
 import domtoimage from 'dom-to-image-more'
+import { AxiosResponse } from 'axios'
+import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
+import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog },
+    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog, DatasetEditorPreview },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -100,6 +105,10 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dashboardId: { type: String, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
+    },
+    setup() {
+        const dashStore = store()
+        return { dashStore }
     },
     data() {
         return {
@@ -128,7 +137,9 @@ export default defineComponent({
             items: [] as IMenuItem[],
             searchDialogVisible: false,
             search: { searchText: '', searchColumns: [] } as IWidgetSearch,
-            sheetPickerDialogVisible: false
+            sheetPickerDialogVisible: false,
+            datasetToPreview: {} as any,
+            datasetPreviewShown: false
         }
     },
     computed: {
@@ -193,7 +204,7 @@ export default defineComponent({
             let targetElement = document.getElementById(`widget${widget.id}`)
             const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
             if (document.querySelector(escapedSelector)) {
-                targetElement = document.querySelector(escapedSelector)?.contentWindow.document.getElementsByTagName('html')[0]
+                targetElement = (document.querySelector(escapedSelector) as any)?.contentWindow.document.getElementsByTagName('html')[0]
             }
             domtoimage
                 .toPng(targetElement)
@@ -215,9 +226,9 @@ export default defineComponent({
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: true },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: true },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: canEditDashboard(this.document) && ['highcharts', 'vega'].includes(this.widget.type) },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget.type === 'map' },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget.type === 'table' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: canEditDashboard(this.document) && ['highcharts', 'vega'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: canEditDashboard(this.document) },
@@ -383,6 +394,53 @@ export default defineComponent({
             if (!sheet) return
 
             this.moveWidget(this.dashboardId, this.widgetModel, sheet, this.activeSheet)
+        },
+
+        async previewInteractionDataset(event: any) {
+            const previewSettings = event.previewSettings as IWidgetPreview
+            if (!previewSettings.dataset || previewSettings.dataset < 0) return
+
+            this.selectedDataset = deepcopy(this.datasets.find((dataset) => dataset.id.dsId === previewSettings.dataset))
+
+            const storeDashboardDatasets = this.dashStore.$state.dashboards[this.dashboardId].configuration.datasets
+            const storeDashboardDataset = storeDashboardDatasets.find((dataset) => dataset.id === previewSettings.dataset)
+
+            if (this.selectedDataset.id.dsId === storeDashboardDataset.id) {
+                this.selectedDataset.modelParams = storeDashboardDataset.parameters
+                this.selectedDataset.modelDrivers = storeDashboardDataset.drivers ? storeDashboardDataset.drivers : []
+                this.selectedDataset.modelCache = storeDashboardDataset.cache
+                this.selectedDataset.modelIndexes = storeDashboardDataset.indexes
+            }
+
+            if (this.selectedDataset.parameters.length > 0) {
+                this.selectedDataset.parameters.forEach((parameter) => formatParameterForPreview(event, parameter, this.widget.type, this.dashboardId))
+            }
+
+            if (this.selectedDataset.drivers && this.selectedDataset.modelDrivers) {
+                this.selectedDataset.formattedDrivers = this.selectedDataset.modelDrivers
+            }
+
+            await this.loadDatasetToPreview(this.selectedDataset.label)
+
+            this.datasetToPreview.drivers = this.getPreviewDrivers()
+            this.datasetToPreview.pars = [...this.selectedDataset.parameters]
+
+            setTimeout(() => {
+                this.datasetPreviewShown = !this.datasetPreviewShown
+            }, 100)
+        },
+        async loadDatasetToPreview(datasetLabel: string) {
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${datasetLabel}`)
+                .then((response: AxiosResponse<any>) => {
+                    this.datasetToPreview = response.data[0]
+                })
+                .catch(() => {})
+        },
+        getPreviewDrivers() {
+            if (this.selectedDataset.modelDrivers) return [...this.selectedDataset.modelDrivers]
+            else if (this.selectedDataset.formattedDrivers) return [...this.selectedDataset.formattedDrivers]
+            else return []
         }
     }
 })

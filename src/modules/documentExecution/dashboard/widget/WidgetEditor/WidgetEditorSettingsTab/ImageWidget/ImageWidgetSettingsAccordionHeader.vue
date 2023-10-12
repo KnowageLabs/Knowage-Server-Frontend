@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'image-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -23,13 +24,23 @@ export default defineComponent({
     computed: {},
     watch: {
         type() {
-            this.model = this.loadModel()
+            this.updateModel()
         }
     },
-    created() {
-        this.model = this.loadModel()
+    mounted() {
+        this.setEventListeners()
+        this.updateModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.updateModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.updateModel)
+        },
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings) return null
             switch (this.type) {
@@ -45,9 +56,14 @@ export default defineComponent({
                     return this.widgetModel.settings.style.shadows
                 case 'CrossNavigation':
                     return this.widgetModel.settings.interactions.crossNavigation
+                case 'Link':
+                    return this.widgetModel.settings.interactions.link
                 default:
                     return null
             }
+        },
+        updateModel() {
+            this.model = this.loadModel()
         },
         onModelChange() {
             switch (this.type) {
@@ -57,6 +73,7 @@ export default defineComponent({
                 case 'PaddingStyle':
                 case 'ShadowsStyle':
                     setTimeout(() => emitter.emit('refreshImageWidget', this.widgetModel.id), 250)
+                    this.$emit('styleChanged')
             }
         }
     }

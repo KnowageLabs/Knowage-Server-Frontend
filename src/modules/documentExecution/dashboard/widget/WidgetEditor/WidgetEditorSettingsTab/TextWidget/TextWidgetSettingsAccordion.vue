@@ -1,16 +1,18 @@
 <template>
     <div v-show="widgetModel">
+        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
-                    <TextWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></TextWidgetSettingsAccordionHeader>
+                    <TextWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></TextWidgetSettingsAccordionHeader>
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
-                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel"></WidgetBackgroundColorStyle>
-                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel"></WidgetPaddingStyle>
-                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel"></WidgetBordersStyle>
-                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel"></WidgetShadowsStyle>
+                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <TextWidgetEditor v-else-if="accordion.type === 'Editor'" :active-index="activeIndex" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></TextWidgetEditor>
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
@@ -38,6 +40,8 @@ import WidgetCrossNavigation from '../common/interactions/crossNavigation/Widget
 import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import TextWidgetEditor from './editor/TextWidgetEditor.vue'
 import TextWidgetSettingsAccordionHeader from './TextWidgetSettingsAccordionHeader.vue'
+import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'text-widget-settings-container',
@@ -54,7 +58,9 @@ export default defineComponent({
         WidgetCrossNavigation,
         WidgetPreview,
         TextWidgetEditor,
-        TextWidgetSettingsAccordionHeader
+        TextWidgetSettingsAccordionHeader,
+        WidgetEditorThemePicker,
+        Message
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -68,7 +74,15 @@ export default defineComponent({
         return {
             descriptor,
             settingsTabDescriptor,
-            activeIndex: -1
+            activeIndex: -1,
+            styleChangedFlag: false,
+            themePropertyChanged: false,
+            themeName: ''
+        }
+    },
+    computed: {
+        showThemePicker() {
+            return this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         }
     },
     watch: {
@@ -77,12 +91,21 @@ export default defineComponent({
             this.setActiveAccordion()
         }
     },
+
     created() {
         this.setActiveAccordion()
     },
     methods: {
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
+        },
+        onStyleChanged() {
+            this.styleChangedFlag = !this.styleChangedFlag
+            this.themePropertyChanged = true
+        },
+        onThemeSelected(themeName: string) {
+            this.themeName = themeName
+            this.themePropertyChanged = false
         }
     }
 })

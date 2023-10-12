@@ -1,9 +1,11 @@
 <template>
     <div v-show="widgetModel">
+        <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
+        <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="widget-editor-accordion">
             <AccordionTab v-for="(accordion, index) in settings" :key="index">
                 <template #header>
-                    <VegaChartsSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type"></VegaChartsSettingsAccordionHeader>
+                    <VegaChartsSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></VegaChartsSettingsAccordionHeader>
                 </template>
 
                 <VegaNoDataMessageConfiguration v-if="accordion.type === 'NoDataMessageConfiguration'" :widget-model="widgetModel"></VegaNoDataMessageConfiguration>
@@ -11,12 +13,11 @@
                 <VegaTooltipSettings v-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></VegaTooltipSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions"></WidgetTitleStyle>
-                <WidgetRowsStyle v-else-if="accordion.type === 'RowsStyle'" :widget-model="widgetModel"></WidgetRowsStyle>
-                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel"></WidgetBackgroundColorStyle>
-                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel"></WidgetBordersStyle>
-                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel"></WidgetPaddingStyle>
-                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel"></WidgetShadowsStyle>
+                <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
+                <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
+                <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
+                <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
+                <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
@@ -36,7 +37,6 @@ import descriptor from './VegaChartsSettingsDescriptor.json'
 import settingsTabDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import VegaNoDataMessageConfiguration from './configuration/VegaNoDataMessageConfiguration.vue'
 import WidgetExport from '../../common/configuration/WidgetExport.vue'
-import WidgetRowsStyle from '../../common/style/WidgetRowsStyle.vue'
 import WidgetBordersStyle from '../../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../../common/responsive/WidgetResponsive.vue'
@@ -51,6 +51,8 @@ import VegaChartsSettingsAccordionHeader from './VegaChartsSettingsAccordionHead
 import VegaTextConfiguration from '../vega/configuration/VegaTextConfiguration.vue'
 import VegaTooltipSettings from '../vega/tooltip/VegaTooltipSettings.vue'
 import ChartColorSettings from '../common/ChartColorSettings.vue'
+import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.vue'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'vega-charts-configuration-container',
@@ -60,7 +62,6 @@ export default defineComponent({
         VegaNoDataMessageConfiguration,
         WidgetExport,
         WidgetTitleStyle,
-        WidgetRowsStyle,
         WidgetBordersStyle,
         WidgetShadowsStyle,
         WidgetResponsive,
@@ -73,7 +74,9 @@ export default defineComponent({
         VegaChartsSettingsAccordionHeader,
         VegaTextConfiguration,
         VegaTooltipSettings,
-        ChartColorSettings
+        ChartColorSettings,
+        WidgetEditorThemePicker,
+        Message
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -87,7 +90,15 @@ export default defineComponent({
         return {
             descriptor,
             settingsTabDescriptor,
-            activeIndex: -1
+            activeIndex: -1,
+            styleChangedFlag: false,
+            themePropertyChanged: false,
+            themeName: ''
+        }
+    },
+    computed: {
+        showThemePicker() {
+            return this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         }
     },
     watch: {
@@ -102,6 +113,14 @@ export default defineComponent({
     methods: {
         setActiveAccordion() {
             if (this.settings?.length === 1) this.activeIndex = 0
+        },
+        onStyleChanged() {
+            this.styleChangedFlag = !this.styleChangedFlag
+            this.themePropertyChanged = true
+        },
+        onThemeSelected(themeName: string) {
+            this.themeName = themeName
+            this.themePropertyChanged = false
         }
     }
 })

@@ -4,8 +4,10 @@
             <i class="fas fa-bolt" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
-        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context"></ag-grid-vue>
-        <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @pageChanged="$emit('pageChanged')" />
+        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context"> </ag-grid-vue>
+        <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
+
+        <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @page-changed="$emit('pageChanged')" />
     </div>
 </template>
 
@@ -13,10 +15,12 @@
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import { IDashboardDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, isCrossNavigationActive, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, addIconColumn } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
+import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
+import { startTableWidgetIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 import mainStore from '../../../../../App.store'
 import dashboardStore from '../../Dashboard.store'
 import descriptor from '../../dataset/DatasetEditorDescriptor.json'
@@ -29,6 +33,7 @@ import SummaryRowRenderer from './SummaryRowRenderer.vue'
 import HeaderGroupRenderer from './HeaderGroupRenderer.vue'
 import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
+import ContextMenu from 'primevue/contextmenu'
 
 export default defineComponent({
     name: 'table-widget',
@@ -42,18 +47,19 @@ export default defineComponent({
         HeaderGroupRenderer,
         // eslint-disable-next-line vue/no-unused-components
         TooltipRenderer,
-        PaginatorRenderer
+        PaginatorRenderer,
+        ContextMenu
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         editorMode: { type: Boolean, required: false },
-        datasets: { type: Array as PropType<IDashboardDataset[]>, required: true },
+        datasets: { type: Array as PropType<IDataset[]>, required: true },
         dataToShow: { type: Object as any, required: true },
         propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
         dashboardId: { type: String, required: true },
         propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['pageChanged', 'sortingChanged', 'launchSelection'],
+    emits: ['pageChanged', 'sortingChanged', 'launchSelection', 'datasetInteractionPreview'],
     setup() {
         const store = dashboardStore()
         const appStore = mainStore()
@@ -76,7 +82,8 @@ export default defineComponent({
             multiSelectedCells: [] as any,
             selectedColumn: false as any,
             selectedColumnArray: [] as any,
-            context: null as any
+            context: null as any,
+            interactionsMenuItems: [] as any
         }
     },
     watch: {
@@ -390,9 +397,57 @@ export default defineComponent({
                 }
             }
 
-            addIconColumn(columns, this.widgetModel, HeaderRenderer, CellRenderer)
+            //ICON COLUMN STUFF --------------------------------------------------------------------------
+            let createIconColumn = false
+            const interactions = this.widgetModel.settings.interactions as IWidgetInteractions
+            for (const interactionName in interactions) {
+                const interaction = interactions[interactionName]
+                if (interaction.enabled === true && interaction.type === 'icon') {
+                    createIconColumn = true
+                    break
+                } else if (interaction.enabled === true && interaction.links?.length > 0) {
+                    interaction.links.forEach((link) => {
+                        if (link.type === 'icon') createIconColumn = true
+                    })
+                }
+            }
+
+            if (createIconColumn) {
+                columns.push({
+                    colId: 'iconColumn',
+                    valueGetter: `node.rowIndex + 1`,
+                    headerName: '',
+                    pinned: 'right',
+                    width: 100,
+                    sortable: false,
+                    filter: false,
+                    headerComponent: HeaderRenderer,
+                    headerComponentParams: { propWidget: this.widgetModel },
+                    cellRenderer: CellRenderer,
+                    cellRendererParams: {
+                        colId: 'iconColumn',
+                        propWidget: this.widgetModel
+                    }
+                })
+            }
 
             return columns
+        },
+        activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
+            switch (cell.type) {
+                case 'crossNavigation':
+                    this.startCrossNavigation({ node: cell.node })
+                    break
+                case 'link':
+                    this.startLinkInteraction({ node: cell.node }, this.widgetModel.settings.interactions.link?.links[cell.index ?? 0])
+                    break
+                case 'preview':
+                    this.startPreview({ node: cell.node }, this.widgetModel.settings.interactions.preview)
+                    break
+                case 'iframe':
+                    this.startIframeInteraction({ node: cell.node })
+                    break
+            }
         },
         getColumnGroup(col) {
             const modelGroups = this.widgetModel.settings.configuration.columnGroups.groups
@@ -469,56 +524,102 @@ export default defineComponent({
                 this.gridApi?.setPinnedBottomRowData()
             }
         },
-        onCellClicked(node) {
-            if (!this.editorMode && isCrossNavigationActive(node, this.widgetModel.settings.interactions.crossNavigation)) {
-                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-                const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
-                executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-                return
-            }
+        onCellClicked(node: any) {
+            if (this.editorMode || node.colDef.colId === 'iconColumn') return
 
-            if (!this.editorMode) {
-                if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
-                //SELECTION LOGIC -------------------------------------------------------------------
-                const modalSelection = this.widgetModel.settings.interactions.selection
+            if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
+            this.executeInteractions(node)
 
-                if (modalSelection.enabled) {
-                    if (modalSelection.multiselection.enabled) {
-                        //first check to see it the column selected is the same, if not clear the past selections
-                        if (!this.selectedColumn || this.selectedColumn != node.colDef.field) {
-                            this.multiSelectedCells.splice(0, this.multiSelectedCells.length)
-                            this.selectedColumn = node.colDef.field
-                        }
+            //SELECTION LOGIC -------------------------------------------------------------------
+            const modalSelection = this.widgetModel.settings.interactions.selection
 
-                        if (modalSelection.modalColumn) {
-                            const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
-                            const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
+            if (modalSelection.enabled) {
+                if (modalSelection.multiselection.enabled) {
+                    //first check to see it the column selected is the same, if not clear the past selections
+                    if (!this.selectedColumn || this.selectedColumn != node.colDef.field) {
+                        this.multiSelectedCells.splice(0, this.multiSelectedCells.length)
+                        this.selectedColumn = node.colDef.field
+                    }
 
-                            if (!this.multiSelectedCells.includes(modalColumnValue)) this.multiSelectedCells.push(modalColumnValue)
-                            else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(modalColumnValue), 1)
-                            if (this.multiSelectedCells.length == 0) this.selectedColumn = false
-                        } else {
-                            if (!this.multiSelectedCells.includes(node.value)) this.multiSelectedCells.push(node.value)
-                            else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(node.value), 1)
-                            if (this.multiSelectedCells.length == 0) this.selectedColumn = false
-                        }
-                    } else if (!modalSelection.multiselection.enabled) {
-                        if (modalSelection.modalColumn) {
-                            const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
-                            const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
-                            updateStoreSelections(createNewTableSelection([modalColumnValue], this.widgetModel.columns[modalColumnIndex].columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-                        } else {
-                            updateStoreSelections(createNewTableSelection([node.value], node.colDef.columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-                        }
+                    if (modalSelection.modalColumn) {
+                        const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
+                        const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
+
+                        if (!this.multiSelectedCells.includes(modalColumnValue)) this.multiSelectedCells.push(modalColumnValue)
+                        else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(modalColumnValue), 1)
+                        if (this.multiSelectedCells.length == 0) this.selectedColumn = false
+                    } else {
+                        if (!this.multiSelectedCells.includes(node.value)) this.multiSelectedCells.push(node.value)
+                        else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(node.value), 1)
+                        if (this.multiSelectedCells.length == 0) this.selectedColumn = false
+                    }
+                } else if (!modalSelection.multiselection.enabled) {
+                    if (modalSelection.modalColumn) {
+                        const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
+                        const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
+                        updateStoreSelections(createNewTableSelection([modalColumnValue], this.widgetModel.columns[modalColumnIndex].columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+                    } else {
+                        updateStoreSelections(createNewTableSelection([node.value], node.colDef.columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
                     }
                 }
-
-                this.selectedColumnArray.pop()
-                this.selectedColumnArray.push(node.colDef.field)
-
-                const params = { force: true }
-                this.gridApi?.refreshCells(params)
             }
+
+            this.selectedColumnArray.pop()
+            this.selectedColumnArray.push(node.colDef.field)
+
+            const params = { force: true }
+            this.gridApi?.refreshCells(params)
+        },
+        executeInteractions(node: any) {
+            const activeInteractions = getActiveInteractions(node, this.widgetModel.settings.interactions) as any[]
+
+            if (activeInteractions.length > 1) {
+                this.createInteractionsMenuItems(node, activeInteractions)
+                const interactionsMenuRef = this.$refs.interactionMenu as any
+                interactionsMenuRef.toggle(node.event)
+            } else if (activeInteractions.length === 1) {
+                this.startInteraction(node, activeInteractions[0])
+            }
+        },
+        createInteractionsMenuItems(node: any, activeInteractions: any[]) {
+            this.interactionsMenuItems = []
+            activeInteractions.forEach((activeInteraction: any) => {
+                this.interactionsMenuItems.push({ node: node, interaction: activeInteraction, label: activeInteraction.interactionType, command: () => this.startInteraction(node, activeInteraction) })
+            })
+        },
+        startInteraction(node: any, activeInteraction: any) {
+            switch (activeInteraction.interactionType) {
+                case 'crossNavigation':
+                    this.startCrossNavigation(node)
+                    break
+                case 'link':
+                    this.startLinkInteraction(node, activeInteraction)
+                    break
+                case 'preview':
+                    this.startPreview(node, this.widgetModel.settings.interactions.preview)
+                    break
+                case 'iframe':
+                    this.startIframeInteraction(node)
+                    break
+            }
+        },
+        startCrossNavigation(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
+            executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
+        },
+        startPreview(node: any, activeInteraction: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction })
+        },
+        startLinkInteraction(node: any, activeInteraction: any) {
+            if (!activeInteraction) return
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, activeInteraction)
+        },
+        startIframeInteraction(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
         },
         applyMultiSelection() {
             const modalSelection = this.widgetModel.settings.interactions.selection

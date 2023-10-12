@@ -107,6 +107,7 @@
         "horizontalAlign": "Horizontal Align",
         "icon": "Icon",
         "id": "id",
+        "iframe": "Iframe",
         "image": "image",
         "import": "import",
         "inUse": "In use",
@@ -409,12 +410,18 @@
             },
             "css": "CSS Editor",
             "menuWidgets": {
+                "enableChartChange": "Enable chart changing",
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
                 "title": "Menu & Widgets"
             },
             "profile": "Profile",
+            "themes": {
+                "dashboardTheme": "Dashboard Theme",
+                "editTheme": "Edit Theme",
+                "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager"
+            },
             "title": "General Settings",
             "variableColumnHint": "If no column is defined the whole dataset will be used.",
             "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."
@@ -461,10 +468,11 @@
             "background": "Background",
             "blur": "Blur",
             "borders": {
-                "borderRadiusBottomLeft": "Border radius bottom left",
-                "borderRadiusBottomRight": "Border radius bottom right",
-                "borderRadiusTopLeft": "Border radius top left",
-                "borderRadiusTopRight": "Border radius top right",
+                "borderRadius": "Border Radius",
+                "borderRadiusBottomLeft": "Bottom left",
+                "borderRadiusBottomRight": "Bottom right",
+                "borderRadiusTopLeft": "Top left",
+                "borderRadiusTopRight": "Top right",
                 "bordersColor": "Borders Color",
                 "bordersStyle": "Borders Style",
                 "bordersThickness": "Borders Thickness",
@@ -591,6 +599,7 @@
                     "columnsData": "This tag is used to show a field value from the selected dataset column. The optional attribute ROW make the tag show the field value of the specified row for that column. If a row is not specified the tag will show the first occurrence for the column.",
                     "conditional": "This tag is used to conditionally show a specific HTML section delimited by the tag ending. If the condition is verified the tag will be displayed, else it will be hidden. Other tags can be used to dinamically get a value for the condition.",
                     "crossnav": "This tag is used to create an interactive element bind to the selected cross-navigation. Cross-navigation must be enabled in the 'Cross' tab of this widget setting. If you selected \"Dynamic\" output you can add a value to the kn-cross attribute.",
+                    "iframe": "This tag is used to create and interactive element sending a message to the parent Iframe. The message will be a JSON defined in the editor.",
                     "internationalization": "This tag is used to show a label value depending on the user locale and using the internationalization manager.",
                     "parameters": "This tag is used to show a parameter value from the ones available to the selected dataset.",
                     "preview": "This tag is used to create an interactive element creating a link to a popup showing the specified dataset preview.",
@@ -601,6 +610,7 @@
                     "variables": "This tag is used to show the value of the selected variable."
                 },
                 "i18n": "i18n",
+                "iframe": "Iframe Message",
                 "internationalization": "Internationalization",
                 "limit": "Limit",
                 "parameters": "Parameters",
@@ -893,6 +903,10 @@
                 "enableClickOnSingleColumn": "Enable click on a single column",
                 "enableClickOnWholeRow": "Enable click on whole row",
                 "enableMultiselection": "Enable Multiselection",
+                "iframeInteractionHint": {
+                    "partOne": "Write the JSON message in the following editor. By clicking over the widget it will be propagated to a container window.",
+                    "partTwo": "You can use $P{parameterPlaceholder}, $V{variablePlaceholder} and {value} placeholder to retrieve dynamic data."
+                },
                 "json": "JSON",
                 "jwt": "JWT",
                 "link": "Link",
@@ -907,6 +921,7 @@
                 "title": "Interactions"
             },
             "itemsPerPage": "Items per page",
+            "jsonLinkParsingError": "Error while parsing JSON link.",
             "legend": {
                 "title": "Legend"
             },
@@ -1135,6 +1150,7 @@
                 "wordPadding": "Word Padding"
             },
             "textParsingError": "Text Parsing Error",
+            "themeChangedWarning": "By changing one of the theme properties the connection to the theme is no longer active. If you want to inherit future theme changes select one of the available themes.",
             "thresholds": "Thresholds",
             "title": "Widget Editor",
             "titles": {
@@ -1148,6 +1164,7 @@
                 "customHeader": "Custom Header",
                 "title": "Tooltips"
             },
+            "useAsResource": "Use as resource",
             "valuesManagement": {
                 "alwaysEnableValues": "Always Enable Values",
                 "alwaysEnableValuesHint": "Always enable values hint placeholder",
@@ -1197,6 +1214,7 @@
                 "textAndIcon": "Text & Icon",
                 "title": "Visualization Type"
             },
+            "widgetTheme": "Widget Theme",
             "xAxis": "X Axis",
             "yAxis": "Y Axis"
         },
@@ -2190,6 +2208,43 @@
             "title": "Cross Navigation",
             "width": "Window width",
             "widthHelp": "Width in px of the popup window."
+        },
+        "dashboardThemeManager": {
+            "scrollToWidget": "Find Widget in Preview",
+            "styleTypes": {
+                "background": "Background",
+                "borders": "Borders",
+                "chips": "Chips",
+                "columnGroups": "Column Groups",
+                "columns": "Columns",
+                "fieldHeaders": "Field Headers",
+                "fields": "Fields",
+                "headers": "Headers",
+                "label": "Label",
+                "padding": "Padding",
+                "paginator": "Paginator",
+                "rows": "Rows",
+                "shadows": "Shadows",
+                "subTotals": "SubTotals",
+                "summary": "Summary",
+                "title": "Title",
+                "totals": "Totals"
+            },
+            "widgetNames": {
+                "activeSelections": "Active Selections",
+                "chart": "Chart",
+                "customChart": "Custom Chart",
+                "discovery": "Discovery",
+                "html": "HTML",
+                "image": "Image",
+                "map": "Map",
+                "pivot": "Pivot",
+                "python": "Python",
+                "r": "R",
+                "selector": "Selector",
+                "table": "Table",
+                "text": "Text"
+            }
         },
         "dataSourceManagement": {
             "form": {

@@ -36,7 +36,10 @@
             </div>
             <div v-if="!gridLoading" class="table-container">
                 <ag-grid-vue class="discovery-grid ag-theme-alpine kn-flex discovery-grid-scrollbar" :grid-options="gridOptions" :context="context"></ag-grid-vue>
-                <PaginationRenderer class="discovery-pagination" :prop-widget="propWidget" :prop-widget-pagination="propWidget.settings.pagination" @page-changed="$emit('pageChanged')" />
+
+                <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
+
+                <PaginationRenderer class="discovery-pagination" :prop-widget="propWidget" :prop-widget-pagination="propWidget.settings.pagination" @pageChanged="$emit('pageChanged')" />
             </div>
         </div>
     </div>
@@ -45,11 +48,12 @@
 <script lang="ts">
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, IWidget } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
-import { createNewTableSelection, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, isCrossNavigationActive } from '../TableWidget/TableWidgetHelper'
+import { createNewTableSelection, formatRowDataForCrossNavigation, getActiveInteractions, getFormattedClickedValueForCrossNavigation } from '../TableWidget/TableWidgetHelper'
+import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
 import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
 import mainStore from '../../../../../App.store'
@@ -58,10 +62,11 @@ import PaginationRenderer from '../TableWidget/PaginatorRenderer.vue'
 import HeaderRenderer from '../TableWidget/HeaderRenderer.vue'
 import TooltipRenderer from '../TableWidget/TooltipRenderer.vue'
 import ProgressSpinner from 'primevue/progressspinner'
+import ContextMenu from 'primevue/contextmenu'
 
 export default defineComponent({
     name: 'table-widget',
-    components: { AgGridVue, PaginationRenderer, ProgressSpinner },
+    components: { AgGridVue, PaginationRenderer, ProgressSpinner, ContextMenu },
     props: {
         widgetLoading: { type: Boolean, required: true },
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -69,9 +74,10 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dataToShow: { type: Object as any, required: true },
         propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
-        dashboardId: { type: String, required: true }
+        dashboardId: { type: String, required: true },
+        propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['pageChanged', 'facetsChanged', 'searchWordChanged', 'launchSelection', 'sortingChanged'],
+    emits: ['pageChanged', 'facetsChanged', 'searchWordChanged', 'launchSelection', 'sortingChanged', 'datasetInteractionPreview'],
     setup() {
         const store = dashboardStore()
         const appStore = mainStore()
@@ -93,7 +99,8 @@ export default defineComponent({
             gridLoading: false,
             selectedColumn: false as any,
             getRowId: null as any,
-            context: null as any
+            context: null as any,
+            interactionsMenuItems: [] as any
         }
     },
     computed: {
@@ -411,19 +418,55 @@ export default defineComponent({
             return columntooltipConfig
         },
         onCellClicked(node) {
-            if (!this.editorMode && isCrossNavigationActive(node, this.propWidget.settings.interactions.crossNavigation)) {
-                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-                const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
-                executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
-                return
-            }
-
             if (!this.editorMode) {
                 if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
 
                 updateStoreSelections(createNewTableSelection([node.value], node.colDef.columnName, this.propWidget, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
                 this.gridApi?.refreshCells({ force: true })
             }
+        },
+        executeInteractions(node: any) {
+            const activeInteractions = getActiveInteractions(node, this.propWidget.settings.interactions) as any[]
+
+            if (activeInteractions.length > 1) {
+                this.createInteractionsMenuItems(node, activeInteractions)
+                const interactionsMenuRef = this.$refs.interactionMenu as any
+                interactionsMenuRef.toggle(node.event)
+            } else if (activeInteractions.length === 1) {
+                this.startInteraction(node, activeInteractions[0])
+            }
+        },
+        createInteractionsMenuItems(node: any, activeInteractions: any[]) {
+            this.interactionsMenuItems = []
+            activeInteractions.forEach((activeInteraction: any) => {
+                this.interactionsMenuItems.push({ node: node, interaction: activeInteraction, label: activeInteraction.interactionType, command: () => this.startInteraction(node, activeInteraction) })
+            })
+        },
+        startInteraction(node: any, activeInteraction: any) {
+            switch (activeInteraction.interactionType) {
+                case 'crossNavigation':
+                    this.startCrossNavigation(node)
+                    break
+                case 'link':
+                    this.startLinkInteraction(node)
+                    break
+                case 'preview':
+                    this.startPreview(node)
+                    break
+            }
+        },
+        startCrossNavigation(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
+            executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
+        },
+        startPreview(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: this.propWidget.settings.interactions.preview })
+        },
+        startLinkInteraction(node: any) {
+            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+            openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, this.propWidget.settings.interactions.link[0])
         },
         sortingChanged() {
             this.$emit('sortingChanged')

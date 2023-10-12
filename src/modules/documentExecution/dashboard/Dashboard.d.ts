@@ -13,7 +13,7 @@ export interface IDashboardSheet {
     id: string
     index: number
     label: string
-    widgets: { lg: IWidgetSheetItem[] }
+    widgets: { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }
 }
 
 export interface IWidgetSheetItem {
@@ -36,7 +36,7 @@ export interface IDashboardConfiguration {
     datasets: IDashboardDataset[]
     variables: IVariable[]
     selections: ISelection[]
-    themes: any
+    theme: any
     background: IBackground
     menuWidgets: IMenuAndWidgets
 }
@@ -197,6 +197,7 @@ export interface IWidgetInteractions {
     preview?: IWidgetPreview
     selection?: IWidgetSelection
     drilldown?: IHighchartsDrilldown
+    iframe?: IFrameInteractionSettings
 }
 
 export interface IWidgetCrossNavigation {
@@ -233,6 +234,7 @@ export interface IWidgetInteractionParameter {
     driver?: string
     dataset?: string
     json?: string
+    useAsResource?: boolean
 }
 
 export interface IWidgetPreview {
@@ -257,6 +259,15 @@ export interface IWidgetSelection {
     }
 }
 
+export interface IFrameInteractionSettings {
+    enabled: boolean
+    type: string
+    column: string
+    icon?: string
+    label?: string
+    json: string
+}
+
 export interface ITableWidgetPagination {
     enabled: boolean
     properties: {
@@ -267,17 +278,18 @@ export interface ITableWidgetPagination {
 }
 
 export interface ITableWidgetStyle {
-    title: IWidgetTitle
-    borders: IWidgetBordersStyle
+    themeName: string
     columns: ITableWidgetColumnStyles
     columnGroups: ITableWidgetColumnStyles
     headers: ITableWidgetHeadersStyle
-    padding: IWidgetPaddingStyle
     rows: IWidgetRowsStyle
-    shadows: IWidgetShadowsStyle
     summary: ITableWidgetSummaryStyle
-    background: IWidgetBackgroundStyle
     paginator: ITableWidgetPaginatorStyle
+    title: IWidgetTitle
+    background: IWidgetBackgroundStyle
+    borders: IWidgetBordersStyle
+    padding: IWidgetPaddingStyle
+    shadows: IWidgetShadowsStyle
 }
 
 export interface IWidgetBordersStyle {
@@ -430,11 +442,11 @@ export interface ITableWidgetVisibilityCondition {
 
 export interface IWidgetResponsive {
     fullGrid: boolean
+    xxs: boolean
     xs: boolean
     sm: boolean
     md: boolean
     lg: boolean
-    xl: boolean
 }
 
 export interface IWidgetColumn {
@@ -608,6 +620,7 @@ interface IMenuAndWidgets {
     showExcelExport: boolean
     showScreenshot: boolean
     showSelectionButton: boolean
+    enableChartChange: boolean
 }
 
 interface IAssociationField {

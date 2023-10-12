@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
-import { deleteWidgetHelper, emitter, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
+import { addNewWidgetToSheets, deleteWidgetHelper, emitter, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
 import { IDashboardDriver, IDashboardSheet, IDashboardView, IDataset, ISelection, IWidget, IWidgetSheetItem } from './Dashboard'
 import { selectionsUseDatasetWithAssociation } from './widget/interactionsHelpers/DatasetAssociationsHelper'
 import { loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
 import { recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
-import cryptoRandomString from 'crypto-random-string'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import deepcopy from 'deepcopy'
 
 const store = defineStore('dashboardStore', {
@@ -14,7 +14,8 @@ const store = defineStore('dashboardStore', {
             selectedSheetIndex: 0,
             allDatasets: [] as IDataset[],
             internationalization: {},
-            profileAttributes: [] as { name: string; value: string }[]
+            profileAttributes: [] as { name: string; value: string }[],
+            allThemes: [] as IDashboardTheme[]
         }
     },
     actions: {
@@ -39,11 +40,7 @@ const store = defineStore('dashboardStore', {
         createNewWidget(dashboardId: string, widget: IWidget) {
             recreateKnowageChartModel(widget)
             this.dashboards[dashboardId].widgets.push(widget)
-            if (this.dashboards[dashboardId].sheets[this.selectedSheetIndex]) {
-                this.dashboards[dashboardId].sheets[this.selectedSheetIndex].widgets.lg.push({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false })
-            } else {
-                this.dashboards[dashboardId].sheets[this.selectedSheetIndex] = { widgets: { lg: [{ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }] } }
-            }
+            addNewWidgetToSheets(this.dashboards[dashboardId], this.selectedSheetIndex, widget)
         },
         updateWidget(dashboardId: string, widget: IWidget) {
             updateWidgetHelper(dashboardId, widget, this.dashboards)
@@ -151,6 +148,12 @@ const store = defineStore('dashboardStore', {
         },
         setCurrentDashboardView(dashboardId: string, currentDashboardView: IDashboardView) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].currentView = currentDashboardView
+        },
+        setAllThemes(themes: IDashboardTheme[]) {
+            this.allThemes = themes
+        },
+        getAllThemes() {
+            return this.allThemes
         }
     }
 })

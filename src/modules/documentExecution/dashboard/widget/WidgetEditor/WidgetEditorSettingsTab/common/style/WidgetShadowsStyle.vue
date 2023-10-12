@@ -1,34 +1,39 @@
 <template>
-    <div v-if="shadowsStyleModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
-        <div class="p-col-12 p-grid p-ai-center p-p-0">
-            <div class="p-col-12 p-md-6 p-d-flex p-flex-column p-pb-3">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.shadows.shadowSize') }}</label>
-                <Dropdown v-model="shadowSize" class="kn-material-input" :options="descriptor.shadowsSizeOptions" option-value="value" :disabled="shadowsStyleDisabled" @change="onShadowsSizeChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.shadowsSizeOptions, $t) }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-            </div>
+    <div v-if="shadowsStyleModel" class="kn-flex p-p-4">
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="shadowsStyleModel.enabled" color="black" /> </span>
 
-            <div class="p-col-12 p-md-6 p-px-2 p-pt-3">
-                <WidgetEditorColorPicker :initial-value="shadowsStyleModel.properties.color" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="shadowsStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
+        <form class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-lg-8">
+                <span class="p-float-label">
+                    <Dropdown v-model="shadowSize" class="kn-material-input p-inputtext-sm" :options="descriptor.shadowsSizeOptions" option-value="value" :disabled="shadowsStyleDisabled" @change="onShadowsSizeChanged">
+                        <template #value="slotProps">
+                            <div>
+                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.shadowsSizeOptions, $t) }}</span>
+                            </div>
+                        </template>
+                        <template #option="slotProps">
+                            <div>
+                                <span>{{ $t(slotProps.option.label) }}</span>
+                            </div>
+                        </template>
+                    </Dropdown>
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.shadows.shadowSize') }}</label>
+                </span>
             </div>
-        </div>
+            <div class="p-field p-col-12 p-lg-4">
+                <span class="">
+                    <WidgetEditorColorPicker :initial-value="shadowsStyleModel.properties.color" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="shadowsStyleDisabled" @change="onBackroundColorChanged"></WidgetEditorColorPicker>
+                </span>
+            </div>
+        </form>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetShadowsStyle } from '@/modules/documentExecution/Dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
@@ -36,9 +41,8 @@ import WidgetEditorColorPicker from '../../common/WidgetEditorColorPicker.vue'
 export default defineComponent({
     name: 'widget-shadows-style',
     components: { Dropdown, WidgetEditorColorPicker },
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<IWidgetShadowsStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             descriptor,
@@ -54,25 +58,27 @@ export default defineComponent({
             return !this.shadowsStyleModel || !this.shadowsStyleModel.enabled
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadShadowsStyle()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadShadowsStyle)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadShadowsStyle)
+        },
         loadShadowsStyle() {
-            if (!this.widgetModel) return
-            this.widgetType = this.widgetModel.type
-            if (this.widgetModel.settings?.style?.shadows) this.shadowsStyleModel = this.widgetModel.settings.style.shadows
+            if (this.widgetModel?.settings?.style?.shadows) this.shadowsStyleModel = this.widgetModel.settings.style.shadows
+            else if (this.themeStyle) this.shadowsStyleModel = this.themeStyle
             this.getShadowSize()
         },
         shadowStyleChanged() {
-            switch (this.widgetType) {
-                case 'table':
-                    emitter.emit('refreshTable', this.widgetModel.id)
-                    break
-                case 'selector':
-                    emitter.emit('refreshSelector', this.widgetModel.id)
-                    break
-            }
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         getShadowSize() {
             if (!this.shadowsStyleModel) return

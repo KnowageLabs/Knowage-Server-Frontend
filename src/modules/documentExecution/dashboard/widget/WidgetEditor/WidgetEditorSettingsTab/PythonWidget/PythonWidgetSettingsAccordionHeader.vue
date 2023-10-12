@@ -1,6 +1,6 @@
 <template>
     <div class="p-d-flex p-flex-row p-ai-center">
-        <InputSwitch v-if="model" v-model="model.enabled" class="p-mr-3" @click.stop="() => {}"></InputSwitch>
+        <InputSwitch v-if="model" v-model="model.enabled" class="p-mr-3" @click.stop="onModelChange"></InputSwitch>
         <label class="kn-material-input-label">{{ title ? $t(title) : '' }}</label>
     </div>
 </template>
@@ -8,12 +8,14 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'python-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -22,13 +24,23 @@ export default defineComponent({
     computed: {},
     watch: {
         type() {
-            this.model = this.loadModel()
+            this.updateModel()
         }
     },
-    created() {
-        this.model = this.loadModel()
+    mounted() {
+        this.setEventListeners()
+        this.updateModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.updateModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.updateModel)
+        },
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings) return null
             switch (this.type) {
@@ -50,6 +62,20 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.preview
                 default:
                     return null
+            }
+        },
+        updateModel() {
+            this.model = this.loadModel()
+        },
+        onModelChange() {
+            switch (this.type) {
+                case 'Header':
+                case 'Title':
+                case 'BackgroundColorStyle':
+                case 'BordersStyle':
+                case 'PaddingStyle':
+                case 'ShadowsStyle':
+                    this.$emit('styleChanged')
             }
         }
     }

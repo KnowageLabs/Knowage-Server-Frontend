@@ -15,6 +15,10 @@
                 <InputSwitch v-model="menuWidgetsConfig.showSelectionButton" />
                 <label class="kn-material-input-label p-ml-3"> {{ $t('dashboard.generalSettings.menuWidgets.showSelectionButton') }} </label>
             </span>
+            <span class="p-field p-col-12">
+                <InputSwitch v-model="menuWidgetsConfig.enableChartChange" />
+                <label class="kn-material-input-label p-ml-3"> {{ $t('dashboard.generalSettings.menuWidgets.enableChartChange') }} </label>
+            </span>
         </form>
     </div>
 </template>

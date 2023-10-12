@@ -22,6 +22,7 @@ export interface IPythonEditorSettings {
 }
 
 export interface IPythonWidgetStyle {
+    themeName: string
     title: IWidgetTitle,
     padding: IWidgetPaddingStyle,
     borders: IWidgetBordersStyle,

@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'selections-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -23,13 +24,23 @@ export default defineComponent({
     computed: {},
     watch: {
         type() {
-            this.model = this.loadModel()
+            this.updateModel()
         }
     },
-    created() {
-        this.model = this.loadModel()
+    mounted() {
+        this.setEventListeners()
+        this.updateModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.updateModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.updateModel)
+        },
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings) return null
             switch (this.type) {
@@ -51,8 +62,12 @@ export default defineComponent({
                     return null
             }
         },
+        updateModel() {
+            this.model = this.loadModel()
+        },
         onModelChange() {
             if (this.type) this.refreshSelections()
+            if (this.type !== 'NoSelections') this.$emit('styleChanged')
         },
         refreshSelections() {
             setTimeout(() => emitter.emit('refreshSelections', this.widgetModel.id), 250)

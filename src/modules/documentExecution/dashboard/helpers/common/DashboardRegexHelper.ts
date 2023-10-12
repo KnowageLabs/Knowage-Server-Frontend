@@ -19,5 +19,6 @@ export const aggregationsRegex =
 
 export const parameterTextCompatibilityRegex = /\$P{(.+?)\}/g
 export const variableTextCompatibilityRegex = /\$V{(.+?)\}/g;
+export const columnFieldRegex = /\$F{(.+?)\}/g;
 export const columnTextCompatibilityRegex = /(SUM\(|AVG\(|MIN\(|MAX\(|COUNT\(|COUNT_DISTINCT\()?\$F{(.+?)\}\)?/g;
 export const crossNavigationTextCompatibilityRegex = /ng-click="doSelection(.+?)"/g;

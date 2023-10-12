@@ -5,6 +5,7 @@ import * as  tableWidgetDefaultValues from '../../widget/WidgetEditor/helpers/ta
 
 export const getFormattedStyle = (widget: any) => {
     return {
+        themeName: '',
         title: getFormattedTitleStyle(widget),
         borders: getFormattedBorderStyle(widget),
         columns: tableWidgetDefaultValues.getDefaultColumnStyles(),

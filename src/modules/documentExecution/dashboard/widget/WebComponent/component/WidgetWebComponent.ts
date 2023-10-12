@@ -35,6 +35,7 @@ class WidgetWebComponent extends HTMLElement {
             this.setSelectonElementsListeners()
             this.setPreviewElementsListeners()
             this.setCrossNavElementsListeners()
+            this.setIframeInteractionsListeners()
         }
     }
 
@@ -116,6 +117,31 @@ class WidgetWebComponent extends HTMLElement {
                                     cancelable: false,
                                     composed: true,
                                     detail: { crossValue: crossValue }
+                                })
+                            )
+                        }
+                    },
+                    false
+                )
+            })
+    }
+
+    setIframeInteractionsListeners = () => {
+        const crossNavElements = this.shadowRoot?.querySelectorAll('.iframe-class-temp')
+        if (crossNavElements)
+            crossNavElements.forEach((el: any) => {
+                el.addEventListener(
+                    'click',
+                    (event: any) => {
+                        const eventTarget = event.target as any
+                        if (eventTarget.attributes) {
+                            const iframeMessage = eventTarget.attributes['kn-message'].value
+                            this.dispatchEvent(
+                                new CustomEvent('iframeInteractionEvent', {
+                                    bubbles: true,
+                                    cancelable: false,
+                                    composed: true,
+                                    detail: { iframeMessage: iframeMessage }
                                 })
                             )
                         }

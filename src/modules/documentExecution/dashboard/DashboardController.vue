@@ -87,6 +87,7 @@ import DashboardGeneralSettings from './generalSettings/DashboardGeneralSettings
 import deepcopy from 'deepcopy'
 import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -149,7 +150,8 @@ export default defineComponent({
             savedViewsListDialogVisible: false,
             selectedViewForExecution: null as IDashboardView | null,
             generalSettingsMode: 'General' as string,
-            datasetsLoaded: false
+            datasetsLoaded: false,
+            dashboardThemes: [] as IDashboardTheme[]
         }
     },
     computed: {
@@ -223,7 +225,7 @@ export default defineComponent({
                 this.drivers = loadDrivers(this.filtersData, this.model)
                 this.currentView.drivers = this.filtersData
             }
-            await Promise.all([this.loadProfileAttributes(), this.loadModel(), this.loadInternationalization()])
+            await Promise.all([this.loadProfileAttributes(), this.loadDashboardThemes(), this.loadModel(), this.loadInternationalization()])
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadHtmlGallery()
             this.loadPythonGallery()
@@ -318,6 +320,13 @@ export default defineComponent({
                 )
             }
             this.setProfileAttributes(this.profileAttributes)
+        },
+        async loadDashboardThemes() {
+            this.dashboardThemes = []
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardtheme`).then((response: AxiosResponse<any>) => {
+                this.dashboardThemes = response.data
+            })
+            this.store.setAllThemes(this.dashboardThemes)
         },
         loadSelectedViewForExecution(view: IDashboardView) {
             this.selectedViewForExecution = view

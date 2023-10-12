@@ -6,6 +6,7 @@ import * as widgetCommonDefaultValues from '../../../widget/WidgetEditor/helpers
 
 export const getFormattedStyle = (widget: any) => {
     return {
+        themeName: '',
         title: getFormattedTitleStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),

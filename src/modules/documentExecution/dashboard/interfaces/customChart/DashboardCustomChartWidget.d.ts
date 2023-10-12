@@ -1,4 +1,4 @@
-import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetPaddingStyle, IWidgetShadowsStyle, IWidgetTitle } from "../../Dashboard"
+import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from "../../Dashboard"
 
 export interface ICustomChartWidgetSettings {
     updatable: boolean
@@ -23,6 +23,7 @@ export interface ICustomChartWidgetConfiguration {
 
 
 export interface ICustomChartStyle {
+    themeName: string
     title: IWidgetTitle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle

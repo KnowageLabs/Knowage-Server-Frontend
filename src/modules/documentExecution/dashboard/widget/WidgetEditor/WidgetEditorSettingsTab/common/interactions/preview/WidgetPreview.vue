@@ -1,6 +1,6 @@
 <template>
     <div v-if="previewModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-grid p-col-12 p-pt-4 p-ai-center">
+        <div v-if="['table', 'discovery'].includes(widgetModel.type)" class="p-grid p-col-12 p-pt-4 p-ai-center">
             <div v-if="widgetModel.type !== 'chart' && widgetModel.type !== 'customchart'" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
                 <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
                 <Dropdown v-model="previewModel.type" class="kn-material-input" :options="descriptor.interactionTypes" option-value="value" :disabled="previewDisabled" @change="onInteractionTypeChanged">
@@ -85,6 +85,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widget: null as IWidget | null,
             previewModel: null as IWidgetPreview | null,
             dashboardModel: null as any,
             dashboardDatasets: [] as any[],
@@ -96,10 +97,19 @@ export default defineComponent({
     computed: {
         previewDisabled() {
             return !this.previewModel || !this.previewModel.enabled
+        },
+        widgetType() {
+            return this.widgetModel?.type
+        }
+    },
+    watch: {
+        previewDisabled() {
+            this.onPreviewEnabledChange()
         }
     },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
         this.loadDashboardModel()
         this.loadPreviewModel()
         this.loadSelectedDatasetColumnNames()
@@ -116,6 +126,9 @@ export default defineComponent({
         },
         onColumnRemovedFromPreview() {
             this.onColumnRemoved()
+        },
+        loadWidgetModel() {
+            this.widget = this.widgetModel
         },
         loadPreviewModel() {
             if (this.widgetModel?.settings?.interactions?.preview) this.previewModel = this.widgetModel.settings.interactions.preview
@@ -180,6 +193,14 @@ export default defineComponent({
                         value: ''
                     }
                 })
+        },
+        onPreviewEnabledChange() {
+            if (this.widget && this.previewModel?.enabled && this.widgetType !== 'table') {
+                if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
+                if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
+                if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
+                if (this.widget.settings.interactions.iframe) this.widget.settings.interactions.iframe.enabled = false
+            }
         }
     }
 })

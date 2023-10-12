@@ -1,13 +1,15 @@
 <template>
-    <div v-if="chipsStyleModel" class="p-grid p-ai-center kn-flex p-p-4">
-        <div id="height-input-container" class="p-col-4">
-            <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
-            <InputNumber v-model="chipsStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="chipsStyleDisabled" @blur="chipsStyleChanged" />
-        </div>
+    <div v-if="chipsStyleModel" class="p-ai-center kn-flex p-p-4">
+        <form class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12">
+                <span class="p-float-label">
+                    <InputNumber v-model="chipsStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="chipsStyleDisabled" @blur="chipsStyleChanged" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('common.height') }}</label>
+                </span>
+            </div>
+        </form>
 
-        <div class="p-col-12 p-py-4">
-            <WidgetEditorStyleToolbar :options="descriptor.chipsToolbarStyleOptions" :prop-model="chipsStyleModel.properties" :disabled="chipsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
-        </div>
+        <WidgetEditorStyleToolbar :options="descriptor.chipsToolbarStyleOptions" :prop-model="chipsStyleModel.properties" :disabled="chipsStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
     </div>
 </template>
 
@@ -15,7 +17,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { ISelectionWidgetChipsStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget'
-import { emitter } from '../../../../../DashboardHelpers'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from '../SelectionsWidgetSettingsDescriptor.json'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
@@ -23,7 +25,8 @@ import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyl
 export default defineComponent({
     name: 'selections-widget-chips-style',
     components: { InputNumber, WidgetEditorStyleToolbar },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ISelectionWidgetChipsStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             descriptor,
@@ -32,31 +35,40 @@ export default defineComponent({
     },
     computed: {
         chipsStyleDisabled() {
+            if (this.themeStyle) return false
             return !this.widgetModel || this.widgetModel.settings.configuration.type !== 'chips'
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadChipsStyleModel()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadChipsStyleModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadChipsStyleModel)
+        },
         loadChipsStyleModel() {
-            if (this.widgetModel.settings?.style?.chips) this.chipsStyleModel = this.widgetModel.settings.style.chips
+            if (this.widgetModel?.settings?.style?.chips) this.chipsStyleModel = this.widgetModel.settings.style.chips
+            else if (this.themeStyle) this.chipsStyleModel = this.themeStyle
         },
         chipsStyleChanged() {
-            emitter.emit('chipsStyleChanged', this.chipsStyleModel)
-            emitter.emit('refreshSelection', this.widgetModel.id)
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.chipsStyleModel) return
-            this.chipsStyleModel.properties = {
-                'background-color': model['background-color'] ?? 'rgb(137, 158, 175)',
-                color: model.color ?? 'rgb(255, 255, 255)',
-                'justify-content': model['justify-content'] ?? 'center',
-                'font-size': model['font-size'] ?? '14px',
-                'font-family': model['font-family'] ?? '',
-                'font-style': model['font-style'] ?? 'normal',
-                'font-weight': model['font-weight'] ?? ''
-            }
+            this.chipsStyleModel.properties['background-color'] = model['background-color'] ?? 'rgb(137, 158, 175)'
+            this.chipsStyleModel.properties.color = model.color ?? 'rgb(255, 255, 255)'
+            this.chipsStyleModel.properties['justify-content'] = model['justify-content'] ?? 'center'
+            ;(this.chipsStyleModel.properties['font-size'] = model['font-size'] ?? '14px'),
+                (this.chipsStyleModel.properties['font-family'] = model['font-family'] ?? ''),
+                (this.chipsStyleModel.properties['font-style'] = model['font-style'] ?? 'normal'),
+                (this.chipsStyleModel.properties['font-weight'] = model['font-weight'] ?? '')
             this.chipsStyleChanged()
         }
     }

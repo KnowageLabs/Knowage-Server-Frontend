@@ -30,6 +30,10 @@
                 "type": "Export"
             },
             {
+                "title": "dashboard.widgetEditor.interactions.link",
+                "type": "Link"
+            },
+            {
                 "title": "dashboard.widgetEditor.noData.title",
                 "type": "NoDataMessageConfiguration"
             }

@@ -1,4 +1,4 @@
-import { IHighchartsCommonConditionalStyle, IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetCrossNavigation, IWidgetLinks, IWidgetPaddingStyle, IWidgetPreview, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IFrameInteractionSettings, IHighchartsCommonConditionalStyle, IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetCrossNavigation, IWidgetLinks, IWidgetPaddingStyle, IWidgetPreview, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from '@/modules/documentExecution/dashboard/Dashboard'
 import descriptor from './WidgetCommonDefaultValuesDescriptor.json'
 import deepcopy from 'deepcopy'
 
@@ -40,4 +40,8 @@ export const getDefaultPreview = () => {
 
 export const getDefaultConditionalStyles = () => {
     return deepcopy(descriptor.defaultConditionalStyle) as IHighchartsCommonConditionalStyle
+}
+
+export const getDefaultIFrameInteraction = () => {
+    return deepcopy(descriptor.defaultIFrameInteraction) as IFrameInteractionSettings
 }

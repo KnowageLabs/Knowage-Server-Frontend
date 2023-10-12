@@ -22,10 +22,12 @@ export const createNewTableWidgetSettings = () => {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
             link: widgetCommonDefaultValues.getDefaultLinks(),
             preview: widgetCommonDefaultValues.getDefaultPreview(),
-            selection: tableWidgetDefaultValues.getDefaultSelection()
+            selection: tableWidgetDefaultValues.getDefaultSelection(),
+            iframe: widgetCommonDefaultValues.getDefaultIFrameInteraction()
         },
         pagination: tableWidgetDefaultValues.getDefaultPagination(),
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             columns: tableWidgetDefaultValues.getDefaultColumnStyles(),

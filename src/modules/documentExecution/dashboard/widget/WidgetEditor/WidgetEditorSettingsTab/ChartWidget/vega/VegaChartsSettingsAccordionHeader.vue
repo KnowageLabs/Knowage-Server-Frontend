@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'chart-j-s-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any,
@@ -24,13 +25,23 @@ export default defineComponent({
     computed: {},
     watch: {
         type() {
-            this.model = this.loadModel()
+            this.updateModel()
         }
     },
-    created() {
-        this.model = this.loadModel()
+    mounted() {
+        this.setEventListeners()
+        this.updateModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.updateModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.updateModel)
+        },
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings || !this.widgetModel.settings.chartModel) return null
             switch (this.type) {
@@ -50,14 +61,27 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.selection
                 case 'CrossNavigation':
                     return this.widgetModel.settings.interactions.crossNavigation
+                case 'Link':
+                    return this.widgetModel.settings.interactions.link
                 default:
                     return null
             }
+        },
+        updateModel() {
+            this.model = this.loadModel()
         },
         onModelChange() {
             switch (this.type) {
                 case 'Tooltip':
                     setTimeout(() => emitter.emit('refreshChart', this.widgetModel.id), 250)
+                    break
+                case 'Header':
+                case 'Title':
+                case 'BackgroundColorStyle':
+                case 'BordersStyle':
+                case 'PaddingStyle':
+                case 'ShadowsStyle':
+                    this.$emit('styleChanged')
             }
         }
     }

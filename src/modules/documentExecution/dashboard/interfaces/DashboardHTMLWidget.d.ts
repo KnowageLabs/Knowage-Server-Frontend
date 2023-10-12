@@ -1,4 +1,4 @@
-import { IWidgetInteractions, IWidgetResponsive } from "../Dashboard";
+import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from "../Dashboard";
 
 export interface IHTMLWidgetSettings {
     sortingColumn?: string,
@@ -22,6 +22,7 @@ export interface IHTMLWidgetConfiguration {
 }
 
 export interface IHTMLWidgetStyle {
+    themeName: string
     title: IWidgetTitle,
     padding: IWidgetPaddingStyle,
     borders: IWidgetBordersStyle,

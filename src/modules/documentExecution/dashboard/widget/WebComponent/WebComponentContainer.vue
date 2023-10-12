@@ -11,7 +11,8 @@ import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import { IWidget } from '../../Dashboard'
 import { parseHtml, parseText } from '../WidgetEditor/helpers/htmlParser/ParserHelper'
-import { executeHTMLandTextWidgetCrossNavigation, executePreview, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
+import { executeHTMLandTextWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
+import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 
 export default defineComponent({
     name: 'widget-component-container',
@@ -24,7 +25,7 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]>, required: true },
         editorMode: { type: Boolean }
     },
-    emits: ['interaction', 'pageChanged', 'launchSelection', 'sortingChanged'],
+    emits: ['interaction', 'pageChanged', 'launchSelection', 'sortingChanged', 'datasetInteractionPreview'],
     data() {
         return {
             dataToShow: {} as any,
@@ -80,6 +81,7 @@ export default defineComponent({
             this.webComponentRef.addEventListener('selectEvent', this.onSelect)
             this.webComponentRef.addEventListener('previewEvent', this.onPreview)
             this.webComponentRef.addEventListener('crossNavEvent', this.onCrossNavigation)
+            this.webComponentRef.addEventListener('iframeInteractionEvent', this.onIframeInteraction)
         },
         onSelect(event: any) {
             if (this.editorMode || !event.detail) return
@@ -98,13 +100,20 @@ export default defineComponent({
         onPreview(event: any) {
             if (this.editorMode || !event.detail) return
             const datasetLabel = event.detail.datasetLabel
-            executePreview(datasetLabel)
+            const previewConfiguration = this.propWidget.settings.interactions.preview
+            this.$emit('datasetInteractionPreview', { datasetLabel: datasetLabel, previewSettings: previewConfiguration })
         },
         onCrossNavigation(event: any) {
             if (this.editorMode || !event.detail || !this.propWidget) return
             const crossValue = event.detail.crossValue
             const crossNavigationConfiguration = this.propWidget.settings.interactions.crossNavigation
             executeHTMLandTextWidgetCrossNavigation(crossValue, crossNavigationConfiguration, this.dashboardId)
+        },
+        onIframeInteraction(event: any) {
+            if (this.editorMode || !event.detail || !this.propWidget) return
+            const iframeMessageValue = event.detail.iframeMessage
+            const iframeInteractionSettings = this.propWidget.settings.interactions.iframe
+            startHTMLAndCustomChartIFrameInteractions(iframeMessageValue, iframeInteractionSettings, this.dashboardId, this.variables, window)
         }
     }
 })

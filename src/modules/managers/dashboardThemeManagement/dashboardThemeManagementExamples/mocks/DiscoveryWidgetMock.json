@@ -1,0 +1,624 @@
+{
+    "discoveryDataMock": {
+        "facets": {
+            "product_family": {
+                "metaData": {
+                    "fields": [
+                        "recNo",
+                        {
+                            "dataIndex": "column_1",
+                            "header": "key",
+                            "multiValue": false,
+                            "name": "column_1",
+                            "type": "string"
+                        },
+                        {
+                            "dataIndex": "column_2",
+                            "header": "value",
+                            "multiValue": false,
+                            "name": "column_2",
+                            "precision": 0,
+                            "scale": 0,
+                            "type": "float"
+                        }
+                    ],
+                    "id": "id",
+                    "root": "rows",
+                    "totalProperty": "results"
+                },
+                "results": 8,
+                "rows": [
+                    {
+                        "column_1": "Food",
+                        "column_2": 1320,
+                        "id": 1
+                    },
+                    {
+                        "column_1": "Drink_à",
+                        "column_2": 55,
+                        "id": 2
+                    },
+                    {
+                        "column_1": "Non'Consumablèéç",
+                        "column_2": 55,
+                        "id": 3
+                    },
+                    {
+                        "column_1": "Car",
+                        "column_2": 6,
+                        "id": 4
+                    }
+                ],
+                "stats": {}
+            },
+            "quarter": {
+                "metaData": {
+                    "fields": [
+                        "recNo",
+                        {
+                            "dataIndex": "column_1",
+                            "header": "key",
+                            "multiValue": false,
+                            "name": "column_1",
+                            "type": "string"
+                        },
+                        {
+                            "dataIndex": "column_2",
+                            "header": "value",
+                            "multiValue": false,
+                            "name": "column_2",
+                            "precision": 0,
+                            "scale": 0,
+                            "type": "float"
+                        }
+                    ],
+                    "id": "id",
+                    "root": "rows",
+                    "totalProperty": "results"
+                },
+                "results": 8,
+                "rows": [
+                    {
+                        "column_1": "Q3",
+                        "column_2": 393,
+                        "id": 1
+                    },
+                    {
+                        "column_1": "Q2",
+                        "column_2": 391,
+                        "id": 2
+                    },
+                    {
+                        "column_1": "Q1",
+                        "column_2": 390,
+                        "id": 3
+                    },
+                    {
+                        "column_1": "Q4",
+                        "column_2": 262,
+                        "id": 4
+                    }
+                ],
+                "stats": {}
+            },
+            "store_id": {
+                "metaData": {
+                    "fields": [
+                        "recNo",
+                        {
+                            "dataIndex": "column_1",
+                            "header": "key",
+                            "multiValue": false,
+                            "name": "column_1",
+                            "type": "string"
+                        },
+                        {
+                            "dataIndex": "column_2",
+                            "header": "value",
+                            "multiValue": false,
+                            "name": "column_2",
+                            "precision": 0,
+                            "scale": 0,
+                            "type": "float"
+                        }
+                    ],
+                    "id": "id",
+                    "root": "rows",
+                    "totalProperty": "results"
+                },
+                "results": 20,
+                "rows": [
+                    {
+                        "column_1": "11",
+                        "column_2": 171,
+                        "id": 1
+                    },
+                    {
+                        "column_1": "1",
+                        "column_2": 55,
+                        "id": 2
+                    },
+                    {
+                        "column_1": "10",
+                        "column_2": 55,
+                        "id": 3
+                    },
+                    {
+                        "column_1": "12",
+                        "column_2": 55,
+                        "id": 4
+                    },
+                    {
+                        "column_1": "13",
+                        "column_2": 55,
+                        "id": 5
+                    },
+                    {
+                        "column_1": "14",
+                        "column_2": 55,
+                        "id": 6
+                    },
+                    {
+                        "column_1": "15",
+                        "column_2": 55,
+                        "id": 7
+                    },
+                    {
+                        "column_1": "16",
+                        "column_2": 55,
+                        "id": 8
+                    },
+                    {
+                        "column_1": "17",
+                        "column_2": 55,
+                        "id": 9
+                    },
+                    {
+                        "column_1": "18",
+                        "column_2": 55,
+                        "id": 10
+                    }
+                ],
+                "stats": {}
+            }
+        },
+        "metaData": {
+            "cacheDate": "2023-07-26 11:17:09.153",
+            "fields": [
+                "recNo",
+                {
+                    "dataIndex": "column_1",
+                    "header": "product_family",
+                    "multiValue": false,
+                    "name": "column_1",
+                    "type": "string"
+                },
+                {
+                    "dataIndex": "column_2",
+                    "header": "quarter",
+                    "multiValue": false,
+                    "name": "column_2",
+                    "type": "string"
+                },
+                {
+                    "dataIndex": "column_3",
+                    "header": "store_cost",
+                    "multiValue": false,
+                    "name": "column_3",
+                    "precision": 0,
+                    "scale": 0,
+                    "type": "float"
+                },
+                {
+                    "dataIndex": "column_4",
+                    "header": "store_id",
+                    "multiValue": false,
+                    "name": "column_4",
+                    "type": "string"
+                },
+                {
+                    "dataIndex": "column_5",
+                    "header": "unit_sales",
+                    "multiValue": false,
+                    "name": "column_5",
+                    "precision": 0,
+                    "scale": 0,
+                    "type": "int"
+                }
+            ],
+            "id": "id",
+            "root": "rows",
+            "totalProperty": "results"
+        },
+        "results": 1436,
+        "rows": [
+            {
+                "column_1": "Food",
+                "column_2": "Q4",
+                "column_3": 15.2752,
+                "column_4": "5",
+                "column_5": 22,
+                "id": 1
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q4",
+                "column_3": 21.4794,
+                "column_4": "5",
+                "column_5": 20,
+                "id": 2
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q2",
+                "column_3": 414.4483,
+                "column_4": "8",
+                "column_5": 485,
+                "id": 3
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q1",
+                "column_3": 233.5546,
+                "column_4": "6",
+                "column_5": 307,
+                "id": 4
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q1",
+                "column_3": 271.2687,
+                "column_4": "11",
+                "column_5": 337,
+                "id": 5
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q3",
+                "column_3": 273.274,
+                "column_4": "10",
+                "column_5": 318,
+                "id": 6
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q4",
+                "column_3": 65.7439,
+                "column_4": "18",
+                "column_5": 82,
+                "id": 7
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q2",
+                "column_3": 84.5744,
+                "column_4": "18",
+                "column_5": 111,
+                "id": 8
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q1",
+                "column_3": 403.0516,
+                "column_4": "17",
+                "column_5": 462,
+                "id": 9
+            },
+            {
+                "column_1": "Food",
+                "column_2": "Q2",
+                "column_3": 21.3523,
+                "column_4": "22",
+                "column_5": 24,
+                "id": 10
+            }
+        ],
+        "stats": {
+            "1": {
+                "cardinality": 1,
+                "distinct": ["Food"],
+                "max": "Food",
+                "min": "Food"
+            },
+            "2": {
+                "cardinality": 4,
+                "distinct": ["Q1", "Q2", "Q3", "Q4"],
+                "max": "Q4",
+                "min": "Q1"
+            },
+            "3": {
+                "cardinality": 10,
+                "distinct": [15.2752, 21.3523, 21.4794, 65.7439, 84.5744, 233.5546, 271.2687, 273.274, 403.0516, 414.4483],
+                "max": 414.4483,
+                "min": 15.2752
+            },
+            "4": {
+                "cardinality": 8,
+                "distinct": ["10", "11", "17", "18", "22", "5", "6", "8"],
+                "max": "8",
+                "min": "10"
+            },
+            "5": {
+                "cardinality": 10,
+                "distinct": [20, 22, 24, 82, 111, 307, 318, 337, 462, 485],
+                "max": 485,
+                "min": 20
+            }
+        }
+    },
+    "discoveryModelMock": {
+        "columns": [
+            {
+                "aggregation": "COUNT",
+                "aggregationColumn": "",
+                "alias": "product_family",
+                "columnName": "product_family",
+                "fieldType": "ATTRIBUTE",
+                "filter": {},
+                "id": "mQ884J3vPeKhYpVi",
+                "multiValue": false,
+                "type": "java.lang.String"
+            },
+            {
+                "aggregation": "COUNT",
+                "aggregationColumn": "",
+                "alias": "quarter",
+                "columnName": "quarter",
+                "fieldType": "ATTRIBUTE",
+                "filter": {},
+                "id": "wLCm+ZsL+ZUcGHv0",
+                "multiValue": false,
+                "type": "java.lang.String"
+            },
+            {
+                "aggregation": "COUNT",
+                "aggregationColumn": "",
+                "alias": "store_cost",
+                "columnName": "store_cost",
+                "fieldType": "MEASURE",
+                "filter": {},
+                "id": "zAH64vKnNeoOTyqi",
+                "multiValue": false,
+                "type": "java.lang.Double"
+            },
+            {
+                "aggregation": "COUNT",
+                "aggregationColumn": "",
+                "alias": "store_id",
+                "columnName": "store_id",
+                "fieldType": "ATTRIBUTE",
+                "filter": {},
+                "id": "7sUPT8pHXEKeBfZ9",
+                "multiValue": false,
+                "type": "java.lang.String"
+            },
+            {
+                "aggregation": "COUNT",
+                "aggregationColumn": "",
+                "alias": "unit_sales",
+                "columnName": "unit_sales",
+                "fieldType": "MEASURE",
+                "filter": {},
+                "id": "MjKYBrFJSdQSntBp",
+                "multiValue": false,
+                "type": "java.lang.Integer"
+            }
+        ],
+        "dataset": 201,
+        "id": 1674120861663,
+        "settings": {
+            "clickable": true,
+            "configuration": {
+                "customMessages": {
+                    "hideNoRowsMessage": true,
+                    "noRowsMessage": ""
+                },
+                "exports": {
+                    "pdf": {
+                        "a4landscape": false,
+                        "a4portrait": false,
+                        "custom": {
+                            "enabled": false,
+                            "height": 0,
+                            "width": 0
+                        },
+                        "enabled": false
+                    },
+                    "showExcelExport": true,
+                    "showScreenshot": false
+                }
+            },
+            "facets": {
+                "closedByDefault": true,
+                "columns": ["product_family", "quarter", "store_id"],
+                "enabled": true,
+                "precision": 3,
+                "selection": false,
+                "width": "200px"
+            },
+            "interactions": {
+                "crossNavigation": {
+                    "column": "",
+                    "enabled": false,
+                    "name": "",
+                    "parameters": [],
+                    "type": ""
+                },
+                "link": {
+                    "enabled": false,
+                    "links": []
+                },
+                "preview": {
+                    "dataset": -1,
+                    "directDownload": false,
+                    "enabled": false,
+                    "parameters": [],
+                    "type": ""
+                }
+            },
+            "pagination": {
+                "enabled": true,
+                "properties": {
+                    "itemsNumber": 10,
+                    "offset": 30,
+                    "totalItems": 1436
+                }
+            },
+            "responsive": {
+                "lg": true,
+                "md": true,
+                "sm": true,
+                "xl": true,
+                "xs": true
+            },
+            "search": {
+                "columns": ["product_family", "quarter", "store_cost", "store_id", "unit_sales"],
+                "defaultValue": "",
+                "enabled": true,
+                "facetSearchParams": {
+                    "product_family": ["Food"],
+                    "store_id": ["11"]
+                }
+            },
+            "style": {
+                "background": {
+                    "enabled": false,
+                    "properties": {
+                        "background-color": ""
+                    }
+                },
+                "borders": {
+                    "enabled": false,
+                    "properties": {
+                        "border-bottom-left-radius": "",
+                        "border-bottom-right-radius": "",
+                        "border-color": "rgb(212, 212, 212)",
+                        "border-style": "solid",
+                        "border-top-left-radius": "",
+                        "border-top-right-radius": "",
+                        "border-width": "1px"
+                    }
+                },
+                "columnGroups": {
+                    "enabled": true,
+                    "styles": [
+                        {
+                            "properties": {
+                                "align-items": "center",
+                                "background-color": "",
+                                "color": "",
+                                "font-family": "",
+                                "font-size": "",
+                                "font-style": "",
+                                "font-weight": "",
+                                "justify-content": "",
+                                "width": ""
+                            },
+                            "target": "all"
+                        }
+                    ]
+                },
+                "columns": {
+                    "enabled": true,
+                    "styles": [
+                        {
+                            "properties": {
+                                "align-items": "center",
+                                "background-color": "",
+                                "color": "",
+                                "font-family": "",
+                                "font-size": "",
+                                "font-style": "",
+                                "font-weight": "",
+                                "justify-content": "",
+                                "width": 0
+                            },
+                            "target": "all"
+                        }
+                    ]
+                },
+                "headers": {
+                    "height": 25,
+                    "properties": {
+                        "background-color": "rgb(137, 158, 175)",
+                        "color": "rgb(255, 255, 255)",
+                        "font-family": "",
+                        "font-size": "14px",
+                        "font-style": "normal",
+                        "font-weight": "",
+                        "justify-content": "center"
+                    }
+                },
+                "padding": {
+                    "properties": {
+                        "unlinked": false
+                    }
+                },
+                "paginator": {
+                    "background-color": "",
+                    "color": "",
+                    "justify-content": ""
+                },
+                "rows": {
+                    "alternatedRows": {
+                        "enabled": false,
+                        "evenBackgroundColor": "rgb(228, 232, 236)",
+                        "oddBackgroundColor": ""
+                    },
+                    "height": 16,
+                    "multiselectable": false,
+                    "selectionColor": ""
+                },
+                "selectedTheme": null,
+                "shadows": {
+                    "enabled": false,
+                    "properties": {
+                        "box-shadow": "",
+                        "color": ""
+                    }
+                },
+                "summary": {
+                    "background-color": "",
+                    "color": "",
+                    "font-family": "",
+                    "font-size": "",
+                    "font-style": "",
+                    "font-weight": "",
+                    "justify-content": ""
+                },
+                "themeName": "",
+                "title": {
+                    "enabled": false,
+                    "height": 25,
+                    "properties": {
+                        "background-color": "",
+                        "color": "",
+                        "font-family": "",
+                        "font-size": "",
+                        "font-style": "",
+                        "font-weight": "",
+                        "justify-content": ""
+                    },
+                    "text": ""
+                }
+            },
+            "tooltips": [
+                {
+                    "enabled": true,
+                    "header": {
+                        "enabled": false,
+                        "text": ""
+                    },
+                    "precision": 0,
+                    "prefix": "",
+                    "suffix": "",
+                    "target": "all"
+                }
+            ],
+            "updatable": true
+        },
+        "style": {},
+        "theme": "",
+        "type": "discovery"
+    }
+}
