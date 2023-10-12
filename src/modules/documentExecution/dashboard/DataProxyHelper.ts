@@ -536,7 +536,6 @@ export const getChartDrilldownData = async (dashboardId: any, widget: IWidget, d
         const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, {}, drillDownLevel)
         addParametersToData(selectedDataset, dashboardId, postData)
 
-        console.log('POST DATA', postData)
         postData.likeSelections = formattedSelections
         let tempResponse = null as any
 
