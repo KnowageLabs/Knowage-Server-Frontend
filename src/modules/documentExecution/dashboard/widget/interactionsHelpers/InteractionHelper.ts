@@ -1,15 +1,26 @@
-import { IDashboard, IDataset, ISelection, IWidgetCrossNavigation, IWidgetInteractionParameter, } from "../../Dashboard"
+import { IDashboard, IDataset, ISelection, IWidgetCrossNavigation, IWidgetInteractionParameter } from '../../Dashboard'
 import { ICrossNavigationParameter } from '@/modules/documentExecution/main/DocumentExecution'
 import { getAssociativeSelections } from './DatasetAssociationsHelper'
 import { emitter } from '../../DashboardHelpers'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import moment from "moment"
+import moment from 'moment'
 
-interface IClickedValue { value: string, type: string }
+interface IClickedValue {
+    value: string
+    type: string
+}
 
-export const loadAssociativeSelections = async (model: IDashboard, datasets: IDataset[], selections: ISelection[], $http: any) => {
+export const loadAssociativeSelections = async (dashboardId: string, model: IDashboard, datasets: IDataset[], selections: ISelection[], $http: any) => {
+    //TODO - ASSOCIATIVE Promene
+
+    const dStore = dashboardStore()
+
     const tempResponse = await getAssociativeSelections(model, datasets, selections, $http)
-    if (tempResponse) emitter.emit('associativeSelectionsLoaded', tempResponse)
+    // if (tempResponse) emitter.emit('associativeSelectionsLoaded', tempResponse)
+    if (tempResponse) {
+        dStore.setAssociations(dashboardId, tempResponse)
+        emitter.emit('associativeSelectionsLoaded')
+    }
 }
 
 export const updateStoreSelections = (newSelection: ISelection, currentActiveSelections: ISelection[], dashboardId: string, updateSelectionFunction: Function, $http: any) => {
@@ -22,11 +33,10 @@ export const updateAllStoreSelections = (newSelections: ISelection[], currentAct
     updateSelectionFunction(dashboardId, currentActiveSelections, $http)
 }
 
-const updateActiveSelections = (newSelection: ISelection, currentActiveSelections: ISelection[],) => {
+const updateActiveSelections = (newSelection: ISelection, currentActiveSelections: ISelection[]) => {
     const index = currentActiveSelections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === newSelection.datasetId && activeSelection.columnName === newSelection.columnName)
-    index !== -1 ? currentActiveSelections[index] = newSelection : currentActiveSelections.push(newSelection)
+    index !== -1 ? (currentActiveSelections[index] = newSelection) : currentActiveSelections.push(newSelection)
 }
-
 
 export const executeCrossNavigation = (documentCrossNavigationOutputParameters: ICrossNavigationParameter[], crossNavigationName: string | undefined) => {
     const payload = { documentCrossNavigationOutputParameters: documentCrossNavigationOutputParameters, crossNavigationName: crossNavigationName }
@@ -88,7 +98,6 @@ export const executeHTMLandTextWidgetCrossNavigation = (dynamicValue: string, cr
     executeCrossNavigation(outputParameters, crossNavigationModel.name)
 }
 
-
 const getFormattedHTMLandTextWidgetOutputParameters = (clickedValue: IClickedValue, crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
     const formattedOutputParameters = [] as ICrossNavigationParameter[]
     for (let i = 0; i < crossNavigationModel.parameters.length; i++) {
@@ -119,7 +128,6 @@ const getFormattedHTMLandTextDynamicOutputParameter = (clickedValue: IClickedVal
         parameterType: getDriverParameterTypeFromOutputParameterType(crossNavigationParameter.dataType),
         outputDriverName: crossNavigationParameter.name
     } as ICrossNavigationParameter
-
 }
 
 const getDynamicValueAndTypeForHTMLandTextDynamicOutputParameter = (clickedValue: IClickedValue, crossNavigationParameter: IWidgetInteractionParameter) => {
@@ -271,9 +279,6 @@ const getFormattedSelectionOutputParameter = (crossNavigationParameter: IWidgetI
     } as ICrossNavigationParameter
 }
 
-
-
-
 const getAcitveSelectionValues = (values: any[], type: string) => {
     return values.map((value: any) => {
         let formattedValue = value
@@ -284,7 +289,7 @@ const getAcitveSelectionValues = (values: any[], type: string) => {
             formattedValue = moment(value, 'DD/MM/YYYY', true).valueOf()
             return { value: formattedValue, description: formattedValue }
         } else {
-            return { value: "" + formattedValue, description: "" + formattedValue }
+            return { value: '' + formattedValue, description: '' + formattedValue }
         }
     })
 }
@@ -301,16 +306,15 @@ const getFormattedDateValue = (valueAsString: string, type: string) => {
     return date.isValid() ? date.valueOf() : ''
 }
 
-
 const getDriverParameterTypeFromOutputParameterType = (outputParameterType: string | undefined) => {
     switch (outputParameterType) {
         case 'string':
         case 'text':
-            return 'STRING';
+            return 'STRING'
         case 'number':
         case 'int':
         case 'float':
-            return 'NUM';
+            return 'NUM'
         case 'date':
         case 'timestamp':
             return 'DATE'

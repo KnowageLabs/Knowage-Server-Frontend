@@ -180,7 +180,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget']),
+        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget', 'getAssociations']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
@@ -326,7 +326,10 @@ export default defineComponent({
         launchSelection() {
             this.setSelections(this.dashboardId, this.activeSelections, this.$http)
         },
-        async onAssociativeSelectionsLoaded(response: any) {
+        async onAssociativeSelectionsLoaded() {
+            //TODO - ASSOCIATIVE Promene
+            const response = this.getAssociations(this.dashboardId)
+            console.log('onAssociativeSelectionsLoaded', response)
             this.getSelectionsFromStore()
             if (!response) return
             const datasets = Object.keys(response)
@@ -337,7 +340,7 @@ export default defineComponent({
         async onDatasetRefresh(modelDatasetId: any) {
             if (this.widgetModel.dataset !== modelDatasetId) return
             if (this.activeSelections.length > 0 && datasetIsUsedInAssociations(modelDatasetId, this.dashboards[this.dashboardId].configuration.associations)) {
-                loadAssociativeSelections(this.dashboards[this.dashboardId], this.datasets, this.activeSelections, this.$http)
+                loadAssociativeSelections(this.dashboardId, this.dashboards[this.dashboardId], this.datasets, this.activeSelections, this.$http)
             } else {
                 await this.reloadWidgetData(null)
             }
