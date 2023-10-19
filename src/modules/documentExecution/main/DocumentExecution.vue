@@ -25,7 +25,6 @@
                     ></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button v-if="mode !== 'dashboard'" v-tooltip.left="$t('common.onlineHelp')" icon="pi pi-book" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="openHelp"></Button>
                     <Button
                         v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.refresh')"
@@ -46,7 +45,7 @@
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
                     <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions()" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
-                    <Button v-if="canSeeDashboardFunctions()" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
+                    <Button v-if="isInDocBrowser" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
                     <Button class="hidden-button" @click="hiddenExport('XLSX')"></Button>
                 </div>
             </template>
@@ -348,6 +347,9 @@ export default defineComponent({
         },
         showExecutedDocument() {
             return this.filtersData && this.filtersData.isReadyForExecution && !this.loading && !this.schedulationsTableVisible
+        },
+        isInDocBrowser() {
+            return this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
         }
     },
     watch: {
@@ -492,7 +494,8 @@ export default defineComponent({
                     copyLink: this.copyLink,
                     openDashboardGeneralSettings: this.openDashboardGeneralSettings,
                     openSaveCurrentViewDialog: this.openSaveCurrentViewDialog,
-                    openSavedViewsListDialog: this.openSavedViewsListDialog
+                    openSavedViewsListDialog: this.openSavedViewsListDialog,
+                    openHelp: this.openHelp
                 },
                 this.exporters,
                 this.user,
