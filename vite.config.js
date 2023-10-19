@@ -35,7 +35,35 @@ export default defineConfig((command, mode) => {
                     enabled: true
                 },
                 workbox: {
-                    globPatterns: ['**/*.{css,html,ico,png,svg}']
+                    runtimeCaching: [
+                        {
+                            urlPattern: /^.+\.ttf/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'fonts',
+                                expiration: {
+                                    maxEntries: 10,
+                                    maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.css/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'styles',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        }
+                    ]
                 },
                 useCredentials: true,
                 manifest: {
@@ -121,10 +149,10 @@ export default defineConfig((command, mode) => {
         },
         server: {
             port: 3000,
-            host: 'localhost',
+            host: '127.0.0.1',
             https: env.VITE_HOST_HTTPS === 'true',
             proxy: {
-                '^/knowagedossierengine/api': {
+                '^/knowagedossierengine/api/': {
                     target: env.VITE_HOST_URL,
                     changeOrigin: true
                 },
