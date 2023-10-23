@@ -35,7 +35,7 @@ export default defineConfig((command, mode) => {
                     enabled: true
                 },
                 workbox: {
-                    globPatterns: ['**/*.{html}'],
+                    globPatterns: ['**/*.html'],
                     runtimeCaching: [
                         {
                             urlPattern: /^.+\.(ttf|woff2)/i,
