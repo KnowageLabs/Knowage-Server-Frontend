@@ -35,10 +35,10 @@ export default defineConfig((command, mode) => {
                     enabled: true
                 },
                 workbox: {
-                    globPatterns: ['**/*.{svg,html}'],
+                    globPatterns: ['**/*.{html}'],
                     runtimeCaching: [
                         {
-                            urlPattern: /^.+\.ttf/i,
+                            urlPattern: /^.+\.(ttf|woff2)/i,
                             handler: 'CacheFirst',
                             options: {
                                 cacheName: 'fonts',
@@ -58,6 +58,32 @@ export default defineConfig((command, mode) => {
                                 cacheName: 'styles',
                                 expiration: {
                                     maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.js/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'scripts',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 10 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.(svg|png|jpg)/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'images',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 10 // <== 365 days
                                 },
                                 cacheableResponse: {
                                     statuses: [0, 200]
