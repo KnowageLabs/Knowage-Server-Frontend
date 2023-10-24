@@ -123,7 +123,7 @@ export default defineComponent({
     methods: {
         ...mapActions(mainStore, ['setHomePage', 'setLoading', 'getConfigurations']),
         mandatoryRole() {
-            if (this.getConfigurations('KNOWAGE.MANDATORY-ROLE') && !this.user.defaultRole) {
+            if (this.getConfigurations('KNOWAGE.MANDATORY-ROLE') && this.user.roles.length > 1 && !this.user.defaultRole) {
                 this.roleDisplay = true
                 return true
             }
