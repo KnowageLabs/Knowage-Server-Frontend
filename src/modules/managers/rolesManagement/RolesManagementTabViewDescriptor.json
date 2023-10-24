@@ -348,19 +348,19 @@
     "categories": [
         {
             "categoryName": "documentExecutionMenu",
-            "name": "document execution menu"
+            "name": "managers.rolesManagement.authGroups.documentExecutionToolbar"
         },
         {
             "categoryName": "menuConfiguration",
-            "name": "menu configuration"
+            "name": "managers.rolesManagement.authGroups.menuConfiguration"
         },
         {
             "categoryName": "myWorskpace",
-            "name": "my workspace"
+            "name": "managers.rolesManagement.authGroups.workspace"
         },
         {
             "categoryName": "cockpitWidgets",
-            "name": "cockpit widgets"
+            "name": "managers.rolesManagement.authGroups.dashboard"
         }
     ],
     "column": {

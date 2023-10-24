@@ -2892,6 +2892,12 @@
             }
         },
         "rolesManagement": {
+            "authGroups": {
+                "dashboard": "Dashboard",
+                "documentExecutionToolbar": "Document Execution Toolbar",
+                "menuConfiguration": "Menu Configuration",
+                "workspace": "Workspace"
+            },
             "authorizations": {
                 "buildQbe": "Build QbE Queries",
                 "copyAndEmbed": "Copy and Embed link",
@@ -3585,6 +3591,7 @@
     },
     "role": {
         "defaultRolePlaceholder": "No default role selected",
+        "mandatoryRoleWarning": "Role selection is mandatory. Select a role to proceed.",
         "roleSelection": "Role Selection"
     },
     "unauthorized": {
