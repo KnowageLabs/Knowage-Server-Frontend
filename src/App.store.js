@@ -47,6 +47,9 @@ const store = defineStore('store', {
 
             this.setLicenses(licenses)
         },
+        getConfigurations(configName) {
+            return this.configurations && this.configurations[configName]
+        },
         setConfigurations(configs) {
             this.configurations = configs
         },
