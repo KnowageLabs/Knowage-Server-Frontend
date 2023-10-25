@@ -46,7 +46,10 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     if (user.enterprise && !newDashboardMode) {
         toolbarMenuItems.push({
             label: $t('common.info.info'),
-            items: [{ icon: 'pi pi-star', label: $t('common.rank'), command: () => functions.openRank() }]
+            items: [
+                { icon: 'pi pi-star', label: $t('common.rank'), command: () => functions.openRank() },
+                { icon: 'pi pi-book', label: $t('common.onlineHelp'), command: () => functions.openHelp() }
+            ]
         })
     }
 

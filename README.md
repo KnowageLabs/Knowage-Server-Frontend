@@ -65,3 +65,8 @@ npm run test:unit
 ├── App.vue
 ├── main.ts
 ```
+
+## Translation contribution
+
+If you are interested in translating KNOWAGE in one of the languages not available at the moment you can follow [this guide](/src/i18n/readme.md)
+

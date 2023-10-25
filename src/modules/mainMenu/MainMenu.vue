@@ -2,7 +2,7 @@
     <div id="kn-main-menu" ref="mainMenu" class="layout-menu-container">
         <InfoDialog v-model:visibility="display"></InfoDialog>
         <LanguageDialog v-model:visibility="languageDisplay"></LanguageDialog>
-        <RoleDialog v-model:visibility="roleDisplay"></RoleDialog>
+        <RoleDialog v-model:visibility="roleDisplay" :mandatory="mandatoryRole()"></RoleDialog>
         <DownloadsDialog v-model:visibility="downloadsDisplay"></DownloadsDialog>
         <NewsDialog v-model:visibility="newsDisplay"></NewsDialog>
         <LicenseDialog v-if="user && user.isSuperadmin && isEnterprise" v-model:visibility="licenseDisplay"></LicenseDialog>
@@ -111,6 +111,9 @@ export default defineComponent({
             publicPath: import.meta.env.VITE_PUBLIC_PATH
         }
     },
+    computed: {
+        ...mapState(mainStore, ['user'])
+    },
     async mounted() {
         await this.loadMenu()
     },
@@ -118,7 +121,14 @@ export default defineComponent({
         window.removeEventListener('resize', this.getDimensions)
     },
     methods: {
-        ...mapActions(mainStore, ['setHomePage', 'setLoading']),
+        ...mapActions(mainStore, ['setHomePage', 'setLoading', 'getConfigurations']),
+        mandatoryRole() {
+            if (this.getConfigurations('KNOWAGE.MANDATORY-ROLE') && this.user.roles.length > 1 && !this.user.defaultRole) {
+                this.roleDisplay = true
+                return true
+            }
+            return false
+        },
         info() {
             this.display = !this.display
         },

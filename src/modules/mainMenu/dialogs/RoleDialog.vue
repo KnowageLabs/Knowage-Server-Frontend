@@ -1,35 +1,41 @@
 <template>
     <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('role.roleSelection')" :closable="false" modal>
+        <Message v-if="mandatory" severity="warn">{{ $t('role.mandatoryRoleWarning') }}</Message>
         <Dropdown v-model="user.sessionRole" class="kn-material-input" :options="[$t('role.defaultRolePlaceholder'), ...user.roles]" :placeholder="$t('role.defaultRolePlaceholder')" @change="setDirty" />
         <template #footer>
-            <Button v-t="'common.close'" class="p-button-text kn-button" @click="closeDialog" />
-            <Button v-t="'common.save'" class="kn-button kn-button--primary" @click="changeRole" />
+            <Button v-if="!mandatory" v-t="'common.close'" class="p-button-text kn-button" @click="closeDialog" />
+            <Button v-t="'common.save'" class="kn-button kn-button--primary" :disabled="!user.sessionRole" @click="changeRole" />
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
 import mainStore from '../../../App.store.js'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'role-dialog',
     components: {
         Dialog,
-        Dropdown
+        Dropdown,
+        Message
     },
     props: {
-        visibility: Boolean
+        visibility: Boolean,
+        mandatory: Boolean
     },
     emits: ['update:visibility'],
-    setup() {
-        const store = mainStore()
-        return { store }
+    computed: {
+        ...mapState(mainStore, {
+            user: 'user'
+        })
     },
     methods: {
+        ...mapActions(mainStore, ['setUser']),
         formUrlEncoded(x) {
             return Object.keys(x)
                 .reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '')
@@ -42,7 +48,7 @@ export default defineComponent({
             const postUrl = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP`
 
             this.$http.post(postUrl, data, { headers: headers }).then(() => {
-                this.store.setUser(this.user)
+                this.setUser(this.user)
                 localStorage.setItem('sessionRole', this.user.sessionRole)
                 this.closeDialog()
                 this.$router.go(0)
@@ -51,11 +57,6 @@ export default defineComponent({
         closeDialog() {
             this.$emit('update:visibility', false)
         }
-    },
-    computed: {
-        ...mapState(mainStore, {
-            user: 'user'
-        })
     }
 })
 </script>
