@@ -62,11 +62,7 @@ export default defineComponent({
             rows: [] as any[],
             configuration: {} as any,
             comboColumnOptions: {} as any,
-            buttons: {
-                enableButtons: false,
-                enableDeleteRecords: false,
-                enableAddRecords: false
-            },
+            buttons: {} as any,
             lazyParams: {} as any,
             dependentColumns: [] as any[],
             selectedRow: null as any,
@@ -95,10 +91,14 @@ export default defineComponent({
             return (column) => (column.isEditable ? column.format || primeVueDate() : localeDate())
         },
         deleteButtonEnabled(): boolean {
-            return this.buttons.enableButtons || this.buttons.enableDeleteRecords
+            const enableDeleteRecords = Object.prototype.hasOwnProperty.call(this.buttons, 'enableDeleteRecords')
+            if (enableDeleteRecords) return this.buttons.enableDeleteRecords
+            else return this.buttons.enableButtons
         },
         addButtonEnabled(): boolean {
-            return this.buttons.enableButtons || this.buttons.enableAddRecords
+            const enableAddRecords = Object.prototype.hasOwnProperty.call(this.buttons, 'enableAddRecords')
+            if (enableAddRecords) return this.buttons.enableAddRecords
+            else return this.buttons.enableButtons
         }
     },
     watch: {
