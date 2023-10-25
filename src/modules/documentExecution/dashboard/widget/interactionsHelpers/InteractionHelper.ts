@@ -11,12 +11,9 @@ interface IClickedValue {
 }
 
 export const loadAssociativeSelections = async (dashboardId: string, model: IDashboard, datasets: IDataset[], selections: ISelection[], $http: any) => {
-    //TODO - ASSOCIATIVE Promene
-
     const dStore = dashboardStore()
 
     const tempResponse = await getAssociativeSelections(model, datasets, selections, $http)
-    // if (tempResponse) emitter.emit('associativeSelectionsLoaded', tempResponse)
     if (tempResponse) {
         dStore.setAssociations(dashboardId, tempResponse)
         emitter.emit('associativeSelectionsLoaded')

@@ -168,7 +168,6 @@ export default defineComponent({
         }
     },
     async created() {
-        console.log('------ CREATED WIDGET CONTROLLER!!!')
         this.setWidgetLoading(true)
         this.loadMenuItems()
         this.setEventListeners()
@@ -270,7 +269,6 @@ export default defineComponent({
         async loadActiveSelections() {
             this.getSelectionsFromStore()
             if (this.widgetModel.type === 'selection') return
-            //TODO - ASSOCIATIVE Promene
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (this.widgetUsesSelections(this.activeSelections) || associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore ?? null)
         },
@@ -331,7 +329,6 @@ export default defineComponent({
             this.setSelections(this.dashboardId, this.activeSelections, this.$http)
         },
         getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation() {
-            //TODO - ASSOCIATIVE Promene
             const associativeSelections = this.getAssociations(this.dashboardId)
             this.getSelectionsFromStore()
             if (!associativeSelections) return
@@ -341,14 +338,6 @@ export default defineComponent({
             return index !== -1 ? associativeSelections : null
         },
         async onAssociativeSelectionsLoaded() {
-            //TODO - ASSOCIATIVE Promene
-            // const response = this.getAssociations(this.dashboardId)
-            // console.log('onAssociativeSelectionsLoaded', response)
-            // this.getSelectionsFromStore()
-            // if (!response) return
-            // const datasets = Object.keys(response)
-            // const dataset = this.datasets.find((dataset: IDataset) => dataset.id.dsId === this.widgetModel.dataset)
-            // const index = datasets.findIndex((datasetLabel: string) => datasetLabel === dataset?.label)
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore)
         },
