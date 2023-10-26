@@ -1,5 +1,5 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('role.roleSelection')" :closable="false" modal>
+    <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('role.roleSelection')" :closable="false" :base-z-index="9000" modal>
         <Message v-if="mandatory" severity="warn">{{ $t('role.mandatoryRoleWarning') }}</Message>
         <Dropdown v-model="user.sessionRole" class="kn-material-input" :options="[$t('role.defaultRolePlaceholder'), ...user.roles]" :placeholder="$t('role.defaultRolePlaceholder')" @change="setDirty" />
         <template #footer>
@@ -71,7 +71,9 @@ export default defineComponent({
         }
     }
 }
-.RoleDialog #role {
-    width: 300px;
+.RoleDialog {
+    #role {
+        width: 300px;
+    }
 }
 </style>
