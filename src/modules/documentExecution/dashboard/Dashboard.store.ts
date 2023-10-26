@@ -89,7 +89,7 @@ const store = defineStore('dashboardStore', {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].selections = selections
             if (!this.dashboards[dashboardId]) return
             if (selections.length > 0 && selectionsUseDatasetWithAssociation(selections, this.dashboards[dashboardId].configuration.associations)) {
-                loadAssociativeSelections(this.dashboards[dashboardId], this.allDatasets, selections, $http)
+                loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, selections, $http)
             } else {
                 emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
             }
@@ -154,6 +154,12 @@ const store = defineStore('dashboardStore', {
         },
         getAllThemes() {
             return this.allThemes
+        },
+        setAssociations(dashboardId: string, associationsToSet: any) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].associations = associationsToSet
+        },
+        getAssociations(dashboardId: string) {
+            if (this.dashboards[dashboardId]) return this.dashboards[dashboardId].associations
         }
     }
 })
