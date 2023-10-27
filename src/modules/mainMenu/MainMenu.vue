@@ -112,7 +112,21 @@ export default defineComponent({
         }
     },
     computed: {
-        ...mapState(mainStore, ['user'])
+        ...mapState(mainStore, {
+            user: 'user',
+            downloads: 'downloads',
+            locale: 'locale',
+            news: 'news',
+            stateHomePage: 'homePage',
+            isEnterprise: 'isEnterprise',
+            licenses: 'licenses'
+        })
+    },
+    watch: {
+        news() {
+            const orig = JSON.parse(JSON.stringify(this.allowedUserFunctionalities))
+            this.setConditionedVisibility(orig)
+        }
     },
     async mounted() {
         await this.loadMenu()
@@ -169,6 +183,9 @@ export default defineComponent({
         },
         itemClick(event) {
             const item = event.item ? event.item : event
+            if (item.label === 'Home' && this.user?.configuration['home.button.url']) {
+                location.replace(this.user?.configuration['home.button.url'])
+            }
             if (item.command) {
                 this[item.command]()
             } else if (item.to && event.navigate) {
@@ -314,23 +331,6 @@ export default defineComponent({
                 item.visible = this.isItemToDisplay(item)
                 this.allowedUserFunctionalities.push(item)
             }
-        }
-    },
-    computed: {
-        ...mapState(mainStore, {
-            user: 'user',
-            downloads: 'downloads',
-            locale: 'locale',
-            news: 'news',
-            stateHomePage: 'homePage',
-            isEnterprise: 'isEnterprise',
-            licenses: 'licenses'
-        })
-    },
-    watch: {
-        news() {
-            const orig = JSON.parse(JSON.stringify(this.allowedUserFunctionalities))
-            this.setConditionedVisibility(orig)
         }
     }
 })
