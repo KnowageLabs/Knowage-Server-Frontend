@@ -349,7 +349,7 @@ export default defineComponent({
             return this.filtersData && this.filtersData.isReadyForExecution && !this.loading && !this.schedulationsTableVisible
         },
         isInDocBrowser() {
-            return this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
+            return this.crossNavigationPopupDialogDocument || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
         }
     },
     watch: {
