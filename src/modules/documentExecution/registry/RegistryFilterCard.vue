@@ -15,7 +15,7 @@
             <label class="kn-material-input-label"> {{ filter.title }}</label>
         </span>
         <span v-else-if="filter.presentation === 'COMBO'" class="p-float-label">
-            <Dropdown v-model="v$.filter.filterValue.$model" class="kn-material-input" :options="options" option-value="column_1" option-label="column_1" :filter="true" @change="filterChanged"> </Dropdown>
+            <Dropdown v-model="v$.filter.filterValue.$model" class="kn-material-input" :options="options" option-value="column_1" option-label="column_1" :filter="true" @change="filterChanged" @click="loadFilterOptions"> </Dropdown>
             <label class="kn-material-input-label"> {{ filter.title }}</label>
         </span>
         <KnValidationMessages :v-comp="v$.filter.filterValue"></KnValidationMessages>
@@ -58,9 +58,6 @@ export default defineComponent({
     },
     async created() {
         this.loadFilter()
-        if (this.filter.presentation === 'COMBO') {
-            await this.loadFilterOptions()
-        }
     },
     methods: {
         loadFilter() {
