@@ -310,7 +310,8 @@ export default defineComponent({
             savedViewsListDialogVisible: false,
             currentCockpitView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedCockpitView: null as IDashboardView | null,
-            cockpitViewForExecution: null as IDashboardView | null
+            cockpitViewForExecution: null as IDashboardView | null,
+            dataLoaded: false
         }
     },
     computed: {
@@ -429,7 +430,7 @@ export default defineComponent({
                     }
                 }
             }
-            if (!invalidRole) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
+            if (!invalidRole && !this.dataLoaded) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
         })
     },
     unmounted() {
@@ -685,7 +686,6 @@ export default defineComponent({
             await this.sendForm(documentLabel, crossNavigationPopupMode)
         },
         async loadExporters() {
-            if (!this.urlData || !this.urlData.engineLabel) return
             if (!this.urlData || !this.urlData.engineLabel) return
             const engineLabel = this.urlData.engineLabel
             if (engineLabel !== EnginesConstants.DOSSIER_ENGINE) {
@@ -973,6 +973,7 @@ export default defineComponent({
             }
             this.urlData = null
             this.exporters = null
+            this.dataLoaded = true
             await this.loadPage()
         },
         setNavigationParametersFromCurrentFilters(formatedParams: any, navigationParams: any) {
