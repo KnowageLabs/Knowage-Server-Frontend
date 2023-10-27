@@ -44,7 +44,7 @@
                     ></Button>
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
-                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions()" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
+                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && !crossNavigationPopupDialogDocument" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
                     <Button v-if="isInDocBrowser" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
                     <Button class="hidden-button" @click="hiddenExport('XLSX')"></Button>
                 </div>
@@ -350,7 +350,7 @@ export default defineComponent({
             return this.filtersData && this.filtersData.isReadyForExecution && !this.loading && !this.schedulationsTableVisible
         },
         isInDocBrowser() {
-            return this.crossNavigationPopupDialogDocument || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
+            return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
         }
     },
     watch: {
