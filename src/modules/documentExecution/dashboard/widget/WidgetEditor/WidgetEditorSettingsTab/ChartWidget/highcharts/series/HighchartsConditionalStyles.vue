@@ -15,8 +15,6 @@
                     <i class="pi pi-th-large kn-cursor-pointer" :class="[conditionalStylesDisabled ? 'icon-disabled' : '']"></i>
                 </div>
 
-                {{ conditionalStyle }}
-
                 <div class="p-grid p-col-10 p-ai-center">
                     <div class="p-sm-12 p-md-6 p-lg-6 p-d-flex p-flex-column">
                         <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
