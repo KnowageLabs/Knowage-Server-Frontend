@@ -204,7 +204,9 @@ const formatWidget = (widget: IWidget) => {
 }
 
 const addColumnIdsToWidgetColumns = (widget: IWidget) => {
-    widget.columns.forEach((column: IWidgetColumn) => (column.id = cryptoRandomString({ length: 16, type: 'base64' })))
+    widget.columns.forEach((column: IWidgetColumn) => {
+        if (!column.id) column.id = cryptoRandomString({ length: 16, type: 'base64' })
+    })
 }
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {
