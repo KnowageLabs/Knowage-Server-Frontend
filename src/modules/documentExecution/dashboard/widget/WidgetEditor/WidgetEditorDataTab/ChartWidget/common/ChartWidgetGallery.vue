@@ -74,6 +74,9 @@ export default defineComponent({
 .gallery-card {
     height: 200px;
     width: 200px;
+    img {
+        max-height: 170px;
+    }
 }
 .gallery-card:hover {
     border-color: #43749e !important;

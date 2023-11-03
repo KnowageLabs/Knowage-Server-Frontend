@@ -2,7 +2,7 @@
     <Button icon="fas fa-eye" class="p-button-text p-button-rounded p-button-plain dataset-preview-button" :disabled="!selectedDataset.id" @click="previewSelectedDataset" />
 
     <DataList :dashboard-datasets-prop="dashboardDatasetsProp" :available-datasets-prop="availableDatasetsProp" :selected-datasets-prop="selectedDatasets" @addSelectedDatasets="addSelectedDatasets" @datasetSelected="selectDataset" @deleteDataset="$emit('deleteDataset', $event)" />
-    <DataDetail :dashboard-datasets-prop="dashboardDatasetsProp" :selected-dataset-prop="selectedDataset" :document-drivers-prop="documentDriversProp" :dashboard-id="dashboardId" data-test="dataset-detail" />
+    <DataDetail :dashboard-datasets-prop="dashboardDatasetsProp" :selected-dataset-prop="selectedDataset" :document-drivers-prop="documentDriversProp" :dashboard-id="dashboardId" data-test="dataset-detail" class="kn-flex" />
 
     <DatasetEditorPreview v-if="previewShown" :visible="previewShown" :prop-dataset="datasetToPreview" :dashboardId="dashboardId" @close="previewShown = false" />
 </template>
