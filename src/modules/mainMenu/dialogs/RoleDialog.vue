@@ -1,7 +1,7 @@
 <template>
     <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('role.roleSelection')" :closable="false" :base-z-index="9000" modal>
         <Message v-if="mandatory" severity="warn">{{ $t('role.mandatoryRoleWarning') }}</Message>
-        <Dropdown v-model="user.sessionRole" class="kn-material-input" :options="[$t('role.defaultRolePlaceholder'), ...user.roles]" :placeholder="$t('role.defaultRolePlaceholder')" @change="setDirty" />
+        <Dropdown v-model="user.sessionRole" class="kn-material-input" :options="getRoleOptions()" :placeholder="$t('role.defaultRolePlaceholder')" @change="setDirty" />
         <template #footer>
             <Button v-if="!mandatory" v-t="'common.close'" class="p-button-text kn-button" @click="closeDialog" />
             <Button v-t="'common.save'" class="kn-button kn-button--primary" :disabled="!user.sessionRole" @click="changeRole" />
@@ -40,6 +40,11 @@ export default defineComponent({
             return Object.keys(x)
                 .reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '')
                 .substring(1)
+        },
+        getRoleOptions(): Array<string> {
+            const rolesOptions = this.user.roles
+            if (!this.mandatory) rolesOptions.unshift(this.$t('role.defaultRolePlaceholder'))
+            return rolesOptions
         },
         changeRole() {
             const role = this.user.sessionRole === this.$t('role.defaultRolePlaceholder') ? '' : this.user.sessionRole
