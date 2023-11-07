@@ -63,7 +63,7 @@
             </div>
             <Transition>
                 <div v-if="advancedVisible" class="p-d-flex p-flex-column">
-                    <div v-if="axis === 'y'" class="p-col-12 p-md-3 p-d-flex p-flex-column">
+                    <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
                         <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.labels.xCoordinate') }}</label>
                         <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                             <InputNumber v-model="axisModel.labels.x" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
