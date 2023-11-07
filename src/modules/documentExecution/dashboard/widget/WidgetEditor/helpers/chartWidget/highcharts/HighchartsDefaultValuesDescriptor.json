@@ -128,7 +128,8 @@
                 "fontFamily": "",
                 "fontSize": "14px",
                 "fontWeight": ""
-            }
+            },
+            "x": 0
         },
         "plotBands": [],
         "plotLines": [],
@@ -157,7 +158,8 @@
                 "fontSize": "14px",
                 "fontStyle": "",
                 "fontWeight": ""
-            }
+            },
+            "x": 0
         },
         "min": 0,
         "minorGridLineColor": "",
@@ -230,7 +232,8 @@
                 "fontFamily": "",
                 "fontSize": "14px",
                 "fontWeight": ""
-            }
+            },
+            "x": 0
         },
         "max": null,
         "min": null,
@@ -256,7 +259,8 @@
                 "fontFamily": "",
                 "fontSize": "14px",
                 "fontWeight": ""
-            }
+            },
+            "x": 0
         },
         "max": null,
         "min": null,
@@ -336,7 +340,8 @@
                 "fontFamily": "",
                 "fontSize": "14px",
                 "fontWeight": ""
-            }
+            },
+            "x": 0
         },
         "title": {
             "align": "middle",
@@ -362,7 +367,8 @@
                 "fontFamily": "",
                 "fontSize": "14px",
                 "fontWeight": ""
-            }
+            },
+            "x": 0
         },
         "min": 0,
         "minorGridLineColor": "",
@@ -394,7 +400,8 @@
                 "fontFamily": "",
                 "fontSize": "14px",
                 "fontWeight": ""
-            }
+            },
+            "x": 0
         },
         "plotBands": [],
         "plotLines": [],
@@ -424,7 +431,8 @@
                 "fontFamily": "",
                 "fontSize": "14px",
                 "fontWeight": ""
-            }
+            },
+            "x": 0
         },
         "plotBands": [],
         "plotLines": [],
