@@ -80,15 +80,16 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
     const measureColumn = measureColumns[0]
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
+
     const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], connectNulls: true }
     const categoryValuesMap = {}
     data.rows.forEach((row: any) => {
+        const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
         serieElement.data.push({
-            name: dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex],
+            name: firstAttributeValue,
             y: row[measureColumn.metadata.dataIndex],
             drilldown: false
         })
-        const firstAttributeValue = row[firstAttributeColumn.metadata.dataIndex]
         const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
         if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
         if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
