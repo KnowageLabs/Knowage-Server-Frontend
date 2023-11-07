@@ -75,13 +75,27 @@ export default defineComponent({
     },
     watch: {
         widgetModel() {
-            this.widget = this.widgetModel
+            this.loadWidgetModel()
         }
     },
     created() {
-        this.widget = this.widgetModel
+        this.setEventListeners()
+        this.loadWidgetModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('chartTypeChanged', this.loadWidgetModel)
+        },
+        removeEventListeners() {
+            emitter.off('chartTypeChanged', this.loadWidgetModel)
+        },
+        loadWidgetModel() {
+            this.widget = this.widgetModel
+            if (this.widget.settings.chartModel?.model?.colors) this.widget.settings.chart.colors = [...this.widget.settings.chartModel.model.colors]
+        },
         toggleColorPicker(index) {
             this.colorPickerVisible = !this.colorPickerVisible
             this.editIndex = index

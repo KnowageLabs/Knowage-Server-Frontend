@@ -6,10 +6,10 @@
         </div>
         <div class="p-col-12 p-md-6 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
-            <Dropdown v-model="axisModel.title.align" class="kn-material-input" :options="descriptor.axisTitleAlignOptions" option-value="value" @change="modelChanged">
+            <Dropdown v-model="axisModel.title.align" class="kn-material-input" :options="axisAlignOptions" option-value="value" @change="modelChanged">
                 <template #value="slotProps">
                     <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.axisTitleAlignOptions, $t) }}</span>
+                        <span>{{ getTranslatedLabel(slotProps.value, axisAlignOptions, $t) }}</span>
                     </div>
                 </template>
                 <template #option="slotProps">
@@ -44,7 +44,7 @@ export default defineComponent({
             descriptor,
             settingsDescriptor,
             axisModel: null as any,
-            toolbarModel: {} as { 'font-family': string; 'font-size': string; 'font-weight': string; color: string },
+            toolbarModel: {} as { 'font-style': string; 'font-family': string; 'font-size': string; 'font-weight': string; color: string },
             getTranslatedLabel
         }
     },
@@ -54,6 +54,9 @@ export default defineComponent({
         },
         titleDisabled() {
             return !this.axisModel || !this.axisModel.title || !this.axisModel.title.enabled
+        },
+        axisAlignOptions() {
+            return this.axis === 'x' ? descriptor.xAxisTitleAlignOptions : descriptor.yAxisTitleAlignOptions
         }
     },
     created() {
@@ -66,15 +69,16 @@ export default defineComponent({
             this.loadToolbarModel()
         },
         loadToolbarModel() {
-            if (this.axisModel && this.axisModel.title) this.toolbarModel = { 'font-family': this.axisModel.title.style.fontFamily, 'font-size': this.axisModel.title.style.fontSize, 'font-weight': this.axisModel.title.style.fontWeight, color: this.axisModel.title.style.color }
+            if (this.axisModel && this.axisModel.title)
+                this.toolbarModel = { 'font-style': this.axisModel.title.style.fontStyle, 'font-family': this.axisModel.title.style.fontFamily, 'font-size': this.axisModel.title.style.fontSize, 'font-weight': this.axisModel.title.style.fontWeight, color: this.axisModel.title.style.color }
         },
         modelChanged() {
             emitter.emit('refreshChart', this.widgetModel.id)
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.axisModel || !this.axisModel.title) return
-            this.toolbarModel = { 'font-family': model['font-family'] ?? '', 'font-size': model['font-size'] ?? '14px', 'font-weight': model['font-weight'] ?? '', color: model.color ?? '' }
-            this.axisModel.title.style = { color: this.toolbarModel.color ?? '', fontSize: this.toolbarModel['font-size'] ?? '14px', fontFamily: this.toolbarModel['font-family'] ?? '', fontWeight: this.toolbarModel['font-weight'] ?? '' }
+            this.toolbarModel = { 'font-style': model['font-style'] ?? '', 'font-family': model['font-family'] ?? '', 'font-size': model['font-size'] ?? '14px', 'font-weight': model['font-weight'] ?? '', color: model.color ?? '' }
+            this.axisModel.title.style = { fontStyle: this.toolbarModel['font-style'] ?? '', color: this.toolbarModel.color ?? '', fontSize: this.toolbarModel['font-size'] ?? '14px', fontFamily: this.toolbarModel['font-family'] ?? '', fontWeight: this.toolbarModel['font-weight'] ?? '' }
             this.modelChanged()
         }
     }
