@@ -63,6 +63,13 @@
             </div>
             <Transition>
                 <div v-if="advancedVisible" class="p-d-flex p-flex-column">
+                    <div v-if="axis === 'y'" class="p-col-12 p-md-3 p-d-flex p-flex-column">
+                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.labels.xCoordinate') }}</label>
+                        <div class="p-d-flex p-flex-row p-ai-center p-fluid">
+                            <InputNumber v-model="axisModel.labels.x" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.labels.xAlignValueHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                        </div>
+                    </div>
                     <div class="p-col-12">
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.format') }}</label>
                         <div class="p-d-flex p-flex-row p-ai-center">

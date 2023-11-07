@@ -728,7 +728,9 @@
                     "distance": "Distance",
                     "distanceHint": "The distance of the data label from the pie's edge. Negative numbers put the data label on top of the pie slices. Can also be defined as a percentage of pie's radius. Connectors are only shown for data labels outside the pie.",
                     "formatHint": "A format string for the data label. Available variables are the same as for formatter.",
-                    "formatterHint": "Callback JavaScript function to format the data label. Note that if a format is defined, the format takes precedence and the formatter is ignored."
+                    "formatterHint": "Callback JavaScript function to format the data label. Note that if a format is defined, the format takes precedence and the formatter is ignored.",
+                    "xAlignValueHint": "What part of the string the given position is anchored to. Can be one of \"left\", \"center\" or \"right\". The exact position also depends on the labels.x setting.",
+                    "xCoordinate": "X Coordinate"
                 },
                 "legend": {
                     "alignHint": "The horizontal alignment of the legend box within the chart area. Valid values are left, center and right. In the case that the legend is aligned in a corner position, the layout option will determine whether to place it above/below or on the side of the plot area.",
