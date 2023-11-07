@@ -131,7 +131,6 @@ export default defineComponent({
                 checkboxClick: this.onCheckboxClicked
             }
             modelToRender.chart.backgroundColor = null
-
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()

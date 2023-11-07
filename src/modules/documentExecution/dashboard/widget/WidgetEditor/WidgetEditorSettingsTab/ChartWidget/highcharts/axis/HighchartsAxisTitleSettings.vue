@@ -6,10 +6,10 @@
         </div>
         <div class="p-col-12 p-md-6 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
-            <Dropdown v-model="axisModel.title.align" class="kn-material-input" :options="descriptor.axisTitleAlignOptions" option-value="value" @change="modelChanged">
+            <Dropdown v-model="axisModel.title.align" class="kn-material-input" :options="axisAlignOptions" option-value="value" @change="modelChanged">
                 <template #value="slotProps">
                     <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.axisTitleAlignOptions, $t) }}</span>
+                        <span>{{ getTranslatedLabel(slotProps.value, axisAlignOptions, $t) }}</span>
                     </div>
                 </template>
                 <template #option="slotProps">
@@ -54,6 +54,9 @@ export default defineComponent({
         },
         titleDisabled() {
             return !this.axisModel || !this.axisModel.title || !this.axisModel.title.enabled
+        },
+        axisAlignOptions() {
+            return this.axis === 'x' ? descriptor.xAxisTitleAlignOptions : descriptor.yAxisTitleAlignOptions
         }
     },
     created() {
