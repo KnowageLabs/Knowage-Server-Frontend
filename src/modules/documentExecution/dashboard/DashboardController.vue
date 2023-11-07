@@ -151,7 +151,8 @@ export default defineComponent({
             selectedViewForExecution: null as IDashboardView | null,
             generalSettingsMode: 'General' as string,
             datasetsLoaded: false,
-            dashboardThemes: [] as IDashboardTheme[]
+            dashboardThemes: [] as IDashboardTheme[],
+            initialDataLoadedMap: { profileAttributesLoaded: false, dashboardThemesLoaded: false, dashboardModelLoaded: false, internationalizationLoaded: false, htmlGalleryLoaded: false, pythonGallerLoaded: false, customChartGalleryLoaded: false, crossNavigationsLoaded: false }
         }
     },
     computed: {
@@ -225,13 +226,16 @@ export default defineComponent({
                 this.drivers = loadDrivers(this.filtersData, this.model)
                 this.currentView.drivers = this.filtersData
             }
-            await Promise.all([this.loadProfileAttributes(), this.loadDashboardThemes(), this.loadModel(), this.loadInternationalization()])
+            if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
+            if (!this.initialDataLoadedMap.dashboardThemesLoaded) this.loadDashboardThemes()
+            if (!this.initialDataLoadedMap.dashboardModelLoaded) this.loadModel()
+            if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
-            this.loadHtmlGallery()
-            this.loadPythonGallery()
-            this.loadCustomChartGallery()
+            if (!this.initialDataLoadedMap.htmlGalleryLoaded) this.loadHtmlGallery()
+            if (!this.initialDataLoadedMap.pythonGallerLoaded) this.loadPythonGallery()
+            if (!this.initialDataLoadedMap.customChartGalleryLoaded) this.loadCustomChartGallery()
             this.loadOutputParameters()
-            await this.loadCrossNavigations()
+            if (!this.initialDataLoadedMap.crossNavigationsLoaded) await this.loadCrossNavigations()
             this.setCurrentDashboardView(this.dashboardId, this.currentView)
             this.loading = false
         },
@@ -261,6 +265,7 @@ export default defineComponent({
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
+            this.initialDataLoadedMap.dashboardModelLoaded = true
         },
         async loadInternationalization() {
             this.appStore.setLoading(true)
@@ -274,6 +279,7 @@ export default defineComponent({
                 .catch(() => {})
 
             this.appStore.setLoading(false)
+            this.initialDataLoadedMap.internationalizationLoaded = true
         },
         async loadCrossNavigations() {
             if (this.newDashboardMode) return
@@ -284,24 +290,28 @@ export default defineComponent({
                 .catch(() => {})
             this.appStore.setLoading(false)
             this.store.setCrossNavigations(this.dashboardId, this.crossNavigations)
+            this.initialDataLoadedMap.crossNavigationsLoaded = true
         },
         async loadHtmlGallery() {
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
                 .then((response: AxiosResponse<any>) => (this.htmlGallery = response.data))
                 .catch(() => {})
+            this.initialDataLoadedMap.htmlGalleryLoaded = true
         },
         async loadPythonGallery() {
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
                 .then((response: AxiosResponse<any>) => (this.pythonGallery = response.data))
                 .catch(() => {})
+            this.initialDataLoadedMap.pythonGallerLoaded = true
         },
         async loadCustomChartGallery() {
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
                 .then((response: AxiosResponse<any>) => (this.customChartGallery = response.data))
                 .catch(() => {})
+            this.initialDataLoadedMap.customChartGalleryLoaded = true
         },
         loadOutputParameters() {
             if (this.newDashboardMode) return
@@ -320,6 +330,7 @@ export default defineComponent({
                 )
             }
             this.setProfileAttributes(this.profileAttributes)
+            this.initialDataLoadedMap.profileAttributesLoaded = true
         },
         async loadDashboardThemes() {
             this.dashboardThemes = []
@@ -327,6 +338,7 @@ export default defineComponent({
                 this.dashboardThemes = response.data
             })
             this.store.setAllThemes(this.dashboardThemes)
+            this.initialDataLoadedMap.dashboardThemesLoaded = true
         },
         loadSelectedViewForExecution(view: IDashboardView) {
             this.selectedViewForExecution = view
@@ -344,7 +356,7 @@ export default defineComponent({
             emitter.emit('datasetManagementOpened')
             clearAllDatasetIntervals()
         },
-        openWidgetEditor(payload: { widget: any; dashboardId: string }) {
+        openWidgetEditor(payload: any) {
             if (payload.dashboardId !== this.dashboardId) return
             this.selectedWidget = payload.widget
             this.setWidgetEditorToVisible()
