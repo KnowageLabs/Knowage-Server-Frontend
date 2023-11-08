@@ -240,6 +240,7 @@ export default defineComponent({
             this.loading = false
         },
         async loadModel() {
+            this.initialDataLoadedMap.dashboardModelLoaded = true
             let tempModel = null as any
             if (this.newDashboardMode) {
                 tempModel = createNewDashboardModel()
@@ -265,9 +266,9 @@ export default defineComponent({
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
-            this.initialDataLoadedMap.dashboardModelLoaded = true
         },
         async loadInternationalization() {
+            this.initialDataLoadedMap.internationalizationLoaded = true
             this.appStore.setLoading(true)
             const result = (this.appStore.$state as any).user.locale.split('_')
             await this.$http
@@ -279,10 +280,10 @@ export default defineComponent({
                 .catch(() => {})
 
             this.appStore.setLoading(false)
-            this.initialDataLoadedMap.internationalizationLoaded = true
         },
         async loadCrossNavigations() {
             if (this.newDashboardMode) return
+            this.initialDataLoadedMap.crossNavigationsLoaded = true
             this.appStore.setLoading(true)
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document?.label}/loadCrossNavigationByDocument`)
@@ -290,28 +291,27 @@ export default defineComponent({
                 .catch(() => {})
             this.appStore.setLoading(false)
             this.store.setCrossNavigations(this.dashboardId, this.crossNavigations)
-            this.initialDataLoadedMap.crossNavigationsLoaded = true
         },
         async loadHtmlGallery() {
+            this.initialDataLoadedMap.htmlGalleryLoaded = true
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
                 .then((response: AxiosResponse<any>) => (this.htmlGallery = response.data))
                 .catch(() => {})
-            this.initialDataLoadedMap.htmlGalleryLoaded = true
         },
         async loadPythonGallery() {
+            this.initialDataLoadedMap.pythonGallerLoaded = true
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
                 .then((response: AxiosResponse<any>) => (this.pythonGallery = response.data))
                 .catch(() => {})
-            this.initialDataLoadedMap.pythonGallerLoaded = true
         },
         async loadCustomChartGallery() {
+            this.initialDataLoadedMap.customChartGalleryLoaded = true
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
                 .then((response: AxiosResponse<any>) => (this.customChartGallery = response.data))
                 .catch(() => {})
-            this.initialDataLoadedMap.customChartGalleryLoaded = true
         },
         loadOutputParameters() {
             if (this.newDashboardMode) return
@@ -319,6 +319,7 @@ export default defineComponent({
             this.store.setOutputParameters(this.dashboardId, formattedOutputParameters)
         },
         loadProfileAttributes() {
+            this.initialDataLoadedMap.profileAttributesLoaded = true
             this.profileAttributes = []
             const user = this.appStore.getUser()
             if (user && user.attributes) {
@@ -330,15 +331,14 @@ export default defineComponent({
                 )
             }
             this.setProfileAttributes(this.profileAttributes)
-            this.initialDataLoadedMap.profileAttributesLoaded = true
         },
         async loadDashboardThemes() {
+            this.initialDataLoadedMap.dashboardThemesLoaded = true
             this.dashboardThemes = []
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardtheme`).then((response: AxiosResponse<any>) => {
                 this.dashboardThemes = response.data
             })
             this.store.setAllThemes(this.dashboardThemes)
-            this.initialDataLoadedMap.dashboardThemesLoaded = true
         },
         loadSelectedViewForExecution(view: IDashboardView) {
             this.selectedViewForExecution = view
