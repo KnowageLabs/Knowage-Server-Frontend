@@ -29,7 +29,6 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
 
     setPlotOptions() {
         this.model.plotOptions.series.turboThreshold = 15000
-
     }
 
     setData(data: any, widgetModel: IWidget) {

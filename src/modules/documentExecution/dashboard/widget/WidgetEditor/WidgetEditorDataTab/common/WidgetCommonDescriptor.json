@@ -94,7 +94,7 @@
             "value": "radar"
         },
         {
-            "disabled": true,
+            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.funnelChart",
             "value": "funnel"
         },

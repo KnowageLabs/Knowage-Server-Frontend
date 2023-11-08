@@ -207,6 +207,7 @@ import HighchartsChordSettingsDescriptor from './ChartWidget/highcharts/descript
 import HighchartsParallelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsParallelSettingsDescriptor.json'
 import HighchartsPictorialSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPictorialSettingsDescriptor.json'
 import HighchartsSankeySettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSankeySettingsDescriptor.json'
+import HighchartsFunnelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsFunnelSettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -364,6 +365,8 @@ export default defineComponent({
                     return HighchartsPictorialSettingsDescriptor
                 case 'sankey':
                     return HighchartsSankeySettingsDescriptor
+                case 'funnel':
+                    return HighchartsFunnelSettingsDescriptor
             }
         },
         onItemClicked(item: any) {

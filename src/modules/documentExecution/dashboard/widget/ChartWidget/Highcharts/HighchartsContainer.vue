@@ -35,6 +35,7 @@ import HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
 import HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinates'
 import Sonification from 'highcharts/modules/sonification'
 import HighchartsPictorial from 'highcharts/modules/pictorial'
+import HighchartsFunnel from 'highcharts/modules/funnel'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -51,6 +52,7 @@ SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
 Drilldown(Highcharts)
 HighchartsPictorial(Highcharts)
+HighchartsFunnel(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -131,6 +133,7 @@ export default defineComponent({
                 checkboxClick: this.onCheckboxClicked
             }
             modelToRender.chart.backgroundColor = null
+            console.log('---------- HIGHCHARTS MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
@@ -177,7 +180,6 @@ export default defineComponent({
                     click: this.executeInteractions,
                     checkboxClick: this.onCheckboxClicked
                 }
-
                 if (this.chartModel.chart.type === 'sunburst') this.chartModel.plotOptions.series.events.legendItemClick = this.onSunburstLegendItemClick
             }
         },

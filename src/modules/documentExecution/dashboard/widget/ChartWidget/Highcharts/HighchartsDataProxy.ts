@@ -25,6 +25,7 @@ export const getHighchartsWidgetData = async (dashboardId, widget: IWidget, data
         case 'dependencywheel':
         case 'pictorial':
         case 'sankey':
+        case 'funnel':
             return await getHighchartsSunburstData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
