@@ -332,7 +332,6 @@ export default defineComponent({
                         this.availableRolesForExecution = response
                         if (!this.role && this.availableRolesForExecution.length == 1) {
                             this.role = this.availableRolesForExecution[0]
-                            this.setNewSessionRole()
                         }
                     })
                 }
