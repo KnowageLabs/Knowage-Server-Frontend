@@ -36,7 +36,7 @@ export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
 
     setFunnelChartData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
         if (!data || !measureColumns[0] || !attributeColumns[0]) return
-        const serieElement = { id: 0, name: attributeColumns[0].column.columnName, data: [] as any[], showInLegend: true }
+        const serieElement = { id: 0, name: measureColumns[0].column.columnName, data: [] as any[], showInLegend: true }
         data.rows.forEach((row: any,) => {
             serieElement.data.push({ name: dateFormat && ['date', 'timestamp'].includes(row[attributeColumns[0].metadata.type]) ? getFormattedDateCategoryValue(row[attributeColumns[0].metadata.dataIndex], dateFormat, attributeColumns[0].metadata.type) : row[attributeColumns[0].metadata.dataIndex], y: row[measureColumns[0].metadata.dataIndex] })
         })

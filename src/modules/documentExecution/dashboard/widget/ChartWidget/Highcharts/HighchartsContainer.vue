@@ -189,7 +189,7 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey'].includes(this.chartModel.chart.type) || this.editorMode) return
+            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel'].includes(this.chartModel.chart.type) || this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 if (!event.point) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
@@ -217,13 +217,13 @@ export default defineComponent({
             } else if (this.widgetModel.settings.interactions.link.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
                 openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
-            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey'].includes(this.chartModel.chart.type)) {
+            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
         setSelection(event: any) {
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
-            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel'].includes(this.chartModel.chart.type)) {
                 const serieClicked = event.point?.options
                 if (!serieClicked || !serieClicked.name) return
                 updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
