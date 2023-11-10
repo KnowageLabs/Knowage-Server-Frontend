@@ -6,26 +6,14 @@ import Highcharts from 'highcharts'
 
 export class KnowageHighcharts {
     model: IHighchartsChartModel
-    cardinality: any[]
-    range: any[]
 
     constructor() {
         this.model = this.createNewChartModel()
-            ; (this.cardinality = []), (this.range = [])
     }
 
     getModel() {
         return this.model
     }
-
-    getCardinality() {
-        return this.range
-    }
-
-    getRange() {
-        return this.range
-    }
-
 
     createNewChartModel() {
         return {

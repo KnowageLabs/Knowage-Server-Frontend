@@ -60,6 +60,20 @@
                 "type": "Responsive"
             }
         ],
+        "Series": [
+            {
+                "title": "dashboard.widgetEditor.highcharts.funnel.neck",
+                "type": "FunnelNeckSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.series.title",
+                "type": "SeriesLabel"
+            },
+            {
+                "title": "dashboard.widgetEditor.conditionalStyle",
+                "type": "ConditionalStyles"
+            }
+        ],
         "Style": [
             {
                 "title": "dashboard.widgetEditor.titles.title",
@@ -114,6 +128,11 @@
             "icon": "pi pi-table",
             "label": "dashboard.widgetEditor.tooltip.title",
             "value": "Tooltip"
+        },
+        {
+            "icon": "pi pi-table",
+            "label": "dashboard.widgetEditor.series.title",
+            "value": "Series"
         },
         {
             "icon": "pi pi-table",

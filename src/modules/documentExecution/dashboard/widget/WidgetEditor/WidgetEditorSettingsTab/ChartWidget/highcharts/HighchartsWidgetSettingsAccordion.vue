@@ -55,6 +55,7 @@
                 <HighchartsCenterTextSettings v-else-if="accordion.type === 'CenterTextSettings'" :widget-model="widgetModel"></HighchartsCenterTextSettings>
                 <HighchartsAxisLinesSettings v-else-if="accordion.type === 'AxisLinesSettings'" :widget-model="widgetModel"></HighchartsAxisLinesSettings>
                 <HighchartsSVGSettings v-else-if="accordion.type === 'SVGSettings'" :widget-model="widgetModel"></HighchartsSVGSettings>
+                <HighchartsFunnelNeckSettings v-else-if="accordion.type === 'FunnelNeckSettings'" :widget-model="widgetModel"></HighchartsFunnelNeckSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -109,6 +110,7 @@ import HighchartsAxisLinesSettings from './configuration/HighchartsAxisLinesSett
 import HighchartsSVGSettings from './configuration/HighchartsSVGSettings.vue'
 import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import HighchartsFunnelNeckSettings from '../highcharts/series/HighchartsFunnelNeckSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -157,7 +159,8 @@ export default defineComponent({
         HighchartsAxisLinesSettings,
         HighchartsSVGSettings,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        HighchartsFunnelNeckSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
