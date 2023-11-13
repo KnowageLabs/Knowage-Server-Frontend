@@ -37,11 +37,11 @@ export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
     setFunnelChartData(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
         const attibuteColumn = attributeColumns[0]
         const measureColumn = measureColumns[0]
-        if (!data || !measureColumns[0] || !attibuteColumn) return
+        if (!data || !measureColumn || !attibuteColumn) return
         const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true }
         data.rows.forEach((row: any,) => {
             serieElement.data.push({
-                name: dateFormat && ['date', 'timestamp'].includes(row[attibuteColumn.metadata.type]) ? getFormattedDateCategoryValue(row[attibuteColumn.metadata.dataIndex], dateFormat, attibuteColumn.metadata.type) : row[attibuteColumn.metadata.dataIndex],
+                name: dateFormat && ['date', 'timestamp'].includes(attibuteColumn.metadata.type) ? getFormattedDateCategoryValue(row[attibuteColumn.metadata.dataIndex], dateFormat, attibuteColumn.metadata.type) : row[attibuteColumn.metadata.dataIndex],
                 y: row[measureColumn.metadata.dataIndex],
                 color: getColumnConditionalStyles(widgetModel, measureColumn.column.id, row[measureColumn.metadata.dataIndex])?.color,
             })
