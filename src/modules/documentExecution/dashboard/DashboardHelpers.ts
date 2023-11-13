@@ -15,7 +15,7 @@ import descriptor from './DashboardDescriptor.json'
 
 const store = mainStore()
 
-const SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
+export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 
 export const createNewDashboardModel = () => {
     const dashboardModel = descriptor.newDashboardModel as IDashboard
@@ -26,14 +26,14 @@ export const createNewDashboardModel = () => {
 
 export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
     if (!widget.settings.responsive) return
-    const sizes = Object.keys(widget.settings.responsive)
+    const SHEET_WIDGET_SIZES = Object.keys(widget.settings.responsive)
     if (!dashboardModel.sheets[selectedSheetIndex].widgets) dashboardModel.sheets[selectedSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
-    if (sizes.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget)
-    else sizes.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget))
+    if (SHEET_WIDGET_SIZES.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget)
+    else SHEET_WIDGET_SIZES.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget))
 }
 
 const addNewFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
-    SIZES.forEach((size: string) => dashboardModel.sheets[selectedSheetIndex].widgets[size].push(createDashboardSheetWidgetItem(widget)))
+    SHEET_WIDGET_SIZES.forEach((size: string) => dashboardModel.sheets[selectedSheetIndex].widgets[size].push(createDashboardSheetWidgetItem(widget)))
     disableOtherWidgetFullGridInASheet(dashboardModel, widget)
 }
 
@@ -53,14 +53,14 @@ const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: s
     }
 }
 
-export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboard: IDashboard, selectedSheet: IDashboardSheet, widget: IWidget) => {
+export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboard: IDashboard, selectedSheet: IDashboardSheet) => {
     const selectedSheetInDashboard = dashboard.sheets.find((sheet: IDashboardSheet) => sheet.id === selectedSheet.id)
     const sheetWidgets = selectedSheetInDashboard?.widgets as { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }
     if (!widgetToAdd || !sheetWidgets) return
-    SIZES.forEach((size: string) => moveWidgetItemToSpecificSizeArray(widgetToAdd, size, sheetWidgets, widget))
+    SHEET_WIDGET_SIZES.forEach((size: string) => moveWidgetItemToSpecificSizeArray(widgetToAdd, size, sheetWidgets))
 }
 
-const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: string, sheetWidgets: { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }, widget: IWidget) => {
+const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: string, sheetWidgets: { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }) => {
     widgetToAdd.x = 0
     widgetToAdd.y = 0
     let overlap = false
@@ -76,7 +76,7 @@ const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: 
     }
 
     if (overlap) updateWidgetCoordinatesIfOverlaping(widgetToAdd, maxWidth, sheetWidgets[size])
-    if (sheetWidgets && widgetToAdd) sheetWidgets[size].push({ id: widget.id ?? '', h: widgetToAdd.h, i: cryptoRandomString({ length: 16, type: 'base64' }), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
+    if (sheetWidgets && widgetToAdd) sheetWidgets[size].push({ id: widgetToAdd.id ?? '', h: widgetToAdd.h, i: cryptoRandomString({ length: 16, type: 'base64' }), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
 }
 
 const getMaxWidthForSpecificSize = (size: string) => {
@@ -102,6 +102,34 @@ const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxW
     widgetToAdd.y = newY
 }
 
+export const cloneWidgetInSheet = (widget: IWidget, dashboard: IDashboard, selectedSheet: IDashboardSheet) => {
+    const clonedWidget = deepcopy(widget)
+    clonedWidget.id = cryptoRandomString({ length: 16, type: 'base64' })
+    recreateKnowageChartModel(clonedWidget)
+    const originalWidgetSheetItem = findOriginalWidgetInSheet(widget, selectedSheet)
+    const clonedWidgetSheetItem = createDashboardSheetWidgetItem(clonedWidget)
+    if (originalWidgetSheetItem) updateClonedWidgetSheetItemWithOriginalDimensions(clonedWidgetSheetItem, originalWidgetSheetItem)
+    dashboard.widgets.push(clonedWidget)
+    if (selectedSheet && clonedWidget.settings.responsive) {
+        Object.keys(clonedWidget.settings.responsive).forEach((size: string) => {
+            if (size !== 'fullGrid') moveWidgetItemToSpecificSizeArray(clonedWidgetSheetItem, size, selectedSheet.widgets)
+        })
+    }
+}
+
+const findOriginalWidgetInSheet = (widget: IWidget, selectedSheet: IDashboardSheet) => {
+    let originalWidgetActiveSize = Object.keys(widget.settings.responsive).find((size: string) => widget.settings.responsive[size])
+    originalWidgetActiveSize = originalWidgetActiveSize === 'fullGrid' ? 'lg' : originalWidgetActiveSize
+    if (!originalWidgetActiveSize) return null
+    const originalWidgetInSheet = selectedSheet.widgets[originalWidgetActiveSize].find(((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id))
+    return originalWidgetInSheet
+}
+
+const updateClonedWidgetSheetItemWithOriginalDimensions = (clonedWidgetSheetItem: IWidgetSheetItem, originalWidgetSheetItem: IWidgetSheetItem) => {
+    clonedWidgetSheetItem.h = originalWidgetSheetItem.h
+    clonedWidgetSheetItem.w = originalWidgetSheetItem.w
+}
+
 export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
     for (let i = 0; i < dashboards[dashboardId].widgets.length; i++) {
         if (widget.id === dashboards[dashboardId].widgets[i].id) {
@@ -116,15 +144,15 @@ export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboa
 
 const updateWidgetInSheets = (dashboardModel: IDashboard, widget: IWidget) => {
     if (!widget.settings.responsive) return
-    const sizes = Object.keys(widget.settings.responsive)
+    const SHEET_WIDGET_SIZES = Object.keys(widget.settings.responsive)
     dashboardModel.sheets.forEach((sheet: IDashboardSheet) => {
-        if (sizes.includes('fullGrid')) updateFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, sheet, widget)
-        else sizes.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
+        if (SHEET_WIDGET_SIZES.includes('fullGrid')) updateFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, sheet, widget)
+        else SHEET_WIDGET_SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
     })
 }
 
 const updateFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, sheet: IDashboardSheet, widget: IWidget) => {
-    SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
+    SHEET_WIDGET_SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
     disableOtherWidgetFullGridInASheet(dashboardModel, widget)
 }
 
@@ -139,7 +167,7 @@ const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widg
 }
 
 const createDashboardSheetWidgetItem = (widget: IWidget) => {
-    return { id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }
+    return { id: widget.id ?? cryptoRandomString({ length: 16, type: 'base64' }), h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }
 }
 
 export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
@@ -154,7 +182,7 @@ export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboa
 const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
     const sheets = dashboard.sheets as any
     for (let i = sheets.length - 1; i >= 0; i--) {
-        SIZES.forEach((size: string) => {
+        SHEET_WIDGET_SIZES.forEach((size: string) => {
             const widgetsInSheet = sheets[i].widgets[size]
             if (widgetsInSheet) {
                 for (let j = widgetsInSheet.length - 1; j >= 0; j--) {

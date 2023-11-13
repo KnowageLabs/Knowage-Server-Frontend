@@ -181,7 +181,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget', 'getAssociations']),
+        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget', 'cloneWidget', 'getAssociations']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
@@ -230,7 +230,7 @@ export default defineComponent({
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: canEditDashboard(this.document) && ['highcharts', 'vega'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.cloneWidget(this.widget), visible: canEditDashboard(this.document) },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: canEditDashboard(this.document) }
@@ -386,8 +386,8 @@ export default defineComponent({
         moveWidgetToAnotherSheet() {
             this.sheetPickerDialogVisible = true
         },
-        cloneWidget(widget) {
-            console.log('widget', widget)
+        onCloneWidgetClicked() {
+            this.cloneWidget(this.dashboardId, this.widgetModel, this.activeSheet)
         },
         onSearch(payload: { searchText: string; searchColumns: string[] }) {
             this.search = payload
