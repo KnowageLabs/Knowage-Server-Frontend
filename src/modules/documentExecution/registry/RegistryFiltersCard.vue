@@ -1,5 +1,5 @@
 <template>
-    <Card v-if="filters.length > 0" class="p-m-2">
+    <Card v-if="filters.length > 0" class="filtersCard p-m-2">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--default">
                 <template #start>
@@ -78,6 +78,9 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
+.filtersCard {
+    width: calc(100vw - 72px);
+}
 .filter-container {
     display: flex;
     width: 100%;
@@ -86,6 +89,8 @@ export default defineComponent({
         overflow-y: hidden;
         display: flex;
         flex: 1;
+        max-width: calc(100% - 215px);
+        flex-wrap: nowrap;
         .kn-material-input {
             min-width: 200px;
             max-width: 400px;
