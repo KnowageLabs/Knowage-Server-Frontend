@@ -49,7 +49,7 @@
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
     </grid-item>
 
-    <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" />
+    <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" @chartTypeSelected="onChartSelectedForQuickWidgetChange" />
     <ChangeWidgetDialog v-if="showChangeDialog" :widget-model="widgetModel" :widget-data="widgetData" @close="toggleChangeDialog" />
     <WidgetSearchDialog v-if="searchDialogVisible" :visible="searchDialogVisible" :widget="widget" :prop-search="search" @close="searchDialogVisible = false" @search="onSearch"></WidgetSearchDialog>
     <SheetPickerDialog
@@ -91,6 +91,10 @@ import domtoimage from 'dom-to-image-more'
 import { AxiosResponse } from 'axios'
 import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
+import { createNewWidget } from './WidgetEditor/helpers/WidgetEditorHelpers'
+import { KnowageHighchartsBarChart } from './ChartWidget/classes/highcharts/KnowageHighchartsBarChart'
+import { KnowageHighchartsPieChart } from './ChartWidget/classes/highcharts/KnowageHighchartsPieChart'
+import { KnowageHighchartsLineChart } from './ChartWidget/classes/highcharts/KnowageHighchartsLineChart'
 
 export default defineComponent({
     name: 'widget-manager',
@@ -157,6 +161,7 @@ export default defineComponent({
         widget: {
             async handler() {
                 this.loadWidget(this.widget)
+                this.loadMenuItems()
             },
             deep: true
         },
@@ -181,7 +186,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget', 'cloneWidget', 'getAssociations']),
+        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'createNewWidget', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget', 'cloneWidget', 'getAssociations']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
@@ -232,9 +237,45 @@ export default defineComponent({
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: canEditDashboard(this.document) },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: this.quickWidgetChangeEnabled() },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidget(this.dashboardId, this.widget), visible: canEditDashboard(this.document) }
             ]
+        },
+        quickWidgetChangeEnabled() {
+            if (!['table', 'highcharts'].includes(this.widget.type)) return false
+            if (this.widget.type === 'table' && !this.checkIfTableHasBothAttributeAndMeasureColumns()) return false
+            return canEditDashboard(this.document)
+        },
+        checkIfTableHasBothAttributeAndMeasureColumns() {
+            let attributeColumnFound = false
+            let measureColumnFound = false
+            for (let i = 0; i < this.widget.columns.length; i++) {
+                if (this.widget.columns[i].fieldType === 'ATTRIBUTE') attributeColumnFound = true
+                else measureColumnFound = true
+                if (attributeColumnFound && measureColumnFound) return true
+            }
+            return false
+        },
+        onChartSelectedForQuickWidgetChange(chartType: string) {
+            console.log('----------- chartType: ', chartType)
+            // TODO - add first attribute and measure
+            this.showQuickDialog = false
+            const newWidget = createNewWidget('highcharts')
+            newWidget.dataset = this.widgetModel.dataset
+            newWidget.columns = deepcopy(this.widgetModel.columns)
+            newWidget.new = false
+            switch (chartType) {
+                case 'bar':
+                    newWidget.settings.chartModel = new KnowageHighchartsBarChart(null, 'bar', false)
+                    break
+                case 'pie':
+                    newWidget.settings.chartModel = new KnowageHighchartsPieChart(null)
+                    break
+                case 'line':
+                    newWidget.settings.chartModel = new KnowageHighchartsLineChart(null)
+            }
+            this.createNewWidget(this.dashboardId, newWidget)
+            console.log('----------- newWidget: ', newWidget)
         },
         loadWidget(widget: IWidget) {
             this.widgetModel = widget
