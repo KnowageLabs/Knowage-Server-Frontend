@@ -373,7 +373,7 @@ export default defineComponent({
                 } else {
                     parameter.parameterValue[0] = { value: '', description: '' }
                 }
-                this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el, true))
+                this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
                 return
             }
 
@@ -419,7 +419,12 @@ export default defineComponent({
                 }
                 parameter.parameterValue[0].value = parameter.driverDefaultValue[0].value ?? parameter.driverDefaultValue[0][valueIndex]
             }
-            this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el))
+            this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
+        },
+        updateParameterDependencyAfterParameterResetDefaultValue(parameter: any) {
+            parameter.dependentParameters?.forEach((el: any) => this.updateDependency(el, true))
+            parameter.dataDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
+            parameter.lovDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
         },
         onResetAllParameters() {
             this.parameters.filterStatus.forEach((el: any) => this.resetParameterValue(el))
