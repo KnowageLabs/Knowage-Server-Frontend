@@ -91,10 +91,7 @@ import domtoimage from 'dom-to-image-more'
 import { AxiosResponse } from 'axios'
 import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
-import { createNewWidget } from './WidgetEditor/helpers/WidgetEditorHelpers'
-import { KnowageHighchartsBarChart } from './ChartWidget/classes/highcharts/KnowageHighchartsBarChart'
-import { KnowageHighchartsPieChart } from './ChartWidget/classes/highcharts/KnowageHighchartsPieChart'
-import { KnowageHighchartsLineChart } from './ChartWidget/classes/highcharts/KnowageHighchartsLineChart'
+import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from './WidgetControllerHelpers'
 
 export default defineComponent({
     name: 'widget-manager',
@@ -257,25 +254,8 @@ export default defineComponent({
             return false
         },
         onChartSelectedForQuickWidgetChange(chartType: string) {
-            console.log('----------- chartType: ', chartType)
-            // TODO - add first attribute and measure
             this.showQuickDialog = false
-            const newWidget = createNewWidget('highcharts')
-            newWidget.dataset = this.widgetModel.dataset
-            newWidget.columns = deepcopy(this.widgetModel.columns)
-            newWidget.new = false
-            switch (chartType) {
-                case 'bar':
-                    newWidget.settings.chartModel = new KnowageHighchartsBarChart(null, 'bar', false)
-                    break
-                case 'pie':
-                    newWidget.settings.chartModel = new KnowageHighchartsPieChart(null)
-                    break
-                case 'line':
-                    newWidget.settings.chartModel = new KnowageHighchartsLineChart(null)
-            }
-            this.createNewWidget(this.dashboardId, newWidget)
-            console.log('----------- newWidget: ', newWidget)
+            quickWidgetCreateChartFromTable(chartType, this.widgetModel, this.dashboardId)
         },
         loadWidget(widget: IWidget) {
             this.widgetModel = widget
@@ -416,7 +396,8 @@ export default defineComponent({
             widgetElement.$el.requestFullscreen()
         },
         toggleQuickDialog() {
-            this.showQuickDialog = !this.showQuickDialog
+            if (this.widgetModel.type === 'table') this.showQuickDialog = !this.showQuickDialog
+            else quickWidgetCreateTableFromChart(this.widgetModel, this.dashboardId)
         },
         toggleChangeDialog() {
             this.showChangeDialog = !this.showChangeDialog

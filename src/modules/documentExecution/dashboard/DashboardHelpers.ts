@@ -43,6 +43,7 @@ const disableOtherWidgetFullGridInASheet = (dashboardModel: IDashboard, widget: 
     })
 }
 
+// TODO - See here about moving
 const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: string, selectedSheetIndex: number, widget: IWidget) => {
     if (widget.settings.responsive[size]) {
         if (dashboardModel.sheets[selectedSheetIndex].widgets[size]) {
