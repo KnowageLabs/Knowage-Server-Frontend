@@ -191,7 +191,8 @@ export default defineComponent({
         async executeInteractions(event: any) {
             if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel'].includes(this.chartModel.chart.type) || this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
-                if (!event.point) return
+                const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
+                if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
                 this.drillLevel++
                 const category = this.widgetModel.columns[this.drillLevel - 1]
@@ -206,7 +207,6 @@ export default defineComponent({
                         name: event.point.name
                     })
                 })
-
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
@@ -220,6 +220,10 @@ export default defineComponent({
             } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
+        },
+        getNumberOfAttributeColumnsFromWidgetModel() {
+            const attributeColumns = this.widgetModel.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')
+            return attributeColumns.length
         },
         setSelection(event: any) {
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
