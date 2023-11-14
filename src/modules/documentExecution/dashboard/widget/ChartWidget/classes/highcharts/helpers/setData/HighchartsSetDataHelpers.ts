@@ -32,7 +32,8 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
             const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
-            if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []
+            if (drilldownEnabled) delete model.xAxis[0].categories
+            else if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []
             data?.rows?.forEach((row: any) => {
                 const serieName = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex]
                 serieElement.data.push({
@@ -41,7 +42,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
                     color: getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex])?.color,
                     drilldown: drilldownEnabled && attributeColumns.length > 1
                 })
-                if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
+                if (!drilldownEnabled && model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
             })
             model.series.push(serieElement)
         } else {
