@@ -90,7 +90,7 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
             y: row[measureColumn.metadata.dataIndex],
             drilldown: false
         })
-        const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
+        const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
         if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
         if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
     })
