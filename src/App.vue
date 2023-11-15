@@ -3,10 +3,10 @@
     <ConfirmDialog></ConfirmDialog>
     <KnOverlaySpinnerPanel />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
-        <MainMenu v-if="showMenu && mainMenuVisibility" @menuItemSelected="setSelectedMenuItem"></MainMenu>
+        <MainMenu v-if="showMenu && mainMenuVisibility" @menuItemSelected="setSelectedMenuItem" :closeMenu="closedMenu" @openMenu="openMenu"></MainMenu>
 
-        <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }">
-            <router-view :selected-menu-item="selectedMenuItem" :menu-item-clicked-trigger="menuItemClickedTrigger" />
+        <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }" @click="closeMenu" @blur="closeMenu">
+            <router-view :selected-menu-item="selectedMenuItem" :menu-item-clicked-trigger="menuItemClickedTrigger" @click="closeMenu" />
         </div>
     </div>
     <KnRotate v-show="isMobileDevice"></KnRotate>
@@ -36,7 +36,8 @@ export default defineComponent({
             selectedMenuItem: null,
             isMobileDevice: false,
             menuItemClickedTrigger: false,
-            showMenu: false
+            showMenu: false,
+            closedMenu: false
         }
     },
     computed: {
@@ -183,6 +184,12 @@ export default defineComponent({
         ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization']),
         closeDialog() {
             this.$emit('update:visibility', false)
+        },
+        openMenu() {
+            this.closedMenu = false
+        },
+        closeMenu() {
+            this.closedMenu = true
         },
         checkTopLevelIframe(configs) {
             if (configs?.['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {

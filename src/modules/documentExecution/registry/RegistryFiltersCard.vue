@@ -1,5 +1,5 @@
 <template>
-    <Card v-if="filters.length > 0" class="p-m-2">
+    <Card v-if="filters.length > 0" class="filtersCard p-m-2">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--default">
                 <template #start>
@@ -8,14 +8,12 @@
             </Toolbar>
         </template>
         <template #content>
-            <div class="filter-container" :style="registryDescriptor.styles.filterContainer">
-                <div class="fields-container" :style="registryDescriptor.styles.fieldsContainer">
-                    <form class="p-fluid p-formgrid p-grid" @submit="filterRegistry">
-                        <template v-for="(filter, index) in filters" :key="index">
-                            <RegistryFilterCard :id="id" class="kn-flex p-mx-2" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" @changed="setFilterValue($event, index)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
-                        </template>
-                    </form>
-                </div>
+            <div class="filter-container">
+                <form class="p-fluid p-formgrid p-grid fields-container" @submit="filterRegistry">
+                    <template v-for="(filter, index) in filters" :key="index">
+                        <RegistryFilterCard :id="id" class="kn-flex p-mx-2" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" @changed="setFilterValue($event, index)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
+                    </template>
+                </form>
 
                 <div class="button-container p-ml-2" :style="registryDescriptor.styles.buttonsContainer">
                     <Button class="p-button kn-button--primary p-mx-1" :style="registryDescriptor.styles.filtersButton" @click="clearAllFilters">{{ $t('documentExecution.registry.clearFilters') }}</Button>
@@ -79,3 +77,24 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss">
+.filtersCard {
+    width: calc(100vw - 72px);
+}
+.filter-container {
+    display: flex;
+    width: 100%;
+    .fields-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        display: flex;
+        flex: 1;
+        max-width: calc(100% - 215px);
+        flex-wrap: nowrap;
+        .kn-material-input {
+            min-width: 200px;
+            max-width: 400px;
+        }
+    }
+}
+</style>
