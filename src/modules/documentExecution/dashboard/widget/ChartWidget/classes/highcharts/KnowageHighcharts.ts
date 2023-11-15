@@ -72,7 +72,7 @@ export class KnowageHighcharts {
             },
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),
-            colors: [...chartColorSettingsDescriptor.defaultColors],
+            colors: [],
             credits: { enabled: false }
         }
     }
@@ -163,7 +163,7 @@ export class KnowageHighcharts {
 
     updateChartColorSettings(widgetModel: IWidget) {
         if (!this.model.plotOptions || !this.model.chart.type) return
-        this.model.colors = widgetModel.settings.chart.colors
+        this.model.colors = [...widgetModel.settings.chart.colors]
     }
 
     handleFormatter(that: any, seriesLabelSetting: IHighchartsSerieLabelSettings, chartType: string) {
