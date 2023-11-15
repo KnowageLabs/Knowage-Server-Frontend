@@ -61,6 +61,7 @@ export const formatRadar = (formattedChartModel: IHighchartsChartModel) => {
 }
 
 export const formatBubble = (formattedChartModel: IHighchartsChartModel) => {
+    if (formattedChartModel.yAxis[0]) delete formattedChartModel.yAxis[0].type
     formatBubbleTooltips(formattedChartModel)
 }
 
