@@ -27,7 +27,7 @@ export const quickWidgetCreateChartFromTable = (chartType: string, currentWidget
         case 'line':
             newWidget.settings.chartModel = new KnowageHighchartsLineChart(null)
     }
-    dashStore.createNewWidget(dashboardId, newWidget)
+    dashStore.createNewWidget(dashboardId, newWidget, currentWidget)
     console.log('----------- newWidget: ', newWidget)
 }
 
@@ -38,7 +38,7 @@ export const quickWidgetCreateTableFromChart = (currentWidget: IWidget, dashboar
     newWidget.columns = deepcopy(currentWidget.columns)
     newWidget.new = false
     copyGenericWidgetStyle(newWidget, currentWidget)
-    dashStore.createNewWidget(dashboardId, newWidget)
+    dashStore.createNewWidget(dashboardId, newWidget, currentWidget)
     console.log('----------- newWidget: ', newWidget)
 }
 

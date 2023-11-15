@@ -37,10 +37,10 @@ const store = defineStore('dashboardStore', {
         setDashboardDocument(dashboardId: string, document: any) {
             this.dashboards[dashboardId].document = document
         },
-        createNewWidget(dashboardId: string, widget: IWidget) {
+        createNewWidget(dashboardId: string, widget: IWidget, originalWidget: IWidget | null = null) {
             recreateKnowageChartModel(widget)
             this.dashboards[dashboardId].widgets.push(widget)
-            addNewWidgetToSheets(this.dashboards[dashboardId], this.selectedSheetIndex, widget)
+            addNewWidgetToSheets(this.dashboards[dashboardId], this.selectedSheetIndex, widget, originalWidget)
         },
         updateWidget(dashboardId: string, widget: IWidget) {
             updateWidgetHelper(dashboardId, widget, this.dashboards)

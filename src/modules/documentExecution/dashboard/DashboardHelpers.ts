@@ -24,12 +24,12 @@ export const createNewDashboardModel = () => {
     return dashboardModel
 }
 
-export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
+export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget, originalWidget: IWidget | null = null) => {
     if (!widget.settings.responsive) return
     const SHEET_WIDGET_SIZES = Object.keys(widget.settings.responsive)
     if (!dashboardModel.sheets[selectedSheetIndex].widgets) dashboardModel.sheets[selectedSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
-    if (SHEET_WIDGET_SIZES.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget)
-    else SHEET_WIDGET_SIZES.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget))
+    if (SHEET_WIDGET_SIZES.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget,)
+    else SHEET_WIDGET_SIZES.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget, originalWidget))
 }
 
 const addNewFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
@@ -43,14 +43,13 @@ const disableOtherWidgetFullGridInASheet = (dashboardModel: IDashboard, widget: 
     })
 }
 
-// TODO - See here about moving
-const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: string, selectedSheetIndex: number, widget: IWidget) => {
+const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: string, selectedSheetIndex: number, widget: IWidget, originalWidget: IWidget | null = null) => {
+    const originalWidgetSheetItem = originalWidget ? findOriginalWidgetInSheet(originalWidget, dashboardModel.sheets[selectedSheetIndex]) : null
     if (widget.settings.responsive[size]) {
-        if (dashboardModel.sheets[selectedSheetIndex].widgets[size]) {
-            dashboardModel.sheets[selectedSheetIndex].widgets[size].push(createDashboardSheetWidgetItem(widget))
-        } else {
-            dashboardModel.sheets[selectedSheetIndex].widgets[size] = [createDashboardSheetWidgetItem(widget)]
-        }
+        const sheetWidgetItem = createDashboardSheetWidgetItem(widget)
+        if (originalWidgetSheetItem) updateClonedWidgetSheetItemWithOriginalDimensions(sheetWidgetItem, originalWidgetSheetItem)
+        if (!dashboardModel.sheets[selectedSheetIndex].widgets[size]) dashboardModel.sheets[selectedSheetIndex].widgets[size] = []
+        moveWidgetItemToSpecificSizeArray(sheetWidgetItem, size, dashboardModel.sheets[selectedSheetIndex].widgets)
     }
 }
 
