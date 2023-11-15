@@ -72,7 +72,7 @@ export class KnowageHighcharts {
             },
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),
-            colors: [],
+            colors: [...chartColorSettingsDescriptor.defaultColors],
             credits: { enabled: false }
         }
     }
