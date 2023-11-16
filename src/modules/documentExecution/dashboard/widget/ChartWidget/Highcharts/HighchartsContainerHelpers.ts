@@ -101,14 +101,7 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: { pr
         const property = properties[i];
         console.log('------ PROPERTY: ', property)
 
-        if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
-            const index = parseInt(property, 10);
-            if (index >= currentModelToRender.length) {
-                console.log('-------- ARRAY INDEX OUT OF BOUNDS!!!!!!!');
-                mainStore.setError({ title: t('common.toast.errorTitle'), msg: t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }) })
-                break;
-            }
-        }
+
 
         if (property in currentModelToRender) {
             if (i === properties.length - 1) {
@@ -123,6 +116,17 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: { pr
                 currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {};
                 currentModelToRender = currentModelToRender[property];
             }
+        }
+    }
+}
+
+const setNumericPropertyValue = (currentModelToRender: any, property: string, properties: string[]) => {
+    if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
+        const index = parseInt(property, 10);
+        if (index >= currentModelToRender.length) {
+            console.log('-------- ARRAY INDEX OUT OF BOUNDS!!!!!!!');
+            mainStore.setError({ title: t('common.toast.errorTitle'), msg: t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }) })
+            break;
         }
     }
 }
