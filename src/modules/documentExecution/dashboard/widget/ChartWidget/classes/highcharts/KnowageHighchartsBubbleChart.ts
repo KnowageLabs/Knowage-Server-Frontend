@@ -26,8 +26,9 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        if (!this.model.xAxis || !this.model.xAxis.title) this.setBubbleXAxis()
-        if (!this.model.yAxis || !this.model.yAxis.title) this.setBubbleYAxis()
+        if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setBubbleXAxis()
+        if (!this.model.yAxis || !this.model.yAxis[0] || !this.model.yAxis[0].title) this.setBubbleYAxis()
+        if (this.model.yAxis[0]) delete this.model.yAxis[0].type
     }
 
     setPlotOptions() {

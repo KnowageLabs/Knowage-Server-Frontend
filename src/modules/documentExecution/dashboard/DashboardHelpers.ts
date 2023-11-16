@@ -12,6 +12,7 @@ import mainStore from '@/App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega/VegaHelpers'
 import descriptor from './DashboardDescriptor.json'
+import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
 
 const store = mainStore()
 
@@ -220,6 +221,9 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
 const formatWidget = (widget: IWidget) => {
     addColumnIdsToWidgetColumns(widget)
     switch (widget.type) {
+        case 'table':
+            formatDashboardTableWidgetAfterLoading(widget);
+            break
         case 'chartJS':
             formatChartJSWidget(widget)
             break
