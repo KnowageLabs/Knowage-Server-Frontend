@@ -12,7 +12,7 @@ import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
 import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart } from './HighchartsModelFormattingHelpers'
-import { formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
+import { applyAdvancedSettingsToModelForRender, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
@@ -133,6 +133,7 @@ export default defineComponent({
                 checkboxClick: this.onCheckboxClicked
             }
             modelToRender.chart.backgroundColor = null
+            applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
             console.log('---------- HIGHCHARTS MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)

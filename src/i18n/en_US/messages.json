@@ -653,6 +653,7 @@
                     "valuesTableHint": "Measures only."
                 },
                 "advancedSettings": "Advanced Settings",
+                "advancedSettingsHint": "Advanced Settings Hint Placeholder",
                 "areaRangeHigh": "Area Range High",
                 "areaRangeLow": "Area Range Low",
                 "axisLines": {
@@ -785,6 +786,7 @@
                     "pivotRadius": "Pivot Radius",
                     "pivotRadiusHint": "The pixel radius of the pivot."
                 },
+                "property": "Property",
                 "proximate": "Proximate",
                 "radar": {
                     "dimensionsTableHint": "Click on at least one attribute to define categories If you enable splitting serie using second category, you need to define exactly two categories and one serie.",

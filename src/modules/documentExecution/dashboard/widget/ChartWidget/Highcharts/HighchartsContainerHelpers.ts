@@ -77,3 +77,42 @@ export const getFormattedDynamicOutputParameter = (formattedChartValues: IChartI
     }
     return { ...outputParameter, value: value }
 }
+
+export const applyAdvancedSettingsToModelForRender = (modelToRender: any, advancedChartSettings: { propertyPath: string; propertyValue: string }[] | null) => {
+    console.log('--------- modelToRender: ', modelToRender)
+    console.log('--------- advancedChartSettings: ', advancedChartSettings)
+    if (!advancedChartSettings) return
+    advancedChartSettings.forEach((propertySettings: { propertyPath: string; propertyValue: string }) => {
+        if (propertySettings.propertyPath) setPropertyValueToChartModel(modelToRender, propertySettings)
+    })
+}
+
+const setPropertyValueToChartModel = (modelToRender: any, propertySettings: { propertyPath: string; propertyValue: string }) => {
+    const properties = propertySettings.propertyPath.split(/\.|\[|\]/).filter(Boolean);
+    console.log('------ PROPERTIES: ', properties)
+    let currentModelToRender = modelToRender
+
+    for (let i = 0; i < properties.length; i++) {
+        const property = properties[i];
+        console.log('------ PROPERTY: ', property)
+
+        if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
+            const index = parseInt(property, 10);
+            if (index >= currentModelToRender.length) {
+                console.log('-------- ARRAY INDEX OUT OF BOUNDS!!!!!!!');
+                break;
+            }
+        }
+
+        if (property in currentModelToRender) {
+            if (i === properties.length - 1) {
+                currentModelToRender[property] = propertySettings.propertyValue;
+            } else {
+                currentModelToRender = currentModelToRender[property];
+            }
+        } else {
+            console.log('-------- PROPERTY DOESN\'T EXIST!!!!!!!');
+            break;
+        }
+    }
+}
