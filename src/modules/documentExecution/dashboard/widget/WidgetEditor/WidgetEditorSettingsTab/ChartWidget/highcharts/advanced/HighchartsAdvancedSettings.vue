@@ -21,6 +21,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardHighchartsWidget'
 import Message from 'primevue/message'
 
 export default defineComponent({
@@ -30,7 +31,7 @@ export default defineComponent({
     data() {
         return {
             widgetModel: null as IWidget | null,
-            advancedSettingsModel: [] as { propertyPath: string; propertyValue: string }[]
+            advancedSettingsModel: [] as IHighchartsAdvancedPropertySettings[]
         }
     },
     created() {

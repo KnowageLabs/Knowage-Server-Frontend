@@ -134,7 +134,6 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
-            console.log('---------- HIGHCHARTS MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()

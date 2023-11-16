@@ -1,5 +1,6 @@
 import { IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
 import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardChartJSWidget";
+import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardHighchartsWidget'
 import i18n from '@/App.i18n'
 import store from '@/App.store.js'
 
@@ -83,25 +84,27 @@ export const getFormattedDynamicOutputParameter = (formattedChartValues: IChartI
     return { ...outputParameter, value: value }
 }
 
-export const applyAdvancedSettingsToModelForRender = (modelToRender: any, advancedChartSettings: { propertyPath: string; propertyValue: string }[] | null) => {
-    console.log('--------- modelToRender: ', modelToRender)
-    console.log('--------- advancedChartSettings: ', advancedChartSettings)
+export const applyAdvancedSettingsToModelForRender = (modelToRender: any, advancedChartSettings: IHighchartsAdvancedPropertySettings[] | null) => {
     if (!advancedChartSettings) return
-    advancedChartSettings.forEach((propertySettings: { propertyPath: string; propertyValue: string }) => {
+    advancedChartSettings.forEach((propertySettings: IHighchartsAdvancedPropertySettings) => {
         if (propertySettings.propertyPath) setPropertyValueToChartModel(modelToRender, propertySettings)
     })
 }
 
-const setPropertyValueToChartModel = (modelToRender: any, propertySettings: { propertyPath: string; propertyValue: string }) => {
+const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHighchartsAdvancedPropertySettings) => {
     const properties = propertySettings.propertyPath.split(/\.|\[|\]/).filter(Boolean);
-    console.log('------ PROPERTIES: ', properties)
     let currentModelToRender = modelToRender
 
     for (let i = 0; i < properties.length; i++) {
         const property = properties[i];
-        console.log('------ PROPERTY: ', property)
 
-
+        if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
+            const index = parseInt(property, 10);
+            if (index >= currentModelToRender.length) {
+                mainStore.setError({ title: t('common.toast.errorTitle'), msg: t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }) })
+                break;
+            }
+        }
 
         if (property in currentModelToRender) {
             if (i === properties.length - 1) {
@@ -116,17 +119,6 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: { pr
                 currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {};
                 currentModelToRender = currentModelToRender[property];
             }
-        }
-    }
-}
-
-const setNumericPropertyValue = (currentModelToRender: any, property: string, properties: string[]) => {
-    if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
-        const index = parseInt(property, 10);
-        if (index >= currentModelToRender.length) {
-            console.log('-------- ARRAY INDEX OUT OF BOUNDS!!!!!!!');
-            mainStore.setError({ title: t('common.toast.errorTitle'), msg: t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }) })
-            break;
         }
     }
 }
