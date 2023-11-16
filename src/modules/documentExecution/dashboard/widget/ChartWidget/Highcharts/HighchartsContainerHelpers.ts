@@ -1,5 +1,10 @@
 import { IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
 import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardChartJSWidget";
+import i18n from '@/App.i18n'
+import store from '@/App.store.js'
+
+const { t } = i18n.global
+const mainStore = store()
 
 export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions: IWidgetCrossNavigation, dataToShow: any, chartType: string) => {
     if (!chartEvent.point) return []
@@ -100,6 +105,7 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: { pr
             const index = parseInt(property, 10);
             if (index >= currentModelToRender.length) {
                 console.log('-------- ARRAY INDEX OUT OF BOUNDS!!!!!!!');
+                mainStore.setError({ title: t('common.toast.errorTitle'), msg: t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }) })
                 break;
             }
         }
@@ -111,8 +117,12 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: { pr
                 currentModelToRender = currentModelToRender[property];
             }
         } else {
-            console.log('-------- PROPERTY DOESN\'T EXIST!!!!!!!');
-            break;
+            if (i === properties.length - 1) {
+                currentModelToRender[property] = propertySettings.propertyValue;
+            } else {
+                currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {};
+                currentModelToRender = currentModelToRender[property];
+            }
         }
     }
 }
