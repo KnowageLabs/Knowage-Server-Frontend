@@ -32,7 +32,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
             const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
-            if (drilldownEnabled) delete model.xAxis[0].categories
+            if (drilldownEnabled && model.xAxis && model.xAxis[0]) delete model.xAxis[0].categories
             else if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []
             data?.rows?.forEach((row: any) => {
                 const serieName = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex]

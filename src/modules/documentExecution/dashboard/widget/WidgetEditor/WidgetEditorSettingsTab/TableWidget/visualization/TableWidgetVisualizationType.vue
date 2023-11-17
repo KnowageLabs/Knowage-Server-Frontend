@@ -32,7 +32,8 @@
                         </template>
                     </Dropdown>
                 </div>
-                <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
+                <div class="p-col-1 p-d-flex p-flex-row p-jc-center p-ai-center p-pl-2 p-mt-3">
+                    <i v-if="['Icon', 'Text & Icon'].includes(visualizationType.type)" v-tooltip.top="$t('dashboard.widgetEditor.visualisationType.thresholdHint')" class="pi pi pi-exclamation-triangle threshold-warning-icon kn-cursor-pointer p-mr-4"></i>
                     <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', visualizationTypeDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-ml-2" @click="index === 0 ? addVisualizationType() : removeVisualizationType(index)"></i>
                 </div>
             </div>
@@ -325,5 +326,9 @@ export default defineComponent({
 }
 .style-toolbar-container {
     max-width: 120px;
+}
+
+.threshold-warning-icon {
+    font-size: 1.5rem;
 }
 </style>
