@@ -410,6 +410,7 @@
             },
             "css": "CSS Editor",
             "menuWidgets": {
+                "enableCaching": "Enable dashboard caching",
                 "enableChartChange": "Enable chart changing",
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",

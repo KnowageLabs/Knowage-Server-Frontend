@@ -1,9 +1,9 @@
 import { AxiosResponse } from 'axios'
 import { addDriversToData, addParametersToData, addSelectionsToData, hasFields, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/helpers/datasetRefresh/DatasetRefreshHelpers'
-import { IDashboardDataset, IWidget, ISelection, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDashboardDataset, IWidget, ISelection, IWidgetColumn, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
 
-export const getCePivotData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getCePivotData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 

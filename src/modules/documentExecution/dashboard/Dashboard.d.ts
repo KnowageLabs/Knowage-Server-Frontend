@@ -621,6 +621,7 @@ interface IMenuAndWidgets {
     showScreenshot: boolean
     showSelectionButton: boolean
     enableChartChange: boolean
+    enableCaching: boolean
 }
 
 interface IAssociationField {
