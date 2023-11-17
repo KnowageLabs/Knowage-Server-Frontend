@@ -8,7 +8,7 @@
 
         <template #footer>
             <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="$emit('close')"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="$emit('close')"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="onChartTypeSelected"></Button>
         </template>
     </Dialog>
 </template>
@@ -19,10 +19,9 @@ import Dialog from 'primevue/dialog'
 import descriptor from './CommonComponentsDescriptor.json'
 
 export default defineComponent({
-    name: 'category-management-dialog',
+    name: 'quick-widget-dialog',
     components: { Dialog },
-    props: {},
-    emits: ['close'],
+    emits: ['close', 'chartTypeSelected'],
     setup() {},
     data() {
         return {
@@ -35,11 +34,14 @@ export default defineComponent({
     created() {},
     mounted() {},
     methods: {
-        selectWidget(widgetName) {
+        selectWidget(widgetName: string) {
             this.selectedWidget = widgetName
         },
         getImageSource(widgetType: string) {
             return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/quickWidgetTypes/${widgetType}.svg`
+        },
+        onChartTypeSelected() {
+            this.$emit('chartTypeSelected', this.selectedWidget)
         }
     }
 })

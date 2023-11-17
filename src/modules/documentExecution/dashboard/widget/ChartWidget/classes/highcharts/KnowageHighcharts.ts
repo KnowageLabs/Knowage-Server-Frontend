@@ -3,6 +3,7 @@ import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSerieAccessibi
 import { createSerie, createGaugeSerie, createPolarSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import Highcharts from 'highcharts'
+import chartColorSettingsDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 
 export class KnowageHighcharts {
     model: IHighchartsChartModel
@@ -36,7 +37,7 @@ export class KnowageHighcharts {
             },
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),
-            colors: [],
+            colors: [...chartColorSettingsDescriptor.defaultColors],
             credits: { enabled: false }
         }
     }
@@ -127,7 +128,7 @@ export class KnowageHighcharts {
 
     updateChartColorSettings(widgetModel: IWidget) {
         if (!this.model.plotOptions || !this.model.chart.type) return
-        this.model.colors = widgetModel.settings.chart.colors
+        this.model.colors = [...widgetModel.settings.chart.colors]
     }
 
     handleFormatter(that: any, seriesLabelSetting: IHighchartsSerieLabelSettings, chartType: string) {

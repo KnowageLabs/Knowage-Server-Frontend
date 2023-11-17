@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios'
 import { iParameter } from './KnParameterSidebar'
-import { addDefaultValueForSelectionTypeParameters, formatParameterDataOptions, getFormattedParameters } from './KnParameterSidebarDataDependency'
+import { addDefaultValueForSelectionTypeParameters, formatParameterDataOptions, getFormattedParameters, resetParameterValueToEmptyValues } from './KnParameterSidebarDataDependency'
 
 export function setLovsDependency(loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, parameter: iParameter) {
     if (parameter.dependencies.lov.length !== 0) {
@@ -27,12 +27,8 @@ export async function updateLovDependency(loadedParameters: { filterStatus: iPar
 
 export async function lovDependencyCheck(loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, parameter: iParameter, loading: boolean, document: any, sessionRole: string | null, $http: any, mode: string, resetValue: boolean, userDateFormat: string) {
     loading = true
-    if (parameter.parameterValue[0]) {
-        parameter.parameterValue[0] = { value: '', description: '' }
-    } else {
-        parameter.parameterValue = [{ value: '', description: '' }]
-    }
 
+    resetParameterValueToEmptyValues(parameter)
     if (resetValue) return
 
     const postData = { label: document?.label, parameters: getFormattedParameters(loadedParameters, userDateFormat), paramId: parameter.urlName, role: sessionRole }
@@ -49,7 +45,7 @@ export async function lovDependencyCheck(loadedParameters: { filterStatus: iPara
             parameter.metadata = response.data.result.metadata
             formatParameterAfterDataDependencyCheck(parameter)
         })
-        .catch(() => {})
+        .catch(() => { })
     loading = false
 }
 

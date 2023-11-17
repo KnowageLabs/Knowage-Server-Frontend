@@ -81,3 +81,10 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss">
+li[role='option'] {
+    max-width: 390px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>

@@ -94,14 +94,13 @@ export default defineComponent({
         },
         loadWidgetModel() {
             this.widget = this.widgetModel
-            if (this.widget.settings.chartModel?.model?.colors) this.widget.settings.chart.colors = [...this.widget.settings.chartModel.model.colors]
         },
         toggleColorPicker(index) {
             this.colorPickerVisible = !this.colorPickerVisible
             this.editIndex = index
         },
         onRowReorder(event) {
-            this.widget.settings.chart.colors = event.value
+            this.widget.settings.chart.colors = [...event.value]
             emitter.emit('refreshChart', this.widgetModel.id)
         },
         addColor() {

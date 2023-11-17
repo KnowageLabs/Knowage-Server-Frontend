@@ -14,6 +14,12 @@
                 "type": "SonificationSettings"
             }
         ],
+        "Advanced": [
+            {
+                "title": "dashboard.widgetEditor.highcharts.advancedSettings",
+                "type": "AdvancedSettings"
+            }
+        ],
         "Colors": [
             {
                 "title": "dashboard.widgetEditor.colors.title",
@@ -218,6 +224,11 @@
             "icon": "pi pi-tablet",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
+        },
+        {
+            "icon": "fa-solid fa-ellipsis",
+            "label": "common.advanced",
+            "value": "Advanced"
         }
     ]
 }

@@ -129,7 +129,7 @@ export default defineComponent({
             }
         },
         getIconClass() {
-            if (this.option.type && this.model?.icon) return this.model.icon
+            if (this.option.type === 'icon' && this.model?.icon) return this.model.icon
             return this.option.type ? descriptor.icons[this.option.type] : ''
         },
         getDefaultTooltip() {
