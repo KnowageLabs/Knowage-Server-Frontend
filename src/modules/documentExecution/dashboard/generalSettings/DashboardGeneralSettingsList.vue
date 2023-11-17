@@ -3,7 +3,7 @@
         <div class="dashboard-editor-list-card">
             <Listbox
                 class="kn-list kn-list-no-border-right dashboard-editor-list"
-                :options="descriptor.settingsList"
+                :options="settingsList"
                 :filter="true"
                 :filter-placeholder="$t('common.search')"
                 filter-match-mode="contains"
@@ -29,17 +29,26 @@
 import { defineComponent } from 'vue'
 import Listbox from 'primevue/listbox'
 import descriptor from './DashboardGeneralSettingsDescriptor.json'
+import mainStore from '@/App.store'
+
 export default defineComponent({
     name: 'general-settings-list',
     components: { Listbox },
     emits: ['selectedOption'],
-    setup() {},
+    setup() {
+        const store = new mainStore()
+        return { store }
+    },
     data() {
         return {
             descriptor
         }
     },
-    created() {},
+    computed: {
+        settingsList() {
+            return this.store.isEnterprise ? descriptor.settingsList : descriptor.settingsList.filter((settings: { icon: string; label: string; value: string }) => settings.value !== 'Themes')
+        }
+    },
     methods: {
         selectOption(event: any) {
             if (event.value) this.$emit('selectedOption', event.value.value)
