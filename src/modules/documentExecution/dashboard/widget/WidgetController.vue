@@ -281,7 +281,7 @@ export default defineComponent({
 
             this.setWidgetLoading(true)
 
-            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections, this.search)
+            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
             this.widgetData = this.widgetInitialData
             await this.loadActiveSelections()
 
@@ -315,7 +315,7 @@ export default defineComponent({
         },
         async reloadWidgetData(associativeResponseSelections: any) {
             this.widgetLoading = true
-            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, associativeResponseSelections)
+            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeResponseSelections)
             this.widgetLoading = false
         },
         widgetUsesSelections(selections: ISelection[]) {

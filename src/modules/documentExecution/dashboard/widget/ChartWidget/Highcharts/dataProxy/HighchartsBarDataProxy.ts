@@ -1,9 +1,11 @@
 import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/helpers/datasetRefresh/DatasetRefreshHelpers'
-import { IDashboardDataset, IWidget, ISelection } from '@/modules/documentExecution/dashboard/Dashboard'
-import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
+import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
+import { md5 } from 'js-md5'
+import { indexedDB } from '@/idb'
 
-export const getHighchartsBarData = async (dashboardId, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getHighchartsBarData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
@@ -15,19 +17,29 @@ export const getHighchartsBarData = async (dashboardId, widget: IWidget, dataset
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        await $http
-            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
-            .then((response: AxiosResponse<any>) => {
-                tempResponse = response.data
-                tempResponse.initialCall = initialCall
-            })
-            .catch((error: any) => {
-                showGetDataError(error, selectedDataset.dsLabel)
-            })
-            .finally(() => {
-                // TODO - uncomment when realtime dataset example is ready
-                // resetDatasetInterval(widget)
-            })
+
+        const dataHash = md5(JSON.stringify(postData))
+        const cachedData = await indexedDB.widgetData.get(dataHash)
+
+        if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+            tempResponse = cachedData.data
+            tempResponse.initialCall = initialCall
+        } else {
+            await $http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                .then((response: AxiosResponse<any>) => {
+                    tempResponse = response.data
+                    tempResponse.initialCall = initialCall
+                })
+                .catch((error: any) => {
+                    showGetDataError(error, selectedDataset.dsLabel)
+                })
+                .finally(() => {
+                    // TODO - uncomment when realtime dataset example is ready
+                    // resetDatasetInterval(widget)
+                    if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, tempResponse)
+                })
+        }
         return tempResponse
     }
 }

@@ -19,6 +19,10 @@
                 <InputSwitch v-model="menuWidgetsConfig.enableChartChange" />
                 <label class="kn-material-input-label p-ml-3"> {{ $t('dashboard.generalSettings.menuWidgets.enableChartChange') }} </label>
             </span>
+            <span class="p-field p-col-12">
+                <InputSwitch v-model="menuWidgetsConfig.enableCaching" />
+                <label class="kn-material-input-label p-ml-3"> {{ $t('dashboard.generalSettings.menuWidgets.enableCaching') }} </label>
+            </span>
         </form>
     </div>
 </template>
