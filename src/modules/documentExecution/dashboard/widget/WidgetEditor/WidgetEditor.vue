@@ -8,19 +8,7 @@
             </template>
         </Toolbar>
         <div class="datasetEditor-container kn-overflow">
-            <WidgetEditorTabs
-                class="dashboardEditor-tabs"
-                :prop-widget="widget"
-                :datasets="datasets"
-                :selected-datasets="selectedDatasets"
-                :variables="variables"
-                :dashboard-id="dashboardId"
-                :selected-setting-prop="selectedSetting"
-                :html-gallery-prop="htmlGalleryProp"
-                :python-gallery-prop="pythonGalleryProp"
-                :custom-chart-gallery-prop="customChartGalleryProp"
-                @settingChanged="onSettingChanged"
-            />
+            <WidgetEditorTabs class="dashboardEditor-tabs" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :selected-setting-prop="selectedSetting" @settingChanged="onSettingChanged" />
 
             <div v-if="selectedSetting != 'Gallery'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px">
                 <Button icon="fas fa-magnifying-glass" class="p-button-rounded p-button-text p-button-plain expand-button" @click="togglePreview" />
@@ -36,7 +24,7 @@
  * ! this component will be in charge of managing the widget editing.
  */
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IDashboardDataset, IVariable, IGalleryItem } from '../../Dashboard'
+import { IWidget, IDataset, IDashboardDataset, IVariable } from '../../Dashboard'
 import { createNewWidget, recreateKnowageChartModel } from './helpers/WidgetEditorHelpers'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import WidgetEditorPreview from './WidgetEditorPreview.vue'
@@ -53,10 +41,7 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
-        variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true }
+        variables: { type: Array as PropType<IVariable[]>, required: true }
     },
     emits: ['close', 'widgetUpdated', 'widgetSaved'],
     setup() {

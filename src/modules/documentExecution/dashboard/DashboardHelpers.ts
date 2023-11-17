@@ -299,3 +299,36 @@ const setStatesForWidgets = (dashboardModel: IDashboard, states: any) => {
         }
     })
 }
+
+export const loadHtmlGallery = async ($http: any) => {
+    store.setLoading(true)
+    let galleryItems = []
+    await $http
+        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
+        .then((response: AxiosResponse<any>) => (galleryItems = response.data))
+        .catch(() => { })
+    store.setLoading(false)
+    return galleryItems
+}
+
+export const loadPythonGallery = async ($http: any) => {
+    store.setLoading(true)
+    let galleryItems = []
+    await $http
+        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
+        .then((response: AxiosResponse<any>) => (galleryItems = response.data))
+        .catch(() => { })
+    store.setLoading(false)
+    return galleryItems
+}
+
+export const loadCustomChartGallery = async ($http: any) => {
+    store.setLoading(true)
+    let galleryItems = []
+    await $http
+        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
+        .then((response: AxiosResponse<any>) => (galleryItems = response.data))
+        .catch(() => { })
+    store.setLoading(false)
+    return galleryItems
+}

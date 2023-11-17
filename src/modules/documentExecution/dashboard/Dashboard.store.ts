@@ -1,5 +1,6 @@
+import { IGalleryItem } from './Dashboard.d';
 import { defineStore } from 'pinia'
-import { SHEET_WIDGET_SIZES, addNewWidgetToSheets, cloneWidgetInSheet, deleteWidgetHelper, emitter, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
+import { SHEET_WIDGET_SIZES, addNewWidgetToSheets, cloneWidgetInSheet, deleteWidgetHelper, emitter, loadCustomChartGallery, loadHtmlGallery, loadPythonGallery, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
 import { IDashboardDriver, IDashboardSheet, IDashboardView, IDataset, ISelection, IWidget, IWidgetSheetItem } from './Dashboard'
 import { selectionsUseDatasetWithAssociation } from './widget/interactionsHelpers/DatasetAssociationsHelper'
 import { loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
@@ -164,7 +165,34 @@ const store = defineStore('dashboardStore', {
         },
         getAssociations(dashboardId: string) {
             if (this.dashboards[dashboardId]) return this.dashboards[dashboardId].associations
-        }
+        },
+        async getHTMLGaleryItems(dashboardId: string, $http: any) {
+            if (!this.dashboards[dashboardId]) return []
+            if (!this.dashboards[dashboardId].htmlGallery) this.dashboards[dashboardId].htmlGallery = []
+            if (this.dashboards[dashboardId].htmlGallery.length === 0) this.dashboards[dashboardId].htmlGallery = await loadHtmlGallery($http)
+            return this.dashboards[dashboardId].htmlGallery
+        },
+        setHTMLGaleryItems(dashboardId: string, htmlGallery: IGalleryItem[]) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].htmlGallery = htmlGallery
+        },
+        async getPythonGaleryItems(dashboardId: string, $http: any) {
+            if (!this.dashboards[dashboardId]) return []
+            if (!this.dashboards[dashboardId].pythonGallery) this.dashboards[dashboardId].pythonGallery = []
+            if (this.dashboards[dashboardId].pythonGallery.length === 0) this.dashboards[dashboardId].pythonGallery = await loadPythonGallery($http)
+            return this.dashboards[dashboardId].pythonGallery
+        },
+        setPythonGaleryItems(dashboardId: string, pythonGallery: IGalleryItem[]) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].pythonGallery = pythonGallery
+        },
+        async getCustomChartGaleryItems(dashboardId: string, $http: any) {
+            if (!this.dashboards[dashboardId]) return []
+            if (!this.dashboards[dashboardId].customChartGallery) this.dashboards[dashboardId].customChartGallery = []
+            if (this.dashboards[dashboardId].customChartGallery.length === 0) this.dashboards[dashboardId].customChartGallery = await loadCustomChartGallery($http)
+            return this.dashboards[dashboardId].customChartGallery
+        },
+        setCustomChartGaleryItems(dashboardId: string, customChartGallery: IGalleryItem[]) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].customChartGallery = customChartGallery
+        },
     }
 })
 
