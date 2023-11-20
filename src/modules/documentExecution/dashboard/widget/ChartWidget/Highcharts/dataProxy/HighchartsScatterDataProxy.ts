@@ -21,7 +21,7 @@ export const getHighchartsScatterData = async (dashboardId, dashboardConfig: IDa
 
         const postDataForHash = deepcopy(postData) // making a deepcopy so we can delete options which are used for solr datasets only
         if (itemsLimit.enabled) postDataForHash.itemsLimit = itemsLimit // adding pagination in case its being used so we save data for each page
-        const dataHash = md5(JSON.stringify(postData))
+        const dataHash = md5(JSON.stringify(postDataForHash))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 
         if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
