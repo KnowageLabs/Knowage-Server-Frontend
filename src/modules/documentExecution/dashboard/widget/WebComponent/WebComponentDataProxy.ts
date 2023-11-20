@@ -1,7 +1,10 @@
 import { AxiosResponse } from 'axios'
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
-import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, showGetDataError, getAggregationsModel } from '../../DashboardDataProxy'
+import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, showGetDataError, getAggregationsModel, addDataToCache } from '../../DashboardDataProxy'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
+import { md5 } from 'js-md5'
+import { indexedDB } from '@/idb'
+import deepcopy from 'deepcopy'
 
 export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
@@ -16,32 +19,55 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
         let aggregationDataset = null as any
         if (aggregationsModel) {
             const aggregationsPostData = formatWebComponentModelForService(dashboardId, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)
-            await $http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, aggregationsPostData, { headers: { 'X-Disable-Errors': 'true' } })
-                .then((response: AxiosResponse<any>) => {
-                    aggregationDataset = response.data
-                })
-                .catch((error: any) => {
-                    showGetDataError(error, selectedDataset.dsLabel)
-                })
+
+            const postDataForHash = deepcopy(aggregationsPostData) // making a deepcopy so we can delete options which are used for solr datasets only
+            if (numOfRowsToGet) postDataForHash.numOfRowsToGet = numOfRowsToGet // adding pagination in case its being used so we save data for each page
+            const dataHash = md5(JSON.stringify(postDataForHash))
+            const cachedData = await indexedDB.widgetData.get(dataHash)
+
+            if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+                aggregationDataset = cachedData.data
+            } else {
+                await $http
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, aggregationsPostData, { headers: { 'X-Disable-Errors': 'true' } })
+                    .then((response: AxiosResponse<any>) => {
+                        aggregationDataset = response.data
+                    })
+                    .catch((error: any) => {
+                        showGetDataError(error, selectedDataset.dsLabel)
+                    })
+                    .finally(() => {
+                        // TODO - uncomment when realtime dataset example is ready
+                        // resetDatasetInterval(widget)
+                        if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, aggregationDataset)
+                    })
+            }
         }
 
         const postData = formatWebComponentModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        await $http
-            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
-            .then((response: AxiosResponse<any>) => {
-                tempResponse = response.data
-                tempResponse.initialCall = initialCall
-            })
-            .catch((error: any) => {
-                showGetDataError(error, selectedDataset.dsLabel)
-            })
-            .finally(() => {
-                // TODO - uncomment when realtime dataset example is ready
-                // resetDatasetInterval(widget)
-            })
+
+        const dataHash = md5(JSON.stringify(postData))
+        const cachedData = await indexedDB.widgetData.get(dataHash)
+
+        if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+            tempResponse = cachedData.data
+        } else {
+            await $http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                .then((response: AxiosResponse<any>) => {
+                    tempResponse = response.data
+                })
+                .catch((error: any) => {
+                    showGetDataError(error, selectedDataset.dsLabel)
+                })
+                .finally(() => {
+                    // TODO - uncomment when realtime dataset example is ready
+                    // resetDatasetInterval(widget)
+                    if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, tempResponse)
+                })
+        }
 
         return { tempResponse: tempResponse, aggregationDataset: aggregationDataset }
     }
