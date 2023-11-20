@@ -100,6 +100,7 @@ export default defineComponent({
             if (!this.propWidget) return
             this.widget = this.propWidget.new ? createNewWidget(this.propWidget.type) : deepcopy(this.propWidget)
             if (!this.propWidget.new) recreateKnowageChartModel(this.widget)
+            console.log('--------- LOADED WIDGET: ', this.widget)
         },
         loadSelectedModelDatasets() {
             this.selectedModelDatasets = this.dashboardId ? this.dashboardStore.getDashboardSelectedDatasets(this.dashboardId) : {}
