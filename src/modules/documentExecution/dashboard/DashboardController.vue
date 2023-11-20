@@ -152,7 +152,7 @@ export default defineComponent({
             generalSettingsMode: 'General' as string,
             datasetsLoaded: false,
             dashboardThemes: [] as IDashboardTheme[],
-            initialDataLoadedMap: { profileAttributesLoaded: false, dashboardThemesLoaded: false, dashboardModelLoaded: false, internationalizationLoaded: false, htmlGalleryLoaded: false, pythonGallerLoaded: false, customChartGalleryLoaded: false, crossNavigationsLoaded: false }
+            initialDataLoadedMap: { profileAttributesLoaded: false, dashboardThemesLoaded: false, internationalizationLoaded: false, htmlGalleryLoaded: false, pythonGallerLoaded: false, customChartGalleryLoaded: false }
         }
     },
     computed: {
@@ -228,19 +228,18 @@ export default defineComponent({
             }
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
             if (!this.initialDataLoadedMap.dashboardThemesLoaded) this.loadDashboardThemes()
-            if (!this.initialDataLoadedMap.dashboardModelLoaded) this.loadModel()
+            this.loadModel()
             if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             if (!this.initialDataLoadedMap.htmlGalleryLoaded) this.loadHtmlGallery()
             if (!this.initialDataLoadedMap.pythonGallerLoaded) this.loadPythonGallery()
             if (!this.initialDataLoadedMap.customChartGalleryLoaded) this.loadCustomChartGallery()
             this.loadOutputParameters()
-            if (!this.initialDataLoadedMap.crossNavigationsLoaded) await this.loadCrossNavigations()
+            await this.loadCrossNavigations()
             this.setCurrentDashboardView(this.dashboardId, this.currentView)
             this.loading = false
         },
         async loadModel() {
-            this.initialDataLoadedMap.dashboardModelLoaded = true
             let tempModel = null as any
             if (this.newDashboardMode) {
                 tempModel = createNewDashboardModel()
@@ -283,7 +282,6 @@ export default defineComponent({
         },
         async loadCrossNavigations() {
             if (this.newDashboardMode) return
-            this.initialDataLoadedMap.crossNavigationsLoaded = true
             this.appStore.setLoading(true)
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document?.label}/loadCrossNavigationByDocument`)
