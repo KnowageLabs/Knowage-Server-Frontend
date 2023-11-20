@@ -16,7 +16,7 @@
             <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :dashboard-model-prop="dashboardModel" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
             <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
-            <WidgetEditor :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="mockedWidget"></WidgetEditor>
+            <WidgetEditor v-if="false" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="mockedWidget"></WidgetEditor>
         </div>
     </div>
 </template>
