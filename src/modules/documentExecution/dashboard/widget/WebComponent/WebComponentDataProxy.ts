@@ -4,6 +4,7 @@ import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, sho
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
+import deepcopy from 'deepcopy'
 
 export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
@@ -19,7 +20,9 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
         if (aggregationsModel) {
             const aggregationsPostData = formatWebComponentModelForService(dashboardId, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)
 
-            const dataHash = md5(JSON.stringify(aggregationsPostData))
+            const postDataForHash = deepcopy(aggregationsPostData) // making a deepcopy so we can delete options which are used for solr datasets only
+            if (numOfRowsToGet) postDataForHash.numOfRowsToGet = numOfRowsToGet // adding pagination in case its being used so we save data for each page
+            const dataHash = md5(JSON.stringify(postDataForHash))
             const cachedData = await indexedDB.widgetData.get(dataHash)
 
             if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
