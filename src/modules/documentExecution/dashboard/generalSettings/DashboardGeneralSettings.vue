@@ -22,8 +22,8 @@
                 :datasets="datasets"
                 :variables="variables"
                 :prop-widget="customHeaderWidget"
-                @widgetSaved="onCustomeHeaderSaved"
-                @close="onCustomeHeaderCancel"
+                @widgetSaved="onCustomHeaderSaved"
+                @close="onCustomHeaderCancel"
             ></WidgetEditor>
         </div>
     </div>
@@ -133,11 +133,11 @@ export default defineComponent({
 
             this.$emit('closeGeneralSettings')
         },
-        onCustomeHeaderSaved() {
-            this.dashboardModel.configuration.customHeader = deepcopy(this.customHeaderWidget)
+        onCustomHeaderSaved(customHeader: IWidget) {
+            this.dashboardModel.configuration.customHeader = deepcopy(customHeader)
             this.customHeaderWidgetEditorVisible = false
         },
-        onCustomeHeaderCancel() {
+        onCustomHeaderCancel() {
             this.customHeaderWidgetEditorVisible = false
         }
     }

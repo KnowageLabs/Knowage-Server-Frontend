@@ -122,9 +122,11 @@ export default defineComponent({
         },
         save() {
             const tempWidget = deepcopy(this.widget)
+            console.log('------- TEMP WIDGET 2: ', tempWidget)
             if (!tempWidget) return
             if (tempWidget.settings.isCustomDashboardHeader) {
-                this.$emit('widgetSaved')
+                console.log('------- TEMP WIDGET 4: ', tempWidget)
+                this.$emit('widgetSaved', tempWidget)
                 return
             }
 
