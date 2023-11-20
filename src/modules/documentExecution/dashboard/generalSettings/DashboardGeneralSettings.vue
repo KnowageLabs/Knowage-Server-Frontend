@@ -16,7 +16,15 @@
             <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :dashboard-model-prop="dashboardModel" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
             <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
-            <WidgetEditor v-if="selectedOption === 'Custom Header' && customHeaderWidgetEditorVisible" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" @widgetSaved="onCustomeHeaderSaved" @close="onCustomeHeaderCancel"></WidgetEditor>
+            <WidgetEditor
+                v-if="selectedOption === 'Custom Header' && customHeaderWidgetEditorVisible && customHeaderWidget"
+                :dashboard-id="dashboardId"
+                :datasets="datasets"
+                :variables="variables"
+                :prop-widget="customHeaderWidget"
+                @widgetSaved="onCustomeHeaderSaved"
+                @close="onCustomeHeaderCancel"
+            ></WidgetEditor>
         </div>
     </div>
 </template>
@@ -74,7 +82,7 @@ export default defineComponent({
         ...mapActions(mainStore, ['getUser']),
         loadDashboardModel() {
             this.dashboardModel = this.getDashboard(this.dashboardId)
-            this.customHeaderWidget = this.dashboardModel.configuration.customHeader
+            this.customHeaderWidget = deepcopy(this.dashboardModel.configuration.customHeader)
         },
         loadVariables() {
             if (this.dashboardModel && this.dashboardModel.configuration) this.variables = deepcopy(this.dashboardModel.configuration.variables)
@@ -113,7 +121,6 @@ export default defineComponent({
                 this.customHeaderWidgetEditorVisible = true
             }
             this.selectedOption = option
-            console.log('--------- this.customHeaderWidget: ', this.customHeaderWidget)
         },
 
         async saveGeneralSettings() {
@@ -127,7 +134,8 @@ export default defineComponent({
             this.$emit('closeGeneralSettings')
         },
         onCustomeHeaderSaved() {
-            this.dashboardModel.configuration.customHeader = this.customHeaderWidget
+            this.dashboardModel.configuration.customHeader = deepcopy(this.customHeaderWidget)
+            this.customHeaderWidgetEditorVisible = false
         },
         onCustomeHeaderCancel() {
             this.customHeaderWidgetEditorVisible = false

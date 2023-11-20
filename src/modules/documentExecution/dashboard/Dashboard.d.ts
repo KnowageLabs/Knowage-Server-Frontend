@@ -38,7 +38,8 @@ export interface IDashboardConfiguration {
     selections: ISelection[]
     theme: any
     background: IBackground
-    menuWidgets: IMenuAndWidgets
+    menuWidgets: IMenuAndWidgets,
+    customHeader: IWidget | null
 }
 
 export interface IDatasetParameter {
