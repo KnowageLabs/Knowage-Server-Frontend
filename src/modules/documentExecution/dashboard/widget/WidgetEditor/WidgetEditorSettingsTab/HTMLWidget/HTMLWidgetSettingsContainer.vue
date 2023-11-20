@@ -1,5 +1,5 @@
 <template>
-    <div v-show="widgetModel">
+    <div v-show="widgetModel && descriptor">
         <HTMLWidgetSettingsAccordion
             v-if="selectedSetting != 'Gallery'"
             v-show="selectedSetting"
@@ -11,14 +11,15 @@
             :dashboard-id="dashboardId"
         ></HTMLWidgetSettingsAccordion>
 
-        <HTMLWidgetSettingsGallery v-if="selectedSetting == 'Gallery'" v-show="selectedSetting" :widget-model="widgetModel" :html-gallery-prop="htmlGalleryProp" @galleryItemSelected="$emit('galleryItemSelected')"></HTMLWidgetSettingsGallery>
+        <HTMLWidgetSettingsGallery v-if="selectedSetting == 'Gallery'" v-show="selectedSetting" :widget-model="widgetModel" :dashboard-id="dashboardId" :prop-gallery-items="propGalleryItems" @galleryItemSelected="$emit('galleryItemSelected')"></HTMLWidgetSettingsGallery>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable, IGalleryItem } from '@/modules/documentExecution/Dashboard/Dashboard'
-import descriptor from './HTMLWidgetSettingsDescriptor.json'
+import htmlDescriptor from './HTMLWidgetSettingsDescriptor.json'
+import customDashboardHeaderDescriptor from './CustomDashboardHeaderDescriptor.json'
 import HTMLWidgetSettingsAccordion from './HTMLWidgetSettingsAccordion.vue'
 import HTMLWidgetSettingsGallery from './gallery/HTMLWidgetGallery.vue'
 
@@ -31,17 +32,23 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        dashboardId: { type: String, required: true }
+        dashboardId: { type: String, required: true },
+        propGalleryItems: { type: Array as PropType<IGalleryItem[]>, required: true }
     },
     emits: ['galleryItemSelected'],
     data() {
         return {
-            descriptor,
+            descriptor: null as any,
             setting: ''
         }
     },
-    created() {},
-    methods: {}
+    created() {
+        this.loadDescriptor()
+    },
+    methods: {
+        loadDescriptor() {
+            this.descriptor = this.widgetModel.settings.isCustomDashboardHeader ? customDashboardHeaderDescriptor : htmlDescriptor
+        }
+    }
 })
 </script>

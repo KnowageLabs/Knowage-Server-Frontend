@@ -409,6 +409,7 @@
                 "sheetsSize": "Sheets Background Size"
             },
             "css": "CSS Editor",
+            "customHeader": "Custom Header",
             "menuWidgets": {
                 "enableCaching": "Enable dashboard caching",
                 "enableChartChange": "Enable chart changing",
