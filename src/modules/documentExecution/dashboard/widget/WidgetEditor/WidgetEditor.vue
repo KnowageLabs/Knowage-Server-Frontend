@@ -100,7 +100,6 @@ export default defineComponent({
             if (!this.propWidget) return
             this.widget = this.propWidget.new ? createNewWidget(this.propWidget.type) : deepcopy(this.propWidget)
             if (!this.propWidget.new) recreateKnowageChartModel(this.widget)
-            console.log('--------- LOADED WIDGET: ', this.widget)
         },
         loadSelectedModelDatasets() {
             this.selectedModelDatasets = this.dashboardId ? this.dashboardStore.getDashboardSelectedDatasets(this.dashboardId) : {}
@@ -124,6 +123,10 @@ export default defineComponent({
         save() {
             const tempWidget = deepcopy(this.widget)
             if (!tempWidget) return
+            if (tempWidget.settings.isCustomDashboardHeader) {
+                this.$emit('widgetSaved')
+                return
+            }
 
             if (tempWidget.new) {
                 delete tempWidget.new

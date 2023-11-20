@@ -167,7 +167,8 @@ export default defineComponent({
     },
     computed: {
         ...mapState(mainStore, {
-            user: 'user'
+            user: 'user',
+            isEnterprise: 'isEnterprise'
         }),
         showDashboard() {
             return ['dashboard', 'dashboard-popup'].includes('' + this.mode)
@@ -252,7 +253,7 @@ export default defineComponent({
                 this.currentView.drivers = this.filtersData
             }
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
-            if (!this.initialDataLoadedMap.dashboardThemesLoaded) this.loadDashboardThemes()
+            if (!this.initialDataLoadedMap.dashboardThemesLoaded && this.isEnterprise) this.loadDashboardThemes()
             if (!this.initialDataLoadedMap.dashboardModelLoaded) this.loadModel()
             if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)

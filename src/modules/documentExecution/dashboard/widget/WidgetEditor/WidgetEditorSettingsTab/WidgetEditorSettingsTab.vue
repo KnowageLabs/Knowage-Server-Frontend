@@ -189,6 +189,7 @@ import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescripto
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
 import WidgetEditorSettingsList from './WidgetEditorSettingsList.vue'
 import htmlDescriptor from './HTMLWidget/HTMLWidgetSettingsDescriptor.json'
+import customDashboardHeaderDescriptor from './HTMLWidget/CustomDashboardHeaderDescriptor.json'
 import textDescriptor from './TextWidget/TextWidgetSettingsDescriptor.json'
 import chartJSDescriptor from './ChartWidget/chartJS/ChartJSWidgetSettingsDescriptor.json'
 import HighchartsPieSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPieSettingsDescriptor.json'
@@ -292,7 +293,7 @@ export default defineComponent({
                     this.descriptor = selectionsDescriptor
                     break
                 case 'html':
-                    this.descriptor = { ...htmlDescriptor }
+                    this.descriptor = this.propWidget.settings.isCustomDashboardHeader ? { ...customDashboardHeaderDescriptor } : { ...htmlDescriptor }
                     this.checkIfHtmlWidgetGalleryOptionIsDisabled()
                     break
                 case 'text':

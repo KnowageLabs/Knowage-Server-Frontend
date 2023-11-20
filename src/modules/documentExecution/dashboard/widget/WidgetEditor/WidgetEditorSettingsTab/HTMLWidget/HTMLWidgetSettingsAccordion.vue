@@ -20,6 +20,7 @@
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
                 <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
+                <CustomDashboardHeaderConfiguration v-else-if="accordion.type === 'CustomDashboardHeaderConfiguration'" :widget-model="widgetModel"></CustomDashboardHeaderConfiguration>
             </AccordionTab>
         </Accordion>
     </div>
@@ -50,6 +51,7 @@ import HTMLWidgetSettingsAccordionHeader from './HTMLWidgetSettingsAccordionHead
 import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import CustomDashboardHeaderConfiguration from './configuration/CustomDashboardHeaderConfiguration.vue'
 
 export default defineComponent({
     name: 'html-widget-settings-container',
@@ -71,7 +73,8 @@ export default defineComponent({
         HTMLWidgetSettingsAccordionHeader,
         WidgetInteractionsIframe,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        CustomDashboardHeaderConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
