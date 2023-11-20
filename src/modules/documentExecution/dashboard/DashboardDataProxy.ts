@@ -44,12 +44,10 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
         case 'selector':
             return await getSelectorWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'html':
-            // CACHE BOTH
             return await getWebComponentWidgetData('html', dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'text':
             return await getWebComponentWidgetData('text', dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'highcharts':
-            //INCLUDE LIMIT AS PAGINATION IN ALL CHARTS
             return await getHighchartsWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'chartJS':
             return await getChartJSWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
@@ -58,17 +56,14 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
         case 'static-pivot-table':
             return await getPivotData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'ce-pivot-table':
-            //CACHE FIRST ONE
             return await getCePivotData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'discovery':
             return await getDiscoveryWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'vega':
             return await getHighchartsWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'python':
-            //CACHE FIRST ONE
             return await getPythonData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'r':
-            //CACHE FIRST ONE
             return await getRData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
