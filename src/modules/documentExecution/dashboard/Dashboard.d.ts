@@ -39,7 +39,7 @@ export interface IDashboardConfiguration {
     theme: any
     background: IBackground
     menuWidgets: IMenuAndWidgets,
-    customHeader: IWidget | null
+    customHeader?: IWidget | null
 }
 
 export interface IDatasetParameter {

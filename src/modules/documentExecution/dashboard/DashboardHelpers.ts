@@ -199,7 +199,8 @@ export const formatDashboardForSave = (dashboard: IDashboard) => {
         dashboard.widgets[i] = formatWidgetForSave(dashboard.widgets[i]) as IWidget
     }
     formatVariablesForSave(dashboard.configuration)
-    delete dashboard.allDatasetsLoaded
+    const propertiesForDelete = ['allDatasetsLoaded', 'htmlGallery', 'pythonGallery', 'customChartGallery']
+    propertiesForDelete.forEach((property: string) => dashboard[property])
 }
 
 const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration) => {
