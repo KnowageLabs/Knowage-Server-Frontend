@@ -4,6 +4,7 @@ import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from 
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
+import deepcopy from 'deepcopy'
 
 export const getHighchartsScatterData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
@@ -18,6 +19,8 @@ export const getHighchartsScatterData = async (dashboardId, dashboardConfig: IDa
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
 
+        const postDataForHash = deepcopy(postData) // making a deepcopy so we can delete options which are used for solr datasets only
+        if (itemsLimit.enabled) postDataForHash.itemsLimit = itemsLimit // adding pagination in case its being used so we save data for each page
         const dataHash = md5(JSON.stringify(postData))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 
