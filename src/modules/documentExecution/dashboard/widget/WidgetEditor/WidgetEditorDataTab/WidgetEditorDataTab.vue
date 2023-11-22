@@ -91,6 +91,7 @@ export default defineComponent({
                 this.widget.settings = createNewHighchartsSettings()
                 this.widget.settings.chart.colors = tempWidgetColors
                 this.widget.settings.chartModel = createNewHighchartsModel(this.widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'))
+                this.widget.settings.chartModel.updateChartColorSettings(this.widget)
             } else {
                 this.widget.type = 'chartJS'
                 this.widget.settings = createNewChartJSSettings()
