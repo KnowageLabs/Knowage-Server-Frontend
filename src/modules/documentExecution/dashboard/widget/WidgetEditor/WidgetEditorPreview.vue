@@ -19,9 +19,18 @@
                     :dashboard-id="dashboardId"
                     :variables="variables"
                 ></WebComponentContainer>
-                <HighchartsContainer v-if="propWidget.type === 'highcharts' && !loading && isEnterprise" :widget-model="propWidget" :datasets="datasets" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="true" :dashboard-id="dashboardId" :prop-variables="variables" ></HighchartsContainer>
+                <HighchartsContainer
+                    v-if="propWidget.type === 'highcharts' && !loading && isEnterprise"
+                    :widget-model="propWidget"
+                    :datasets="datasets"
+                    :data-to-show="widgetData"
+                    :prop-active-selections="activeSelections"
+                    :editor-mode="true"
+                    :dashboard-id="dashboardId"
+                    :prop-variables="variables"
+                ></HighchartsContainer>
                 <ChartJSContainer v-if="propWidget.type === 'chartJS' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections"></ChartJSContainer>
-                <ImageWidget v-if="propWidget.type === 'image'" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" :prop-variables="variables"  />
+                <ImageWidget v-if="propWidget.type === 'image'" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" :prop-variables="variables" />
                 <CustomChartWidget
                     v-if="propWidget.type == 'customchart' && !loading"
                     :prop-widget="propWidget"
@@ -33,7 +42,7 @@
                     @loading="customChartLoading = $event"
                 ></CustomChartWidget>
                 <DiscoveryWidget v-if="propWidget.type == 'discovery'" :propWidget="propWidget" :datasets="datasets" :dataToShow="widgetData" :editorMode="true" :dashboardId="dashboardId" :propActiveSelections="activeSelections" @pageChanged="getWidgetData" />
-                <VegaContainer v-if="propWidget.type === 'vega' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections" :prop-variables="variables" ></VegaContainer>
+                <VegaContainer v-if="propWidget.type === 'vega' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections" :prop-variables="variables"></VegaContainer>
                 <PythonWidgetContainer v-if="propWidget.type === 'python' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
                 <RWidgetContainer v-if="propWidget.type === 'r' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
                 <CEPivotWidget v-if="propWidget.type == 'ce-pivot-table' && !loading" :prop-widget="propWidget" :datasets="datasets" :data-to-show="widgetData" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
@@ -119,7 +128,7 @@ export default defineComponent({
         loadWebComponentData() {},
         async getWidgetData() {
             this.loading = true
-            this.widgetData = await getWidgetData(this.dashboardId, this.propWidget, this.datasets, this.$http, true, this.activeSelections, { searchText: '', searchColumns: [] })
+            this.widgetData = await getWidgetData(this.dashboardId, this.propWidget, this.datasets, this.$http, true, this.activeSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration)
             this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
             this.loading = false
         },

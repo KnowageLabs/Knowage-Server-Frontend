@@ -9,17 +9,15 @@
         />
 
         <div class="dashboard-renderer-container">
-            <div class="dashboard-renderer-header" :style="`height: ${customHeaderHeight}`">
-                <WebComponentContainer
-                    v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible"
-                    :prop-widget="model?.configuration?.customHeader"
-                    :widget-data="mockdata"
-                    :prop-active-selections="[]"
-                    :editor-mode="false"
-                    :dashboard-id="dashboardId"
-                    :variables="[]"
-                ></WebComponentContainer>
-            </div>
+            <DashboardHeaderWidget
+                v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible"
+                :dashboard-id="dashboardId"
+                :prop-widget="model?.configuration?.customHeader"
+                :datasets="model.configuration.datasets"
+                :document-drivers="drivers"
+                :variables="model ? model.configuration.variables : []"
+                :custom-chart-gallery-prop="customChartGallery"
+            ></DashboardHeaderWidget>
 
             <div class="dashboard-renderer-core">
                 <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
@@ -33,9 +31,9 @@
                 :available-datasets-prop="datasets"
                 :filters-data-prop="filtersData"
                 :datasets-loaded="datasetsLoaded"
-                @closeDatasetEditor="closeDatasetEditor"
-                @datasetEditorSaved="closeDatasetEditor"
-                @allDatasetsLoaded="onAllDatasetsLoaded"
+                @close-dataset-editor="closeDatasetEditor"
+                @dataset-editor-saved="closeDatasetEditor"
+                @all-datasets-loaded="onAllDatasetsLoaded"
             />
         </Transition>
 
@@ -47,12 +45,12 @@
                 :document-drivers="drivers"
                 :profile-attributes="profileAttributes"
                 :general-settings-mode="generalSettingsMode"
-                @closeGeneralSettings="closeGeneralSettings"
-                @saveGeneralSettings="generalSettingsVisible = false"
+                @close-general-settings="closeGeneralSettings"
+                @save-general-settings="generalSettingsVisible = false"
             ></DashboardGeneralSettings>
         </Transition>
 
-        <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @openNewWidgetEditor="openNewWidgetEditor" @closeWidgetPicker="onWidgetPickerClosed" />
+        <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @open-new-widget-editor="openNewWidgetEditor" @close-widget-picker="onWidgetPickerClosed" />
         <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDashboard" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
         <SelectionsListDialog v-if="selectionsDialogVisible" :visible="selectionsDialogVisible" :dashboard-id="dashboardId" @close="selectionsDialogVisible = false" @save="onSelectionsRemove" />
     </div>
@@ -67,12 +65,12 @@
         :custom-chart-gallery-prop="customChartGallery"
         data-test="widget-editor"
         @close="closeWidgetEditor"
-        @widgetSaved="closeWidgetEditor"
-        @widgetUpdated="closeWidgetEditor"
+        @widget-saved="closeWidgetEditor"
+        @widget-updated="closeWidgetEditor"
     ></WidgetEditor>
 
     <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" :document="document" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
-    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
+    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @move-view="moveView" @execute-view="executeView"></DashboardSavedViewsDialog>
 </template>
 
 <script lang="ts">
@@ -103,7 +101,7 @@ import deepcopy from 'deepcopy'
 import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
-import WebComponentContainer from './widget/WebComponent/WebComponentContainer.vue'
+import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -117,7 +115,7 @@ export default defineComponent({
         DashboardGeneralSettings,
         DashboardSaveViewDialog,
         DashboardSavedViewsDialog,
-        WebComponentContainer
+        DashboardHeaderWidget
     },
     props: {
         visible: { type: Boolean },
@@ -143,170 +141,6 @@ export default defineComponent({
     data() {
         return {
             customHeaderVisible: true,
-            mockdata: {
-                metaData: {
-                    totalProperty: 'results',
-                    root: 'rows',
-                    id: 'id',
-                    fields: [
-                        'recNo',
-                        {
-                            name: 'column_1',
-                            header: 'export_varibile',
-                            dataIndex: 'column_1',
-                            type: 'string',
-                            multiValue: false
-                        },
-                        {
-                            name: 'column_2',
-                            header: 'quarter',
-                            dataIndex: 'column_2',
-                            type: 'string',
-                            multiValue: false
-                        },
-                        {
-                            name: 'column_3',
-                            header: 'the_date',
-                            dataIndex: 'column_3',
-                            type: 'timestamp',
-                            dateFormat: 'dd/MM/yyyy HH:mm:ss.SSS',
-                            dateFormatJava: 'dd/MM/yyyy HH:mm:ss.SSS',
-                            multiValue: false
-                        },
-                        {
-                            name: 'column_4',
-                            header: 'store_id',
-                            dataIndex: 'column_4',
-                            type: 'int',
-                            precision: 10,
-                            scale: 0,
-                            multiValue: false
-                        },
-                        {
-                            name: 'column_5',
-                            header: 'product_family',
-                            dataIndex: 'column_5',
-                            type: 'string',
-                            multiValue: false
-                        },
-                        {
-                            name: 'column_6',
-                            header: 'link',
-                            dataIndex: 'column_6',
-                            type: 'string',
-                            multiValue: false
-                        },
-                        {
-                            name: 'column_7',
-                            header: 'unit_sales',
-                            dataIndex: 'column_7',
-                            type: 'float',
-                            precision: 32,
-                            scale: 4,
-                            multiValue: false
-                        },
-                        {
-                            name: 'column_8',
-                            header: 'store_cost',
-                            dataIndex: 'column_8',
-                            type: 'float',
-                            precision: 32,
-                            scale: 4,
-                            multiValue: false
-                        },
-                        {
-                            name: 'column_9',
-                            header: 'store_cost_null',
-                            dataIndex: 'column_9',
-                            type: 'float',
-                            precision: 32,
-                            scale: 4,
-                            multiValue: false
-                        }
-                    ],
-                    cacheDate: '2023-11-21 13:15:26.044'
-                },
-                results: 1,
-                rows: [
-                    {
-                        id: 1,
-                        column_1: 'export_varibile',
-                        column_2: 'Q1',
-                        column_3: '19/02/2015 00:00:00.000',
-                        column_4: 1,
-                        column_5: 'Food',
-                        column_6: '>',
-                        column_7: 555,
-                        column_8: 218.7994,
-                        column_9: 262
-                    }
-                ],
-                stats: {
-                    '1': {
-                        name: 'column_1',
-                        max: 'export_varibile',
-                        min: 'export_varibile',
-                        distinct: ['export_varibile'],
-                        cardinality: 1
-                    },
-                    '2': {
-                        name: 'column_2',
-                        max: 'Q1',
-                        min: 'Q1',
-                        distinct: ['Q1'],
-                        cardinality: 1
-                    },
-                    '3': {
-                        name: 'column_3',
-                        max: '2015-02-19T00:00',
-                        min: '2015-02-19T00:00',
-                        distinct: ['2015-02-19T00:00'],
-                        cardinality: 1
-                    },
-                    '4': {
-                        name: 'column_4',
-                        max: 1,
-                        min: 1,
-                        distinct: [1],
-                        cardinality: 1
-                    },
-                    '5': {
-                        name: 'column_5',
-                        max: 'Food',
-                        min: 'Food',
-                        distinct: ['Food'],
-                        cardinality: 1
-                    },
-                    '6': {
-                        name: 'column_6',
-                        max: '>',
-                        min: '>',
-                        distinct: ['>'],
-                        cardinality: 1
-                    },
-                    '7': {
-                        name: 'column_7',
-                        max: 262,
-                        min: 262,
-                        distinct: [262],
-                        cardinality: 1
-                    },
-                    '8': {
-                        name: 'column_8',
-                        max: 218.7994,
-                        min: 218.7994,
-                        distinct: [218.7994],
-                        cardinality: 1
-                    },
-                    '9': {
-                        name: 'column_9',
-                        max: 262,
-                        min: 262,
-                        distinct: [262],
-                        cardinality: 1
-                    }
-                }
-            },
             descriptor,
             model: null as any,
             widgetPickerVisible: false,
