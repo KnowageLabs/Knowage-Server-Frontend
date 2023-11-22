@@ -1,4 +1,4 @@
-import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn } from '../../../../Dashboard'
+import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle } from '../../../../Dashboard'
 
 const columnIdNameMap = {}
 
@@ -28,9 +28,11 @@ const getColumnName = (columnId: string) => {
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
+    if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnName(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
     formatTableWidgetVisualisation(widgetSettings.visualization)
     formatTableWidgetConditionalStyle(widgetSettings.conditionalStyles)
+    formatTableWidgetTooltips(widgetSettings.tooltips)
     formatTableInteractions(widgetSettings.interactions)
 }
 
@@ -97,6 +99,7 @@ const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisualizati
 const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidgetConditionalStyles) => {
     for (let i = 0; i < widgetConditionalStyles.conditions.length; i++) {
         const tempCondition = widgetConditionalStyles.conditions[i]
+        tempCondition.target = getColumnName(tempCondition.target)
         delete tempCondition.condition.variablePivotDatasetOptions
     }
 }
@@ -109,6 +112,17 @@ const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidge
             formattedColumnGroupColumns.push(getColumnName(tempColumnGroup.columns[j]))
         }
         tempColumnGroup.columns = formattedColumnGroupColumns
+    }
+}
+
+const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
+    for (let i = 1; i < tableTooltips.length; i++) {
+        const tempTooltip = tableTooltips[i]
+        const formattedTooltipColumns = [] as string[]
+        for (let j = 0; j < tempTooltip.target.length; j++) {
+            formattedTooltipColumns.push(getColumnName(tempTooltip.target[j]))
+        }
+        tempTooltip.target = formattedTooltipColumns
     }
 }
 
