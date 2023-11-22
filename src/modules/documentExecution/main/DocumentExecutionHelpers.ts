@@ -6,6 +6,7 @@ import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnPa
 import { emitter } from '../dashboard/DashboardHelpers'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import store from '@/App.store.js'
+import { clearIndexedDBCache } from '../dashboard/DashboardDataProxy'
 
 const mainStore = store()
 
@@ -17,11 +18,11 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
             label: $t('common.settings'),
             items: [
                 { icon: 'pi pi-cog', label: $t('common.general'), command: () => functions.openDashboardGeneralSettings('General') },
-                { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') },
+                { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') }
             ]
         })
         if (mainStore.isEnterprise) toolbarMenuItems[0].items.push({ icon: 'fas fa-paint-roller', label: $t('common.themes'), command: () => functions.openDashboardGeneralSettings('Themes') })
-        toolbarMenuItems[0].items.push({ icon: 'fas fa-recycle', label: $t('documentExecution.main.clearCache') })
+        toolbarMenuItems[0].items.push({ icon: 'fas fa-recycle', label: $t('documentExecution.main.clearCache'), command: () => clearIndexedDBCache() })
     }
 
     if (!newDashboardMode) {

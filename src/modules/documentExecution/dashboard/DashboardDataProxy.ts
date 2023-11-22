@@ -235,3 +235,7 @@ export const addDataToCache = async (dataHash, tempResponse) => {
         console.groupEnd()
     }
 }
+
+export const clearIndexedDBCache = () => {
+    indexedDB.widgetData.clear()
+}
