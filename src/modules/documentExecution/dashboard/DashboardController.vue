@@ -228,7 +228,7 @@ export default defineComponent({
             }
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
             if (!this.initialDataLoadedMap.dashboardThemesLoaded) this.loadDashboardThemes()
-            this.loadModel()
+            await this.loadModel()
             if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             if (!this.initialDataLoadedMap.htmlGalleryLoaded) this.loadHtmlGallery()
