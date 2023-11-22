@@ -101,10 +101,12 @@ export default defineComponent({
         },
         onRowReorder(event) {
             this.widget.settings.chart.colors = [...event.value]
+            this.updateChartModel()
             emitter.emit('refreshChart', this.widgetModel.id)
         },
         addColor() {
             this.widget.settings.chart.colors.push(this.customColorValue)
+            this.updateChartModel()
             emitter.emit('refreshChart', this.widgetModel.id)
         },
         changeColor(color) {
@@ -123,7 +125,11 @@ export default defineComponent({
         },
         deleteColor(index) {
             this.widget.settings.chart.colors.splice(index, 1)
+            this.updateChartModel()
             emitter.emit('refreshChart', this.widgetModel.id)
+        },
+        updateChartModel() {
+            if (this.widget.settings.chartModel?.model) this.widget.settings.chartModel.model.colors = this.widget.settings.chart.colors
         },
         getContrastYIQ() {
             //getContrastYIQ(hexcolor) {

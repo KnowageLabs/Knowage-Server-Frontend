@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation } from "../../../../Dashboard"
+import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation, ITableWidgetTooltipStyle } from "../../../../Dashboard"
 import { emitter } from '../../../../DashboardHelpers'
 import * as  tableWidgetDefaultValues from './TableWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
@@ -130,9 +130,11 @@ const getColumnId = (columnName: string) => {
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
+    if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnId(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
     formatTableWidgetVisualisation(widgetSettings.visualization)
     formatTableWidgetConditionalStyle(widgetSettings.conditionalStyles)
+    formatTableWidgetTooltips(widgetSettings.tooltips)
     formatTableInteractions(widgetSettings.interactions)
 }
 
@@ -199,9 +201,10 @@ const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisualizati
 const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidgetConditionalStyles) => {
     for (let i = 0; i < widgetConditionalStyles.conditions.length; i++) {
         const tempCondition = widgetConditionalStyles.conditions[i]
-        delete tempCondition.condition.variablePivotDatasetOptions
+        tempCondition.target = getColumnId(tempCondition.target)
     }
 }
+
 
 const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidgetColumnGroups) => {
     for (let i = 0; i < columnGroupsConfiguration.groups.length; i++) {
@@ -211,6 +214,18 @@ const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidge
             formattedColumnGroupColumns.push(getColumnId(tempColumnGroup.columns[j]))
         }
         tempColumnGroup.columns = formattedColumnGroupColumns
+    }
+}
+
+
+const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
+    for (let i = 1; i < tableTooltips.length; i++) {
+        const tempTooltip = tableTooltips[i]
+        const formattedTooltipColumns = [] as string[]
+        for (let j = 0; j < tempTooltip.target.length; j++) {
+            formattedTooltipColumns.push(getColumnId(tempTooltip.target[j]))
+        }
+        tempTooltip.target = formattedTooltipColumns
     }
 }
 
