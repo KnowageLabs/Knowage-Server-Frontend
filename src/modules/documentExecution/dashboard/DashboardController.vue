@@ -207,6 +207,7 @@ export default defineComponent({
             emitter.on('executeCrossNavigation', this.executeCrossNavigation)
             emitter.on('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
             emitter.on('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
+            emitter.on('newDashboardClosed', this.onNewDashboardClosed)
         },
         removeEventListeners() {
             emitter.off('openNewWidgetPicker', this.openNewWidgetPicker)
@@ -217,6 +218,7 @@ export default defineComponent({
             emitter.off('executeCrossNavigation', this.executeCrossNavigation)
             emitter.off('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
             emitter.off('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
+            emitter.off('newDashboardClosed', this.onNewDashboardClosed)
         },
         async getData() {
             this.loading = true
@@ -485,6 +487,11 @@ export default defineComponent({
         onAllDatasetsLoaded(event: any) {
             this.datasets = event
             this.datasetsLoaded = true
+        },
+        onNewDashboardClosed(event: any) {
+            if (!this.document || event !== this.dashboardId) return
+            this.model = null
+            this.emptyStoreValues()
         }
     }
 })

@@ -594,6 +594,7 @@ export default defineComponent({
                 this.$router.push(this.$route.path.includes('workspace') ? '/workspace' : '/document-browser')
                 this.breadcrumbs = []
             }
+            if (this.newDashboardMode) emitter.emit('newDashboardClosed', this.document.dashboardId)
             this.$emit('close')
         },
         setMode() {

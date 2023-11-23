@@ -19,7 +19,7 @@ const store = mainStore()
 const SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 
 export const createNewDashboardModel = () => {
-    const dashboardModel = descriptor.newDashboardModel as IDashboard
+    const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
     dashboardModel.configuration.id = cryptoRandomString({ length: 16, type: 'base64' });
 
     return dashboardModel
