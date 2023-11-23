@@ -37,8 +37,7 @@ export default defineComponent({
             isMobileDevice: false,
             menuItemClickedTrigger: false,
             showMenu: false,
-            closedMenu: false,
-            pollInterval: null
+            closedMenu: false
         }
     },
     computed: {
@@ -181,10 +180,6 @@ export default defineComponent({
         if (/Android|iPhone/i.test(navigator.userAgent)) {
             this.isMobileDevice = true
         }
-    },
-
-    beforeUnmount() {
-        if (this.pollInterval) clearInterval(this.pollInterval)
     },
 
     methods: {
