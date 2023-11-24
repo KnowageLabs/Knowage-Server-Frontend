@@ -323,7 +323,7 @@ export default defineComponent({
                 columnName: this.widgetModel.columns[0].columnName
             }
             emitter.emit('widgetUnlocked', this.widgetModel.id)
-            this.removeSelection(payload, this.dashboardId)
+            this.removeSelection(payload, this.dashboardId, this.$http)
         },
         launchSelection() {
             this.setSelections(this.dashboardId, this.activeSelections, this.$http)

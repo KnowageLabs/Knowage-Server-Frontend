@@ -94,17 +94,20 @@ const store = defineStore('dashboardStore', {
                 emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
             }
         },
-        removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string) {
+        removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string, $http: any) {
             const index = this.dashboards[dashboardId].selections?.findIndex((selection: ISelection) => selection.datasetId === payload.datasetId && selection.columnName === payload.columnName)
             if (index !== -1) {
                 const tempSelection = deepcopy(this.dashboards[dashboardId].selections[index])
                 this.dashboards[dashboardId].selections.splice(index, 1)
-
+                if (selectionsUseDatasetWithAssociation([tempSelection], this.dashboards[dashboardId].configuration.associations)) {
+                    loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+                } else {
+                    emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
+                }
                 emitter.emit('selectionsDeleted', [tempSelection])
-                emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
             }
         },
-        removeSelections(selectionsToRemove: ISelection[], dashboardId: string) {
+        removeSelections(selectionsToRemove: ISelection[], dashboardId: string, $http: any) {
             const removedSelections = [] as ISelection[]
             selectionsToRemove?.forEach((selection: ISelection) => {
                 const index = this.dashboards[dashboardId].selections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === selection.datasetId && activeSelection.columnName === selection.columnName)
@@ -113,7 +116,10 @@ const store = defineStore('dashboardStore', {
                     removedSelections.push(selection)
                 }
             })
-            if (removedSelections.length > 0) emitter.emit('selectionsDeleted', removedSelections)
+            if (removedSelections.length > 0) {
+                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations)) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+                emitter.emit('selectionsDeleted', removedSelections)
+            }
         },
         getDashboardDatasets(dashboardId: number) {
             return this.dashboards[dashboardId]?.configuration?.datasets
