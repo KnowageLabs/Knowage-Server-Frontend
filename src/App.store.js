@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { indexedDB } from '@/idb'
 
 const store = defineStore('store', {
     state() {
@@ -115,6 +116,9 @@ const store = defineStore('store', {
         },
         getLocale() {
             return this.locale
+        },
+        storeClearIndexedDBCache() {
+            indexedDB.widgetData.clear()
         }
     }
 })
