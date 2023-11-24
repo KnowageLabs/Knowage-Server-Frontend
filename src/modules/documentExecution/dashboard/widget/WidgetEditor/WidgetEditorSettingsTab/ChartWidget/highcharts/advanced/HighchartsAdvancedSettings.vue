@@ -1,6 +1,5 @@
 <template>
-    <div v-if="widgetModel.settings.advancedSettings" class="p-grid p-jc-center p-ai-center p-p-4">
-        {{ advancedSettingsModel }}
+    <div v-if="advancedSettingsModel" class="p-grid p-jc-center p-ai-center p-p-4">
         <Message class="p-col-11 p-m-auto" severity="info" :closable="false">{{ $t('dashboard.widgetEditor.highcharts.advancedSettingsHint') }}</Message>
         <div v-for="(property, index) in advancedSettingsModel" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
             <div class="p-col-12 p-md-6 p-d-flex p-flex-column kn-flex">
