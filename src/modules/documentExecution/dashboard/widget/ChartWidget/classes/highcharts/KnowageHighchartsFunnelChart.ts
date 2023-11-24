@@ -22,7 +22,7 @@ export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
 
     setPlotOptions() {
         if (!this.model.plotOptions.series.neckWidth) this.model.plotOptions.series.neckWidth = '30%'
-        if (!this.model.plotOptions.series.neckWidth) this.model.plotOptions.series.neckHeight = '25%'
+        if (!this.model.plotOptions.series.neckHeight) this.model.plotOptions.series.neckHeight = '25%'
     }
 
     setData(data: any, widgetModel: IWidget) {
