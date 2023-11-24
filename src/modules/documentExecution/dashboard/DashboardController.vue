@@ -484,8 +484,6 @@ export default defineComponent({
             emitter.emit('dashboardGeneralSettingsClosed')
 
             this.customHeaderVisible = true
-
-            console.log('header widget', this.model.configuration.customHeader)
         },
         executeCrossNavigation(payload: any) {
             const crossNavigations = this.getCrossNavigations(this.dashboardId)
