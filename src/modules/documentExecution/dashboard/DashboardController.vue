@@ -469,7 +469,7 @@ export default defineComponent({
         },
         onSelectionsRemove(selections: ISelection[]) {
             this.selectionsDialogVisible = false
-            this.removeSelections(selections, this.dashboardId)
+            this.removeSelections(selections, this.dashboardId, this.$http)
         },
         openGeneralSettings(event) {
             if (event.dashboardId !== this.dashboardId) return
