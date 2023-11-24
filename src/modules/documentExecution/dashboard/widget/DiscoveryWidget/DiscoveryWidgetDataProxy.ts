@@ -67,6 +67,8 @@ const formatDiscoveryModelForGet = (dashboardId, propWidget: IWidget, dataset: a
         } else {
             const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'COUNT', functColumn: column.alias } as any
             dataToSend.aggregations.categories.push(attributeToPush)
+
+            column.id === propWidget.settings.sortingColumn ? (attributeToPush.orderType = propWidget.settings.sortingOrder) : ''
         }
     })
 

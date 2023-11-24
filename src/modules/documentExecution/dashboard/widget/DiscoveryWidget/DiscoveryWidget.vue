@@ -350,7 +350,7 @@ export default defineComponent({
                             field: responseFields[responseField].name,
                             measure: modelColumn.fieldType,
                             headerComponent: HeaderRenderer,
-                            headerComponentParams: { propWidget: this.propWidget },
+                            headerComponentParams: { colId: modelColumn.id, propWidget: this.propWidget },
                             suppressMovable: true,
                             resizable: true
                         } as any
@@ -468,7 +468,10 @@ export default defineComponent({
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
             openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, this.propWidget.settings.interactions.link[0])
         },
-        sortingChanged() {
+        sortingChanged(updatedSorting) {
+            const widgetSettings = this.propWidget.settings
+            widgetSettings.sortingColumn = updatedSorting.colId
+            widgetSettings.sortingOrder = updatedSorting.order
             this.$emit('sortingChanged')
         },
         getColumnWidth(colId) {
