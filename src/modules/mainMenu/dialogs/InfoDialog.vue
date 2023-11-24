@@ -5,7 +5,7 @@
                 <div class="p-d-flex p-jc-center">
                     <img :src="`${publicPath}/images/commons/logo_knowage.svg`" height="100" />
                 </div>
-                <p>
+                <p v-if="!configurations || !configurations['KNOWAGE.HIDE_VERSION']">
                     <strong>{{ $t('common.version') }}:</strong> {{ currentVersion }}
                 </p>
                 <p>
@@ -50,7 +50,8 @@ export default defineComponent({
     },
     computed: {
         ...mapState(mainStore, {
-            user: 'user'
+            user: 'user',
+            configurations: 'configurations'
         })
     },
     methods: {
