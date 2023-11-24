@@ -256,6 +256,7 @@ export default defineComponent({
             emitter.on('executeCrossNavigation', this.executeCrossNavigation)
             emitter.on('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
             emitter.on('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
+            emitter.on('newDashboardClosed', this.onNewDashboardClosed)
         },
         removeEventListeners() {
             emitter.off('openNewWidgetPicker', this.openNewWidgetPicker)
@@ -266,6 +267,7 @@ export default defineComponent({
             emitter.off('executeCrossNavigation', this.executeCrossNavigation)
             emitter.off('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
             emitter.off('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
+            emitter.off('newDashboardClosed', this.onNewDashboardClosed)
         },
         async getData() {
             this.loading = true
@@ -277,16 +279,15 @@ export default defineComponent({
             }
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
             if (!this.initialDataLoadedMap.dashboardThemesLoaded && this.isEnterprise) this.loadDashboardThemes()
-            if (!this.initialDataLoadedMap.dashboardModelLoaded) this.loadModel()
+            await this.loadModel()
             if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadOutputParameters()
-            if (!this.initialDataLoadedMap.crossNavigationsLoaded) await this.loadCrossNavigations()
+            await this.loadCrossNavigations()
             this.setCurrentDashboardView(this.dashboardId, this.currentView)
             this.loading = false
         },
         async loadModel() {
-            this.initialDataLoadedMap.dashboardModelLoaded = true
             let tempModel = null as any
             if (this.newDashboardMode) {
                 tempModel = createNewDashboardModel()
@@ -329,7 +330,6 @@ export default defineComponent({
         },
         async loadCrossNavigations() {
             if (this.newDashboardMode) return
-            this.initialDataLoadedMap.crossNavigationsLoaded = true
             this.appStore.setLoading(true)
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document?.label}/loadCrossNavigationByDocument`)
@@ -521,6 +521,11 @@ export default defineComponent({
         onAllDatasetsLoaded(event: any) {
             this.datasets = event
             this.datasetsLoaded = true
+        },
+        onNewDashboardClosed(event: any) {
+            if (!this.document || event !== this.dashboardId) return
+            this.model = null
+            this.emptyStoreValues()
         }
     }
 })

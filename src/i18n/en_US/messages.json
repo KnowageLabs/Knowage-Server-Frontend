@@ -1214,6 +1214,9 @@
                 "onVariableValue": "On Variable Value",
                 "title": "Visibility Conditions"
             },
+            "visualisationType": {
+                "thresholdHint": "You must set the threshold in order to see the icon."
+            },
             "visualization": "Visualization",
             "visualizationOptions": {
                 "chart": "Chart",

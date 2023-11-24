@@ -19,7 +19,7 @@ const store = mainStore()
 export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 
 export const createNewDashboardModel = () => {
-    const dashboardModel = descriptor.newDashboardModel as IDashboard
+    const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
     dashboardModel.configuration.id = cryptoRandomString({ length: 16, type: 'base64' });
 
     return dashboardModel
@@ -199,7 +199,7 @@ export const formatDashboardForSave = (dashboard: IDashboard) => {
         dashboard.widgets[i] = formatWidgetForSave(dashboard.widgets[i]) as IWidget
     }
     formatVariablesForSave(dashboard.configuration)
-    const propertiesForDelete = ['allDatasetsLoaded', 'htmlGallery', 'pythonGallery', 'customChartGallery']
+    const propertiesForDelete = ['allDatasetsLoaded', 'htmlGallery', 'pythonGallery', 'customChartGallery', 'currentView', 'associations', 'drivers', 'crossNavigations', 'document', 'outputParameters']
     propertiesForDelete.forEach((property: string) => delete dashboard[property])
 }
 

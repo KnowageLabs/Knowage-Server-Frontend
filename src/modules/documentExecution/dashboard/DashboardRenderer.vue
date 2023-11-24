@@ -96,14 +96,22 @@ export default defineComponent({
             return `<style>${this.dashboardModel?.configuration?.cssToRender}</style>`
         }
     },
+    watch: {
+        model() {
+            this.loadDashboardModel()
+        }
+    },
     mounted() {
-        this.dashboardModel = this.model ?? {}
-        if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
-        if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
-        this.activeDashboardSheet = this.dashboardModel.sheets[0]
+        this.loadDashboardModel()
     },
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
+        loadDashboardModel() {
+            this.dashboardModel = this.model ?? {}
+            if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
+            if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
+            this.activeDashboardSheet = this.dashboardModel.sheets[0]
+        },
         breakpointChangedEvent(size: string) {
             this.currentScreenSize = size
         },

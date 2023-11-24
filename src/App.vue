@@ -152,9 +152,11 @@ export default defineComponent({
                     console.log(error.response.headers)
                 }
             })
-        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response) => {
+
+        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response: any) => {
             this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
+            this.checkOidcSessionManagement(response.data)
         })
         if (this.isEnterprise) {
             if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(await this.themeHelper.getDefaultKnowageTheme())
@@ -196,6 +198,22 @@ export default defineComponent({
                 if (window.self !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
                     this.$router.push({ name: 'unauthorized', params: { message: this.$t('unauthorized.outsideIframe') } })
                 }
+            }
+        },
+        checkOidcSessionManagement(configs) {
+            if (configs['oidc_check_session_iframe']) {
+                window.addEventListener('message', async (event) => {
+                    if (event.data.type === 'logout') auth.logout()
+                })
+                const RPiframe = document.createElement('iframe')
+                RPiframe.style.display = 'none'
+                RPiframe.src = `${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/oidc/sessionManagement.html`
+                document.querySelector('body')?.append(RPiframe)
+
+                const OPiframe = document.createElement('iframe')
+                OPiframe.style.display = 'none'
+                OPiframe.src = configs['oidc_check_session_iframe']
+                document.querySelector('body')?.append(OPiframe)
             }
         },
         async onLoad() {

@@ -2,6 +2,7 @@
     "popupDialog": {
         "style": {
             "height": "80vh",
+            "overflow": "hidden",
             "padding": 0,
             "width": "80vw"
         }
