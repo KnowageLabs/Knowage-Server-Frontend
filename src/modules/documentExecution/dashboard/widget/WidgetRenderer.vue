@@ -79,6 +79,7 @@
                 :prop-variables="variables"
                 @page-changed="$emit('reloadData')"
                 @facets-changed="$emit('reloadData')"
+                @sorting-changed="$emit('reloadData')"
                 @search-word-changed="$emit('reloadData')"
                 @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
             />
