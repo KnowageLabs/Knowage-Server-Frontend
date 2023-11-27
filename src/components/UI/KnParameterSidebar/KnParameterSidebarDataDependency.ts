@@ -1,6 +1,8 @@
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import { AxiosResponse } from 'axios'
 import { iParameter } from './KnParameterSidebar'
+import { updateVisualDependency } from './KnParameterSidebarVisualDependency'
+import { updateLovDependency } from './KnParameterSidebarLovsDependency'
 
 export function setDataDependency(loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, parameter: iParameter) {
     if (parameter.dependencies?.data.length !== 0) {
@@ -38,10 +40,10 @@ export async function dataDependencyCheck(loadedParameters: { filterStatus: iPar
         url = document.type === 'businessModel' ? `/restful-services/1.0/businessmodel/${document.name}/admissibleValues` : `/restful-services/3.0/datasets/${document.label}/admissibleValues`
     }
 
-    await $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData).then((response: AxiosResponse<any>) => {
+    await $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData).then(async (response: AxiosResponse<any>) => {
         parameter.data = response.data.result.data
         parameter.metadata = response.data.result.metadata
-        formatParameterAfterDataDependencyCheck(parameter)
+        await formatParameterAfterDataDependencyCheck(parameter, loadedParameters, loading, document, sessionRole, $http, mode, resetValue, userDateFormat)
     })
     loading = false
 }
@@ -54,7 +56,7 @@ export function resetParameterValueToEmptyValues(parameter: any) {
     }
 }
 
-export function formatParameterAfterDataDependencyCheck(parameter: any) {
+export async function formatParameterAfterDataDependencyCheck(parameter: any, loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, loading: boolean, document: any, sessionRole: string | null, $http: any, mode: string, resetValue: boolean, userDateFormat: string) {
     if (!checkIfParameterDataContainsNewValue(parameter)) {
         parameter.parameterValue = parameter.multivalue ? [] : [{ value: '', description: '' }]
     }
@@ -79,6 +81,11 @@ export function formatParameterAfterDataDependencyCheck(parameter: any) {
     }
 
     addDefaultValueForSelectionTypeParameters(parameter)
+    if (parameter.data.length === 1) {
+        updateVisualDependency(parameter)
+        await updateDataDependency(loadedParameters, parameter, loading, document, sessionRole, $http, mode, resetValue, userDateFormat)
+        await updateLovDependency(loadedParameters, parameter, loading, document, sessionRole, $http, mode, resetValue, userDateFormat)
+    }
 }
 
 export function formatParameterDataOptions(parameter: iParameter, data: any) {
