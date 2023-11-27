@@ -108,17 +108,28 @@ const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHig
 
         if (property in currentModelToRender) {
             if (i === properties.length - 1) {
-                currentModelToRender[property] = propertySettings.propertyValue;
+                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue);
             } else {
                 currentModelToRender = currentModelToRender[property];
             }
         } else {
             if (i === properties.length - 1) {
-                currentModelToRender[property] = propertySettings.propertyValue;
+                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue);
             } else {
                 currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {};
                 currentModelToRender = currentModelToRender[property];
             }
         }
+    }
+}
+
+const getFormattedPropertyValue = (propertyValue: string) => {
+    switch (propertyValue.trim()) {
+        case 'true':
+            return true;
+        case 'false':
+            return false;
+        default:
+            return propertyValue
     }
 }

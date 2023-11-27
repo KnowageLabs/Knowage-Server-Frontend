@@ -4,10 +4,6 @@
             {
                 "title": "dashboard.widgetEditor.configuration",
                 "type": "CustomDashboardHeaderConfiguration"
-            },
-            {
-                "title": "dashboard.widgetEditor.export.title",
-                "type": "Export"
             }
         ],
         "Editor": [
