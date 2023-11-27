@@ -20,6 +20,7 @@
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
                 <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
+                <CustomDashboardHeaderConfiguration v-else-if="accordion.type === 'CustomDashboardHeaderConfiguration'" :widget-model="widgetModel"></CustomDashboardHeaderConfiguration>
             </AccordionTab>
         </Accordion>
     </div>
@@ -28,6 +29,8 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/Dashboard/Dashboard'
+import { mapState } from 'pinia'
+import mainStore from '@/App.store'
 import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import descriptor from './HTMLWidgetSettingsDescriptor.json'
@@ -48,6 +51,7 @@ import HTMLWidgetSettingsAccordionHeader from './HTMLWidgetSettingsAccordionHead
 import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import CustomDashboardHeaderConfiguration from './configuration/CustomDashboardHeaderConfiguration.vue'
 
 export default defineComponent({
     name: 'html-widget-settings-container',
@@ -69,7 +73,8 @@ export default defineComponent({
         HTMLWidgetSettingsAccordionHeader,
         WidgetInteractionsIframe,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        CustomDashboardHeaderConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -90,8 +95,11 @@ export default defineComponent({
         }
     },
     computed: {
+        ...mapState(mainStore, {
+            isEnterprise: 'isEnterprise'
+        }),
         showThemePicker() {
-            return this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         }
     },
     watch: {

@@ -49,6 +49,11 @@ export default defineComponent({
             code: ''
         }
     },
+    computed: {
+        isCustomHeader() {
+            return this.model.settings?.isCustomDashboardHeader
+        }
+    },
     watch: {
         widgetModel() {
             this.loadModel()
@@ -119,8 +124,10 @@ export default defineComponent({
                 {
                     label: this.$t('dashboard.widgetEditor.editorTags.calculator'),
                     command: () => this.openTagsDialog('calculator')
-                },
-                {
+                }
+            )
+            if (!this.isCustomHeader)
+                this.toolbarMenuItems.push({
                     label: this.$t('dashboard.widgetEditor.interactions.title'),
                     items: [
                         {
@@ -140,16 +147,16 @@ export default defineComponent({
                             command: () => this.openTagsDialog('iframe')
                         }
                     ]
-                },
-                {
-                    label: this.$t('dashboard.widgetEditor.editorTags.conditional'),
-                    command: () => this.openTagsDialog('conditional')
-                },
-                {
+                })
+            this.toolbarMenuItems.push({
+                label: this.$t('dashboard.widgetEditor.editorTags.conditional'),
+                command: () => this.openTagsDialog('conditional')
+            })
+            if (!this.isCustomHeader)
+                this.toolbarMenuItems.push({
                     label: this.$t('dashboard.widgetEditor.editorTags.activesel'),
                     command: () => this.openTagsDialog('activesel')
-                }
-            )
+                })
         },
         openTagsDialog(mode: string) {
             this.tagsDialogMode = mode

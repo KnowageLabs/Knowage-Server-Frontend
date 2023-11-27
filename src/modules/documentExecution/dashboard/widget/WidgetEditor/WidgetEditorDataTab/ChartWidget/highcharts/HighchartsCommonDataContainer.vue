@@ -1,7 +1,7 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
         <WidgetEditorColumnTable
-            v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline', 'pictorial'].includes(chartType)"
+            v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline', 'pictorial', 'funnel'].includes(chartType)"
             class="p-m-2 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
@@ -87,6 +87,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.splineChartColumnTableSettings[0] }
                 case 'pictorial':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
+                case 'funnel':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }
@@ -122,6 +124,8 @@ export default defineComponent({
                 case 'spline':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.splineChartColumnTableSettings[1] }
                 case 'pictorial':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
+                case 'funnel':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
@@ -226,6 +230,7 @@ export default defineComponent({
                     case 'scatter':
                     case 'spline':
                     case 'pictorial':
+                    case 'funnel':
                         invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
                         break
                     case 'sunburst':
@@ -262,6 +267,7 @@ export default defineComponent({
                     case 'sunburst':
                     case 'treemap':
                     case 'pictorial':
+                    case 'funnel':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     case 'pie':

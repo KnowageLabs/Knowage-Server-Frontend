@@ -24,6 +24,7 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'spline':
         case 'pictorial':
         case 'sankey':
+        case 'funnel':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }

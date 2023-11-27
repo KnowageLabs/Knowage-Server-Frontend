@@ -5,6 +5,10 @@ import deepcopy from 'deepcopy'
 import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
 import { emitter } from '../dashboard/DashboardHelpers'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
+import store from '@/App.store.js'
+import { clearIndexedDBCache } from '../dashboard/DashboardDataProxy'
+
+const mainStore = store()
 
 export function createToolbarMenuItems(document: any, functions: any, exporters: iExporter[] | null, user: any, isOrganizerEnabled: boolean, mode: string | null, $t: any, newDashboardMode: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) {
     const toolbarMenuItems = [] as any[]
@@ -14,11 +18,11 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
             label: $t('common.settings'),
             items: [
                 { icon: 'pi pi-cog', label: $t('common.general'), command: () => functions.openDashboardGeneralSettings('General') },
-                { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') },
-                { icon: 'fas fa-paint-roller', label: $t('common.themes'), command: () => functions.openDashboardGeneralSettings('Themes') },
-                { icon: 'fas fa-recycle', label: $t('documentExecution.main.clearCache') }
+                { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') }
             ]
         })
+        if (mainStore.isEnterprise) toolbarMenuItems[0].items.push({ icon: 'fas fa-paint-roller', label: $t('common.themes'), command: () => functions.openDashboardGeneralSettings('Themes') })
+        toolbarMenuItems[0].items.push({ icon: 'fas fa-recycle', label: $t('documentExecution.main.clearCache'), command: () => clearIndexedDBCache() })
     }
 
     if (!newDashboardMode) {

@@ -16,12 +16,21 @@
             <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :dashboard-model-prop="dashboardModel" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
             <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
+            <WidgetEditor
+                v-if="selectedOption === 'Custom Header' && customHeaderWidgetEditorVisible && customHeaderWidget"
+                :dashboard-id="dashboardId"
+                :datasets="datasets"
+                :variables="variables"
+                :prop-widget="customHeaderWidget"
+                @widgetSaved="onCustomHeaderSaved"
+                @close="onCustomHeaderCancel"
+            ></WidgetEditor>
         </div>
     </div>
 </template>
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IVariable, IDataset } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IDataset, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
 import DashboardGeneralSettingsList from './DashboardGeneralSettingsList.vue'
 import DashboardInformation from './information/DashboardInformation.vue'
@@ -35,10 +44,12 @@ import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
 import { setVariableValueFromDataset } from './VariablesHelper'
 import { applySelectedThemeToWidgets } from './themes/ThemesHelper'
+import WidgetEditor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditor.vue'
+import { createCustomHeaderWidget } from './DashboardGeneralSettingsHelper'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
@@ -52,7 +63,9 @@ export default defineComponent({
             dashboardModel: null as any,
             variables: [] as IVariable[],
             selectedDatasets: [] as IDataset[],
-            selectedDatasetColumnsMap: {}
+            selectedDatasetColumnsMap: {},
+            customHeaderWidget: null as IWidget | null,
+            customHeaderWidgetEditorVisible: false
         }
     },
     computed: {},
@@ -69,6 +82,7 @@ export default defineComponent({
         ...mapActions(mainStore, ['getUser']),
         loadDashboardModel() {
             this.dashboardModel = this.getDashboard(this.dashboardId)
+            this.customHeaderWidget = deepcopy(this.dashboardModel.configuration.customHeader)
         },
         loadVariables() {
             if (this.dashboardModel && this.dashboardModel.configuration) this.variables = deepcopy(this.dashboardModel.configuration.variables)
@@ -102,6 +116,10 @@ export default defineComponent({
             }
         },
         setSelectedOption(option: string) {
+            if (option === 'Custom Header') {
+                if (!this.customHeaderWidget) this.customHeaderWidget = createCustomHeaderWidget()
+                this.customHeaderWidgetEditorVisible = true
+            }
             this.selectedOption = option
         },
 
@@ -114,6 +132,13 @@ export default defineComponent({
             if (this.dashboardModel.configuration.theme) applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
 
             this.$emit('closeGeneralSettings')
+        },
+        onCustomHeaderSaved(customHeader: IWidget) {
+            this.dashboardModel.configuration.customHeader = deepcopy(customHeader)
+            this.customHeaderWidgetEditorVisible = false
+        },
+        onCustomHeaderCancel() {
+            this.customHeaderWidgetEditorVisible = false
         }
     }
 })

@@ -18,7 +18,8 @@ export interface IHTMLWidgetEditor {
 }
 
 export interface IHTMLWidgetConfiguration {
-    exports: IWidgetExports
+    exports: IWidgetExports,
+    customDashboardHeaderConfiguration?: ICustomDashboardHeaderConfiguration
 }
 
 export interface IHTMLWidgetStyle {
@@ -30,3 +31,6 @@ export interface IHTMLWidgetStyle {
     background: IWidgetBackgroundStyle
 }
 
+export interface ICustomDashboardHeaderConfiguration {
+    height: string
+}

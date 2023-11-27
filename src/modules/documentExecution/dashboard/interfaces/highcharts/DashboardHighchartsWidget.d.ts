@@ -12,7 +12,8 @@ export interface IHighchartsWidgetSettings {
     interactions: IWidgetInteractions,
     chart: IHighchartsChartSettings,
     style: IHighchartsWidgetStyle,
-    responsive: IWidgetResponsive
+    responsive: IWidgetResponsive,
+    advancedSettings?: IHighchartsAdvancedPropertySettings[]
 }
 
 export interface IDrillOrderItem {
@@ -246,4 +247,9 @@ export interface IHighchartsChartSettings {
 
 export interface IHighchartsDrilldown {
     enabled: boolean
+}
+
+export interface IHighchartsAdvancedPropertySettings {
+    propertyPath: string;
+    propertyValue: string
 }

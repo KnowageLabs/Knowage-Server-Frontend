@@ -1,26 +1,15 @@
 <template>
     <div class="dashboardEditor">
         <Toolbar class="kn-toolbar kn-toolbar--primary">
-            <template #start> {{ widget.type }} Widget Editor</template>
+            <!-- <template #start> {{ widget.type }} Widget Editor</template> -->
+            <template #start> {{ widgetTitle }} Widget Editor</template>
             <template #end>
                 <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="widgetIsInvalid" @click="save" />
                 <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="close" />
             </template>
         </Toolbar>
         <div class="datasetEditor-container kn-overflow">
-            <WidgetEditorTabs
-                class="dashboardEditor-tabs"
-                :prop-widget="widget"
-                :datasets="datasets"
-                :selected-datasets="selectedDatasets"
-                :variables="variables"
-                :dashboard-id="dashboardId"
-                :selected-setting-prop="selectedSetting"
-                :html-gallery-prop="htmlGalleryProp"
-                :python-gallery-prop="pythonGalleryProp"
-                :custom-chart-gallery-prop="customChartGalleryProp"
-                @settingChanged="onSettingChanged"
-            />
+            <WidgetEditorTabs class="dashboardEditor-tabs" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :selected-setting-prop="selectedSetting" @settingChanged="onSettingChanged" />
 
             <div v-if="selectedSetting != 'Gallery'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px">
                 <Button icon="fas fa-magnifying-glass" class="p-button-rounded p-button-text p-button-plain expand-button" @click="togglePreview" />
@@ -36,7 +25,7 @@
  * ! this component will be in charge of managing the widget editing.
  */
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IDashboardDataset, IVariable, IGalleryItem } from '../../Dashboard'
+import { IWidget, IDataset, IDashboardDataset, IVariable } from '../../Dashboard'
 import { createNewWidget, recreateKnowageChartModel } from './helpers/WidgetEditorHelpers'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import WidgetEditorPreview from './WidgetEditorPreview.vue'
@@ -53,10 +42,7 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
-        variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true }
+        variables: { type: Array as PropType<IVariable[]>, required: true }
     },
     emits: ['close', 'widgetUpdated', 'widgetSaved'],
     setup() {
@@ -77,6 +63,9 @@ export default defineComponent({
         }
     },
     computed: {
+        widgetTitle() {
+            return this.widget.settings?.isCustomDashboardHeader ? this.$t('dashboard.generalSettings.customHeader') : this.widget.type
+        },
         widgetIsInvalid() {
             let invalid = false
             if (!this.widget.invalid) return invalid
@@ -138,6 +127,10 @@ export default defineComponent({
         save() {
             const tempWidget = deepcopy(this.widget)
             if (!tempWidget) return
+            if (tempWidget.settings.isCustomDashboardHeader) {
+                this.$emit('widgetSaved', tempWidget)
+                return
+            }
 
             if (tempWidget.new) {
                 delete tempWidget.new

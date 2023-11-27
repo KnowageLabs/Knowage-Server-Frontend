@@ -1,9 +1,11 @@
 import { AxiosResponse } from 'axios'
-import { IDashboardDataset, IWidget, ISelection } from '../../Dashboard'
-import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
+import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
+import { md5 } from 'js-md5'
+import { indexedDB } from '@/idb'
 
-export const getSelectorWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
@@ -14,19 +16,29 @@ export const getSelectorWidgetData = async (dashboardId: any, widget: IWidget, d
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        await $http
-            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
-            .then((response: AxiosResponse<any>) => {
-                tempResponse = response.data
-                tempResponse.initialCall = initialCall
-            })
-            .catch((error: any) => {
-                showGetDataError(error, selectedDataset.dsLabel)
-            })
-            .finally(() => {
-                // TODO - uncomment when realtime dataset example is ready
-                // resetDatasetInterval(widget)
-            })
+
+        const dataHash = md5(JSON.stringify(postData))
+        const cachedData = await indexedDB.widgetData.get(dataHash)
+
+        if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+            tempResponse = cachedData.data
+            tempResponse.initialCall = initialCall
+        } else {
+            await $http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                .then((response: AxiosResponse<any>) => {
+                    tempResponse = response.data
+                    tempResponse.initialCall = initialCall
+                })
+                .catch((error: any) => {
+                    showGetDataError(error, selectedDataset.dsLabel)
+                })
+                .finally(() => {
+                    // TODO - uncomment when realtime dataset example is ready
+                    // resetDatasetInterval(widget)
+                    if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, tempResponse)
+                })
+        }
         return tempResponse
     }
 }

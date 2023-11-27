@@ -37,6 +37,8 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
+import { mapState } from 'pinia'
+import mainStore from '@/App.store'
 import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import descriptor from './PivotTableSettingsDescriptor.json'
@@ -109,8 +111,11 @@ export default defineComponent({
         }
     },
     computed: {
+        ...mapState(mainStore, {
+            isEnterprise: 'isEnterprise'
+        }),
         showThemePicker() {
-            return this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         }
     },
     watch: {

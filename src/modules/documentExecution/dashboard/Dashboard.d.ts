@@ -39,6 +39,7 @@ export interface IDashboardConfiguration {
     theme: any
     background: IBackground
     menuWidgets: IMenuAndWidgets
+    customHeader?: IWidget | null
 }
 
 export interface IDatasetParameter {
@@ -621,6 +622,8 @@ interface IMenuAndWidgets {
     showScreenshot: boolean
     showSelectionButton: boolean
     enableChartChange: boolean
+    enableCaching: boolean
+    enableCustomHeader: boolean
 }
 
 interface IAssociationField {

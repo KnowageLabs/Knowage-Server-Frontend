@@ -55,7 +55,7 @@ export const createNewWidgetColumn = (eventData: any, widgetType: string) => {
     return tempColumn
 }
 
-const createNewWidgetSettings = (widget: IWidget) => {
+export const createNewWidgetSettings = (widget: IWidget) => {
     switch (widget.type) {
         case 'table':
             widget.settings = createNewTableWidgetSettings()

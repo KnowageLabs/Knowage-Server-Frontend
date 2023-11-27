@@ -8,7 +8,7 @@
                     <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></PythonWidgetSettingsAccordionHeader>
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <HTMLWidgetGallery v-if="accordion.type === 'Gallery'" :widget-model="widgetModel"></HTMLWidgetGallery>
+                <HTMLWidgetGallery v-if="accordion.type === 'Gallery'" :widget-model="widgetModel" :html-gallery-prop="[]"></HTMLWidgetGallery>
                 <PythonWidgetEditor v-else-if="accordion.type === 'Python'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
                 <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
@@ -28,6 +28,8 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDataset, IWidget } from '../../../../Dashboard'
+import { mapState } from 'pinia'
+import mainStore from '@/App.store'
 import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import descriptor from './PythonWidgetSettingsDescriptor.json'
@@ -89,8 +91,11 @@ export default defineComponent({
         }
     },
     computed: {
+        ...mapState(mainStore, {
+            isEnterprise: 'isEnterprise'
+        }),
         showThemePicker() {
-            return this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         }
     },
     watch: {

@@ -7,7 +7,22 @@
             style="position: fixed; right: 0; z-index: 999; background-color: white; box-shadow: 0px 2px 3px #ccc"
             @click="selectionsDialogVisible = true"
         />
-        <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
+
+        <div class="dashboard-renderer-container">
+            <DashboardHeaderWidget
+                v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible && model.configuration.menuWidgets.enableCustomHeader"
+                :dashboard-id="dashboardId"
+                :prop-widget="model?.configuration?.customHeader"
+                :datasets="model.configuration.datasets"
+                :document-drivers="drivers"
+                :variables="model ? model.configuration.variables : []"
+                :custom-chart-gallery-prop="customChartGallery"
+            ></DashboardHeaderWidget>
+
+            <div class="dashboard-renderer-core">
+                <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
+            </div>
+        </div>
 
         <Transition name="editorEnter" appear>
             <DatasetEditor
@@ -16,9 +31,9 @@
                 :available-datasets-prop="datasets"
                 :filters-data-prop="filtersData"
                 :datasets-loaded="datasetsLoaded"
-                @closeDatasetEditor="closeDatasetEditor"
-                @datasetEditorSaved="closeDatasetEditor"
-                @allDatasetsLoaded="onAllDatasetsLoaded"
+                @close-dataset-editor="closeDatasetEditor"
+                @dataset-editor-saved="closeDatasetEditor"
+                @all-datasets-loaded="onAllDatasetsLoaded"
             />
         </Transition>
 
@@ -30,12 +45,12 @@
                 :document-drivers="drivers"
                 :profile-attributes="profileAttributes"
                 :general-settings-mode="generalSettingsMode"
-                @closeGeneralSettings="closeGeneralSettings"
-                @saveGeneralSettings="generalSettingsVisible = false"
+                @close-general-settings="closeGeneralSettings"
+                @save-general-settings="generalSettingsVisible = false"
             ></DashboardGeneralSettings>
         </Transition>
 
-        <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @openNewWidgetEditor="openNewWidgetEditor" @closeWidgetPicker="onWidgetPickerClosed" />
+        <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @open-new-widget-editor="openNewWidgetEditor" @close-widget-picker="onWidgetPickerClosed" />
         <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDashboard" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
         <SelectionsListDialog v-if="selectionsDialogVisible" :visible="selectionsDialogVisible" :dashboard-id="dashboardId" @close="selectionsDialogVisible = false" @save="onSelectionsRemove" />
     </div>
@@ -47,17 +62,15 @@
         :datasets="datasets"
         :document-drivers="drivers"
         :variables="model ? model.configuration.variables : []"
-        :html-gallery-prop="htmlGallery"
-        :python-gallery-prop="pythonGallery"
         :custom-chart-gallery-prop="customChartGallery"
         data-test="widget-editor"
         @close="closeWidgetEditor"
-        @widgetSaved="closeWidgetEditor"
-        @widgetUpdated="closeWidgetEditor"
+        @widget-saved="closeWidgetEditor"
+        @widget-updated="closeWidgetEditor"
     ></WidgetEditor>
 
     <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" :document="document" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
-    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
+    <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @move-view="moveView" @execute-view="executeView"></DashboardSavedViewsDialog>
 </template>
 
 <script lang="ts">
@@ -88,6 +101,7 @@ import deepcopy from 'deepcopy'
 import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
+import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -100,7 +114,8 @@ export default defineComponent({
         SelectionsListDialog,
         DashboardGeneralSettings,
         DashboardSaveViewDialog,
-        DashboardSavedViewsDialog
+        DashboardSavedViewsDialog,
+        DashboardHeaderWidget
     },
     props: {
         visible: { type: Boolean },
@@ -125,6 +140,7 @@ export default defineComponent({
     },
     data() {
         return {
+            customHeaderVisible: true,
             descriptor,
             model: null as any,
             widgetPickerVisible: false,
@@ -141,10 +157,16 @@ export default defineComponent({
             selectionsDialogVisible: false,
             generalSettingsVisible: false,
             loading: false,
-            htmlGallery: [] as IGalleryItem[],
-            pythonGallery: [] as IGalleryItem[],
             customChartGallery: [] as IGalleryItem[],
-            currentView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
+            currentView: {
+                label: '',
+                name: '',
+                description: '',
+                drivers: {},
+                settings: { states: {} },
+                visibility: 'public',
+                new: true
+            } as IDashboardView,
             selectedView: null as IDashboardView | null,
             saveViewDialogVisible: false,
             savedViewsListDialogVisible: false,
@@ -152,12 +174,19 @@ export default defineComponent({
             generalSettingsMode: 'General' as string,
             datasetsLoaded: false,
             dashboardThemes: [] as IDashboardTheme[],
-            initialDataLoadedMap: { profileAttributesLoaded: false, dashboardThemesLoaded: false, internationalizationLoaded: false, htmlGalleryLoaded: false, pythonGallerLoaded: false, customChartGalleryLoaded: false }
+            initialDataLoadedMap: {
+                profileAttributesLoaded: false,
+                dashboardThemesLoaded: false,
+                dashboardModelLoaded: false,
+                internationalizationLoaded: false,
+                crossNavigationsLoaded: false
+            }
         }
     },
     computed: {
         ...mapState(mainStore, {
-            user: 'user'
+            user: 'user',
+            isEnterprise: 'isEnterprise'
         }),
         showDashboard() {
             return ['dashboard', 'dashboard-popup'].includes('' + this.mode)
@@ -165,6 +194,11 @@ export default defineComponent({
         alwaysShowSelectionButton() {
             if (!this.model?.configuration?.menuWidgets?.showSelectionButton) return false
             else return this.model.configuration.menuWidgets.showSelectionButton
+        },
+        customHeaderHeight() {
+            const height = this.model?.configuration?.customHeader.settings.configuration.customDashboardHeaderConfiguration.height
+            if (height) return height
+            else return 0
         }
     },
     watch: {
@@ -197,7 +231,22 @@ export default defineComponent({
         clearAllDatasetIntervals()
     },
     methods: {
-        ...mapActions(dashboardStore, ['getDashboardDrivers', 'removeSelections', 'setAllDatasets', 'getSelections', 'setInternationalization', 'getInternationalization', 'setDashboardDocument', 'setDashboardDrivers', 'setProfileAttributes', 'getCrossNavigations', 'setCurrentDashboardView']),
+        ...mapActions(dashboardStore, [
+            'getDashboardDrivers',
+            'removeSelections',
+            'setAllDatasets',
+            'getSelections',
+            'setInternationalization',
+            'getInternationalization',
+            'setDashboardDocument',
+            'setDashboardDrivers',
+            'setProfileAttributes',
+            'getCrossNavigations',
+            'setCurrentDashboardView',
+            'setHTMLGaleryItems',
+            'setPythonGaleryItems',
+            'setCustomChartGaleryItems'
+        ]),
         setEventListeners() {
             emitter.on('openNewWidgetPicker', this.openNewWidgetPicker)
             emitter.on('openDatasetManagement', this.openDatasetManagementDialog)
@@ -229,13 +278,10 @@ export default defineComponent({
                 this.currentView.drivers = this.filtersData
             }
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
-            if (!this.initialDataLoadedMap.dashboardThemesLoaded) this.loadDashboardThemes()
+            if (!this.initialDataLoadedMap.dashboardThemesLoaded && this.isEnterprise) this.loadDashboardThemes()
             await this.loadModel()
             if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
-            if (!this.initialDataLoadedMap.htmlGalleryLoaded) this.loadHtmlGallery()
-            if (!this.initialDataLoadedMap.pythonGallerLoaded) this.loadPythonGallery()
-            if (!this.initialDataLoadedMap.customChartGalleryLoaded) this.loadCustomChartGallery()
             this.loadOutputParameters()
             await this.loadCrossNavigations()
             this.setCurrentDashboardView(this.dashboardId, this.currentView)
@@ -291,27 +337,6 @@ export default defineComponent({
                 .catch(() => {})
             this.appStore.setLoading(false)
             this.store.setCrossNavigations(this.dashboardId, this.crossNavigations)
-        },
-        async loadHtmlGallery() {
-            this.initialDataLoadedMap.htmlGalleryLoaded = true
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
-                .then((response: AxiosResponse<any>) => (this.htmlGallery = response.data))
-                .catch(() => {})
-        },
-        async loadPythonGallery() {
-            this.initialDataLoadedMap.pythonGallerLoaded = true
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
-                .then((response: AxiosResponse<any>) => (this.pythonGallery = response.data))
-                .catch(() => {})
-        },
-        async loadCustomChartGallery() {
-            this.initialDataLoadedMap.customChartGalleryLoaded = true
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
-                .then((response: AxiosResponse<any>) => (this.customChartGallery = response.data))
-                .catch(() => {})
         },
         loadOutputParameters() {
             if (this.newDashboardMode) return
@@ -379,6 +404,9 @@ export default defineComponent({
             this.store.setSelections(this.dashboardId, [], this.$http)
             this.setDashboardDrivers(this.dashboardId, [])
             this.setProfileAttributes([])
+            this.setHTMLGaleryItems(this.dashboardId, [])
+            this.setPythonGaleryItems(this.dashboardId, [])
+            this.setCustomChartGaleryItems(this.dashboardId, [])
         },
         closeWidgetEditor() {
             this.widgetEditorVisible = false
@@ -447,11 +475,15 @@ export default defineComponent({
             if (event.dashboardId !== this.dashboardId) return
             this.generalSettingsVisible = true
             this.generalSettingsMode = event.mode ?? 'General'
+
+            this.customHeaderVisible = false
         },
         closeGeneralSettings() {
             this.generalSettingsVisible = false
             this.generalSettingsMode = 'General'
             emitter.emit('dashboardGeneralSettingsClosed')
+
+            this.customHeaderVisible = true
         },
         executeCrossNavigation(payload: any) {
             const crossNavigations = this.getCrossNavigations(this.dashboardId)
@@ -500,10 +532,25 @@ export default defineComponent({
 <style lang="scss">
 .dashboard-container {
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 @media screen and (max-width: 600px) {
     .dashboard-container {
         height: calc(100vh - var(--kn-mainmenu-width));
+    }
+}
+
+.dashboard-renderer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex: 1 1 auto;
+    .dashboard-renderer-header {
+        width: 100%;
+    }
+    .dashboard-renderer-core {
+        flex: 1 1 auto;
     }
 }
 

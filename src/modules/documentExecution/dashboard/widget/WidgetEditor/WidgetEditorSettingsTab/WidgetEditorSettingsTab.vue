@@ -38,7 +38,7 @@
             :selected-datasets="selectedDatasets"
             :variables="variables"
             :dashboard-id="dashboardId"
-            :html-gallery-prop="htmlGalleryProp"
+            :prop-gallery-items="galleryItems"
             @galleryItemSelected="onGalleryItemSelected"
         ></HTMLWidgetSettingsContainer>
         <TextWidgetSettingsContainer
@@ -95,7 +95,7 @@
             :selected-datasets="selectedDatasets"
             :variables="variables"
             :dashboard-id="dashboardId"
-            :custom-chart-gallery-prop="customChartGalleryProp"
+            :custom-chart-gallery-prop="customChartGallery"
             @galleryItemSelected="onGalleryItemSelected"
         ></CustomChartWidgetSettingsContainer>
         <PivotTableWidgetSettingsContainer
@@ -157,7 +157,7 @@
             :datasets="datasets"
             :selected-datasets="selectedDatasets"
             :dashboard-id="dashboardId"
-            :python-gallery-prop="pythonGalleryProp"
+            :prop-gallery-items="galleryItems"
             @galleryItemSelected="onGalleryItemSelected"
         ></PythonWidgetSettingsContainer>
         <RWidgetSettingsContainer v-else-if="propWidget.type === 'r'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></RWidgetSettingsContainer>
@@ -189,6 +189,7 @@ import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescripto
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
 import WidgetEditorSettingsList from './WidgetEditorSettingsList.vue'
 import htmlDescriptor from './HTMLWidget/HTMLWidgetSettingsDescriptor.json'
+import customDashboardHeaderDescriptor from './HTMLWidget/CustomDashboardHeaderDescriptor.json'
 import textDescriptor from './TextWidget/TextWidgetSettingsDescriptor.json'
 import chartJSDescriptor from './ChartWidget/chartJS/ChartJSWidgetSettingsDescriptor.json'
 import HighchartsPieSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPieSettingsDescriptor.json'
@@ -207,6 +208,7 @@ import HighchartsChordSettingsDescriptor from './ChartWidget/highcharts/descript
 import HighchartsParallelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsParallelSettingsDescriptor.json'
 import HighchartsPictorialSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPictorialSettingsDescriptor.json'
 import HighchartsSankeySettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSankeySettingsDescriptor.json'
+import HighchartsFunnelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsFunnelSettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -216,8 +218,9 @@ import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
 import vegaChartsDescriptor from './ChartWidget/vega/VegaChartsSettingsDescriptor.json'
 import pythonWidgetDescriptor from './PythonWidget/PythonWidgetSettingsDescriptor.json'
 import rWidgetDescriptor from './RWidget/RWidgetSettingsDescriptor.json'
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 export default defineComponent({
     name: 'widget-editor-settings-tab',
@@ -245,9 +248,6 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
         dashboardId: { type: String, required: true },
         layers: { type: Array as PropType<ILayer[]>, required: true }
     },
@@ -256,7 +256,9 @@ export default defineComponent({
         return {
             descriptor: null as any,
             selectedDescriptor: {},
-            selectedSetting: ''
+            selectedSetting: '',
+            galleryItems: [] as IGalleryItem[],
+            customChartGallery: [] as IGalleryItem[]
         }
     },
     computed: {
@@ -272,10 +274,13 @@ export default defineComponent({
             this.loadDescriptor()
         }
     },
-    created() {
+    async created() {
+        if (['html', 'python'].includes(this.propWidget?.type)) await this.loadGallery()
+        if (this.propWidget?.type === 'customchart') this.customChartGallery = await this.getCustomChartGaleryItems(this.dashboardId, this.$http)
         this.loadDescriptor()
     },
     methods: {
+        ...mapActions(dashboardStore, ['getHTMLGaleryItems', 'getPythonGaleryItems', 'getCustomChartGaleryItems']),
         loadDescriptor() {
             switch (this.propWidget.type) {
                 case 'table':
@@ -288,7 +293,7 @@ export default defineComponent({
                     this.descriptor = selectionsDescriptor
                     break
                 case 'html':
-                    this.descriptor = { ...htmlDescriptor }
+                    this.descriptor = this.propWidget.settings.isCustomDashboardHeader ? { ...customDashboardHeaderDescriptor } : { ...htmlDescriptor }
                     this.checkIfHtmlWidgetGalleryOptionIsDisabled()
                     break
                 case 'text':
@@ -364,6 +369,8 @@ export default defineComponent({
                     return HighchartsPictorialSettingsDescriptor
                 case 'sankey':
                     return HighchartsSankeySettingsDescriptor
+                case 'funnel':
+                    return HighchartsFunnelSettingsDescriptor
             }
         },
         onItemClicked(item: any) {
@@ -371,10 +378,12 @@ export default defineComponent({
             this.$emit('settingChanged', item.value)
             this.selectedDescriptor = { table: item.descriptor }
         },
+        async loadGallery() {
+            this.galleryItems = this.propWidget.type === 'html' ? await this.getHTMLGaleryItems(this.dashboardId, this.$http) : await this.getPythonGaleryItems(this.dashboardId, this.$http)
+        },
         checkIfHtmlWidgetGalleryOptionIsDisabled() {
-            if (this.htmlGalleryProp.length > 0) return
             const index = this.descriptor.settingsListOptions.findIndex((option: any) => option.value === 'Gallery')
-            if (index !== -1) this.descriptor.settingsListOptions[index].disabled = true
+            if (index !== -1) this.descriptor.settingsListOptions[index].disabled = this.galleryItems.length === 0
         },
         onGalleryItemSelected() {
             this.selectedSetting = 'Editor'

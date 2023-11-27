@@ -12,7 +12,7 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import { AxiosResponse } from 'axios'
 import { setDatasetInterval, clearDatasetInterval } from './helpers/datasetRefresh/DatasetRefreshHelpers'
 import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './helpers/common/DashboardRegexHelper'
-import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch } from './Dashboard'
+import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch, IDashboardConfiguration } from './Dashboard'
 import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
 import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
@@ -24,6 +24,7 @@ import { getChartJSWidgetData } from './widget/ChartWidget/ChartJS/ChartJSDataPr
 import { getCePivotData } from './widget/cePivotWidget/cePivotWidgetDataProxy'
 import { getPythonData } from './widget/PythonWidget/PythonWidgetDataProxy'
 import { getRData } from './widget/RWidget/RWidgetDataProxy'
+import { indexedDB } from '@/idb'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -36,34 +37,34 @@ export const getData = (item) =>
         }, 1000)
     })
 
-export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any) => {
+export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, dashboardConfig: IDashboardConfiguration, associativeResponseSelections?: any) => {
     switch (widget.type) {
         case 'table':
-            return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections)
+            return await getTableWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections)
         case 'selector':
-            return await getSelectorWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getSelectorWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'html':
-            return await getWebComponentWidgetData('html', dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getWebComponentWidgetData('html', dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'text':
-            return await getWebComponentWidgetData('text', dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getWebComponentWidgetData('text', dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'highcharts':
-            return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getHighchartsWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'chartJS':
-            return await getChartJSWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getChartJSWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'customchart':
-            return await getTableWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getTableWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'static-pivot-table':
-            return await getPivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getPivotData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'ce-pivot-table':
-            return await getCePivotData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getCePivotData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'discovery':
-            return await getDiscoveryWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getDiscoveryWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'vega':
-            return await getHighchartsWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getHighchartsWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'python':
-            return await getPythonData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getPythonData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'r':
-            return await getRData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getRData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
@@ -222,4 +223,19 @@ export const hasFields = (propWidget: IWidget) => {
 
     if (fields.columns.length > 0 && fields.rows.length > 0 && fields.data.length > 0) return true
     else return false
+}
+
+export const addDataToCache = async (dataHash, tempResponse) => {
+    try {
+        const newDbData = { id: dataHash, data: tempResponse }
+        await indexedDB.widgetData.add({ ...newDbData })
+    } catch (error) {
+        console.group('%c Failed to create IndexDB item.', 'color: red; background-color: #61dbfb')
+        console.error(error)
+        console.groupEnd()
+    }
+}
+
+export const clearIndexedDBCache = () => {
+    indexedDB.widgetData.clear()
 }

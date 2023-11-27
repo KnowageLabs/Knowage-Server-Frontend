@@ -4,7 +4,7 @@
             <InputText v-model="searchWord" class="kn-material-input p-m-3 model-search" type="text" :placeholder="$t('common.search')" @input="searchItems" />
         </div>
         <div class="p-grid p-m-2 kn-flex kn-overflow dashboard-scrollbar">
-            <Message v-if="htmlGalleryProp.length == 0" class="kn-flex p-m-2" severity="info" :closable="false">
+            <Message v-if="galleryItems.length == 0" class="kn-flex p-m-2" severity="info" :closable="false">
                 {{ $t('common.info.noDataFound') }}
             </Message>
             <template v-else>
@@ -21,26 +21,32 @@ import Message from 'primevue/message'
 import GalleryCard from './HTMLWidgetGalleryCard.vue'
 
 export default defineComponent({
-    name: 'html-widget-settings-container',
+    name: 'html-widget-gallery',
     components: { Message, GalleryCard },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
-        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true }
+        dashboardId: { type: String, required: true },
+        propGalleryItems: { type: Array as PropType<IGalleryItem[]>, required: true }
     },
     emits: ['galleryItemSelected'],
     data() {
         return {
             templateEditor: {} as any,
             searchWord: '',
+            galleryItems: [] as IGalleryItem[],
             filteredGallery: [] as IGalleryItem[]
         }
     },
     watch: {},
     created() {
         this.loadWidgetEditors()
-        this.filteredGallery = [...this.htmlGalleryProp] as IGalleryItem[]
+        this.loadGallery()
     },
     methods: {
+        async loadGallery() {
+            this.galleryItems = this.propGalleryItems
+            this.filteredGallery = [...this.galleryItems] as IGalleryItem[]
+        },
         loadWidgetEditors() {
             if (!this.widgetModel) return
             this.templateEditor = this.widgetModel.settings.editor
@@ -48,9 +54,9 @@ export default defineComponent({
         searchItems() {
             setTimeout(() => {
                 if (!this.searchWord.trim().length) {
-                    this.filteredGallery = [...this.htmlGalleryProp] as IGalleryItem[]
+                    this.filteredGallery = [...this.galleryItems] as IGalleryItem[]
                 } else {
-                    this.filteredGallery = this.htmlGalleryProp.filter((el: IGalleryItem) => {
+                    this.filteredGallery = this.galleryItems.filter((el: IGalleryItem) => {
                         return el.label?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.name?.toLowerCase().includes(this.searchWord.toLowerCase()) || this.galleryHasTag(el)
                     })
                 }

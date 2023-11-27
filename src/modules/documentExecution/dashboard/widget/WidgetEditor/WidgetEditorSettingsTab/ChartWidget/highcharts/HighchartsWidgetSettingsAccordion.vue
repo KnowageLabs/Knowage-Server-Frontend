@@ -55,6 +55,8 @@
                 <HighchartsCenterTextSettings v-else-if="accordion.type === 'CenterTextSettings'" :widget-model="widgetModel"></HighchartsCenterTextSettings>
                 <HighchartsAxisLinesSettings v-else-if="accordion.type === 'AxisLinesSettings'" :widget-model="widgetModel"></HighchartsAxisLinesSettings>
                 <HighchartsSVGSettings v-else-if="accordion.type === 'SVGSettings'" :widget-model="widgetModel"></HighchartsSVGSettings>
+                <HighchartsFunnelNeckSettings v-else-if="accordion.type === 'FunnelNeckSettings'" :widget-model="widgetModel"></HighchartsFunnelNeckSettings>
+                <HighchartsAdvancedSettings v-else-if="accordion.type === 'AdvancedSettings'" :prop-widget-model="widgetModel"></HighchartsAdvancedSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -63,6 +65,8 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
+import { mapState } from 'pinia'
+import mainStore from '@/App.store'
 import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import settingsTabDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
@@ -109,6 +113,8 @@ import HighchartsAxisLinesSettings from './configuration/HighchartsAxisLinesSett
 import HighchartsSVGSettings from './configuration/HighchartsSVGSettings.vue'
 import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import HighchartsFunnelNeckSettings from '../highcharts/series/HighchartsFunnelNeckSettings.vue'
+import HighchartsAdvancedSettings from '../highcharts/advanced/HighchartsAdvancedSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -157,7 +163,9 @@ export default defineComponent({
         HighchartsAxisLinesSettings,
         HighchartsSVGSettings,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        HighchartsFunnelNeckSettings,
+        HighchartsAdvancedSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -179,12 +187,15 @@ export default defineComponent({
         }
     },
     computed: {
+        ...mapState(mainStore, {
+            isEnterprise: 'isEnterprise'
+        }),
         isStacked() {
             if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.series?.stacking) return true
             return false
         },
         showThemePicker() {
-            return this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+            return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         }
     },
     watch: {

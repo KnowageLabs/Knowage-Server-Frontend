@@ -18,7 +18,9 @@
                 "enableChartChange": true,
                 "showExcelExport": true,
                 "showScreenshot": true,
-                "showSelectionButton": true
+                "showSelectionButton": true,
+                "enableCaching": true,
+                "enableCustomHeader": false
             },
             "name": "",
             "selections": [],

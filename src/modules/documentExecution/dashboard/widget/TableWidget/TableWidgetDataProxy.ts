@@ -1,9 +1,12 @@
 import { AxiosResponse } from 'axios'
-import { IDashboardDataset, IWidget, IWidgetSearch, ISelection } from '../../Dashboard'
-import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
+import { IDashboardDataset, IWidget, IWidgetSearch, ISelection, IDashboardConfiguration } from '../../Dashboard'
+import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
+import { indexedDB } from '@/idb'
+import { md5 } from 'js-md5'
+import deepcopy from 'deepcopy'
 
-export const getTableWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any) => {
+export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex] as IDashboardDataset
 
@@ -16,26 +19,36 @@ export const getTableWidgetData = async (dashboardId: any, widget: IWidget, data
         else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatTableWidgetModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
-
         const formattedSelections = getLikeSelections(searchParams, datasetLabel)
         if (formattedSelections != null) postData.likeSelections = formattedSelections
-
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        await $http
-            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
-            .then((response: AxiosResponse<any>) => {
-                tempResponse = response.data
-                if (pagination && pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
-            })
-            .catch((error: any) => {
-                showGetDataError(error, selectedDataset.dsLabel)
-            })
-            .finally(() => {
-                // TODO - uncomment when realtime dataset example is ready
-                // resetDatasetInterval(widget)
-            })
+
+        const postDataForHash = deepcopy(postData) // making a deepcopy so we can delete options which are used for solr datasets only
+        delete postDataForHash.options
+        if (pagination.enabled) postDataForHash.pagination = deepcopy(pagination) // adding pagination in case its being used so we save data for each page
+        const dataHash = md5(JSON.stringify(postDataForHash))
+        const cachedData = await indexedDB.widgetData.get(dataHash)
+
+        if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+            return cachedData.data
+        } else {
+            await $http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                .then((response: AxiosResponse<any>) => {
+                    tempResponse = response.data
+                    if (pagination && pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
+                })
+                .catch((error: any) => {
+                    showGetDataError(error, selectedDataset.dsLabel)
+                })
+                .finally(async () => {
+                    // TODO - uncomment when realtime dataset example is ready
+                    // resetDatasetInterval(widget)
+                    if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, tempResponse)
+                })
+        }
 
         return tempResponse
     }

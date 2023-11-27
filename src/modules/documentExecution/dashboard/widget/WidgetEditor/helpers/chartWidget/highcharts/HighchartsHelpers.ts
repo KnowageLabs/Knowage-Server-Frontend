@@ -19,6 +19,7 @@ import * as highchartsDefaultValues from '../highcharts/HighchartsDefaultValues'
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 import { KnowageHighchartsPictorialChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPictorialChart'
 import { KnowageHighchartsSankeyChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsSankeyChart'
+import { KnowageHighchartsFunnelChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsFunnelChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -111,6 +112,9 @@ export const formatHighchartsWidget = (widget: IWidget) => {
         case 'sankey':
             widget.settings.chartModel = new KnowageHighchartsSankeyChart(chartModel, isInverted)
             break
+        case 'funnel':
+            widget.settings.chartModel = new KnowageHighchartsFunnelChart(chartModel)
+            break
     }
 }
 
@@ -154,6 +158,8 @@ export const createNewHighchartsModel = (widget: IWidget, chartType: string, mod
         case 'sankey':
         case 'sankeyInverted':
             return new KnowageHighchartsSankeyChart(model, isInverted)
+        case 'funnel':
+            return new KnowageHighchartsFunnelChart(model)
         default:
             return null
     }

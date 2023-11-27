@@ -1,5 +1,11 @@
 import { IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
 import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardChartJSWidget";
+import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardHighchartsWidget'
+import i18n from '@/App.i18n'
+import store from '@/App.store.js'
+
+const { t } = i18n.global
+const mainStore = store()
 
 export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions: IWidgetCrossNavigation, dataToShow: any, chartType: string) => {
     if (!chartEvent.point) return []
@@ -29,7 +35,7 @@ const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, data
 }
 
 const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) => {
-    if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline'].includes(chartType)) return chartPoint.options.y
+    if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline', 'funnel'].includes(chartType)) return chartPoint.options.y
     else if (['dependencywheel', 'pictorial', 'sankey'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
     else if (['treemap'].includes(chartType)) return chartPoint.value
     else return chartPoint.options.value
@@ -76,4 +82,54 @@ export const getFormattedDynamicOutputParameter = (formattedChartValues: IChartI
             break
     }
     return { ...outputParameter, value: value }
+}
+
+export const applyAdvancedSettingsToModelForRender = (modelToRender: any, advancedChartSettings: IHighchartsAdvancedPropertySettings[] | null) => {
+    if (!advancedChartSettings) return
+    advancedChartSettings.forEach((propertySettings: IHighchartsAdvancedPropertySettings) => {
+        if (propertySettings.propertyPath) setPropertyValueToChartModel(modelToRender, propertySettings)
+    })
+}
+
+const setPropertyValueToChartModel = (modelToRender: any, propertySettings: IHighchartsAdvancedPropertySettings) => {
+    const properties = propertySettings.propertyPath.split(/\.|\[|\]/).filter(Boolean);
+    let currentModelToRender = modelToRender
+
+    for (let i = 0; i < properties.length; i++) {
+        const property = properties[i];
+
+        if (Array.isArray(currentModelToRender) && /^\d+$/.test(property)) {
+            const index = parseInt(property, 10);
+            if (index >= currentModelToRender.length) {
+                mainStore.setError({ title: t('common.toast.errorTitle'), msg: t('dashboard.widgetEditor.highcharts.advancedSettingsErrorArrayIndexOutOfBounds', { property: properties }) })
+                break;
+            }
+        }
+
+        if (property in currentModelToRender) {
+            if (i === properties.length - 1) {
+                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue);
+            } else {
+                currentModelToRender = currentModelToRender[property];
+            }
+        } else {
+            if (i === properties.length - 1) {
+                currentModelToRender[property] = getFormattedPropertyValue(propertySettings.propertyValue);
+            } else {
+                currentModelToRender[property] = /^\d+$/.test(properties[i + 1]) ? [] : {};
+                currentModelToRender = currentModelToRender[property];
+            }
+        }
+    }
+}
+
+const getFormattedPropertyValue = (propertyValue: string) => {
+    switch (propertyValue.trim()) {
+        case 'true':
+            return true;
+        case 'false':
+            return false;
+        default:
+            return propertyValue
+    }
 }
