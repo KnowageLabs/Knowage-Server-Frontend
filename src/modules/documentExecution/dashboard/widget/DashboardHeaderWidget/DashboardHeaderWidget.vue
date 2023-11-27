@@ -1,5 +1,6 @@
 <template>
     <div id="dashboard-renderer-header" class="dashboard-renderer-header" :style="`height: ${customHeaderHeight}`">
+        <ProgressSpinner v-if="loading" class="custom-header-spinner" />
         <WebComponentContainer v-if="propWidget.type == 'html' && !loading" :prop-widget="propWidget" :widget-data="widgetData" :prop-active-selections="activeSelections" :editor-mode="true" :dashboard-id="dashboardId" :variables="variables"></WebComponentContainer>
     </div>
 </template>
@@ -69,4 +70,20 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.custom-header-spinner {
+    width: 100%;
+    height: 100%;
+    background-color: var(--kn-color-default);
+    box-shadow: 0px 0px 10px var(--kn-color-default);
+    opacity: 0.8 !important;
+    display: flex;
+    &:before {
+        padding-top: 0% !important;
+    }
+    .p-progress-spinner-svg {
+        width: 100px;
+        height: 100px;
+    }
+}
+</style>

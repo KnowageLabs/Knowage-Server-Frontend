@@ -39,7 +39,7 @@
             "value": "Themes"
         },
         {
-            "icon": "fa-solid fa-paint-roller",
+            "icon": "fa-solid fa-heading",
             "label": "dashboard.generalSettings.customHeader",
             "value": "Custom Header"
         }

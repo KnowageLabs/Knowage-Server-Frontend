@@ -38,7 +38,7 @@ export interface IDashboardConfiguration {
     selections: ISelection[]
     theme: any
     background: IBackground
-    menuWidgets: IMenuAndWidgets,
+    menuWidgets: IMenuAndWidgets
     customHeader?: IWidget | null
 }
 
@@ -623,6 +623,7 @@ interface IMenuAndWidgets {
     showSelectionButton: boolean
     enableChartChange: boolean
     enableCaching: boolean
+    enableCustomHeader: boolean
 }
 
 interface IAssociationField {

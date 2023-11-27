@@ -19,7 +19,8 @@
                 "showExcelExport": true,
                 "showScreenshot": true,
                 "showSelectionButton": true,
-                "enableCaching": true
+                "enableCaching": true,
+                "enableCustomHeader": false
             },
             "name": "",
             "selections": [],

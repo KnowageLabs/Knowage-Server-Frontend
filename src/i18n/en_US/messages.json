@@ -411,6 +411,7 @@
             "css": "CSS Editor",
             "customHeader": "Custom Header",
             "menuWidgets": {
+                "enableCustomHeader": "Enable custom header",
                 "enableCaching": "Enable dashboard caching",
                 "enableChartChange": "Enable chart changing",
                 "showExcelExport": "Show excel export functionality on widgets",

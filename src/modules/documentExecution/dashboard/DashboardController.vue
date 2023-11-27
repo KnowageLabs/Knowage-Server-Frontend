@@ -10,7 +10,7 @@
 
         <div class="dashboard-renderer-container">
             <DashboardHeaderWidget
-                v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible"
+                v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible && model.configuration.menuWidgets.enableCustomHeader"
                 :dashboard-id="dashboardId"
                 :prop-widget="model?.configuration?.customHeader"
                 :datasets="model.configuration.datasets"
