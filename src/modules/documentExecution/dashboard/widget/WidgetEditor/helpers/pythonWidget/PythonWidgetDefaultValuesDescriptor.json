@@ -1,8 +1,8 @@
 {
     "defaultEditorSettings": {
-        "environment": "html",
+        "environment": "",
         "outputName": "",
-        "outputType": "",
+        "outputType": "html",
         "script": ""
     }
 }

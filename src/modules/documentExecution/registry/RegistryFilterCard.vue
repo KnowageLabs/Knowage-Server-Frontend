@@ -14,15 +14,15 @@
             />
             <label class="kn-material-input-label"> {{ filter.title }}</label>
         </span>
-        <span v-else-if="filter.presentation === 'COMBO'" class="p-float-label">
-            <Dropdown v-model="v$.filter.filterValue.$model" class="kn-material-input" :options="options" option-value="column_1" option-label="column_1" :filter="true" @change="filterChanged" @click="loadFilterOptions">
+        <span v-else-if="filter.presentation === 'COMBO'">
+            <label class="kn-material-input-label"> {{ filter.title }}</label>
+            <Dropdown v-model="v$.filter.filterValue.$model" class="kn-material-input" :options="options" option-value="value" option-label="label" :filter="true" @change="filterChanged" @click="loadFilterOptions">
                 <template #option="slotProps">
                     <div class="flex align-items-center">
-                        <div :title="slotProps.option.column_1">{{ slotProps.option.column_1 }}</div>
+                        <div :title="slotProps.option.column_1">{{ slotProps.option.label }}</div>
                     </div>
                 </template>
             </Dropdown>
-            <label class="kn-material-input-label"> {{ filter.title }}</label>
         </span>
         <KnValidationMessages :v-comp="v$.filter.filterValue"></KnValidationMessages>
     </div>
@@ -76,9 +76,12 @@ export default defineComponent({
             const entityOrder = this.entity + subEntity + ':' + (this.filter.column.orderBy ?? this.filter.field)
 
             const postData = new URLSearchParams({ ENTITY_ID: entityId, QUERY_TYPE: 'standard', ORDER_ENTITY: entityOrder, ORDER_TYPE: 'asc', QUERY_ROOT_ENTITY: 'true' })
-            await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
-                .then((response: AxiosResponse<any>) => (this.options = response.data.rows))
+            await this.$http.post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(
+                (response: AxiosResponse<any>) =>
+                    (this.options = response.data.rows.map((row: any) => {
+                        return { value: row.column_1, label: row.column_1 === 0 ? '0' : row.column_1 }
+                    }))
+            )
         },
         filterChanged() {
             this.$emit('changed', this.filter.filterValue)
