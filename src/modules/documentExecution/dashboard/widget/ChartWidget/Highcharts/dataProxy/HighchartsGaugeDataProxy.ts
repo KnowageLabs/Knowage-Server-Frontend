@@ -24,7 +24,7 @@ export const getHighchartsGaugeData = async (dashboardId, dashboardConfig: IDash
         const dataHash = md5(JSON.stringify(postDataForHash))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 
-        if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
             tempResponse.initialCall = initialCall
         } else {
@@ -40,7 +40,7 @@ export const getHighchartsGaugeData = async (dashboardId, dashboardConfig: IDash
                 .finally(() => {
                     // TODO - uncomment when realtime dataset example is ready
                     // resetDatasetInterval(widget)
-                    if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, tempResponse)
+                    if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
                 })
         }
         return tempResponse

@@ -20,7 +20,7 @@ export const getPythonData = async (dashboardId: any, dashboardConfig: IDashboar
         const dataHash = md5(JSON.stringify(postData))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 
-        if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
             tempResponse.initialCall = initialCall
         } else {
@@ -36,7 +36,7 @@ export const getPythonData = async (dashboardId: any, dashboardConfig: IDashboar
                 .finally(() => {
                     // TODO - uncomment when realtime dataset example is ready
                     // resetDatasetInterval(widget)
-                    if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, tempResponse)
+                    if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
                 })
         }
 

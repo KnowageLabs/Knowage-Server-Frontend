@@ -31,7 +31,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
         const dataHash = md5(JSON.stringify(postDataForHash))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 
-        if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             return cachedData.data
         } else {
             await $http
@@ -46,7 +46,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
                 .finally(async () => {
                     // TODO - uncomment when realtime dataset example is ready
                     // resetDatasetInterval(widget)
-                    if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, tempResponse)
+                    if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
                 })
         }
 

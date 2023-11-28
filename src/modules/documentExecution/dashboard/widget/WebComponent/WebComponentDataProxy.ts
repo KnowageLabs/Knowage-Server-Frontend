@@ -25,7 +25,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
             const dataHash = md5(JSON.stringify(postDataForHash))
             const cachedData = await indexedDB.widgetData.get(dataHash)
 
-            if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+            if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
                 aggregationDataset = cachedData.data
             } else {
                 await $http
@@ -39,7 +39,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
                     .finally(() => {
                         // TODO - uncomment when realtime dataset example is ready
                         // resetDatasetInterval(widget)
-                        if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, aggregationDataset)
+                        if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, aggregationDataset)
                     })
             }
         }
@@ -51,7 +51,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
         const dataHash = md5(JSON.stringify(postData))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 
-        if (dashboardConfig.menuWidgets.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
         } else {
             await $http
@@ -65,7 +65,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
                 .finally(() => {
                     // TODO - uncomment when realtime dataset example is ready
                     // resetDatasetInterval(widget)
-                    if (dashboardConfig.menuWidgets.enableCaching) addDataToCache(dataHash, tempResponse)
+                    if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
                 })
         }
 
