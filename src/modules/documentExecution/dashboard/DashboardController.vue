@@ -176,7 +176,6 @@ export default defineComponent({
             dashboardThemes: [] as IDashboardTheme[],
             initialDataLoadedMap: {
                 profileAttributesLoaded: false,
-                dashboardThemesLoaded: false,
                 dashboardModelLoaded: false,
                 internationalizationLoaded: false,
                 crossNavigationsLoaded: false
@@ -278,7 +277,7 @@ export default defineComponent({
                 this.currentView.drivers = this.filtersData
             }
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
-            if (!this.initialDataLoadedMap.dashboardThemesLoaded && this.isEnterprise) this.loadDashboardThemes()
+            if (this.isEnterprise) await this.loadDashboardThemes()
             await this.loadModel()
             if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
@@ -300,7 +299,9 @@ export default defineComponent({
 
             this.datasets = this.newDashboardMode ? [] : await loadDatasets(tempModel, this.appStore, this.setAllDatasets, this.$http)
             this.model =
-                (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
+                (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined'
+                    ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes)
+                    : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
             if (this.propView) {
                 this.loadSelectedViewForExecution(this.propView)
@@ -358,7 +359,6 @@ export default defineComponent({
             this.setProfileAttributes(this.profileAttributes)
         },
         async loadDashboardThemes() {
-            this.initialDataLoadedMap.dashboardThemesLoaded = true
             this.dashboardThemes = []
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardtheme`).then((response: AxiosResponse<any>) => {
                 this.dashboardThemes = response.data
