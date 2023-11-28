@@ -62,3 +62,10 @@ export const applyStylesToWidget = (widgetStyle, themeName, themeStyle) => {
         }
     }
 }
+
+export const updateWidgetThemeAndApplyStyle = (widget: IWidget, themes: IDashboardTheme[]) => {
+    if (widget?.settings?.style.themeName) {
+        const theme = themes.find((theme: IDashboardTheme) => theme.themeName === widget.settings.style.themeName)
+        if (theme) applySelectedThemeToWidgets([widget], theme)
+    }
+}
