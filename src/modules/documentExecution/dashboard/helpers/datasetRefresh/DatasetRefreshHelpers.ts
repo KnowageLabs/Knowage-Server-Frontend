@@ -9,7 +9,7 @@ export const setDatasetIntervals = (modelDatasets: IDashboardDataset[], datasets
     for (let i = 0; i < modelDatasets.length; i++) {
         const index = datasets.findIndex((dataset: IDataset) => dataset.id.dsId === modelDatasets[i].id)
         // TODO - check condition and remove hardcoded interval when realtime dataset example is ready
-        if (index !== -1 && datasets[i].isRealtime) {
+        if (index !== -1 && datasets[index].isRealtime) {
             setDatasetInterval(modelDatasets[i].id, 10000)
         }
     }
