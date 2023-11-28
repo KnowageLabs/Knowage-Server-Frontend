@@ -104,7 +104,7 @@ const store = defineStore('dashboardStore', {
             if (index !== -1) {
                 const tempSelection = deepcopy(this.dashboards[dashboardId].selections[index])
                 this.dashboards[dashboardId].selections.splice(index, 1)
-                if (selectionsUseDatasetWithAssociation([tempSelection], this.dashboards[dashboardId].configuration.associations)) {
+                if (selectionsUseDatasetWithAssociation([tempSelection], this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) {
                     loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
                 } else {
                     emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
@@ -121,7 +121,7 @@ const store = defineStore('dashboardStore', {
                     removedSelections.push(selection)
                 }
             })
-            if (removedSelections.length > 0) {
+            if (removedSelections.length > 0 && this.dashboards[dashboardId].selections.length > 0) {
                 if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations)) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
                 emitter.emit('selectionsDeleted', removedSelections)
             }
