@@ -14,6 +14,8 @@ import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega/VegaHelpers'
 import descriptor from './DashboardDescriptor.json'
 import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
+import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper';
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement';
 
 const store = mainStore()
 
@@ -210,13 +212,14 @@ const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration)
     dashboardConfiguration.variables.forEach((variable: IVariable) => delete variable.pivotedValues)
 }
 
-export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any) => {
+export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any, themes: IDashboardTheme[]) => {
     for (let i = 0; i < dashboard.configuration.variables.length; i++) {
         if (dashboard.configuration.variables[i].type === 'dataset') await setVariableValueFromDataset(dashboard.configuration.variables[i], datasets, $http)
     }
 
     for (let i = 0; i < dashboard.widgets.length; i++) {
         formatWidget(dashboard.widgets[i])
+        if (themes.length > 0) updateWidgetThemeAndApplyStyle(dashboard.widgets[i], themes)
     }
 
     if (!dashboard.configuration.theme || !dashboard.configuration.theme.config) dashboard.configuration.theme = { config: getDefaultDashboardThemeConfig() }
