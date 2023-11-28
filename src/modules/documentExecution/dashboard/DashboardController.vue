@@ -176,7 +176,6 @@ export default defineComponent({
             dashboardThemes: [] as IDashboardTheme[],
             initialDataLoadedMap: {
                 profileAttributesLoaded: false,
-                dashboardThemesLoaded: false,
                 dashboardModelLoaded: false,
                 internationalizationLoaded: false,
                 crossNavigationsLoaded: false
@@ -278,7 +277,7 @@ export default defineComponent({
                 this.currentView.drivers = this.filtersData
             }
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
-            if (!this.initialDataLoadedMap.dashboardThemesLoaded && this.isEnterprise) this.loadDashboardThemes()
+            if (this.isEnterprise) this.loadDashboardThemes()
             await this.loadModel()
             if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
@@ -358,7 +357,6 @@ export default defineComponent({
             this.setProfileAttributes(this.profileAttributes)
         },
         async loadDashboardThemes() {
-            this.initialDataLoadedMap.dashboardThemesLoaded = true
             this.dashboardThemes = []
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardtheme`).then((response: AxiosResponse<any>) => {
                 this.dashboardThemes = response.data
