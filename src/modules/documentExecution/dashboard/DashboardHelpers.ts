@@ -1,3 +1,4 @@
+import { getDefaultDashboardThemeConfig } from './../../managers/dashboardThemeManagement/DashboardThemeHelper';
 import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetSheetItem } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
@@ -20,6 +21,7 @@ export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
+    dashboardModel.configuration.theme = { config: getDefaultDashboardThemeConfig() }
     dashboardModel.configuration.id = cryptoRandomString({ length: 16, type: 'base64' });
 
     return dashboardModel
@@ -216,6 +218,9 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     for (let i = 0; i < dashboard.widgets.length; i++) {
         formatWidget(dashboard.widgets[i])
     }
+
+    if (!dashboard.configuration.theme || !dashboard.configuration.theme.config) dashboard.configuration.theme = { config: getDefaultDashboardThemeConfig() }
+
     return dashboard
 }
 
