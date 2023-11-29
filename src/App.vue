@@ -37,7 +37,8 @@ export default defineComponent({
             isMobileDevice: false,
             menuItemClickedTrigger: false,
             showMenu: false,
-            closedMenu: false
+            closedMenu: false,
+            pollingInterval: null
         }
     },
     computed: {
@@ -156,7 +157,7 @@ export default defineComponent({
         await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response: any) => {
             this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
-            this.checkOidcSessionManagement(response.data)
+            this.checkOIDCSession(response.data)
         })
         if (this.isEnterprise) {
             if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(await this.themeHelper.getDefaultKnowageTheme())
@@ -182,6 +183,10 @@ export default defineComponent({
         }
     },
 
+    beforeUnmounted() {
+        clearInterval(this.pollingInterval)
+    },
+
     methods: {
         ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization']),
         closeDialog() {
@@ -200,20 +205,19 @@ export default defineComponent({
                 }
             }
         },
-        checkOidcSessionManagement(configs) {
-            if (configs['oidc_check_session_iframe']) {
-                window.addEventListener('message', async (event) => {
-                    if (event.data.type === 'logout') auth.logout()
-                })
-                const RPiframe = document.createElement('iframe')
-                RPiframe.style.display = 'none'
-                RPiframe.src = `${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/oidc/sessionManagement.html`
-                document.querySelector('body')?.append(RPiframe)
-
-                const OPiframe = document.createElement('iframe')
-                OPiframe.style.display = 'none'
-                OPiframe.src = configs['oidc_check_session_iframe']
-                document.querySelector('body')?.append(OPiframe)
+        checkOIDCSession(configs) {
+            if (configs['oidc.session.polling.url']) {
+                this.pollingInterval = setInterval(async () => {
+                    let url = configs['oidc.session.polling.url']
+                    const parametersRegex = /\${(nonce|client_id|redirect_uri|session_state)}/gm
+                    url = url.replace(parametersRegex, (match, parameter) => encodeURIComponent(window.sessionStorage.getItem(parameter)))
+                    await this.$http.get(url).then((response) => {
+                        if (response.status === 302) {
+                            const headerLocation = new URL(response.headers.location)
+                            if (headerLocation.searchParams.get('error')) auth.logout()
+                        }
+                    })
+                }, configs['oidc.session.polling.interval'] || 15000)
             }
         },
         async onLoad() {
