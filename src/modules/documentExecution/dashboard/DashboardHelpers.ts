@@ -223,7 +223,7 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     }
 
     if (!dashboard.configuration.theme || !dashboard.configuration.theme.config) dashboard.configuration.theme = { config: getDefaultDashboardThemeConfig() }
-
+    if (!dashboard.configuration.menuWidgets) dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: false, enableCustomHeader: false }
     return dashboard
 }
 
@@ -251,7 +251,7 @@ const addColumnIdsToWidgetColumns = (widget: IWidget) => {
     })
 }
 
-const addWidgetMenuConfig = (widget: IWidget) => {
+export const addWidgetMenuConfig = (widget: IWidget) => {
     if (!widget.settings.configuration) widget.settings.configuration = { widgetMenu: { enabled: true } }
     if (!widget.settings.configuration.widgetMenu) widget.settings.configuration.widgetMenu = { enabled: true }
 }

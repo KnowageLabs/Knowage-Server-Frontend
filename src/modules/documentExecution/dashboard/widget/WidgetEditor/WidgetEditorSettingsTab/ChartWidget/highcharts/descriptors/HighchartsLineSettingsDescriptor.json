@@ -28,6 +28,10 @@
         ],
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "dashboard.widgetEditor.configurationOf3D.title",
                 "type": "ConfigurationOf3D"
             },

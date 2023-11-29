@@ -66,7 +66,7 @@ export default defineComponent({
     methods: {
         loadProps() {
             this.dashboard = this.dashboardModelProp
-            if (!this.dashboard.configuration.menuWidgets) this.dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true } as IMenuAndWidgets
+            if (!this.dashboard.configuration.menuWidgets) this.dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true } as IMenuAndWidgets
             this.menuWidgetsConfig = this.dashboard.configuration.menuWidgets as IMenuAndWidgets
         }
     }

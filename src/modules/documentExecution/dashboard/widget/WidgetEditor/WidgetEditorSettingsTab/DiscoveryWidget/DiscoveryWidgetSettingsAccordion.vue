@@ -10,6 +10,7 @@
                 <DiscoveryWidgetFacetsSettings v-if="accordion.type === 'FacetsSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></DiscoveryWidgetFacetsSettings>
                 <DiscoveryWidgetSearchSettings v-else-if="accordion.type === 'SearchSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></DiscoveryWidgetSearchSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <TableWidgetCustomMessages v-else-if="accordion.type === 'CustomMessages'" :widget-model="widgetModel"></TableWidgetCustomMessages>
                 <TableWidgetHeaders v-else-if="accordion.type === 'Headers'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetHeaders>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"> </WidgetTitleStyle>
@@ -39,6 +40,7 @@ import AccordionTab from 'primevue/accordiontab'
 import descriptor from './DiscoveryWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
+import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import TableWidgetCustomMessages from '../TableWidget/configuration/TableWidgetCustomMessages.vue'
 import TableWidgetColumnStyle from '../TableWidget/style/TableWidgetColumnStyle.vue'
 import WidgetRowsStyle from '../common/style/WidgetRowsStyle.vue'
@@ -83,7 +85,8 @@ export default defineComponent({
         DiscoveryWidgetSearchSettings,
         WidgetInteractionsLinks,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        WidgetMenuConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

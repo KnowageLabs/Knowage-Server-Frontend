@@ -119,7 +119,6 @@ export default defineComponent({
             this.setConditionedVisibility(orig)
         },
         closeMenu(newProp) {
-            console.log(newProp)
             // @ts-ignore
             if (newProp) this.$refs.menu.hide()
         }

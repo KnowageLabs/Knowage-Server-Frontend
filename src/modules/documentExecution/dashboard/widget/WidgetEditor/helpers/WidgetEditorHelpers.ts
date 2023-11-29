@@ -22,6 +22,7 @@ import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
 import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
 import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
 import { createNewRWidgetSettings } from './rWidget/RWidgetFunctions'
+import { addWidgetMenuConfig } from '../../../DashboardHelpers'
 
 const store = useStore()
 
@@ -37,6 +38,7 @@ export function createNewWidget(type: string) {
     if (widget.type === 'static-pivot-table' || widget.type === 'ce-pivot-table') widget.fields = { columns: [], rows: [], data: [], filters: [] }
 
     createNewWidgetSettings(widget)
+    addWidgetMenuConfig(widget)
 
     return widget
 }

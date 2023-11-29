@@ -40,6 +40,10 @@
         ],
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
             }

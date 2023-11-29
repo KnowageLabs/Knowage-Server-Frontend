@@ -24,6 +24,10 @@
         ],
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.axisLines.title",
                 "type": "AxisLinesSettings"
             },

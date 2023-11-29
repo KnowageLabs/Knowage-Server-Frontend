@@ -16,6 +16,10 @@
     "settings": {
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "common.image",
                 "type": "ImageSettings"
             },

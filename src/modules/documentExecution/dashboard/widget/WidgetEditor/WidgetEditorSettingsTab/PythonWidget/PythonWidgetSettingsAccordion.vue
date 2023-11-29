@@ -8,6 +8,7 @@
                     <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></PythonWidgetSettingsAccordionHeader>
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <HTMLWidgetGallery v-if="accordion.type === 'Gallery'" :widget-model="widgetModel" :html-gallery-prop="[]"></HTMLWidgetGallery>
                 <PythonWidgetEditor v-else-if="accordion.type === 'Python'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
                 <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
@@ -35,6 +36,7 @@ import AccordionTab from 'primevue/accordiontab'
 import descriptor from './PythonWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
+import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import HTMLWidgetGallery from '../HTMLWidget/gallery/HTMLWidgetGallery.vue'
 import PythonWidgetEditor from './editor/PythonWidgetEditor.vue'
 import PythonEnvironmentSettings from './environment/PythonEnvironmentSettings.vue'
@@ -71,7 +73,8 @@ export default defineComponent({
         PythonWidgetSettingsAccordionHeader,
         HTMLWidgetGallery,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        WidgetMenuConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

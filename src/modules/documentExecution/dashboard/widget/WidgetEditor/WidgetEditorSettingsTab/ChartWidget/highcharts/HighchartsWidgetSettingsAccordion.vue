@@ -26,6 +26,7 @@
                 <HighchartsBandsSettings v-else-if="accordion.type === 'YAxisBandsSettings'" :widget-model="widgetModel" axis="y"></HighchartsBandsSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :theme-style="null" :widget-model="widgetModel" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
@@ -71,6 +72,7 @@ import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import settingsTabDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../../common/configuration/WidgetExport.vue'
+import WidgetMenuConfiguration from '../../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetBordersStyle from '../../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../../common/responsive/WidgetResponsive.vue'
@@ -165,7 +167,8 @@ export default defineComponent({
         WidgetEditorThemePicker,
         Message,
         HighchartsFunnelNeckSettings,
-        HighchartsAdvancedSettings
+        HighchartsAdvancedSettings,
+        WidgetMenuConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

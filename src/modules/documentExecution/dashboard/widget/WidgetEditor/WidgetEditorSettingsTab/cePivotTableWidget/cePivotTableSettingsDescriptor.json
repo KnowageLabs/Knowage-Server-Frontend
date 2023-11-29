@@ -54,6 +54,10 @@
     "settings": {
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "common.columns",
                 "type": "Columns"
             },

@@ -107,6 +107,7 @@ export default defineComponent({
         dashboardId: { type: String, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
     },
+
     setup() {
         const dashStore = store()
         return { dashStore }

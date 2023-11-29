@@ -18,6 +18,7 @@ import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHe
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
 import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
 import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
+import { addWidgetMenuConfig } from '../DashboardHelpers'
 
 const datasetIdLabelMap = {}
 
@@ -203,7 +204,9 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
 
 const addWidgetToModel = (widget: any, formattedModel: any, user: any, drivers: IDashboardDriver[]) => {
     if (checkIfWidgetInModel(widget, formattedModel)) return
-    formattedModel.widgets.push(formatWidget(widget, formattedModel, user, drivers))
+    const formattedWidget = formatWidget(widget, formattedModel, user, drivers)
+    addWidgetMenuConfig(formattedWidget)
+    formattedModel.widgets.push(formattedWidget)
 }
 
 const checkIfWidgetInModel = (widget: any, formattedModel: any) => {

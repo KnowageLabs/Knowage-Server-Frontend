@@ -13,6 +13,7 @@
                 <VegaTooltipSettings v-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></VegaTooltipSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
@@ -39,6 +40,7 @@ import descriptor from './VegaChartsSettingsDescriptor.json'
 import settingsTabDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import VegaNoDataMessageConfiguration from './configuration/VegaNoDataMessageConfiguration.vue'
 import WidgetExport from '../../common/configuration/WidgetExport.vue'
+import WidgetMenuConfiguration from '../../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetBordersStyle from '../../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../../common/responsive/WidgetResponsive.vue'
@@ -78,7 +80,8 @@ export default defineComponent({
         VegaTooltipSettings,
         ChartColorSettings,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        WidgetMenuConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

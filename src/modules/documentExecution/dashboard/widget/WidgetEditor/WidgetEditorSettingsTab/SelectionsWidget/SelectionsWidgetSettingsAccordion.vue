@@ -10,6 +10,7 @@
                 <SelectorWidgetType v-if="accordion.type === 'SelectorType'" :widget-model="widgetModel"></SelectorWidgetType>
                 <SelectionsWidgetValuesManagement v-if="accordion.type === 'ValuesManagement'" :widget-model="widgetModel"></SelectionsWidgetValuesManagement>
                 <SelectionsNoSelectionConfiguration v-else-if="accordion.type === 'NoSelections'" :widget-model="widgetModel"></SelectionsNoSelectionConfiguration>
+                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <SelectionsWidgetChipsStyle v-else-if="accordion.type === 'ChipsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></SelectionsWidgetChipsStyle>
@@ -37,6 +38,7 @@ import SelectorWidgetType from '../SelectorWidget/configuration/SelectorWidgetTy
 import SelectionsWidgetValuesManagement from './configuration/SelectionsWidgetValuesManagement.vue'
 import SelectionsNoSelectionConfiguration from './configuration/SelectionsNoSelectionConfiguration.vue'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
+import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import SelectionsWidgetChipsStyle from './style/SelectionsWidgetChipsStyle.vue'
 import WidgetRowsStyle from '../common/style/WidgetRowsStyle.vue'
@@ -68,7 +70,8 @@ export default defineComponent({
         WidgetResponsive,
         SelectionsWidgetSettingsAccordionHeader,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        WidgetMenuConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

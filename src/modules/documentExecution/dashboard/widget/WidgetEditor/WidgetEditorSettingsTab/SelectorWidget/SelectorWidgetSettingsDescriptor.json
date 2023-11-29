@@ -40,6 +40,10 @@
     "settings": {
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "dashboard.widgetEditor.selectorType.title",
                 "type": "SelectorType"
             },
