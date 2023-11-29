@@ -229,6 +229,7 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
 
 const formatWidget = (widget: IWidget) => {
     addColumnIdsToWidgetColumns(widget)
+    addWidgetMenuConfig(widget)
     switch (widget.type) {
         case 'table':
             formatDashboardTableWidgetAfterLoading(widget);
@@ -248,6 +249,11 @@ const addColumnIdsToWidgetColumns = (widget: IWidget) => {
     widget.columns.forEach((column: IWidgetColumn) => {
         if (!column.id) column.id = cryptoRandomString({ length: 16, type: 'base64' })
     })
+}
+
+const addWidgetMenuConfig = (widget: IWidget) => {
+    if (!widget.settings.configuration) widget.settings.configuration = { widgetMenu: { enabled: true } }
+    if (!widget.settings.configuration.widgetMenu) widget.settings.configuration.widgetMenu = { enabled: true }
 }
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {

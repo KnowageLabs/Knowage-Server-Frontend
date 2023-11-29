@@ -411,9 +411,10 @@
             "css": "CSS Editor",
             "customHeader": "Custom Header",
             "menuWidgets": {
-                "enableCustomHeader": "Enable custom header",
                 "enableCaching": "Enable dashboard caching",
                 "enableChartChange": "Enable chart changing",
+                "enableCustomHeader": "Enable custom header",
+                "enableWidgetMenu": "Enable widget menu",
                 "showExcelExport": "Show excel export functionality on widgets",
                 "showScreenshot": "Enable screenshot functionality on widgets",
                 "showSelectionButton": "Always show selection button",
@@ -1046,6 +1047,7 @@
                     "pies": "Pies"
                 }
             },
+            "menuConfiguration": "Menu Configuration",
             "noData": {
                 "title": "No data"
             },

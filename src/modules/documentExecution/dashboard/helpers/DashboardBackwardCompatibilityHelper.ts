@@ -83,7 +83,7 @@ const getFormattedSheetBackground = (model: any) => {
 
 const getFormattedMenuAndWidgets = (model: any) => {
     const modelConfig = model.configuration
-    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true, enableChartChange: true, enableCaching: true, enableCustomHeader: false } as IMenuAndWidgets
+    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true, enableChartChange: true, enableCaching: true, enableCustomHeader: false, enableWidgetMenu: true } as IMenuAndWidgets
 
     return formattedMenuAndWIdgets
 }

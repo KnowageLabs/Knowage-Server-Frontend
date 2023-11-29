@@ -654,6 +654,7 @@ export default defineComponent({
             this.loading = false
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
+            if (!this.document || this.document.typeCode === 'DASHBOARD') return
             let error = false
             const postData = {
                 label: this.document.label,

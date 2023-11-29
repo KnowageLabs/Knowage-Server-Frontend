@@ -167,6 +167,10 @@
         ],
         "Configuration": [
             {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "dashboard.widgetEditor.rows.title",
                 "type": "Rows"
             },

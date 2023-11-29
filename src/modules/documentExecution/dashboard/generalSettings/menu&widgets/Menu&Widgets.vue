@@ -27,6 +27,10 @@
                 <InputSwitch v-model="menuWidgetsConfig.enableCustomHeader" />
                 <label class="kn-material-input-label p-ml-3"> {{ $t('dashboard.generalSettings.menuWidgets.enableCustomHeader') }} </label>
             </span>
+            <span class="p-field p-col-12">
+                <InputSwitch v-model="menuWidgetsConfig.enableWidgetMenu" />
+                <label class="kn-material-input-label p-ml-3"> {{ $t('dashboard.generalSettings.menuWidgets.enableWidgetMenu') }} </label>
+            </span>
         </form>
     </div>
 </template>
