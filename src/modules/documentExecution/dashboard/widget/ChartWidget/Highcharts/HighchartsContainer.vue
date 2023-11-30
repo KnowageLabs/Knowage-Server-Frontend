@@ -36,6 +36,7 @@ import HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinat
 import Sonification from 'highcharts/modules/sonification'
 import HighchartsPictorial from 'highcharts/modules/pictorial'
 import HighchartsFunnel from 'highcharts/modules/funnel'
+import HighchartsDumbbell from 'highcharts/modules/dumbbell'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -53,6 +54,7 @@ Highcharts3D(Highcharts)
 Drilldown(Highcharts)
 HighchartsPictorial(Highcharts)
 HighchartsFunnel(Highcharts)
+HighchartsDumbbell(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -134,6 +136,8 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
+
+            console.log('--------------- MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()

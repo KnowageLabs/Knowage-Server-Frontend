@@ -46,7 +46,7 @@ import WidgetEditorColumnTable from '../../common/WidgetEditorColumnTable.vue'
 import ChartWidgetColumnForm from '../common/ChartWidgetColumnForm.vue'
 
 export default defineComponent({
-    name: 'highcharts-sankey-data-container',
+    name: 'highcharts-dumbbell-data-container',
     components: { WidgetEditorColumnTable, ChartWidgetColumnForm },
     props: {
         propWidgetModel: { type: Object as PropType<IWidget>, required: true },
