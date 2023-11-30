@@ -35,6 +35,7 @@
             @dataset-interaction-preview="previewInteractionDataset"
         ></WidgetRenderer>
         <WidgetButtonBar
+            :document="document"
             :widget="widget"
             :play-selection-button-visible="playSelectionButtonVisible"
             :selection-is-locked="selectionIsLocked"
@@ -101,7 +102,7 @@ export default defineComponent({
         model: { type: Object },
         item: { required: true, type: Object },
         activeSheet: { type: Object as PropType<IDashboardSheet>, required: true },
-        document: { type: Object },
+        document: { type: Object, required: true },
         widget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dashboardId: { type: String, required: true },
@@ -153,6 +154,9 @@ export default defineComponent({
         },
         dashboardSheets() {
             return this.dashboards[this.dashboardId]?.sheets ?? []
+        },
+        updateFromSelections() {
+            return this.widgetModel.settings?.configuration?.updateFromSelections
         }
     },
     watch: {
@@ -279,30 +283,32 @@ export default defineComponent({
         },
         async loadInitalData() {
             if (!this.widgetModel || this.widgetModel.type === 'selection') return
-            console.log('------ LOAD INITAL DATA: ', this.widgetModel.settings?.configuration?.updateFromSelections)
 
             this.setWidgetLoading(true)
 
             this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
             this.widgetData = this.widgetInitialData
-            await this.loadActiveSelections()
+            if (this.updateFromSelections) await this.loadActiveSelections()
 
             this.setWidgetLoading(false)
         },
         async loadActiveSelections() {
-            console.log('------ loadActiveSelections: ', this.widgetModel.settings?.configuration?.updateFromSelections)
+            if (!this.updateFromSelections) return
             this.getSelectionsFromStore()
             if (this.widgetModel.type === 'selection') return
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (this.widgetUsesSelections(this.activeSelections) || associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore ?? null)
         },
         getSelectionsFromStore() {
-            console.log('------ getSelectionsFromStore: ', this.widgetModel.settings?.configuration?.updateFromSelections)
+            if (!this.updateFromSelections) {
+                this.activeSelections = []
+                return
+            }
             this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
             this.checkIfSelectionIsLocked()
         },
         async onSelectionsDeleted(deletedSelections: any) {
-            console.log('------ onSelectionsDeleted: ', this.widgetModel.settings?.configuration?.updateFromSelections)
+            if (!this.updateFromSelections) return
             const associations = this.dashboards[this.dashboardId]?.configuration.associations ?? []
             this.getSelectionsFromStore()
             if (this.widgetUsesSelections(deletedSelections) || (this.widget.dataset && datasetIsUsedInAssociations(this.widget.dataset, associations))) this.reloadWidgetData(null)
@@ -364,7 +370,7 @@ export default defineComponent({
             return index !== -1 ? associativeSelections : null
         },
         async onAssociativeSelectionsLoaded() {
-            console.log('------ onAssociativeSelectionsLoaded: ', this.widgetModel.settings?.configuration?.updateFromSelections)
+            if (!this.updateFromSelections) return
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore)
         },

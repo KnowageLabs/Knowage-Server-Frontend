@@ -151,9 +151,6 @@ export default defineComponent({
         },
         updateWidgetMenuSettings() {
             this.dashboardModel.configuration.menuWidgets = this.menuWidgetsConfig
-            this.dashboardModel?.widgets?.forEach((widget: IWidget) => {
-                if (widget.settings?.configuration?.widgetMenu) widget.settings.configuration.widgetMenu.enabled = this.menuWidgetsConfig.enableWidgetMenu
-            })
         }
     }
 })

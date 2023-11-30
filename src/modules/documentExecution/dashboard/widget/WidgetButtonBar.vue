@@ -33,11 +33,13 @@ import { defineComponent, PropType } from 'vue'
 import { IDashboard, IMenuItem, IWidget } from '../Dashboard'
 import { mapActions } from 'pinia'
 import store from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { canEditDashboard } from '../DashboardHelpers'
 
 export default defineComponent({
     name: 'widget-button-bar',
     components: {},
     props: {
+        document: { type: Object, required: true },
         widget: { type: Object as PropType<IWidget>, required: true },
         playSelectionButtonVisible: { type: Boolean, required: true },
         selectionIsLocked: { type: Boolean, required: true },
@@ -54,10 +56,9 @@ export default defineComponent({
     },
     computed: {
         widgetButtonBarVisible() {
+            if (canEditDashboard(this.document)) return true
             const dashboardModel = this.getDashboard(this.dashboardId)
-            console.log('------ dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu : ', dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu)
-            console.log('------ this.widget?.settings?.configuration?.widgetMenu?.enabled : ', this.widget?.settings?.configuration?.widgetMenu?.enabled)
-            return dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu || this.widget?.settings?.configuration?.widgetMenu?.enabled
+            return dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu && this.widget?.settings?.configuration?.widgetMenu?.enabled
         }
     },
     methods: {
