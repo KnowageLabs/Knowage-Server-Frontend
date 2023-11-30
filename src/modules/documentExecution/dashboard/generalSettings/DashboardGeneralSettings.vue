@@ -13,7 +13,7 @@
             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
             <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
-            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :dashboard-model-prop="dashboardModel" />
+            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
             <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
             <WidgetEditor
@@ -46,6 +46,8 @@ import { setVariableValueFromDataset } from './VariablesHelper'
 import { applySelectedThemeToWidgets } from './themes/ThemesHelper'
 import WidgetEditor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditor.vue'
 import { createCustomHeaderWidget } from './DashboardGeneralSettingsHelper'
+import { IMenuAndWidgets } from '../Dashboard'
+import { addMissingMenuWidgetsConfiguration } from '../DashboardHelpers'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
@@ -65,7 +67,8 @@ export default defineComponent({
             selectedDatasets: [] as IDataset[],
             selectedDatasetColumnsMap: {},
             customHeaderWidget: null as IWidget | null,
-            customHeaderWidgetEditorVisible: false
+            customHeaderWidgetEditorVisible: false,
+            menuWidgetsConfig: {} as IMenuAndWidgets
         }
     },
     computed: {},
@@ -76,12 +79,14 @@ export default defineComponent({
         this.loadVariables()
         this.loadSelectedDatasets()
         this.loadSelectedDatasetColumnNames()
+        this.loadMenuAndWidgetConfiguration()
     },
     methods: {
         ...mapActions(store, ['getDashboard']),
         ...mapActions(mainStore, ['getUser']),
         loadDashboardModel() {
             this.dashboardModel = this.getDashboard(this.dashboardId)
+            console.log('---------- LOADED DASHBOASD CONFIGS ', this.dashboardModel?.configuration?.menuWidgets)
             this.customHeaderWidget = deepcopy(this.dashboardModel.configuration.customHeader)
         },
         loadVariables() {
@@ -122,14 +127,18 @@ export default defineComponent({
             }
             this.selectedOption = option
         },
-
+        loadMenuAndWidgetConfiguration() {
+            addMissingMenuWidgetsConfiguration(this.dashboardModel)
+            this.menuWidgetsConfig = deepcopy(this.dashboardModel.configuration.menuWidgets) as IMenuAndWidgets
+        },
         async saveGeneralSettings() {
             for (let i = 0; i < this.variables.length; i++) {
                 if (this.variables[i].type === 'dataset') await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
             }
-            this.dashboardModel.configuration.variables = this.variables
 
+            this.dashboardModel.configuration.variables = this.variables
             if (this.dashboardModel.configuration.theme) applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
+            this.updateWidgetMenuSettings()
 
             this.$emit('closeGeneralSettings')
         },
@@ -139,6 +148,12 @@ export default defineComponent({
         },
         onCustomHeaderCancel() {
             this.customHeaderWidgetEditorVisible = false
+        },
+        updateWidgetMenuSettings() {
+            this.dashboardModel.configuration.menuWidgets = this.menuWidgetsConfig
+            this.dashboardModel?.widgets?.forEach((widget: IWidget) => {
+                if (widget.settings?.configuration?.widgetMenu) widget.settings.configuration.widgetMenu.enabled = this.menuWidgetsConfig.enableWidgetMenu
+            })
         }
     }
 })

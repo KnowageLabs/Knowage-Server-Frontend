@@ -54,18 +54,14 @@ export default defineComponent({
     },
     computed: {
         widgetButtonBarVisible() {
-            console.log('---------- CASE ONE: ', this.dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu)
-            return this.dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu || this.widget?.settings?.configuration?.widgetMenu?.enabled
+            const dashboardModel = this.getDashboard(this.dashboardId)
+            console.log('------ dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu : ', dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu)
+            console.log('------ this.widget?.settings?.configuration?.widgetMenu?.enabled : ', this.widget?.settings?.configuration?.widgetMenu?.enabled)
+            return dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu || this.widget?.settings?.configuration?.widgetMenu?.enabled
         }
-    },
-    mounted() {
-        this.loadDashboardModel()
     },
     methods: {
         ...mapActions(store, ['getDashboard']),
-        loadDashboardModel() {
-            this.dashboardModel = this.getDashboard(this.dashboardId)
-        },
         toggle(event) {
             const menu = this.$refs.widgetmenu as any
             menu.toggle(event)

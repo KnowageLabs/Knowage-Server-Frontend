@@ -223,8 +223,16 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     }
 
     if (!dashboard.configuration.theme || !dashboard.configuration.theme.config) dashboard.configuration.theme = { config: getDefaultDashboardThemeConfig() }
-    if (!dashboard.configuration.menuWidgets) dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: false, enableCustomHeader: false }
+    addMissingMenuWidgetsConfiguration(dashboard)
     return dashboard
+}
+
+export const addMissingMenuWidgetsConfiguration = (dashboard: IDashboard) => {
+    if (!dashboard.configuration.menuWidgets) dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: true, enableCustomHeader: false }
+    if (dashboard.configuration.menuWidgets.showSelectionButton === undefined) dashboard.configuration.menuWidgets.showSelectionButton = true
+    if (dashboard.configuration.menuWidgets.enableCaching === undefined) dashboard.configuration.menuWidgets.enableCaching = true
+    if (dashboard.configuration.menuWidgets.enableCustomHeader === undefined) dashboard.configuration.menuWidgets.enableCustomHeader = false
+    if (dashboard.configuration.menuWidgets.enableWidgetMenu === undefined) dashboard.configuration.menuWidgets.enableWidgetMenu = true
 }
 
 const formatWidget = (widget: IWidget) => {

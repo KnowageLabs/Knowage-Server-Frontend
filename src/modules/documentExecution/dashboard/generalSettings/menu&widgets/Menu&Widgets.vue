@@ -1,5 +1,5 @@
 <template>
-    <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
+    <div v-if="menuWidgetsConfig" class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
         <label class="kn-material-input-label p-m-3"> {{ $t('dashboard.generalSettings.menuWidgets.title') }}</label>
 
         <form class="p-fluid p-formgrid p-grid p-m-1">
@@ -36,27 +36,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import descriptor from '../DashboardGeneralSettingsDescriptor.json'
 import InputSwitch from 'primevue/inputswitch'
 import { IMenuAndWidgets } from '../../Dashboard'
 
 export default defineComponent({
-    name: 'dashboard-variables',
+    name: 'menu-and-widgets',
     components: { InputSwitch },
-    props: {
-        dashboardModelProp: {
-            type: Object as any,
-            default() {
-                return {}
-            }
-        }
-    },
+    props: { menuWidgetsConfigProp: { type: Object as PropType<IMenuAndWidgets>, required: true } },
     data() {
         return {
             descriptor,
-            dashboard: {} as any,
-            menuWidgetsConfig: {} as any
+            menuWidgetsConfig: null as IMenuAndWidgets | null
         }
     },
     watch: {},
@@ -65,9 +57,7 @@ export default defineComponent({
     },
     methods: {
         loadProps() {
-            this.dashboard = this.dashboardModelProp
-            if (!this.dashboard.configuration.menuWidgets) this.dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true } as IMenuAndWidgets
-            this.menuWidgetsConfig = this.dashboard.configuration.menuWidgets as IMenuAndWidgets
+            this.menuWidgetsConfig = this.menuWidgetsConfigProp
         }
     }
 })
