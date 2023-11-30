@@ -9,6 +9,7 @@
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <PythonWidgetEditor v-else-if="accordion.type === 'R'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
                 <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
@@ -50,6 +51,7 @@ import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import RWidgetSettingsAccordionHeader from './RWidgetSettingsAccordionHeader.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 
 export default defineComponent({
     name: 'python-widget-settings-container',
@@ -71,7 +73,8 @@ export default defineComponent({
         RWidgetSettingsAccordionHeader,
         WidgetEditorThemePicker,
         Message,
-        WidgetMenuConfiguration
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

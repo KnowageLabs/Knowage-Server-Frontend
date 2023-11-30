@@ -10,6 +10,7 @@
                 <SelectorWidgetType v-if="accordion.type === 'SelectorType'" :widget-model="widgetModel"></SelectorWidgetType>
                 <SelectorWidgetDefaultValues v-else-if="accordion.type === 'DefaultValues'" :widget-model="widgetModel"></SelectorWidgetDefaultValues>
                 <SelectorWidgetValuesManagement v-else-if="accordion.type === 'ValuesManagement'" :widget-model="widgetModel"></SelectorWidgetValuesManagement>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
@@ -48,6 +49,7 @@ import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
 import SelectorWidgetSettingsAccordionHeader from './SelectorWidgetSettingsAccordionHeader.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 
 export default defineComponent({
     name: 'selector-widget-settings-container',
@@ -68,7 +70,8 @@ export default defineComponent({
         SelectorWidgetSettingsAccordionHeader,
         WidgetEditorThemePicker,
         Message,
-        WidgetMenuConfiguration
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

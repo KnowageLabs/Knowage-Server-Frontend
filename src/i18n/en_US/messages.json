@@ -1182,6 +1182,7 @@
                 "customHeader": "Custom Header",
                 "title": "Tooltips"
             },
+            "updateFromSelections": "Update From Selections",
             "useAsResource": "Use as resource",
             "valuesManagement": {
                 "alwaysEnableValues": "Always Enable Values",

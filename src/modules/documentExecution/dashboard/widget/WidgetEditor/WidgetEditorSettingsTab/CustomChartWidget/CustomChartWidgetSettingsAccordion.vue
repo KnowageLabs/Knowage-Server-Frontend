@@ -12,6 +12,7 @@
                 <CustomChartJSEditor v-if="accordion.type === 'JS'" :active-index="activeIndex" :widget-model="widgetModel"></CustomChartJSEditor>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
@@ -52,6 +53,7 @@ import CustomChartJSEditor from './editor/CustomChartJSEditor.vue'
 import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetInteractionsIframe.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 
 export default defineComponent({
     name: 'custom-chart-widget-settings-container',
@@ -74,7 +76,8 @@ export default defineComponent({
         WidgetInteractionsIframe,
         WidgetEditorThemePicker,
         Message,
-        WidgetMenuConfiguration
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

@@ -9,6 +9,7 @@
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
@@ -54,6 +55,7 @@ import WidgetInteractionsIframe from '../common/interactions/iframe/WidgetIntera
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
 import CustomDashboardHeaderConfiguration from './configuration/CustomDashboardHeaderConfiguration.vue'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 
 export default defineComponent({
     name: 'html-widget-settings-container',
@@ -77,7 +79,8 @@ export default defineComponent({
         WidgetEditorThemePicker,
         Message,
         CustomDashboardHeaderConfiguration,
-        WidgetMenuConfiguration
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

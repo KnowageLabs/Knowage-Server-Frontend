@@ -10,8 +10,9 @@
                 <ChartJSLegendSettings v-if="accordion.type === 'Legend'" :widget-model="widgetModel"></ChartJSLegendSettings>
                 <ChartJSTooltipSettings v-else-if="accordion.type === 'Tooltip'" :widget-model="widgetModel"></ChartJSTooltipSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
-                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
@@ -37,6 +38,7 @@ import AccordionTab from 'primevue/accordiontab'
 import descriptor from './ChartJSWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../../common/configuration/WidgetExport.vue'
+import WidgetSelectionConfiguration from '../../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetMenuConfiguration from '../../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetBordersStyle from '../../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../../common/style/WidgetShadowsStyle.vue'
@@ -77,7 +79,8 @@ export default defineComponent({
         ChartJSWidgetSettingsAccordionHeader,
         WidgetEditorThemePicker,
         Message,
-        WidgetMenuConfiguration
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

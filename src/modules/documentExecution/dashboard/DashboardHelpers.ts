@@ -220,6 +220,7 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     for (let i = 0; i < dashboard.widgets.length; i++) {
         formatWidget(dashboard.widgets[i])
         if (themes.length > 0) updateWidgetThemeAndApplyStyle(dashboard.widgets[i], themes)
+        if (dashboard.widgets[i].settings.configuration.updateFromSelections === undefined) dashboard.widgets[i].settings.configuration.updateFromSelections = true
     }
 
     if (!dashboard.configuration.theme || !dashboard.configuration.theme.config) dashboard.configuration.theme = { config: getDefaultDashboardThemeConfig() }

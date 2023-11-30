@@ -12,8 +12,9 @@
                 <VegaTextConfiguration v-if="accordion.type === 'TextConfiguration'" :widget-model="widgetModel"></VegaTextConfiguration>
                 <VegaTooltipSettings v-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></VegaTooltipSettings>
                 <ChartColorSettings v-else-if="accordion.type === 'Colors'" :widget-model="widgetModel"></ChartColorSettings>
-                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
                 <WidgetBackgroundColorStyle v-else-if="accordion.type === 'BackgroundColorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBackgroundColorStyle>
                 <WidgetBordersStyle v-else-if="accordion.type === 'BordersStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetBordersStyle>
@@ -40,6 +41,7 @@ import descriptor from './VegaChartsSettingsDescriptor.json'
 import settingsTabDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import VegaNoDataMessageConfiguration from './configuration/VegaNoDataMessageConfiguration.vue'
 import WidgetExport from '../../common/configuration/WidgetExport.vue'
+import WidgetSelectionConfiguration from '../../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetMenuConfiguration from '../../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetBordersStyle from '../../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../../common/style/WidgetShadowsStyle.vue'
@@ -81,7 +83,8 @@ export default defineComponent({
         ChartColorSettings,
         WidgetEditorThemePicker,
         Message,
-        WidgetMenuConfiguration
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

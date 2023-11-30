@@ -22,6 +22,7 @@ export default defineComponent({
     methods: {
         loadWidgetSettings() {
             this.widget = this.widgetModel
+            if (this.widget.settings?.configuration?.widgetMenu === undefined) this.widget.settings.configuration.widgetMenu = { enabled: true }
         }
     }
 })

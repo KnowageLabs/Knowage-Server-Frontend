@@ -9,6 +9,7 @@
                 </template>
                 <DiscoveryWidgetFacetsSettings v-if="accordion.type === 'FacetsSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></DiscoveryWidgetFacetsSettings>
                 <DiscoveryWidgetSearchSettings v-else-if="accordion.type === 'SearchSettings'" :widget-model="widgetModel" :dashboard-id="dashboardId"></DiscoveryWidgetSearchSettings>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <TableWidgetCustomMessages v-else-if="accordion.type === 'CustomMessages'" :widget-model="widgetModel"></TableWidgetCustomMessages>
@@ -60,6 +61,7 @@ import DiscoveryWidgetSearchSettings from './configuration/DiscoveryWidgetSearch
 import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteractionsLinks.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 
 export default defineComponent({
     name: 'discovery-widget-configuration-container',
@@ -86,7 +88,8 @@ export default defineComponent({
         WidgetInteractionsLinks,
         WidgetEditorThemePicker,
         Message,
-        WidgetMenuConfiguration
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

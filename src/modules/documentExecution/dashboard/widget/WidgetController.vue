@@ -279,6 +279,7 @@ export default defineComponent({
         },
         async loadInitalData() {
             if (!this.widgetModel || this.widgetModel.type === 'selection') return
+            console.log('------ LOAD INITAL DATA: ', this.widgetModel.settings?.configuration?.updateFromSelections)
 
             this.setWidgetLoading(true)
 
@@ -289,16 +290,19 @@ export default defineComponent({
             this.setWidgetLoading(false)
         },
         async loadActiveSelections() {
+            console.log('------ loadActiveSelections: ', this.widgetModel.settings?.configuration?.updateFromSelections)
             this.getSelectionsFromStore()
             if (this.widgetModel.type === 'selection') return
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (this.widgetUsesSelections(this.activeSelections) || associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore ?? null)
         },
         getSelectionsFromStore() {
+            console.log('------ getSelectionsFromStore: ', this.widgetModel.settings?.configuration?.updateFromSelections)
             this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
             this.checkIfSelectionIsLocked()
         },
         async onSelectionsDeleted(deletedSelections: any) {
+            console.log('------ onSelectionsDeleted: ', this.widgetModel.settings?.configuration?.updateFromSelections)
             const associations = this.dashboards[this.dashboardId]?.configuration.associations ?? []
             this.getSelectionsFromStore()
             if (this.widgetUsesSelections(deletedSelections) || (this.widget.dataset && datasetIsUsedInAssociations(this.widget.dataset, associations))) this.reloadWidgetData(null)
@@ -360,6 +364,7 @@ export default defineComponent({
             return index !== -1 ? associativeSelections : null
         },
         async onAssociativeSelectionsLoaded() {
+            console.log('------ onAssociativeSelectionsLoaded: ', this.widgetModel.settings?.configuration?.updateFromSelections)
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore)
         },

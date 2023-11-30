@@ -205,6 +205,7 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
 const addWidgetToModel = (widget: any, formattedModel: any, user: any, drivers: IDashboardDriver[]) => {
     if (checkIfWidgetInModel(widget, formattedModel)) return
     const formattedWidget = formatWidget(widget, formattedModel, user, drivers)
+    if (formattedWidget.settings.configuration.updateFromSelections === undefined) formattedWidget.settings.configuration.updateFromSelections = true
     addWidgetMenuConfig(formattedWidget)
     formattedModel.widgets.push(formattedWidget)
 }

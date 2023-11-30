@@ -39,6 +39,7 @@ export function createNewWidget(type: string) {
 
     createNewWidgetSettings(widget)
     addWidgetMenuConfig(widget)
+    widget.settings.configuration.updateFromSelections = true
 
     return widget
 }
