@@ -20,6 +20,7 @@ import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/Char
 import { KnowageHighchartsPictorialChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPictorialChart'
 import { KnowageHighchartsSankeyChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsSankeyChart'
 import { KnowageHighchartsFunnelChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsFunnelChart'
+import { KnowageHighchartsDumbbellChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsDumbbellChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -115,6 +116,9 @@ export const formatHighchartsWidget = (widget: IWidget) => {
         case 'funnel':
             widget.settings.chartModel = new KnowageHighchartsFunnelChart(chartModel)
             break
+        case 'dumbbell':
+            widget.settings.chartModel = new KnowageHighchartsDumbbellChart(chartModel)
+            break
     }
 }
 
@@ -160,6 +164,8 @@ export const createNewHighchartsModel = (widget: IWidget, chartType: string, mod
             return new KnowageHighchartsSankeyChart(model, isInverted)
         case 'funnel':
             return new KnowageHighchartsFunnelChart(model)
+        case 'dumbbell':
+            return new KnowageHighchartsDumbbellChart(model)
         default:
             return null
     }

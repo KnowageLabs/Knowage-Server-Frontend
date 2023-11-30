@@ -505,6 +505,7 @@
                 "columnChart": "Column Chart",
                 "donutChart": "Donut Chart",
                 "funnelChart": "Funnel Chart",
+                "dumbbellChart": "Dumbbell Chart",
                 "gauge": "Gauge",
                 "heatmap": "Heatmap",
                 "lineChart": "Line Chart",

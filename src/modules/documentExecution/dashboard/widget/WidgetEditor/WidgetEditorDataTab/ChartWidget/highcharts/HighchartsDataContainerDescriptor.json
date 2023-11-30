@@ -124,6 +124,23 @@
             "measuresOnly": true
         }
     ],
+    "dumbbellChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.dumbbell.dimensionsTableHint",
+            "label": "Y"
+        },
+        {
+            "measuresOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.dumbbell.startTableHint",
+            "label": "common.start"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.dumbbell.endTableHint",
+            "label": "common.end",
+            "measuresOnly": true
+        }
+    ],
     "scatterChartColumnTableSettings": [
         {
             "attributesOnly": true,
