@@ -9,7 +9,7 @@
         </Toolbar>
 
         <div class="datasetEditor-container kn-overflow">
-            <DashboardGeneralSettingsList @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
+            <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
             <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />

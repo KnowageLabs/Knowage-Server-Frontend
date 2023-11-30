@@ -27,7 +27,7 @@
                             <span class="kn-truncated">
                                 {{ row.column_1 }}
                             </span>
-                            <div class="facet-chip p-ml-auto">
+                            <div class="facet-chip p-ml-auto kn-truncated">
                                 {{ row.column_2 }}
                             </div>
                         </div>
