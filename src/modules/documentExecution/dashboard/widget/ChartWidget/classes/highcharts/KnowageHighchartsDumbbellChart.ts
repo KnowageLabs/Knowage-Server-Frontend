@@ -68,7 +68,7 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
 
         // TODO - Remove mock
         if (!mockedData || !attibuteColumn || !startMeasureColumn || !endMeasureColumn) return
-        const serieElement = { id: 0, name: attibuteColumn.column.columnName, data: [] as any[], showInLegend: true }
+        const serieElement = { id: 0, name: startMeasureColumn.column.columnName + ' | ' + endMeasureColumn.column.columnName, data: [] as any[], showInLegend: true }
         mockedData.rows.forEach((row: any,) => {
             serieElement.data.push({
                 name: dateFormat && ['date', 'timestamp'].includes(attibuteColumn.metadata.type) ? getFormattedDateCategoryValue(row[attibuteColumn.metadata.dataIndex], dateFormat, attibuteColumn.metadata.type) : row[attibuteColumn.metadata.dataIndex],

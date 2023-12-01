@@ -110,7 +110,7 @@ export default defineComponent({
             this.columnTableItems['end'] = []
             this.widgetModel.columns.forEach((column: IWidgetColumn, index: number) => {
                 let type = 'ATTRIBUTES'
-                if (column.fieldType === 'MEASURES') type = index === 1 ? 'start' : 'end'
+                if (column.fieldType === 'MEASURE') type = index === 1 ? 'start' : 'end'
                 this.columnTableItems[type].push(column)
             })
         },
