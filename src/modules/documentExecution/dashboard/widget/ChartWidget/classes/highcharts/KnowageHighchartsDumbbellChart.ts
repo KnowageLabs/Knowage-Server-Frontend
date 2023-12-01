@@ -70,11 +70,13 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         if (!mockedData || !attibuteColumn || !startMeasureColumn || !endMeasureColumn) return
         const serieElement = { id: 0, name: startMeasureColumn.column.columnName + ' | ' + endMeasureColumn.column.columnName, data: [] as any[], showInLegend: true }
         mockedData.rows.forEach((row: any,) => {
+            const firstMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, startMeasureColumn.column.id, row[startMeasureColumn.metadata.dataIndex])?.color
+            const secondMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, endMeasureColumn.column.id, row[endMeasureColumn.metadata.dataIndex])?.color
             serieElement.data.push({
                 name: dateFormat && ['date', 'timestamp'].includes(attibuteColumn.metadata.type) ? getFormattedDateCategoryValue(row[attibuteColumn.metadata.dataIndex], dateFormat, attibuteColumn.metadata.type) : row[attibuteColumn.metadata.dataIndex],
                 low: row[startMeasureColumn.metadata.dataIndex],
-                high: row[endMeasureColumn.metadata.dataIndex]
-                //color: getColumnConditionalStyles(widgetModel, measureColumn.column.id, row[measureColumn.metadata.dataIndex])?.color,
+                high: row[endMeasureColumn.metadata.dataIndex],
+                color: firstMeasureConditionalStyle ?? secondMeasureConditionalStyle,
             })
         })
         this.model.series.push(serieElement)
