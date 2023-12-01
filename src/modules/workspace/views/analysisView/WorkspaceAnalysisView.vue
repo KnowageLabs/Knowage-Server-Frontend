@@ -382,7 +382,7 @@ export default defineComponent({
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT)) this.creationMenuButtons.push({ key: '0', label: this.$t('common.cockpit'), command: () => this.openCockpitDialog(), visible: true })
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT)) this.creationMenuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.geoRef'), command: () => this.openGeoRefCreation(), visible: true })
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)) this.creationMenuButtons.push({ key: '2', label: this.$t('common.kpi'), command: () => this.openKpiDocumentDesigner(), visible: true })
-            if (this.isEnterprise) this.creationMenuButtons.push({ key: '3', label: this.$t('common.dossier'), command: () => this.openDossierDesigner(), visible: true })
+            if (this.isEnterprise && this.user.functionalities.includes(UserFunctionalitiesConstants.ENABLE_DOSSIER)) this.creationMenuButtons.push({ key: '3', label: this.$t('common.dossier'), command: () => this.openDossierDesigner(), visible: true })
         },
         openCockpitDialog() {
             this.cockpitDialogVisible = true
