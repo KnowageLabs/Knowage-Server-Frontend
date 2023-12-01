@@ -108,7 +108,8 @@ export interface IHighchartsChartModel {
         line?: any,
         scatter?: any,
         dependencywheel?: any
-        sankey?: any
+        sankey?: any,
+        dumbbell?: any,
         series?: any
     },
     legend: any,
@@ -252,4 +253,15 @@ export interface IHighchartsDrilldown {
 export interface IHighchartsAdvancedPropertySettings {
     propertyPath: string;
     propertyValue: string
+}
+
+export interface IHighchartsMarkerSettings {
+    symbol: string | undefined,
+    fillColor: string | undefined,
+    radius: number
+}
+
+export interface IHighchartsConnectorSettings {
+    connectorColor: string | undefined,
+    connectorWidth: number | undefined
 }

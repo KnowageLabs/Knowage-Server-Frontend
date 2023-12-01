@@ -13,6 +13,7 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'dumbbell') this.setSpecificOptionsDefaultValues()
+            if (!this.model.plotOptions.dumbbell) this.setPlotOptions()
         }
         this.model.chart.type = 'dumbbell'
     }
@@ -20,11 +21,25 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
+        if (!this.model.xAxis || !this.model.xAxis.title) this.setDumbbellXAxis()
+        if (!this.model.yAxis || !this.model.yAxis.title) this.setDumbbellYAxis()
     }
 
     setPlotOptions() {
-        if (!this.model.xAxis || !this.model.xAxis.title) this.setDumbbellXAxis()
-        if (!this.model.yAxis || !this.model.yAxis.title) this.setDumbbellYAxis()
+        if (!this.model.plotOptions.series.lowMarker || !this.model.plotOptions.series.marker) {
+            this.model.plotOptions.series.marker = {
+                symbol: undefined,
+                fillColor: undefined,
+                radius: 4
+            }
+            this.model.plotOptions.series.lowMarker = {
+                symbol: undefined,
+                fillColor: undefined,
+                radius: 4
+            }
+            this.model.plotOptions.series.connectorColor = undefined
+            this.model.plotOptions.series.connectorWidth = 1
+        }
     }
 
     setDumbbellXAxis() {
