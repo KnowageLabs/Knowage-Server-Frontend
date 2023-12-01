@@ -701,6 +701,11 @@
                     "hint": "Center Text Hint",
                     "title": "Center Text"
                 },
+                "connector": {
+                    "connectorColor": "Connector color",
+                    "connectorWidth": "Connector width",
+                    "title": "Connector"
+                },
                 "datetype": "Date Type",
                 "dial": {
                     "dialBaseWitdh": "Dial Base Width",

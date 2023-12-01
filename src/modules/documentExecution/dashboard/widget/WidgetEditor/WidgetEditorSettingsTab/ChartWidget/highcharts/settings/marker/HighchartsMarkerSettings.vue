@@ -65,12 +65,12 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IHighchartsMarkerSettings } from '../../../../../../interfaces/highcharts/DashboardHighchartsWidget'
+import { IHighchartsMarkerSettings } from '../../../../../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from './HighchartsMarkerSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputNumber from 'primevue/inputnumber'
-import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue'
+import WidgetEditorColorPicker from '../../../../common/WidgetEditorColorPicker.vue'
 
 export default defineComponent({
     name: 'highcharts-marker-settings',

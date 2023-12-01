@@ -60,6 +60,7 @@
                 <HighchartsFunnelNeckSettings v-else-if="accordion.type === 'FunnelNeckSettings'" :widget-model="widgetModel"></HighchartsFunnelNeckSettings>
                 <HighchartsAdvancedSettings v-else-if="accordion.type === 'AdvancedSettings'" :prop-widget-model="widgetModel"></HighchartsAdvancedSettings>
                 <HighchartsMarkerSettings v-else-if="accordion.type === 'MarkerSettings'" :widget-model="widgetModel"></HighchartsMarkerSettings>
+                <HighchartsConnectorSettings v-else-if="accordion.type === 'ConnectorSettings'" :widget-model="widgetModel"></HighchartsConnectorSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -120,7 +121,8 @@ import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.
 import Message from 'primevue/message'
 import HighchartsFunnelNeckSettings from '../highcharts/series/HighchartsFunnelNeckSettings.vue'
 import HighchartsAdvancedSettings from '../highcharts/advanced/HighchartsAdvancedSettings.vue'
-import HighchartsMarkerSettings from './marker/HighchartsMarkerSettings.vue'
+import HighchartsMarkerSettings from './settings/marker/HighchartsMarkerSettings.vue'
+import HighchartsConnectorSettings from './settings/connector/HighchartsConnectorSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -174,7 +176,8 @@ export default defineComponent({
         HighchartsAdvancedSettings,
         WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
-        HighchartsMarkerSettings
+        HighchartsMarkerSettings,
+        HighchartsConnectorSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

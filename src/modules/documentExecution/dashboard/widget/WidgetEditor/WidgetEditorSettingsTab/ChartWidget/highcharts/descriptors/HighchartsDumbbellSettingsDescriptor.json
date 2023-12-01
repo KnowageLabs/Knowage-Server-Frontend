@@ -36,6 +36,10 @@
                 "type": "MarkerSettings"
             },
             {
+                "title": "dashboard.widgetEditor.highcharts.connector.title",
+                "type": "ConnectorSettings"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },
