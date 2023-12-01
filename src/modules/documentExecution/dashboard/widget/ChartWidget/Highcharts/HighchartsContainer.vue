@@ -37,6 +37,7 @@ import Sonification from 'highcharts/modules/sonification'
 import HighchartsPictorial from 'highcharts/modules/pictorial'
 import HighchartsFunnel from 'highcharts/modules/funnel'
 import HighchartsDumbbell from 'highcharts/modules/dumbbell'
+import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -55,6 +56,7 @@ Drilldown(Highcharts)
 HighchartsPictorial(Highcharts)
 HighchartsFunnel(Highcharts)
 HighchartsDumbbell(Highcharts)
+HighchartsStreamgraph(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -214,7 +216,7 @@ export default defineComponent({
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
-                // executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
+                executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.widgetModel.settings.interactions.preview.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
                 this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview })

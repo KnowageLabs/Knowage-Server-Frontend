@@ -71,6 +71,8 @@ export default defineComponent({
             switch (this.chartType) {
                 case 'dependencywheel':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[2] }
+                case 'streamgraph':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[2] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[2] }
             }
@@ -115,7 +117,14 @@ export default defineComponent({
             })
         },
         getAttributesAxisSettings(axis: string) {
-            return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[1] }
+            switch (this.chartType) {
+                case 'dependencywheel':
+                    return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[1] }
+                case 'streamgraph':
+                    return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[1] }
+                default:
+                    return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[1] }
+            }
         },
         onColumnsReorder(columns: IWidgetColumn[], type: string) {
             this.columnTableItems[type] = columns
@@ -186,6 +195,7 @@ export default defineComponent({
                 switch (this.chartType) {
                     case 'dependencywheel':
                     case 'sankey':
+                    case 'streamgraph':
                         invalid = this.columnTableItems[type].length !== 1
                         break
                     default:
@@ -202,6 +212,7 @@ export default defineComponent({
                 switch (this.chartType) {
                     case 'dependencywheel':
                     case 'sankey':
+                    case 'streamgraph':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     default:

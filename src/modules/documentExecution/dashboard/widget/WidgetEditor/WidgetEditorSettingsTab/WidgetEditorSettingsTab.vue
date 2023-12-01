@@ -210,6 +210,7 @@ import HighchartsPictorialSettingsDescriptor from './ChartWidget/highcharts/desc
 import HighchartsSankeySettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSankeySettingsDescriptor.json'
 import HighchartsFunnelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsFunnelSettingsDescriptor.json'
 import HighchartsDumbbellSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsDumbbellSettingsDescriptor.json'
+import HighchartsStreamgraphSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsStreamgraphSettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -374,6 +375,8 @@ export default defineComponent({
                     return HighchartsFunnelSettingsDescriptor
                 case 'dumbbell':
                     return HighchartsDumbbellSettingsDescriptor
+                case 'streamgraph':
+                    return HighchartsStreamgraphSettingsDescriptor
             }
         },
         onItemClicked(item: any) {

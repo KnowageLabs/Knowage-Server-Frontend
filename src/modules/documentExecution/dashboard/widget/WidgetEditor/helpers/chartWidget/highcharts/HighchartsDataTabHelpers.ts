@@ -26,6 +26,7 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'sankey':
         case 'funnel':
         case 'dumbbell':
+        case 'streamgraph':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }

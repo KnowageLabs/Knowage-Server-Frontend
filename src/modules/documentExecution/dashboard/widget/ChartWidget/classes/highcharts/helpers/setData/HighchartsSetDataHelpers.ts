@@ -1,7 +1,7 @@
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
 import moment from 'moment'
-import mockedData from '../../mockedData.json'
+import mockedData from '../../mockedDataStreamgraph.json'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
     if (!mockedData || !widgetModel.columns) return []

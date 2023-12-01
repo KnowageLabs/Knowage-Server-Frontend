@@ -32,14 +32,6 @@
                 "type": "MenuConfiguration"
             },
             {
-                "title": "dashboard.widgetEditor.highcharts.marker.title",
-                "type": "MarkerSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.connector.title",
-                "type": "ConnectorSettings"
-            },
-            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },
@@ -86,10 +78,6 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
-            },
-            {
-                "title": "dashboard.widgetEditor.conditionalStyle",
-                "type": "ConditionalStyles"
             }
         ],
         "Style": [

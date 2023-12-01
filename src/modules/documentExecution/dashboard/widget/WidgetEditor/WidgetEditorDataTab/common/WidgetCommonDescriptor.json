@@ -137,6 +137,10 @@
         {
             "label": "dashboard.widgetEditor.chartTypes.sankeyInverted",
             "value": "sankeyInverted"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.streamgraph",
+            "value": "streamgraph"
         }
     ],
     "columnAggregationOptions": [

@@ -221,6 +221,7 @@
         "state": "State",
         "static": "Static",
         "status": "Status",
+        "stream": "Stream",
         "string": "String",
         "style": "Style",
         "suspended": "Suspended",
@@ -524,6 +525,7 @@
                 "stackedBarChart": "Stacked Bar Chart",
                 "stackedColumnChart": "Stacked Column Chart",
                 "stackedColumnsChart": "Stacked Columns Chart",
+                "streamgraph": "Streamgraph",
                 "sunburst": "Sunburst",
                 "treemap": "Treemap",
                 "wordcloud": "Wordcloud"
@@ -823,8 +825,8 @@
                     "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second category, you need to define exactly one serie."
                 },
                 "sankey": {
-                    "fromTableHint": "Click on exactly one attributes to define from category",
-                    "toTableHint": "Click on exactly one attributes to define to category",
+                    "fromTableHint": "Click on exactly one attribute to define from category",
+                    "toTableHint": "Click on exactly one attribute to define to category",
                     "valuesTableHint": "Click on exactly one measure to define series"
                 },
                 "scale": {
@@ -868,6 +870,11 @@
                     "relativePositionHint": "Solid gauge series only. Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
                     "stopsHint": "Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
                     "title": "Stops"
+                },
+                "streamgraph": {
+                    "streamTableHint": "Click on exactly one attribute to define to category",
+                    "valuesTableHint": "Click on exactly one measure to define series",
+                    "xTableHint": "Click on exactly one attribute to define from category"
                 },
                 "svg": {
                     "definition": "Definition",
@@ -2056,12 +2063,62 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        "dayNames": [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ],
+        "dayNamesMin": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "dayNamesShort": [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ],
         "firstDayOfWeek": 0,
-        "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "monthNamesShort": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ],
         "today": "Today",
         "weekHeader": "Wk"
     },

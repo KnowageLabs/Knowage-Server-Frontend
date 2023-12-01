@@ -218,7 +218,6 @@ export default defineComponent({
             this.availableSeriesOptions = []
             if (!this.widgetModel) return
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
-                console.log('-------- COLUMN: ', column)
                 if (column.fieldType === 'MEASURE' && (!column.axis || ['Y', 'start'].includes(column.axis))) this.availableSeriesOptions.push(column.columnName)
             })
         },
