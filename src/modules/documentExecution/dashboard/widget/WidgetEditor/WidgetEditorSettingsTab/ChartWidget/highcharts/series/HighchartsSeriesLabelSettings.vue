@@ -36,7 +36,7 @@
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.suffix') }}</label>
                 <InputText v-model="serieSetting.label.suffix" class="kn-material-input p-inputtext-sm" :disabled="!serieSetting.label.enabled" @change="modelChanged" />
             </div>
-            <div v-if="formattingSectionAvailable" class="p-col-12 p-md-6 p-lg-2 p-d-flex p-flex-column kn-flex">
+            <div v-if="precisionAvailable" class="p-col-12 p-md-6 p-lg-2 p-d-flex p-flex-column kn-flex">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.precision') }}</label>
                 <InputNumber v-model="serieSetting.label.precision" class="kn-material-input p-inputtext-sm" :disabled="!serieSetting.label.enabled" @blur="modelChanged" />
             </div>
@@ -126,14 +126,17 @@ export default defineComponent({
         formattingSectionAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel'].includes(this.model.chart.type)
         },
+        precisionAvailable() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble'].includes(this.model.chart.type)
+        },
         scaleVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble'].includes(this.model.chart.type)
         },
         percentageAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
         },
         absoluteVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble'].includes(this.model.chart.type)
         },
         advancedSectionAvailable() {
             return this.model?.chart.type === 'gauge'
