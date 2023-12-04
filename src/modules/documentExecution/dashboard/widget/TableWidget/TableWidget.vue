@@ -436,16 +436,16 @@ export default defineComponent({
         activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
             switch (cell.type) {
                 case 'crossNavigation':
-                    this.startCrossNavigation({ node: cell.node })
+                    this.startCrossNavigation(cell.node)
                     break
                 case 'link':
-                    this.startLinkInteraction({ node: cell.node }, this.widgetModel.settings.interactions.link?.links[cell.index ?? 0])
+                    this.startLinkInteraction(cell.node, this.widgetModel.settings.interactions.link?.links[cell.index ?? 0])
                     break
                 case 'preview':
-                    this.startPreview({ node: cell.node }, this.widgetModel.settings.interactions.preview)
+                    this.startPreview(cell.node, this.widgetModel.settings.interactions.preview)
                     break
                 case 'iframe':
-                    this.startIframeInteraction({ node: cell.node })
+                    this.startIframeInteraction(cell.node)
                     break
             }
         },
