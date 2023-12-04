@@ -58,6 +58,12 @@
                 "type": "Preview"
             }
         ],
+        "Legend": [
+            {
+                "title": "dashboard.widgetEditor.legend.title",
+                "type": "Legend"
+            }
+        ],
         "Responsive": [
             {
                 "title": "dashboard.widgetEditor.responsive.title",
@@ -158,6 +164,11 @@
             "icon": "fa fa-paint-brush",
             "label": "common.style",
             "value": "Style"
+        },
+        {
+            "icon": "pi pi-table",
+            "label": "dashboard.widgetEditor.legend.title",
+            "value": "Legend"
         },
         {
             "icon": "fa-solid fa-arrow-up",
