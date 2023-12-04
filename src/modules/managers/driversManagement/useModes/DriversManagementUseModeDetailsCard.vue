@@ -95,33 +95,6 @@
                             <KnValidationMessages class="p-mt-1" :v-comp="v$.mode.selectionType" :additional-translate-params="{ fieldName: $t('managers.driversManagement.useModes.modality') }" :specific-translate-keys="{ required_type_for_lov: 'common.validation.required' }"></KnValidationMessages>
                         </div>
                     </div>
-                    <div v-show="mode.valueSelection === 'map_in'" class="p-col-9 p-sm-12 p-md-8 p-fluid p-formgrid p-grid">
-                        <div class="p-field p-col-6 p-sm-12 p-md-6">
-                            <span class="p-float-label">
-                                <Dropdown
-                                    id="type"
-                                    v-model="v$.mode.selectedLayer.$model"
-                                    class="kn-material-input"
-                                    :options="layers"
-                                    option-label="name"
-                                    option-value="name"
-                                    :class="{
-                                        'p-invalid': v$.mode.selectedLayer.$invalid && v$.mode.selectedLayer.$dirty
-                                    }"
-                                    @blur="v$.mode.selectedLayer.$touch()"
-                                    @change="modeChanged"
-                                />
-                                <label for="type" class="kn-material-input-label"> {{ $t('managers.driversManagement.useModes.layer') }} * </label>
-                            </span>
-                            <KnValidationMessages class="p-mt-1" :v-comp="v$.mode.selectedLayer" :additional-translate-params="{ fieldName: $t('managers.driversManagement.useModes.layer') }" :specific-translate-keys="{ required_for_map_in: 'common.validation.required' }"></KnValidationMessages>
-                        </div>
-                        <div class="p-field p-col-6 p-sm-12 p-md-6">
-                            <span class="p-float-label">
-                                <InputText id="prop" v-model="mode.selectedLayerProp" class="kn-material-input" type="text" />
-                                <label for="prop" class="kn-material-input-label">{{ $t('managers.driversManagement.useModes.layerProp') }} </label>
-                            </span>
-                        </div>
-                    </div>
                 </div>
                 <div class="p-col-12 p-d-flex p-flex-wrap">
                     <div class="p-field p-col-4 p-sm-12 p-md-4">
@@ -249,9 +222,6 @@ export default defineComponent({
             required_lovId_for_lov: () => {
                 return this.mode.valueSelection != 'lov' || this.mode.typeLov.name != null
             },
-            required_for_map_in: () => {
-                return this.mode.valueSelection != 'map_in' || (this.mode.selectedLayer != '' && this.mode.selectedLayer != null)
-            },
             required_for_pick_up: () => {
                 return this.selectedDefault != 'pickUp' || (this.mode.defaultFormula != '' && this.mode.defaultFormula != null)
             },
@@ -269,15 +239,9 @@ export default defineComponent({
     },
     computed: {
         defaults(): any {
-            if (this.mode.valueSelection === 'map_in') {
-                return this.useModeDescriptor.defaultValues.filter((type) => type.label != 'pickUp')
-            }
             return this.useModeDescriptor.defaultValues
         },
         availableTypes(): any {
-            if (!this.showMapDriver) {
-                return this.useModeDescriptor.types.filter((type) => type.valueSelection != 'map_in')
-            }
             return this.useModeDescriptor.types
         }
     },
@@ -353,12 +317,6 @@ export default defineComponent({
                     this.mode.selectionType = null
                     this.mode.selectedLayer = null
                     this.mode.selectedLayerProp = null
-                    break
-                case 'map_in':
-                    this.mode.idLov = null
-                    this.mode.typeLov = { name: null }
-                    this.mode.selectionType = null
-                    this.mode.manualInput = 0
                     break
             }
             this.modeChanged()

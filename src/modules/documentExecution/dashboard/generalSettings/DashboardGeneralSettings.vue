@@ -9,7 +9,7 @@
         </Toolbar>
 
         <div class="datasetEditor-container kn-overflow">
-            <DashboardGeneralSettingsList @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
+            <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
             <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
@@ -32,6 +32,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IVariable, IDataset, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import DashboardGeneralSettingsList from './DashboardGeneralSettingsList.vue'
 import DashboardInformation from './information/DashboardInformation.vue'
 import DashboardBackground from './background/DashboardBackground.vue'
@@ -132,14 +133,19 @@ export default defineComponent({
             this.menuWidgetsConfig = deepcopy(this.dashboardModel.configuration.menuWidgets) as IMenuAndWidgets
         },
         async saveGeneralSettings() {
+            let refreshWidgets = false
             for (let i = 0; i < this.variables.length; i++) {
-                if (this.variables[i].type === 'dataset') await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
+                if (this.variables[i].type === 'dataset') {
+                    await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
+                    refreshWidgets = true
+                }
             }
 
             this.dashboardModel.configuration.variables = this.variables
             if (this.dashboardModel.configuration.theme) applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
             this.updateWidgetMenuSettings()
 
+            if (refreshWidgets) emitter.emit('refreshAfterGeneralSettingsChange')
             this.$emit('closeGeneralSettings')
         },
         onCustomHeaderSaved(customHeader: IWidget) {

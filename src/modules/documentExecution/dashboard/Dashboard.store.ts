@@ -123,8 +123,8 @@ const store = defineStore('dashboardStore', {
             })
             if (removedSelections.length > 0 && this.dashboards[dashboardId].selections.length > 0) {
                 if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations)) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
-                emitter.emit('selectionsDeleted', removedSelections)
             }
+            emitter.emit('selectionsDeleted', removedSelections)
         },
         getDashboardDatasets(dashboardId: number) {
             return this.dashboards[dashboardId]?.configuration?.datasets

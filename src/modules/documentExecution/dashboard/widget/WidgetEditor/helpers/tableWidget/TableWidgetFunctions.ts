@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation, ITableWidgetTooltipStyle } from "../../../../Dashboard"
+import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from "../../../../Dashboard"
 import { emitter } from '../../../../DashboardHelpers'
 import * as  tableWidgetDefaultValues from './TableWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
@@ -133,6 +133,8 @@ const getColumnId = (columnName: string) => {
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
     if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnId(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
+    formatTableWidgetColumnStyles(widgetSettings.style.columns)
+    formatTableWidgetColumnStyles(widgetSettings.style.columnGroups)
     formatTableWidgetVisualisation(widgetSettings.visualization)
     formatTableWidgetConditionalStyle(widgetSettings.conditionalStyles)
     formatTableWidgetTooltips(widgetSettings.tooltips)
@@ -143,6 +145,19 @@ const formatTableWidgetConfiguration = (widgetConfiguration: ITableWidgetConfigu
     formatRowsConfiguration(widgetConfiguration)
     formatHeadersConfiguration(widgetConfiguration)
     formatColumnGroups(widgetConfiguration)
+}
+
+const formatTableWidgetColumnStyles = (columnStyles: ITableWidgetColumnStyles) => {
+    for (let i = 0; i < columnStyles.styles.length; i++) {
+        const tempStyle = columnStyles.styles[i]
+        const formattedTargetColumns = [] as string[]
+        if (Array.isArray(tempStyle.target)) {
+            for (let j = 0; j < tempStyle.target.length; j++) {
+                formattedTargetColumns.push(getColumnId(tempStyle.target[j]))
+            }
+            tempStyle.target = formattedTargetColumns
+        }
+    }
 }
 
 const formatRowsConfiguration = (widgetConfiguration: ITableWidgetConfiguration) => {

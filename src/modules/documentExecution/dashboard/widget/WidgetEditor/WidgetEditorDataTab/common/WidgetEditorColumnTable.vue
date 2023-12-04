@@ -170,6 +170,7 @@ export default defineComponent({
             emitter.emit('editCalculatedField', column)
         },
         onCalcFieldAdded(field) {
+            if (this.settings.attributesOnly || (this.axis && !['Y'].includes(this.axis))) return
             this.rows.push(field as IWidgetColumn)
             this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings })
         }

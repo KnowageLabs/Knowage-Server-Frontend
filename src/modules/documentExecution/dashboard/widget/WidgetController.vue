@@ -198,6 +198,7 @@ export default defineComponent({
             emitter.on('datasetRefreshed', this.onDatasetRefresh)
             emitter.on('setWidgetLoading', this.setWidgetLoading)
             emitter.on('chartTypeChanged', this.onWidgetUpdated)
+            emitter.on('refreshAfterGeneralSettingsChange', this.loadInitalData)
         },
         removeEventListeners() {
             emitter.off('selectionsChanged', this.loadActiveSelections)
@@ -207,6 +208,7 @@ export default defineComponent({
             emitter.off('datasetRefreshed', this.onDatasetRefresh)
             emitter.off('setWidgetLoading', this.setWidgetLoading)
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
+            emitter.off('refreshAfterGeneralSettingsChange', this.loadInitalData)
         },
         captureScreenshot(widget) {
             let targetElement = document.getElementById(`widget${widget.id}`)
