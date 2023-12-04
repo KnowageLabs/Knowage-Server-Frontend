@@ -1,6 +1,6 @@
 <template>
     <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="chartType === 'heatmap'" class="p-col-12 p-d-flex p-flex-row">
+        <div v-if="['heatmap', 'sunburst'].includes(chartType)" class="p-col-12 p-d-flex p-flex-row">
             <div class="p-col-12 p-md-4 p-d-flex p-flex-column kn-flex">
                 <label class="kn-material-input-label p-mr-">{{ $t('dashboard.widgetEditor.prefix') }}</label>
                 <InputText v-model="model.tooltip.valuePrefix" class="kn-material-input p-inputtext-sm" @change="modelChanged" />

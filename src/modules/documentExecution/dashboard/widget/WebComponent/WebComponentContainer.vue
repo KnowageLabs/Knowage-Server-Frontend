@@ -42,6 +42,9 @@ export default defineComponent({
         },
         propActiveSelections() {
             this.loadActiveSelections()
+        },
+        variables() {
+            this.loadDataToShow()
         }
     },
     mounted() {
