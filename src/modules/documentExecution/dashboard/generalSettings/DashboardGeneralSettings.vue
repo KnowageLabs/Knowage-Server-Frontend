@@ -32,6 +32,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IVariable, IDataset, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import DashboardGeneralSettingsList from './DashboardGeneralSettingsList.vue'
 import DashboardInformation from './information/DashboardInformation.vue'
 import DashboardBackground from './background/DashboardBackground.vue'
@@ -124,13 +125,18 @@ export default defineComponent({
         },
 
         async saveGeneralSettings() {
+            let refreshWidgets = false
             for (let i = 0; i < this.variables.length; i++) {
-                if (this.variables[i].type === 'dataset') await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
+                if (this.variables[i].type === 'dataset') {
+                    await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
+                    refreshWidgets = true
+                }
             }
             this.dashboardModel.configuration.variables = this.variables
 
             if (this.dashboardModel.configuration.theme) applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
 
+            if (refreshWidgets) emitter.emit('refreshAfterGeneralSettingsChange')
             this.$emit('closeGeneralSettings')
         },
         onCustomHeaderSaved(customHeader: IWidget) {

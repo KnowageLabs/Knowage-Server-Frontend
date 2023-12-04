@@ -223,7 +223,7 @@ export const getVariableData = async (variable: IVariable, datasets: IDataset[],
 }
 
 const getVariableDatasetLabel = (variable: IVariable, datasets: IDataset[]) => {
-    const datasetIndex = datasets.findIndex((dataset: IDataset) => variable.dataset === dataset.id)
+    const datasetIndex = datasets.findIndex((dataset: IDataset) => variable.dataset === dataset.id.dsId)
     return datasetIndex !== -1 ? datasets[datasetIndex] : null
 }
 //#endregion ================================================================================================
