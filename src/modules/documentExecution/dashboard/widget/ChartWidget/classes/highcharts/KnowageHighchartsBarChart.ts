@@ -15,7 +15,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
             this.model = deepcopy(model)
             if (!['area', 'bar', 'column'].includes(model.chart.type)) this.setSpecificOptionsDefaultValues()
         }
-        if (isStacked && this.model.plotOptions) this.model.plotOptions.series.stacking = 'normal'
+        if (isStacked && this.model.plotOptions) this.model.plotOptions.series.stacking = this.model.plotOptions.series.stacking ?? 'normal'
         else delete this.model.plotOptions.series.stacking
         this.model.chart.type = type
     }
