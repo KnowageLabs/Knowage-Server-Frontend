@@ -10,7 +10,7 @@
         :h="item.h"
         :i="item.i"
         drag-allow-from=".drag-handle"
-        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget.settings.responsive.fullGrid }"
+        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget?.settings.responsive.fullGrid }"
         @resized="resizedEvent"
     >
         <div v-if="initialized" class="drag-handle"></div>

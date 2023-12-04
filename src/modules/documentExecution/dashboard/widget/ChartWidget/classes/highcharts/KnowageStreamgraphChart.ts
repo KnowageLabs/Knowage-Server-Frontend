@@ -21,7 +21,7 @@ export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
         if (!this.model.xAxis || !this.model.xAxis.title) this.setStreamgraphXAxis()
-        if (!this.model.yAxis || !this.model.yAxis.title) this.setStreamgraphYAxis()
+        this.setStreamgraphYAxis()
     }
 
     setPlotOptions() {
@@ -33,9 +33,12 @@ export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
     }
 
     setStreamgraphYAxis() {
-        this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
+        this.model.yAxis = [{
+            visible: false,
+            startOnTick: false,
+            endOnTick: false
+        }]
     }
-
 
     setData(data: any, widgetModel: IWidget) {
         this.model.series = []
@@ -50,24 +53,41 @@ export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
     setStreamgraphChartData(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
         console.log('----- MOCKED DATA: ', mockedData)
 
-        const firstAttibuteColumn = attributeColumns[0]
-        const secondAttibuteColumn = attributeColumns[1]
+        const firstAttributeColumn = attributeColumns[0]
+        const secondAttributeColumn = attributeColumns[1]
         const measureColumn = measureColumns[0]
 
         // TODO - Remove mock
-        if (!mockedData || !firstAttibuteColumn || !secondAttibuteColumn || !measureColumn) return
-        const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true }
+        if (!mockedData || !firstAttributeColumn || !secondAttributeColumn || !measureColumn) return
 
-        this.model.xAxis.categories = []
-        console.log('-------- SET DATA X AXIS: ', this.model.xAxis)
+        const result: Record<string, Record<string, number[]>> = {};
         mockedData.rows.forEach((row: any,) => {
-            // this.model.xAxis.categories.push(row[firstAttibuteColumn.metadata.dataIndex])
-            serieElement.data.push({
-                name: dateFormat && ['date', 'timestamp'].includes(secondAttibuteColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttibuteColumn.metadata.dataIndex], dateFormat, secondAttibuteColumn.metadata.type) : row[secondAttibuteColumn.metadata.dataIndex],
-                y: row[measureColumn.metadata.dataIndex]
-            })
+            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex];
+            const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex];
+            const measureValue = row[measureColumn.metadata.dataIndex];
+
+            if (!result[firstAttributeValue]) result[firstAttributeValue] = {};
+            if (!result[firstAttributeValue][secondAttributeValue]) result[firstAttributeValue][secondAttributeValue] = [];
+            result[firstAttributeValue][secondAttributeValue].push(measureValue);
         })
-        this.model.series.push(serieElement)
+
+        const categories: string[] = Object.keys(result);
+        const allKeys: Set<string> = new Set();
+
+        categories.forEach(category => {
+            const keys = Object.keys(result[category]);
+            keys.forEach(key => allKeys.add(key));
+        });
+
+        allKeys.forEach(key => {
+            const data: { name: string, y: number }[] = categories.map(category => {
+                const values = result[category][key];
+                return values ? { name: category, y: values.reduce((sum, value) => sum + value, 0) } : { name: category, y: 0 };
+            });
+            this.model.series.push({ name: key, data })
+        });
+        this.model.xAxis[0].categories = []
+        this.model.xAxis[0].categories = [...categories]
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
