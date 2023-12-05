@@ -19,6 +19,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'sunburst'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
     updateModel(oldModel: any) {

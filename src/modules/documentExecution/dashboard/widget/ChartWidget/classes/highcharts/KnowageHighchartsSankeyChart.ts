@@ -18,6 +18,7 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
         }
         this.model.chart.type = 'sankey'
         this.model.chart.inverted = inverted
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
     updateModel(oldModel: any) {

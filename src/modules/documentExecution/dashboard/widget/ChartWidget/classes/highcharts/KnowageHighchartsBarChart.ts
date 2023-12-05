@@ -18,6 +18,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         if (isStacked && this.model.plotOptions) this.model.plotOptions.series.stacking = this.model.plotOptions.series.stacking ?? 'normal'
         else delete this.model.plotOptions.series.stacking
         this.model.chart.type = type
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
     updateModel(oldModel: any) {

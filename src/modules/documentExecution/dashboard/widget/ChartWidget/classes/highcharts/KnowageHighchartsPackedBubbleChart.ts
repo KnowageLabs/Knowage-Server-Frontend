@@ -15,6 +15,7 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
             if (model.chart.type !== 'packedbubble') this.setSpecificOptionsDefaultValues()
         }
         this.model.chart.type = 'packedbubble'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
 

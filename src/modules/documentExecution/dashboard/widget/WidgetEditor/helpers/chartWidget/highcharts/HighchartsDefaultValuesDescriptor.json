@@ -112,6 +112,19 @@
             "names": ["all"]
         }
     ],
+    "defaultAnnotations": [
+        {
+            "labels": [
+                {
+                    "point": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "text": ""
+                }
+            ]
+        }
+    ],
     "defaultBandsSetting": {
         "color": "",
         "from": 0,

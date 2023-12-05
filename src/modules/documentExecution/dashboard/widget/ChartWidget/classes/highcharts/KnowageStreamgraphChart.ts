@@ -15,6 +15,7 @@ export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
             if (model.chart.type !== 'streamgraph') this.setSpecificOptionsDefaultValues()
         }
         this.model.chart.type = 'streamgraph'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
 

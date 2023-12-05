@@ -123,7 +123,8 @@ export interface IHighchartsChartModel {
     yAxis?: any,
     colorAxis?: { stops: any[] },
     seriesForRender?: any[],
-    sonification?: any
+    sonification?: any,
+    annotations: IHighchartsAnnotation[]
 }
 
 export interface IHighchartsOptions3D {
@@ -264,4 +265,14 @@ export interface IHighchartsMarkerSettings {
 export interface IHighchartsConnectorSettings {
     connectorColor: string | undefined,
     connectorWidth: number | undefined
+}
+
+export interface IHighchartsAnnotation {
+    labels: {
+        point: {
+            x: number,
+            y: number
+        },
+        text: string
+    }[]
 }

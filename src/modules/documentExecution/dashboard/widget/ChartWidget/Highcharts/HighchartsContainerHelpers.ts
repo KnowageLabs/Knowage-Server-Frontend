@@ -1,8 +1,9 @@
-import { IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
+import { IDashboardDriver, IVariable, IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
 import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardChartJSWidget";
 import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardHighchartsWidget'
 import i18n from '@/App.i18n'
 import store from '@/App.store.js'
+import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from "../../interactionsHelpers/InteractionsParserHelper";
 
 const { t } = i18n.global
 const mainStore = store()
@@ -132,5 +133,14 @@ const getFormattedPropertyValue = (propertyValue: string) => {
             return false;
         default:
             return propertyValue
+    }
+}
+
+export const formatChartAnnotations = (modelToRender: any, variables: IVariable[], drivers: IDashboardDriver[]) => {
+    for (let i = modelToRender.annotations[0].labels.length - 1; i >= 0; i--) {
+        const label = modelToRender.annotations[0].labels[i]
+        label.text = replaceVariablesPlaceholdersByVariableName(label.text, variables)
+        label.text = replaceDriversPlaceholdersByDriverUrlName(label.text, drivers)
+        if (!label.text?.trim()) modelToRender.annotations[0].labels.splice(i, 1)
     }
 }

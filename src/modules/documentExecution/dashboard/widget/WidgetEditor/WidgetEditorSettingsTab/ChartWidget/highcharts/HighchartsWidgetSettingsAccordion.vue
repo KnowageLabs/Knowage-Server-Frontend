@@ -61,6 +61,7 @@
                 <HighchartsAdvancedSettings v-else-if="accordion.type === 'AdvancedSettings'" :prop-widget-model="widgetModel"></HighchartsAdvancedSettings>
                 <HighchartsMarkerSettings v-else-if="accordion.type === 'MarkerSettings'" :widget-model="widgetModel"></HighchartsMarkerSettings>
                 <HighchartsConnectorSettings v-else-if="accordion.type === 'ConnectorSettings'" :widget-model="widgetModel"></HighchartsConnectorSettings>
+                <HighchartsAnnotations v-else-if="accordion.type === 'Annotations'" :widget-model="widgetModel"></HighchartsAnnotations>
             </AccordionTab>
         </Accordion>
     </div>
@@ -123,6 +124,7 @@ import HighchartsFunnelNeckSettings from '../highcharts/series/HighchartsFunnelN
 import HighchartsAdvancedSettings from '../highcharts/advanced/HighchartsAdvancedSettings.vue'
 import HighchartsMarkerSettings from './settings/marker/HighchartsMarkerSettings.vue'
 import HighchartsConnectorSettings from './settings/connector/HighchartsConnectorSettings.vue'
+import HighchartsAnnotations from './configuration/HighchartsAnnotations.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -177,7 +179,8 @@ export default defineComponent({
         WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
         HighchartsMarkerSettings,
-        HighchartsConnectorSettings
+        HighchartsConnectorSettings,
+        HighchartsAnnotations
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

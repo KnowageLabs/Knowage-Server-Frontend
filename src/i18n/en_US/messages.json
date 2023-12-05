@@ -667,6 +667,7 @@
                 "advancedSettings": "Advanced Settings",
                 "advancedSettingsErrorArrayIndexOutOfBounds": "Error applying property {property}, array index out of bounds!",
                 "advancedSettingsHint": "Advanced Settings Hint Placeholder",
+                "annotations": "Annotations",
                 "areaRangeHigh": "Area Range High",
                 "areaRangeLow": "Area Range Low",
                 "axisLines": {

@@ -3,6 +3,7 @@ import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
+import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -13,6 +14,7 @@ export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
             if (model.chart.type !== 'funnel') this.setSpecificOptionsDefaultValues()
         }
         this.model.chart.type = 'funnel'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
 

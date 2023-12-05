@@ -17,6 +17,7 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
             }
         }
         this.model.chart.type = 'solidgauge'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
     updateModel(oldModel: any) {

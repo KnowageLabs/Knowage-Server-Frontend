@@ -12,7 +12,7 @@ import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
 import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart } from './HighchartsModelFormattingHelpers'
-import { applyAdvancedSettingsToModelForRender, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
+import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
@@ -38,6 +38,7 @@ import HighchartsPictorial from 'highcharts/modules/pictorial'
 import HighchartsFunnel from 'highcharts/modules/funnel'
 import HighchartsDumbbell from 'highcharts/modules/dumbbell'
 import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
+import HighchartsAnnotations from 'highcharts/modules/annotations'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -57,6 +58,7 @@ HighchartsPictorial(Highcharts)
 HighchartsFunnel(Highcharts)
 HighchartsDumbbell(Highcharts)
 HighchartsStreamgraph(Highcharts)
+HighchartsAnnotations(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -94,7 +96,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets']),
+        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets', 'getDashboardDrivers']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('refreshChart', this.onRefreshChart)
@@ -138,6 +140,7 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
+            formatChartAnnotations(modelToRender, this.propVariables, this.getDashboardDrivers(this.dashboardId))
 
             console.log('--------------- MODEL TO RENDER: ', modelToRender)
             try {

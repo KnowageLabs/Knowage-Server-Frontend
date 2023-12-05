@@ -21,6 +21,7 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'pie'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
     updateModel(oldModel: any) {

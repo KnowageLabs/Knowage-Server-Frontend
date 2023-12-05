@@ -18,6 +18,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'radar'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
     updateModel(oldModel: any) {

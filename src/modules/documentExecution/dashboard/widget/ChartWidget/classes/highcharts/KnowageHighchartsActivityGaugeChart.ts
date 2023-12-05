@@ -20,6 +20,7 @@ export class KnowageHighchartsActivityGaugeChart extends KnowageHighchartsGaugeC
             }
         }
         this.model.chart.type = 'activitygauge'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
     }
 
     updateModel(oldModel: any) {
