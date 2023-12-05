@@ -88,6 +88,23 @@
             "measuresOnly": true
         }
     ],
+    "packedBubbleChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.groupTableHint",
+            "label": "common.group"
+        },
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.labelTableHint",
+            "label": "common.label"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "pictorialChartColumnTableSettings": [
         {
             "attributesOnly": true,

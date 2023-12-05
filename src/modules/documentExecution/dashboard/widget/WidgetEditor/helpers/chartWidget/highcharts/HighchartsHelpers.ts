@@ -22,6 +22,7 @@ import { KnowageHighchartsSankeyChart } from '../../../../ChartWidget/classes/hi
 import { KnowageHighchartsFunnelChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsFunnelChart'
 import { KnowageHighchartsDumbbellChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsDumbbellChart'
 import { KnowageHighchartsStreamgraphChart } from '../../../../ChartWidget/classes/highcharts/KnowageStreamgraphChart'
+import { KnowageHighchartsPackedBubbleChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPackedBubbleChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -123,6 +124,9 @@ export const formatHighchartsWidget = (widget: IWidget) => {
         case 'streamgraph':
             widget.settings.chartModel = new KnowageHighchartsStreamgraphChart(chartModel)
             break
+        case 'packedbubble':
+            widget.settings.chartModel = new KnowageHighchartsPackedBubbleChart(chartModel)
+            break
     }
 }
 
@@ -172,6 +176,8 @@ export const createNewHighchartsModel = (widget: IWidget, chartType: string, mod
             return new KnowageHighchartsDumbbellChart(model)
         case 'streamgraph':
             return new KnowageHighchartsStreamgraphChart(model)
+        case 'packedbubble':
+            return new KnowageHighchartsPackedBubbleChart(model)
         default:
             return null
     }

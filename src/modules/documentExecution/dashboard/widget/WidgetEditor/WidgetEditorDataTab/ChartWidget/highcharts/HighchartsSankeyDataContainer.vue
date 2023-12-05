@@ -73,6 +73,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[2] }
                 case 'streamgraph':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[2] }
+                case 'packedbubble':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.packedBubbleChartColumnTableSettings[2] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[2] }
             }
@@ -122,6 +124,8 @@ export default defineComponent({
                     return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[1] }
                 case 'streamgraph':
                     return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[1] }
+                case 'packedbubble':
+                    return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.packedBubbleChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.packedBubbleChartColumnTableSettings[1] }
                 default:
                     return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[1] }
             }

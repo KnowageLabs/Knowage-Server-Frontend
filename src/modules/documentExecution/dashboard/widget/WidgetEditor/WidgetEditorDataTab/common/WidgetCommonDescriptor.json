@@ -141,6 +141,10 @@
         {
             "label": "dashboard.widgetEditor.chartTypes.streamgraph",
             "value": "streamgraph"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.packedbubble",
+            "value": "packedbubble"
         }
     ],
     "columnAggregationOptions": [

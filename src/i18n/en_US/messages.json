@@ -514,6 +514,7 @@
                 "gauge": "Gauge",
                 "heatmap": "Heatmap",
                 "lineChart": "Line Chart",
+                "packedbubble": "Packed Bubble Chart",
                 "parallelChart": "Parallel Chart",
                 "pictorial": "Pictorial",
                 "pieChart": "Pie Chart",
@@ -798,6 +799,11 @@
                     "triangleDown": "Triangle down"
                 },
                 "minorGridDetails": "Axis minor grid details",
+                "packedBubble": {
+                    "groupTableHint": "Click on exactly one attribute to define to category",
+                    "labelTableHint": "Click on exactly one attribute to define from category",
+                    "valuesTableHint": "Click on exactly one measure to define series"
+                },
                 "paneSettings": {
                     "centralHorizontalPosition": "Centar Horizontal Position",
                     "centralVerticalPosition": "Centar Vertical Position",
