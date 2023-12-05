@@ -32,6 +32,10 @@
                 "type": "MenuConfiguration"
             },
             {
+                "title": "dashboard.widgetEditor.highcharts.axisLines.title",
+                "type": "AxisLinesSettings"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },
@@ -107,6 +111,16 @@
                 "title": "dashboard.widgetEditor.tooltip.title",
                 "type": "Tooltip"
             }
+        ],
+        "XAxis": [
+            {
+                "title": "dashboard.widgetEditor.axis",
+                "type": "HeatmapXAxisSettings"
+            },
+            {
+                "title": "common.title",
+                "type": "HeatmapXAxisTitleSettings"
+            }
         ]
     },
     "settingsListOptions": [
@@ -129,6 +143,11 @@
             "icon": "pi pi-table",
             "label": "dashboard.widgetEditor.legend.title",
             "value": "Legend"
+        },
+        {
+            "icon": "fa-solid fa-arrow-right",
+            "label": "dashboard.widgetEditor.xAxis",
+            "value": "XAxis"
         },
         {
             "icon": "pi pi-table",
