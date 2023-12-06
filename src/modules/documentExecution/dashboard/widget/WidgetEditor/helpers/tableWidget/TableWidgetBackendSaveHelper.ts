@@ -31,7 +31,6 @@ const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
     if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnName(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
     formatTableWidgetColumnStyles(widgetSettings.style.columns)
-    formatTableWidgetColumnStyles(widgetSettings.style.columnGroups)
     formatTableWidgetVisualisation(widgetSettings.visualization)
     formatTableWidgetConditionalStyle(widgetSettings.conditionalStyles)
     formatTableWidgetTooltips(widgetSettings.tooltips)
