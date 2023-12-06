@@ -36,6 +36,10 @@
                 "type": "Annotations"
             },
             {
+                "title": "dashboard.widgetEditor.highcharts.jitter.title",
+                "type": "JitterSettings"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },

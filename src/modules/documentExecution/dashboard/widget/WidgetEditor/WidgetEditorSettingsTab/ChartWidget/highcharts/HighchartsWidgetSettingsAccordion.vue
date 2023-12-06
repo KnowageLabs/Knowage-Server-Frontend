@@ -62,6 +62,7 @@
                 <HighchartsMarkerSettings v-else-if="accordion.type === 'MarkerSettings'" :widget-model="widgetModel"></HighchartsMarkerSettings>
                 <HighchartsConnectorSettings v-else-if="accordion.type === 'ConnectorSettings'" :widget-model="widgetModel"></HighchartsConnectorSettings>
                 <HighchartsAnnotations v-else-if="accordion.type === 'Annotations'" :widget-model="widgetModel"></HighchartsAnnotations>
+                <HighchartsJitterSettings v-else-if="accordion.type === 'JitterSettings' && isJittered" :widget-model="widgetModel"></HighchartsJitterSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -125,6 +126,7 @@ import HighchartsAdvancedSettings from '../highcharts/advanced/HighchartsAdvance
 import HighchartsMarkerSettings from './settings/marker/HighchartsMarkerSettings.vue'
 import HighchartsConnectorSettings from './settings/connector/HighchartsConnectorSettings.vue'
 import HighchartsAnnotations from './configuration/HighchartsAnnotations.vue'
+import HighchartsJitterSettings from './configuration/HighchartsJitterSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -180,7 +182,8 @@ export default defineComponent({
         WidgetSelectionConfiguration,
         HighchartsMarkerSettings,
         HighchartsConnectorSettings,
-        HighchartsAnnotations
+        HighchartsAnnotations,
+        HighchartsJitterSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -211,6 +214,10 @@ export default defineComponent({
         },
         showThemePicker() {
             return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+        },
+        isJittered() {
+            if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.jitter) return true
+            return false
         }
     },
     watch: {

@@ -78,7 +78,6 @@ export default defineComponent({
             delete this.widget.invalid
             const tempWidgetColors = [...this.widget.settings.chartModel.model.colors]
 
-            // TODO widgetChange
             if (chartType === 'wordcloud') {
                 this.widget.type = 'vega'
                 this.widget.settings = createNewVegaSettings()

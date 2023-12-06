@@ -1,8 +1,5 @@
 <template>
     <div v-if="annotations && annotations[0]" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12">
-            {{ annotations }}
-        </div>
         <div v-for="(label, index) in annotations[0].labels" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
             <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
                 <label class="kn-material-input-label p-mr-2">{{ 'X' }}</label>

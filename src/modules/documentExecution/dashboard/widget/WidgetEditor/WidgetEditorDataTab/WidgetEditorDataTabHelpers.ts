@@ -9,7 +9,6 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
 
     delete widget.invalid
 
-    // TODO widgetChange
     if (chartType === 'wordcloud') {
         widget.type = 'vega'
         widget.settings = createNewVegaSettings()

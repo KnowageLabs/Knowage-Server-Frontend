@@ -662,6 +662,11 @@
             },
             "hidden": "Hidden",
             "highcharts": {
+                "jitter": {
+                    "title": "Jitter",
+                    "xAxisJitter": "X axis jitter",
+                    "yAxisJitter": "Y axis jitter"
+                },
                 "activityGauge": {
                     "valuesTableHint": "Measures only."
                 },
