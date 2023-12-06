@@ -178,7 +178,7 @@ const createChartModel = (widget: any, chartType: string, isStacking: boolean) =
         case "BUBBLE":
             return new KnowageHighchartsBubbleChart(widgetContentChartTemplate)
         case "SCATTER":
-            return new KnowageHighchartsScatterChart(widgetContentChartTemplate)
+            return new KnowageHighchartsScatterChart(widgetContentChartTemplate, false)
         case "LINE":
             return new KnowageHighchartsLineChart(widgetContentChartTemplate)
         case "TREEMAP":

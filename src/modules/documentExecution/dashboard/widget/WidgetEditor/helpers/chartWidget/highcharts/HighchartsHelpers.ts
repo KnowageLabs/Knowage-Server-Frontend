@@ -59,6 +59,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
     const chartType = chartModel.chart.type
     const isStacking = chartModel.plotOptions?.series?.stacking
     const isInverted = chartModel.chart.inverted
+    const isJittered = chartModel.plotOptions?.jitter !== undefined  // TODO - See if it can be written better
     switch (chartType) {
         case 'pie':
             widget.settings.chartModel = new KnowageHighchartsPieChart(chartModel)
@@ -91,7 +92,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             widget.settings.chartModel = new KnowageHighchartsBubbleChart(chartModel)
             break
         case 'scatter':
-            widget.settings.chartModel = new KnowageHighchartsScatterChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsScatterChart(chartModel, isJittered)
             break
         case 'line':
             widget.settings.chartModel = new KnowageHighchartsLineChart(chartModel)
@@ -130,7 +131,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
     }
 }
 
-export const createNewHighchartsModel = (widget: IWidget, chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean, isInverted: boolean) => {
+export const createNewHighchartsModel = (widget: IWidget, chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean, isInverted: boolean, isJittered: boolean) => {
     switch (chartType) {
         case 'pie':
             return new KnowageHighchartsPieChart(model)
@@ -154,6 +155,8 @@ export const createNewHighchartsModel = (widget: IWidget, chartType: string, mod
             return new KnowageHighchartsBubbleChart(model)
         case 'scatter':
             return new KnowageHighchartsScatterChart(model)
+        case 'scatterJitter':
+            return new KnowageHighchartsScatterChart(model, isJittered)
         case 'line':
             return new KnowageHighchartsLineChart(model)
         case 'treemap':

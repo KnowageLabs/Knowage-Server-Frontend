@@ -522,6 +522,7 @@
                 "sankey": "Sankey",
                 "sankeyInverted": "Sankey Inverted",
                 "scatterChart": "Scatter Chart",
+                "scatterJitter": "Scatter Jitter",
                 "solidgauge": "Solid Gauge",
                 "stackedAreaChart": "Stacked Area Chart",
                 "stackedBarChart": "Stacked Bar Chart",

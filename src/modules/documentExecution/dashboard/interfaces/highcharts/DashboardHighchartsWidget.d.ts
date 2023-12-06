@@ -110,7 +110,8 @@ export interface IHighchartsChartModel {
         dependencywheel?: any
         sankey?: any,
         dumbbell?: any,
-        series?: any
+        series?: any,
+        jitter?: { x: number, y: number }
     },
     legend: any,
     tooltip: any,
@@ -123,7 +124,7 @@ export interface IHighchartsChartModel {
     yAxis?: any,
     colorAxis?: { stops: any[] },
     seriesForRender?: any[],
-    sonification?: any,
+    sonification?: any
     annotations: IHighchartsAnnotation[]
 }
 

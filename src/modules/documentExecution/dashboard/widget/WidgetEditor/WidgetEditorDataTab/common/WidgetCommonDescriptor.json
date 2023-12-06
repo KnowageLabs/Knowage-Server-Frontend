@@ -145,6 +145,10 @@
         {
             "label": "dashboard.widgetEditor.chartTypes.packedbubble",
             "value": "packedbubble"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.scatterJitter",
+            "value": "scatterJitter"
         }
     ],
     "columnAggregationOptions": [

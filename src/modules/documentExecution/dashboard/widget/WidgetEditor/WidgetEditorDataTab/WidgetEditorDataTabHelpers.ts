@@ -19,7 +19,7 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
         const type = chartType.replace('Stacked', '')
         widget.type = 'highcharts'
         widget.settings = createNewHighchartsSettings()
-        widget.settings.chartModel = createNewHighchartsModel(widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'))
+        widget.settings.chartModel = createNewHighchartsModel(widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'), chartType.endsWith('Jitter'))
     } else {
         widget.type = 'chartJS'
         widget.settings = createNewChartJSSettings()
