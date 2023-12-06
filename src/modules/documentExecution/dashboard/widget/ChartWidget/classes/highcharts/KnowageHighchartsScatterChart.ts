@@ -34,19 +34,19 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
 
     setPlotOptions(isJittered: boolean) {
         this.model.plotOptions.scatter = {
-            "marker": {
-                "radius": 3,
-                "states": {
-                    "hover": {
-                        "enabled": true,
-                        "lineColor": "rgb(100,100,100)"
+            marker: {
+                radius: 3,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineColor: "rgb(100,100,100)"
                     }
                 }
             },
-            "states": {
-                "hover": {
-                    "marker": {
-                        "enabled": false
+            states: {
+                hover: {
+                    marker: {
+                        enabled: false
                     }
                 }
             }

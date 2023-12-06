@@ -21,7 +21,7 @@ import { KnowageHighchartsPictorialChart } from '../../../../ChartWidget/classes
 import { KnowageHighchartsSankeyChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsSankeyChart'
 import { KnowageHighchartsFunnelChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsFunnelChart'
 import { KnowageHighchartsDumbbellChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsDumbbellChart'
-import { KnowageHighchartsStreamgraphChart } from '../../../../ChartWidget/classes/highcharts/KnowageStreamgraphChart'
+import { KnowageHighchartsStreamgraphChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsStreamgraphChart'
 import { KnowageHighchartsPackedBubbleChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPackedBubbleChart'
 
 export const createNewHighchartsSettings = () => {

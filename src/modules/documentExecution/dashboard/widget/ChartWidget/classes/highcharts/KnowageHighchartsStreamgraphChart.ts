@@ -21,7 +21,7 @@ export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        if (!this.model.xAxis || !this.model.xAxis.title) this.setStreamgraphXAxis()
+        if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setStreamgraphXAxis()
         this.setStreamgraphYAxis()
     }
 

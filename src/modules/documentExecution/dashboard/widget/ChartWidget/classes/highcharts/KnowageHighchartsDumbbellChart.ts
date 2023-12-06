@@ -22,8 +22,8 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        if (!this.model.xAxis || !this.model.xAxis.title) this.setDumbbellXAxis()
-        if (!this.model.yAxis || !this.model.yAxis.title) this.setDumbbellYAxis()
+        if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setDumbbellXAxis()
+        if (!this.model.yAxis || !this.model.yAxis[0] || !this.model.yAxis[0].title) this.setDumbbellYAxis()
     }
 
     setPlotOptions() {

@@ -117,7 +117,7 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
                     color: seriesSettings.label.style.color ?? color
                 },
                 formatter: function () {
-                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label)
+                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, this.model.chart.type)
                 }
             }
         })
