@@ -75,7 +75,7 @@ const addColumnToRows = (rows: IWidgetColumn[], tempColumn: IWidgetColumn) => {
 
 export const removeSerieFromWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
     widgetModel.settings.chartModel.removeSerie(column)
-    const allSeriesOption = chartType !== 'pie' && chartType !== 'solidgauge'
+    const allSeriesOption = !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell'].includes('' + chartType)
     removeColumnFromSubmodel(column, widgetModel.settings.accesssibility.seriesAccesibilitySettings, allSeriesOption)
     removeColumnFromSubmodel(column, widgetModel.settings.series.seriesSettings, allSeriesOption)
     emitter.emit('seriesRemoved', column)

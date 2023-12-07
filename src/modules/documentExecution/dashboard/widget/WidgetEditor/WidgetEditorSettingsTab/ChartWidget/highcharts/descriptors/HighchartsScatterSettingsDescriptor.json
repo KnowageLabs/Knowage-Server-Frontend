@@ -123,7 +123,7 @@
         "XAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapXAxisSettings"
+                "type": "HighchartsXAxisSettings"
             },
             {
                 "title": "common.title",
@@ -141,7 +141,7 @@
         "YAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapYAxisSettings"
+                "type": "HighchartsYAxisSettings"
             },
             {
                 "title": "common.title",

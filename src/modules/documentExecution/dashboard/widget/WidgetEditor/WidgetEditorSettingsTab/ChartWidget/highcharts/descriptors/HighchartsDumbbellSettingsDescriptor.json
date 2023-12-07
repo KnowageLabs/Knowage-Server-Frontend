@@ -123,6 +123,34 @@
                 "title": "dashboard.widgetEditor.tooltip.title",
                 "type": "Tooltip"
             }
+        ],
+        "XAxis": [
+            {
+                "title": "dashboard.widgetEditor.axis",
+                "type": "HighchartsXAxisSettings"
+            },
+            {
+                "title": "common.title",
+                "type": "HeatmapXAxisTitleSettings"
+            }
+        ],
+        "YAxis": [
+            {
+                "title": "dashboard.widgetEditor.axis",
+                "type": "HighchartsYAxisSettings"
+            },
+            {
+                "title": "common.title",
+                "type": "HeatmapYAxisTitleSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
+                "type": "YAxisMajorGridSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
+                "type": "YAxisMinorGridSettings"
+            }
         ]
     },
     "settingsListOptions": [
@@ -145,6 +173,16 @@
             "icon": "pi pi-table",
             "label": "dashboard.widgetEditor.legend.title",
             "value": "Legend"
+        },
+        {
+            "icon": "fa-solid fa-arrow-up",
+            "label": "dashboard.widgetEditor.yAxis",
+            "value": "YAxis"
+        },
+        {
+            "icon": "fa-solid fa-arrow-right",
+            "label": "dashboard.widgetEditor.xAxis",
+            "value": "XAxis"
         },
         {
             "icon": "pi pi-table",

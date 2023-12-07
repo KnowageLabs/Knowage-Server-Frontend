@@ -119,7 +119,7 @@
         "XAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapXAxisSettings"
+                "type": "HighchartsXAxisSettings"
             },
             {
                 "title": "common.title",
