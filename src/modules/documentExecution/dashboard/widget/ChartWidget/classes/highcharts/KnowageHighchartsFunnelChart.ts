@@ -15,6 +15,7 @@ export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
         }
         this.model.chart.type = 'funnel'
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
     }
 
 

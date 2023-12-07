@@ -4,8 +4,6 @@ import { getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
-// TODO - Delete mocked file
-// import mockedData from './mockedData.json'
 
 export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -18,6 +16,7 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         }
         this.model.chart.type = 'dumbbell'
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        this.model.chart.inverted = true
     }
 
 
@@ -52,7 +51,6 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
     }
 
-
     setData(data: any, widgetModel: IWidget) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
@@ -67,7 +65,6 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         const startMeasureColumn = measureColumns[0]
         const endMeasureColumn = measureColumns[1]
 
-        // TODO - Remove mock
         if (!data || !attibuteColumn || !startMeasureColumn || !endMeasureColumn) return
         const serieElement = { id: 0, name: startMeasureColumn.column.columnName + ' | ' + endMeasureColumn.column.columnName, data: [] as any[], showInLegend: true }
         data.rows.forEach((row: any,) => {

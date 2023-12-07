@@ -19,6 +19,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         else delete this.model.plotOptions.series.stacking
         this.model.chart.type = type
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
     }
 
     updateModel(oldModel: any) {

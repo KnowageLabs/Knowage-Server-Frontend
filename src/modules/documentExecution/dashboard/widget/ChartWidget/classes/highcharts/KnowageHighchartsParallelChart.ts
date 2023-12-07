@@ -18,6 +18,7 @@ export class KnowageHighchartsParallelChart extends KnowageHighcharts {
         }
         this.model.chart.type = 'spline'
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
     }
 
     updateModel(oldModel: any) {

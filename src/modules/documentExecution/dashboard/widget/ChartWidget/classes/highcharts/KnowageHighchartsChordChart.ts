@@ -18,6 +18,7 @@ export class KnowageHighchartsChordChart extends KnowageHighcharts {
         }
         this.model.chart.type = 'dependencywheel'
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
     }
 
     updateModel(oldModel: any) {

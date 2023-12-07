@@ -22,6 +22,7 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
         }
         this.model.chart.type = 'gauge'
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
     }
 
     updateModel(oldModel: any) {
