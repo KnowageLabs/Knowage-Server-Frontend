@@ -216,7 +216,7 @@ export default defineComponent({
             return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
         },
         isJittered() {
-            if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.jitter) return true
+            if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.scatter?.jitter) return true
             return false
         }
     },

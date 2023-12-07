@@ -54,7 +54,7 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
         }
         this.model.plotOptions.series.turboThreshold = 15000
 
-        if (isJittered) {
+        if (isJittered && !this.model.plotOptions.scatter.jitter) {
             this.model.plotOptions.scatter.jitter = {
                 x: 0.5,
                 y: 0.5
@@ -100,43 +100,33 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     }
 
     setJitteredChartData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
-        const attributeColumn = attributeColumns[0]
-        const measureColumn = measureColumns[0]
-        if (!attributeColumn || !measureColumn || !data.rows) return
+        const attributeColumn = attributeColumns[0];
+        const measureColumn = measureColumns[0];
+        if (!attributeColumn || !measureColumn || !data.rows) return;
 
-        const seriesMapByAttributeValueIndex = this.getseriesMapByAttributeValueIndex(data, attributeColumn, dateFormat);
+        const seriesMapByAttributeValueIndex: { [key: string]: { id: number; name: string; data: any[]; connectNulls: boolean } } = {};
+        const uniqueValues: string[] = [];
+
         data.rows.forEach((row: any) => {
-            const attributeValue = row[attributeColumn.metadata.dataIndex]
-            if (seriesMapByAttributeValueIndex[attributeValue]) {
-                seriesMapByAttributeValueIndex[attributeValue].data.push({
-                    x: seriesMapByAttributeValueIndex[attributeValue].id,
-                    name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : "" + row[attributeColumn.metadata.dataIndex],
-                    y: row[measureColumn.metadata.dataIndex]
-                })
-            }
-        })
+            const attributeValue = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type)
+                ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type)
+                : "" + row[attributeColumn.metadata.dataIndex];
 
-        Object.keys(seriesMapByAttributeValueIndex).forEach((key: string) => this.model.series.push(seriesMapByAttributeValueIndex[key]))
-    }
-
-    getseriesMapByAttributeValueIndex(data: any, attributeColumn: any, dateFormat: string) {
-        const uniqueValues = [] as string[];
-        const seriesMapByAttributeValueIndex = {} as { [key: string]: { id: number, name: string, data: any[], connectNulls: boolean } };
-
-        for (const row of data.rows) {
-            const attributeValue = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : "" + row[attributeColumn.metadata.dataIndex];
-            if (!uniqueValues.includes(attributeValue)) {
+            if (!seriesMapByAttributeValueIndex[attributeValue]) {
+                const index = uniqueValues.length;
                 uniqueValues.push(attributeValue);
+                seriesMapByAttributeValueIndex[attributeValue] = { id: index, name: attributeValue, data: [], connectNulls: true };
             }
-        }
 
-        uniqueValues.forEach((value: string, index: number) => {
-            seriesMapByAttributeValueIndex[value] = { id: index, name: value, data: [] as any[], connectNulls: true };
+            seriesMapByAttributeValueIndex[attributeValue].data.push({
+                x: seriesMapByAttributeValueIndex[attributeValue].id,
+                name: attributeValue,
+                y: row[measureColumn.metadata.dataIndex],
+            });
         });
 
-        return seriesMapByAttributeValueIndex;
+        this.model.series = uniqueValues.map((value) => seriesMapByAttributeValueIndex[value]);
     }
-
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
         updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)

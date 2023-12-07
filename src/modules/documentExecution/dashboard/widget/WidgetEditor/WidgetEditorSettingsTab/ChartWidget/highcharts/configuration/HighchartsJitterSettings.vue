@@ -26,10 +26,10 @@ export default defineComponent({
         }
     },
     created() {
-        this.loadAnnotations()
+        this.loadJitterSettings()
     },
     methods: {
-        loadAnnotations() {
+        loadJitterSettings() {
             this.jitterSettings = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model.plotOptions.scatter.jitter : null
         }
     }
