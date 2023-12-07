@@ -30,7 +30,7 @@ export default defineComponent({
     },
     methods: {
         loadAnnotations() {
-            this.jitterSettings = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model.plotOptions.jitter : null
+            this.jitterSettings = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model.plotOptions.scatter.jitter : null
         }
     }
 })

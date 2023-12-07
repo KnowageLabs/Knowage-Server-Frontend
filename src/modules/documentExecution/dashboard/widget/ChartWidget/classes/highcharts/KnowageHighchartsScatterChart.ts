@@ -29,8 +29,8 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues(isJittered: boolean) {
         this.setPlotOptions(isJittered)
-        if (!this.model.xAxis || !this.model.xAxis.gridLineWidth) this.setScatterXAxis()
-        if (!this.model.yAxis || !this.model.yAxis.gridLineWidth) this.setScatterYAxis()
+        if (!this.model.xAxis || !this.model.xAxis[0].gridLineWidth) this.setScatterXAxis()
+        if (!this.model.yAxis || !this.model.yAxis[0].gridLineWidth) this.setScatterYAxis()
     }
 
     setPlotOptions(isJittered: boolean) {
@@ -55,11 +55,11 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
         this.model.plotOptions.series.turboThreshold = 15000
 
         if (isJittered) {
-            this.model.plotOptions.jitter = {
+            this.model.plotOptions.scatter.jitter = {
                 x: 0.5,
                 y: 0.5
             }
-        } else delete this.model.plotOptions.jitter
+        } else delete this.model.plotOptions.scatter.jitter
     }
 
     setScatterXAxis() {
@@ -75,7 +75,7 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.model.plotOptions.jitter ? this.setJitteredChartData(data, attributeColumns, measureColumns, dateFormat) : this.setRegularData(data, attributeColumns, measureColumns, dateFormat)
+        this.model.plotOptions.scatter.jitter ? this.setJitteredChartData(data, attributeColumns, measureColumns, dateFormat) : this.setRegularData(data, attributeColumns, measureColumns, dateFormat)
         return this.model.series
     }
 
@@ -101,19 +101,40 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
 
     setJitteredChartData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
         const attributeColumn = attributeColumns[0]
-        if (!attributeColumn || !attributeColumn.metadata) return
+        const measureColumn = measureColumns[0]
+        if (!attributeColumn || !measureColumn || !data.rows) return
 
-        const serieElement = { id: 0, name: attributeColumn.column.columnName, data: [] as any[], connectNulls: true }
-        data?.rows?.forEach((row: any) => {
-            serieElement.data.push({
-                x: row[measureColumns[0].metadata.dataIndex],
-                name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : "" + row[attributeColumn.metadata.dataIndex],
-                y: row[measureColumns[1].metadata.dataIndex],
-                drilldown: false
-            })
+        const seriesMapByAttributeValueIndex = this.getseriesMapByAttributeValueIndex(data, attributeColumn, dateFormat);
+        data.rows.forEach((row: any) => {
+            const attributeValue = row[attributeColumn.metadata.dataIndex]
+            if (seriesMapByAttributeValueIndex[attributeValue]) {
+                seriesMapByAttributeValueIndex[attributeValue].data.push({
+                    x: seriesMapByAttributeValueIndex[attributeValue].id,
+                    name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : "" + row[attributeColumn.metadata.dataIndex],
+                    y: row[measureColumn.metadata.dataIndex]
+                })
+            }
         })
 
-        this.model.series.push(serieElement)
+        Object.keys(seriesMapByAttributeValueIndex).forEach((key: string) => this.model.series.push(seriesMapByAttributeValueIndex[key]))
+    }
+
+    getseriesMapByAttributeValueIndex(data: any, attributeColumn: any, dateFormat: string) {
+        const uniqueValues = [] as string[];
+        const seriesMapByAttributeValueIndex = {} as { [key: string]: { id: number, name: string, data: any[], connectNulls: boolean } };
+
+        for (const row of data.rows) {
+            const attributeValue = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : "" + row[attributeColumn.metadata.dataIndex];
+            if (!uniqueValues.includes(attributeValue)) {
+                uniqueValues.push(attributeValue);
+            }
+        }
+
+        uniqueValues.forEach((value: string, index: number) => {
+            seriesMapByAttributeValueIndex[value] = { id: index, name: value, data: [] as any[], connectNulls: true };
+        });
+
+        return seriesMapByAttributeValueIndex;
     }
 
 

@@ -110,8 +110,7 @@ export interface IHighchartsChartModel {
         dependencywheel?: any
         sankey?: any,
         dumbbell?: any,
-        series?: any,
-        jitter?: { x: number, y: number }
+        series?: any
     },
     legend: any,
     tooltip: any,
