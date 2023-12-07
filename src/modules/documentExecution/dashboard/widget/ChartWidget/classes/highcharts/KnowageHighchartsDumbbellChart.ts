@@ -4,7 +4,8 @@ import { getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
-import mockedData from './mockedData.json'
+// TODO - Delete mocked file
+// import mockedData from './mockedData.json'
 
 export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -62,15 +63,14 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
     }
 
     setDumbbellData(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
-        console.log('----- MOCKED DATA: ', mockedData)
         const attibuteColumn = attributeColumns[0]
         const startMeasureColumn = measureColumns[0]
         const endMeasureColumn = measureColumns[1]
 
         // TODO - Remove mock
-        if (!mockedData || !attibuteColumn || !startMeasureColumn || !endMeasureColumn) return
+        if (!data || !attibuteColumn || !startMeasureColumn || !endMeasureColumn) return
         const serieElement = { id: 0, name: startMeasureColumn.column.columnName + ' | ' + endMeasureColumn.column.columnName, data: [] as any[], showInLegend: true }
-        mockedData.rows.forEach((row: any,) => {
+        data.rows.forEach((row: any,) => {
             const firstMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, startMeasureColumn.column.id, row[startMeasureColumn.metadata.dataIndex])?.color
             const secondMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, endMeasureColumn.column.id, row[endMeasureColumn.metadata.dataIndex])?.color
             serieElement.data.push({
