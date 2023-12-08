@@ -149,6 +149,10 @@
         {
             "label": "dashboard.widgetEditor.chartTypes.scatterJitter",
             "value": "scatterJitter"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.waterfall",
+            "value": "waterfall"
         }
     ],
     "columnAggregationOptions": [

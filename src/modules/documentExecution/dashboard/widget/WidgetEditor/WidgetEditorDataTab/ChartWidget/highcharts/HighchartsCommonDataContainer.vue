@@ -89,6 +89,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
                 case 'funnel':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
+                case 'waterfall':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[0] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }
@@ -127,6 +129,8 @@ export default defineComponent({
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
                 case 'funnel':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
+                case 'waterfall':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[1] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
             }
@@ -231,6 +235,7 @@ export default defineComponent({
                     case 'spline':
                     case 'pictorial':
                     case 'funnel':
+                    case 'waterfall':
                         invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
                         break
                     case 'sunburst':
@@ -268,6 +273,7 @@ export default defineComponent({
                     case 'treemap':
                     case 'pictorial':
                     case 'funnel':
+                    case 'waterfall':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     case 'pie':

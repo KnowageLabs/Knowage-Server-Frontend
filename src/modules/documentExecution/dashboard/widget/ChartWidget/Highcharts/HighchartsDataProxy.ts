@@ -15,6 +15,7 @@ export const getHighchartsWidgetData = async (dashboardId, dashboardConfig: IDas
         case 'line':
         case 'radar':
         case 'dumbbell':
+        case 'waterfall':
             return await getHighchartsBarData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'scatter':
             return await getHighchartsScatterData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)

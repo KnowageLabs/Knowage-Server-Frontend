@@ -229,5 +229,17 @@
             "label": "common.values",
             "measuresOnly": true
         }
+    ],
+    "waterfallChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.waterfall.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.waterfall.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
     ]
 }

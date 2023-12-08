@@ -662,11 +662,6 @@
             },
             "hidden": "Hidden",
             "highcharts": {
-                "jitter": {
-                    "title": "Jitter",
-                    "xAxisJitter": "X axis jitter",
-                    "yAxisJitter": "Y axis jitter"
-                },
                 "activityGauge": {
                     "valuesTableHint": "Measures only."
                 },
@@ -762,6 +757,11 @@
                     },
                     "rotation": "Rotation",
                     "valuesTableHint": "Exactly one measure only to define series"
+                },
+                "jitter": {
+                    "title": "Jitter",
+                    "xAxisJitter": "X axis jitter",
+                    "yAxisJitter": "Y axis jitter"
                 },
                 "labels": {
                     "distance": "Distance",
@@ -918,6 +918,10 @@
                 "treemapchart": {
                     "dimensionsTableHint": "Click on at least two attribute to define categories. The item that precedes should have a lower granularity.",
                     "valuesTableHint": "Click on at exactly one measure to define series."
+                },
+                "waterfall": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on exactly one measure to define series."
                 }
             },
             "hint": "Select dataset",

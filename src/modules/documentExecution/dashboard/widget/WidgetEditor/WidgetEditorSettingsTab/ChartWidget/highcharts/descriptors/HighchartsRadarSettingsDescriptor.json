@@ -121,7 +121,7 @@
             },
             {
                 "title": "common.title",
-                "type": "HeatmapXAxisTitleSettings"
+                "type": "HighchartsXAxisTitleSettings"
             }
         ],
         "YAxis": [
@@ -131,7 +131,7 @@
             },
             {
                 "title": "common.title",
-                "type": "HeatmapYAxisTitleSettings"
+                "type": "HighchartsYAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",

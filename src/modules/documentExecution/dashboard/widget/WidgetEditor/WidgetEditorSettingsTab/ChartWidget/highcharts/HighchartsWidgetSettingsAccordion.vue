@@ -40,8 +40,8 @@
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
                 <HighchartsAxisSettings v-else-if="accordion.type === 'HighchartsXAxisSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisSettings>
                 <HighchartsAxisSettings v-else-if="accordion.type === 'HighchartsYAxisSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisSettings>
-                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HeatmapXAxisTitleSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisTitleSettings>
-                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HeatmapYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
+                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HighchartsXAxisTitleSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisTitleSettings>
+                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HighchartsYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
                 <HighchartsHeatmapNullSettings v-else-if="accordion.type === 'HeatmapNullSettings'" :widget-model="widgetModel"></HighchartsHeatmapNullSettings>
                 <HighchartsDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsDatetypeSettings>
                 <HighchartsLineSettings v-else-if="accordion.type === 'XAxisLinesSettings'" :widget-model="widgetModel" axis="x"></HighchartsLineSettings>

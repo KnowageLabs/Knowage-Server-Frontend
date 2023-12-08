@@ -143,7 +143,7 @@
             },
             {
                 "title": "common.title",
-                "type": "HeatmapXAxisTitleSettings"
+                "type": "HighchartsXAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
@@ -161,7 +161,7 @@
             },
             {
                 "title": "common.title",
-                "type": "HeatmapYAxisTitleSettings"
+                "type": "HighchartsYAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",

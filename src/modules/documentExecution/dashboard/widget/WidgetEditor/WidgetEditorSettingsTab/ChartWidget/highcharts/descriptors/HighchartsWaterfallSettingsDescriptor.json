@@ -8,10 +8,6 @@
             {
                 "title": "dashboard.widgetEditor.seriesAccessibility.title",
                 "type": "SeriesAccessibilitySettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.sonification.title",
-                "type": "SonificationSettings"
             }
         ],
         "Advanced": [
@@ -40,10 +36,6 @@
                 "type": "Annotations"
             },
             {
-                "title": "dashboard.widgetEditor.configurationOf3D.title",
-                "type": "ConfigurationOf3D"
-            },
-            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },
@@ -61,10 +53,6 @@
             }
         ],
         "Interactions": [
-            {
-                "title": "dashboard.widgetEditor.drilldown.title",
-                "type": "Drilldown"
-            },
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
                 "type": "Selection"
@@ -98,10 +86,6 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
-            },
-            {
-                "title": "dashboard.widgetEditor.conditionalStyle",
-                "type": "ConditionalStyles"
             }
         ],
         "Style": [
@@ -140,14 +124,6 @@
             {
                 "title": "common.title",
                 "type": "HighchartsXAxisTitleSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "XAxisBandsSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "XAxisLinesSettings"
             }
         ],
         "YAxis": [
@@ -158,14 +134,6 @@
             {
                 "title": "common.title",
                 "type": "HighchartsYAxisTitleSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "YAxisBandsSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "YAxisLinesSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
