@@ -82,12 +82,16 @@ export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, wi
 
 const formatSplineChartVerticalAxisLines = (formattedChartModel: IHighchartsChartModel, axisLinesSettings: any) => {
     if (!axisLinesSettings || !formattedChartModel.yAxis) return
-    formattedChartModel.xAxis.forEach((xAxis: any) => {
-        xAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
-    })
+    formatxAxisCrosshairSettings(formattedChartModel, axisLinesSettings)
     formattedChartModel.yAxis.forEach((yAxis: any) => {
         yAxis.lineColor = axisLinesSettings.color ? axisLinesSettings.color : 'black'
         yAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
+    })
+}
+
+const formatxAxisCrosshairSettings = (formattedChartModel: IHighchartsChartModel, axisLinesSettings: any) => {
+    formattedChartModel.xAxis.forEach((xAxis: any) => {
+        xAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
     })
 }
 
@@ -105,4 +109,8 @@ const formatPictorialPlotOptions = (formattedChartModel: IHighchartsChartModel) 
 const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
     if (!formattedChartModel.plotOptions.series || !widgetModel.settings.configuration.svgSettings) return
     formattedChartModel.plotOptions.series.paths = [{ definition: widgetModel.settings.configuration.svgSettings.definition }]
+}
+
+export const formatStreamgraphChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    formatxAxisCrosshairSettings(formattedChartModel, widgetModel.settings.configuration?.axisLines)
 }
