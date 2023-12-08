@@ -37,7 +37,7 @@ const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, data
 
 const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) => {
     if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline', 'funnel'].includes(chartType)) return chartPoint.options.y
-    else if (['dependencywheel', 'pictorial', 'sankey'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
+    else if (['dependencywheel', 'pictorial', 'sankey', 'streamgraph'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
     else if (['treemap'].includes(chartType)) return chartPoint.value
     else if (['dumbbell'].includes(chartType)) return chartPoint.options.high
     else return chartPoint.options.value

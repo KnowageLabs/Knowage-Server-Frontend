@@ -153,7 +153,7 @@ export default defineComponent({
             this.$emit('itemDeleted', item)
         },
         aggregationDropdownIsVisible(row: any) {
-            return (row.fieldType === 'MEASURE' || row.axis) && this.widgetType !== 'discovery' && !row.formula
+            return (row.fieldType === 'MEASURE' || ['Y', 'Z'].includes(row.axis)) && this.widgetType !== 'discovery' && !row.formula
         },
         updateSelectedColumn(selectedColumn: IWidgetColumn) {
             const index = this.rows.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === selectedColumn.id)

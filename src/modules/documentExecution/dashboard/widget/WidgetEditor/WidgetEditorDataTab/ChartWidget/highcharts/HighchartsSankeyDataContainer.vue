@@ -200,6 +200,7 @@ export default defineComponent({
                     case 'dependencywheel':
                     case 'sankey':
                     case 'streamgraph':
+                    case 'packedbubble':
                         invalid = this.columnTableItems[type].length !== 1
                         break
                     default:
@@ -217,6 +218,7 @@ export default defineComponent({
                     case 'dependencywheel':
                     case 'sankey':
                     case 'streamgraph':
+                    case 'packedbubble':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     default:
