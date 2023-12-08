@@ -4,8 +4,6 @@ import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryVa
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
-// TODO - Delete mocked file
-// import mockedData from './mockedDataStreamgraph.json'  
 
 export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -48,19 +46,17 @@ export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.setStreamgraphChartData(data, widgetModel, attributeColumns, measureColumns, dateFormat)
+        this.setStreamgraphChartData(data, attributeColumns, measureColumns, dateFormat)
 
         return this.model.series
     }
 
-    setStreamgraphChartData(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
-        console.log('----- DATA: ', data)
+    setStreamgraphChartData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
 
         const firstAttributeColumn = attributeColumns[0]
         const secondAttributeColumn = attributeColumns[1]
         const measureColumn = measureColumns[0]
 
-        // TODO - Remove mock
         if (!data || !firstAttributeColumn || !secondAttributeColumn || !measureColumn) return
 
         const result: Record<string, Record<string, number[]>> = {};
