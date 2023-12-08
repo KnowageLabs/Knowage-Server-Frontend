@@ -30,6 +30,7 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
         this.setPlotOptions()
         if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setLineXAxis()
         if (!this.model.yAxis || !this.model.yAxis[0] || !this.model.yAxis[0].title) this.setLineYAxis()
+        this.setSonification()
     }
 
     setPlotOptions() {
@@ -44,6 +45,10 @@ export class KnowageHighchartsLineChart extends KnowageHighcharts {
 
     setLineYAxis() {
         this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
+    }
+
+    setSonification() {
+        if (!this.model.sonification) this.model.sonification = highchartsDefaultValues.getDefaultSonificationSettings()
     }
 
     setData(data: any, widgetModel: IWidget) {

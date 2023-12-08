@@ -17,6 +17,7 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
         this.model.chart.type = 'packedbubble'
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
         delete this.model.chart.inverted
+        delete this.model.sonification
     }
 
 

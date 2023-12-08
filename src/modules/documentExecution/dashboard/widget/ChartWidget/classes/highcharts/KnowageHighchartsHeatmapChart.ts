@@ -21,6 +21,7 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
         this.model.chart.type = 'heatmap'
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
         delete this.model.chart.inverted
+        delete this.model.sonification
     }
 
     updateModel(oldModel: any) {

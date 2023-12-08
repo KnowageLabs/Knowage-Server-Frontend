@@ -21,6 +21,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         this.model.chart.type = 'sunburst'
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
         delete this.model.chart.inverted
+        delete this.model.sonification
     }
 
     updateModel(oldModel: any) {
