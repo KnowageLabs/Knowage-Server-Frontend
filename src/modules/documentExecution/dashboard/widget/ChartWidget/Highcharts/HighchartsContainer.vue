@@ -235,8 +235,9 @@ export default defineComponent({
             return attributeColumns.length
         },
         setSelection(event: any) {
+            console.log('--------- EVENT: ', event)
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
-            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel', 'dumbbell', 'streamgraph'].includes(this.chartModel.chart.type)) {
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel', 'dumbbell', 'streamgraph', 'waterfall'].includes(this.chartModel.chart.type)) {
                 const serieClicked = event.point?.options
                 if (!serieClicked || !serieClicked.name) return
                 updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
