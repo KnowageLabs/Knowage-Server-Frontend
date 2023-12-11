@@ -43,12 +43,12 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.setPackedBubbleChart(data, widgetModel, attributeColumns, measureColumns, dateFormat)
+        this.setPackedBubbleChart(data, attributeColumns, measureColumns, dateFormat)
 
         return this.model.series
     }
 
-    setPackedBubbleChart(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
+    setPackedBubbleChart(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
         const firstAttributeColumn = attributeColumns[0]
         const secondAttributeColumn = attributeColumns[1]
         const measureColumn = measureColumns[0]
@@ -57,13 +57,13 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
 
         const result: Record<string, Record<string, number[]>> = {};
         data.rows.forEach((row: any,) => {
-            const attributeGroupValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex];
-            const attributeLabelValue = row[firstAttributeColumn.metadata.dataIndex];
+            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex];
+            const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex];
             const measureValue = row[measureColumn.metadata.dataIndex];
 
-            if (!result[attributeGroupValue]) result[attributeGroupValue] = {};
-            if (!result[attributeGroupValue][attributeLabelValue]) result[attributeGroupValue][attributeLabelValue] = [];
-            result[attributeGroupValue][attributeLabelValue].push(measureValue);
+            if (!result[secondAttributeValue]) result[secondAttributeValue] = {};
+            if (!result[secondAttributeValue][firstAttributeValue]) result[secondAttributeValue][firstAttributeValue] = [];
+            result[secondAttributeValue][firstAttributeValue].push(measureValue);
         })
 
         const categories: string[] = Object.keys(result);

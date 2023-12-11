@@ -59,7 +59,7 @@ export default defineComponent({
     },
     computed: {
         allSeriesOptionEnabled() {
-            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph'].includes(this.model.chart.type)
+            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble'].includes(this.model.chart.type)
         }
     },
     watch: {

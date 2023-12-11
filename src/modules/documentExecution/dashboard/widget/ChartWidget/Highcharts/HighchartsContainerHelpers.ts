@@ -31,7 +31,8 @@ export const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartT
 
 const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, dataToShow: any) => {
     if (['pictorial'].includes(chartType)) return dataToShow?.metaData?.fields[2] ? dataToShow?.metaData?.fields[2].header : ''
-    if (['spline'].includes(chartType)) return chartPoint.category
+    else if (['spline'].includes(chartType)) return chartPoint.category
+    else if (['packedbubble'].includes(chartType)) return chartPoint.options.name
     else return chartPoint.series.name
 }
 
@@ -45,7 +46,7 @@ const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) =>
 
 const getCategoryValueForCrossNavigation = (chartPoint: any, chartType: string) => {
     if (['dependencywheel', 'sankey'].includes(chartType)) return chartPoint.options.id ?? chartPoint.options.from
-    else if (['spline', 'pictorial'].includes(chartType)) return chartPoint.series.name
+    else if (['spline', 'pictorial', 'packedbubble'].includes(chartType)) return chartPoint.series.name
     else return chartPoint.options.name
 }
 

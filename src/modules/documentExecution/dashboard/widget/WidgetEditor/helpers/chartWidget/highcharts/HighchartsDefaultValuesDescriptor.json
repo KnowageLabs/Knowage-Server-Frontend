@@ -325,20 +325,6 @@
         }
     },
     "defaultPackedBubblePlotOptions": {
-        "dataLabels": {
-            "enabled": true,
-            "filter": {
-                "operator": ">",
-                "property": "y",
-                "value": 250
-            },
-            "format": "{point.name}",
-            "style": {
-                "color": "black",
-                "fontWeight": "normal",
-                "textOutline": "none"
-            }
-        },
         "layoutAlgorithm": {
             "gravitationalConstant": 0.02,
             "splitSeries": false
