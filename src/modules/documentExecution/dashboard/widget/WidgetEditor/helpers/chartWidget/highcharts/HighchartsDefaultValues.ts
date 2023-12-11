@@ -161,3 +161,6 @@ export const getDefaultSonificationSettings = () => {
 export const getDefaultAnnotations = () => {
     return deepcopy(descriptor.defaultAnnotations)
 }
+export const getDefaultPackedBubblePlotOptions = () => {
+    return deepcopy(descriptor.defaultPackedBubblePlotOptions)
+}

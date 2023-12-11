@@ -76,10 +76,6 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
-            },
-            {
-                "title": "dashboard.widgetEditor.conditionalStyle",
-                "type": "ConditionalStyles"
             }
         ],
         "Style": [
@@ -109,58 +105,6 @@
                 "title": "dashboard.widgetEditor.tooltip.title",
                 "type": "Tooltip"
             }
-        ],
-        "XAxis": [
-            {
-                "title": "dashboard.widgetEditor.axis",
-                "type": "HighchartsXAxisSettings"
-            },
-            {
-                "title": "common.title",
-                "type": "HighchartsXAxisTitleSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "XAxisBandsSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "XAxisLinesSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
-                "type": "XAxisMajorGridSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
-                "type": "XAxisMinorGridSettings"
-            }
-        ],
-        "YAxis": [
-            {
-                "title": "dashboard.widgetEditor.axis",
-                "type": "HighchartsYAxisSettings"
-            },
-            {
-                "title": "common.title",
-                "type": "HighchartsYAxisTitleSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.bands.title",
-                "type": "YAxisBandsSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.lines.title",
-                "type": "YAxisLinesSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
-                "type": "YAxisMajorGridSettings"
-            },
-            {
-                "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
-                "type": "YAxisMinorGridSettings"
-            }
         ]
     },
     "settingsListOptions": [
@@ -178,16 +122,6 @@
             "icon": "fa fa-paint-brush",
             "label": "common.style",
             "value": "Style"
-        },
-        {
-            "icon": "fa-solid fa-arrow-up",
-            "label": "dashboard.widgetEditor.yAxis",
-            "value": "YAxis"
-        },
-        {
-            "icon": "fa-solid fa-arrow-right",
-            "label": "dashboard.widgetEditor.xAxis",
-            "value": "XAxis"
         },
         {
             "icon": "pi pi-table",

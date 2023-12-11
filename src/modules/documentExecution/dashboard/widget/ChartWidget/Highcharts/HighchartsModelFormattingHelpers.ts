@@ -74,6 +74,19 @@ const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
     }
 }
 
+export const formatPackedBubble = (formattedChartModel: IHighchartsChartModel) => {
+    formatPackedBubbleTooltips(formattedChartModel)
+}
+
+const formatPackedBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
+    const tooltip = formattedChartModel.tooltip as any
+    const prefix = tooltip.valuePrefix ?? ''
+    const suffix = tooltip.valueSuffix ?? ''
+    tooltip.formatter = function (this: Highcharts.TooltipFormatterContextObject) {
+        return this.point.options.value ? this.series.name + '<br/><b>' + this.point.options.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.value, tooltip.valueDecimals) + suffix : this.series.name;
+    }
+}
+
 export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
     formattedChartModel.chart.parallelCoordinates = true
     formattedChartModel.chart.parallelAxes = { lineWidth: 2 }

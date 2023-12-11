@@ -11,7 +11,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -290,6 +290,8 @@ export default defineComponent({
                 formatPictorialChart(formattedChartModel, this.widgetModel)
             } else if (formattedChartModel.chart.type === 'streamgraph') {
                 formatStreamgraphChart(formattedChartModel, this.widgetModel)
+            } else if (formattedChartModel.chart.type === 'packedbubble') {
+                formatPackedBubble(formattedChartModel)
             }
 
             return formattedChartModel

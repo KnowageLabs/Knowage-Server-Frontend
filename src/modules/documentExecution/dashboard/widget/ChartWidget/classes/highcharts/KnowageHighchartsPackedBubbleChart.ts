@@ -27,7 +27,7 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
     }
 
     setPlotOptions() {
-
+        this.model.plotOptions.packedbubble = highchartsDefaultValues.getDefaultPackedBubblePlotOptions()
     }
 
     setPackedBubbleXAxis() {

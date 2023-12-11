@@ -324,6 +324,30 @@
             "fontWeight": ""
         }
     },
+    "defaultPackedBubblePlotOptions": {
+        "dataLabels": {
+            "enabled": true,
+            "filter": {
+                "operator": ">",
+                "property": "y",
+                "value": 250
+            },
+            "format": "{point.name}",
+            "style": {
+                "color": "black",
+                "fontWeight": "normal",
+                "textOutline": "none"
+            }
+        },
+        "layoutAlgorithm": {
+            "gravitationalConstant": 0.02,
+            "splitSeries": false
+        },
+        "maxSize": "120%",
+        "minSize": "30%",
+        "zMax": 1000,
+        "zMin": 0
+    },
     "defaultPieChartPlotOptions": {
         "allowPointSelect": false,
         "cursor": "",
