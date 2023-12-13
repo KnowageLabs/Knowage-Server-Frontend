@@ -96,6 +96,7 @@ export default defineComponent({
             this.removeSeriesFromAvailableOptions()
             this.removeAllSerieSettingsFromModel()
             if (this.seriesSettings.length === 0) this.addFirstSeriesSetting()
+            if (!this.allSeriesOptionEnabled) this.seriesSettings.splice(1)
         },
         removeAllSerieSettingsFromModel() {
             if (this.seriesSettings[0]?.names[0] && this.seriesSettings[0].names[0] === 'all' && !this.allSeriesOptionEnabled) {
@@ -118,7 +119,7 @@ export default defineComponent({
             this.availableSeriesOptions = []
             if (!this.widgetModel) return
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
-                if (column.fieldType === 'MEASURE' && (!column.axis || column.axis === 'Y')) this.availableSeriesOptions.push(column.columnName)
+                if (column.fieldType === 'MEASURE' && (!column.axis || ['Y', 'start'].includes(column.axis))) this.availableSeriesOptions.push(column.columnName)
             })
         },
         addFirstSeriesSetting() {
@@ -128,7 +129,7 @@ export default defineComponent({
                 const name = this.allSeriesOptionEnabled ? 'all' : this.availableSeriesOptions[0]
                 const formattedSeriesSettings = {
                     names: [name],
-                    accessibility: highchartsDefaultValues.getDefaultSerieAccessibilitySetting()
+                    accessibility: { ...highchartsDefaultValues.getDefaultSerieAccessibilitySetting() }
                 } as ISerieAccessibilitySetting
 
                 this.seriesSettings.push(formattedSeriesSettings)

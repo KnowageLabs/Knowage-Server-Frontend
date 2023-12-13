@@ -59,6 +59,7 @@ const addMeasureColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetCol
     convertColumnToMeasure(tempColumn)
     addColumnToRows(rows, tempColumn)
     widgetModel.settings.chartModel.addSerie(tempColumn, chartType)
+    addSerieToWidgetModel(widgetModel, tempColumn, chartType)
     emitter.emit('seriesAdded', tempColumn)
 }
 
@@ -74,22 +75,40 @@ const addColumnToRows = (rows: IWidgetColumn[], tempColumn: IWidgetColumn) => {
     if (index === -1) rows.push(tempColumn)
 }
 
+const addSerieToWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
+    widgetModel.settings.chartModel.removeSerie(column)
+    const allSeriesOption = !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes('' + chartType)
+    if (!allSeriesOption) {
+        addColumnAsFirstOption(column, widgetModel.settings.accesssibility.seriesAccesibilitySettings)
+        addColumnAsFirstOption(column, widgetModel.settings.series.seriesSettings)
+    }
+    console.log('---------- AFTER ADD: ', widgetModel.settings.series.seriesSettings)
+    emitter.emit('seriesRemoved', column)
+}
+
+const addColumnAsFirstOption = (column: IWidgetColumn, array: any[]) => {
+    if (array[0] && array[0]?.names?.length === 0) array[0].names = [column.columnName]
+
+}
+
 export const removeSerieFromWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
     widgetModel.settings.chartModel.removeSerie(column)
-    const allSeriesOption = !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell'].includes('' + chartType)
+    const allSeriesOption = !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes('' + chartType)
     removeColumnFromSubmodel(column, widgetModel.settings.accesssibility.seriesAccesibilitySettings, allSeriesOption)
     removeColumnFromSubmodel(column, widgetModel.settings.series.seriesSettings, allSeriesOption)
+    console.log('---------- AFTER REMOVE: ', widgetModel.settings.series.seriesSettings)
     emitter.emit('seriesRemoved', column)
 }
 
 const removeColumnFromSubmodel = (column: IWidgetColumn, array: any[], allSeriesOption: boolean) => {
+    console.log('---------- column REMOVE: ', column)
     for (let i = array.length - 1; i >= 0; i--) {
         for (let j = array[i].names.length - 1; j >= 0; j--) {
             const serieName = array[i].names[j]
             if (serieName === column.columnName) {
                 array[i].names.splice(j, 1)
             }
-            if (!allSeriesOption && array[i].names.length === 0) array.splice(i, 1)
+            if (allSeriesOption && i !== 0 && array[i].names.length === 0) array.splice(i, 1)
         }
     }
 }
