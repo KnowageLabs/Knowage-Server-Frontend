@@ -55,7 +55,6 @@ export default defineComponent({
     methods: {
         loadSelectedType() {
             const chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
-            console.log('-------- LOADED CHART MODEL: ', chartModel)
             if (chartModel?.chart.type) {
                 this.selectedType = chartModel.chart.type
                 if (this.selectedType === 'sankey' && chartModel.chart.inverted) this.selectedType = 'sankeyInverted'

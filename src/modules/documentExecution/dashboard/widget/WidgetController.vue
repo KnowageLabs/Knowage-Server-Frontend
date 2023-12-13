@@ -17,7 +17,7 @@
         <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
         <WidgetRenderer
-            v-if="!loading"
+            v-if="!loading && widget"
             :widget="widget"
             :widget-data="widgetData"
             :widget-initial-data="widgetInitialData"
@@ -180,7 +180,7 @@ export default defineComponent({
         this.setEventListeners()
         this.loadWidget(this.widget)
 
-        this.widget.type !== 'selection' ? await this.loadInitalData() : await this.loadActiveSelections()
+        this.widget?.type !== 'selection' ? await this.loadInitalData() : await this.loadActiveSelections()
 
         this.setWidgetLoading(false)
     },
@@ -246,7 +246,7 @@ export default defineComponent({
             ]
         },
         quickWidgetChangeEnabled() {
-            if (!['table', 'highcharts'].includes(this.widget.type)) return false
+            if (!this.widget || !['table', 'highcharts'].includes(this.widget.type)) return false
             if (this.widget.type === 'table' && !this.checkIfTableHasBothAttributeAndMeasureColumns()) return false
             return canEditDashboard(this.document)
         },
@@ -264,8 +264,9 @@ export default defineComponent({
             this.showQuickDialog = false
             quickWidgetCreateChartFromTable(chartType, this.widgetModel, this.dashboardId)
         },
-        loadWidget(widget: IWidget) {
+        loadWidget(widget: IWidget | null) {
             this.widgetModel = widget
+            if (!this.widgetModel) return
             this.loadWidgetSearch()
         },
         loadWidgetSearch() {

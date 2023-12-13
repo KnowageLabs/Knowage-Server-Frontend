@@ -1,9 +1,10 @@
 <template>
     <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
         <div id="dashboard-css" v-html="dashboardCss" />
+
         <div v-if="activeDashboardSheet" class="sheet-container">
             <grid-layout
-                v-model:layout="activeDashboardSheet.widgets[currentScreenSize]"
+                :layout.sync="activeDashboardSheet.widgets[currentScreenSize]"
                 :responsive-layouts="activeDashboardSheet.widgets"
                 :responsive="true"
                 :cols="{ lg: 50, md: 100, sm: 50, xs: 20, xxs: 10 }"
@@ -105,9 +106,9 @@ export default defineComponent({
         this.loadDashboardModel()
     },
     methods: {
-        ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
+        ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet', 'getDashboard']),
         loadDashboardModel() {
-            this.dashboardModel = this.model ?? {}
+            this.dashboardModel = this.getDashboard(this.dashboardId) ?? {}
             if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
             if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
             this.activeDashboardSheet = this.dashboardModel.sheets[0]
