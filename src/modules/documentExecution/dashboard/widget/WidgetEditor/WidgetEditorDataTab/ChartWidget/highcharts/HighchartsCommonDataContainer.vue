@@ -61,6 +61,10 @@ export default defineComponent({
         chartType() {
             return this.widgetModel?.settings.chartModel?.model?.chart.type
         },
+        scatterChartIsJittered() {
+            if (this.chartType !== 'scatter') return false
+            return this.widgetModel?.settings.chartModel?.model?.plotOptions?.scatter?.jitter
+        },
         columnTableSettings() {
             switch (this.chartType) {
                 case 'pie':
@@ -76,7 +80,7 @@ export default defineComponent({
                 case 'bubble':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[0] }
                 case 'scatter':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[0] }
+                    return this.scatterChartIsJittered ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterJitterChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[0] }
                 case 'line':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.lineChartColumnTableSettings[0] }
                 case 'treemap':
@@ -116,7 +120,7 @@ export default defineComponent({
                 case 'bubble':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[1] }
                 case 'scatter':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[1] }
+                    return this.scatterChartIsJittered ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterJitterChartColumnTableSettings[1] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[1] }
                 case 'line':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.lineChartColumnTableSettings[1] }
                 case 'treemap':
@@ -274,6 +278,7 @@ export default defineComponent({
                     case 'pictorial':
                     case 'funnel':
                     case 'waterfall':
+                    case 'scatter':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     case 'pie':

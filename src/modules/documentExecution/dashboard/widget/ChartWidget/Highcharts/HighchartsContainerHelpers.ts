@@ -1,9 +1,9 @@
 import { IDashboardDriver, IVariable, IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
 import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardChartJSWidget";
-import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardHighchartsWidget'
 import i18n from '@/App.i18n'
 import store from '@/App.store.js'
 import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from "../../interactionsHelpers/InteractionsParserHelper";
+import { IHighchartsAdvancedPropertySettings } from "../../../interfaces/highcharts/DashboardHighchartsWidget";
 
 const { t } = i18n.global
 const mainStore = store()
@@ -31,7 +31,7 @@ export const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartT
 }
 
 const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, dataToShow: any) => {
-    if (['pictorial'].includes(chartType)) return dataToShow?.metaData?.fields[2] ? dataToShow?.metaData?.fields[2].header : ''
+    if (['pictorial', 'scatter'].includes(chartType)) return dataToShow?.metaData?.fields[2] ? dataToShow?.metaData?.fields[2].header : ''
     else if (['spline'].includes(chartType)) return chartPoint.category
     else if (['packedbubble'].includes(chartType)) return chartPoint.options.name
     else return chartPoint.series.name
@@ -39,7 +39,7 @@ const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, data
 
 const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) => {
     if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline', 'funnel', 'waterfall'].includes(chartType)) return chartPoint.options.y
-    else if (['dependencywheel', 'pictorial', 'sankey', 'streamgraph'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
+    else if (['dependencywheel', 'pictorial', 'sankey', 'streamgraph', 'scatter'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
     else if (['treemap'].includes(chartType)) return chartPoint.value
     else if (['dumbbell'].includes(chartType)) return chartPoint.options.high
     else return chartPoint.options.value

@@ -170,6 +170,18 @@
             "measuresOnly": true
         }
     ],
+    "scatterJitterChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.dimensionsTableHint",
+            "label": "X"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.valuesTableHint",
+            "label": "Y",
+            "measuresOnly": true
+        }
+    ],
     "solidgaugeChartColumnTableSettings": [
         {
             "hint": "dashboard.widgetEditor.highcharts.solidGauge.valuesTableHint",

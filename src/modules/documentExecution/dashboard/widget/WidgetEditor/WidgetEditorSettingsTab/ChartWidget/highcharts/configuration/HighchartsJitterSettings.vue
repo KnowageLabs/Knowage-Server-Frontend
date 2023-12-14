@@ -2,11 +2,11 @@
     <div v-if="jitterSettings" class="p-grid p-jc-center p-ai-center p-p-4">
         <div class="p-col-12 p-md-6 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.jitter.xAxisJitter') }}</label>
-            <InputNumber v-model="jitterSettings.x" class="kn-material-input p-inputtext-sm" />
+            <InputNumber v-model="jitterSettings.x" class="kn-material-input p-inputtext-sm" mode="decimal" />
         </div>
         <div class="p-col-12 p-md-6 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.jitter.yAxisJitter') }}</label>
-            <InputNumber v-model="jitterSettings.y" class="kn-material-input p-inputtext-sm" />
+            <InputNumber v-model="jitterSettings.y" class="kn-material-input p-inputtext-sm" mode="decimal" />
         </div>
     </div>
 </template>
