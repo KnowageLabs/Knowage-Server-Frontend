@@ -16,7 +16,7 @@
          "current_timestamp": "Vráti aktuálnu časovú pečiatku na začiatku vyhodnocovania dotazu.",
          "date_add": "Vráti dátum, ktorý je num_dní po dátume začiatku.",
          "date_sub": "Vráti dátum, ktorý je num_dní pred dátumom začiatku.",
-         "date_trunc": "Vráti časovú pečiatku ts skrátenú na jednotku určenú modelom formátu fmt. fmt by mal byť jeden z [\"ROK\", \"RRRR\", \"RR\", \"MON\", \ "MESIAC\", \"MM\", \"DEŇ\", \"DD\", \"HODINA\", \"MINÚTA\", \"DRUHÝ\", \"týždeň\", \"ŠTVRŤROK \"]",
+         "date_trunc": "Vráti časovú pečiatku ts skrátenú na jednotku určenú modelom formátu fmt. fmt by mal byť jeden z [\"ROK\", \"RRRR\", \"RR\", \"MON\", \"MESIAC\", \"MM\", \"DEŇ\", \"DD\", \"HODINA\", \"MINÚTA\", \"DRUHÝ\", \"týždeň\", \"ŠTVRŤROK \"]",
          "datediff": "Vráti počet dní od dátumu začiatku do dátumu ukončenia.",
          "day": "Vráti deň v mesiaci dátumu/časovej pečiatky.",
          "dayofmonth": "Vráti deň v mesiaci dátumu/časovej pečiatky.",
