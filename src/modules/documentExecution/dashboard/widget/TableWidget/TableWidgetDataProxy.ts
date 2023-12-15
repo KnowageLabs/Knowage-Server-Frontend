@@ -27,7 +27,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
 
         const postDataForHash = deepcopy(postData) // making a deepcopy so we can delete options which are used for solr datasets only
         delete postDataForHash.options
-        if (pagination.enabled) postDataForHash.pagination = deepcopy(pagination) // adding pagination in case its being used so we save data for each page
+        if (pagination?.enabled) postDataForHash.pagination = deepcopy(pagination) // adding pagination in case its being used so we save data for each page
         const dataHash = md5(JSON.stringify(postDataForHash))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 

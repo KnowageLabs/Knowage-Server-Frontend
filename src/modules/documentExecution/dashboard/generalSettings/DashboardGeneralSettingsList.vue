@@ -55,7 +55,7 @@ export default defineComponent({
     },
     computed: {
         settingsList() {
-            const headerEnabled = this.dashboardModelProp.configuration.menuWidgets.enableCustomHeader
+            const headerEnabled = this.dashboardModelProp.configuration?.menuWidgets?.enableCustomHeader
             const optionsList = headerEnabled ? deepcopy(descriptor.settingsList) : deepcopy(descriptor.settingsList.filter((settings: { icon: string; label: string; value: string }) => settings.value !== 'Custom Header'))
 
             return this.store.isEnterprise ? optionsList : optionsList.filter((settings: { icon: string; label: string; value: string }) => settings.value !== 'Themes')
