@@ -442,7 +442,7 @@ export default defineComponent({
             if (!this.document.dashboardId && this.document.crossType != 1) return true
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
-        ...mapActions(mainStore, ['setInfo', 'setError', 'setDocumentExecutionEmbed']),
+        ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
         iframeEventsListener(event) {
             if (event.data.type === 'crossNavigation') {
                 executeAngularCrossNavigation(this, event, this.$http)
@@ -513,11 +513,13 @@ export default defineComponent({
         hiddenExport(type: string) {
             this.export(type)
         },
-        export(type: string) {
+        async export(type: string) {
             if (this.document.typeCode === 'OLAP') {
                 this.exportOlap(type)
             } else if (this.document.typeCode === 'REPORT') {
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
+            } else if (type === 'PDF') {
+                await this.exportPdf()
             } else {
                 const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
@@ -539,6 +541,19 @@ export default defineComponent({
                     ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}`
                     : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
             window.open(url)
+        },
+        async exportPdf() {
+            this.setLoading(true)
+            await this.$http
+                .post(import.meta.env.VITE_HOST_URL + `/knowagecockpitengine/api/1.0/pages/execute/pdf`, this.hiddenFormData, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then(() => this.setInfo({ title: this.$t('common.exportSuccess'), msg: this.$t('common.toast.success') }))
+                .catch(() => {})
+            this.setLoading(false)
         },
         openMailDialog() {
             this.mailDialogVisible = true
@@ -654,7 +669,6 @@ export default defineComponent({
             this.loading = false
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
-            if (!this.document || this.document.typeCode === 'DASHBOARD') return
             let error = false
             const postData = {
                 label: this.document.label,
@@ -749,7 +763,8 @@ export default defineComponent({
                 }
             }
             this.hiddenFormData.append('documentMode', this.documentMode)
-            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE', 'DASHBOARD'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
+            if (this.document.typeCode === 'DASHBOARD') return
+            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             if (index !== -1) this.breadcrumbs[index].hiddenFormData = this.hiddenFormData
         },

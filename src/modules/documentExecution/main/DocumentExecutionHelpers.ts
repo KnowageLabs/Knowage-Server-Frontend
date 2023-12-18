@@ -63,7 +63,10 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
         })
     }
 
-    if (!newDashboardMode) exporters?.forEach((exporter: any) => toolbarMenuItems[1].items.push({ icon: 'fa fa-file-excel', label: exporter.name, command: () => functions.export(exporter.name) }))
+    if (!newDashboardMode) {
+        const exporterMenuItem = toolbarMenuItems.find((menuItem: any) => menuItem.label === $t('common.export'))
+        if (exporterMenuItem) exporters?.forEach((exporter: any) => exporterMenuItem.items.push({ icon: 'fa fa-file-excel', label: exporter.name, command: () => functions.export(exporter.name) }))
+    }
 
     if (user.functionalities.includes(UserFunctionalitiesConstants.SEND_MAIL_FUNCTIONALITY) && document.typeCode === 'REPORT') {
         const index = toolbarMenuItems.findIndex((item: any) => item.label === $t('common.info.info'))
