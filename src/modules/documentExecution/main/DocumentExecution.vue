@@ -23,8 +23,6 @@
                         :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
                         @click="saveDashboard"
                     ></Button>
-                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
                     <Button
                         v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.refresh')"
@@ -162,7 +160,6 @@ import { createToolbarMenuItems } from './DocumentExecutionHelpers'
 import { emitter } from '../dashboard/DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
-import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentExecutionAngularCrossNavigationHelper'
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
 import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDriverHelpers'
 import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
@@ -319,10 +316,6 @@ export default defineComponent({
             user: 'user',
             configurations: 'configurations'
         }),
-        canEditCockpit(): boolean {
-            if (!this.user || !this.document) return false
-            return (this.document.engine?.toLowerCase() === 'knowagecockpitengine' || this.document.engine?.toLowerCase() === 'knowagedashboardengine') && (this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId)
-        },
         sessionRole(): string | null {
             if (!this.user) return null
             return this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
@@ -373,11 +366,9 @@ export default defineComponent({
     },
     deactivated() {
         this.parameterSidebarVisible = false
-        window.removeEventListener('message', this.iframeEventsListener)
     },
     async created() {
         this.setEventListeners()
-        window.addEventListener('message', this.iframeEventsListener)
 
         if (this.propCrossNavigationPopupDialogDocument) {
             this.document = this.propCrossNavigationPopupDialogDocument
@@ -443,29 +434,6 @@ export default defineComponent({
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
         ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
-        iframeEventsListener(event) {
-            if (event.data.type === 'crossNavigation') {
-                executeAngularCrossNavigation(this, event, this.$http)
-            } else if (event.data.type === 'cockpitExecuted') {
-                this.loading = false
-            }
-        },
-        editCockpitDocumentConfirm() {
-            this.documentMode === 'EDIT'
-                ? this.$confirm.require({
-                      message: this.$t('documentExecution.main.editModeConfirm'),
-                      header: this.$t('documentExecution.main.editCockpit'),
-                      icon: 'pi pi-exclamation-triangle',
-                      accept: () => this.editCockpitDocument()
-                  })
-                : this.editCockpitDocument()
-        },
-        async editCockpitDocument() {
-            this.loading = true
-            this.documentMode = this.documentMode === 'EDIT' ? 'VIEW' : 'EDIT'
-            this.hiddenFormData.set('documentMode', this.documentMode)
-            await this.loadURL(null)
-        },
         openHelp() {
             this.helpDialogVisible = true
         },
@@ -1073,7 +1041,7 @@ export default defineComponent({
         },
         async onCrossNavigationSelected(event: any) {
             this.destinationSelectDialogVisible = false
-            this.angularData ? await loadCrossNavigation(this, event, this.angularData) : this.getDocumentAfterCrossNavigationIsSelected(event)
+            this.getDocumentAfterCrossNavigationIsSelected(event)
         },
         onCrossNavigationContainerClose() {
             this.crossNavigationContainerData = null
