@@ -46,7 +46,11 @@
             "width": "70vw"
         }
     },
-    "globalFilterFields": ["label", "name", "description"],
+    "globalFilterFields": [
+        "label",
+        "name",
+        "description"
+    ],
     "maxValues": [
         {
             "label": "none",
@@ -79,10 +83,6 @@
         {
             "name": "Manual Input",
             "valueSelection": "man_in"
-        },
-        {
-            "name": "Map Input",
-            "valueSelection": "map_in"
         }
     ]
 }

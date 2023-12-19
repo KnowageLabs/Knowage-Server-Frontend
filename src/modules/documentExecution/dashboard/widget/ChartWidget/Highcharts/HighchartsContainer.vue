@@ -11,8 +11,8 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart } from './HighchartsModelFormattingHelpers'
-import { applyAdvancedSettingsToModelForRender, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble } from './HighchartsModelFormattingHelpers'
+import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
@@ -38,6 +38,7 @@ import HighchartsPictorial from 'highcharts/modules/pictorial'
 import HighchartsFunnel from 'highcharts/modules/funnel'
 import HighchartsDumbbell from 'highcharts/modules/dumbbell'
 import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
+import HighchartsAnnotations from 'highcharts/modules/annotations'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -57,6 +58,7 @@ HighchartsPictorial(Highcharts)
 HighchartsFunnel(Highcharts)
 HighchartsDumbbell(Highcharts)
 HighchartsStreamgraph(Highcharts)
+HighchartsAnnotations(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -94,7 +96,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets']),
+        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets', 'getDashboardDrivers']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('refreshChart', this.onRefreshChart)
@@ -138,6 +140,7 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
+            formatChartAnnotations(modelToRender, this.propVariables, this.getDashboardDrivers(this.dashboardId))
 
             console.log('--------------- MODEL TO RENDER: ', modelToRender)
             try {
@@ -195,7 +198,7 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell'].includes(this.chartModel.chart.type) || this.editorMode) return
+            if (this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
                 const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
                 if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
@@ -223,7 +226,7 @@ export default defineComponent({
             } else if (this.widgetModel.settings.interactions.link.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
                 openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
-            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell'].includes(this.chartModel.chart.type)) {
+            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
@@ -232,12 +235,13 @@ export default defineComponent({
             return attributeColumns.length
         },
         setSelection(event: any) {
+            console.log('--------- EVENT: ', event)
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
-            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel', 'dumbbell'].includes(this.chartModel.chart.type)) {
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel', 'dumbbell', 'streamgraph', 'waterfall'].includes(this.chartModel.chart.type)) {
                 const serieClicked = event.point?.options
                 if (!serieClicked || !serieClicked.name) return
                 updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
-            } else if (['pictorial', 'spline'].includes(this.chartModel.chart.type)) {
+            } else if (['pictorial', 'spline', 'packedbubble'].includes(this.chartModel.chart.type)) {
                 this.setPictorialSelection(event)
             } else {
                 this.setSankeySelection(event)
@@ -285,6 +289,10 @@ export default defineComponent({
                 formatSplineChart(formattedChartModel, this.widgetModel)
             } else if (formattedChartModel.chart.type === 'pictorial') {
                 formatPictorialChart(formattedChartModel, this.widgetModel)
+            } else if (formattedChartModel.chart.type === 'streamgraph') {
+                formatStreamgraphChart(formattedChartModel, this.widgetModel)
+            } else if (formattedChartModel.chart.type === 'packedbubble') {
+                formatPackedBubble(formattedChartModel)
             }
 
             return formattedChartModel

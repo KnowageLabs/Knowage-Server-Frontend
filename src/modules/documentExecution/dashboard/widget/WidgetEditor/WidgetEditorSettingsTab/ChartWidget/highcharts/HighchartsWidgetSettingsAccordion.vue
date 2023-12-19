@@ -38,10 +38,10 @@
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
-                <HighchartsAxisSettings v-else-if="accordion.type === 'HeatmapXAxisSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisSettings>
-                <HighchartsAxisSettings v-else-if="accordion.type === 'HeatmapYAxisSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisSettings>
-                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HeatmapXAxisTitleSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisTitleSettings>
-                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HeatmapYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
+                <HighchartsAxisSettings v-else-if="accordion.type === 'HighchartsXAxisSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisSettings>
+                <HighchartsAxisSettings v-else-if="accordion.type === 'HighchartsYAxisSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisSettings>
+                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HighchartsXAxisTitleSettings'" :widget-model="widgetModel" axis="x"></HighchartsAxisTitleSettings>
+                <HighchartsAxisTitleSettings v-else-if="accordion.type === 'HighchartsYAxisTitleSettings'" :widget-model="widgetModel" axis="y"></HighchartsAxisTitleSettings>
                 <HighchartsHeatmapNullSettings v-else-if="accordion.type === 'HeatmapNullSettings'" :widget-model="widgetModel"></HighchartsHeatmapNullSettings>
                 <HighchartsDatetypeSettings v-else-if="accordion.type === 'DatetypeSettings'" :widget-model="widgetModel"></HighchartsDatetypeSettings>
                 <HighchartsLineSettings v-else-if="accordion.type === 'XAxisLinesSettings'" :widget-model="widgetModel" axis="x"></HighchartsLineSettings>
@@ -61,6 +61,8 @@
                 <HighchartsAdvancedSettings v-else-if="accordion.type === 'AdvancedSettings'" :prop-widget-model="widgetModel"></HighchartsAdvancedSettings>
                 <HighchartsMarkerSettings v-else-if="accordion.type === 'MarkerSettings'" :widget-model="widgetModel"></HighchartsMarkerSettings>
                 <HighchartsConnectorSettings v-else-if="accordion.type === 'ConnectorSettings'" :widget-model="widgetModel"></HighchartsConnectorSettings>
+                <HighchartsAnnotations v-else-if="accordion.type === 'Annotations'" :widget-model="widgetModel"></HighchartsAnnotations>
+                <HighchartsJitterSettings v-else-if="accordion.type === 'JitterSettings' && isJittered" :widget-model="widgetModel"></HighchartsJitterSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -123,6 +125,8 @@ import HighchartsFunnelNeckSettings from '../highcharts/series/HighchartsFunnelN
 import HighchartsAdvancedSettings from '../highcharts/advanced/HighchartsAdvancedSettings.vue'
 import HighchartsMarkerSettings from './settings/marker/HighchartsMarkerSettings.vue'
 import HighchartsConnectorSettings from './settings/connector/HighchartsConnectorSettings.vue'
+import HighchartsAnnotations from './configuration/HighchartsAnnotations.vue'
+import HighchartsJitterSettings from './configuration/HighchartsJitterSettings.vue'
 
 export default defineComponent({
     name: 'hihgcharts-widget-configuration-container',
@@ -177,7 +181,9 @@ export default defineComponent({
         WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
         HighchartsMarkerSettings,
-        HighchartsConnectorSettings
+        HighchartsConnectorSettings,
+        HighchartsAnnotations,
+        HighchartsJitterSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -208,6 +214,10 @@ export default defineComponent({
         },
         showThemePicker() {
             return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+        },
+        isJittered() {
+            if (this.widgetModel?.settings.chartModel?.model?.plotOptions?.scatter?.jitter) return true
+            return false
         }
     },
     watch: {

@@ -36,23 +36,19 @@
                 "type": "Annotations"
             },
             {
-                "title": "dashboard.widgetEditor.configurationOf3D.title",
-                "type": "ConfigurationOf3D"
-            },
-            {
-                "title": "dashboard.widgetEditor.noData.title",
-                "type": "NoDataMessageConfiguration"
+                "title": "dashboard.widgetEditor.highcharts.datetype",
+                "type": "DatetypeSettings"
             },
             {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
+            },
+            {
+                "title": "dashboard.widgetEditor.noData.title",
+                "type": "NoDataMessageConfiguration"
             }
         ],
         "Interactions": [
-            {
-                "title": "dashboard.widgetEditor.drilldown.title",
-                "type": "Drilldown"
-            },
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
                 "type": "Selection"
@@ -70,12 +66,6 @@
                 "type": "Preview"
             }
         ],
-        "Legend": [
-            {
-                "title": "dashboard.widgetEditor.legend.title",
-                "type": "Legend"
-            }
-        ],
         "Responsive": [
             {
                 "title": "dashboard.widgetEditor.responsive.title",
@@ -86,10 +76,6 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
-            },
-            {
-                "title": "dashboard.widgetEditor.conditionalStyle",
-                "type": "ConditionalStyles"
             }
         ],
         "Style": [
@@ -136,11 +122,6 @@
             "icon": "fa fa-paint-brush",
             "label": "common.style",
             "value": "Style"
-        },
-        {
-            "icon": "pi pi-table",
-            "label": "dashboard.widgetEditor.legend.title",
-            "value": "Legend"
         },
         {
             "icon": "pi pi-table",

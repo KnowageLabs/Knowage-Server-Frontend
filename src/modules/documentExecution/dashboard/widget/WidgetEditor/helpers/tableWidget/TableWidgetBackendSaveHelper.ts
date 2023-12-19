@@ -1,4 +1,4 @@
-import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle } from '../../../../Dashboard'
+import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
 
 const columnIdNameMap = {}
 
@@ -30,6 +30,7 @@ const getColumnName = (columnId: string) => {
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
     if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnName(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
+    formatTableWidgetColumnStyles(widgetSettings.style.columns)
     formatTableWidgetVisualisation(widgetSettings.visualization)
     formatTableWidgetConditionalStyle(widgetSettings.conditionalStyles)
     formatTableWidgetTooltips(widgetSettings.tooltips)
@@ -40,6 +41,19 @@ const formatTableWidgetConfiguration = (widgetConfiguration: ITableWidgetConfigu
     formatRowsConfiguration(widgetConfiguration)
     formatHeadersConfiguration(widgetConfiguration)
     formatColumnGroups(widgetConfiguration)
+}
+
+const formatTableWidgetColumnStyles = (columnStyles: ITableWidgetColumnStyles) => {
+    for (let i = 0; i < columnStyles.styles.length; i++) {
+        const tempStyle = columnStyles.styles[i]
+        const formattedTargetColumns = [] as string[]
+        if (Array.isArray(tempStyle.target)) {
+            for (let j = 0; j < tempStyle.target.length; j++) {
+                formattedTargetColumns.push(getColumnName(tempStyle.target[j]))
+            }
+            tempStyle.target = formattedTargetColumns
+        }
+    }
 }
 
 const formatRowsConfiguration = (widgetConfiguration: ITableWidgetConfiguration) => {

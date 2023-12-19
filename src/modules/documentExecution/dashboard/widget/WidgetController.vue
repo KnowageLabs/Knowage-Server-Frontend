@@ -10,14 +10,14 @@
         :h="item.h"
         :i="item.i"
         drag-allow-from=".drag-handle"
-        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget.settings.responsive.fullGrid }"
+        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget?.settings.responsive.fullGrid }"
         @resized="resizedEvent"
     >
         <div v-if="initialized" class="drag-handle"></div>
         <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
         <WidgetRenderer
-            v-if="!loading"
+            v-if="!loading && widget"
             :widget="widget"
             :widget-data="widgetData"
             :widget-initial-data="widgetInitialData"
@@ -180,7 +180,7 @@ export default defineComponent({
         this.setEventListeners()
         this.loadWidget(this.widget)
 
-        this.widget.type !== 'selection' ? await this.loadInitalData() : await this.loadActiveSelections()
+        this.widget?.type !== 'selection' ? await this.loadInitalData() : await this.loadActiveSelections()
 
         this.setWidgetLoading(false)
     },
@@ -198,6 +198,7 @@ export default defineComponent({
             emitter.on('datasetRefreshed', this.onDatasetRefresh)
             emitter.on('setWidgetLoading', this.setWidgetLoading)
             emitter.on('chartTypeChanged', this.onWidgetUpdated)
+            emitter.on('refreshAfterGeneralSettingsChange', this.loadInitalData)
         },
         removeEventListeners() {
             emitter.off('selectionsChanged', this.loadActiveSelections)
@@ -207,6 +208,7 @@ export default defineComponent({
             emitter.off('datasetRefreshed', this.onDatasetRefresh)
             emitter.off('setWidgetLoading', this.setWidgetLoading)
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
+            emitter.off('refreshAfterGeneralSettingsChange', this.loadInitalData)
         },
         captureScreenshot(widget) {
             let targetElement = document.getElementById(`widget${widget.id}`)
@@ -244,7 +246,7 @@ export default defineComponent({
             ]
         },
         quickWidgetChangeEnabled() {
-            if (!['table', 'highcharts'].includes(this.widget.type)) return false
+            if (!this.widget || !['table', 'highcharts'].includes(this.widget.type)) return false
             if (this.widget.type === 'table' && !this.checkIfTableHasBothAttributeAndMeasureColumns()) return false
             return canEditDashboard(this.document)
         },
@@ -262,8 +264,9 @@ export default defineComponent({
             this.showQuickDialog = false
             quickWidgetCreateChartFromTable(chartType, this.widgetModel, this.dashboardId)
         },
-        loadWidget(widget: IWidget) {
+        loadWidget(widget: IWidget | null) {
             this.widgetModel = widget
+            if (!this.widgetModel) return
             this.loadWidgetSearch()
         },
         loadWidgetSearch() {

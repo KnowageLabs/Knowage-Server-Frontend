@@ -23,8 +23,6 @@
                         :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
                         @click="saveDashboard"
                     ></Button>
-                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
                     <Button
                         v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.refresh')"
@@ -162,7 +160,6 @@ import { createToolbarMenuItems } from './DocumentExecutionHelpers'
 import { emitter } from '../dashboard/DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
-import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentExecutionAngularCrossNavigationHelper'
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
 import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDriverHelpers'
 import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
@@ -319,10 +316,6 @@ export default defineComponent({
             user: 'user',
             configurations: 'configurations'
         }),
-        canEditCockpit(): boolean {
-            if (!this.user || !this.document) return false
-            return (this.document.engine?.toLowerCase() === 'knowagecockpitengine' || this.document.engine?.toLowerCase() === 'knowagedashboardengine') && (this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId)
-        },
         sessionRole(): string | null {
             if (!this.user) return null
             return this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
@@ -373,11 +366,9 @@ export default defineComponent({
     },
     deactivated() {
         this.parameterSidebarVisible = false
-        window.removeEventListener('message', this.iframeEventsListener)
     },
     async created() {
         this.setEventListeners()
-        window.addEventListener('message', this.iframeEventsListener)
 
         if (this.propCrossNavigationPopupDialogDocument) {
             this.document = this.propCrossNavigationPopupDialogDocument
@@ -442,30 +433,7 @@ export default defineComponent({
             if (!this.document.dashboardId && this.document.crossType != 1) return true
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
-        ...mapActions(mainStore, ['setInfo', 'setError', 'setDocumentExecutionEmbed']),
-        iframeEventsListener(event) {
-            if (event.data.type === 'crossNavigation') {
-                executeAngularCrossNavigation(this, event, this.$http)
-            } else if (event.data.type === 'cockpitExecuted') {
-                this.loading = false
-            }
-        },
-        editCockpitDocumentConfirm() {
-            this.documentMode === 'EDIT'
-                ? this.$confirm.require({
-                      message: this.$t('documentExecution.main.editModeConfirm'),
-                      header: this.$t('documentExecution.main.editCockpit'),
-                      icon: 'pi pi-exclamation-triangle',
-                      accept: () => this.editCockpitDocument()
-                  })
-                : this.editCockpitDocument()
-        },
-        async editCockpitDocument() {
-            this.loading = true
-            this.documentMode = this.documentMode === 'EDIT' ? 'VIEW' : 'EDIT'
-            this.hiddenFormData.set('documentMode', this.documentMode)
-            await this.loadURL(null)
-        },
+        ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
         openHelp() {
             this.helpDialogVisible = true
         },
@@ -513,11 +481,13 @@ export default defineComponent({
         hiddenExport(type: string) {
             this.export(type)
         },
-        export(type: string) {
+        async export(type: string) {
             if (this.document.typeCode === 'OLAP') {
                 this.exportOlap(type)
             } else if (this.document.typeCode === 'REPORT') {
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
+            } else if (type === 'PDF') {
+                await this.exportPdf()
             } else {
                 const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
@@ -539,6 +509,19 @@ export default defineComponent({
                     ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}`
                     : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
             window.open(url)
+        },
+        async exportPdf() {
+            this.setLoading(true)
+            await this.$http
+                .post(import.meta.env.VITE_HOST_URL + `/knowagecockpitengine/api/1.0/pages/execute/pdf`, this.hiddenFormData, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then(() => this.setInfo({ title: this.$t('common.exportSuccess'), msg: this.$t('common.toast.success') }))
+                .catch(() => {})
+            this.setLoading(false)
         },
         openMailDialog() {
             this.mailDialogVisible = true
@@ -654,7 +637,6 @@ export default defineComponent({
             this.loading = false
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
-            if (!this.document || this.document.typeCode === 'DASHBOARD') return
             let error = false
             const postData = {
                 label: this.document.label,
@@ -749,7 +731,8 @@ export default defineComponent({
                 }
             }
             this.hiddenFormData.append('documentMode', this.documentMode)
-            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE', 'DASHBOARD'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
+            if (this.document.typeCode === 'DASHBOARD') return
+            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             if (index !== -1) this.breadcrumbs[index].hiddenFormData = this.hiddenFormData
         },
@@ -1058,7 +1041,7 @@ export default defineComponent({
         },
         async onCrossNavigationSelected(event: any) {
             this.destinationSelectDialogVisible = false
-            this.angularData ? await loadCrossNavigation(this, event, this.angularData) : this.getDocumentAfterCrossNavigationIsSelected(event)
+            this.getDocumentAfterCrossNavigationIsSelected(event)
         },
         onCrossNavigationContainerClose() {
             this.crossNavigationContainerData = null

@@ -36,23 +36,19 @@
                 "type": "Annotations"
             },
             {
-                "title": "dashboard.widgetEditor.configurationOf3D.title",
-                "type": "ConfigurationOf3D"
-            },
-            {
-                "title": "dashboard.widgetEditor.noData.title",
-                "type": "NoDataMessageConfiguration"
+                "title": "dashboard.widgetEditor.highcharts.datetype",
+                "type": "DatetypeSettings"
             },
             {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
+            },
+            {
+                "title": "dashboard.widgetEditor.noData.title",
+                "type": "NoDataMessageConfiguration"
             }
         ],
         "Interactions": [
-            {
-                "title": "dashboard.widgetEditor.drilldown.title",
-                "type": "Drilldown"
-            },
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
                 "type": "Selection"
@@ -86,10 +82,6 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
-            },
-            {
-                "title": "dashboard.widgetEditor.conditionalStyle",
-                "type": "ConditionalStyles"
             }
         ],
         "Style": [
@@ -119,6 +111,34 @@
                 "title": "dashboard.widgetEditor.tooltip.title",
                 "type": "Tooltip"
             }
+        ],
+        "XAxis": [
+            {
+                "title": "dashboard.widgetEditor.axis",
+                "type": "HighchartsXAxisSettings"
+            },
+            {
+                "title": "common.title",
+                "type": "HighchartsXAxisTitleSettings"
+            }
+        ],
+        "YAxis": [
+            {
+                "title": "dashboard.widgetEditor.axis",
+                "type": "HighchartsYAxisSettings"
+            },
+            {
+                "title": "common.title",
+                "type": "HighchartsYAxisTitleSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.majorGridDetails",
+                "type": "YAxisMajorGridSettings"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.minorGridDetails",
+                "type": "YAxisMinorGridSettings"
+            }
         ]
     },
     "settingsListOptions": [
@@ -141,6 +161,16 @@
             "icon": "pi pi-table",
             "label": "dashboard.widgetEditor.legend.title",
             "value": "Legend"
+        },
+        {
+            "icon": "fa-solid fa-arrow-up",
+            "label": "dashboard.widgetEditor.yAxis",
+            "value": "YAxis"
+        },
+        {
+            "icon": "fa-solid fa-arrow-right",
+            "label": "dashboard.widgetEditor.xAxis",
+            "value": "XAxis"
         },
         {
             "icon": "pi pi-table",

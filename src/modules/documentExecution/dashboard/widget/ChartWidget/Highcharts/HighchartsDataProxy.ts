@@ -14,6 +14,8 @@ export const getHighchartsWidgetData = async (dashboardId, dashboardConfig: IDas
         case 'column':
         case 'line':
         case 'radar':
+        case 'dumbbell':
+        case 'waterfall':
             return await getHighchartsBarData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'scatter':
             return await getHighchartsScatterData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
@@ -26,6 +28,8 @@ export const getHighchartsWidgetData = async (dashboardId, dashboardConfig: IDas
         case 'pictorial':
         case 'sankey':
         case 'funnel':
+        case 'streamgraph':
+        case 'packedbubble':
             return await getHighchartsSunburstData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
             return await getHighchartsPieData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)

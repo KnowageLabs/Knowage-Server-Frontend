@@ -211,6 +211,8 @@ import HighchartsSankeySettingsDescriptor from './ChartWidget/highcharts/descrip
 import HighchartsFunnelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsFunnelSettingsDescriptor.json'
 import HighchartsDumbbellSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsDumbbellSettingsDescriptor.json'
 import HighchartsStreamgraphSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsStreamgraphSettingsDescriptor.json'
+import HighchartsPackedBubbleSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPackedBubbleSettingsDescriptor.json'
+import HighchartsWaterfallSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsWaterfallSettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -377,6 +379,10 @@ export default defineComponent({
                     return HighchartsDumbbellSettingsDescriptor
                 case 'streamgraph':
                     return HighchartsStreamgraphSettingsDescriptor
+                case 'packedbubble':
+                    return HighchartsPackedBubbleSettingsDescriptor
+                case 'waterfall':
+                    return HighchartsWaterfallSettingsDescriptor
             }
         },
         onItemClicked(item: any) {

@@ -4,6 +4,7 @@ import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/help
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
+import deepcopy from 'deepcopy'
 
 export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
@@ -23,12 +24,15 @@ export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDash
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
 
-        const dataHash = md5(JSON.stringify(postData))
-        const cachedData = await indexedDB.widgetData.get(dataHash)
+        const postDataForHash = deepcopy(postData) // making a deepcopy so we can delete options which are used for solr datasets only
+        delete postDataForHash.options
+        if (widget.settings.pagination.enabled) postDataForHash.pagination = deepcopy(widget.settings.pagination) // adding pagination in case its being used so we save data for each page
+        const dataHash = md5(JSON.stringify(postDataForHash))
+        const cachedData = (await indexedDB.widgetData.get(dataHash)) as any
 
         if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
-            if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = tempResponse.data.results
+            if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = tempResponse.results
         } else {
             await $http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
@@ -77,7 +81,7 @@ const formatDiscoveryModelForGet = (dashboardId, propWidget: IWidget, dataset: a
             column.formula ? (measureToPush.formula = column.formula) : ''
             dataToSend.aggregations.measures.push(measureToPush)
         } else {
-            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'COUNT', functColumn: column.alias } as any
+            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: column.aggregation, functColumn: column.aggregationColumn } as any
             dataToSend.aggregations.categories.push(attributeToPush)
 
             column.id === propWidget.settings.sortingColumn ? (attributeToPush.orderType = propWidget.settings.sortingOrder) : ''

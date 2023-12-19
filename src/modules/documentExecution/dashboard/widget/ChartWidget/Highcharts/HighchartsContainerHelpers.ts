@@ -1,8 +1,9 @@
-import { IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
+import { IDashboardDriver, IVariable, IWidgetCrossNavigation, IWidgetInteractionParameter } from "../../../Dashboard";
 import { IChartInteractionValues } from "../../../interfaces/chartJS/DashboardChartJSWidget";
-import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardHighchartsWidget'
 import i18n from '@/App.i18n'
 import store from '@/App.store.js'
+import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from "../../interactionsHelpers/InteractionsParserHelper";
+import { IHighchartsAdvancedPropertySettings } from "../../../interfaces/highcharts/DashboardHighchartsWidget";
 
 const { t } = i18n.global
 const mainStore = store()
@@ -10,6 +11,7 @@ const mainStore = store()
 export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions: IWidgetCrossNavigation, dataToShow: any, chartType: string) => {
     if (!chartEvent.point) return []
     const formattedChartValues = getFormattedChartValues(chartEvent, dataToShow, chartType)
+    console.log('----------- FORMATTED CHART VALUES: ', formattedChartValues)
     const formattedOutputParameters = getFormattedOutputParameters(formattedChartValues, crossNavigationOptions.parameters)
     return formattedOutputParameters
 
@@ -29,14 +31,15 @@ export const getFormattedChartValues = (chartEvent: any, dataToShow: any, chartT
 }
 
 const getSerieNameForCrossNavigation = (chartPoint: any, chartType: string, dataToShow: any) => {
-    if (['pictorial'].includes(chartType)) return dataToShow?.metaData?.fields[2] ? dataToShow?.metaData?.fields[2].header : ''
-    if (['spline'].includes(chartType)) return chartPoint.category
+    if (['pictorial', 'scatter'].includes(chartType)) return dataToShow?.metaData?.fields[2] ? dataToShow?.metaData?.fields[2].header : ''
+    else if (['spline'].includes(chartType)) return chartPoint.category
+    else if (['packedbubble'].includes(chartType)) return chartPoint.options.name
     else return chartPoint.series.name
 }
 
 const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) => {
-    if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline', 'funnel'].includes(chartType)) return chartPoint.options.y
-    else if (['dependencywheel', 'pictorial', 'sankey'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
+    if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'bubble', 'spline', 'funnel', 'waterfall'].includes(chartType)) return chartPoint.options.y
+    else if (['dependencywheel', 'pictorial', 'sankey', 'streamgraph', 'scatter'].includes(chartType)) return chartPoint.options.y ?? chartPoint.options.weight
     else if (['treemap'].includes(chartType)) return chartPoint.value
     else if (['dumbbell'].includes(chartType)) return chartPoint.options.high
     else return chartPoint.options.value
@@ -44,7 +47,7 @@ const getSerieValueForCrossNavigation = (chartPoint: any, chartType: string,) =>
 
 const getCategoryValueForCrossNavigation = (chartPoint: any, chartType: string) => {
     if (['dependencywheel', 'sankey'].includes(chartType)) return chartPoint.options.id ?? chartPoint.options.from
-    else if (['spline', 'pictorial'].includes(chartType)) return chartPoint.series.name
+    else if (['spline', 'pictorial', 'packedbubble'].includes(chartType)) return chartPoint.series.name
     else return chartPoint.options.name
 }
 
@@ -132,5 +135,14 @@ const getFormattedPropertyValue = (propertyValue: string) => {
             return false;
         default:
             return propertyValue
+    }
+}
+
+export const formatChartAnnotations = (modelToRender: any, variables: IVariable[], drivers: IDashboardDriver[]) => {
+    for (let i = modelToRender.annotations[0].labels.length - 1; i >= 0; i--) {
+        const label = modelToRender.annotations[0].labels[i]
+        label.text = replaceVariablesPlaceholdersByVariableName(label.text, variables)
+        label.text = replaceDriversPlaceholdersByDriverUrlName(label.text, drivers)
+        if (!label.text?.trim()) modelToRender.annotations[0].labels.splice(i, 1)
     }
 }

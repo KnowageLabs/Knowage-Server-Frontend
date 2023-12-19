@@ -88,6 +88,23 @@
             "measuresOnly": true
         }
     ],
+    "packedBubbleChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.groupTableHint",
+            "label": "common.group"
+        },
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.labelTableHint",
+            "label": "common.label"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
     "pictorialChartColumnTableSettings": [
         {
             "attributesOnly": true,
@@ -153,6 +170,18 @@
             "measuresOnly": true
         }
     ],
+    "scatterJitterChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.dimensionsTableHint",
+            "label": "X"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.valuesTableHint",
+            "label": "Y",
+            "measuresOnly": true
+        }
+    ],
     "solidgaugeChartColumnTableSettings": [
         {
             "hint": "dashboard.widgetEditor.highcharts.solidGauge.valuesTableHint",
@@ -209,6 +238,18 @@
         },
         {
             "hint": "dashboard.widgetEditor.highcharts.treemapchart.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "waterfallChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.waterfall.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.waterfall.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }

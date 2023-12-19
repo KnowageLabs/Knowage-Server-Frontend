@@ -102,14 +102,15 @@ export interface IHighchartsChartModel {
     series: any[],
     plotOptions: {
         pie?: any,
-        gauge?: any,
+        gauge?: any
         solidgauge?: any
         heatmap?: any
-        line?: any,
-        scatter?: any,
+        line?: any
+        scatter?: any
         dependencywheel?: any
-        sankey?: any,
-        dumbbell?: any,
+        sankey?: any
+        dumbbell?: any
+        packedbubble?: any
         series?: any
     },
     legend: any,
@@ -124,6 +125,7 @@ export interface IHighchartsChartModel {
     colorAxis?: { stops: any[] },
     seriesForRender?: any[],
     sonification?: any
+    annotations: IHighchartsAnnotation[]
 }
 
 export interface IHighchartsOptions3D {
@@ -264,4 +266,14 @@ export interface IHighchartsMarkerSettings {
 export interface IHighchartsConnectorSettings {
     connectorColor: string | undefined,
     connectorWidth: number | undefined
+}
+
+export interface IHighchartsAnnotation {
+    labels: {
+        point: {
+            x: number,
+            y: number
+        },
+        text: string
+    }[]
 }

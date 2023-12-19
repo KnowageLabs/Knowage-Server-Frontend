@@ -1,15 +1,14 @@
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
 import moment from 'moment'
-import mockedData from '../../mockedDataStreamgraph.json'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
-    if (!mockedData || !widgetModel.columns) return []
-    // TODO - Remove mock
+    if (!data || !widgetModel.columns) return []
+    
     const formattedColumns = [] as { column: IWidgetColumn; metadata: any }[]
     widgetModel.columns.forEach((column: IWidgetColumn) => {
         if (column.fieldType === type) {
-            const metadata = mockedData.metaData.fields.find((field: any) => field.header?.startsWith(column.columnName))
+            const metadata = data.metaData.fields.find((field: any) => field.header?.startsWith(column.columnName))
             if (metadata) formattedColumns.push({ column: column, metadata: metadata })
         }
     })

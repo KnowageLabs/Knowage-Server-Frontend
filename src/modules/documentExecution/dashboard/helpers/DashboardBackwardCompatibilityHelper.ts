@@ -19,6 +19,7 @@ import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatib
 import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
 import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
 import { addWidgetMenuConfig } from '../DashboardHelpers'
+import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 
 const datasetIdLabelMap = {}
 
@@ -270,18 +271,14 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
 }
 
 const getFormattedChartWidget = (widget: any, user: any) => {
-    // TODO widgetChange
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return formatVegaChartsWidget(widget)
     else if (user?.enterprise) return formatHighchartsWidget(widget)
     else return formatChartJSWidget(widget)
 }
 
 const getFormattedPivotWidget = (widget: any, user: any) => {
-    // TODO widgetChange
-    // return formatCEPivotTabletWidget(widget)
-
     if (user?.enterprise) return formatPivotTabletWidget(widget)
-    else return formatPivotTabletWidget(widget)
+    else return formatCEPivotTabletWidget(widget)
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {

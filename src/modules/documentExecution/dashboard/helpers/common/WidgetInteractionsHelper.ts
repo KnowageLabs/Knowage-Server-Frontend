@@ -53,7 +53,6 @@ const getFormattedTableSelection = (widget: any) => {
 const getFormattedChartSelection = (widget: any, chartType: string | null) => {
     const store = mainStore()
     const user = store.getUser()
-    // TODO widgetChange
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return chartJSDefaultValues.getDefaultChartJSSelections()
     else {
         const highchartsDefaultSelections = highchartsDefaultValues.getDefaultHighchartsSelections()

@@ -58,6 +58,7 @@
         "details": "Details",
         "development": "Development",
         "dialog": "Dialog",
+        "document": "Document",
         "documentDetails": "Document Details",
         "documents": "Documents",
         "dossier": "Dossier",
@@ -513,6 +514,7 @@
                 "gauge": "Gauge",
                 "heatmap": "Heatmap",
                 "lineChart": "Line Chart",
+                "packedbubble": "Packed Bubble Chart",
                 "parallelChart": "Parallel Chart",
                 "pictorial": "Pictorial",
                 "pieChart": "Pie Chart",
@@ -520,6 +522,7 @@
                 "sankey": "Sankey",
                 "sankeyInverted": "Sankey Inverted",
                 "scatterChart": "Scatter Chart",
+                "scatterJitter": "Scatter Jitter",
                 "solidgauge": "Solid Gauge",
                 "stackedAreaChart": "Stacked Area Chart",
                 "stackedBarChart": "Stacked Bar Chart",
@@ -528,6 +531,7 @@
                 "streamgraph": "Streamgraph",
                 "sunburst": "Sunburst",
                 "treemap": "Treemap",
+                "waterfall": "Waterfall",
                 "wordcloud": "Wordcloud"
             },
             "chips": "Chips",
@@ -665,6 +669,7 @@
                 "advancedSettings": "Advanced Settings",
                 "advancedSettingsErrorArrayIndexOutOfBounds": "Error applying property {property}, array index out of bounds!",
                 "advancedSettingsHint": "Advanced Settings Hint Placeholder",
+                "annotations": "Annotations",
                 "areaRangeHigh": "Area Range High",
                 "areaRangeLow": "Area Range Low",
                 "axisLines": {
@@ -754,6 +759,11 @@
                     "rotation": "Rotation",
                     "valuesTableHint": "Exactly one measure only to define series"
                 },
+                "jitter": {
+                    "title": "Jitter",
+                    "xAxisJitter": "X axis jitter",
+                    "yAxisJitter": "Y axis jitter"
+                },
                 "labels": {
                     "distance": "Distance",
                     "distanceHint": "The distance of the data label from the pie's edge. Negative numbers put the data label on top of the pie slices. Can also be defined as a percentage of pie's radius. Connectors are only shown for data labels outside the pie.",
@@ -797,6 +807,11 @@
                     "triangleDown": "Triangle down"
                 },
                 "minorGridDetails": "Axis minor grid details",
+                "packedBubble": {
+                    "groupTableHint": "Click on exactly one attribute to define group category",
+                    "labelTableHint": "Click on exactly one attribute to define label category",
+                    "valuesTableHint": "Click on exactly one measure to define series"
+                },
                 "paneSettings": {
                     "centralHorizontalPosition": "Centar Horizontal Position",
                     "centralVerticalPosition": "Centar Vertical Position",
@@ -832,6 +847,10 @@
                 "scale": {
                     "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
                     "minHint": "The minimum value of the axis. If null the min value is automatically calculated."
+                },
+                "scatterJitter": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on at least one measure to define series."
                 },
                 "scatterchart": {
                     "dimensionsTableHint": "Click on exactly one attribute to define categories. Numerical values only.",
@@ -872,9 +891,9 @@
                     "title": "Stops"
                 },
                 "streamgraph": {
-                    "streamTableHint": "Click on exactly one attribute to define to category",
+                    "streamTableHint": "Click on exactly one attribute to define stream category",
                     "valuesTableHint": "Click on exactly one measure to define series",
-                    "xTableHint": "Click on exactly one attribute to define from category"
+                    "xTableHint": "Click on exactly one attribute to define x-axis category"
                 },
                 "svg": {
                     "definition": "Definition",
@@ -904,6 +923,10 @@
                 "treemapchart": {
                     "dimensionsTableHint": "Click on at least two attribute to define categories. The item that precedes should have a lower granularity.",
                     "valuesTableHint": "Click on at exactly one measure to define series."
+                },
+                "waterfall": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on exactly one measure to define series."
                 }
             },
             "hint": "Select dataset",
@@ -1490,8 +1513,8 @@
                 "prefixHint": "This prefix will be used case sensitive to search for images within the template",
                 "resetPlaceholder": "Reset placeholder",
                 "saveAndRun": "Save and run",
-                "sheetHeight": "Sheet Height",
-                "sheetWidth": "Sheet width",
+                "sheetHeight": "Sheet Height (px)",
+                "sheetWidth": "Sheet width (px)",
                 "step0": {
                     "info": "Upload the template for the dossier and set the prefix to use to search for images within",
                     "title": "Dossier designer - Upload file and choose the prefix for images"
@@ -2982,6 +3005,9 @@
                 "datasetPersistence": "Dataset Persistence",
                 "doMassiveExport": "Do massive export",
                 "editPythonScripts": "Edit Python/R Scripts",
+                "enableDashboardThemeManagement": "Enable Dashboard Theme Management",
+                "enableDataPreparation": "Enable Data Preparation",
+                "enableDossier": "Enable Dossier",
                 "federatedDataset": "Federated Dataset",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
@@ -3002,6 +3028,7 @@
                 "saveOlapView": "Save OLAP View",
                 "saveRemember": "Save to remember",
                 "seeFavourites": "See favourites",
+                "seeHelpOnline": "See Help Online",
                 "seeSubobj": "See subobject",
                 "seeSubscriptions": "See subscriptions",
                 "seeToDoList": "See ToDo list",

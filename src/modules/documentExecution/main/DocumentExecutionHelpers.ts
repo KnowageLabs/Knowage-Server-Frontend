@@ -48,12 +48,11 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
     })
 
     if (user.enterprise && !newDashboardMode) {
+        const items = [{ icon: 'pi pi-star', label: $t('common.rank'), command: () => functions.openRank() }]
+        if (user.functionalities.includes(UserFunctionalitiesConstants.SEE_HELP_ONLINE)) items.push({ icon: 'pi pi-book', label: $t('common.onlineHelp'), command: () => functions.openHelp() })
         toolbarMenuItems.push({
             label: $t('common.info.info'),
-            items: [
-                { icon: 'pi pi-star', label: $t('common.rank'), command: () => functions.openRank() },
-                { icon: 'pi pi-book', label: $t('common.onlineHelp'), command: () => functions.openHelp() }
-            ]
+            items: items
         })
     }
 
@@ -64,7 +63,10 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
         })
     }
 
-    if (!newDashboardMode) exporters?.forEach((exporter: any) => toolbarMenuItems[1].items.push({ icon: 'fa fa-file-excel', label: exporter.name, command: () => functions.export(exporter.name) }))
+    if (!newDashboardMode) {
+        const exporterMenuItem = toolbarMenuItems.find((menuItem: any) => menuItem.label === $t('common.export'))
+        if (exporterMenuItem) exporters?.forEach((exporter: any) => exporterMenuItem.items.push({ icon: 'fa fa-file-excel', label: exporter.name, command: () => functions.export(exporter.name) }))
+    }
 
     if (user.functionalities.includes(UserFunctionalitiesConstants.SEND_MAIL_FUNCTIONALITY) && document.typeCode === 'REPORT') {
         const index = toolbarMenuItems.findIndex((item: any) => item.label === $t('common.info.info'))

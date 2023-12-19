@@ -32,6 +32,10 @@
                 "type": "MenuConfiguration"
             },
             {
+                "title": "dashboard.widgetEditor.highcharts.annotations",
+                "type": "Annotations"
+            },
+            {
                 "title": "dashboard.widgetEditor.noData.title",
                 "type": "NoDataMessageConfiguration"
             },
