@@ -2063,62 +2063,12 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday"
-        ],
-        "dayNamesMin": [
-            "Su",
-            "Mo",
-            "Tu",
-            "We",
-            "Th",
-            "Fr",
-            "Sa"
-        ],
-        "dayNamesShort": [
-            "Sun",
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat"
-        ],
+        "dayNames": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         "firstDayOfWeek": 0,
-        "monthNames": [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
-        ],
-        "monthNamesShort": [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        ],
+        "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         "today": "Today",
         "weekHeader": "Wk"
     },
@@ -2730,6 +2680,24 @@
             "synchronizationSuccess": "Successful synchronization",
             "synchronize": "Synchronize",
             "technical": "Technical"
+        },
+        "importExportDocs": {
+            "date": "Filter after Date",
+            "dev": "Development",
+            "export": {
+                "EXPORT_BIRT": "Export BIRT translations",
+                "EXPORT_RELATED_DOCS": "Export related documents",
+                "EXPORT_SCHEDULER": "Export Schedule configurations",
+                "EXPORT_SELECTED_FUNCTIONALITY": "Export the document only in the selected functionality",
+                "EXPORT_SNAPSHOT": "Export Scheduled documents",
+                "EXPORT_SUB_OBJ": "Export Olap customized View"
+            },
+            "rel": "Released",
+            "status": "Filter by Status",
+            "test": "Test",
+            "title": "Import/Export Documents",
+            "fileUploadSuccess": "is uploaded correctly, you can move to the next step.",
+            "fileUploadFail": "Error uploading file, please try again."
         },
         "internationalizationManagement": {
             "defaultLanguage": "(Default)",
