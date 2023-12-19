@@ -12,9 +12,9 @@
 
             <q-step :name="2" title="Exported Roles" icon="create_new_folder" :done="step > 2">
                 <form class="p-fluid p-formgrid p-grid kn-toolbar--secondary p-m-0 p-p-0">
-                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">SOURCE</b>
+                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.source') }}</b>
 
-                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">TARGET</b>
+                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.target') }}</b>
                 </form>
                 <ul class="roles-list p-mt-0">
                     <li v-for="(expRol, index) in importData.roles.exportedRoles" :key="index">
@@ -43,9 +43,9 @@
 
             <q-step :name="3" title="Exported Engines" icon="assignment" :done="step > 3">
                 <form class="p-fluid p-formgrid p-grid kn-toolbar--secondary p-m-0 p-p-0">
-                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">SOURCE</b>
+                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.source') }}</b>
 
-                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">TARGET</b>
+                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.target') }}</b>
                 </form>
                 <ul class="roles-list p-mt-0">
                     <li v-for="(expEngines, index) in importData.engines.exportedEngines" :key="index">
@@ -54,10 +54,16 @@
                                 <q-card>
                                     <q-card-section>
                                         <span class="p-d-flex p-flex-column p-m-0">
-                                            <!-- <b>{{ expEngines.name }}</b> -->
-                                            <span><b>Description: </b>{{ expEngines.description }}</span>
-                                            <span><b>URL: </b>{{ expEngines.url }}</span>
-                                            <span><b>Driver Name: </b>{{ expEngines.driverName }}</span>
+                                            <span>
+                                                <b>{{ $t('common.description') }}: </b>{{ expEngines.description }}
+                                            </span>
+                                            <span>
+                                                <b>{{ $t('common.url') }}: </b>{{ expEngines.url }}
+                                            </span>
+                                            <span>
+                                                <b>{{ $t('managers.importExportDocs.driverName') }}: </b>
+                                                {{ expEngines.driverName }}
+                                            </span>
                                         </span>
                                     </q-card-section>
                                 </q-card>
@@ -77,8 +83,8 @@
 
             <q-step :name="4" title="Exported Datasources" icon="add_comment" :done="step > 4">
                 <form class="p-fluid p-formgrid p-grid kn-toolbar--secondary p-m-0 p-p-0">
-                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">SOURCE</b>
-                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">TARGET</b>
+                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.source') }}</b>
+                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.target') }}</b>
                 </form>
                 <ul class="roles-list p-mt-0">
                     <li v-for="(expDatasources, index) in importData.datasources.exportedDatasources" :key="index">
@@ -87,10 +93,19 @@
                                 <q-card>
                                     <q-card-section>
                                         <span class="p-d-flex p-flex-column p-m-0">
-                                            <span><b>Type: </b>{{ expDatasources.jndi != undefined && expDatasources.jndi != '' ? '(jndi)' : '(jdbc)' }}</span>
-                                            <span><b>Description: </b>{{ expDatasources.descr }}</span>
-                                            <span><b>Driver: </b>{{ expDatasources.driver }}</span>
-                                            <span><b>URL: </b>{{ expDatasources.urlConnection }}</span>
+                                            <span>
+                                                <b>{{ $t('common.type') }}: </b>
+                                                {{ expDatasources.jndi != undefined && expDatasources.jndi != '' ? '(jndi)' : '(jdbc)' }}
+                                            </span>
+                                            <span>
+                                                <b>{{ $t('common.description') }}: </b>{{ expDatasources.descr }}
+                                            </span>
+                                            <span>
+                                                <b> {{ $t('common.driver') }}: </b>{{ expDatasources.driver }}
+                                            </span>
+                                            <span>
+                                                <b>{{ $t('common.url') }}: </b>{{ expDatasources.urlConnection }}
+                                            </span>
                                             <span><b>JNDI: </b>{{ expDatasources.jndi }}</span>
                                         </span>
                                     </q-card-section>
@@ -108,7 +123,212 @@
                 </ul>
             </q-step>
             <q-step :name="5" title="Metadata" icon="add_comment" :done="step > 5">
-                Try out different ad text to see what brings in the most customers, and learn how to enhance your ads using features like ad extensions. If you run into any problems with your ads, find out how to tell if they're running and how to resolve approval issues.
+                <form class="p-fluid p-formgrid p-grid kn-toolbar--secondary p-m-0 p-p-0">
+                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.source') }}</b>
+                    <b class="p-field p-col-6 p-d-flex p-jc-center p-ai-center p-m-0">{{ $t('common.target') }}</b>
+                </form>
+
+                <div v-if="importData?.notImportable.length != 0">
+                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">NOT IMPORTABLE</span>
+                    <ul class="roles-list p-mt-0">
+                        <li v-for="(doc, index) in importData?.notImportable" :key="index">
+                            <form class="p-fluid p-formgrid p-grid p-m-1">
+                                <q-expansion-item expand-separator :label="doc.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.url') }}: </b>{{ doc.label }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ doc.name }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ doc.description }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                                <q-expansion-item expand-separator :label="doc.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.url') }}: </b>{{ doc.engine.label }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ doc.engine.name }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ doc.engine.description }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
+                <div v-if="importData.summary.SbiObjects.length != 0">
+                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">Documents that will be imported </span>
+                    <ul class="roles-list p-mt-0">
+                        <li v-for="(item, index) in importData.summary.SbiObjects" :key="index">
+                            <form class="p-fluid p-formgrid p-grid p-m-1">
+                                <q-expansion-item expand-separator :label="item.biobjExp.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.name') }}: </b>{{ item.biobjExp.label }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ item.biobjExp.label }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                                <q-expansion-item expand-separator :label="item.biobjExist.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.name') }}: </b>{{ item.biobjExist.name }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ item.biobjExist.description }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
+                <div v-if="importData.summary.SbiLov.length != 0">
+                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">List Of Values</span>
+                    <ul class="roles-list p-mt-0">
+                        <li v-for="(item, index) in importData.summary.SbiLov" :key="index">
+                            <form class="p-fluid p-formgrid p-grid p-m-1">
+                                <q-expansion-item expand-separator :label="item.lovExp.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.name') }}: </b>{{ item.lovExp.name }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ item.lovExp.description }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                                <q-expansion-item expand-separator :label="item.lovExist.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.name') }}: </b>{{ item.lovExist.name }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ item.lovExist.description }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
+                <div v-if="importData.summary.SbiFunctions.length != 0">
+                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">Functionalities</span>
+                    <ul class="roles-list p-mt-0">
+                        <li v-for="(item, index) in importData.summary.SbiFunctions" :key="index">
+                            <form class="p-fluid p-formgrid p-grid p-m-1">
+                                <q-expansion-item expand-separator :label="item.functExp.code" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.name') }}: </b>{{ item.functExp.name }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.path') }}: </b>{{ item.functExp.path }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ item.functExp.description }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                                <q-expansion-item expand-separator :label="item.functExist.code" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.name') }}: </b>{{ item.functExist.name }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.path') }}: </b>{{ item.functExist.path }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ item.functExist.description }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
+                <div v-if="importData.summary.SbiParameters.length != 0">
+                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">Parameters</span>
+                    <ul class="roles-list p-mt-0">
+                        <li v-for="(item, index) in importData.summary.SbiParameters" :key="index">
+                            <form class="p-fluid p-formgrid p-grid p-m-1">
+                                <q-expansion-item expand-separator :label="item.paramExp.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.name') }}: </b>{{ item.paramExp.label }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ item.paramExp.label }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                                <q-expansion-item expand-separator :label="item.paramExist.label" class="p-field p-col-6 p-d-flex p-flex-column p-jc-center p-ai-center p-m-0">
+                                    <q-card>
+                                        <q-card-section>
+                                            <span class="p-d-flex p-flex-column p-m-0">
+                                                <span>
+                                                    <b>{{ $t('common.name') }}: </b>{{ item.paramExist.name }}
+                                                </span>
+                                                <span>
+                                                    <b>{{ $t('common.description') }}: </b>{{ item.paramExist.description }}
+                                                </span>
+                                            </span>
+                                        </q-card-section>
+                                    </q-card>
+                                </q-expansion-item>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </q-step>
             <template #navigation>
                 <q-stepper-navigation class="p-d-flex p-flex-row">
@@ -190,6 +410,9 @@ export default defineComponent({
                     break
                 case 4:
                     this.sendExportedDatasourcesForImport()
+                    break
+                case 5:
+                    this.importDocuments()
                     break
                 default:
                     break
@@ -335,6 +558,33 @@ export default defineComponent({
             }
 
             return exportingDatasources
+        },
+        //Step 5
+        importDocuments() {
+            this.store.setLoading(true)
+
+            this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/document/associateMetadata', { overwrite: true })
+                .then((response: AxiosResponse<any>) => {
+                    if (response.data.STATUS == 'NON OK') {
+                        this.store.setError({ title: this.$t('common.error.uploading'), msg: response.data?.ERROR })
+                    } else {
+                        this.importData.associationsFileName = response.data.associationsName
+                        this.importData.logFileName = response.data.logFileName
+                        this.importData.folderName = response.data.folderName
+
+                        this.store.setInfo({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.importData.logFileName}` })
+                        this.closeDialog()
+                    }
+                })
+                .catch((error) => {
+                    console.error(error)
+                    this.store.setError({ title: this.$t('common.error.uploading'), msg: error })
+                })
+                .finally(() => {
+                    this.store.setLoading(false)
+                    // this.toggleExportDialog()
+                })
         }
     }
 })

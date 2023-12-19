@@ -215,6 +215,7 @@
         "snapshot": "Snapshot",
         "sort": "sort",
         "source": "Source",
+        "target": "Target",
         "sourceDataset": "Source dataset",
         "sqlExpression": "SQL expression",
         "square": "Square",
@@ -2720,7 +2721,9 @@
             "test": "Test",
             "title": "Import/Export Documents",
             "fileUploadSuccess": "is uploaded correctly, you can move to the next step.",
-            "fileUploadFail": "Error uploading file, please try again."
+            "fileUploadFail": "Error uploading file, please try again.",
+            "driverName": "Driver Name",
+            "importComplete": "Import completed successfully."
         },
         "internationalizationManagement": {
             "defaultLanguage": "(Default)",
