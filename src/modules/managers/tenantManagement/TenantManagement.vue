@@ -114,7 +114,7 @@ export default defineComponent({
             })
         },
         async deleteTenant(selectedTenant: Object) {
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'multitenant'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/multitenant'
             await this.$http.delete(url, { data: selectedTenant }).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
