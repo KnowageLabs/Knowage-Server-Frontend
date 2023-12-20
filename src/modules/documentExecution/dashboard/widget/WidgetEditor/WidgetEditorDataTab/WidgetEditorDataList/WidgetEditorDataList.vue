@@ -163,6 +163,7 @@ export default defineComponent({
             this.loadDatasetColumns()
         },
         onDatasetSelected() {
+            if (this.availableFunctions.length == 0) this.loadAvailableFunctions(this.selectedDataset)
             this.loadDatasetColumns()
             if (this.model) {
                 this.model.dataset = this.selectedDataset ? this.selectedDataset.id : null
@@ -223,9 +224,18 @@ export default defineComponent({
         },
         createCalcFieldColumns() {
             this.calcFieldColumns = []
-            this.model?.columns.forEach((field) => {
-                if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
-            })
+            if (this.model?.type == 'static-pivot-table' || this.model?.type == 'ce-pivot-table') {
+                const modelFields = this.model.fields as any
+                const allFields = [].concat(modelFields?.columns, modelFields?.data, modelFields?.filters, modelFields?.rows) as any
+
+                allFields.forEach((field) => {
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                })
+            } else {
+                this.model?.columns.forEach((field) => {
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                })
+            }
         },
         onCalcFieldSave(calcFieldOutput) {
             if (this.selectedCalcField.id) {

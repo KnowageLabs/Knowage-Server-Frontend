@@ -1,6 +1,6 @@
 import moment from 'moment'
 import { getCellConditionalStyles } from './TableWidgetHelper'
-import { getLocale } from '@/helpers/commons/localeHelper'
+import { formatNumberWithLocale, getLocale } from '@/helpers/commons/localeHelper'
 import { ITableWidgetLink, ITableWidgetVisualizationTypes, IWidgetInteractions } from '../../Dashboard'
 // import helpersDecriptor from '../WidgetEditor/helpers/tableWidget/TableWidgetHelpersDescriptor.json'
 
@@ -135,8 +135,8 @@ export default class CellRenderer {
 
         if (visType.type) {
             if (visType.type.toLowerCase() === 'text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
-            if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject.icon}" />${visType.suffix}`
-            if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject.icon} p-as-center" />${visType.suffix}`
+            if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject?.icon}" />${visType.suffix}`
+            if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject?.icon} p-as-center" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'bar') {
                 const percentage = getBarFillPercentage()
                 this.eGui.innerHTML = `<div class="barContainer" style="background-color:${applyConditionalStyleToBar ? styleObject['background-color'] : visType['background-color']};justify-content:${visType['alignment']}">
@@ -172,8 +172,10 @@ export default class CellRenderer {
             else if (isColumnOfType('timestamp')) return dateTimeFormatter(params.value)
             else if (params.colId === 'iconColumn') {
                 return `<i class="${getActiveIconFromWidget()}"></i>` ?? 'ICON ERROR'
-            } else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') return params.value
-            else return params.value
+            } else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') {
+                if (typeof params.value === 'number') return numberFormatter(params.value)
+                else return params.value
+            } else return params.value
         }
 
         function getActiveIconFromWidget() {
@@ -208,8 +210,8 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY')
-                    .locale(getLocale(true))
-                    .format(visType?.dateFormat || 'LL')
+                      .locale(getLocale(true))
+                      .format(visType?.dateFormat || 'LL')
                 : cellValue
         }
         function dateTimeFormatter(cellValue) {
@@ -218,9 +220,15 @@ export default class CellRenderer {
             const isDateValid = moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS').isValid()
             return isDateValid
                 ? moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS')
-                    .locale(getLocale(true))
-                    .format(visType?.dateFormat || 'LLL')
+                      .locale(getLocale(true))
+                      .format(visType?.dateFormat || 'LLL')
                 : cellValue
+        }
+        function numberFormatter(cellValue) {
+            const visType = getColumnVisualizationType(params.colId)
+
+            if (visType?.precision) return formatNumberWithLocale(cellValue, visType.precision)
+            else return formatNumberWithLocale(cellValue, 0)
         }
     }
 

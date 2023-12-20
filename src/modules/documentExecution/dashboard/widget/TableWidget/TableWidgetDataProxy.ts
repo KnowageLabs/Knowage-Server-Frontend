@@ -15,7 +15,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
     if (selectedDataset) {
         let url = ''
         const pagination = widget.settings.pagination
-        if (pagination && pagination.enabled) url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
+        if (pagination && pagination?.enabled) url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
         else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatTableWidgetModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
@@ -38,7 +38,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     tempResponse = response.data
-                    if (pagination && pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
+                    if (pagination && pagination?.enabled) widget.settings.pagination.properties.totalItems = response.data.results
                 })
                 .catch((error: any) => {
                     showGetDataError(error, selectedDataset.dsLabel)
