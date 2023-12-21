@@ -1,5 +1,4 @@
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
-import { loadNavigationParamsInitialValue } from './DocumentExecutionAngularCrossNavigationHelper'
 import { AxiosResponse } from 'axios'
 import { loadNavigationInitialValuesFromDashboard } from './DocumentExecutionCrossNavigationHelper'
 import { getValidDate } from './DocumentExecutionHelpers'
@@ -11,7 +10,7 @@ import i18n from '@/App.i18n'
 const { t } = i18n.global
 const mainStore = store()
 
-export const loadFilters = async (initialLoading: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, document: any, breadcrumbs: any[], userRole: string | null, parameterValuesMap: any, tabKey: string, sessionEnabled: boolean, $http: any, dateFormat: string, route: any, vueComponenet: any) => {
+export const loadFilters = async (initialLoading: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, document: any, breadcrumbs: any[], userRole: string | null, parameterValuesMap: any, tabKey: string, sessionEnabled: boolean, $http: any, dateFormat: string, route: any) => {
     if (parameterValuesMap && parameterValuesMap[document.label + '-' + tabKey] && initialLoading) return loadFiltersFromParametersMap(parameterValuesMap, document, tabKey, filtersData, breadcrumbs)
     if (sessionEnabled && !document.navigationParams) {
         const filtersFromSession = loadFiltersFromSession(document, filtersData, breadcrumbs)
@@ -28,10 +27,6 @@ export const loadFilters = async (initialLoading: boolean, filtersData: { filter
 
     if (document.navigationParams || document.formattedCrossNavigationParameters) {
         if (document.navigationFromDashboard) loadNavigationInitialValuesFromDashboard(document, filtersData, dateFormat)
-        else {
-            vueComponenet.filtersData = filtersData
-            loadNavigationParamsInitialValue(vueComponenet)
-        }
     } else if (route.query.params) {
         const driversFromUrl = JSON.parse(atob(route.query.params))
         filtersData = getFormattedDriversFromURL(driversFromUrl, filtersData)

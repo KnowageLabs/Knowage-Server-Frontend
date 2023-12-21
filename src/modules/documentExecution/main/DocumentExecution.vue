@@ -595,7 +595,7 @@ export default defineComponent({
                 this.parameterSidebarVisible = true
                 return
             }
-            this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
+            this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route)
             if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
             else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
             if (this.filtersData?.isReadyForExecution) {
