@@ -961,20 +961,6 @@ export default defineComponent({
             this.dataLoaded = true
             await this.loadPage()
         },
-        setNavigationParametersFromCurrentFilters(formatedParams: any, navigationParams: any) {
-            const navigationParamsKeys = navigationParams ? Object.keys(navigationParams) : []
-            const formattedParameters = this.getFormattedParameters()
-            const formattedParametersKeys = formattedParameters ? Object.keys(formattedParameters) : []
-            if (navigationParamsKeys.length > 0 && formattedParametersKeys.length > 0) {
-                for (let i = 0; i < navigationParamsKeys.length; i++) {
-                    const index = formattedParametersKeys.findIndex((key: string) => key === navigationParams[navigationParamsKeys[i]].value.label && navigationParams[navigationParamsKeys[i]].value.isInput)
-                    if (index !== -1) {
-                        formatedParams[navigationParamsKeys[i]] = formattedParameters[formattedParametersKeys[index]]
-                        formatedParams[navigationParamsKeys[i] + '_field_visible_description'] = formattedParameters[formattedParametersKeys[index] + '_field_visible_description'] ? formattedParameters[formattedParametersKeys[index] + '_field_visible_description'] : ''
-                    }
-                }
-            }
-        },
         showOLAPCustomView() {
             this.olapCustomViewVisible = true
         },
