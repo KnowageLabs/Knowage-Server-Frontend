@@ -597,7 +597,6 @@ export default defineComponent({
             }
             this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route)
             if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
-            else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
             if (this.filtersData?.isReadyForExecution) {
                 this.parameterSidebarVisible = false
                 await this.loadURL(null, documentLabel, crossNavigationPopupMode)
@@ -629,10 +628,7 @@ export default defineComponent({
             this.loading = true
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/view/${this.$route.query.viewId}`)
-                .then(async (response: AxiosResponse<any>) => {
-                    this.$route.path.includes('cockpit-view') ? (this.cockpitViewForExecution = response.data) : (this.dashboardView = response.data)
-                    if (this.cockpitViewForExecution) await this.executeView(this.cockpitViewForExecution)
-                })
+                .then(async (response: AxiosResponse<any>) => (this.dashboardView = response.data))
                 .catch(() => {})
             this.loading = false
         },
