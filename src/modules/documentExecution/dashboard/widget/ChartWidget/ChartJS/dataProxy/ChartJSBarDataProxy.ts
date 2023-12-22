@@ -73,7 +73,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfM
     if (measures.length >= measureLength && !specificMeasure) {
         for (let index = 0; index < measureLength; index++) {
             const measure = measures[index]
-            const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias } as any
+            const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
             measure.formula ? (measureToPush.formula = measure.formula) : ''
             dataToSend.aggregations.measures.push(measureToPush)
         }
@@ -81,7 +81,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfM
         const specificMeasure = widget.settings.configuration.grouping.secondDimension.serie
         const measure = measures.filter((measure) => measure.columnName === specificMeasure)[0]
         if (measure) {
-            const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias } as any
+            const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
             measure.formula ? (measureToPush.formula = measure.formula) : ''
             dataToSend.aggregations.measures.push(measureToPush)
         }
@@ -93,7 +93,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dataToSend: any, noOfM
     if (categories.length >= categoryLength) {
         for (let index = 0; index < categoryLength; index++) {
             const category = categories[index]
-            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderType: '', funct: 'NONE' } as any
+            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: category.alias, orderType: category.orderType, funct: 'NONE' } as any
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }
