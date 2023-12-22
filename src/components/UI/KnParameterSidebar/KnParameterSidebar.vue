@@ -351,20 +351,6 @@ export default defineComponent({
             this.parameters?.filterStatus.forEach((el: any) => setLovsDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => this.updateVisualDependency(el))
         },
-        setDataDependency(parameter: iParameter) {
-            if (parameter.dependencies.data.length !== 0) {
-                parameter.dependencies.data.forEach((dependency: any) => {
-                    const index = this.parameters.filterStatus.findIndex((param: any) => {
-                        return param.urlName === dependency.parFatherUrlName
-                    })
-                    if (index !== -1) {
-                        const tempParameter = this.parameters.filterStatus[index]
-                        parameter.dataDependsOnParameters ? parameter.dataDependsOnParameters.push(tempParameter) : (parameter.dataDependsOnParameters = [tempParameter])
-                        tempParameter.dataDependentParameters ? tempParameter.dataDependentParameters.push(parameter) : (tempParameter.dataDependentParameters = [parameter])
-                    }
-                })
-            }
-        },
         resetParameterValue(parameter: any) {
             if (!parameter.driverDefaultValue) {
                 if (parameter.multivalue) {
