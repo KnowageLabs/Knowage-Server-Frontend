@@ -1,4 +1,4 @@
-import { IGalleryItem } from './Dashboard.d';
+import { IGalleryItem } from './Dashboard.d'
 import { defineStore } from 'pinia'
 import { SHEET_WIDGET_SIZES, addNewWidgetToSheets, cloneWidgetInSheet, deleteWidgetHelper, emitter, loadCustomChartGallery, loadHtmlGallery, loadPythonGallery, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
 import { IDashboardDriver, IDashboardSheet, IDashboardView, IDataset, ISelection, IWidget, IWidgetSheetItem } from './Dashboard'
@@ -16,7 +16,8 @@ const store = defineStore('dashboardStore', {
             allDatasets: [] as IDataset[],
             internationalization: {},
             profileAttributes: [] as { name: string; value: string }[],
-            allThemes: [] as IDashboardTheme[]
+            allThemes: [] as IDashboardTheme[],
+            dataProxyQueue: {}
         }
     },
     actions: {
@@ -198,7 +199,7 @@ const store = defineStore('dashboardStore', {
         },
         setCustomChartGaleryItems(dashboardId: string, customChartGallery: IGalleryItem[]) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].customChartGallery = customChartGallery
-        },
+        }
     }
 })
 
