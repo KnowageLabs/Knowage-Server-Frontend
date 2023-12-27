@@ -49,7 +49,7 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
     }
 
     setGaugeYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultGaugeYAxis()
+        this.model.yAxis = [highchartsDefaultValues.getDefaultGaugeYAxis()]
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {

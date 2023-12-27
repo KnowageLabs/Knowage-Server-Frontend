@@ -52,7 +52,7 @@ export class KnowageHighchartsActivityGaugeChart extends KnowageHighchartsGaugeC
     }
 
     setGaugeYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultActivityGaugeYAxis()
+        this.model.yAxis = [highchartsDefaultValues.getDefaultActivityGaugeYAxis()]
     }
 
     setTooltipSettings() {

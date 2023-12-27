@@ -45,8 +45,8 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
     }
 
     setGaugeYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultGaugeYAxis()
-        this.model.yAxis.tickWidth = 0
+        this.model.yAxis = [highchartsDefaultValues.getDefaultGaugeYAxis()]
+        this.model.yAxis[0].tickWidth = 0
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {

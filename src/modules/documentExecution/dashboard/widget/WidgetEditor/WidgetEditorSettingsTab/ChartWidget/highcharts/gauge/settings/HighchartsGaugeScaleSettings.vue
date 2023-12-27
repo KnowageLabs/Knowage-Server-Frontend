@@ -1,9 +1,9 @@
 <template>
-    <div v-if="model?.yAxis" class="p-grid p-jc-center p-ai-center p-p-4">
+    <div v-if="model?.yAxis && model.yAxis[0]" class="p-grid p-jc-center p-ai-center p-p-4">
         <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.min') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="model.yAxis.min" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
+                <InputNumber v-model="model.yAxis[0].min" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.scale.minHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                 <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="onInputChanged('min')" />
             </div>
@@ -11,7 +11,7 @@
         <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.max') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="model.yAxis.max" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
+                <InputNumber v-model="model.yAxis[0].max" class="kn-material-input p-inputtext-sm" @blur="modelChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.scale.maxHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                 <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="onInputChanged('max')" />
             </div>
@@ -48,7 +48,7 @@ export default defineComponent({
         },
         onInputChanged(type: 'min' | 'max') {
             if (!this.model) return
-            type === 'min' ? (this.model.yAxis.min = null) : (this.model.yAxis.max = null)
+            type === 'min' ? (this.model.yAxis[0].min = null) : (this.model.yAxis[0].max = null)
             setTimeout(() => this.modelChanged(), 250)
         }
     }
