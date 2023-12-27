@@ -166,7 +166,7 @@ export default defineComponent({
             }
         },
         updateAxisLabels() {
-            const axisLabels = this.chartModel.xAxis && this.chartModel.xAxis.labels ? this.chartModel.xAxis.labels : null
+            const axisLabels = this.chartModel.xAxis && this.chartModel.xAxis[0].labels ? this.chartModel.xAxis[0].labels : null
             if (axisLabels) {
                 this.error = this.widgetModel.settings.chartModel.updateFormatterSettings(axisLabels, 'format', 'formatter', 'formatterText', 'formatterError')
                 if (this.error) return
