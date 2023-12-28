@@ -1,10 +1,12 @@
-import { AxiosResponse } from 'axios'
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import deepcopy from 'deepcopy'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+
+const dashStore = dashboardStore()
 
 export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
@@ -30,24 +32,28 @@ export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDash
         const dataHash = md5(JSON.stringify(postDataForHash))
         const cachedData = (await indexedDB.widgetData.get(dataHash)) as any
 
+        if (dashStore.dataProxyQueue[dataHash]) {
+            const response = await dashStore.dataProxyQueue[dataHash]
+            return response.data
+        }
+
         if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
             if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = tempResponse.results
         } else {
-            await $http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
-                .then((response: AxiosResponse<any>) => {
-                    tempResponse = response.data
-                    if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
-                })
-                .catch((error: any) => {
-                    showGetDataError(error, selectedDataset.dsLabel)
-                })
-                .finally(() => {
-                    // TODO - uncomment when realtime dataset example is ready
-                    // resetDatasetInterval(widget)
-                    if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
-                })
+            dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+            try {
+                const response = await dashStore.dataProxyQueue[dataHash]
+                tempResponse = response.data
+
+                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
+            } catch (error) {
+                console.error(error)
+                showGetDataError(error, selectedDataset.dsLabel)
+            } finally {
+                delete dashStore.dataProxyQueue[dataHash]
+            }
         }
 
         return tempResponse
