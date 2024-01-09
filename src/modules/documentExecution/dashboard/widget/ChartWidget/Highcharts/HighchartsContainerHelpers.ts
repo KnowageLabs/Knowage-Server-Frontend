@@ -9,9 +9,7 @@ const { t } = i18n.global
 const mainStore = store()
 
 export const formatForCrossNavigation = (chartEvent: any, crossNavigationOptions: IWidgetCrossNavigation, dataToShow: any, chartType: string) => {
-    if (!chartEvent.point) return []
     const formattedChartValues = getFormattedChartValues(chartEvent, dataToShow, chartType)
-    console.log('----------- FORMATTED CHART VALUES: ', formattedChartValues)
     const formattedOutputParameters = getFormattedOutputParameters(formattedChartValues, crossNavigationOptions.parameters)
     return formattedOutputParameters
 

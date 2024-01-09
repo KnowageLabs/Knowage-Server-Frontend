@@ -142,7 +142,6 @@ export default defineComponent({
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
             formatChartAnnotations(modelToRender, this.propVariables, this.getDashboardDrivers(this.dashboardId))
 
-            console.log('--------------- MODEL TO RENDER: ', modelToRender)
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()
@@ -218,6 +217,7 @@ export default defineComponent({
                 })
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
+                if (!event.point) return
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
             } else if (this.widgetModel.settings.interactions.preview.enabled) {
@@ -235,7 +235,6 @@ export default defineComponent({
             return attributeColumns.length
         },
         setSelection(event: any) {
-            console.log('--------- EVENT: ', event)
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
             if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel', 'dumbbell', 'streamgraph', 'waterfall'].includes(this.chartModel.chart.type)) {
                 const serieClicked = event.point?.options
