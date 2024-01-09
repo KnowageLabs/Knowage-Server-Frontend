@@ -87,7 +87,6 @@ export default defineComponent({
         ...mapActions(mainStore, ['getUser']),
         loadDashboardModel() {
             this.dashboardModel = this.getDashboard(this.dashboardId)
-            console.log('---------- LOADED DASHBOASD CONFIGS ', this.dashboardModel?.configuration?.menuWidgets)
             this.customHeaderWidget = deepcopy(this.dashboardModel.configuration.customHeader)
         },
         loadVariables() {
