@@ -44,6 +44,9 @@ export default defineComponent({
         },
         testLovTreeModel: {
             type: Array
+        },
+        tableModelForTest: {
+            type: Array
         }
     },
     emits: ['close', 'pageChanged', 'save'],
@@ -97,7 +100,7 @@ export default defineComponent({
         },
         loadTypeModel() {
             this.treeListTypeModel = deepcopy(this.testModel)
-            removeUnusedVisibleColumnsFromModel(this.treeListTypeModel)
+            removeUnusedVisibleColumnsFromModel(this.treeListTypeModel, this.tableModelForTest ?? [])
         },
 
         loadModel() {
