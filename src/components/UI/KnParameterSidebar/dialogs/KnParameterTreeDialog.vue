@@ -1,5 +1,5 @@
 <template>
-    <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="knParameterTreeDialogDescriptor.dialog.style" :visible="visible" :modal="true" :closable="false">
+    <Dialog v-model:visible="dialogVisible" class="p-fluid kn-dialog--toolbar--primary" :content-style="knParameterTreeDialogDescriptor.dialog.style" :modal="true" :dismissable-mask="true" :closable="true" @after-hide="closeDialog">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
                 <template #start>
@@ -62,7 +62,8 @@ export default defineComponent({
             multipleSelectedValues: [] as any[],
             multivalue: false,
             selectedNodes: [] as any[],
-            loading: false
+            loading: false,
+            dialogVisible: false
         }
     },
     computed: {
@@ -72,16 +73,22 @@ export default defineComponent({
     },
     watch: {
         async visible() {
+            this.changeDialogVisibility()
             await this.loadTree()
         },
         async selectedParameter() {
+            this.changeDialogVisibility()
             await this.loadTree()
         }
     },
     async created() {
+        this.changeDialogVisibility()
         await this.loadTree()
     },
     methods: {
+        changeDialogVisibility() {
+            this.dialogVisible = this.visible
+        },
         async loadTree() {
             this.loadParameter()
             if (this.parameter && this.formatedParameterValues && this.visible) {
