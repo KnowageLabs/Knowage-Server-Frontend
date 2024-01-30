@@ -1,5 +1,5 @@
 <template>
-    <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="knParameterPopupDialogDescriptor.dialog.style" :visible="visible" :modal="true" :closable="false">
+    <Dialog v-model:visible="dialogVisible" class="p-fluid kn-dialog--toolbar--primary" :content-style="knParameterPopupDialogDescriptor.dialog.style" :modal="true" :dismissable-mask="true" :closable="true" @after-hide="closeDialog">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
                 <template #start> {{ $t('common.parameter') + ': ' }} {{ parameter ? parameter.label : '' }} </template>
@@ -38,29 +38,38 @@ export default defineComponent({
             selectedRow: null as any,
             multipleSelectedRows: [] as any[],
             multivalue: false,
-            loading: false
+            loading: false,
+            dialogVisible: false
         }
     },
     watch: {
         visible() {
+            this.changeDialogVisibility()
             this.loadParamaterData()
         },
         selectedParameter() {
+            this.changeDialogVisibility()
             this.loadParamaterData()
         },
         propLoading() {
+            this.changeDialogVisibility()
             this.setLoading()
         },
         parameterPopUpData() {
+            this.changeDialogVisibility()
             this.loadPopupData()
             this.loadParamaterData()
         }
     },
     created() {
+        this.changeDialogVisibility()
         this.setLoading()
         this.loadParamaterData()
     },
     methods: {
+        changeDialogVisibility() {
+            this.dialogVisible = this.visible
+        },
         loadParamaterData() {
             this.loading = true
             this.loadParameter()
