@@ -38,6 +38,7 @@ export class KnowageHighcharts {
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),
             colors: [...chartColorSettingsDescriptor.defaultColors],
+            annotations: highchartsDefaultValues.getDefaultAnnotations(),
             credits: { enabled: false }
         }
     }

@@ -25,6 +25,10 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
         case 'pictorial':
         case 'sankey':
         case 'funnel':
+        case 'dumbbell':
+        case 'streamgraph':
+        case 'packedbubble':
+        case 'waterfall':
             addHighchartsColumnToTableRows(tempColumn, rows, chartType, mode, widgetModel)
     }
 }
@@ -55,6 +59,7 @@ const addMeasureColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetCol
     convertColumnToMeasure(tempColumn)
     addColumnToRows(rows, tempColumn)
     widgetModel.settings.chartModel.addSerie(tempColumn, chartType)
+    addSerieToWidgetModel(widgetModel, tempColumn, chartType)
     emitter.emit('seriesAdded', tempColumn)
 }
 
@@ -70,9 +75,24 @@ const addColumnToRows = (rows: IWidgetColumn[], tempColumn: IWidgetColumn) => {
     if (index === -1) rows.push(tempColumn)
 }
 
+const addSerieToWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
+    widgetModel.settings.chartModel.removeSerie(column)
+    const allSeriesOption = !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes('' + chartType)
+    if (!allSeriesOption) {
+        addColumnAsFirstOption(column, widgetModel.settings.accesssibility.seriesAccesibilitySettings)
+        addColumnAsFirstOption(column, widgetModel.settings.series.seriesSettings)
+    }
+    emitter.emit('seriesRemoved', column)
+}
+
+const addColumnAsFirstOption = (column: IWidgetColumn, array: any[]) => {
+    if (array[0] && array[0]?.names?.length === 0) array[0].names = [column.columnName]
+
+}
+
 export const removeSerieFromWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
     widgetModel.settings.chartModel.removeSerie(column)
-    const allSeriesOption = chartType !== 'pie' && chartType !== 'solidgauge'
+    const allSeriesOption = !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes('' + chartType)
     removeColumnFromSubmodel(column, widgetModel.settings.accesssibility.seriesAccesibilitySettings, allSeriesOption)
     removeColumnFromSubmodel(column, widgetModel.settings.series.seriesSettings, allSeriesOption)
     emitter.emit('seriesRemoved', column)
@@ -85,7 +105,7 @@ const removeColumnFromSubmodel = (column: IWidgetColumn, array: any[], allSeries
             if (serieName === column.columnName) {
                 array[i].names.splice(j, 1)
             }
-            if (!allSeriesOption && array[i].names.length === 0) array.splice(i, 1)
+            if (allSeriesOption && i !== 0 && array[i].names.length === 0) array.splice(i, 1)
         }
     }
 }

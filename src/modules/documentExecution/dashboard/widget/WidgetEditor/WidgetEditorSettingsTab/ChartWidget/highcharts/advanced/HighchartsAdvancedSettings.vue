@@ -20,7 +20,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardHighchartsWidget'
+import { IHighchartsAdvancedPropertySettings } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import Message from 'primevue/message'
 
 export default defineComponent({

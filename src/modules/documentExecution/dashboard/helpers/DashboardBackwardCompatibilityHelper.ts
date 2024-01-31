@@ -18,6 +18,8 @@ import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHe
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
 import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
 import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
+import { addWidgetMenuConfig } from '../DashboardHelpers'
+import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 
 const datasetIdLabelMap = {}
 
@@ -83,7 +85,7 @@ const getFormattedSheetBackground = (model: any) => {
 
 const getFormattedMenuAndWidgets = (model: any) => {
     const modelConfig = model.configuration
-    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true, enableChartChange: true, enableCaching: true, enableCustomHeader: false } as IMenuAndWidgets
+    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true, enableChartChange: true, enableCaching: true, enableCustomHeader: false, enableWidgetMenu: true } as IMenuAndWidgets
 
     return formattedMenuAndWIdgets
 }
@@ -203,7 +205,10 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
 
 const addWidgetToModel = (widget: any, formattedModel: any, user: any, drivers: IDashboardDriver[]) => {
     if (checkIfWidgetInModel(widget, formattedModel)) return
-    formattedModel.widgets.push(formatWidget(widget, formattedModel, user, drivers))
+    const formattedWidget = formatWidget(widget, formattedModel, user, drivers)
+    if (formattedWidget.settings.configuration.updateFromSelections === undefined) formattedWidget.settings.configuration.updateFromSelections = true
+    addWidgetMenuConfig(formattedWidget)
+    formattedModel.widgets.push(formattedWidget)
 }
 
 const checkIfWidgetInModel = (widget: any, formattedModel: any) => {
@@ -266,18 +271,14 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
 }
 
 const getFormattedChartWidget = (widget: any, user: any) => {
-    // TODO widgetChange
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return formatVegaChartsWidget(widget)
     else if (user?.enterprise) return formatHighchartsWidget(widget)
     else return formatChartJSWidget(widget)
 }
 
 const getFormattedPivotWidget = (widget: any, user: any) => {
-    // TODO widgetChange
-    // return formatCEPivotTabletWidget(widget)
-
     if (user?.enterprise) return formatPivotTabletWidget(widget)
-    else return formatPivotTabletWidget(widget)
+    else return formatCEPivotTabletWidget(widget)
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {

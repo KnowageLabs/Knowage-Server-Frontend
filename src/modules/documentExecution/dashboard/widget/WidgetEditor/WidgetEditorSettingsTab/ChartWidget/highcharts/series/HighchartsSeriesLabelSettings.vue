@@ -121,16 +121,16 @@ export default defineComponent({
     },
     computed: {
         allSeriesOptionEnabled() {
-            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel'].includes(this.model.chart.type)
+            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes(this.model.chart.type)
         },
         formattingSectionAvailable() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
         },
         precisionAvailable() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
         },
         scaleVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
         },
         percentageAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
@@ -142,13 +142,13 @@ export default defineComponent({
             return this.model?.chart.type === 'gauge'
         },
         styleToolbarVisible() {
-            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
         },
         serieColorPickerVisible() {
             return this.model?.chart.type === 'activitygauge'
         },
         labelOptionsVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
         }
     },
     watch: {
@@ -221,7 +221,7 @@ export default defineComponent({
             this.availableSeriesOptions = []
             if (!this.widgetModel) return
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
-                if (column.fieldType === 'MEASURE' && (!column.axis || column.axis === 'Y')) this.availableSeriesOptions.push(column.columnName)
+                if (column.fieldType === 'MEASURE' && (!column.axis || ['Y', 'start'].includes(column.axis))) this.availableSeriesOptions.push(column.columnName)
             })
         },
         addFirstSeriesSetting() {

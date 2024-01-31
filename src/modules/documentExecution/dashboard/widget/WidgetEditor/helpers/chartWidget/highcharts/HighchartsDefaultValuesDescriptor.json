@@ -112,6 +112,19 @@
             "names": ["all"]
         }
     ],
+    "defaultAnnotations": [
+        {
+            "labels": [
+                {
+                    "point": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "text": ""
+                }
+            ]
+        }
+    ],
     "defaultBandsSetting": {
         "color": "",
         "from": 0,
@@ -310,6 +323,16 @@
             "fontSize": "",
             "fontWeight": ""
         }
+    },
+    "defaultPackedBubblePlotOptions": {
+        "layoutAlgorithm": {
+            "gravitationalConstant": 0.02,
+            "splitSeries": false
+        },
+        "maxSize": "120%",
+        "minSize": "30%",
+        "zMax": 1000,
+        "zMin": 0
     },
     "defaultPieChartPlotOptions": {
         "allowPointSelect": false,

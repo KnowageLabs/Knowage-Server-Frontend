@@ -624,6 +624,7 @@ interface IMenuAndWidgets {
     enableChartChange: boolean
     enableCaching: boolean
     enableCustomHeader: boolean
+    enableWidgetMenu: boolean
 }
 
 interface IAssociationField {

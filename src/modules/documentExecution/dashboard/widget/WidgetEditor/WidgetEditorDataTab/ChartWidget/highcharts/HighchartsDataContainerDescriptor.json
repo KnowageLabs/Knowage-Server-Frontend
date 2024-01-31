@@ -40,6 +40,23 @@
             "measuresOnly": true
         }
     ],
+    "dumbbellChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.dumbbell.dimensionsTableHint",
+            "label": "Y"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.dumbbell.startTableHint",
+            "label": "common.start",
+            "measuresOnly": true
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.dumbbell.endTableHint",
+            "label": "common.end",
+            "measuresOnly": true
+        }
+    ],
     "gaugeChartColumnTableSettings": [
         {
             "hint": "dashboard.widgetEditor.highcharts.gauge.valuesTableHint",
@@ -67,6 +84,23 @@
         },
         {
             "hint": "dashboard.widgetEditor.highcharts.barchart.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "packedBubbleChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.groupTableHint",
+            "label": "common.group"
+        },
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.labelTableHint",
+            "label": "common.label"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.packedBubble.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }
@@ -136,6 +170,18 @@
             "measuresOnly": true
         }
     ],
+    "scatterJitterChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.dimensionsTableHint",
+            "label": "X"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.valuesTableHint",
+            "label": "Y",
+            "measuresOnly": true
+        }
+    ],
     "solidgaugeChartColumnTableSettings": [
         {
             "hint": "dashboard.widgetEditor.highcharts.solidGauge.valuesTableHint",
@@ -151,6 +197,23 @@
         },
         {
             "hint": "dashboard.widgetEditor.highcharts.spline.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "streamgraphChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.streamgraph.xTableHint",
+            "label": "X"
+        },
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.streamgraph.streamTableHint",
+            "label": "common.stream"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.streamgraph.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }
@@ -175,6 +238,18 @@
         },
         {
             "hint": "dashboard.widgetEditor.highcharts.treemapchart.valuesTableHint",
+            "label": "common.values",
+            "measuresOnly": true
+        }
+    ],
+    "waterfallChartColumnTableSettings": [
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.waterfall.dimensionsTableHint",
+            "label": "dashboard.widgetEditor.dimensions"
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.waterfall.valuesTableHint",
             "label": "common.values",
             "measuresOnly": true
         }

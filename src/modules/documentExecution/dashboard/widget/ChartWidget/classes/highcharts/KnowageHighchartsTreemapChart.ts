@@ -4,6 +4,7 @@ import { updateTreemapChartModel } from './updater/KnowageHighchartsTreemapChart
 import deepcopy from 'deepcopy'
 import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -17,6 +18,9 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'treemap'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
     }
 
     updateModel(oldModel: any) {

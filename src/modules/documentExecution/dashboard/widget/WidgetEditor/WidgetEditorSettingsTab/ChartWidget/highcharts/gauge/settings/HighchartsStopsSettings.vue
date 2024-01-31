@@ -1,6 +1,6 @@
 <template>
-    <div v-if="model" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="!model.yAxis.stops || model.yAxis.stops.length === 0" class="p-grid p-col-12 p-pl-2">
+    <div v-if="model && model.yAxis && model.yAxis[0]" class="p-grid p-jc-center p-ai-center p-p-4">
+        <div v-if="!model.yAxis[0].stops || model.yAxis[0].stops.length === 0" class="p-grid p-col-12 p-pl-2">
             <Message class="p-col-11" :closable="false">{{ $t('dashboard.widgetEditor.highcharts.stops.stopsHint') }}</Message>
             <div class="p-col-1 p-text-right">
                 <i class="pi pi-plus-circle kn-cursor-pointer p-pt-4" @click="addStop()"></i>
@@ -8,7 +8,7 @@
         </div>
 
         <template v-else>
-            <div v-for="(stop, index) in model.yAxis.stops" :key="index" class="p-grid p-col-12 p-ai-center p-ai-center p-pt-2">
+            <div v-for="(stop, index) in model.yAxis[0].stops" :key="index" class="p-grid p-col-12 p-ai-center p-ai-center p-pt-2">
                 <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.stops.relativePosition') }}</label>
                     <div class="p-d-flex p-flex-row p-ai-center">
@@ -73,13 +73,13 @@ export default defineComponent({
         },
         addStop() {
             if (!this.model) return
-            if (!this.model.yAxis.stops) this.model.yAxis.stops = []
-            this.model.yAxis.stops.push([0, 'rgba(0, 0, 0, 1)'])
+            if (!this.model.yAxis[0].stops) this.model.yAxis[0].stops = []
+            this.model.yAxis[0].stops.push([0, 'rgba(0, 0, 0, 1)'])
         },
         deleteStop(index: number) {
             if (!this.model) return
-            this.model.yAxis.stops.splice(index, 1)
-            if (this.model.yAxis.stops.length === 0) this.model.yAxis.stops = null
+            this.model.yAxis[0].stops.splice(index, 1)
+            if (this.model.yAxis[0].stops.length === 0) this.model.yAxis[0].stops = null
             this.modelChanged()
         }
     }

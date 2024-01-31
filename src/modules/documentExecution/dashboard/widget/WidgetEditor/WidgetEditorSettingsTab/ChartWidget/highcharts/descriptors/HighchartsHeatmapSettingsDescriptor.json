@@ -24,6 +24,18 @@
         ],
         "Configuration": [
             {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.annotations",
+                "type": "Annotations"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },
@@ -91,21 +103,21 @@
         "XAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapXAxisSettings"
+                "type": "HighchartsXAxisSettings"
             },
             {
                 "title": "common.title",
-                "type": "HeatmapXAxisTitleSettings"
+                "type": "HighchartsXAxisTitleSettings"
             }
         ],
         "YAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapYAxisSettings"
+                "type": "HighchartsYAxisSettings"
             },
             {
                 "title": "common.title",
-                "type": "HeatmapYAxisTitleSettings"
+                "type": "HighchartsYAxisTitleSettings"
             }
         ]
     },

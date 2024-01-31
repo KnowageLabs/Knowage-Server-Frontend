@@ -45,6 +45,8 @@ export default defineComponent({
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings || !this.widgetModel.settings.chartModel) return null
             switch (this.type) {
+                case 'MenuConfiguration':
+                    return this.widgetModel.settings.configuration.widgetMenu
                 case 'ConfigurationOf3D':
                     return this.widgetModel.settings.chartModel.model?.chart?.options3d
                 case 'AccessibilitySettings':
@@ -54,9 +56,9 @@ export default defineComponent({
                 case 'Tooltip':
                 case 'ActivityGaugeTooltip':
                     return this.widgetModel.settings.chartModel.model?.tooltip
-                case 'HeatmapXAxisTitleSettings':
+                case 'HighchartsXAxisTitleSettings':
                     return this.widgetModel.settings.chartModel.model?.xAxis?.title
-                case 'HeatmapYAxisTitleSettings':
+                case 'HighchartsYAxisTitleSettings':
                     return this.widgetModel.settings.chartModel.model?.xAxis?.title
                 case 'DatetypeSettings':
                     return this.widgetModel.settings.configuration.datetypeSettings

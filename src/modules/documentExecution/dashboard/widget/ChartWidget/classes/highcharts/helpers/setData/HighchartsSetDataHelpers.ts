@@ -4,6 +4,7 @@ import moment from 'moment'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
     if (!data || !widgetModel.columns) return []
+    
     const formattedColumns = [] as { column: IWidgetColumn; metadata: any }[]
     widgetModel.columns.forEach((column: IWidgetColumn) => {
         if (column.fieldType === type) {

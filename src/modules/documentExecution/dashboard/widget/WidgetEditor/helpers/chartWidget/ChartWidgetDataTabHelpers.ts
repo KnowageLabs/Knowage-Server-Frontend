@@ -6,9 +6,8 @@ import useStore from '@/App.store'
 
 export const addChartColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, attributesOnly: boolean, measuresOnly: boolean, widgetModel: IWidget) => {
     const store = useStore()
-    // TODO widgetChange
     if (widgetModel.type === 'vega') addVegaColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
     else {
-        store.user.enterprise ? addHighchartsColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly, widgetModel) : addChartJSColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly)
+        store.user.enterprise ? addHighchartsColumnToTable(tempColumn, rows, chartType, attributesOnly, measuresOnly, widgetModel) : addChartJSColumnToTable(tempColumn, rows, attributesOnly, measuresOnly, widgetModel)
     }
 }

@@ -8,6 +8,8 @@
                     <RWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></RWidgetSettingsAccordionHeader>
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <PythonWidgetEditor v-else-if="accordion.type === 'R'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
                 <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
@@ -34,6 +36,7 @@ import AccordionTab from 'primevue/accordiontab'
 import descriptor from './RWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
+import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import PythonWidgetEditor from '../PythonWidget/editor/PythonWidgetEditor.vue'
 import PythonEnvironmentSettings from '../PythonWidget/environment/PythonEnvironmentSettings.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
@@ -48,6 +51,7 @@ import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import RWidgetSettingsAccordionHeader from './RWidgetSettingsAccordionHeader.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 
 export default defineComponent({
     name: 'python-widget-settings-container',
@@ -68,7 +72,9 @@ export default defineComponent({
         WidgetPreview,
         RWidgetSettingsAccordionHeader,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

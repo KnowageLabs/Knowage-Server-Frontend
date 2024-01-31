@@ -16,7 +16,8 @@ export const createNewTableWidgetSettings = () => {
             headers: tableWidgetDefaultValues.getDefaultHeadersConfiguration(),
             rows: tableWidgetDefaultValues.getDefaultRowsConfiguration(),
             summaryRows: tableWidgetDefaultValues.getDefaultSummaryRowsConfiguration(),
-            customMessages: tableWidgetDefaultValues.getDefaultCustomMessages()
+            customMessages: tableWidgetDefaultValues.getDefaultCustomMessages(),
+            widgetMenu: { enabled: true }
         },
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),

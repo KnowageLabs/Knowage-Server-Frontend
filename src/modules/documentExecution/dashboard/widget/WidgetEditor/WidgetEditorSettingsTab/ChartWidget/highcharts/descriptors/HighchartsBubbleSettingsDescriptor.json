@@ -24,6 +24,18 @@
         ],
         "Configuration": [
             {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.annotations",
+                "type": "Annotations"
+            },
+            {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
             },
@@ -41,10 +53,6 @@
             }
         ],
         "Interactions": [
-            {
-                "title": "dashboard.widgetEditor.drilldown.title",
-                "type": "Drilldown"
-            },
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
                 "type": "Selection"
@@ -109,11 +117,11 @@
         "XAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapXAxisSettings"
+                "type": "HighchartsXAxisSettings"
             },
             {
                 "title": "common.title",
-                "type": "HeatmapXAxisTitleSettings"
+                "type": "HighchartsXAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
@@ -135,11 +143,11 @@
         "YAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapYAxisSettings"
+                "type": "HighchartsYAxisSettings"
             },
             {
                 "title": "common.title",
-                "type": "HeatmapYAxisTitleSettings"
+                "type": "HighchartsYAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",

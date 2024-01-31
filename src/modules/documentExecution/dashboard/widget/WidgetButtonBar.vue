@@ -6,7 +6,7 @@
 
     <div class="widgetButtonBarContainer">
         <i class="fa-solid fa-grip-vertical drag-handle drag-widget-icon"></i>
-        <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
+        <Button v-if="widgetButtonBarVisible" type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
     </div>
 
     <div class="qmenu-anchor">
@@ -30,12 +30,16 @@
  * ! this component will be in charge of managing the widget buttons and visibility.
  */
 import { defineComponent, PropType } from 'vue'
-import { IMenuItem, IWidget } from '../Dashboard'
+import { IDashboard, IMenuItem, IWidget } from '../Dashboard'
+import { mapActions } from 'pinia'
+import store from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { canEditDashboard } from '../DashboardHelpers'
 
 export default defineComponent({
     name: 'widget-button-bar',
     components: {},
     props: {
+        document: { type: Object, required: true },
         widget: { type: Object as PropType<IWidget>, required: true },
         playSelectionButtonVisible: { type: Boolean, required: true },
         selectionIsLocked: { type: Boolean, required: true },
@@ -46,10 +50,19 @@ export default defineComponent({
     emits: ['editWidget', 'unlockSelection', 'launchSelection', 'changeFocus'],
     data() {
         return {
-            qMenuShown: false
+            qMenuShown: false,
+            dashboardModel: null as IDashboard | null
+        }
+    },
+    computed: {
+        widgetButtonBarVisible() {
+            if (canEditDashboard(this.document)) return true
+            const dashboardModel = this.getDashboard(this.dashboardId)
+            return dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu && this.widget?.settings?.configuration?.widgetMenu?.enabled
         }
     },
     methods: {
+        ...mapActions(store, ['getDashboard']),
         toggle(event) {
             const menu = this.$refs.widgetmenu as any
             menu.toggle(event)

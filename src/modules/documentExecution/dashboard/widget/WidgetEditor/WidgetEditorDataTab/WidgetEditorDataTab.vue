@@ -78,7 +78,6 @@ export default defineComponent({
             delete this.widget.invalid
             const tempWidgetColors = [...this.widget.settings.chartModel.model.colors]
 
-            // TODO widgetChange
             if (chartType === 'wordcloud') {
                 this.widget.type = 'vega'
                 this.widget.settings = createNewVegaSettings()
@@ -90,7 +89,7 @@ export default defineComponent({
                 this.widget.type = 'highcharts'
                 this.widget.settings = createNewHighchartsSettings()
                 this.widget.settings.chart.colors = tempWidgetColors
-                this.widget.settings.chartModel = createNewHighchartsModel(this.widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'))
+                this.widget.settings.chartModel = createNewHighchartsModel(this.widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'), chartType.endsWith('Jitter'))
                 this.widget.settings.chartModel.updateChartColorSettings(this.widget)
             } else {
                 this.widget.type = 'chartJS'

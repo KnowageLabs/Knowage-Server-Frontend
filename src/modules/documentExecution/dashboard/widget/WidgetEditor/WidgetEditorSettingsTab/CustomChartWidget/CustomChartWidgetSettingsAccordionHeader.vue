@@ -44,6 +44,8 @@ export default defineComponent({
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings) return null
             switch (this.type) {
+                case 'MenuConfiguration':
+                    return this.widgetModel.settings.configuration.widgetMenu
                 case 'Title':
                     return this.widgetModel.settings.style.title
                 case 'BackgroundColorStyle':

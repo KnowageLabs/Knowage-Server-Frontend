@@ -1,7 +1,7 @@
 <template>
     <div v-if="widgetModel">
         <div class="p-d-flex p-flex-row p-ai-center p-p-4">
-            <Dropdown v-model="selectedType" class="kn-material-input kn-flex" :options="chartTypeOptions" option-disabled="disabled" option-value="value" @change="onChange">
+            <Dropdown v-model="selectedType" class="kn-material-input kn-flex" :options="chartTypeOptions" option-value="value" @change="onChange">
                 <template #value="slotProps">
                     <div class="p-d-flex p-flex-row p-ai-center">
                         <img class="chart-type-image p-mr-2" :src="getImageSource(slotProps.value)" />
@@ -58,7 +58,8 @@ export default defineComponent({
             if (chartModel?.chart.type) {
                 this.selectedType = chartModel.chart.type
                 if (this.selectedType === 'sankey' && chartModel.chart.inverted) this.selectedType = 'sankeyInverted'
-                if (['area', 'bar', 'line'].includes(this.selectedType) && chartModel.plotOptions.series.stacking === 'normal') this.selectedType = this.selectedType + 'Stacked'
+                if (['area', 'bar', 'line'].includes(this.selectedType) && chartModel.plotOptions.series.stacking) this.selectedType = this.selectedType + 'Stacked'
+                if (this.selectedType === 'scatter' && chartModel.plotOptions?.scatter?.jitter) this.selectedType = 'scatterJitter'
             }
         },
         getImageSource(chartValue: string) {

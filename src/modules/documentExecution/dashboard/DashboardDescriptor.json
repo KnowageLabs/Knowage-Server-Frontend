@@ -15,12 +15,13 @@
             "id": "",
             "label": "",
             "menuWidgets": {
+                "enableCaching": true,
                 "enableChartChange": true,
+                "enableCustomHeader": false,
+                "enableWidgetMenu": true,
                 "showExcelExport": true,
                 "showScreenshot": true,
-                "showSelectionButton": true,
-                "enableCaching": true,
-                "enableCustomHeader": false
+                "showSelectionButton": true
             },
             "name": "",
             "selections": [],

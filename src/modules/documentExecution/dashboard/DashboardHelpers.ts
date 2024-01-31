@@ -220,15 +220,25 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     for (let i = 0; i < dashboard.widgets.length; i++) {
         formatWidget(dashboard.widgets[i])
         if (themes.length > 0) updateWidgetThemeAndApplyStyle(dashboard.widgets[i], themes)
+        if (dashboard.widgets[i].settings.configuration.updateFromSelections === undefined) dashboard.widgets[i].settings.configuration.updateFromSelections = true
     }
 
     if (!dashboard.configuration.theme || !dashboard.configuration.theme.config) dashboard.configuration.theme = { config: getDefaultDashboardThemeConfig() }
-
+    addMissingMenuWidgetsConfiguration(dashboard)
     return dashboard
+}
+
+export const addMissingMenuWidgetsConfiguration = (dashboard: IDashboard) => {
+    if (!dashboard.configuration.menuWidgets) dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: true, enableCustomHeader: false }
+    if (dashboard.configuration.menuWidgets.showSelectionButton === undefined) dashboard.configuration.menuWidgets.showSelectionButton = true
+    if (dashboard.configuration.menuWidgets.enableCaching === undefined) dashboard.configuration.menuWidgets.enableCaching = true
+    if (dashboard.configuration.menuWidgets.enableCustomHeader === undefined) dashboard.configuration.menuWidgets.enableCustomHeader = false
+    if (dashboard.configuration.menuWidgets.enableWidgetMenu === undefined) dashboard.configuration.menuWidgets.enableWidgetMenu = true
 }
 
 const formatWidget = (widget: IWidget) => {
     addColumnIdsToWidgetColumns(widget)
+    addWidgetMenuConfig(widget)
     switch (widget.type) {
         case 'table':
             formatDashboardTableWidgetAfterLoading(widget);
@@ -248,6 +258,11 @@ const addColumnIdsToWidgetColumns = (widget: IWidget) => {
     widget.columns.forEach((column: IWidgetColumn) => {
         if (!column.id) column.id = cryptoRandomString({ length: 16, type: 'base64' })
     })
+}
+
+export const addWidgetMenuConfig = (widget: IWidget) => {
+    if (!widget.settings.configuration) widget.settings.configuration = { widgetMenu: { enabled: true } }
+    if (!widget.settings.configuration.widgetMenu) widget.settings.configuration.widgetMenu = { enabled: true }
 }
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {

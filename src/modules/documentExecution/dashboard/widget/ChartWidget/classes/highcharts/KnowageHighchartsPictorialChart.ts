@@ -18,6 +18,9 @@ export class KnowageHighchartsPictorialChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'pictorial'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
     }
 
     updateModel(oldModel: any) {

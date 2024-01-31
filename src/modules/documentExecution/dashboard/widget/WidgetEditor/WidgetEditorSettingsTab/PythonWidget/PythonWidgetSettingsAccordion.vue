@@ -8,7 +8,8 @@
                     <PythonWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></PythonWidgetSettingsAccordionHeader>
                 </template>
                 <WidgetExport v-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
-                <HTMLWidgetGallery v-if="accordion.type === 'Gallery'" :widget-model="widgetModel" :html-gallery-prop="[]"></HTMLWidgetGallery>
+                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <PythonWidgetEditor v-else-if="accordion.type === 'Python'" :widget-model="widgetModel" :dashboard-id="dashboardId" :selected-datasets="selectedDatasets"></PythonWidgetEditor>
                 <PythonEnvironmentSettings v-else-if="accordion.type === 'Environment'" :widget-model="widgetModel"></PythonEnvironmentSettings>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"></WidgetTitleStyle>
@@ -35,7 +36,7 @@ import AccordionTab from 'primevue/accordiontab'
 import descriptor from './PythonWidgetSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
-import HTMLWidgetGallery from '../HTMLWidget/gallery/HTMLWidgetGallery.vue'
+import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import PythonWidgetEditor from './editor/PythonWidgetEditor.vue'
 import PythonEnvironmentSettings from './environment/PythonEnvironmentSettings.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
@@ -50,6 +51,7 @@ import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import PythonWidgetSettingsAccordionHeader from './PythonWidgetSettingsAccordionHeader.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 
 export default defineComponent({
     name: 'python-widget-settings-container',
@@ -69,9 +71,10 @@ export default defineComponent({
         WidgetInteractionsLinks,
         WidgetPreview,
         PythonWidgetSettingsAccordionHeader,
-        HTMLWidgetGallery,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        WidgetMenuConfiguration,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

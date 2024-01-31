@@ -74,6 +74,19 @@ const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
     }
 }
 
+export const formatPackedBubble = (formattedChartModel: IHighchartsChartModel) => {
+    formatPackedBubbleTooltips(formattedChartModel)
+}
+
+const formatPackedBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
+    const tooltip = formattedChartModel.tooltip as any
+    const prefix = tooltip.valuePrefix ?? ''
+    const suffix = tooltip.valueSuffix ?? ''
+    tooltip.formatter = function (this: Highcharts.TooltipFormatterContextObject) {
+        return this.point.options.value ? this.series.name + '<br/><b>' + this.point.options.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.value, tooltip.valueDecimals) + suffix : this.series.name;
+    }
+}
+
 export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
     formattedChartModel.chart.parallelCoordinates = true
     formattedChartModel.chart.parallelAxes = { lineWidth: 2 }
@@ -82,12 +95,16 @@ export const formatSplineChart = (formattedChartModel: IHighchartsChartModel, wi
 
 const formatSplineChartVerticalAxisLines = (formattedChartModel: IHighchartsChartModel, axisLinesSettings: any) => {
     if (!axisLinesSettings || !formattedChartModel.yAxis) return
-    formattedChartModel.xAxis.forEach((xAxis: any) => {
-        xAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
-    })
+    formatxAxisCrosshairSettings(formattedChartModel, axisLinesSettings)
     formattedChartModel.yAxis.forEach((yAxis: any) => {
         yAxis.lineColor = axisLinesSettings.color ? axisLinesSettings.color : 'black'
         yAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
+    })
+}
+
+const formatxAxisCrosshairSettings = (formattedChartModel: IHighchartsChartModel, axisLinesSettings: any) => {
+    formattedChartModel.xAxis.forEach((xAxis: any) => {
+        xAxis.crosshair = { color: axisLinesSettings.crosshairColor, width: axisLinesSettings.crosshairWidth }
     })
 }
 
@@ -105,4 +122,8 @@ const formatPictorialPlotOptions = (formattedChartModel: IHighchartsChartModel) 
 const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
     if (!formattedChartModel.plotOptions.series || !widgetModel.settings.configuration.svgSettings) return
     formattedChartModel.plotOptions.series.paths = [{ definition: widgetModel.settings.configuration.svgSettings.definition }]
+}
+
+export const formatStreamgraphChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
+    formatxAxisCrosshairSettings(formattedChartModel, widgetModel.settings.configuration?.axisLines)
 }

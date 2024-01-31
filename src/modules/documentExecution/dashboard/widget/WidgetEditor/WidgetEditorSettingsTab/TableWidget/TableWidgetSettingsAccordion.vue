@@ -13,6 +13,8 @@
                 <TableWidgetHeader v-else-if="accordion.type === 'Header'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></TableWidgetHeader>
                 <TableWidgetColumnGroups v-else-if="accordion.type === 'ColumnGroups'" :widget-model="widgetModel"></TableWidgetColumnGroups>
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
+                <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
+                <WidgetSelectionConfiguration v-else-if="accordion.type === 'SelectionConfiguration'" :widget-model="widgetModel"></WidgetSelectionConfiguration>
                 <TableWidgetCustomMessages v-else-if="accordion.type === 'CustomMessages'" :widget-model="widgetModel"></TableWidgetCustomMessages>
                 <TableWidgetVisualizationType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel"></TableWidgetVisualizationType>
                 <TableWidgetVisibilityConditions v-else-if="accordion.type === 'VisibilityConditions'" :widget-model="widgetModel" :variables="variables"></TableWidgetVisibilityConditions>
@@ -54,6 +56,8 @@ import TableWidgetSummaryRows from './configuration/TableWidgetSummaryRows.vue'
 import TableWidgetHeader from './configuration/TableWidgetHeader.vue'
 import TableWidgetColumnGroups from './configuration/TableWidgetColumnGroups.vue'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
+import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
+import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import TableWidgetCustomMessages from './configuration/TableWidgetCustomMessages.vue'
 import TableWidgetVisualizationType from './visualization/TableWidgetVisualizationType.vue'
 import TableWidgetVisibilityConditions from './visualization/TableWidgetVisibilityConditions.vue'
@@ -89,6 +93,7 @@ export default defineComponent({
         TableWidgetHeader,
         TableWidgetColumnGroups,
         WidgetExport,
+        WidgetMenuConfiguration,
         TableWidgetCustomMessages,
         TableWidgetVisualizationType,
         TableWidgetVisibilityConditions,
@@ -112,7 +117,8 @@ export default defineComponent({
         TableWidgetPaginator,
         WidgetInteractionsIframe,
         WidgetEditorThemePicker,
-        Message
+        Message,
+        WidgetSelectionConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

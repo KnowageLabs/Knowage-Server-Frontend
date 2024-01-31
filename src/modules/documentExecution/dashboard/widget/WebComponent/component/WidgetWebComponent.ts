@@ -1,5 +1,4 @@
 class WidgetWebComponent extends HTMLElement {
-    selectEvent = null as any
     widgetType = '' as string
 
     constructor() {

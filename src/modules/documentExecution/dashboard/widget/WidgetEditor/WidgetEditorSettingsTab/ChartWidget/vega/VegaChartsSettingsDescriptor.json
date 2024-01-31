@@ -89,6 +89,14 @@
         ],
         "Configuration": [
             {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "common.text",
                 "type": "TextConfiguration"
             },

@@ -39,129 +39,120 @@
     ],
     "chartTypeOptions": [
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.areaChart",
             "value": "area"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.stackedAreaChart",
             "value": "areaStacked"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.pieChart",
             "value": "pie"
         },
         {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.donutChart",
-            "value": "donut"
-        },
-        {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.columnChart",
             "value": "column"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.stackedColumnChart",
             "value": "columnStacked"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.barChart",
             "value": "bar"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.stackedBarChart",
             "value": "barStacked"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.scatterChart",
             "value": "scatter"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.bubbleChart",
             "value": "bubble"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.radar",
             "value": "radar"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.funnelChart",
             "value": "funnel"
         },
         {
-            "disabled": false,
+            "label": "dashboard.widgetEditor.chartTypes.dumbbellChart",
+            "value": "dumbbell"
+        },
+        {
             "label": "dashboard.widgetEditor.chartTypes.gauge",
             "value": "gauge"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.activitygauge",
             "value": "activitygauge"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.solidgauge",
             "value": "solidgauge"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.lineChart",
             "value": "line"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.treemap",
             "value": "treemap"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.wordcloud",
             "value": "wordcloud"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.heatmap",
             "value": "heatmap"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.sunburst",
             "value": "sunburst"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.chord",
             "value": "dependencywheel"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.parallelChart",
             "value": "spline"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.pictorial",
             "value": "pictorial"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.sankey",
             "value": "sankey"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.sankeyInverted",
             "value": "sankeyInverted"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.streamgraph",
+            "value": "streamgraph"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.packedbubble",
+            "value": "packedbubble"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.scatterJitter",
+            "value": "scatterJitter"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.waterfall",
+            "value": "waterfall"
         }
     ],
     "columnAggregationOptions": [

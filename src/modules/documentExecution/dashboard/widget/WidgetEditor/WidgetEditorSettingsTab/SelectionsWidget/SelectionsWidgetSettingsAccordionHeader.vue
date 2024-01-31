@@ -44,6 +44,8 @@ export default defineComponent({
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings) return null
             switch (this.type) {
+                case 'MenuConfiguration':
+                    return this.widgetModel.settings.configuration.widgetMenu
                 case 'NoSelections':
                     return this.widgetModel.settings.configuration.noSelections
                 case 'Title':

@@ -10,14 +10,14 @@
         :h="item.h"
         :i="item.i"
         drag-allow-from=".drag-handle"
-        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget.settings.responsive.fullGrid }"
+        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget?.settings.responsive.fullGrid }"
         @resized="resizedEvent"
     >
         <div v-if="initialized" class="drag-handle"></div>
         <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
         <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
         <WidgetRenderer
-            v-if="!loading"
+            v-if="!loading && widget"
             :widget="widget"
             :widget-data="widgetData"
             :widget-initial-data="widgetInitialData"
@@ -35,6 +35,7 @@
             @dataset-interaction-preview="previewInteractionDataset"
         ></WidgetRenderer>
         <WidgetButtonBar
+            :document="document"
             :widget="widget"
             :play-selection-button-visible="playSelectionButtonVisible"
             :selection-is-locked="selectionIsLocked"
@@ -101,12 +102,13 @@ export default defineComponent({
         model: { type: Object },
         item: { required: true, type: Object },
         activeSheet: { type: Object as PropType<IDashboardSheet>, required: true },
-        document: { type: Object },
+        document: { type: Object, required: true },
         widget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dashboardId: { type: String, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
     },
+
     setup() {
         const dashStore = store()
         return { dashStore }
@@ -152,6 +154,9 @@ export default defineComponent({
         },
         dashboardSheets() {
             return this.dashboards[this.dashboardId]?.sheets ?? []
+        },
+        updateFromSelections() {
+            return this.widgetModel.settings?.configuration?.updateFromSelections
         }
     },
     watch: {
@@ -175,7 +180,7 @@ export default defineComponent({
         this.setEventListeners()
         this.loadWidget(this.widget)
 
-        this.widget.type !== 'selection' ? await this.loadInitalData() : await this.loadActiveSelections()
+        this.widget?.type !== 'selection' ? await this.loadInitalData() : await this.loadActiveSelections()
 
         this.setWidgetLoading(false)
     },
@@ -241,7 +246,7 @@ export default defineComponent({
             ]
         },
         quickWidgetChangeEnabled() {
-            if (!['table', 'highcharts'].includes(this.widget.type)) return false
+            if (!this.widget || !['table', 'highcharts'].includes(this.widget.type)) return false
             if (this.widget.type === 'table' && !this.checkIfTableHasBothAttributeAndMeasureColumns()) return false
             return canEditDashboard(this.document)
         },
@@ -259,8 +264,9 @@ export default defineComponent({
             this.showQuickDialog = false
             quickWidgetCreateChartFromTable(chartType, this.widgetModel, this.dashboardId)
         },
-        loadWidget(widget: IWidget) {
+        loadWidget(widget: IWidget | null) {
             this.widgetModel = widget
+            if (!this.widgetModel) return
             this.loadWidgetSearch()
         },
         loadWidgetSearch() {
@@ -285,21 +291,27 @@ export default defineComponent({
 
             this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
             this.widgetData = this.widgetInitialData
-            await this.loadActiveSelections()
+            if (this.updateFromSelections) await this.loadActiveSelections()
 
             this.setWidgetLoading(false)
         },
         async loadActiveSelections() {
+            if (!this.updateFromSelections) return
             this.getSelectionsFromStore()
             if (this.widgetModel.type === 'selection') return
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (this.widgetUsesSelections(this.activeSelections) || associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore ?? null)
         },
         getSelectionsFromStore() {
+            if (!this.updateFromSelections) {
+                this.activeSelections = []
+                return
+            }
             this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
             this.checkIfSelectionIsLocked()
         },
         async onSelectionsDeleted(deletedSelections: any) {
+            if (!this.updateFromSelections) return
             const associations = this.dashboards[this.dashboardId]?.configuration.associations ?? []
             this.getSelectionsFromStore()
             if (this.widgetUsesSelections(deletedSelections) || (this.widget.dataset && datasetIsUsedInAssociations(this.widget.dataset, associations))) this.reloadWidgetData(null)
@@ -361,6 +373,7 @@ export default defineComponent({
             return index !== -1 ? associativeSelections : null
         },
         async onAssociativeSelectionsLoaded() {
+            if (!this.updateFromSelections) return
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore)
         },

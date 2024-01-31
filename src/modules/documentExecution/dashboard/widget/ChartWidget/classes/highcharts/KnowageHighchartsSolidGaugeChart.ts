@@ -17,6 +17,9 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
             }
         }
         this.model.chart.type = 'solidgauge'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
     }
 
     updateModel(oldModel: any) {
@@ -42,8 +45,8 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
     }
 
     setGaugeYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultGaugeYAxis()
-        this.model.yAxis.tickWidth = 0
+        this.model.yAxis = [highchartsDefaultValues.getDefaultGaugeYAxis()]
+        this.model.yAxis[0].tickWidth = 0
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
@@ -68,7 +71,7 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
                     color: seriesSettings.label.style.color ?? ''
                 },
                 formatter: function () {
-                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label)
+                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, this.model.chart.type)
                 }
             }
         })

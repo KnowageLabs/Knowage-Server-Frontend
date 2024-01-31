@@ -20,6 +20,10 @@ import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/Char
 import { KnowageHighchartsPictorialChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPictorialChart'
 import { KnowageHighchartsSankeyChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsSankeyChart'
 import { KnowageHighchartsFunnelChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsFunnelChart'
+import { KnowageHighchartsDumbbellChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsDumbbellChart'
+import { KnowageHighchartsStreamgraphChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsStreamgraphChart'
+import { KnowageHighchartsPackedBubbleChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsPackedBubbleChart'
+import { KnowageHighchartsWaterfallChart } from '../../../../ChartWidget/classes/highcharts/KnowageHighchartsWaterfallChart'
 
 export const createNewHighchartsSettings = () => {
     const settings = {
@@ -56,6 +60,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
     const chartType = chartModel.chart.type
     const isStacking = chartModel.plotOptions?.series?.stacking
     const isInverted = chartModel.chart.inverted
+    const isJittered = chartModel.plotOptions?.jitter !== undefined  // TODO - See if it can be written better
     switch (chartType) {
         case 'pie':
             widget.settings.chartModel = new KnowageHighchartsPieChart(chartModel)
@@ -88,7 +93,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
             widget.settings.chartModel = new KnowageHighchartsBubbleChart(chartModel)
             break
         case 'scatter':
-            widget.settings.chartModel = new KnowageHighchartsScatterChart(chartModel)
+            widget.settings.chartModel = new KnowageHighchartsScatterChart(chartModel, isJittered)
             break
         case 'line':
             widget.settings.chartModel = new KnowageHighchartsLineChart(chartModel)
@@ -115,10 +120,22 @@ export const formatHighchartsWidget = (widget: IWidget) => {
         case 'funnel':
             widget.settings.chartModel = new KnowageHighchartsFunnelChart(chartModel)
             break
+        case 'dumbbell':
+            widget.settings.chartModel = new KnowageHighchartsDumbbellChart(chartModel)
+            break
+        case 'streamgraph':
+            widget.settings.chartModel = new KnowageHighchartsStreamgraphChart(chartModel)
+            break
+        case 'packedbubble':
+            widget.settings.chartModel = new KnowageHighchartsPackedBubbleChart(chartModel)
+            break
+        case 'waterfall':
+            widget.settings.chartModel = new KnowageHighchartsWaterfallChart(chartModel)
+            break
     }
 }
 
-export const createNewHighchartsModel = (widget: IWidget, chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean, isInverted: boolean) => {
+export const createNewHighchartsModel = (widget: IWidget, chartType: string, model: IHighchartsChartModel | null = null, isStacked: boolean, isInverted: boolean, isJittered: boolean) => {
     switch (chartType) {
         case 'pie':
             return new KnowageHighchartsPieChart(model)
@@ -142,6 +159,8 @@ export const createNewHighchartsModel = (widget: IWidget, chartType: string, mod
             return new KnowageHighchartsBubbleChart(model)
         case 'scatter':
             return new KnowageHighchartsScatterChart(model)
+        case 'scatterJitter':
+            return new KnowageHighchartsScatterChart(model, isJittered)
         case 'line':
             return new KnowageHighchartsLineChart(model)
         case 'treemap':
@@ -160,6 +179,14 @@ export const createNewHighchartsModel = (widget: IWidget, chartType: string, mod
             return new KnowageHighchartsSankeyChart(model, isInverted)
         case 'funnel':
             return new KnowageHighchartsFunnelChart(model)
+        case 'dumbbell':
+            return new KnowageHighchartsDumbbellChart(model)
+        case 'streamgraph':
+            return new KnowageHighchartsStreamgraphChart(model)
+        case 'packedbubble':
+            return new KnowageHighchartsPackedBubbleChart(model)
+        case 'waterfall':
+            return new KnowageHighchartsWaterfallChart(model)
         default:
             return null
     }
