@@ -49,7 +49,7 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
 
     if (user.enterprise && !newDashboardMode) {
         const items = [{ icon: 'pi pi-star', label: $t('common.rank'), command: () => functions.openRank() }]
-        if (user.functionalities.includes(UserFunctionalitiesConstants.SEE_HELP_ONLINE)) items.push({ icon: 'pi pi-book', label: $t('common.onlineHelp'), command: () => functions.openHelp() })
+        if (user.functionalities.includes(UserFunctionalitiesConstants.HELP_ONLINE)) items.push({ icon: 'pi pi-book', label: $t('common.onlineHelp'), command: () => functions.openHelp() })
         toolbarMenuItems.push({
             label: $t('common.info.info'),
             items: items
