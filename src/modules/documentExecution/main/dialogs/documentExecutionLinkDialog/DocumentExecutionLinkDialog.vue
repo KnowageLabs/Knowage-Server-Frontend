@@ -13,18 +13,22 @@
                 {{ $t('documentExecution.main.publicUrlExecutionDisabled') }}
             </Message>
             <div class="p-m-2">
-                <p>{{ $t('documentExecution.main.copyLinkAndShare') }}</p>
+                <p class="p-pl-2">{{ $t('documentExecution.main.copyLinkAndShare') }}</p>
             </div>
 
             <div class="p-fluid p-formgrid p-grid p-m-2">
                 <div class="p-field p-col-12">
-                    <Textarea v-if="embedHTML" v-model="publicUrl" class="kn-material-input" :rows="6"></Textarea>
-                    <InputText v-else v-model="publicUrl" class="kn-material-input p-inputtext-sm" />
+                    <Textarea v-if="embedHTML" v-model="publicUrl" class="kn-material-input" :rows="6" readonly @click="copyUrl"></Textarea>
+                    <InputText v-else v-model="publicUrl" class="kn-material-input p-inputtext-sm" readonly @click="copyUrl" />
                 </div>
             </div>
 
             <div class="p-fluid p-formgrid p-grid p-m-2">
                 <div class="p-d-flex p-jc-around p-col-12">
+                    <div v-if="linkInfo && linkInfo.isPublic" class="kn-flex p-m-2">
+                        <label class="kn-material-input-label p-mr-4">{{ $t('documentExecution.main.publicExecution') }}</label>
+                        <InputSwitch v-model="setPublic" @change="getPublicUrl" />
+                    </div>
                     <div class="kn-flex p-m-2">
                         <label class="kn-material-input-label p-mr-4">{{ $t('documentExecution.main.showMenu') }}</label>
                         <InputSwitch v-model="showMenu" @change="getPublicUrl" />
@@ -59,7 +63,7 @@
 import { defineComponent, PropType } from 'vue'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { IURLDriver } from '../../DocumentExecution'
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import Dialog from 'primevue/dialog'
 import documentExecutionLinkDialogDescriptor from './DocumentExecutionLinkDialogDescriptor.json'
 import Textarea from 'primevue/textarea'
@@ -89,16 +93,13 @@ export default defineComponent({
         }
     },
     emits: ['close'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             documentExecutionLinkDialogDescriptor,
             publicUrl: '',
             document: null as any,
             showMenu: true,
+            setPublic: false,
             showToolbar: true,
             iframeWidth: 600 as number,
             iframeHeight: 600 as number,
@@ -125,6 +126,7 @@ export default defineComponent({
         this.loadLink()
     },
     methods: {
+        ...mapActions(mainStore, ['setInfo']),
         loadLink() {
             this.loadDocument()
             this.loadFilters()
@@ -145,6 +147,10 @@ export default defineComponent({
             if (!this.document) return
             this.createLink()
         },
+        copyUrl() {
+            navigator.clipboard.writeText(this.publicUrl)
+            this.setInfo({ title: this.$t('common.info.info'), msg: this.$t('documentExecution.main.urlCopiedToClipboard') })
+        },
         createLink() {
             if (!this.document || !this.user) return
 
@@ -152,10 +158,12 @@ export default defineComponent({
             const params = btoa(JSON.stringify(this.params))
             const role = this.getUserRole()
 
-            this.publicUrl = this.embedHTML ? `<iframe width="${this.iframeWidth}" height="${this.iframeHeight}" src="` : ''
-            this.publicUrl += import.meta.env.VITE_HOST_URL + import.meta.env.VITE_PUBLIC_PATH + `${documentType}/${this.document.label}?toolbar=${this.showToolbar}&menu=${this.showMenu}&params=${params}`
-            if (role) this.publicUrl += `&role=${role}`
-            if (this.embedHTML) this.publicUrl += '"></iframe>`'
+            const linkUrl = `${location.origin}${import.meta.env.VITE_PUBLIC_PATH}${documentType}/${this.document.label}?organization=${this.document.tenant}&toolbar=${this.showToolbar}&menu=${this.showMenu}${this.linkInfo?.isPublic && this.setPublic ? '&public=true' : ''}${
+                role ? `&role=${role}` : ''
+            }&params=${params}`
+
+            if (this.embedHTML) this.publicUrl = `<iframe width="${this.iframeWidth}" height="${this.iframeHeight}" src="${linkUrl}"></iframe>`
+            else this.publicUrl = linkUrl
         },
         getUserRole() {
             if (this.user.sessionRole && this.user.sessionRole !== this.$t('role.defaultRolePlaceholder')) return this.user.sessionRole
