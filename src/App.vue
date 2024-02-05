@@ -89,8 +89,11 @@ export default defineComponent({
         }
     },
     async created() {
+        const locationParams = new URL(location).searchParams
+        let userEndpoint = locationParams.get('public') ? `/restful-services/2.0/publicUser?label=${location.pathname.substring(location.pathname.lastIndexOf('/') + 1)}` : '/restful-services/2.0/currentuser'
+        if (locationParams.get('organization')) userEndpoint += `organization=${locationParams.get('organization')}`
         await this.$http
-            .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/currentuser')
+            .get(import.meta.env.VITE_KNOWAGE_CONTEXT + userEndpoint)
             .then(async (response) => {
                 const currentUser = response.data
                 if (localStorage.getItem('sessionRole')) {
