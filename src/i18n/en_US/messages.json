@@ -3703,7 +3703,8 @@
         "roleSelection": "Role Selection"
     },
     "unauthorized": {
-        "outsideIframe": "You are not allowed to access Knowage from outside the application"
+        "outsideIframe": "You are not allowed to access Knowage from outside the application",
+        "invalidRequest": "The sent request is not valid"
     },
     "workspace": {
         "addViewFolderHint": "Please add at least one folder in your workspace.",

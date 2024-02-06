@@ -90,8 +90,8 @@ export default defineComponent({
     },
     async created() {
         const locationParams = new URL(location).searchParams
-        let userEndpoint = locationParams.get('public') ? `/restful-services/2.0/publicUser?label=${location.pathname.substring(location.pathname.lastIndexOf('/') + 1)}` : '/restful-services/2.0/currentuser'
-        if (locationParams.get('organization')) userEndpoint += `organization=${locationParams.get('organization')}`
+        let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
+        if (locationParams.get('organization')) userEndpoint += `?organization=${locationParams.get('organization')}`
         await this.$http
             .get(import.meta.env.VITE_KNOWAGE_CONTEXT + userEndpoint)
             .then(async (response) => {
@@ -148,13 +148,10 @@ export default defineComponent({
 
                 this.setLoading(false)
             })
-            .catch(function (error) {
-                auth.logout()
-                if (error.response) {
-                    console.log(error.response.data)
-                    console.log(error.response.status)
-                    console.log(error.response.headers)
-                }
+            .catch((error) => {
+                if (error.status === 400) {
+                    this.$router.push({ name: 'unauthorized', params: { message: this.$t('unauthorized.invalidRequest') } })
+                } else auth.logout()
             })
 
         await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response: any) => {
