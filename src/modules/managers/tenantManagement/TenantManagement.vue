@@ -28,8 +28,8 @@
                     <template #option="slotProps">
                         <div class="kn-list-item" data-test="list-item">
                             <div class="kn-list-item-text">
-                                <span>{{ slotProps.option.MULTITENANT_NAME }}</span>
-                                <span class="kn-list-item-text-secondary">{{ slotProps.option.MULTITENANT_THEME }}</span>
+                                <span>{{ slotProps.option.TENANT_NAME }}</span>
+                                <span class="kn-list-item-text-secondary">{{ slotProps.option.TENANT_THEME }}</span>
                             </div>
                             <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" data-test="delete-button" @click.stop="deleteTenantConfirm(slotProps.option)" />
                         </div>
@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { iMultitenant } from './TenantManagement'
+import { iTenant } from './TenantManagement'
 import { AxiosResponse } from 'axios'
 import tenantsDescriptor from './TenantManagementDescriptor.json'
 import FabButton from '@/components/UI/KnFabButton.vue'
@@ -68,8 +68,8 @@ export default defineComponent({
     },
     data() {
         return {
-            multitenants: [] as iMultitenant[],
-            selTenant: {} as iMultitenant,
+            multitenants: [] as iTenant[],
+            selTenant: {} as iTenant,
             listOfThemes: [] as any,
             listOfDataSources: [] as any,
             listOfProductTypes: [] as any,
@@ -83,6 +83,7 @@ export default defineComponent({
     async created() {
         await this.loadTenants()
         await this.getLicences()
+        if (this.$route?.params) this.hintVisible = false
     },
     methods: {
         loadData(dataType: string) {

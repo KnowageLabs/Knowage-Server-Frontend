@@ -1,9 +1,9 @@
 <template>
     <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
-        <template #start>{{ tenant.MULTITENANT_NAME }}</template>
+        <template #start>{{ tenant.TENANT_NAME }}</template>
         <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" @click="handleSubmit" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplateConfirm" />
+            <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save"  class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" @click="handleSubmit" />
+            <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplateConfirm" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
@@ -37,7 +37,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { iMultitenant, iTenantToSave } from '../TenantManagement'
+import { iTenant, iTenantToSave } from '../TenantManagement'
 import { AxiosResponse } from 'axios'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -73,7 +73,7 @@ export default defineComponent({
             touched: false,
             operation: 'insert',
             v$: useValidate() as any,
-            tenant: {} as iMultitenant,
+            tenant: {} as iTenant,
             listOfThemes: [] as any,
             availableLicenses: [] as any,
             listOfProductTypes: [] as any,
@@ -92,7 +92,7 @@ export default defineComponent({
     },
     watch: {
         selectedTenant() {
-            this.tenant = { ...this.selectedTenant } as iMultitenant
+            this.tenant = { ...this.selectedTenant } as iTenant
             this.getTenantData()
         },
         licenses() {
@@ -101,7 +101,7 @@ export default defineComponent({
     },
     mounted() {
         if (this.selectedTenant) {
-            this.tenant = { ...this.selectedTenant } as iMultitenant
+            this.tenant = { ...this.selectedTenant } as iTenant
         }
         this.availableLicenses = this.licenses
         this.loadAllData()
@@ -138,13 +138,13 @@ export default defineComponent({
             this.listOfSelectedDataSources = null
             this.touched = false
 
-            await this.loadData(`/producttypes?TENANT=${this.tenant.MULTITENANT_NAME}`).then((response: AxiosResponse<any>) => {
+            await this.loadData(`/producttypes?TENANT=${this.tenant.TENANT_NAME}`).then((response: AxiosResponse<any>) => {
                 const productTypes = response.data.root
 
                 this.listOfSelectedProducts = []
                 this.copySelectedElement(productTypes, this.listOfSelectedProducts)
             })
-            await this.loadData(`/datasources?TENANT=${this.tenant.MULTITENANT_NAME}`).then((response: AxiosResponse<any>) => {
+            await this.loadData(`/datasources?TENANT=${this.tenant.TENANT_NAME}`).then((response: AxiosResponse<any>) => {
                 const dataSources = response.data.root
 
                 this.listOfSelectedDataSources = []
@@ -187,10 +187,11 @@ export default defineComponent({
 
         createTenantToSave() {
             const tenantToSave = {} as iTenantToSave
-            tenantToSave.MULTITENANT_ID = this.tenant.MULTITENANT_ID ? '' + this.tenant.MULTITENANT_ID : ''
-            tenantToSave.MULTITENANT_NAME = this.tenant.MULTITENANT_NAME
-            this.tenant.MULTITENANT_THEME ? (tenantToSave.MULTITENANT_THEME = this.tenant.MULTITENANT_THEME) : ''
-            tenantToSave.MULTITENANT_IMAGE = this.tenant.MULTITENANT_IMAGE
+            tenantToSave.TENANT_ID = this.tenant.TENANT_ID ? '' + this.tenant.TENANT_ID : ''
+            tenantToSave.TENANT_NAME = this.tenant.TENANT_NAME
+            this.tenant.TENANT_THEME ? (tenantToSave.TENANT_THEME = this.tenant.TENANT_THEME) : ''
+            tenantToSave.TENANT_IMAGE = this.tenant.TENANT_IMAGE
+            tenantToSave.TENANT_IMAGE_WIDE = this.tenant.TENANT_IMAGE_WIDE
             tenantToSave.DS_LIST = this.listOfSelectedDataSources.map((dataSource) => {
                 delete dataSource.CHECKED
                 return dataSource
