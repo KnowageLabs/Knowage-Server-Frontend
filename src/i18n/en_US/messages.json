@@ -2055,14 +2055,19 @@
         }
     },
     "language": {
+        "bg_BG":"Bulgarian",
         "de_DE": "German",
         "en_GB": "english (GB)",
         "en_US": "english (US)",
         "es_ES": "espanol",
         "fr_FR": "french",
         "it_IT": "italian",
+        "ja_JP":"Japanese",
+        "ko_KR":"Korean",
         "languageSelection": "Language Selection",
-        "pt_BR": "portuguese",
+        "pt_BR": "Portuguese",
+        "ru_RU":"Russian",
+        "tr_TR":"Turkish",
         "zh_CN_#Hans": "Chinese (simplified)"
     },
     "licenseDialog": {

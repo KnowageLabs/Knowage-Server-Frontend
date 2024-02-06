@@ -1803,7 +1803,11 @@
         "en_US": "Inglese (US)",
         "es_ES": "Spagnolo",
         "fr_FR": "Francese",
-        "it_IT": "italiano",
+        "it_IT": "Italiano",
+        "ja_JP":"Giapponese",
+        "ko_KR":"Coreano",
+        "ru_RU":"Russo",
+        "tr_TR":"Turco",
         "languageSelection": "Selezione della lingua",
         "pt_BR": "Portoghese",
         "zh_CN_#Hans": "Cinese (semplificato)"
