@@ -25,10 +25,6 @@
 
             <div class="p-fluid p-formgrid p-grid p-m-2">
                 <div class="p-d-flex p-jc-around p-col-12">
-                    <div v-if="linkInfo && linkInfo.isPublic" class="kn-flex p-m-2">
-                        <label class="kn-material-input-label p-mr-4">{{ $t('documentExecution.main.publicExecution') }}</label>
-                        <InputSwitch v-model="setPublic" @change="getPublicUrl" />
-                    </div>
                     <div class="kn-flex p-m-2">
                         <label class="kn-material-input-label p-mr-4">{{ $t('documentExecution.main.showMenu') }}</label>
                         <InputSwitch v-model="showMenu" @change="getPublicUrl" />
@@ -155,12 +151,12 @@ export default defineComponent({
             if (!this.document || !this.user) return
 
             const documentType = this.getDocumentType()
-            const params = btoa(JSON.stringify(this.params))
+            const params = this.params && Object.keys(this.params).length > 0 ? btoa(JSON.stringify(this.params)) : false
             const role = this.getUserRole()
 
-            const linkUrl = `${location.origin}${import.meta.env.VITE_PUBLIC_PATH}${documentType}/${this.document.label}?organization=${this.document.tenant}&toolbar=${this.showToolbar}&menu=${this.showMenu}${this.linkInfo?.isPublic && this.setPublic ? '&public=true' : ''}${
-                role ? `&role=${role}` : ''
-            }&params=${params}`
+            const linkUrl = `${location.origin}${import.meta.env.VITE_PUBLIC_PATH}${documentType}/${this.document.label}?organization=${this.document.tenant}&toolbar=${this.showToolbar}&menu=${this.showMenu}${this.linkInfo?.isPublic ? '&public=true' : ''}${role ? `&role=${role}` : ''}${
+                params ? `&params=${params}` : ''
+            }`
 
             if (this.embedHTML) this.publicUrl = `<iframe width="${this.iframeWidth}" height="${this.iframeHeight}" src="${linkUrl}"></iframe>`
             else this.publicUrl = linkUrl

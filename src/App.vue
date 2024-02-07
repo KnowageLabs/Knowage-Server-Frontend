@@ -38,7 +38,8 @@ export default defineComponent({
             menuItemClickedTrigger: false,
             showMenu: false,
             closedMenu: false,
-            pollingInterval: null
+            pollingInterval: null,
+            stopExecution: false
         }
     },
     computed: {
@@ -149,10 +150,12 @@ export default defineComponent({
                 this.setLoading(false)
             })
             .catch((error) => {
-                if (error.status === 400) {
-                    this.$router.push({ name: 'unauthorized', params: { message: this.$t('unauthorized.invalidRequest') } })
+                if (error.response.status === 400) {
+                    this.$router.replace({ name: 'unauthorized', params: { message: 'unauthorized.invalidRequest' } })
+                    this.stopExecution = true
                 } else auth.logout()
             })
+        if (this.stopExecution) return
 
         await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response: any) => {
             this.checkTopLevelIframe(response.data)
@@ -174,10 +177,11 @@ export default defineComponent({
                 this.themeHelper.setTheme(this.theme)
             }
         }
+
+        this.onLoad()
     },
 
     mounted() {
-        this.onLoad()
         if (/Android|iPhone/i.test(navigator.userAgent)) {
             this.isMobileDevice = true
         }
@@ -201,7 +205,7 @@ export default defineComponent({
         checkTopLevelIframe(configs) {
             if (configs?.['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
                 if (window.self !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
-                    this.$router.push({ name: 'unauthorized', params: { message: this.$t('unauthorized.outsideIframe') } })
+                    this.$router.push({ name: 'unauthorized', params: { message: 'unauthorized.outsideIframe' } })
                 }
             }
         },
@@ -222,28 +226,19 @@ export default defineComponent({
         },
         async onLoad() {
             this.showMenu = true
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset')
-                .then((response) => {
-                    const totalDownloads = response.data.length
-                    const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset').then((response) => {
+                const totalDownloads = response.data.length
+                const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
 
-                    const json = { downloads: { count: { total: 0, alreadyDownloaded: 0 } } }
-                    json.downloads.count.total = totalDownloads
-                    json.downloads.count.alreadyDownloaded = alreadyDownloaded
+                const json = { downloads: { count: { total: 0, alreadyDownloaded: 0 } } }
+                json.downloads.count.total = totalDownloads
+                json.downloads.count.alreadyDownloaded = alreadyDownloaded
 
-                    this.setDownloads(json.downloads)
+                this.setDownloads(json.downloads)
 
-                    this.newsDownloadHandler()
-                    this.loadInternationalization()
-                })
-                .catch(function (error) {
-                    if (error.response) {
-                        console.log(error.response.data)
-                        console.log(error.response.status)
-                        console.log(error.response.headers)
-                    }
-                })
+                this.newsDownloadHandler()
+                this.loadInternationalization()
+            })
         },
         async loadInternationalization() {
             let currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : this.locale
