@@ -94,10 +94,10 @@ router.beforeEach((to, from, next) => {
 
     if (!to.meta.public && !loggedIn && !to.query.public) {
         authHelper.handleUnauthorized()
-    } else if (validRoutes.some((el) => to.fullPath.includes(el)) && !invalidRoutes.some((el) => to.fullPath.includes(el))) {
+        /*} else if (validRoutes.some((el) => to.fullPath.includes(el)) && !invalidRoutes.some((el) => to.fullPath.includes(el))) {
         getCorrectRolesForExecutionForType('DOCUMENT', null, to.params.id).then(() => {
             next()
-        })
+        })*/
     } else {
         next()
     }
