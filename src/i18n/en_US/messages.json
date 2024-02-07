@@ -215,7 +215,6 @@
         "snapshot": "Snapshot",
         "sort": "sort",
         "source": "Source",
-        "target": "Target",
         "sourceDataset": "Source dataset",
         "sqlExpression": "SQL expression",
         "square": "Square",
@@ -234,6 +233,7 @@
             "table": "Table"
         },
         "tags": "tags",
+        "target": "Target",
         "temporal": "Temporal",
         "tenant": "tenant",
         "test": "test",
@@ -1575,6 +1575,7 @@
             "linkToDocument ": "Link to document",
             "newSavedView": "New Saved View",
             "parameterClearTooltip": "Reset to default value",
+            "publicExecution": "Public Execution",
             "publicUrlExecutionDisabled": "Current document cannot be executed by public user",
             "rankSaveSucces": "Rating Saved.Thanks for your feedback",
             "replyToHint": "Enter \"reply to\" if you want to set the sender.",
@@ -1594,6 +1595,7 @@
             "showOLAPCustomView": "Show OLAP Custom View",
             "showScheduledExecutions": "Show scheduled executions",
             "showToolbar": "Show Toolbar",
+            "urlCopiedToClipboard": "Url copied to clipboard",
             "userRoleError": "User does not have valid roles for the execution of the selected document",
             "viewCockpit": "View cockpit document",
             "viewVisibilityHint": "View Visibility Hint Placeholder",
@@ -2713,6 +2715,7 @@
         "importExportDocs": {
             "date": "Filter after Date",
             "dev": "Development",
+            "driverName": "Driver Name",
             "export": {
                 "EXPORT_BIRT": "Export BIRT translations",
                 "EXPORT_RELATED_DOCS": "Export related documents",
@@ -2721,14 +2724,13 @@
                 "EXPORT_SNAPSHOT": "Export Scheduled documents",
                 "EXPORT_SUB_OBJ": "Export Olap customized View"
             },
+            "fileUploadFail": "Error uploading file, please try again.",
+            "fileUploadSuccess": "is uploaded correctly, you can move to the next step.",
+            "importComplete": "Import completed successfully.",
             "rel": "Released",
             "status": "Filter by Status",
             "test": "Test",
-            "title": "Import/Export Documents",
-            "fileUploadSuccess": "is uploaded correctly, you can move to the next step.",
-            "fileUploadFail": "Error uploading file, please try again.",
-            "driverName": "Driver Name",
-            "importComplete": "Import completed successfully."
+            "title": "Import/Export Documents"
         },
         "internationalizationManagement": {
             "defaultLanguage": "(Default)",
@@ -3706,7 +3708,8 @@
         "roleSelection": "Role Selection"
     },
     "unauthorized": {
-        "outsideIframe": "You are not allowed to access Knowage from outside the application"
+        "outsideIframe": "You are not allowed to access Knowage from outside the application",
+        "invalidRequest": "The sent request is not valid"
     },
     "workspace": {
         "addViewFolderHint": "Please add at least one folder in your workspace.",

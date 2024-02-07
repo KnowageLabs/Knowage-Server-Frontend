@@ -61,7 +61,7 @@ const baseRoutes = [
         name: 'unauthorized',
         component: () => import('@/views/Unauthorized.vue'),
         props: true,
-        meta: { hideMenu: true }
+        meta: { hideMenu: true, public: true }
     },
     {
         path: '/:catchAll(.*)',
@@ -84,7 +84,6 @@ router.afterEach(async () => {
 router.beforeEach((to, from, next) => {
     const store = mainStore()
 
-    const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
     const loggedIn = localStorage.getItem('token')
 
     const validRoutes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', '/kpi/', 'dossier', 'etl']
@@ -93,7 +92,7 @@ router.beforeEach((to, from, next) => {
         store.hideMainMenu()
     } else store.showMainMenu()
 
-    if (checkRequired && !loggedIn) {
+    if (!to.meta.public && !loggedIn && !to.query.public) {
         authHelper.handleUnauthorized()
     } else if (validRoutes.some((el) => to.fullPath.includes(el)) && !invalidRoutes.some((el) => to.fullPath.includes(el))) {
         getCorrectRolesForExecutionForType('DOCUMENT', null, to.params.id).then(() => {
