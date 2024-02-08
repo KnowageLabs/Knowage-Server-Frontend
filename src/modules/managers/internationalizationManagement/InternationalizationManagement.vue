@@ -284,7 +284,7 @@ export default defineComponent({
         },
 
         saveLabel(langObj, message) {
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/i18nMessages'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages'
             const toSave = { ...message } as iMessage
             delete toSave.dirty
             this.saveOrUpdateMessage(url, toSave, langObj).then((response: AxiosResponse<any>) => {
@@ -306,7 +306,7 @@ export default defineComponent({
             if (msgToDelete.id) {
                 let url = ''
                 if (msgToDelete.defaultMessageCode) {
-                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/i18nMessages/'
+                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages/'
                     this.$confirm.require({
                         message: this.$t('managers.internationalizationManagement.delete.deleteMessage'),
                         header: this.$t('managers.internationalizationManagement.delete.deleteMessageTitle'),
@@ -314,7 +314,7 @@ export default defineComponent({
                         accept: () => this.deleteLabel(url, msgToDelete.id, langObj)
                     })
                 } else {
-                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + '2.0/i18nMessages/deletedefault/'
+                    url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages/deletedefault/'
                     this.$confirm.require({
                         message: this.$t('managers.internationalizationManagement.delete.deleteDefault'),
                         header: this.$t('managers.internationalizationManagement.delete.deleteDefaultTitle'),

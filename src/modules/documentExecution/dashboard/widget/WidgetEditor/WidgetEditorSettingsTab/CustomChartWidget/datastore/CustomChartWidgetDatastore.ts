@@ -1,6 +1,7 @@
 import { IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import deepcopy from 'deepcopy'
 import { filter } from './CustomChartWidgetFilter'
+import mainStore from '@/App.store'
 
 export class CustomChartDatastore {
     data: any = {}
@@ -84,6 +85,11 @@ export class CustomChartDatastore {
             series.push(serieObj)
         }
         return series
+    }
+
+    getInternationalization(label) {
+        const store = mainStore()
+        return store.internationalization?.filter((i) => i.label === label)[0].message || label
     }
 
     sort(sortParams) {

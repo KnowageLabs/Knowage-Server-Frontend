@@ -151,7 +151,6 @@ export default defineComponent({
             crossNavigations: [] as any[],
             profileAttributes: [] as { name: string; value: string }[],
             drivers: [] as any[],
-            internationalization: {} as any,
             dashboardId: '',
             saveDialogVisible: false,
             selectionsDialogVisible: false,
@@ -177,7 +176,6 @@ export default defineComponent({
             initialDataLoadedMap: {
                 profileAttributesLoaded: false,
                 dashboardModelLoaded: false,
-                internationalizationLoaded: false,
                 crossNavigationsLoaded: false
             }
         }
@@ -279,7 +277,6 @@ export default defineComponent({
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
             if (this.isEnterprise) await this.loadDashboardThemes()
             await this.loadModel()
-            if (!this.initialDataLoadedMap.internationalizationLoaded) this.loadInternationalization()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadOutputParameters()
             await this.loadCrossNavigations()
@@ -314,20 +311,6 @@ export default defineComponent({
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
-        },
-        async loadInternationalization() {
-            this.initialDataLoadedMap.internationalizationLoaded = true
-            this.appStore.setLoading(true)
-            const result = (this.appStore.$state as any).user.locale.split('_')
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/i18nMessages/?currCountry=${result[1]}&currLanguage=${result[0]}&currScript=`)
-                .then((response: AxiosResponse<any>) => {
-                    this.internationalization = response.data
-                    this.setInternationalization(response.data)
-                })
-                .catch(() => {})
-
-            this.appStore.setLoading(false)
         },
         async loadCrossNavigations() {
             if (this.newDashboardMode) return

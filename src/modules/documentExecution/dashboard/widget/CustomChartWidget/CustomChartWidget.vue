@@ -67,6 +67,7 @@ export default defineComponent({
         this.iframeDocument = null
         this.loadedScriptsCount = 0
     },
+
     methods: {
         ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes', 'getCurrentDashboardView']),
         ...mapActions(appStore, ['setError']),
@@ -161,6 +162,9 @@ export default defineComponent({
         },
         insertUsersHtmlContent() {
             const tempEl = this.iframeDocument.querySelector('.component-wrapper')
+            this.htmlContent = this.htmlContent.replace(/(?:\[kn-i18n='([a-zA-Z0-9_\-\s]*)'\])/gm, (match, g1) => {
+                return (this as any).$internationalization(g1) || g1
+            })
             if (tempEl) tempEl.innerHTML = this.htmlContent
             this.getUserImportScripts(tempEl)
         },
