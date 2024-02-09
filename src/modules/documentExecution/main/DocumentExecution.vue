@@ -351,6 +351,9 @@ export default defineComponent({
         },
         isInDocBrowser() {
             return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
+        },
+        isMobileDevice(){
+            return /Android|iPhone/i.test(navigator.userAgent)
         }
     },
     watch: {
@@ -731,7 +734,8 @@ export default defineComponent({
             postForm.action = import.meta.env.VITE_HOST_URL + postObject.url
             postForm.method = 'post'
             const iframeName = crossNavigationPopupMode ? 'documentFramePopup' : 'documentFrame'
-            postForm.target = tempIndex !== -1 ? iframeName + tempIndex : documentLabel
+            if (this.isMobileDevice && postObject.params.outputType?.toLowerCase() === 'pdf') postForm.target = '_blank'
+            else postForm.target = tempIndex !== -1 ? iframeName + tempIndex : documentLabel
             postForm.acceptCharset = 'UTF-8'
             document.body.appendChild(postForm)
 
