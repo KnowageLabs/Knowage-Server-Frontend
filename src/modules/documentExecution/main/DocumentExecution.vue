@@ -23,8 +23,6 @@
                         :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
                         @click="saveDashboard"
                     ></Button>
-                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
                     <Button
                         v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.refresh')"
@@ -319,10 +317,6 @@ export default defineComponent({
             user: 'user',
             configurations: 'configurations'
         }),
-        canEditCockpit(): boolean {
-            if (!this.user || !this.document) return false
-            return (this.document.engine?.toLowerCase() === 'knowagecockpitengine' || this.document.engine?.toLowerCase() === 'knowagedashboardengine') && (this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId)
-        },
         sessionRole(): string | null {
             if (!this.user) return null
             return this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
