@@ -160,6 +160,7 @@ import { createToolbarMenuItems } from './DocumentExecutionHelpers'
 import { emitter } from '../dashboard/DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
+import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentExecutionAngularCrossNavigationHelper'
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
 import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDriverHelpers'
 import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
@@ -307,7 +308,6 @@ export default defineComponent({
             savedViewsListDialogVisible: false,
             currentCockpitView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedCockpitView: null as IDashboardView | null,
-            cockpitViewForExecution: null as IDashboardView | null,
             dataLoaded: false
         }
     },
@@ -345,7 +345,7 @@ export default defineComponent({
         isInDocBrowser() {
             return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
         },
-        isMobileDevice(){
+        isMobileDevice() {
             return /Android|iPhone/i.test(navigator.userAgent)
         }
     },
@@ -369,9 +369,11 @@ export default defineComponent({
     },
     deactivated() {
         this.parameterSidebarVisible = false
+        window.removeEventListener('message', this.iframeEventsListener)
     },
     async created() {
         this.setEventListeners()
+        window.addEventListener('message', this.iframeEventsListener)
 
         if (this.propCrossNavigationPopupDialogDocument) {
             this.document = this.propCrossNavigationPopupDialogDocument
@@ -437,6 +439,11 @@ export default defineComponent({
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
         ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
+        iframeEventsListener(event) {
+            if (event.data.type === 'crossNavigation') {
+                executeAngularCrossNavigation(this, event, this.$http)
+            }
+        },
         openHelp() {
             this.helpDialogVisible = true
         },
@@ -631,7 +638,9 @@ export default defineComponent({
             this.loading = true
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/view/${this.$route.query.viewId}`)
-                .then(async (response: AxiosResponse<any>) => (this.dashboardView = response.data))
+                .then(async (response: AxiosResponse<any>) => {
+                    this.dashboardView = response.data
+                })
                 .catch(() => {})
             this.loading = false
         },
@@ -698,7 +707,7 @@ export default defineComponent({
             postForm.action = import.meta.env.VITE_HOST_URL + postObject.url
             postForm.method = 'post'
             const iframeName = crossNavigationPopupMode ? 'documentFramePopup' : 'documentFrame'
-            if(this.isMobileDevice && postObject.params.outputType?.toLowerCase() === 'pdf') postForm.target = "_blank"
+            if (this.isMobileDevice && postObject.params.outputType?.toLowerCase() === 'pdf') postForm.target = '_blank'
             else postForm.target = tempIndex !== -1 ? iframeName + tempIndex : documentLabel
             postForm.acceptCharset = 'UTF-8'
             document.body.appendChild(postForm)
@@ -961,6 +970,20 @@ export default defineComponent({
             this.dataLoaded = true
             await this.loadPage()
         },
+        setNavigationParametersFromCurrentFilters(formatedParams: any, navigationParams: any) {
+            const navigationParamsKeys = navigationParams ? Object.keys(navigationParams) : []
+            const formattedParameters = this.getFormattedParameters()
+            const formattedParametersKeys = formattedParameters ? Object.keys(formattedParameters) : []
+            if (navigationParamsKeys.length > 0 && formattedParametersKeys.length > 0) {
+                for (let i = 0; i < navigationParamsKeys.length; i++) {
+                    const index = formattedParametersKeys.findIndex((key: string) => key === navigationParams[navigationParamsKeys[i]].value.label && navigationParams[navigationParamsKeys[i]].value.isInput)
+                    if (index !== -1) {
+                        formatedParams[navigationParamsKeys[i]] = formattedParameters[formattedParametersKeys[index]]
+                        formatedParams[navigationParamsKeys[i] + '_field_visible_description'] = formattedParameters[formattedParametersKeys[index] + '_field_visible_description'] ? formattedParameters[formattedParametersKeys[index] + '_field_visible_description'] : ''
+                    }
+                }
+            }
+        },
         showOLAPCustomView() {
             this.olapCustomViewVisible = true
         },
@@ -1027,7 +1050,7 @@ export default defineComponent({
         },
         async onCrossNavigationSelected(event: any) {
             this.destinationSelectDialogVisible = false
-            this.getDocumentAfterCrossNavigationIsSelected(event)
+            this.angularData ? await loadCrossNavigation(this, event, this.angularData) : this.getDocumentAfterCrossNavigationIsSelected(event)
         },
         onCrossNavigationContainerClose() {
             this.crossNavigationContainerData = null
@@ -1139,7 +1162,6 @@ export default defineComponent({
         async executeView(view: IDashboardView) {
             this.savedViewsListDialogVisible = false
             if (view.biObjectTypeCode === 'DASHBOARD') this.dashboardView = view
-            else this.cockpitViewForExecution = view
             await this.loadPage()
         },
         openSaveCurrentViewDialog() {
