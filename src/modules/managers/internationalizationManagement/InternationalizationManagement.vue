@@ -1,59 +1,45 @@
 <template>
     <div class="kn-page">
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-        <TabView v-model:activeIndex="activeTab" lazy data-test="tab-view" class="internationalization-management kn-tab kn-page-content" @tab-click="switchTabConfirm($event.index)">
-            <TabPanel v-for="language in languages" :key="language">
+        <TabView v-model:activeIndex="activeTab" lazy data-test="tab-view" class="internationalization-management kn-tab kn-page-content" scrollable @tab-click="switchTabConfirm($event.index)">
+            <TabPanel v-for="language in languages" :key="language" style="height: 100%">
                 <template #header>
+                    <q-avatar size="sm" class="p-mr-1">
+                        <img :src="getFlag(language.languageTag)" />
+                    </q-avatar>
                     {{ language.language }}
                     <span v-if="language.defaultLanguage">{{ $t('managers.internationalizationManagement.defaultLanguage') }}</span>
                 </template>
+                <q-table :rows="messages" :columns="columns" :filter="filter" row-key="name" hide-pagination flat :pagination="{ rowsPerPage: 0 }" style="height: 100%">
+                    <template #top>
+                        <q-input v-model="filter" rounded outlined debounce="300" :label="$t('common.search')" color="primary">
+                            <template #append>
+                                <q-icon name="search" />
+                            </template>
+                        </q-input>
+                        <q-checkbox v-model="showOnlyEmptyFields" :label="$t('managers.internationalizationManagement.showBlankMessages')" @update:model-value="filterEmptyMessages" />
 
-                <DataTable v-if="!loading" v-model:filters="filters" edit-mode="cell" :value="messages" :loading="loading" class="p-datatable kn-table" data-key="id" responsive-layout="stack" breakpoint="960px" data-test="messages-table">
-                    <template #header>
-                        <div class="table-header p-d-flex">
-                            <span class="p-input-icon-left p-mr-3" :style="intDescriptor.headerStyles.searchBoxStyle">
-                                <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="filterInput" />
-                            </span>
-                            <div class="p-field-checkbox p-mt-4">
-                                <Checkbox id="findEmptyFields" v-model="showOnlyEmptyFields" :binary="true" data-test="checkbox" @change="filterEmptyMessages" />
-                                <label for="findEmptyFields">{{ $t('managers.internationalizationManagement.showBlankMessages') }}</label>
-                            </div>
-                        </div>
+                        <q-space />
+                        <q-btn v-if="language.defaultLanguage" color="primary" :disable="loading" :label="$t('managers.internationalizationManagement.table.addLabel')" @click="addEmptyLabel" />
                     </template>
-                    <template #empty>
-                        {{ $t('common.info.noDataFound') }}
+                    <template #header-cell="props">
+                        <q-th :props="props"> {{ $t(String(props.col.label)) }} </q-th>
                     </template>
-                    <template #filter="{ filterModel }">
-                        <InputText v-model="filterModel.value" type="text" class="p-column-filter" />
+                    <template #body-cell-label="props">
+                        <q-td key="label" :props="props" :class="{ newValue: props.row['label_default'] && props.row['label_default'] != props.value }">
+                            <q-input v-model="props.value" dense :filled="language.defaultLanguage" :borderless="!language.defaultLanguage" :disable="!language.defaultLanguage" @keyup="updateModel($event, props.rowIndex, 'label')" />
+                        </q-td>
                     </template>
-
-                    <Column :header-style="intDescriptor.headerStyles.dirtyHeaderStyle">
-                        <template #body="slotProps">
-                            <i v-if="slotProps.data['dirty']" class="pi pi-flag"></i>
-                        </template>
-                    </Column>
-
-                    <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)" :sortable="true" :class="{ disabledColumn: col.disabled, editableColumn: !col.disabled }">
-                        <template #body="slotProps">
-                            <InputText v-if="!col.disabled" v-model="slotProps.data[slotProps.column.props.field]" class="kn-material-input p-inputtext-sm p-p-2" :data-test="'input-field-' + slotProps.data['id']" @input="atFieldChange(slotProps)" />
-                            <span v-else :class="{ disabledCell: col.disabled, 'kn-disabled-text': col.disabled, editableCell: !col.disabled }">{{ slotProps.data[slotProps.column.props.field] }}</span>
-                        </template>
-                    </Column>
-
-                    <Column :header-style="intDescriptor.headerStyles.buttonsHeaderStyle">
-                        <template #header>
-                            <Button v-if="language.defaultLanguage" :label="$t('managers.internationalizationManagement.table.addLabel')" class="p-button kn-button--primary" @click="addEmptyLabel" />
-                        </template>
-                        <template #body="slotProps">
-                            <div class="p-d-flex p-jc-center p-ai-center">
-                                <Button v-tooltip.top="$t('common.save')" icon="pi pi-save" class="p-button-link" @click="saveLabel(language, slotProps.data)" />
-                                <Button v-if="language.defaultLanguage" v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" @click="deleteLabelConfirm(language, slotProps, true)" />
-                                <Button v-if="!language.defaultLanguage" v-tooltip.top="$t('common.cancel')" icon="pi pi-times" class="p-button-link" @click="deleteLabelConfirm(language, slotProps, false)" />
-                            </div>
-                        </template>
-                    </Column>
-                </DataTable>
+                    <template #body-cell-message="props">
+                        <q-td key="message" :props="props" :class="{ newValue: props.row['message_default'] && props.row['message_default'] != props.value }"> <q-input v-model="props.value" dense filled @keyup="updateModel($event, props.rowIndex, 'message')" /> </q-td>
+                    </template>
+                    <template #body-cell-buttons="props">
+                        <q-td key="buttons" :props="props" auto-width>
+                            <q-btn v-tooltip.top="$t('common.save')" flat round color="primary" icon="save" @click="saveLabel(language, props.row)" />
+                            <q-btn v-tooltip.top="language.defaultLanguage ? $t('common.delete') : $t('common.cancel')" flat round color="primary" :icon="language.defaultLanguage ? 'delete' : 'cancel'" @click="deleteLabelConfirm(language, props.row, props.rowIndex, language.defaultLanguage)" />
+                        </q-td>
+                    </template>
+                </q-table>
             </TabPanel>
         </TabView>
     </div>
@@ -61,33 +47,20 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { filterDefault } from '@/helpers/commons/filterHelper'
 import { iLanguage, iMessage } from './InternationalizationManagement'
 import intDescriptor from './InternationalizationManagementDescriptor.json'
 import { AxiosResponse } from 'axios'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Checkbox from 'primevue/checkbox'
-import Button from 'primevue/button'
+import { mapActions } from 'pinia'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
     name: 'internationalization-management',
     components: {
         TabView,
-        TabPanel,
-        Column,
-        DataTable,
-        Checkbox,
-        Button
+        TabPanel
     },
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
-
     data() {
         return {
             loading: false,
@@ -100,12 +73,9 @@ export default defineComponent({
             defaultLangMessages: [] as iMessage[],
             showOnlyEmptyFields: false,
             initialShowEmptyFields: false,
-            dirty: false,
             activeTab: 0,
             previousActiveTab: -1,
-            filters: {
-                global: [filterDefault]
-            } as Object
+            filter: ''
         }
     },
 
@@ -124,13 +94,9 @@ export default defineComponent({
         this.getMessages(this.defaultLanguage)
     },
     methods: {
+        ...mapActions(mainStore, ['setError', 'setInfo']),
         filterEmptyMessages() {
             this.messages = this.showOnlyEmptyFields ? [...this.allMessages.filter((message) => !message.message)] : [...this.allMessages]
-        },
-
-        atFieldChange(slotProps) {
-            slotProps.data.dirty = true
-            this.dirty = true
         },
 
         setDefaultLanguage() {
@@ -161,22 +127,26 @@ export default defineComponent({
         },
 
         async switchTabConfirm(index) {
-            if (!this.dirty) {
-                this.switchTab(index)
-                this.previousActiveTab = this.activeTab
-            } else {
+            if (this.messages.some((i) => i['message_default'] || i['label_default'])) {
                 this.$confirm.require({
                     message: this.$t('common.toast.unsavedChangesMessage'),
                     header: this.$t('common.toast.unsavedChangesHeader'),
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
                         this.switchTab(index)
-                        this.dirty = false
+                        this.messages.map((i) => {
+                            delete i['message_default']
+                            delete i['label_default']
+                            return i
+                        })
                     },
                     reject: () => {
                         this.activeTab = this.previousActiveTab
                     }
                 })
+            } else {
+                this.switchTab(index)
+                this.previousActiveTab = this.activeTab
             }
         },
         switchTab(index) {
@@ -284,25 +254,29 @@ export default defineComponent({
         },
 
         saveLabel(langObj, message) {
+            this.loading = true
             const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages'
+            const bkDefault = { message_default: message['message_default'], label_default: message['label_default'] }
+            delete message['message_default']
+            delete message['label_default']
             const toSave = { ...message } as iMessage
-            delete toSave.dirty
             this.saveOrUpdateMessage(url, toSave, langObj).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
-                    this.store.setError({ msg: response.data.errors })
+                    message['message_default'] = bkDefault['message_default']
+                    message['label_default'] = bkDefault['label_default']
+                    this.setError({ msg: response.data.errors })
                 } else {
-                    this.store.setInfo({ msg: this.$t('common.toast.updateSuccess') })
+                    this.setInfo({ msg: this.$t('common.toast.updateSuccess') })
                 }
                 this.getMessages(langObj)
+                this.loading = false
             })
             this.initialShowEmptyFields = false
             this.showOnlyEmptyFields = false
-            this.dirty = false
         },
 
-        deleteLabelConfirm(langObj, message, isDefault) {
-            const msgToDelete = message.data
-            const index = message.index
+        deleteLabelConfirm(langObj, message, rowIndex, isDefault) {
+            const msgToDelete = message
             if (msgToDelete.id) {
                 let url = ''
                 if (msgToDelete.defaultMessageCode) {
@@ -324,21 +298,30 @@ export default defineComponent({
                     })
                 }
             } else {
-                isDefault ? this.messages.splice(index, 1) : this.store.setError({ title: this.$t('managers.internationalizationManagement.delete.deleteDefaultTitle'), msg: this.$t('managers.internationalizationManagement.delete.cantDelete') })
+                isDefault ? this.messages.splice(rowIndex, 1) : this.setError({ title: this.$t('managers.internationalizationManagement.delete.deleteDefaultTitle'), msg: this.$t('managers.internationalizationManagement.delete.cantDelete') })
             }
+        },
+
+        updateModel(event, rowIndex, column) {
+            if (!this.messages[rowIndex][column + '_default']) this.messages[rowIndex][column + '_default'] = this.messages[rowIndex][column]
+            this.messages[rowIndex][column] = event.target.value
         },
 
         async deleteLabel(url, id, langObj) {
             await this.$http.delete(url + id).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
-                    this.store.setError({ title: 'Error', msg: response.data.errors })
+                    this.setError({ title: 'Error', msg: response.data.errors })
                 } else {
-                    this.store.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
+                    this.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
                     this.getMessages(langObj)
                 }
             })
             this.initialShowEmptyFields = false
             this.showOnlyEmptyFields = false
+        },
+
+        getFlag(locale) {
+            return `${import.meta.env.VITE_PUBLIC_PATH}images/flags/${locale.toLowerCase().substring(locale.length - 2)}.svg`
         }
     }
 })
@@ -346,17 +329,15 @@ export default defineComponent({
 
 <style lang="scss">
 .internationalization-management {
-    .disabledCell,
-    .disabledColumn,
-    .disabledEditableField {
-        cursor: not-allowed;
+    .q-table__middle {
+        max-height: calc(100vh - 110px);
     }
-    .editableCell,
-    .editableColumn {
-        cursor: pointer;
-    }
-    .p-datatable .p-datatable-tbody > tr:hover {
-        background-color: var(--kn-color-selected);
+    .q-table {
+        td {
+            &.newValue {
+                background-color: var(--kn-color-warning-alpha);
+            }
+        }
     }
 }
 </style>

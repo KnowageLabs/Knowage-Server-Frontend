@@ -324,5 +324,6 @@ body {
         margin-left: 0;
     }
     flex: 1;
+    max-width: calc(100% - var(--kn-mainmenu-width));
 }
 </style>
