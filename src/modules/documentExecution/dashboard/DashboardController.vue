@@ -242,7 +242,8 @@ export default defineComponent({
             'setCurrentDashboardView',
             'setHTMLGaleryItems',
             'setPythonGaleryItems',
-            'setCustomChartGaleryItems'
+            'setCustomChartGaleryItems',
+            'setSelectedSheetIndex'
         ]),
         setEventListeners() {
             emitter.on('openNewWidgetPicker', this.openNewWidgetPicker)
@@ -390,6 +391,7 @@ export default defineComponent({
             this.setHTMLGaleryItems(this.dashboardId, [])
             this.setPythonGaleryItems(this.dashboardId, [])
             this.setCustomChartGaleryItems(this.dashboardId, [])
+            this.setSelectedSheetIndex(0)
         },
         closeWidgetEditor() {
             this.widgetEditorVisible = false
