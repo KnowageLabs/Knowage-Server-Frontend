@@ -20,7 +20,7 @@ export const getAssociativeSelections = async (model: IDashboard, datasets: IDat
     loadDatasetLabelIdMap(datasets)
 
     const tempDatasets = getDatasetsInfoFromModelDatasets(model.configuration.datasets, datasets)
-    const formattedAssocitationsGroups = getFormattedAssocitationsGroups(model.)
+    const formattedAssocitationsGroups = getFormattedAssocitationsGroups(model.configuration.associations)
 
     formattedAssocitationsGroups.datasets?.forEach((datasetLabel: string) => {
         const datasetId = getDatasetIdByLabel(datasetLabel)
