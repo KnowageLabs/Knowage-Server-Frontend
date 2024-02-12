@@ -605,7 +605,7 @@ export default defineComponent({
                 this.parameterSidebarVisible = true
                 return
             }
-            this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route)
+            this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
             if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
             if (this.filtersData?.isReadyForExecution) {
                 this.parameterSidebarVisible = false
