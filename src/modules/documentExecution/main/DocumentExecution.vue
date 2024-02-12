@@ -614,15 +614,17 @@ export default defineComponent({
             } else if (this.filtersData?.filterStatus) {
                 this.parameterSidebarVisible = true
             }
-            this.updateMode()
+            this.updateMode(true)
             this.loading = false
         },
-        updateMode() {
+        updateMode(refresh = false) {
             if (this.document.typeCode === 'DATAMART') this.mode = 'registry'
             else if (this.document.typeCode === 'DOSSIER') this.mode = 'dossier'
             else if (this.document.typeCode === 'OLAP') this.mode = 'olap'
-            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.path.includes('dashboard')) || this.document.typeCode === 'DASHBOARD') this.mode = 'dashboard'
-            else this.mode = 'iframe'
+            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.path.includes('dashboard')) || this.document.typeCode === 'DASHBOARD') {
+                this.mode = 'dashboard'
+                if (refresh) this.reloadTrigger = !this.reloadTrigger
+            } else this.mode = 'iframe'
         },
         async loadDocument() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${this.document?.label}`).then((response: AxiosResponse<any>) => (this.document = response.data))
