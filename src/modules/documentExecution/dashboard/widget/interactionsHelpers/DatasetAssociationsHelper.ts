@@ -20,7 +20,7 @@ export const getAssociativeSelections = async (model: IDashboard, datasets: IDat
     loadDatasetLabelIdMap(datasets)
 
     const tempDatasets = getDatasetsInfoFromModelDatasets(model.configuration.datasets, datasets)
-    const formattedAssocitationsGroups = getFormattedAssocitationsGroups(model.configuration.associations)
+    const formattedAssocitationsGroups = getFormattedAssocitationsGroups(model.)
 
     formattedAssocitationsGroups.datasets?.forEach((datasetLabel: string) => {
         const datasetId = getDatasetIdByLabel(datasetLabel)
@@ -43,7 +43,7 @@ export const getAssociativeSelections = async (model: IDashboard, datasets: IDat
     await $http
         .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/associativeSelections/`, postData)
         .then((response: AxiosResponse<any>) => (tempResponse = response.data))
-        .catch(() => {})
+        .catch(() => { })
     emitter.emit('setWidgetLoading', false)
     return tempResponse
 }

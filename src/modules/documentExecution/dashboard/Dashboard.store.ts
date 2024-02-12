@@ -122,8 +122,9 @@ const store = defineStore('dashboardStore', {
                     removedSelections.push(selection)
                 }
             })
-            if (removedSelections.length > 0 && this.dashboards[dashboardId].selections.length > 0) {
-                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations)) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+            if (removedSelections.length > 0) {
+                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+                else if (this.dashboards[dashboardId].selections.length === 0) this.setAssociations(dashboardId, {})
             }
             emitter.emit('selectionsDeleted', removedSelections)
         },
