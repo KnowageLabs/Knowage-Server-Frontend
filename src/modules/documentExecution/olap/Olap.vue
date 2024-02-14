@@ -280,7 +280,7 @@ export default defineComponent({
         async loadOlapCustomViews() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services//1.0/olapsubobjects/getSubObjects?idObj=${this.documentId}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/olapsubobjects/getSubObjects?idObj=${this.documentId}`)
                 .then(async (response: AxiosResponse<any>) => (this.olapCustomViews = response.data.results))
                 .catch(() => {})
             this.loading = false
@@ -964,7 +964,7 @@ export default defineComponent({
         async loadParameters() {
             const documentLabel = this.olapDesigner.DOCUMENT_LABEL ?? this.documentLabel
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services//1.0/documents/${documentLabel}/parameters`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${documentLabel}/parameters`)
                 .then((response: AxiosResponse<any>) => (this.parameters = response.data ? response.data.results : []))
                 .catch(() => {})
         },
