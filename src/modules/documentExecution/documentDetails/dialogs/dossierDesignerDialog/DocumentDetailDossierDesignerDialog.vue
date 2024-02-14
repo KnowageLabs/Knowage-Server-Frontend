@@ -138,13 +138,7 @@
                                     </div>
                                 </div>
                             </AccordionTab>
-                            <AccordionTab v-if="docHasDriversOrViews()" :header="$t('common.parameters')" class="accordionTab">
-                                <div v-if="activeTemplate.placeholders[currentSelectedIndex].label && !docHasDriversOrViews()">
-                                    <Message class="p-m-4" severity="warn" :closable="false">
-                                        {{ $t(`documentExecution.dossier.designerDialog.noDriversAndNoViewsForDocument`) }}
-                                    </Message>
-                                </div>
-
+                            <AccordionTab v-if="docHasDrivers()" :header="$t('common.parameters')" class="accordionTab">
                                 <div>
                                     <Message severity="info" :closable="true" class="p-mx-2 p-message-small"
                                         ><p class="p-m-1">
@@ -283,8 +277,6 @@ import { filterDefault } from '@/helpers/commons/filterHelper'
 import { FilterOperator } from 'primevue/api'
 import Dropdown from 'primevue/dropdown'
 import DocDialog from './DocumentDetailDossierDocumentSelectionDialog.vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
 import KnHint from '@/components/UI/KnHint.vue'
 import Message from 'primevue/message'
 import Listbox from 'primevue/listbox'
@@ -303,8 +295,6 @@ export default defineComponent({
         Accordion,
         AccordionTab,
         Divider,
-        Column,
-        DataTable,
         Dialog,
         Dropdown,
         DocDialog,
@@ -414,25 +404,13 @@ export default defineComponent({
     methods: {
         ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading']),
 
-        docHasDriversOrViews(): boolean {
-            return this.getTypes().length > 0
-        },
-
         isEmpty(): boolean {
             const selectedPlaceholder = this.activeTemplate.placeholders[this.currentSelectedIndex]
             return (this.currentSelectedIndex != -1 && selectedPlaceholder?.parameters?.length != 0) || selectedPlaceholder?.views.availableViews?.length != 0
         },
 
-        getTypes() {
-            let types = JSON.parse(JSON.stringify(this.linkTypes))
-            const currTempl = this.activeTemplate.placeholders[this.currentSelectedIndex]
-            if (this.currentSelectedIndex != -1) {
-                if (!currTempl.parameters || currTempl.parameters?.length == 0) types = types.filter((x) => x.code !== 'DRIVERS')
-                if (!currTempl.views || currTempl.views.availableViews?.length == 0) types = types.filter((x) => x.code !== 'VIEWS')
-                if (types.length == 1) currTempl.source = types[0].code
-            }
-
-            return types
+        docHasDrivers() {
+            return this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters && this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters.length > 0
         },
         async loadDocument() {
             this.document = this.selectedDocument ? { ...this.selectedDocument } : ({} as iDocument)
@@ -716,6 +694,7 @@ export default defineComponent({
         },
         async handleDoc(doc) {
             this.docDialogVisible = false
+            this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
 
             if (doc.type === 'VIEW') {
                 this.activeTemplate.placeholders[this.currentSelectedIndex].viewId = doc.id
@@ -975,6 +954,8 @@ export default defineComponent({
             if (this.currentSelectedIndex >= 0) {
                 this.activeTemplate.placeholders[this.currentSelectedIndex].label = undefined
                 this.activeTemplate.placeholders[this.currentSelectedIndex].source = ''
+                this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
+                if (this.activeTemplate.placeholders[this.currentSelectedIndex].viewId) delete this.activeTemplate.placeholders[this.currentSelectedIndex].viewId
             }
         },
         isIconDisabled(option) {
