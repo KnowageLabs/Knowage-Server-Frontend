@@ -229,6 +229,7 @@ export default defineComponent({
                 id: datasetToFormat.id.dsId,
                 dsLabel: datasetToFormat.label,
                 cache: datasetToFormat.modelCache ?? false,
+                frequency: datasetToFormat.frequency,
                 indexes: datasetToFormat.modelCache ? datasetToFormat.modelIndexes : [],
                 parameters: datasetToFormat.parameters.map((parameter) => {
                     return { name: parameter.name, type: parameter.modelType, value: parameter.value, multivalue: parameter.multivalue ?? false } as IDashboardDatasetParameter

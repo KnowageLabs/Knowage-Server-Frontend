@@ -484,6 +484,7 @@ export interface IDashboardDataset {
     parameters?: any[]
     drivers?: IDashboardDatasetDriver[]
     indexes?: any[]
+    frequency?: number
 }
 
 export interface IDashboardDatasetDriver {
