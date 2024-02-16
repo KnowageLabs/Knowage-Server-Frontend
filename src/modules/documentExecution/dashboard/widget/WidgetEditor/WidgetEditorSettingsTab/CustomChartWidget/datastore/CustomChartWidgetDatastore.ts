@@ -89,7 +89,8 @@ export class CustomChartDatastore {
 
     getInternationalization(label) {
         const store = mainStore()
-        return store.internationalization?.filter((i) => i.label === label)[0].message || label
+        const translation = store.internationalization?.filter((i) => i.label === label)[0]
+        return translation?.message ? translation.message : label
     }
 
     sort(sortParams) {
