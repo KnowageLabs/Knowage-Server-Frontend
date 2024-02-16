@@ -1,6 +1,6 @@
 <template>
     <div class="kn-height-full detail-page-container">
-        <Toolbar v-if="!embed && !olapDesignerMode && !managementOpened && !dashboardGeneralSettingsOpened && $route.query.toolbar !== 'false'" class="kn-toolbar kn-toolbar--primary p-col-12">
+        <Toolbar v-if="showToolbar" class="kn-toolbar kn-toolbar--primary p-col-12">
             <template #start>
                 <DocumentExecutionBreadcrumb v-if="breadcrumbs.length > 1" :breadcrumbs="breadcrumbs" @breadcrumbClicked="onBreadcrumbClick"></DocumentExecutionBreadcrumb>
                 <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
@@ -341,6 +341,13 @@ export default defineComponent({
         },
         showExecutedDocument() {
             return this.filtersData && this.filtersData.isReadyForExecution && !this.loading && !this.schedulationsTableVisible
+        },
+        showToolbar() {
+            if (this.$route.query.toolbar !== 'false') {
+                return !this.embed && !this.olapDesignerMode && !this.managementOpened && !this.dashboardGeneralSettingsOpened
+            } else {
+                return this.propMode === 'document-execution-cross-navigation-popup'
+            }
         },
         isInDocBrowser() {
             return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
