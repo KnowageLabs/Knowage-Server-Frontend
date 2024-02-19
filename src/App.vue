@@ -322,6 +322,7 @@ body {
     margin-left: var(--kn-mainmenu-width);
     &.hiddenMenu {
         margin-left: 0;
+        max-width: 100%;
     }
     flex: 1;
     max-width: calc(100% - var(--kn-mainmenu-width));
