@@ -7,7 +7,7 @@
                 :layout.sync="activeDashboardSheet.widgets[currentScreenSize]"
                 :responsive-layouts="activeDashboardSheet.widgets"
                 :responsive="true"
-                :cols="{ lg: 50, md: 100, sm: 50, xs: 20, xxs: 10 }"
+                :cols="colSizes"
                 :row-height="30"
                 :is-draggable="canEditDashboard(document)"
                 :is-resizable="canEditDashboard(document)"
@@ -70,6 +70,7 @@ export default defineComponent({
     data() {
         return {
             dashboardModel: {} as any,
+            colSizes: { lg: 100, md: 100, sm: 50, xs: 20, xxs: 10 } as any,
             startingBreakpoint: '' as string,
             activeDashboardSheet: null as IDashboardSheet | null,
             currentScreenSize: 'lg',
@@ -109,9 +110,23 @@ export default defineComponent({
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet', 'getDashboard']),
         loadDashboardModel() {
             this.dashboardModel = this.getDashboard(this.dashboardId) ?? {}
+            const fullGridWidgets = this.dashboardModel.widgets.filter((widget) => widget.settings?.responsive?.fullGrid)
             if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
             if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
             this.activeDashboardSheet = this.dashboardModel.sheets[0]
+            if (fullGridWidgets.length > 0) {
+                ;['lg', 'md', 'sm', 'xs', 'xxs'].forEach((size) => {
+                    this.activeDashboardSheet?.widgets[size].map((widget) => {
+                        if (widget.id === fullGridWidgets[0].id) {
+                            widget.w = this.colSizes[this.currentScreenSize]
+                            widget.y = 0
+                            widget.x = 0
+                            widget.h = 20
+                        }
+                        return widget
+                    })
+                })
+            }
         },
         breakpointChangedEvent(size: string) {
             this.currentScreenSize = size
