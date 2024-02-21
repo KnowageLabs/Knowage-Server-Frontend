@@ -37,22 +37,22 @@
                     <span class="p-float-label">
                         <Dropdown
                             id="scope"
-                            v-model="v$.dataset.scopeCd.$model"
+                            v-model="v$.dataset.scopeId.$model"
                             class="kn-material-input"
                             :options="scopeTypes"
                             option-label="VALUE_CD"
-                            option-value="VALUE_CD"
+                            option-value="VALUE_ID"
                             :class="{
-                                'p-invalid': v$.dataset.scopeCd.$invalid && v$.dataset.scopeCd.$dirty
+                                'p-invalid': v$.dataset.scopeId.$invalid && v$.dataset.scopeId.$dirty
                             }"
                             data-test="scope-input"
-                            @before-show="v$.dataset.scopeCd.$touch()"
-                            @change="updateIdFromCd(scopeTypes, 'scopeId', $event.value), $emit('touched')"
+                            @before-show="v$.dataset.scopeId.$touch()"
+                            @change="updateCdFromId(this.scopeTypes, 'scopeCd', $event.value), $emit('touched')"
                         />
                         <label for="scope" class="kn-material-input-label"> {{ $t('managers.datasetManagement.scope') }} * </label>
                     </span>
                     <KnValidationMessages
-                        :v-comp="v$.dataset.scopeCd"
+                        :v-comp="v$.dataset.scopeId"
                         :additional-translate-params="{
                             fieldName: $t('managers.datasetManagement.scope')
                         }"
@@ -62,24 +62,24 @@
                     <span class="p-float-label">
                         <Dropdown
                             id="category"
-                            v-model="v$.dataset.catTypeVn.$model"
+                            v-model="v$.dataset.catTypeId.$model"
                             class="kn-material-input"
                             :options="categoryTypes"
                             option-label="VALUE_CD"
-                            option-value="VALUE_CD"
+                            option-value="VALUE_ID"
                             :class="{
-                                'p-invalid': v$.dataset.catTypeVn.$invalid && v$.dataset.catTypeVn.$dirty
+                                'p-invalid': v$.dataset.catTypeId.$invalid && v$.dataset.catTypeId.$dirty
                             }"
                             :show-clear="dataset.scopeCd === 'USER'"
                             data-test="category-input"
-                            @before-show="v$.dataset.catTypeVn.$touch()"
-                            @change="updateIdFromCd(categoryTypes, 'catTypeId', $event.value), $emit('touched')"
+                            @before-show="v$.dataset.catTypeId.$touch()"
+                            @change="updateCdFromId(this.categoryTypes, 'catTypeVn', $event.value), $emit('touched')"
                         />
                         <label v-if="dataset.scopeCd == 'USER'" for="category" class="kn-material-input-label"> {{ $t('common.category') }} </label>
                         <label v-else for="category" class="kn-material-input-label"> {{ $t('common.category') }} * </label>
                     </span>
                     <KnValidationMessages
-                        :v-comp="v$.dataset.catTypeVn"
+                        :v-comp="v$.dataset.catTypeId"
                         :additional-translate-params="{
                             fieldName: $t('managers.datasetManagement.scope')
                         }"
@@ -274,15 +274,15 @@ export default defineComponent({
             } else {
                 this.dataset.limitRows = null
             }
-
-            this.dataset.catTypeVn = item != undefined ? item.catTypeVn : ''
-
+            
             if (item != undefined) {
+                this.dataset.catTypeVn = item.catTypeVn
                 this.dataset.catTypeId = Number(item.catTypeId)
                 this.dataset.xslSheetNumber = Number(1)
                 this.dataset.skipRows = Number(item.skipRows)
                 this.dataset.limitRows = Number(null)
             } else {
+                this.dataset.catTypeVn = ''
                 this.dataset.catTypeId = null
                 this.dataset.xslSheetNumber = null
                 this.dataset.skipRows = null
@@ -335,9 +335,9 @@ export default defineComponent({
         formatDate(date) {
             return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })
         },
-        updateIdFromCd(optionsArray, fieldToUpdate, updatedField) {
-            const selectedField = optionsArray.find((option) => option.VALUE_CD === updatedField)
-            selectedField ? (this.dataset[fieldToUpdate] = selectedField.VALUE_ID) : ''
+        updateCdFromId(optionsArray, fieldToUpdate, updatedField) {
+            const selectedField = optionsArray.find((option) => option.VALUE_ID === updatedField)
+            if(selectedField) this.dataset[fieldToUpdate] = selectedField.VALUE_CD
         }
     }
 })
