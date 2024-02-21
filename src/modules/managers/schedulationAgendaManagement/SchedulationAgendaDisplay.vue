@@ -1,20 +1,20 @@
 <template>
     <div class="parent-card p-d-flex p-flex-column">
         <span class="p-d-flex flex-no-grow p-mx-2" :style="schedulationAgendaDescriptor.span.style">
-            <SelectButton v-model="selectedDisplayMode" class="p-m-1" :options="displayModes" option-label="name" data-test="select-button" />
+            <SelectButton v-model="selectedDisplayMode" class="p-ml-1" :options="displayModes" option-label="name" data-test="select-button" />
         </span>
         <div class="flex-grow overflow-auto">
             <template v-for="dataItem in groupedItemList" :key="dataItem">
                 <Card class="p-mx-3 p-my-1">
                     <template #content>
                         <div class="p-grid p-m-0">
-                            <div class=" p-col-3">
+                            <div class="p-col-3">
                                 <div v-if="displayMode === 'time'" class="p-d-flex p-jc-center p-ai-center">
                                     <div class="p-d-flex p-mx-3">
                                         <p class="p-text-bold p-text-center p-large">{{ dataItem.day }}</p>
                                     </div>
                                     <div class="p-d-flex p-flex-column p-t-2">
-                                        <p class="p-text-left p-text-bold p-m-1 ">{{ dataItem.dayOfWeek }}</p>
+                                        <p class="p-text-left p-text-bold p-m-1">{{ dataItem.dayOfWeek }}</p>
                                         <p class="p-text-left p-m-1">{{ dataItem.monthName + ' ' + dataItem.year }}</p>
                                     </div>
                                 </div>
@@ -38,7 +38,7 @@
                                     <Column field="date" :style="schedulationAgendaDescriptor.table.dateColumn.style">
                                         <template #body="slotProps">
                                             <div v-if="displayMode == 'time'" class="p-pl-1 color-left-border" :style="{ borderLeftColor: getRandomColor(slotProps.data.jobName) }">
-                                                {{ new Date(slotProps.data.date).getHours() + ':' + new Date(slotProps.data.date).getMinutes() }}
+                                                {{ new Date(slotProps.data.date).toLocaleString(getLocale(true), { hour: '2-digit', minute: '2-digit' }) }}
                                             </div>
                                             <div v-if="displayMode == 'package' || displayMode == 'document'" class="p-pl-1 color-left-border" :style="{ borderLeftColor: getRandomColor(slotProps.data.jobName) }">
                                                 {{ slotProps.data.date }}
@@ -96,7 +96,7 @@ import Badge from 'primevue/badge'
 import Column from 'primevue/column'
 import SelectButton from 'primevue/selectbutton'
 import schedulationAgendaDescriptor from './SchedulationAgendaDescriptor.json'
-import { formatDate, formatDateWithLocale } from '@/helpers/commons/localeHelper'
+import { formatDate, getLocale, formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import Card from 'primevue/card'
 import moment from 'moment'
 
@@ -144,6 +144,9 @@ export default defineComponent({
         }
     },
     methods: {
+        getLocale(js) {
+            getLocale(js)
+        },
         updateDisplayData(displayType: string) {
             this.runDisplay(displayType)
         },

@@ -4,7 +4,7 @@
         :options="sortedOptions"
         :class="{ noSorting: !settings.sortFields }"
         list-style="max-height:calc(100% - 66px)"
-        :filter="true"
+        :filter="!settings.fullTextSearch"
         :filter-placeholder="$t('common.search')"
         filter-match-mode="contains"
         :filter-fields="settings.filterFields"
@@ -12,6 +12,12 @@
         data-test="list"
     >
         <template v-if="settings.sortFields" #header>
+            <div v-if="settings.fullTextSearch" ref="filter" class="p-listbox-header">
+                <div class="p-listbox-filter-container">
+                    <input type="text" class="p-listbox-filter p-inputtext p-component" placeholder="search" role="searchbox" :value="filterValue" @keyup="testFilter($event)" />
+                    <span class="p-listbox-filter-icon pi pi-search"></span>
+                </div>
+            </div>
             <Button v-tooltip.bottom="$t('common.sort')" icon="fas fa-sort-amount-down-alt" class="p-button-text p-button-rounded p-button-plain headerButton" @click="toggleSort" />
             <Menu id="sortMenu" ref="sortMenu" :model="settings.sortFields" :popup="true">
                 <template #item="{ item }">
@@ -91,6 +97,7 @@ export default defineComponent({
     emits: ['click'],
     data() {
         return {
+            filterValue: '',
             selectedSort: 'label',
             selectedDirection: '',
             sortedOptions: [] as Array<any>
@@ -105,6 +112,10 @@ export default defineComponent({
         this.sort(null, this.selectedSort, true)
     },
     methods: {
+        testFilter(e) {
+            this.filterValue = e.target.value
+            this.sortedOptions = this.options.filter((i) => JSON.stringify(i).indexOf(this.filterValue) > -1)
+        },
         clickedButton(e, item) {
             const emits = e.item && e.item.emits
             e.item = item
@@ -130,7 +141,8 @@ export default defineComponent({
             this.$refs.sortMenu.toggle(e)
         },
         sort(e, item, desc?) {
-            this.sortedOptions = this.options ? this.options : []
+            if (this.settings.fullTextSearch) this.sortedOptions = this.filterValue ? this.sortedOptions : this.options
+            else this.sortedOptions = this.options ? this.options : []
             if (this.selectedSort === item) this.selectedDirection = this.selectedDirection === 'desc' ? 'asc' : 'desc'
             else {
                 this.selectedSort = item
