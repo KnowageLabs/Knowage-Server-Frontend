@@ -366,6 +366,7 @@
             "delete": "Elimina foglio",
             "moveLeft": "Sposta foglio a sinistra",
             "moveRight": "Sposta foglio a destra",
+            "newSheet": "Nuovo foglio",
             "rename": "Rinomina foglio"
         },
         "tableWidget": {
@@ -1808,12 +1809,12 @@
         "es_ES": "Spagnolo",
         "fr_FR": "Francese",
         "it_IT": "Italiano",
-        "ja_JP":"Giapponese",
-        "ko_KR":"Coreano",
-        "ru_RU":"Russo",
-        "tr_TR":"Turco",
+        "ja_JP": "Giapponese",
+        "ko_KR": "Coreano",
         "languageSelection": "Selezione della lingua",
         "pt_BR": "Portoghese",
+        "ru_RU": "Russo",
+        "tr_TR": "Turco",
         "zh_CN_#Hans": "Cinese (semplificato)"
     },
     "licenseDialog": {

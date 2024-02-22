@@ -52,6 +52,7 @@ import { IBackground, IDashboardSheet, IDataset, IVariable } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { emitter } from './DashboardHelpers'
+import cryptoRandomString from 'crypto-random-string'
 import WidgetController from './widget/WidgetController.vue'
 import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTabsPanel.vue'
 import dashboardStore from './Dashboard.store'
@@ -112,19 +113,29 @@ export default defineComponent({
             this.dashboardModel = this.getDashboard(this.dashboardId) ?? {}
             const fullGridWidgets = this.dashboardModel.widgets.filter((widget) => widget.settings?.responsive?.fullGrid)
             if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
-            if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
+            if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: this.$t('dahsboard.sheets.newSheet'), widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] } })
             this.activeDashboardSheet = this.dashboardModel.sheets[0]
             if (fullGridWidgets.length > 0) {
                 ;['lg', 'md', 'sm', 'xs', 'xxs'].forEach((size) => {
-                    this.activeDashboardSheet?.widgets[size].map((widget) => {
-                        if (widget.id === fullGridWidgets[0].id) {
-                            widget.w = this.colSizes[this.currentScreenSize]
-                            widget.y = 0
-                            widget.x = 0
-                            widget.h = 20
-                        }
-                        return widget
-                    })
+                    if (this.activeDashboardSheet?.widgets[size].some((widget) => widget.id === fullGridWidgets[0].id)) {
+                        this.activeDashboardSheet?.widgets[size].map((widget) => {
+                            if (widget.id === fullGridWidgets[0].id) {
+                                widget.w = this.colSizes[this.currentScreenSize]
+                                widget.y = 0
+                                widget.x = 0
+                                widget.h = 20
+                            }
+                            return widget
+                        })
+                    } else {
+                        this.activeDashboardSheet?.widgets[size].push({
+                            w: this.colSizes[this.currentScreenSize],
+                            y: 0,
+                            x: 0,
+                            h: 20,
+                            i: cryptoRandomString({ length: 16, type: 'base64' })
+                        })
+                    }
                 })
             }
         },

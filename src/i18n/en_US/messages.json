@@ -448,6 +448,7 @@
             "delete": "Delete Sheet",
             "moveLeft": "Move Sheet to Left",
             "moveRight": "Move Sheet to Right",
+            "newSheet": "New Sheet",
             "rename": "Rename Sheet"
         },
         "tableWidget": {
@@ -1591,6 +1592,7 @@
             "scheduledExecutions": "Scheduled executions",
             "selectFileError": "Select a file to Upload!",
             "sendEmailMessage": "Enter user / password if you want to send the email with your user, remember that it must exist in the mail server.",
+            "shareQRCode": "Share QR Code",
             "showMenu": "Show Menu",
             "showOLAPCustomView": "Show OLAP Custom View",
             "showScheduledExecutions": "Show scheduled executions",
@@ -2057,19 +2059,19 @@
         }
     },
     "language": {
-        "bg_BG":"Bulgarian",
+        "bg_BG": "Bulgarian",
         "de_DE": "German",
         "en_GB": "english (GB)",
         "en_US": "english (US)",
         "es_ES": "espanol",
         "fr_FR": "french",
         "it_IT": "italian",
-        "ja_JP":"Japanese",
-        "ko_KR":"Korean",
+        "ja_JP": "Japanese",
+        "ko_KR": "Korean",
         "languageSelection": "Language Selection",
         "pt_BR": "Portuguese",
-        "ru_RU":"Russian",
-        "tr_TR":"Turkish",
+        "ru_RU": "Russian",
+        "tr_TR": "Turkish",
         "zh_CN_#Hans": "Chinese (simplified)"
     },
     "licenseDialog": {
@@ -3708,8 +3710,8 @@
         "roleSelection": "Role Selection"
     },
     "unauthorized": {
-        "outsideIframe": "You are not allowed to access Knowage from outside the application",
-        "invalidRequest": "The sent request is not valid"
+        "invalidRequest": "The sent request is not valid",
+        "outsideIframe": "You are not allowed to access Knowage from outside the application"
     },
     "workspace": {
         "addViewFolderHint": "Please add at least one folder in your workspace.",

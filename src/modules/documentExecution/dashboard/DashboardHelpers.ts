@@ -1,4 +1,4 @@
-import { getDefaultDashboardThemeConfig } from './../../managers/dashboardThemeManagement/DashboardThemeHelper';
+import { getDefaultDashboardThemeConfig } from './../../managers/dashboardThemeManagement/DashboardThemeHelper'
 import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetSheetItem } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
@@ -14,8 +14,8 @@ import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega/VegaHelpers'
 import descriptor from './DashboardDescriptor.json'
 import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
-import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper';
-import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement';
+import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 
 const store = mainStore()
 
@@ -24,7 +24,7 @@ export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
     dashboardModel.configuration.theme = { config: getDefaultDashboardThemeConfig() }
-    dashboardModel.configuration.id = cryptoRandomString({ length: 16, type: 'base64' });
+    dashboardModel.configuration.id = cryptoRandomString({ length: 16, type: 'base64' })
 
     return dashboardModel
 }
@@ -33,7 +33,7 @@ export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIn
     if (!widget.settings.responsive) return
     const SHEET_WIDGET_SIZES = Object.keys(widget.settings.responsive)
     if (!dashboardModel.sheets[selectedSheetIndex].widgets) dashboardModel.sheets[selectedSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
-    if (SHEET_WIDGET_SIZES.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget,)
+    if (SHEET_WIDGET_SIZES.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget)
     else SHEET_WIDGET_SIZES.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget, originalWidget))
 }
 
@@ -93,7 +93,7 @@ const getMaxWidthForSpecificSize = (size: string) => {
         case 'md':
             return 100
         default:
-            return 50
+            return 100
     }
 }
 
@@ -126,7 +126,7 @@ const findOriginalWidgetInSheet = (widget: IWidget, selectedSheet: IDashboardShe
     let originalWidgetActiveSize = Object.keys(widget.settings.responsive).find((size: string) => widget.settings.responsive[size])
     originalWidgetActiveSize = originalWidgetActiveSize === 'fullGrid' ? 'lg' : originalWidgetActiveSize
     if (!originalWidgetActiveSize) return null
-    const originalWidgetInSheet = selectedSheet.widgets[originalWidgetActiveSize].find(((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id))
+    const originalWidgetInSheet = selectedSheet.widgets[originalWidgetActiveSize].find((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
     return originalWidgetInSheet
 }
 
@@ -241,7 +241,7 @@ const formatWidget = (widget: IWidget) => {
     addWidgetMenuConfig(widget)
     switch (widget.type) {
         case 'table':
-            formatDashboardTableWidgetAfterLoading(widget);
+            formatDashboardTableWidgetAfterLoading(widget)
             break
         case 'chartJS':
             formatChartJSWidget(widget)
@@ -280,7 +280,7 @@ export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: a
     await $http
         .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
         .then((response: AxiosResponse<any>) => (datasets = response.data ? response.data.item : []))
-        .catch(() => { })
+        .catch(() => {})
     setAllDatasets(datasets)
     appStore.setLoading(false)
     return datasets
@@ -330,7 +330,7 @@ export const loadHtmlGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => { })
+        .catch(() => {})
     store.setLoading(false)
     return galleryItems
 }
@@ -341,7 +341,7 @@ export const loadPythonGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => { })
+        .catch(() => {})
     store.setLoading(false)
     return galleryItems
 }
@@ -352,7 +352,7 @@ export const loadCustomChartGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => { })
+        .catch(() => {})
     store.setLoading(false)
     return galleryItems
 }
