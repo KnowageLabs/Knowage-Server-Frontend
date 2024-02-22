@@ -117,7 +117,7 @@ export default defineComponent({
             this.activeDashboardSheet = this.dashboardModel.sheets[0]
             if (fullGridWidgets.length > 0) {
                 ;['lg', 'md', 'sm', 'xs', 'xxs'].forEach((size) => {
-                    if (this.activeDashboardSheet?.widgets[size].some((widget) => widget.id === fullGridWidgets[0].id)) {
+                    if (this.activeDashboardSheet?.widgets[size] && this.activeDashboardSheet?.widgets[size].some((widget) => widget.id === fullGridWidgets[0].id)) {
                         this.activeDashboardSheet?.widgets[size].map((widget) => {
                             if (widget.id === fullGridWidgets[0].id) {
                                 widget.w = this.colSizes[this.currentScreenSize]
@@ -129,7 +129,8 @@ export default defineComponent({
                         })
                     } else {
                         this.activeDashboardSheet?.widgets[size].push({
-                            w: this.colSizes[this.currentScreenSize],
+                            id: fullGridWidgets[0].id,
+                            w: this.colSizes[size],
                             y: 0,
                             x: 0,
                             h: 20,
