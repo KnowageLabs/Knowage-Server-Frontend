@@ -4,7 +4,7 @@
             <template v-slot:avatar>
                 <q-icon name="fa-solid fa-user-lock" color="negative" />
             </template>
-            {{ $t(message) }}
+            {{ message }}
         </q-banner>
     </div>
 </template>
