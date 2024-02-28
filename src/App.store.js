@@ -58,6 +58,9 @@ const store = defineStore('store', {
             return this.user
         },
         setUser(user) {
+            localStorage.setItem('organization', user.organization)
+            if (user.userId === `public-${user.organization}`) localStorage.setItem('public', true)
+            else localStorage.removeItem('public')
             this.user = user
         },
         setError(error) {
