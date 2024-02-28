@@ -58,6 +58,7 @@
             "exceededSize": "il file caricato supera la dimensione massima di {size}",
             "generic": "errore generico",
             "incompatibleType": "tipo di file incompatibile",
+            "refresh": "Qualcosa è andato storto. Prova a ricaricare la pagina",
             "saving": "errore durante il salvataggio",
             "tags": {
                 "tagIsNotValid": "tag ({tag}) non valido"

@@ -10,7 +10,7 @@ async function refreshPublicInstance() {
     if (response.status === 200) {
         const responseJson = await response.json()
         localStorage.setItem('token', responseJson.userUniqueIdentifier)
-    } else store.setError({ title: 'errore', msg: 'refresha la pagina' })
+    } else store.setError({ title: 'common.error.generic', msg: 'common.error.refresh' })
     localStorage.removeItem('sessionRefreshPending')
 }
 

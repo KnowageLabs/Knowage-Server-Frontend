@@ -78,6 +78,7 @@
             "exceededSize": "Uploaded file exceedes max size {size}",
             "generic": "Generic Error",
             "incompatibleType": "Incompatible file type",
+            "refresh": "Something went wrong. Try refreshing the page",
             "sameFileName": "It is not possible to upload a file with the same name",
             "saving": "Error saving",
             "tags": {
