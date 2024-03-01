@@ -341,7 +341,7 @@ export default defineComponent({
 
             await this.$http({
                 method: 'POST',
-                url: import.meta.env.VITE_KNOWAGE_CONTEXT + 'selfservicedataset/update',
+                url: import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/selfservicedataset/update',
                 data: this.selectedDataset,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Disable-Errors': 'true' },
 
