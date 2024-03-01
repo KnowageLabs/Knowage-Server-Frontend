@@ -1,5 +1,5 @@
 <template>
-    <div class="p-grid p-m-0 kn-theme-management">
+    <div class="kn-page--row p-grid p-m-0 kn-theme-management">
         <div class="kn-list--column kn-page p-col-2 p-sm-2 p-md-3 p-p-0">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
                 <template #start> Dashboard {{ $t('managers.themeManagement.title') }} </template>

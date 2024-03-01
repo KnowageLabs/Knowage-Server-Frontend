@@ -16,6 +16,10 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    &--row {
+        @extend .kn-page;
+        flex-direction: row;
+    }
     &--full {
         @extend .kn-page;
         width: calc(100% - #{var(--kn-mainmenu-width)});
