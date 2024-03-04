@@ -92,7 +92,7 @@ export const addParametersToData = (dataset, dashboardId, dataToSend) => {
         dataset.parameters.forEach((param: any) => {
             const matched = paramRegex.exec(param.value)
             if (matched && matched[0]) {
-                const documentDrivers = dashStore.dashboards[dashboardId].drivers
+                const documentDrivers = dashStore.dashboards[dashboardId].drivers || []
                 for (let index = 0; index < documentDrivers.length; index++) {
                     const driver = documentDrivers[index]
                     if (driver.urlName == matched[0]) {
