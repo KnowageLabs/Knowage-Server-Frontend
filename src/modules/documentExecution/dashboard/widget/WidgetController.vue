@@ -9,8 +9,9 @@
         :w="item.w"
         :h="item.h"
         :i="item.i"
+        :static="widget?.settings?.locked"
         drag-allow-from=".drag-handle"
-        :class="{ canEdit: canEditDashboard(document), 'full-grid-widget': widget?.settings.responsive.fullGrid }"
+        :class="{ canEdit: canEditDashboard(document) && !widget?.settings?.locked, 'full-grid-widget': widget?.settings.responsive.fullGrid }"
         @resized="resizedEvent"
     >
         <div v-if="initialized" class="drag-handle"></div>
@@ -239,6 +240,7 @@ export default defineComponent({
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: canEditDashboard(this.document) && ['highcharts', 'vega'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
+                { label: this.$t(this.widget.settings.locked ? 'dashboard.widgetEditor.map.qMenu.unlock' : 'dashboard.widgetEditor.map.qMenu.lock'), icon: this.widget.settings.locked ? 'fas fa-lock-open' : 'fas fa-lock', command: () => this.toggleWidgetLock(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: this.quickWidgetChangeEnabled() },
@@ -301,6 +303,9 @@ export default defineComponent({
             if (this.widgetModel.type === 'selection') return
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (this.widgetUsesSelections(this.activeSelections) || associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore ?? null)
+        },
+        toggleWidgetLock(){
+            this.widgetModel.settings.locked = !this.widgetModel.settings.locked
         },
         getSelectionsFromStore() {
             if (!this.updateFromSelections) {

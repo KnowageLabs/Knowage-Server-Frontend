@@ -66,6 +66,7 @@ export interface IWidget {
     state?: any
     search?: any
     invalid?: any
+    locked?: boolean
 }
 
 export interface ITableWidgetSettings {
