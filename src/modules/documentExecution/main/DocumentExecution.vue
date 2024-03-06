@@ -506,7 +506,7 @@ export default defineComponent({
             } else if (type === 'PDF') {
                 await this.asyncExport('pdf')
             } else if (type === 'XLSX') {
-                await this.asyncExport('xls')
+                await this.asyncExport('xlsx')
             } else {
                 const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
