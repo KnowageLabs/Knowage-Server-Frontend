@@ -8,7 +8,7 @@
             </Toolbar>
         </template>
 
-        <knMonaco v-model="query" style="height: 400px" language="mdx"></knMonaco>
+        <knMonaco v-model="query" style="height: 400px" :options="{ wordWrap: 'on' }" language="mdx"></knMonaco>
 
         <template #footer>
             <Button class="kn-button kn-button--primary" @click="$emit('close')"> {{ $t('common.close') }}</Button>
