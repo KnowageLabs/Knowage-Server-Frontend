@@ -504,7 +504,9 @@ export default defineComponent({
             } else if (this.document.typeCode === 'REPORT') {
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
             } else if (type === 'PDF') {
-                await this.exportPdf()
+                await this.asyncExport('pdf')
+            } else if (type === 'XLSX') {
+                await this.asyncExport('xls')
             } else {
                 const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
@@ -527,10 +529,10 @@ export default defineComponent({
                     : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
             window.open(url)
         },
-        async exportPdf() {
+        async asyncExport(format) {
             this.setLoading(true)
             await this.$http
-                .post(import.meta.env.VITE_HOST_URL + `/knowagecockpitengine/api/1.0/pages/execute/pdf`, this.hiddenFormData, {
+                .post(import.meta.env.VITE_HOST_URL + `/knowagecockpitengine/api/1.0/pages/execute/${format}`, this.hiddenFormData, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
