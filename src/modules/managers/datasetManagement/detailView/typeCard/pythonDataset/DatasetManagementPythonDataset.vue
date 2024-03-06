@@ -46,7 +46,7 @@
             </form>
             <Button :label="$t('managers.datasetManagement.checkEnvironment')" class="p-button kn-button--primary" :disabled="!dataset.pythonEnvironment.label" @click="checkEnvironment" />
 
-            <VCodeMirror ref="codeMirrorPython" v-model:value="dataset.pythonScript" class="p-mt-4" :auto-height="true" :options="scriptOptions" @keyup="$emit('touched')" />
+            <knMonaco v-model="dataset.pythonScript" style="height: 400px" :language="dataset.pythonDatasetType" @keyup="$emit('touched')"></knMonaco>
 
             <Dialog :header="$t('managers.datasetManagement.availableLibraries')" style="width: 60vw" :visible="libListVisible" :modal="false" class="p-fluid kn-dialog--toolbar--primary" :closable="false">
                 <div class="p-mt-3">
@@ -71,8 +71,7 @@
 import { AxiosResponse } from 'axios'
 import { defineComponent } from 'vue'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
-// eslint-disable-next-line
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import useValidate from '@vuelidate/core'
 import pythonDescriptor from './DatasetManagementPythonDataset.json'
 import Dropdown from 'primevue/dropdown'
@@ -84,7 +83,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 
 export default defineComponent({
-    components: { Card, Dropdown, VCodeMirror, RadioButton, KnValidationMessages, Dialog, DataTable, Column },
+    components: { Card, Dropdown, knMonaco, RadioButton, KnValidationMessages, Dialog, DataTable, Column },
     props: { selectedDataset: { type: Object as any }, pythonEnvironments: { type: Array as any }, rEnvironments: { type: Array as any } },
     emits: ['touched'],
     data() {
@@ -92,15 +91,8 @@ export default defineComponent({
             pythonDescriptor,
             v$: useValidate() as any,
             dataset: {} as any,
-            codeMirrorPython: {} as any,
             pythonEnvLibs: null as any,
-            libListVisible: false,
-            scriptOptions: {
-                theme: 'eclipse',
-                lineWrapping: true,
-                lineNumbers: true,
-                mode: 'text/x-python'
-            }
+            libListVisible: false
         }
     },
     computed: {
@@ -119,7 +111,6 @@ export default defineComponent({
     },
     created() {
         this.loadDataset()
-        this.setupCodeMirror()
     },
     validations() {
         const pythonFieldsRequired = (value) => {
@@ -134,13 +125,6 @@ export default defineComponent({
             this.dataset = this.selectedDataset
             this.dataset.pythonDatasetType ? '' : (this.dataset.pythonDatasetType = 'python')
             this.dataset.pythonScript ? '' : (this.dataset.pythonScript = '')
-        },
-        setupCodeMirror() {
-            const interval = setInterval(() => {
-                if (!this.$refs.codeMirrorPython) return
-                this.codeMirrorPython = (this.$refs.codeMirrorPython as any).editor as any
-                clearInterval(interval)
-            }, 200)
         },
         getEnvLibraries() {
             if (this.dataset.pythonDatasetType == 'python') {
