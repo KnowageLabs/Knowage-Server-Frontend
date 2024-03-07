@@ -31,7 +31,8 @@
         </div>
         <div v-if="script.language" class="p-mt-4">
             <label class="kn-material-input-label">{{ $t('managers.lovsManagement.script') }}</label>
-            <VCodeMirror ref="codeMirror" v-model:value="code" class="p-mt-2" :auto-height="true" :options="options" @keyup="onKeyUp" />
+            <knMonaco v-if="script.language === 'ECMAScript'" v-model="code" class="p-mt-2" style="height: 200px" language="javascript" @keyup="onKeyUp"></knMonaco>
+            <knMonaco v-else v-model="code" class="p-mt-2" style="height: 200px" language="groovy" @keyup="onKeyUp"></knMonaco>
         </div>
     </div>
 </template>
@@ -39,13 +40,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { iLov } from '../../../LovsManagement'
-// eslint-disable-next-line
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'lovs-management-script',
-    components: { Dropdown, VCodeMirror },
+    components: { Dropdown, knMonaco },
     props: {
         selectedLov: { type: Object, required: true },
         selectedScript: { type: Object, required: true },
@@ -57,18 +57,7 @@ export default defineComponent({
             lov: {} as iLov,
             script: {} as any,
             code: '',
-            dirty: false,
-            codeMirror: {} as any,
-            options: {
-                mode: '',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true
-            }
+            dirty: false
         }
     },
     computed: {
@@ -80,12 +69,14 @@ export default defineComponent({
         selectedLov() {
             this.loadLov()
             this.loadSelectedScript()
+        },
+        code(newCode) {
+            this.script.text = newCode
         }
     },
     created() {
         this.loadLov()
         this.loadSelectedScript()
-        this.setupCodeMirror()
     },
     methods: {
         loadLov() {
@@ -97,24 +88,9 @@ export default defineComponent({
             if (this.script) {
                 this.code = this.script.text ?? ''
             }
-            this.options.mode = this.script.type === 'ECMAScript' ? 'text/javascript' : 'text/x-groovy'
         },
         onKeyUp() {
             this.$emit('touched')
-            this.script.text = this.code
-        },
-        onLanguageChanged(value: string) {
-            const mode = value === 'ECMAScript' ? 'text/javascript' : 'text/x-groovy'
-            setTimeout(() => {
-                this.setupCodeMirror()
-                this.codeMirror.setOption('mode', mode)
-            }, 250)
-            this.$emit('touched')
-        },
-        setupCodeMirror() {
-            if (this.$refs.codeMirror) {
-                this.codeMirror = (this.$refs.codeMirror as any).cminstance as any
-            }
         }
     }
 })

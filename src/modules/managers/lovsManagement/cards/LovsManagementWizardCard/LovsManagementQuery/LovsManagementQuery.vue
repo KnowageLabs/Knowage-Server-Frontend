@@ -31,7 +31,7 @@
         </div>
         <div v-if="query.datasource" class="p-mt-4">
             <label class="kn-material-input-label">{{ $t('managers.lovsManagement.queryDefinition') }}</label>
-            <VCodeMirror ref="codeMirror" v-model:value="code" class="p-mt-2" :auto-height="true" :options="options" @keyup="onKeyUp" />
+            <knMonaco v-model="code" class="p-mt-2" style="height: 200px" language="sql" @keyup="onKeyUp"></knMonaco>
         </div>
     </div>
 </template>
@@ -39,13 +39,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { iLov } from '../../../LovsManagement'
-// eslint-disable-next-line
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'lovs-management-query',
-    components: { Dropdown, VCodeMirror },
+    components: { Dropdown, knMonaco },
     props: {
         selectedLov: { type: Object, required: true },
         selectedQuery: { type: Object },
@@ -59,17 +58,6 @@ export default defineComponent({
             query: {} as any,
             code: '',
             dirty: false,
-            codeMirror: {} as any,
-            options: {
-                mode: 'text/x-mysql',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true
-            },
             cursorPosition: null
         }
     },
@@ -82,18 +70,14 @@ export default defineComponent({
         selectedLov() {
             this.loadLov()
             this.loadSelectedQuery()
-            this.setupCodeMirror()
         },
-        codeInput() {
-            this.setupCodeMirror()
-            this.cursorPosition = this.codeMirror.getCursor()
-            this.codeMirror.replaceRange('${' + this.codeInput?.code + '}', this.cursorPosition)
+        code(newCode) {
+            this.query.query = newCode
         }
     },
     async created() {
         this.loadLov()
         this.loadSelectedQuery()
-        this.setupCodeMirror()
     },
     methods: {
         loadLov() {
@@ -105,13 +89,7 @@ export default defineComponent({
                 this.code = this.query.query ?? ''
             }
         },
-        setupCodeMirror() {
-            if (this.$refs.codeMirror) {
-                this.codeMirror = (this.$refs.codeMirror as any).cminstance as any
-            }
-        },
         onKeyUp() {
-            this.query.query = this.code
             this.$emit('touched')
         }
     }
