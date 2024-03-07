@@ -37,8 +37,7 @@
             </Toolbar>
             <div id="driver-details-container" class="kn-flex kn-relative">
                 <div id="codemirror-container" :style="mainDescriptor.style.absoluteScroll">
-                    {{ scriptOptions.mode }}
-                    <VCodeMirror v-if="showTemplateContent" ref="codeMirrorScriptType" v-model:value="selectedTemplateContent" class="kn-height-full" :options="scriptOptions" @keyup="$emit('touched')" />
+                    <knMonaco v-if="showTemplateContent" v-model="selectedTemplateContent" class="kn-height-full" :options="{ wordWrap: 'on', readOnly: true }" :language="getEditorLanguage" @keyup="$emit('touched')"></knMonaco>
                     <div v-else>
                         <InlineMessage severity="info" class="p-m-2 kn-width-full"> {{ $t('documentExecution.documentDetails.history.templateHint') }}</InlineMessage>
                     </div>
@@ -54,7 +53,7 @@ import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iDocument } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { downloadDirect } from '@/helpers/commons/fileHelper'
-import VCodeMirror from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import { mapState } from 'pinia'
 import { startOlap } from '../../dialogs/olapDesignerDialog/DocumentDetailOlapHelpers'
 import mainDescriptor from '@/modules/documentExecution/documentDetails/DocumentDetailsDescriptor.json'
@@ -69,7 +68,7 @@ import cryptoRandomString from 'crypto-random-string'
 
 export default defineComponent({
     name: 'document-drivers',
-    components: { KnListBox, KnInputFile, VCodeMirror, InlineMessage },
+    components: { KnListBox, KnInputFile, knMonaco, InlineMessage },
     props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, refresh: { type: Boolean, required: false } },
 
     setup() {
@@ -87,19 +86,7 @@ export default defineComponent({
             selectedTemplateContent: '' as any,
             loading: false,
             triggerUpload: false,
-            uploading: false,
-            codeMirrorScriptType: {} as any,
-            scriptOptions: {
-                readOnly: true,
-                mode: '',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true
-            }
+            uploading: false
         }
     },
     computed: {
@@ -121,6 +108,29 @@ export default defineComponent({
                     return false
             }
         },
+        getEditorLanguage(): string {
+            let mode = ''
+            switch (this.selectedTemplateFileType) {
+                case 'xml':
+                    mode = 'html'
+                    break
+                case 'xls':
+                    mode = 'html'
+                    break
+                case 'rptdesign':
+                    mode = 'html'
+                    break
+                case 'sbicockpit':
+                    mode = 'json'
+                    break
+                case 'json':
+                    mode = 'json'
+                    break
+                case 'sbigeoreport':
+                    mode = 'json'
+            }
+            return mode
+        },
         designerButtonVisible(): boolean {
             return this.selectedDocument.typeCode == 'OLAP' || this.selectedDocument.typeCode == 'KPI' || this.selectedDocument.engine == 'knowagegisengine'
         },
@@ -136,11 +146,6 @@ export default defineComponent({
         }
     },
     created() {
-        const interval = setInterval(() => {
-            if (!this.$refs.codeMirrorScriptType) return
-            this.codeMirrorScriptType = (this.$refs.codeMirrorScriptType as any).cminstance as any
-            clearInterval(interval)
-        }, 200)
         this.getAllTemplates()
     },
     methods: {
@@ -156,31 +161,7 @@ export default defineComponent({
                 this.selectedTemplateFileType == 'sbicockpit' || this.selectedTemplateFileType == 'json' || this.selectedTemplateFileType == 'sbigeoreport' ? (this.selectedTemplateContent = JSON.stringify(response.data, null, 4)) : (this.selectedTemplateContent = response.data)
             })
         },
-        changeCodemirrorMode() {
-            let mode = ''
-            switch (this.selectedTemplateFileType) {
-                case 'xml':
-                    mode = 'text/html'
-                    break
-                case 'xls':
-                    mode = 'text/html'
-                    break
-                case 'rptdesign':
-                    mode = 'text/html'
-                    break
-                case 'sbicockpit':
-                    mode = 'text/javascript'
-                    break
-                case 'json':
-                    mode = 'text/javascript'
-                    break
-                case 'sbigeoreport':
-                    mode = 'text/javascript'
-            }
-            setTimeout(() => {
-                this.codeMirrorScriptType.setOption('mode', mode)
-            }, 250)
-        },
+
         setFileType(template) {
             if (template && template.name) {
                 const fileType = template.name.split('.')
@@ -190,7 +171,6 @@ export default defineComponent({
         selectTemplate(event) {
             this.selectedTemplate = event as iTemplate
             this.setFileType(event)
-            this.changeCodemirrorMode()
             this.getSelectedTemplate(event.id)
         },
         setUploadType() {
