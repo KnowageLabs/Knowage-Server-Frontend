@@ -698,7 +698,7 @@ export default defineComponent({
 
             if (doc.type === 'VIEW') {
                 this.activeTemplate.placeholders[this.currentSelectedIndex].viewId = doc.id
-                this.activeTemplate.placeholders[this.currentSelectedIndex].label = doc.label
+                this.activeTemplate.placeholders[this.currentSelectedIndex].label = doc.documentLabel
             } else this.activeTemplate.placeholders[this.currentSelectedIndex].label = doc.DOCUMENT_LABEL
 
             if (!this.isFromWorkspace && !doc.type) await this.loadParameters(doc.DOCUMENT_ID)
