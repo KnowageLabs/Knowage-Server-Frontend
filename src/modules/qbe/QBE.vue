@@ -76,8 +76,9 @@
                 </Toolbar>
                 <div class="kn-relative kn-flex p-mt-2">
                     <div class="kn-height-full kn-width-full kn-absolute">
+                        <div v-if="showWarning"></div>
                         <QBESimpleTable
-                            v-if="!smartView"
+                            v-else-if="!showWarning && !smartView"
                             :query="selectedQuery"
                             @columnVisibilityChanged="checkIfHiddenColumnsExist"
                             @openFilterDialog="openFilterDialog"
@@ -285,7 +286,8 @@ export default defineComponent({
             qbeMetadata: [] as any,
             colors: ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D', '#3F51B5', '#8BC34A', '#009688', '#F44336'],
             /* CONST */
-            DERIVED_CONST: 'Derived'
+            DERIVED_CONST: 'Derived',
+            showWarning: false as boolean
         }
     },
     computed: {
@@ -631,6 +633,13 @@ export default defineComponent({
         //#region ===================== Manage Fields Logic =========================================================
         onDropComplete(field) {
             if (field.connector) return
+            if (field.attributes.subjectId) {
+                const selectedEntity = this.entitiesentities.filter((e) => e.text === field.attributes.entity)[0]
+                this.showWarning = false
+                selectedEntity.children.forEach((i) => {
+                    if (i.attributes.subject && !this.selectedQuery.fields.some((field) => field.id === i.id)) this.showWarning = true
+                })
+            }
             if (field.children) {
                 for (const i in field.children) {
                     this.addEntityToMainQuery(field.children[i])
