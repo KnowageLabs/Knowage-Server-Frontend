@@ -68,9 +68,9 @@
                             <i class="fas fa-ban fa-stack-2x"></i>
                             <i v-tooltip.top="$t('qbe.viewToolbar.deleteAllFilters')" class="fas fa-filter fa-stack-1x kn-cursor-pointer" @click="deleteAllFilters"></i>
                         </span>
-                        <InputSwitch v-model="smartView" class="p-mr-2" @change="updateSmartView" />
+                        <InputSwitch v-model="smartView" class="p-mr-2" @change="updateSmartView" :disabled="showWarning" />
                         <span>{{ $t('qbe.viewToolbar.smartView') }}</span>
-                        <i v-show="!smartView" class="fas fa-play p-m-2 kn-cursor-pointer" @click="openPreviewDialog" :disabled="this.showWarning"></i>
+                        <i v-show="!smartView" class="fas fa-play p-m-2 kn-cursor-pointer" @click="openPreviewDialog" :disabled="showWarning"></i>
                         <Button icon="fas fa-ellipsis-v kn-cursor-pointer" class="p-button-text p-button-rounded p-button-plain" @click="showMenu" />
                     </template>
                 </Toolbar>
@@ -636,6 +636,7 @@ export default defineComponent({
                 this.showWarning = false
                 if (this.selectedQuery.fields.filter((field) => field.subjectId).length + 1 > this.entities.entities.filter((e) => e.attributes.subjectId).length) {
                     this.showWarning = true
+                    this.smartView = false
                     this.store.setWarning({ title: this.$t('common.toast.warning'), msg: 'Drag all personal fields before preview' })
                 }
             }
