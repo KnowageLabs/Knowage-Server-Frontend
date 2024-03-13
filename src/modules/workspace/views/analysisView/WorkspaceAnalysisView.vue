@@ -254,7 +254,7 @@ export default defineComponent({
         async handleAnalysShared(selectedFolders: any, shared: boolean) {
             this.loading = true
 
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `documents/share?docId=${this.selectedAnalysis.id}&`
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documents/share?docId=${this.selectedAnalysis.id}&`
             if (!shared) {
                 Object.keys(selectedFolders).forEach((id: any) => (url += `functs=${selectedFolders[id]}&`))
             }
