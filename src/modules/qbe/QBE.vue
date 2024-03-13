@@ -70,15 +70,14 @@
                         </span>
                         <InputSwitch v-model="smartView" class="p-mr-2" @change="updateSmartView" />
                         <span>{{ $t('qbe.viewToolbar.smartView') }}</span>
-                        <i v-show="!smartView" class="fas fa-play p-m-2 kn-cursor-pointer" @click="openPreviewDialog"></i>
+                        <i v-show="!smartView" class="fas fa-play p-m-2 kn-cursor-pointer" @click="openPreviewDialog" :disabled="this.showWarning"></i>
                         <Button icon="fas fa-ellipsis-v kn-cursor-pointer" class="p-button-text p-button-rounded p-button-plain" @click="showMenu" />
                     </template>
                 </Toolbar>
                 <div class="kn-relative kn-flex p-mt-2">
                     <div class="kn-height-full kn-width-full kn-absolute">
-                        <div v-if="showWarning"></div>
                         <QBESimpleTable
-                            v-else-if="!showWarning && !smartView"
+                            v-if="!showWarning && !smartView"
                             :query="selectedQuery"
                             @columnVisibilityChanged="checkIfHiddenColumnsExist"
                             @openFilterDialog="openFilterDialog"
@@ -634,10 +633,13 @@ export default defineComponent({
         onDropComplete(field) {
             if (field.connector) return
             if (field.attributes.subjectId) {
-                const selectedEntity = this.entitiesentities.filter((e) => e.text === field.attributes.entity)[0]
+                const selectedEntity = this.entities.entities.filter((e) => e.text === field.attributes.entity)[0]
                 this.showWarning = false
                 selectedEntity.children.forEach((i) => {
-                    if (i.attributes.subject && !this.selectedQuery.fields.some((field) => field.id === i.id)) this.showWarning = true
+                    if (i.attributes.subject && !this.selectedQuery.fields.some((field) => field.id === i.id)) {
+                        this.showWarning = true
+                        this.store.setWarning({ title: this.$t('common.toast.warning'), msg: 'Drag all personal fields before preview' })
+                    }
                 })
             }
             if (field.children) {
@@ -1046,8 +1048,10 @@ export default defineComponent({
             }
         },
         async openPreviewDialog() {
-            this.pagination.limit = 20
-            await this.executeQBEQuery(true)
+            if (!this.showWarning) {
+                this.pagination.limit = 20
+                await this.executeQBEQuery(true)
+            } else this.store.setWarning({ title: this.$t('common.toast.warning'), msg: 'Drag all personal fields before preview' })
         },
         updateSmartView() {
             this.smartView && this.selectedQuery.fields.length > 0 ? this.executeQBEQuery(false) : this.resetQueryPreviewAndPagination()
