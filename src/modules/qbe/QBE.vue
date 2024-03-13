@@ -77,7 +77,7 @@
                 <div class="kn-relative kn-flex p-mt-2">
                     <div class="kn-height-full kn-width-full kn-absolute">
                         <QBESimpleTable
-                            v-if="!showWarning && !smartView"
+                            v-if="!smartView || showWarning"
                             :query="selectedQuery"
                             @columnVisibilityChanged="checkIfHiddenColumnsExist"
                             @openFilterDialog="openFilterDialog"
@@ -633,14 +633,11 @@ export default defineComponent({
         onDropComplete(field) {
             if (field.connector) return
             if (field.attributes.subjectId) {
-                const selectedEntity = this.entities.entities.filter((e) => e.text === field.attributes.entity)[0]
                 this.showWarning = false
-                selectedEntity.children.forEach((i) => {
-                    if (i.attributes.subject && !this.selectedQuery.fields.some((field) => field.id === i.id)) {
-                        this.showWarning = true
-                        this.store.setWarning({ title: this.$t('common.toast.warning'), msg: 'Drag all personal fields before preview' })
-                    }
-                })
+                if (this.selectedQuery.fields.filter((field) => field.subjectId).length > this.entities.entities.filter((e) => e.attributes.subjectId).length) {
+                    this.showWarning = true
+                    this.store.setWarning({ title: this.$t('common.toast.warning'), msg: 'Drag all personal fields before preview' })
+                }
             }
             if (field.children) {
                 for (const i in field.children) {
