@@ -634,7 +634,7 @@ export default defineComponent({
             if (field.connector) return
             if (field.attributes.subjectId) {
                 this.showWarning = false
-                if (this.selectedQuery.fields.filter((field) => field.subjectId).length > this.entities.entities.filter((e) => e.attributes.subjectId).length) {
+                if (this.selectedQuery.fields.filter((field) => field.subjectId).length + 1 > this.entities.entities.filter((e) => e.attributes.subjectId).length) {
                     this.showWarning = true
                     this.store.setWarning({ title: this.$t('common.toast.warning'), msg: 'Drag all personal fields before preview' })
                 }
