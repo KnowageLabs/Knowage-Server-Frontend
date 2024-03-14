@@ -67,6 +67,7 @@ watch(
 
 const emit = defineEmits<{
     (e: 'change', payload: typeof editorValue.value): void
+    (e: 'editorSetup', payload: any): void
     (e: 'update:modelValue', payload: typeof editorValue.value): void
     (e: 'stringInserted'): void
 }>()
@@ -88,6 +89,8 @@ onMounted(() => {
         ...options.value,
         language: language.value
     })
+
+    emit('editorSetup', { editor: editor, monaco: monaco })
 
     editor.onDidChangeModelContent(
         useDebounceFn(() => {

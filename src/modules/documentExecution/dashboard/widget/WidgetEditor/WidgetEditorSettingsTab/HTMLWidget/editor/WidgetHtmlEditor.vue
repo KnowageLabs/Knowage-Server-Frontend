@@ -2,7 +2,7 @@ p
 <template>
     <div class="htmlMirrorContainer" style="height: 500px; width: 100%">
         <Button v-tooltip.left="$t('common.menu')" icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain editor-tags-menu-button" @click="toggle"></Button>
-        <VCodeMirror ref="codeMirrorHtmlEditor" v-model:value="code" :options="scriptOptions" @keyup="onKeyUp" @keyDown="onKeyUp" @change="onKeyUp" @blur="onKeyUp" />
+        <knMonaco ref="editor" v-model="model.settings.editor.html" style="height: 500px" language="html" @editor-setup="editorSetup"></knMonaco>
     </div>
 
     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
@@ -12,13 +12,15 @@ p
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDataset, IVariable, IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
-import VCodeMirror from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import TieredMenu from 'primevue/tieredmenu'
 import TagsDialog from '../../common/editor/WidgetTagsDialog.vue'
 
+let editor = null
+
 export default defineComponent({
     name: 'widget-html-editor',
-    components: { VCodeMirror, TieredMenu, TagsDialog },
+    components: { knMonaco, TieredMenu, TagsDialog },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         activeIndex: { type: Number, required: true },
@@ -29,22 +31,10 @@ export default defineComponent({
     data() {
         return {
             model: {} as IWidget,
-            codeMirrorHtmlEditor: null as any,
+            monaco: null as any,
             toolbarMenuItems: [] as any[],
             tagsDialogMode: '' as string,
             tagsDialogVisible: false,
-            scriptOptions: {
-                cursor: true,
-                line: false,
-                lineNumbers: true,
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                mode: 'xml',
-                tabSize: 4,
-                theme: 'eclipse'
-            },
             cursorPosition: null,
             code: ''
         }
@@ -57,32 +47,18 @@ export default defineComponent({
     watch: {
         widgetModel() {
             this.loadModel()
-        },
-        activeIndex(value: number) {
-            if (value === 1 && this.codeMirrorHtmlEditor) setTimeout(() => this.codeMirrorHtmlEditor.refresh(), 100)
         }
     },
     created() {
         this.loadModel()
-        this.setupCodeMirror()
     },
     methods: {
+        editorSetup(monacoInstance) {
+            this.monaco = monacoInstance.monaco
+            editor = monacoInstance.editor
+        },
         loadModel() {
             this.model = this.widgetModel
-        },
-        setupCodeMirror() {
-            const interval = setInterval(() => {
-                if (!this.$refs.codeMirrorHtmlEditor) return
-                this.code = this.model.settings.editor.html
-                this.codeMirrorHtmlEditor = (this.$refs.codeMirrorHtmlEditor as any).cminstance as any
-                setTimeout(() => {
-                    this.codeMirrorHtmlEditor.refresh()
-                }, 0)
-                clearInterval(interval)
-            }, 200)
-        },
-        onKeyUp() {
-            this.model.settings.editor.html = this.code
         },
         toggle(event: Event) {
             this.createMenuItems()
@@ -166,9 +142,11 @@ export default defineComponent({
             this.tagsDialogVisible = false
         },
         onInsert(value: string) {
-            this.cursorPosition = this.codeMirrorHtmlEditor.getCursor()
-            this.codeMirrorHtmlEditor.replaceRange(value, this.cursorPosition)
+            const selection = editor.getSelection()
+            let range = new this.monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn)
             this.tagsDialogVisible = false
+            const op = { range: range || selection, text: value, forceMoveMarkers: true }
+            editor.executeEdits('my-source', [op])
         }
     }
 })
