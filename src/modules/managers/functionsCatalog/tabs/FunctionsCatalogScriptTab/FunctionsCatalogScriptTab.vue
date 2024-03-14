@@ -40,20 +40,7 @@ export default defineComponent({
             selectedFunction: {} as iFunction,
             code: '',
             trainModelCode: '',
-            useModelCode: '',
-            codeMirror: {} as any,
-            options: {
-                mode: '',
-                lineWrapping: true,
-                theme: 'eclipse',
-                lineNumbers: true,
-                autoRefresh: true
-            }
-        }
-    },
-    watch: {
-        activeTab(value: number) {
-            if (value === 2 && this.codeMirror) setTimeout(() => this.codeMirror.refresh(), 100)
+            useModelCode: ''
         }
     },
     created() {
@@ -67,7 +54,6 @@ export default defineComponent({
                 this.code = this.selectedFunction.onlineScript ?? ''
                 this.trainModelCode = this.selectedFunction.trainModelCode ?? ''
                 this.useModelCode = this.selectedFunction.useModelCode ?? ''
-                this.options.mode = this.selectedFunction.language.toLowerCase()
             }
         }
     }

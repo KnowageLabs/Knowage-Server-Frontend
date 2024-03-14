@@ -82,8 +82,6 @@ export default defineComponent({
         return {
             queryDescriptor,
             dataset: {} as any,
-            codeMirror: {} as any,
-            codeMirrorScript: {} as any,
             v$: useValidate() as any,
             expandQueryCard: true,
             expandScriptCard: true,
@@ -93,14 +91,6 @@ export default defineComponent({
     watch: {
         selectedDataset() {
             this.loadDataset()
-        },
-        activeTab() {
-            if (this.activeTab === 1 && this.codeMirror && this.codeMirrorScript) {
-                setTimeout(() => {
-                    this.codeMirror.refresh()
-                    this.codeMirrorScript.refresh()
-                }, 0)
-            }
         }
     },
     validations() {
