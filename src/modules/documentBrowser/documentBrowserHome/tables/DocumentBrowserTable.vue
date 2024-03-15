@@ -30,6 +30,7 @@
             selection-mode="single"
             class="p-datatable-sm kn-table"
             data-key="id"
+            :resizable-columns="true"
             :responsive-layout="documentBrowserTableDescriptor.responsiveLayout"
             :breakpoint="documentBrowserTableDescriptor.breakpoint"
             data-test="documents-datatable"
