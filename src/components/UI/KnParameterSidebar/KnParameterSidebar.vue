@@ -118,7 +118,7 @@
                         >
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <Dropdown v-if="!parameter.multivalue && parameter.parameterValue" v-model="parameter.parameterValue[0].value" class="kn-material-input" :options="parameter.data" option-value="value" option-label="description" @change="onDropdownChange(parameter)" />
+                    <Dropdown v-if="!parameter.multivalue && parameter.parameterValue[0]" v-model="parameter.parameterValue[0].value" class="kn-material-input" :options="parameter.data" option-value="value" option-label="description" @change="onDropdownChange(parameter)" />
 
                     <MultiSelect v-else v-model="parameter.parameterValue" :options="parameter.data" option-label="description" @change="updateDependency(parameter)" />
                 </div>
