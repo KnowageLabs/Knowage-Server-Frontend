@@ -33,6 +33,9 @@
             <label class="kn-material-input-label">{{ $t('managers.lovsManagement.queryDefinition') }}</label>
             <knMonaco v-model="code" class="p-mt-2" style="height: 200px" language="sql" @keyup="onKeyUp"></knMonaco>
         </div>
+        <div v-if="query.datasource" class="p-mt-2">
+           <small>{{ $t('managers.lovsManagement.queryColumnsNameNotAllowed') }}</small>
+        </div>
     </div>
 </template>
 
