@@ -16,7 +16,6 @@
                     :placeholder="$t('managers.lovsManagement.placeholderScript')"
                     aria-label="dropdown"
                     @before-show="dirty = true"
-                    @change="onLanguageChanged($event.value)"
                 />
             </span>
             <div v-if="!script.language && dirty" class="p-error p-grid">
