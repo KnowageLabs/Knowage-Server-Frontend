@@ -40,7 +40,7 @@
                                 option-value="value"
                                 @change="$emit('itemUpdated', slotProps.data)"
                             />
-                            <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ '(' + slotProps.data[column.field] + ')' }}</span>
+                            <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                             <span v-else-if="!slotProps.data.formula" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                         </div>
                     </template>
