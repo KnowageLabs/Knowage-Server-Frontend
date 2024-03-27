@@ -84,37 +84,52 @@
         </Card>
 
         <Message v-if="isWarningVisible()" severity="warn" :closable="false">{{ $t('components.knCalculatedField.nullifWarning', { nullIfFunction: nullIfFunction }) }}</Message>
-        <VCodeMirror ref="codeMirror" v-model:value="cf.formula" v-model="v$.cf.formula.$model" :class="['p-mt-2 codeMirrorClass', readOnly ? 'readOnly' : '', v$.cf.formula.$invalid ? 'p-invalid' : '']" :options="scriptOptions" @drop="drop" />
+        <knMonaco
+            ref="editor"
+            v-model="v$.cf.formula.$model"
+            class="p-mt-1"
+            :class="{ 'p-invalid': v$.cf.formula.$invalid, dragging: dragging }"
+            style="height: 200px"
+            language="cfLang"
+            :options="{ wordWrap: 'on', readOnly: readOnly }"
+            @editor-setup="editorSetup"
+            @drop="drop(this, $event)"
+        ></knMonaco>
 
         <template #footer>
             <Button :class="readOnly ? 'kn-button kn-button--primary' : 'kn-button kn-button--secondary'" :label="$t('common.cancel')" @click="cancel" />
-            <Button v-if="!readOnly" v-t="'common.apply'" class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="apply" />
+            <Button v-if="!readOnly" :label="isValidating ? $t('common.validation.validating') : $t('common.apply')" :icon="{ 'pi pi-spin pi-spinner': isValidating }" class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="apply" />
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
-import { PropType } from 'vue'
+import { PropType, defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { createValidations } from '@/helpers/commons/validationHelper'
-import { defineComponent } from 'vue'
 import { IKnCalculatedField, IKnCalculatedFieldFunction } from '@/components/functionalities/KnCalculatedField/KnCalculatedField'
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import Dropdown from 'primevue/dropdown'
 import Dialog from 'primevue/dialog'
 import KnHint from '@/components/UI/KnHint.vue'
 import Message from 'primevue/message'
 import ScrollPanel from 'primevue/scrollpanel'
 import useValidate from '@vuelidate/core'
+import { Notify } from 'quasar'
+import { mapActions } from 'pinia'
+import mainStore from '@/App.store'
+
+let editor = null
 export default defineComponent({
     name: 'calculated-field',
-    components: { Dialog, Dropdown, KnHint, Message, ScrollPanel, VCodeMirror },
+    components: { Dialog, Dropdown, KnHint, knMonaco, Message, ScrollPanel },
     props: {
         fields: Array,
         visibility: Boolean,
         readOnly: Boolean,
         descriptor: Object,
         template: {} as any,
+        validation: Boolean,
         valid: Boolean,
         source: String,
         propCalcFieldFunctions: { type: Array as PropType<IKnCalculatedFieldFunction[]>, required: true },
@@ -130,22 +145,15 @@ export default defineComponent({
             availableCategories: [] as any,
             codeMirror: null as any,
             availableFunctions: [] as any,
-            scriptOptions: {
-                mode: 'text/x-mathematica',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true,
-                readOnly: this.readOnly
-            },
+            monaco: {} as any,
+            monacoEditor: {} as any,
             v$: useValidate() as any,
             formulaValidationInterval: {} as any,
             isValidFormula: false,
             calcFieldFunctions: [] as IKnCalculatedFieldFunction[],
-            showHelpPanel: false
+            showHelpPanel: false,
+            isValidating: false,
+            dragging: false
         }
     },
     computed: {
@@ -173,28 +181,44 @@ export default defineComponent({
                 }
             }
         },
-        cf: {
-            handler() {
-                if (this.cf.formula) {
-                    if (this.descriptor?.validationServiceUrl) {
-                        this.formulaValidationInterval = setInterval(() => {
-                            this.$http.get(this.descriptor?.validationServiceUrl).then((response: AxiosResponse<any>) => {
-                                this.isValidFormula = response.data[0]
-                                this.applyValidationResultsToFormula()
+        'cf.formula'(newFormula, oldFormula) {
+            if (newFormula != oldFormula && this.cf.formula) {
+                if (this.validation) {
+                    this.isValidating = true
+                    this.isValidFormula = false
+                    if (this.formulaValidationInterval) clearInterval(this.formulaValidationInterval)
+                    this.formulaValidationInterval = setInterval(() => {
+                        this.$http
+                            .post(
+                                import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasets/validateFormula',
+                                {
+                                    formula: this.cf.formula,
+                                    measuresList: this.fields?.map((field) => {
+                                        return { name: field.fieldLabel, alias: field.fieldAlias }
+                                    })
+                                },
+                                { headers: { 'X-Disable-Errors': 'true' } }
+                            )
+                            .then((response: AxiosResponse<any>) => {
+                                this.isValidFormula = response.data.msg ? true : false
                             })
-                            clearInterval(this.formulaValidationInterval)
-                            this.formulaValidationInterval = null
-                        }, 2500)
-                    } else {
-                        this.isValidFormula = true
-                    }
+                            .catch(() => {
+                                this.setError({
+                                    title: this.$t('common.toast.errorTitle'),
+                                    msg: this.$t('common.error.validation', { what: 'formula ' })
+                                })
+                            })
+                            .finally(() => (this.isValidating = false))
+                        clearInterval(this.formulaValidationInterval)
+                        this.formulaValidationInterval = null
+                    }, 500)
+                } else {
+                    this.isValidFormula = true
                 }
-            },
-            deep: true
+            }
         }
     },
     created() {
-        this.setupCodeMirror()
         this.calcFieldFunctions = [...this.propCalcFieldFunctions]
         this.availableFunctions = [...this.calcFieldFunctions].sort((a, b) => {
             return a.name.localeCompare(b.name)
@@ -212,7 +236,6 @@ export default defineComponent({
         this.handleCategories()
     },
     updated() {
-        this.setupCodeMirror()
         if (!this.cf.formula) this.cf.formula = ''
         if (this.readOnly && this.template && this.template.parameters) {
             this.cf = {} as IKnCalculatedField
@@ -235,6 +258,12 @@ export default defineComponent({
         return {}
     },
     methods: {
+        ...mapActions(mainStore, ['setError']),
+        editorSetup(monacoInstance) {
+            //this.monacoEditor = monaco.editor
+            this.monaco = monacoInstance.monaco
+            editor = monacoInstance.editor
+        },
         isWarningVisible() {
             return this.propNullifFunction && this.cf.formula && this.cf.formula != '' && this.cf.formula?.match('/')
         },
@@ -244,17 +273,6 @@ export default defineComponent({
             } else {
                 this.selectedFunction = af
             }
-        },
-        setupCodeMirror() {
-            CodeMirror.Pos(0, 0)
-            const interval = setInterval(() => {
-                if (!this.$refs.codeMirror) return
-                this.codeMirror = (this.$refs.codeMirror as any).cminstance as any
-                setTimeout(() => {
-                    this.codeMirror.refresh()
-                }, 0)
-                clearInterval(interval)
-            }, 200)
         },
         apply(): void {
             this.$emit('save', this.cf)
@@ -299,16 +317,9 @@ export default defineComponent({
         allowDrop(ev) {
             ev.preventDefault()
         },
-        clearCodemirror(cursor, data) {
-            if (this.codeMirror.somethingSelected()) {
-                const selections = this.codeMirror.getSelections()
-                for (const sel of selections) {
-                    this.codeMirror.replaceRange('', { line: cursor.line, ch: cursor.ch - JSON.stringify(data).length }, { line: cursor.line, ch: cursor.ch - JSON.stringify(data).length + sel.length })
-                }
-            }
-        },
         dragElement(ev, item, elementType: string) {
             if (this.readOnly) return
+            this.dragging = true
             if (elementType === 'function') {
                 ev.dataTransfer.setData('myItem', JSON.stringify({ item: item.formula, elementType: elementType }))
             } else if (elementType === 'field') {
@@ -317,59 +328,35 @@ export default defineComponent({
             ev.dataTransfer.effectAllowed = 'copy'
         },
         drop(cm, ev) {
+            this.dragging = false
             if (this.readOnly) return
             ev.stopPropagation()
             ev.preventDefault()
             const data = JSON.parse(ev.dataTransfer.getData('myItem'))
-            const cursor = cm.coordsChar({
-                left: ev.x,
-                top: ev.y
-            })
-            this.clearCodemirror(cursor, data)
-            this.codeMirror.clearHistory()
-            let start = -1
-            let end = -1
-            if (cm.getLine(cursor.line).length == cursor.ch) {
-                start = cursor.ch
-                end = cursor.ch
-            } else {
-                start = this.codeMirror.findWordAt(cursor).anchor.ch
-                end = this.codeMirror.findWordAt(cursor).head.ch
-            }
-            const from = { line: cursor.line, ch: start }
-            const to = { line: cursor.line, ch: end }
-            const range = this.codeMirror.getDoc().getRange(from, to)
+            const selection = editor.getSelection()
+            const position = editor.getPosition()
             let fieldAlias = ''
-            let spContent = ''
+            let text = ''
             if (data.item.fieldAlias) {
                 fieldAlias = this.source !== 'QBE' && this.source !== 'dashboard' ? this.wrap(data.item.fieldAlias) : data.item.fieldAlias
             }
-            spContent = data.elementType === 'function' ? data.item : fieldAlias
-            if (range.match(/\(|\)|,|\./g)) {
-                this.codeMirror.getDoc().replaceSelection(spContent, cursor)
-            } else {
-                this.codeMirror.getDoc().replaceRange(spContent, from, to)
+            text = data.elementType === 'function' ? data.item : fieldAlias
+            const word = editor.getModel().getWordAtPosition(position)
+            let range = null
+            if (selection.endColumn - selection.startColumn === 0) {
+                range = new this.monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn)
+                if (word?.word?.match('column_name')) {
+                    range = new this.monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn + 11)
+                }
             }
-            const lines = document.querySelector('.CodeMirror-line')
-            if (lines) {
-                const textEl = lines.querySelector('div span') as any
-                if (textEl) this.cf.formula = textEl.innerText
-            }
-            this.codeMirror.refresh()
+
+            const op = { range: range || selection, text: text, forceMoveMarkers: true }
+            editor.executeEdits('my-source', [op])
         },
         wrap(alias: string): string {
             const regex = /(\$F{)[a-zA-Z0-9_]+(})/g
             const found = alias.match(regex)
             return !found ? '$F{' + alias + '}' : alias
-        },
-        applyValidationResultsToFormula() {
-            const from = { line: this.codeMirror.getDoc().firstLine(), ch: 0 }
-            const to = { line: this.codeMirror.getDoc().lastLine(), ch: this.codeMirror.getDoc().getLine(this.codeMirror.getDoc().lastLine()).length }
-            if (!this.isValidFormula) {
-                this.codeMirror.getDoc().markText(from, to, { className: 'syntax-error' })
-            } else {
-                this.codeMirror.getDoc().markText(from, to, { className: 'no-syntax-error' })
-            }
         }
     }
 })
@@ -380,24 +367,7 @@ export default defineComponent({
     width: 60%;
     max-width: 1200px;
 }
-.codeMirrorClass {
-    height: 80px !important;
-    max-height: 80px !important;
-    border: 1px solid var(--kn-color-borders);
-    .CodeMirror-scroll {
-        overflow-x: hidden !important;
-        overflow-y: auto !important;
-    }
-}
-.readOnly {
-    .CodeMirror-scroll {
-        background-color: var(--kn-color-disabled);
-        cursor: default;
-        .CodeMirror-lines {
-            cursor: default !important;
-        }
-    }
-}
+
 .field-header {
     font-weight: bold;
 }
@@ -467,5 +437,8 @@ export default defineComponent({
     &:hover {
         background-color: var(--kn-list-item-hover-background-color);
     }
+}
+.dragging {
+    border: 2px dashed #ccc;
 }
 </style>

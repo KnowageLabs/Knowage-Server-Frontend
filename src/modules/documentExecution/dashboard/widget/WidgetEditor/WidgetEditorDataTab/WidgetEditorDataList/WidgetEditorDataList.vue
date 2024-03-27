@@ -23,12 +23,12 @@
             </template>
         </Listbox>
     </div>
-
     <KnCalculatedField
         v-if="calcFieldDialogVisible"
         v-model:template="selectedCalcField"
         v-model:visibility="calcFieldDialogVisible"
         :fields="calcFieldColumns"
+        :validation="true"
         :descriptor="calcFieldDescriptor"
         :prop-calc-field-functions="availableFunctions"
         :read-only="false"
