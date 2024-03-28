@@ -115,7 +115,6 @@ import KnHint from '@/components/UI/KnHint.vue'
 import Message from 'primevue/message'
 import ScrollPanel from 'primevue/scrollpanel'
 import useValidate from '@vuelidate/core'
-import { Notify } from 'quasar'
 import { mapActions } from 'pinia'
 import mainStore from '@/App.store'
 
@@ -125,6 +124,7 @@ export default defineComponent({
     components: { Dialog, Dropdown, KnHint, knMonaco, Message, ScrollPanel },
     props: {
         fields: Array,
+        variables: Array,
         visibility: Boolean,
         readOnly: Boolean,
         descriptor: Object,
@@ -187,12 +187,20 @@ export default defineComponent({
                     this.isValidating = true
                     this.isValidFormula = false
                     if (this.formulaValidationInterval) clearInterval(this.formulaValidationInterval)
+                    const tempFormula = this.cf.formula.replace(/\$V{([a-zA-Z0-9\_\-\s]+)\.?([a-zA-Z0-9\_\-\s]*)}/g, (match, variable, key) => {
+                        if (this.variables) {
+                            const matchedVariable = this.variables.filter((item) => item.name === variable)[0]
+                            if (matchedVariable && matchedVariable.pivotedValues) {
+                                return matchedVariable.pivotedValues[key]
+                            } else return matchedVariable.value
+                        } else return variable
+                    })
                     this.formulaValidationInterval = setInterval(() => {
                         this.$http
                             .post(
                                 import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasets/validateFormula',
                                 {
-                                    formula: this.cf.formula,
+                                    formula: tempFormula,
                                     measuresList: this.fields?.map((field) => {
                                         return { name: field.fieldLabel, alias: field.fieldAlias }
                                     })
@@ -211,7 +219,7 @@ export default defineComponent({
                             .finally(() => (this.isValidating = false))
                         clearInterval(this.formulaValidationInterval)
                         this.formulaValidationInterval = null
-                    }, 500)
+                    }, 1500)
                 } else {
                     this.isValidFormula = true
                 }
@@ -340,7 +348,7 @@ export default defineComponent({
             if (data.item.fieldAlias) {
                 fieldAlias = this.source !== 'QBE' && this.source !== 'dashboard' ? this.wrap(data.item.fieldAlias) : data.item.fieldAlias
             }
-            text = data.elementType === 'function' ? data.item : fieldAlias
+            text = data.elementType === 'function' ? data.item : `"${fieldAlias}"`
             const word = editor.getModel().getWordAtPosition(position)
             let range = null
             if (selection.endColumn - selection.startColumn === 0) {
