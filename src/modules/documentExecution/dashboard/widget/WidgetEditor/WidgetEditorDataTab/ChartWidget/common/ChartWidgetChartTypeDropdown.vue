@@ -63,7 +63,7 @@ export default defineComponent({
             }
         },
         getImageSource(chartValue: string) {
-            return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/chartTypes/${chartValue}.png`
+            return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/chartTypes/${chartValue}.svg`
         },
         onChange() {
             this.$emit('selectedChartTypeChanged', this.selectedType)
