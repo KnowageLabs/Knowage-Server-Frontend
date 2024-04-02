@@ -5,7 +5,7 @@ import router from './App.routes.js'
 import store from './App.store.js'
 import { createPinia } from 'pinia'
 import { GlobalCmComponent } from 'codemirror-editor-vue3'
-import { Quasar } from 'quasar'
+import { Quasar, Notify } from 'quasar'
 
 import VueAxios from 'vue-axios'
 import interceptor from './axios.js'
@@ -54,11 +54,13 @@ import i18n from '@/App.i18n'
 
 import QBEOperator from './modules/qbe/qbeDialogs/qbeAdvancedFilterDialog/QBEOperator.vue'
 
-if (import.meta.env.DEV) document.domain = 'localhost'
+if (import.meta.env.DEV) document.domain = '127.0.0.1'
 
 import VueGridLayout from 'vue-grid-layout'
 
 import ResizeObserver from '@vue-toys/resize-observer'
+
+import { registerSW } from 'virtual:pwa-register'
 
 const pinia = createPinia()
 
@@ -77,7 +79,11 @@ app.use(VueAxios, interceptor)
     .use(GlobalCmComponent)
     .use(VueGridLayout)
     .use(ResizeObserver)
-    .use(Quasar)
+    .use(Quasar, {
+        plugins: {
+            Notify
+        }
+    })
 
     .directive('badge', BadgeDirective)
     .directive('tooltip', Tooltip)
@@ -90,3 +96,24 @@ app.use(VueAxios, interceptor)
     .component('QBEOperator', QBEOperator)
 
     .mount('#app')
+
+const updateSW = await registerSW({
+    onNeedRefresh() {
+        Notify.create({
+            message: 'Some new content is available',
+            timeout: 0,
+            actions: [
+                {
+                    label: 'Refresh',
+                    handler: () => {
+                        updateSW()
+                    }
+                },
+                {
+                    label: 'Cancel',
+                    handler: () => {}
+                }
+            ]
+        })
+    }
+})
