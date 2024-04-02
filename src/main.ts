@@ -97,7 +97,7 @@ app.use(VueAxios, interceptor)
 
     .mount('#app')
 
-const updateSW = await registerSW({
+const updateSW = registerSW({
     onNeedRefresh() {
         Notify.create({
             message: 'Some new content is available',
