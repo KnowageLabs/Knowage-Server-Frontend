@@ -74,7 +74,16 @@ export default defineComponent({
             this.rows = this.parameterPopUpData.result.data
 
             this.columns = []
-            Object.keys(this.parameterPopUpData.result.metadata.colsMap).forEach((key: string) => {
+            
+            const tmpMap = new Map();
+
+            for (var k in this.parameterPopUpData.result.metadata.colsMap) {
+                tmpMap.set(k, this.parameterPopUpData.result.metadata.colsMap[k])
+            }
+
+            const keyMap = Array.from(tmpMap, ([k, v]) => k)
+
+            keyMap.forEach((key: string) => {
                 if (this.parameterPopUpData?.result.metadata.visibleColumns?.includes(this.parameterPopUpData.result.metadata.colsMap[key])) {
                     this.columns.push({
                         header: this.parameterPopUpData?.result.metadata.colsMap[key],
