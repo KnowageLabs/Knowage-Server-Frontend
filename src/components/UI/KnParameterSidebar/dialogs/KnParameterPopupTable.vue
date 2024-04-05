@@ -75,14 +75,19 @@ export default defineComponent({
 
             this.columns = []
             
-            const tmpMap = new Map();
+            let keyMap: any[] = []
+            let pref: string = ''
+ 
+            Object.keys(this.parameterPopUpData.result.metadata.colsMap).forEach((col) => {
+                const colMatch = col.match(/(?<pref>[a-zA-Z_\-\.]+)(?<key>\d+)/)
+                if (colMatch && colMatch.groups) {
+                    pref = colMatch.groups.pref // col_
+                    keyMap.push(parseInt(colMatch.groups.key)) // 1-2
+                }
+            })
 
-            for (var k in this.parameterPopUpData.result.metadata.colsMap) {
-                tmpMap.set(k, this.parameterPopUpData.result.metadata.colsMap[k])
-            }
-
-            const keyMap = Array.from(tmpMap, ([k, v]) => k)
-
+            keyMap = keyMap.sort().map((k) => pref + k)
+            
             keyMap.forEach((key: string) => {
                 if (this.parameterPopUpData?.result.metadata.visibleColumns?.includes(this.parameterPopUpData.result.metadata.colsMap[key])) {
                     this.columns.push({
