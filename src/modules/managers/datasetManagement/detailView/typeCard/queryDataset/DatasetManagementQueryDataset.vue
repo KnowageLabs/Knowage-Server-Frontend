@@ -93,6 +93,10 @@ export default defineComponent({
             this.loadDataset()
         }
     },
+    created() {
+        this.loadDataset()
+    },
+
     validations() {
         const queryFieldsRequired = (value) => {
             return this.dataset.dsTypeCd != 'Query' || value
