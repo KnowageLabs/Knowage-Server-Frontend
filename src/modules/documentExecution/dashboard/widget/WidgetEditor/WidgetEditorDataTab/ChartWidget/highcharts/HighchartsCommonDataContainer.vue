@@ -68,75 +68,75 @@ export default defineComponent({
         columnTableSettings() {
             switch (this.chartType) {
                 case 'pie':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
                 case 'heatmap':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.heatmapColumnTableSettings[0] }
                 case 'radar':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.radarColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.radarColumnTableSettings[0] }
                 case 'area':
                 case 'bar':
                 case 'column':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.barChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.barChartColumnTableSettings[0] }
                 case 'bubble':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[0] }
                 case 'scatter':
-                    return this.scatterChartIsJittered ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterJitterChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[0] }
+                    return this.scatterChartIsJittered ? { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.scatterJitterChartColumnTableSettings[0] } : { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.scatterChartColumnTableSettings[0] }
                 case 'line':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.lineChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.lineChartColumnTableSettings[0] }
                 case 'treemap':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.treemapChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.treemapChartColumnTableSettings[0] }
                 case 'sunburst':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[0] }
                 case 'spline':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.splineChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.splineChartColumnTableSettings[0] }
                 case 'pictorial':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
                 case 'funnel':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
                 case 'waterfall':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[0] }
                 default:
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }
         },
         valuesColumnSettings() {
             switch (this.chartType) {
                 case 'pie':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pieChartColumnTableSettings[1] }
                 case 'gauge':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[0] }
                 case 'activitygauge':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.activitygaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.activitygaugeChartColumnTableSettings[0] }
                 case 'solidgauge':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.solidgaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.solidgaugeChartColumnTableSettings[0] }
                 case 'heatmap':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.heatmapColumnTableSettings[1] }
                 case 'radar':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.radarColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.radarColumnTableSettings[1] }
                 case 'area':
                 case 'bar':
                 case 'column':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.barChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.barChartColumnTableSettings[1] }
                 case 'bubble':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[1] }
                 case 'scatter':
-                    return this.scatterChartIsJittered ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterJitterChartColumnTableSettings[1] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.scatterChartColumnTableSettings[1] }
+                    return this.scatterChartIsJittered ? { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.scatterJitterChartColumnTableSettings[1] } : { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.scatterChartColumnTableSettings[1] }
                 case 'line':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.lineChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.lineChartColumnTableSettings[1] }
                 case 'treemap':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.treemapChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.treemapChartColumnTableSettings[1] }
                 case 'sunburst':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[1] }
                 case 'spline':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.splineChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.splineChartColumnTableSettings[1] }
                 case 'pictorial':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
                 case 'funnel':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
                 case 'waterfall':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[1] }
                 default:
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
             }
         }
     },

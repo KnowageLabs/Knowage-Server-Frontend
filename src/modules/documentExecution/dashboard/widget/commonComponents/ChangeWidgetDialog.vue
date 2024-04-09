@@ -54,7 +54,7 @@ export default defineComponent({
             this.selectedWidget = widgetName
         },
         getImageSource(widgetType: string) {
-            return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/changeWidgetTypes/${widgetType}.png`
+            return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/chartTypes/${widgetType}.svg`
         },
         loadData() {
             this.getWidgetNumberOfCategoriesAndSeries()
@@ -220,6 +220,7 @@ export default defineComponent({
         }
     }
     img {
+        filter: hue-rotate(196deg);
         height: 80%;
         width: 80%;
     }

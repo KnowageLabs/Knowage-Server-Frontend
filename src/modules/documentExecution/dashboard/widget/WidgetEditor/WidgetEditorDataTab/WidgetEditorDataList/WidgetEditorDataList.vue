@@ -23,12 +23,13 @@
             </template>
         </Listbox>
     </div>
-
     <KnCalculatedField
         v-if="calcFieldDialogVisible"
         v-model:template="selectedCalcField"
         v-model:visibility="calcFieldDialogVisible"
         :fields="calcFieldColumns"
+        :validation="true"
+        :variables="variables"
         :descriptor="calcFieldDescriptor"
         :prop-calc-field-functions="availableFunctions"
         :read-only="false"
@@ -43,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn } from '../../../../Dashboard'
+import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn, IVariable } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { removeColumnFromDiscoveryWidgetModel } from '../../helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import descriptor from './WidgetEditorDataListDescriptor.json'
@@ -60,7 +61,7 @@ import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
 export default defineComponent({
     name: 'widget-editor-data-list',
     components: { Dropdown, Listbox, KnCalculatedField },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected'],
     setup() {
         const store = mainStore()

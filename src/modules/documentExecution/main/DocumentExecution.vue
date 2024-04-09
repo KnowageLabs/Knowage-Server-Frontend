@@ -23,6 +23,8 @@
                         :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
                         @click="saveDashboard"
                     ></Button>
+                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
+                    <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
                     <Button
                         v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.refresh')"
@@ -308,6 +310,7 @@ export default defineComponent({
             savedViewsListDialogVisible: false,
             currentCockpitView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedCockpitView: null as IDashboardView | null,
+            cockpitViewForExecution: null as IDashboardView | null,
             dataLoaded: false
         }
     },
@@ -316,6 +319,10 @@ export default defineComponent({
             user: 'user',
             configurations: 'configurations'
         }),
+        canEditCockpit(): boolean {
+            if (!this.user || !this.document) return false
+            return (this.document.engine?.toLowerCase() === 'knowagecockpitengine' || this.document.engine?.toLowerCase() === 'knowagedashboardengine') && (this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId)
+        },
         sessionRole(): string | null {
             if (!this.user) return null
             return this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
@@ -352,7 +359,7 @@ export default defineComponent({
         isInDocBrowser() {
             return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
         },
-        isMobileDevice() {
+        isMobileDevice(){
             return /Android|iPhone/i.test(navigator.userAgent)
         }
     },
@@ -449,7 +456,25 @@ export default defineComponent({
         iframeEventsListener(event) {
             if (event.data.type === 'crossNavigation') {
                 executeAngularCrossNavigation(this, event, this.$http)
+            } else if (event.data.type === 'cockpitExecuted') {
+                this.loading = false
             }
+        },
+        editCockpitDocumentConfirm() {
+            this.documentMode === 'EDIT'
+                ? this.$confirm.require({
+                      message: this.$t('documentExecution.main.editModeConfirm'),
+                      header: this.$t('documentExecution.main.editCockpit'),
+                      icon: 'pi pi-exclamation-triangle',
+                      accept: () => this.editCockpitDocument()
+                  })
+                : this.editCockpitDocument()
+        },
+        async editCockpitDocument() {
+            this.loading = true
+            this.documentMode = this.documentMode === 'EDIT' ? 'VIEW' : 'EDIT'
+            this.hiddenFormData.set('documentMode', this.documentMode)
+            await this.loadURL(null)
         },
         openHelp() {
             this.helpDialogVisible = true
@@ -616,6 +641,7 @@ export default defineComponent({
             }
             this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
             if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
+            else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
             if (this.filtersData?.isReadyForExecution) {
                 this.parameterSidebarVisible = false
                 await this.loadURL(null, documentLabel, crossNavigationPopupMode)
@@ -650,7 +676,8 @@ export default defineComponent({
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/view/${this.$route.query.viewId}`)
                 .then(async (response: AxiosResponse<any>) => {
-                    this.dashboardView = response.data
+                    this.$route.path.includes('cockpit-view') ? (this.cockpitViewForExecution = response.data) : (this.dashboardView = response.data)
+                    if (this.cockpitViewForExecution) await this.executeView(this.cockpitViewForExecution)
                 })
                 .catch(() => {})
             this.loading = false
@@ -1173,6 +1200,7 @@ export default defineComponent({
         async executeView(view: IDashboardView) {
             this.savedViewsListDialogVisible = false
             if (view.biObjectTypeCode === 'DASHBOARD') this.dashboardView = view
+            else this.cockpitViewForExecution = view
             await this.loadPage()
         },
         openSaveCurrentViewDialog() {

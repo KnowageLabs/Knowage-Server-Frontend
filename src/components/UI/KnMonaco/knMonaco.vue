@@ -12,6 +12,7 @@ import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
 import { registerGroovyLanguageForMonaco } from './MonacoGroovy'
+import { registerCFLanguageForMonaco } from './CfLang'
 
 self.MonacoEnvironment = {
     getWorker(_, label) {
@@ -41,6 +42,7 @@ const props = defineProps<{
 }>()
 
 registerGroovyLanguageForMonaco()
+registerCFLanguageForMonaco()
 
 watch(
     () => props.textToInsert,

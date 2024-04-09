@@ -185,6 +185,28 @@
             "value": "COUNT_DISTINCT"
         }
     ],
+    "columnChartSettings": {
+        "buttonColumnStyle": {
+            "min-width": "125px",
+            "text-align": "end"
+        },
+        "columns": [
+            {
+                "field": "columnName"
+            },
+            {
+                "field": "aggregation",
+                "style": "max-width: 100px"
+            }
+        ],
+        "dataKey": "columnName",
+        "dragColumnsHint": "dashboard.widgetEditor.dragColumnsHint",
+        "dropIsActive": true,
+        "label": "dashboard.widgetEditor.selectedColumns",
+        "rowReorder": {
+            "rowReorderColumnStyle": "width: 3rem"
+        }
+    },
     "columnTableSettings": {
         "buttonColumnStyle": {
             "min-width": "125px",

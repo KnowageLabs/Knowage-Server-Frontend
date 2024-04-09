@@ -172,7 +172,7 @@ const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widg
 }
 
 const createDashboardSheetWidgetItem = (widget: IWidget) => {
-    return { id: widget.id ?? cryptoRandomString({ length: 16, type: 'base64' }), h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }
+    return { id: widget.id ?? cryptoRandomString({ length: 16, type: 'base64' }), h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 25, x: 0, y: 0, moved: false }
 }
 
 export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {

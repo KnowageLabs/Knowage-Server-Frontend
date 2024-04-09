@@ -1,5 +1,5 @@
 <template>
-    <WidgetEditorDataList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" @datasetSelected="setSelectDataset"></WidgetEditorDataList>
+    <WidgetEditorDataList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" @datasetSelected="setSelectDataset"></WidgetEditorDataList>
     <ChartGallery v-if="chartPickerVisible" :widget-model="widget" @selectedChartTypeChanged="onChartTypeChanged" />
     <div v-else-if="widget" class="p-d-flex kn-flex kn-overflow">
         <WidgetEditorHint v-if="!selectedDataset"></WidgetEditorHint>
@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset } from '../../../Dashboard'
+import { IWidget, IDataset, IVariable } from '../../../Dashboard'
 import { createNewHighchartsModel, createNewHighchartsSettings } from '../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsHelpers'
 import { createChartJSModel, createNewChartJSSettings } from '../helpers/chartWidget/chartJS/ChartJSHelpers'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
@@ -39,7 +39,7 @@ import VegaDataContainer from './ChartWidget/vega/VegaDataContainer.vue'
 export default defineComponent({
     name: 'widget-editor-data-tab',
     components: { WidgetEditorDataList, WidgetEditorHint, SelectorWidgetDataContainer, HighchartsDataContainer, WidgetEditorCommonDataContainer, ChartJSDataContainer, ChartGallery, PivotTableDataContainer, VegaDataContainer },
-    props: { propWidget: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<IDataset[]> }, selectedDatasets: { type: Array as PropType<IDataset[]> } },
+    props: { propWidget: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<IDataset[]> }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected'],
     data() {
         return {

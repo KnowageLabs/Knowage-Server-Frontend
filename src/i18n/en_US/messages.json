@@ -84,7 +84,8 @@
             "tags": {
                 "tagIsNotValid": "Tag ({tag}) is not valid'"
             },
-            "uploading": "Error uploading "
+            "uploading": "Error uploading ",
+            "validation": "Error during {what}validation"
         },
         "execute": "Execute",
         "expand": "expand",
@@ -276,7 +277,8 @@
             "minLength": "This field should have at least {min} characters",
             "noQuestionMark": "The value of the field must not contain the question mark (?)",
             "regex": "Invalid format",
-            "required": "{fieldName} is required"
+            "required": "{fieldName} is required",
+            "validating": "validating"
         },
         "value": "Value",
         "values": "Values",
@@ -2099,62 +2101,12 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday"
-        ],
-        "dayNamesMin": [
-            "Su",
-            "Mo",
-            "Tu",
-            "We",
-            "Th",
-            "Fr",
-            "Sa"
-        ],
-        "dayNamesShort": [
-            "Sun",
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat"
-        ],
+        "dayNames": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         "firstDayOfWeek": 0,
-        "monthNames": [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
-        ],
-        "monthNamesShort": [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        ],
+        "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         "today": "Today",
         "weekHeader": "Wk"
     },
@@ -2865,8 +2817,8 @@
             "preview": "Preview",
             "profileAttributes": "Profile Attributes",
             "profileDependencyText": "The lov needs some profile attributes.Your personal profile doesn't contain all the necessary attributes.To proceed with the test assign a value to the missing profile attributes.",
-            "queryDefinition": "Query definition",
             "queryColumnsNameNotAllowed": "Column names including null, ' ' , '/' and '.'  are not allowed. Use aliases.",
+            "queryDefinition": "Query definition",
             "queryWizard": "WIZARD QUERY",
             "sameLabelError": "LOV with same label already exists",
             "script": "Script",
