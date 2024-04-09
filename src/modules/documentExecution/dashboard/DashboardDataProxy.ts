@@ -104,6 +104,19 @@ export const addParametersToData = (dataset, dashboardId, dataToSend) => {
     }
 }
 
+export const addVariablesToFormula = (column, dashboardConfig) => {
+    const variableRegex = /\$V{([^}]+)}/g
+
+    if (dashboardConfig.variables && dashboardConfig.variables.length > 0) {
+        const parsedFormula = column.formula.replace(variableRegex, (match, p1) => {
+            const matchObj = dashboardConfig.variables.find((obj) => obj.name === p1)
+            // If matchObj exists, return its value; otherwise, return the original match
+            return matchObj ? matchObj.value : match
+        })
+        return parsedFormula
+    } else return column.formula
+}
+
 export const addSelectionsToData = (dataToSend: any, propWidget: IWidget, datasetLabel: string | undefined, initialCall: boolean, selections: ISelection[], associativeResponseSelections: any) => {
     if (associativeResponseSelections) {
         dataToSend.selections = associativeResponseSelections

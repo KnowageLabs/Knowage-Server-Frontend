@@ -1,6 +1,6 @@
 // import { AxiosResponse } from 'axios'
 import { IDashboardDataset, IWidget, IWidgetSearch, ISelection, IDashboardConfiguration } from '../../Dashboard'
-import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
+import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula } from '../../DashboardDataProxy'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { indexedDB } from '@/idb'
 import { md5 } from 'js-md5'
@@ -21,7 +21,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
         if (pagination && pagination?.enabled) url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=true`
         else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
-        const postData = formatTableWidgetModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+        const postData = formatTableWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         const formattedSelections = getLikeSelections(searchParams, datasetLabel)
         if (formattedSelections != null) postData.likeSelections = formattedSelections
         let tempResponse = null as any
@@ -88,7 +88,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
     }
 }
 
-const formatTableWidgetModelForService = (dashboardId: any, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+const formatTableWidgetModelForService = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const dataToSend = {
         aggregations: {
             dataset: '',
@@ -115,7 +115,8 @@ const formatTableWidgetModelForService = (dashboardId: any, widget: IWidget, dat
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
-            column.formula ? (measureToPush.formula = column.formula) : ''
+            if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+
             dataToSend.aggregations.measures.push(measureToPush)
         } else {
             const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any

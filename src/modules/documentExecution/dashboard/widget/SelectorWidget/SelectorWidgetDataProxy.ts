@@ -1,5 +1,5 @@
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
-import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
+import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, addVariablesToFormula, showGetDataError } from '../../DashboardDataProxy'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
@@ -14,7 +14,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
     if (selectedDataset) {
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
-        const postData = formatSelectorWidgetModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+        const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
@@ -51,7 +51,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
     }
 }
 
-const formatSelectorWidgetModelForService = (dashboardId: any, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const dataToSend = {
         aggregations: {
             dataset: '',
@@ -73,7 +73,8 @@ const formatSelectorWidgetModelForService = (dashboardId: any, widget: IWidget, 
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
-            column.formula ? (measureToPush.formula = column.formula) : ''
+            if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+
             dataToSend.aggregations.measures.push(measureToPush)
         } else {
             const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any

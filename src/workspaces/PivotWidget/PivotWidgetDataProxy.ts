@@ -1,4 +1,4 @@
-import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, hasFields, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
+import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, addVariablesToFormula, hasFields, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
 import { md5 } from 'js-md5'
@@ -14,7 +14,7 @@ export const getPivotData = async (dashboardId: any, dashboardConfig: IDashboard
     if (selectedDataset && hasFields(widget)) {
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
 
-        const postData = formatPivotModelForGet(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+        const postData = formatPivotModelForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
@@ -50,7 +50,7 @@ export const getPivotData = async (dashboardId: any, dashboardConfig: IDashboard
     }
 }
 
-const formatPivotModelForGet = (dashboardId: any, propWidget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+const formatPivotModelForGet = (dashboardId: any, dashboardConfig: IDashboardConfiguration, propWidget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const dataToSend = {
         aggregations: {
             dataset: '',
@@ -74,7 +74,8 @@ const formatPivotModelForGet = (dashboardId: any, propWidget: IWidget, dataset: 
         fields.forEach((field) => {
             if (field.fieldType === 'MEASURE') {
                 const measureToPush = { id: field.alias, alias: field.alias, columnName: field.columnName, funct: field.aggregation, orderColumn: field.alias } as any
-                field.formula ? (measureToPush.formula = field.formula) : ''
+                if (field.formula) measureToPush.formula = addVariablesToFormula(field, dashboardConfig)
+
                 dataToSend.aggregations.measures.push(measureToPush)
             } else {
                 const attributeToPush = { id: field.alias, alias: field.alias, columnName: field.columnName, orderType: '', funct: 'NONE' } as any

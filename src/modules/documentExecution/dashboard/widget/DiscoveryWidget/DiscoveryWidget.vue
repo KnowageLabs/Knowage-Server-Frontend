@@ -359,22 +359,17 @@ export default defineComponent({
                         const columnStyles = this.propWidget.settings.style.columns
 
                         if (columnStyles.enabled) {
-                            let columnStyleString = null as any
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            columnStyleString = Object.entries(columnStyles.styles[0].properties)
-                                .map(([k, v]) => `${k}:${v}`)
-                                .join(';')
+                            let columnStyleProperties = null as any
+                            columnStyleProperties = columnStyles.styles[0].properties
 
                             columnStyles.styles.forEach((group) => {
                                 if (group.target.includes(tempCol.colId)) {
-                                    columnStyleString = Object.entries(group.properties)
-                                        .map(([k, v]) => `${k}:${v}`)
-                                        .join(';')
+                                    columnStyleProperties = group.properties
                                 }
                             })
 
                             tempCol.cellStyle = () => {
-                                return columnStyles.styles[0].properties
+                                return columnStyleProperties
                             }
                         }
 
@@ -397,7 +392,7 @@ export default defineComponent({
 
                         tempCol.autoHeight = true
                         tempCol.wrapText = true
-                        tempCol.cellStyle = { 'white-space': 'normal' }
+                        // tempCol.cellStyle = { 'white-space': 'normal' }
 
                         columns.push(tempCol)
                     }
