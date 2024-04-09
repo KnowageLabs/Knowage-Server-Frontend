@@ -109,7 +109,6 @@ export const addVariablesToFormula = (column, dashboardConfig) => {
 
     if (dashboardConfig.variables && dashboardConfig.variables.length > 0) {
         const parsedFormula = column.formula.replace(variableRegex, (match, p1) => {
-            console.log('p1', p1)
             const matchObj = dashboardConfig.variables.find((obj) => obj.name === p1)
             // If matchObj exists, return its value; otherwise, return the original match
             return matchObj ? matchObj.value : match
