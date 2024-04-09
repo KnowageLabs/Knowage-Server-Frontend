@@ -1,5 +1,5 @@
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
-import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, showGetDataError, getAggregationsModel, addDataToCache } from '../../DashboardDataProxy'
+import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, showGetDataError, getAggregationsModel, addDataToCache, addVariablesToFormula } from '../../DashboardDataProxy'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
@@ -20,7 +20,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
         const aggregationsModel = getAggregationsModel(widget, valueToParse)
         let aggregationDataset = null as any
         if (aggregationsModel) {
-            const aggregationsPostData = formatWebComponentModelForService(dashboardId, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)
+            const aggregationsPostData = formatWebComponentModelForService(dashboardId, dashboardConfig, aggregationsModel, selectedDataset, initialCall, selections, associativeResponseSelections)
 
             const postDataForHash = deepcopy(aggregationsPostData) // making a deepcopy so we can delete options which are used for solr datasets only
             if (numOfRowsToGet) postDataForHash.numOfRowsToGet = numOfRowsToGet // adding pagination in case its being used so we save data for each page
@@ -50,7 +50,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
             }
         }
 
-        const postData = formatWebComponentModelForService(dashboardId, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
+        const postData = formatWebComponentModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
 
@@ -83,7 +83,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
     }
 }
 
-const formatWebComponentModelForService = (dashboardId: any, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+const formatWebComponentModelForService = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const dataToSend = {
         aggregations: {
             dataset: '',
@@ -105,7 +105,8 @@ const formatWebComponentModelForService = (dashboardId: any, widget: IWidget, da
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
-            column.formula ? (measureToPush.formula = column.formula) : ''
+            if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+
             dataToSend.aggregations.measures.push(measureToPush)
         } else {
             const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any
