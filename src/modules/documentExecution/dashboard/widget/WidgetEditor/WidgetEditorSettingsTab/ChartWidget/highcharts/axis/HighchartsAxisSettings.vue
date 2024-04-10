@@ -5,6 +5,7 @@
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                 <InputNumber v-model="axisModel.min" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMinHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeValue('min')" />
             </div>
         </div>
         <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
@@ -12,13 +13,14 @@
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                 <InputNumber v-model="axisModel.max" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMaxHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeValue('max')" />
             </div>
         </div>
         <div class="p-col-12 p-d-flex p-flex-column" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter', 'dumbbell', 'streamgraph', 'waterfall'].includes(chartType) }">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.heatmap.labelRotation') }}</label>
             <InputNumber v-model="axisModel.labels.rotation" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
         </div>
-        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter', 'dumbbell','streamgraph', 'waterfall'].includes(chartType) }">
+        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter', 'dumbbell', 'streamgraph', 'waterfall'].includes(chartType) }">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
             <Dropdown v-model="axisModel.labels.align" class="kn-material-input" :options="settingsDescriptor.alignmentOptions" option-value="value" @change="modelChanged">
                 <template #value="slotProps">
@@ -133,7 +135,7 @@ export default defineComponent({
     methods: {
         loadModel() {
             if (!this.widgetModel.settings.chartModel || !this.widgetModel.settings.chartModel.model) return
-            this.axisModel = this.axis === 'x' ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
+            this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
             this.loadToolbarModel()
         },
         loadToolbarModel() {
@@ -161,6 +163,9 @@ export default defineComponent({
         onFormatterChange(newValue: string) {
             if (!this.axisModel) return
             this.axisModel.labels.formatterText = newValue
+        },
+        removeValue(value: 'min' | 'max') {
+            this.axisModel[value] = null
         }
     }
 })

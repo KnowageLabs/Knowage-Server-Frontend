@@ -175,7 +175,7 @@
             },
             "x": 0
         },
-        "min": 0,
+        "min": null,
         "minorGridLineColor": "",
         "minorGridLineDashStyle": "",
         "minorTickInterval": null,

@@ -80,7 +80,7 @@ export default defineComponent({
     methods: {
         loadModel() {
             if (!this.widgetModel.settings.chartModel || !this.widgetModel.settings.chartModel.model) return
-            this.axisModel = this.axis === 'x' ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
+            this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
         },
         modelChanged() {
             emitter.emit('refreshChart', this.widgetModel.id)

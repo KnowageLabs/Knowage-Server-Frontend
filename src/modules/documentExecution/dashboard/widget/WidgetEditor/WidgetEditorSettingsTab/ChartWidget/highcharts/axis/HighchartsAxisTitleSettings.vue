@@ -56,7 +56,7 @@ export default defineComponent({
             return !this.axisModel || !this.axisModel.title || !this.axisModel.title.enabled
         },
         axisAlignOptions() {
-            return this.axis === 'x' ? descriptor.xAxisTitleAlignOptions : descriptor.yAxisTitleAlignOptions
+            return (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? descriptor.xAxisTitleAlignOptions : descriptor.yAxisTitleAlignOptions
         }
     },
     created() {
@@ -65,7 +65,7 @@ export default defineComponent({
     methods: {
         loadModel() {
             if (!this.widgetModel.settings.chartModel || !this.widgetModel.settings.chartModel.model) return
-            this.axisModel = this.axis === 'x' ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
+            this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
             this.loadToolbarModel()
         },
         loadToolbarModel() {
