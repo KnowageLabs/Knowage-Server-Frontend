@@ -78,13 +78,17 @@ export default defineComponent({
             getTranslatedLabel
         }
     },
+    computed: {
+        chartType() {
+            return this.widgetModel.settings.chartModel?.model?.chart?.type
+        }
+    },
     created() {
         this.loadModel()
     },
-
     methods: {
         loadModel() {
-            this.axisModel = this.axis === 'x' ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
+            this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
         },
         modelChanged() {
             emitter.emit('refreshChart', this.widgetModel.id)
