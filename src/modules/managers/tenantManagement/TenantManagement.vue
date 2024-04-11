@@ -86,8 +86,8 @@ export default defineComponent({
         if (this.$route?.params) this.hintVisible = false
     },
     methods: {
-        loadData(dataType: string) {
-            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant${dataType}`).finally(() => (this.loading = false))
+        loadData() {
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant`).finally(() => (this.loading = false))
         },
         async getLicences() {
             return this.$http
@@ -101,7 +101,7 @@ export default defineComponent({
         },
         async loadTenants() {
             this.loading = true
-            await this.loadData('').then((response: AxiosResponse<any>) => {
+            await this.loadData().then((response: AxiosResponse<any>) => {
                 this.multitenants = response.data.root
             })
             this.loading = false
@@ -126,7 +126,7 @@ export default defineComponent({
             })
         },
         showForm(event: any) {
-            const path = event.value ? `/tenants-management/${event.value.MULTITENANT_ID}` : '/tenants-management/new-tenant'
+            const path = event.value ? `/tenants-management/${event.value.TENANT_ID}` : '/tenants-management/new-tenant'
             this.hintVisible = false
 
             if (!this.touched) {

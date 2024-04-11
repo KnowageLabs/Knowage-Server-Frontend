@@ -32,7 +32,7 @@
                     <div>
                         <small>The company/product logo, visible on the menu bar. If not present the default Knowage "K" will be shown.</small>
                     </div>
-                   
+
                     <div class="imageContainer p-d-flex p-jc-center p-ai-center">
                         <i v-if="!tenant.TENANT_IMAGE" class="far fa-image fa-5x icon" />
                         <img v-if="tenant.TENANT_IMAGE" :src="tenant.TENANT_IMAGE" class="kn-no-select" />
@@ -47,7 +47,7 @@
                     <div>
                         <small>This logo will be used within dashboards XLSX exports. If no image is provided it will not be visible in those instances. The images should be below 200KB and in jpg or png format.</small>
                     </div>
-                   
+
                     <div class="imageContainerExtended p-d-flex p-jc-center p-ai-center">
                         <i v-if="!tenant.TENANT_IMAGE_WIDE" class="far fa-image fa-5x icon" />
                         <img v-if="tenant.TENANT_IMAGE_WIDE" :src="tenant.TENANT_IMAGE_WIDE" class="kn-no-select" />
@@ -56,8 +56,6 @@
                             <i class="pi pi-upload"></i>
                         </label>
                     </div>
-
-                    
                 </div>
             </form>
         </template>
@@ -76,7 +74,7 @@ import tenantDetailValidationDescriptor from './TenantDetailValidationDescriptor
 import { iTenant } from '../../TenantManagement'
 import { AxiosResponse } from 'axios'
 import mainStore from '../../../../../App.store'
-import {mapActions} from 'pinia'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'detail-tab',
@@ -117,10 +115,10 @@ export default defineComponent({
         async selectedTenant() {
             this.v$.$reset()
             this.tenant = { ...this.selectedTenant } as iTenant
-            await this.$http.get(process.env.VUE_APP_RESTFUL_SERVICES_PATH + `multitenant/${this.tenant.TENANT_NAME}/logo`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant/${this.tenant.TENANT_NAME}/logo`).then((response: AxiosResponse<any>) => {
                 this.tenant.TENANT_IMAGE = response.data
             })
-            await this.$http.get(process.env.VUE_APP_RESTFUL_SERVICES_PATH + `multitenant/${this.tenant.TENANT_NAME}/logo-wide`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant/${this.tenant.TENANT_NAME}/logo-wide`).then((response: AxiosResponse<any>) => {
                 this.tenant.TENANT_IMAGE_WIDE = response.data
             })
         },
@@ -168,7 +166,7 @@ export default defineComponent({
                 },
                 false
             )
-            if (event.srcElement.files[0] && event.srcElement.files[0].size < process.env.VUE_APP_MAX_UPLOAD_IMAGE_SIZE) {
+            if (event.srcElement.files[0] && event.srcElement.files[0].size < import.meta.env.VITE_MAX_UPLOAD_IMAGE_SIZE) {
                 reader.readAsDataURL(event.srcElement.files[0])
                 this.v$.$touch()
             } else this.setError({ title: this.$t('common.error.uploading'), msg: this.$t('common.error.exceededSize', { size: '(200KB)' }) })
@@ -178,10 +176,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-#organizationImage, #organizationImageExtended {
+#organizationImage,
+#organizationImageExtended {
     display: none;
 }
-label[for='organizationImage'], label[for='organizationImageExtended'] {
+label[for='organizationImage'],
+label[for='organizationImageExtended'] {
     position: absolute;
     top: 0;
     right: -36px;
@@ -193,9 +193,8 @@ label[for='organizationImage'], label[for='organizationImageExtended'] {
     width: 36px;
     padding: 8px;
     &:hover {
-        background-color: rgba(var(--kn-color-primary),.2);
+        background-color: rgba(var(--kn-color-primary), 0.2);
     }
-
 }
 .imageUploader {
     .p-fileupload {
@@ -206,7 +205,8 @@ label[for='organizationImage'], label[for='organizationImageExtended'] {
         }
     }
 }
-.imageContainer, .imageContainerExtended {
+.imageContainer,
+.imageContainerExtended {
     height: 90px;
     width: 300px;
     position: relative;
