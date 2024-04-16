@@ -36,8 +36,6 @@ axios.interceptors.request.use(
         config.headers.common['Content-Type'] = 'application/json; charset=utf-8'
         config.headers.common['Access-Control-Allow-Origin'] = '*'
 
-        config.url = encodeURI(config.url)
-
         if (localStorage.getItem('public')) {
             if (new Date().getTime() - localStorage.getItem('lastResponseTimestamp') > import.meta.env.VITE_SESSION_TIMEOUT) {
                 const sessionPending = await sessionPendingTimeoutFn()
