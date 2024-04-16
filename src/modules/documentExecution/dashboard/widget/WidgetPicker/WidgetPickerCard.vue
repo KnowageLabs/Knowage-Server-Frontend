@@ -29,9 +29,10 @@ export default defineComponent({
     },
     methods: {
         documentImageSource(): any {
+            const widgetImg = this.widget.type === 'highcharts' || this.widget.type === 'chartJS' ? 'chart' : this.widget.type
             return {
-                'mask-image': `url(${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${descriptor.imagePath}${this.widget.type}${descriptor.imageExtension})`,
-                '-webkit-mask-image': `url(${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${descriptor.imagePath}${this.widget.type}${descriptor.imageExtension})`
+                'mask-image': `url(${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${descriptor.imagePath}${widgetImg}${descriptor.imageExtension})`,
+                '-webkit-mask-image': `url(${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${descriptor.imagePath}${widgetImg}${descriptor.imageExtension})`
             }
         }
     }
