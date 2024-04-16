@@ -317,6 +317,10 @@ export default defineComponent({
 
 @media all and (max-width: 600px) {
     .sheets-container {
+        .sheets-list {
+            height: 50px;
+            max-width: calc(100vw - var(--kn-mainmenu-width));
+        }
         .sheet-label {
             flex: 1 0 0;
             max-width: unset;
