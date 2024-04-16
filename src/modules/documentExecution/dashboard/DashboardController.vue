@@ -520,11 +520,6 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
 }
-@media screen and (max-width: 600px) {
-    .dashboard-container {
-        height: calc(100vh - var(--kn-mainmenu-width));
-    }
-}
 
 .dashboard-renderer-container {
     display: flex;

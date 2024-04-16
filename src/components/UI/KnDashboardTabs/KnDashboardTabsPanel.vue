@@ -1,11 +1,11 @@
 <template>
     <div class="sheets-container">
         <div v-if="(edit && sheets && sheets.length >= 1) || (!edit && sheets && sheets.length > 1)" class="sheets-list" :class="labelPosition" role="tablist">
-            <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index }" @touchstart.passive="setPage(index)" @click="setPage(index)" @dblclick.stop="renameSheet(index)">
+            <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index, hidden: sheets.length <= 1 }" @touchstart.passive="setPage(index)" @click="setPage(index)" @dblclick.stop="renameSheet(index)">
                 <slot name="label" v-bind="sheet">
                     <i v-if="sheet.icon" :class="sheet.icon" class="p-mr-1"></i>
                     <input v-if="index === sheetToRenameIndex" v-model="tempLabel" :ref="`input_${index}`" type="text" @click.stop="" @blur="saveRename(index, $event)" @keyup.enter="saveRename(index, $event)" />
-                    <span v-else>{{ sheet.label }} </span>
+                    <span v-else class="kn-truncated" :title="sheet.label">{{ sheet.label }} </span>
                     <Button v-if="edit" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
                     <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`">
                         <q-list style="min-width: 100px" dense>
@@ -46,7 +46,7 @@
                     </q-menu>
                 </slot>
             </a>
-            <a v-if="edit" class="sheet-label" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
+            <a v-if="edit" class="sheet-label" :title="$t('dashboard.sheets.add')" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
         </div>
 
         <div class="sheets-wrapper" @touchstart.passive="onTouchStart($event)" @touchmove.passive="onTouchMove($event)" @touchend.passive="onTouchEnd($event)">
@@ -271,26 +271,31 @@ export default defineComponent({
         position: relative;
         height: 35px;
         margin: 0;
-        padding: 0;
+        padding: 0 4px;
         border-bottom: 1px solid #ccc;
         list-style: none;
         display: inline-flex;
         order: 0;
-        background-color: white;
+        background-color: #f1f1f1;
         &.bottom {
             order: 2;
-            border-top: 1px solid #ccc;
+            border-top: 1px solid #e4e4e4;
             border-bottom: 0;
         }
         .sheet-label {
             position: relative;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
+            width: auto;
+            max-width: 200px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
             height: 100%;
             position: relative;
+            padding: 0 16px;
+            background: white;
             color: #999;
             cursor: pointer;
             text-decoration: none;
@@ -304,6 +309,7 @@ export default defineComponent({
             &.active {
                 color: #000;
                 font-weight: 900;
+                border-top: 2px solid var(--kn-toolbar-primary-background-color);
             }
         }
     }
@@ -312,9 +318,8 @@ export default defineComponent({
 @media all and (max-width: 600px) {
     .sheets-container {
         .sheet-label {
-            span {
-                display: none;
-            }
+            flex: 1 0 0;
+            max-width: unset;
         }
     }
 }
