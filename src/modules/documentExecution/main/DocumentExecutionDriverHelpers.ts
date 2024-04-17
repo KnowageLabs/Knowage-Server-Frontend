@@ -158,8 +158,8 @@ const addDefaultEmptyParameterValuesIfNoValuesPresent = (el: iParameter) => {
 }
 
 const formatDateDriver = (el: any) => {
-    if (!el.paramterValue || !el.paramterValue[0]) {
-        el.paramterValue = [{ value: null, description: '' }]
+    if (!el.parameterValue || !el.parameterValue[0]) {
+        el.parameterValue = [{ value: null, description: '' }]
         return
     }
 
