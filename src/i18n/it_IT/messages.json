@@ -237,6 +237,11 @@
             "officialDocumentation": "documentazione ufficiale ({function})",
             "title": "campo calcolato",
             "type": "Type"
+        },
+        "knIconPicker": {
+            "chooseIcon": "Seleziona Icona",
+            "recentlyUsed": "Usati di recente",
+            "upload": "Carica la tua immagine"
         }
     },
     "cron": {
@@ -367,6 +372,7 @@
             "add": "Aggiungi Foglio",
             "confirmDeleteMessage": "Confermi di voler eliminare il foglio selezionato? ",
             "delete": "Elimina foglio",
+            "manageIcon": "Gestisci icona del foglio",
             "moveLeft": "Sposta foglio a sinistra",
             "moveRight": "Sposta foglio a destra",
             "newSheet": "Nuovo foglio",
