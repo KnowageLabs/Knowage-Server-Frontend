@@ -985,7 +985,10 @@ export default defineComponent({
         },
         getFormattedDate(date: any, useDefaultFormat?: boolean) {
             const format = date instanceof Date ? undefined : 'dd/MM/yyyy'
-            return luxonFormatDate(date, format, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            const formattedDate = luxonFormatDate(date, format, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            if (formattedDate === "Invalid DateTime") {
+              return luxonFormatDate(new Date(date), undefined, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            } else return formattedDate
         },
         async onBreadcrumbClick(item: any) {
             if (!item) return
