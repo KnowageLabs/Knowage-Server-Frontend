@@ -75,17 +75,26 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
 const getFormattedSheetBackground = (model: any) => {
     const modelStyle = model.configuration.style
 
-    const formattedBackground = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '' } as IBackground
+    const formattedBackground = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', showGrid: true } as IBackground
     if (modelStyle.sheetsBackgroundColor) formattedBackground.sheetsBackgroundColor = modelStyle.sheetsBackgroundColor
     if (modelStyle.imageBackgroundUrl) formattedBackground.imageBackgroundUrl = modelStyle.imageBackgroundUrl
     if (modelStyle.imageBackgroundSize) formattedBackground.imageBackgroundSize = modelStyle.imageBackgroundSize
+    if (modelStyle.showGrid) formattedBackground.showGrid = modelStyle.showGrid
 
     return formattedBackground
 }
 
 const getFormattedMenuAndWidgets = (model: any) => {
     const modelConfig = model.configuration
-    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true, enableChartChange: true, enableCaching: true, enableCustomHeader: false, enableWidgetMenu: true } as IMenuAndWidgets
+    const formattedMenuAndWIdgets = {
+        showExcelExport: modelConfig.showExcelExport ?? true,
+        showScreenshot: modelConfig.showScreenshot ?? true,
+        showSelectionButton: modelConfig.showSelectionButton ?? true,
+        enableChartChange: true,
+        enableCaching: true,
+        enableCustomHeader: false,
+        enableWidgetMenu: true
+    } as IMenuAndWidgets
 
     return formattedMenuAndWIdgets
 }

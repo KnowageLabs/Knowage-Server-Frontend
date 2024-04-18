@@ -14,6 +14,7 @@
                 :vertical-compact="false"
                 :use-css-transforms="false"
                 :margin="[0, 0]"
+                :style="getGridStyle"
                 @breakpoint-changed="breakpointChangedEvent"
             >
                 <WidgetController
@@ -97,6 +98,11 @@ export default defineComponent({
         },
         dashboardCss(): any {
             return `<style>${this.dashboardModel?.configuration?.cssToRender}</style>`
+        },
+        getGridStyle() {
+            if (canEditDashboard(document) && this.dashboardModel?.configuration?.background?.showGrid) {
+                return { 'background-size': `${100 / this.colSizes[this.currentScreenSize]}% 30px`, 'background-position': `-${100 / this.colSizes[this.currentScreenSize] / 2}% -15px`, 'background-image': 'radial-gradient(circle, #ccc 1px, rgba(0, 0, 0, 0) 1px)' }
+            } else return {}
         }
     },
     watch: {
@@ -202,6 +208,15 @@ export default defineComponent({
             img {
                 height: 100px;
             }
+        }
+    }
+}
+
+@media all and (max-width: 600px) {
+    .vue-grid-layout {
+        .emptyDashboardWizard {
+            flex-direction: column;
+            gap: 16px;
         }
     }
 }

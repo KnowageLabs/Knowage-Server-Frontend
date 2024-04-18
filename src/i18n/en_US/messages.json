@@ -420,7 +420,10 @@
             "background": {
                 "sheetsColor": "Sheets Background Color",
                 "sheetsImage": "Sheets Background Image URL",
-                "sheetsSize": "Sheets Background Size"
+                "sheetsImageHint": "Paste the image URL or base64 code here",
+                "sheetsSize": "Sheets Background Size",
+                "sheetsSizeHint": "Use px, % or CSS keywords like 'contain' or 'cover'",
+                "showGrid": "Show Grid on edit"
             },
             "css": "CSS Editor",
             "customHeader": "Custom Header",

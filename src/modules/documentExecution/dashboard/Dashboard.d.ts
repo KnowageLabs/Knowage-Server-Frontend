@@ -617,6 +617,7 @@ interface IBackground {
     sheetsBackgroundColor: string
     imageBackgroundUrl: string
     imageBackgroundSize: string
+    showGrid: boolean
 }
 
 interface IMenuAndWidgets {

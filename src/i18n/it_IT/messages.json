@@ -348,7 +348,10 @@
             "background": {
                 "sheetsColor": "Colore di sfondo dei fogli",
                 "sheetsImage": "Indirizzo immagine di sfondo dei fogli",
-                "sheetsSize": "Dimensione sfondo dei fogli"
+                "sheetsImageHint": "Incolla l'indirizzo dell'immagine o il codice base64",
+                "sheetsSize": "Dimensione sfondo dei fogli",
+                "sheetsSizeHint": "Usa px, % o proprietà CSS come 'contain' o 'cover'",
+                "showGrid": "Mostra griglia in modifica"
             },
             "css": "Editor CSS",
             "menuWidgets": {
