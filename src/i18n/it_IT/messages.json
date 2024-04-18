@@ -1367,6 +1367,8 @@
             "savedParameters": "parametri salvati",
             "savedParametersTooltip": "elenco parametri salvati",
             "scheduledExecutions": "esecuzioni schedulate",
+            "seeAsEditor": "Visualizza come amministratore",
+            "seeAsFinalUser": "Visualizza come utente finale",
             "selectFileError": "seleziona un file da caricare",
             "sendEmailMessage": "Inserisci user / password se vuoi inviare il messaggio con il tuo utente, ricordati di verificarne la correttezza.",
             "showMenu": "Mostra Menu",

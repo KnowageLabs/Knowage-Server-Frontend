@@ -21,7 +21,7 @@
                     <template #append>
                         <q-icon name="colorize" class="cursor-pointer">
                             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                                <q-color v-model="background.sheetsBackgroundColor" format-model="hex" />
+                                <q-color v-model="background.sheetsBackgroundColor" format-model="hexa" />
                             </q-popup-proxy>
                         </q-icon>
                     </template>

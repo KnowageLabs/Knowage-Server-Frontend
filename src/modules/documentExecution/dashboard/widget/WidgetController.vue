@@ -168,6 +168,11 @@ export default defineComponent({
             },
             deep: true
         },
+        'document.seeAsFinalUser': {
+            handler() {
+                this.loadMenuItems()
+            }
+        },
         item() {
             this.loadMenuItems()
         },

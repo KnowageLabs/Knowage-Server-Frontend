@@ -311,7 +311,8 @@ export default defineComponent({
             currentCockpitView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedCockpitView: null as IDashboardView | null,
             cockpitViewForExecution: null as IDashboardView | null,
-            dataLoaded: false
+            dataLoaded: false,
+            seeAsFinalUser: false
         }
     },
     computed: {
@@ -359,7 +360,7 @@ export default defineComponent({
         isInDocBrowser() {
             return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
         },
-        isMobileDevice(){
+        isMobileDevice() {
             return /Android|iPhone/i.test(navigator.userAgent)
         }
     },
@@ -448,6 +449,7 @@ export default defineComponent({
     },
     methods: {
         canSeeDashboardFunctions() {
+            if (this.seeAsFinalUser) return false
             if (!this.user || !this.document) return false
             if (!this.document.dashboardId && this.document.crossType != 1) return true
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
@@ -506,7 +508,8 @@ export default defineComponent({
                     openDashboardGeneralSettings: this.openDashboardGeneralSettings,
                     openSaveCurrentViewDialog: this.openSaveCurrentViewDialog,
                     openSavedViewsListDialog: this.openSavedViewsListDialog,
-                    openHelp: this.openHelp
+                    openHelp: this.openHelp,
+                    toggleFinalUser: this.toggleFinalUser
                 },
                 this.exporters,
                 this.user,
@@ -986,8 +989,8 @@ export default defineComponent({
         getFormattedDate(date: any, useDefaultFormat?: boolean) {
             const format = date instanceof Date ? undefined : 'dd/MM/yyyy'
             const formattedDate = luxonFormatDate(date, format, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
-            if (formattedDate === "Invalid DateTime") {
-              return luxonFormatDate(new Date(date), undefined, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            if (formattedDate === 'Invalid DateTime') {
+                return luxonFormatDate(new Date(date), undefined, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
             } else return formattedDate
         },
         async onBreadcrumbClick(item: any) {
@@ -1222,6 +1225,12 @@ export default defineComponent({
             this.savedViewsListDialogVisible = false
             this.selectedCockpitView = view
             this.saveViewDialogVisible = true
+        },
+        toggleFinalUser() {
+            if (this.seeAsFinalUser) {
+                delete this.document.seeAsFinalUser
+            } else this.document.seeAsFinalUser = true
+            this.seeAsFinalUser = !this.seeAsFinalUser
         }
     }
 })

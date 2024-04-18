@@ -100,7 +100,7 @@ export default defineComponent({
             return `<style>${this.dashboardModel?.configuration?.cssToRender}</style>`
         },
         getGridStyle() {
-            if (canEditDashboard(document) && this.dashboardModel?.configuration?.background?.showGrid) {
+            if (canEditDashboard(this.document) && this.dashboardModel?.configuration?.background?.showGrid) {
                 return { 'background-size': `${100 / this.colSizes[this.currentScreenSize]}% 30px`, 'background-position': `-${100 / this.colSizes[this.currentScreenSize] / 2}% -15px`, 'background-image': 'radial-gradient(circle, #ccc 1px, rgba(0, 0, 0, 0) 1px)' }
             } else return {}
         }
