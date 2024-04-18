@@ -22,7 +22,7 @@
                 "enableWidgetMenu": true,
                 "showExcelExport": true,
                 "showScreenshot": true,
-                "showSelectionButton": true
+                "showSelectionButton": false
             },
             "name": "",
             "selections": [],
