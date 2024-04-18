@@ -3,7 +3,7 @@ export interface IIcon {
     className?: string
     fontFamily?: string
     fontWeight?: number
-    id?: number
+    id: number
     label: string
     unicode?: string
     visible?: boolean

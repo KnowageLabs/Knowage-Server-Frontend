@@ -89,9 +89,10 @@ export default defineComponent({
             this.selectedIcon = null
         },
         onBase64ImageSelection(event) {
+            const maxId = Math.max(...this.recentlyUsedIcons.map((i) => i.id))
             this.selectedIcon = {
                 category: 'custom',
-                id: 9999,
+                id: maxId < 10000 ? 10000 : maxId + 1,
                 label: 'Custom Image',
                 image: event
             }
