@@ -31,7 +31,7 @@
                                 <span class="p-float-label">
                                     <InputText id="descr" v-model.trim="v$.menuNode.descr.$model" type="text" class="p-inputtext p-component kn-material-input" aria-describedby="descr-help" @blur="onDataChange(v$.menuNode.descr)" />
                                     <Button v-if="isIconSelectorShown(menuNode) && (menuNode.icon != null || menuNode.custIcon != null)" icon="pi pi-times" @click="clearSelectedIcon" />
-                                    <Button v-if="isCustomIconShown(menuNode)"><img style="max-height: 26px; max-width: 26px" :src="selectedIcon" /></Button>
+                                    <Button v-if="isCustomIconShown(menuNode)"><img style="max-height: 26px; max-width: 26px" :src="menuNode.custIcon.src" /></Button>
                                     <Button v-if="isFaIconShown(menuNode)" style="display: inline-flex; justify-content: center"><i :class="selectedIcon"></i></Button>
                                     <Button v-if="isIconSelectorShown(menuNode)" class="p-button" @click="openFontAwesomeSelectionModal()">{{ $t('managers.menuManagement.chooseIcon').toUpperCase() }}</Button>
                                     <label for="descr">{{ $t('managers.menuManagement.description') }} *</label>
@@ -345,13 +345,13 @@ export default defineComponent({
                 unicode: null,
                 category: 'custom',
                 label: 'logo.png',
-                src: base64image,
+                src: base64image.image,
                 visible: true
             }
             this.selectedIcon = base64image
         },
         onChoosenIcon(choosenIcon) {
-            if (typeof choosenIcon == 'string') {
+            if (choosenIcon.category === 'custom') {
                 this.setBase64Image(choosenIcon)
             } else {
                 this.menuNode.icon = choosenIcon
