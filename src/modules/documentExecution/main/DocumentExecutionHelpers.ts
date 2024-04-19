@@ -129,9 +129,9 @@ const removeEmptyToolbarItems = (toolbarMenuItems: any[]) => {
     }
 }
 
-export function getValidDate(value: string) {
+export function getValidDate(value: string, serverDateFormat: string) {
     let momentDate = moment(deepcopy(value))
-    const validFormats = ['DD/MM/YYYY', 'DD/MM/YYYY HH:mm:ss.SSS']
+    const validFormats = [serverDateFormat, 'DD/MM/YYYY', 'DD/MM/YYYY HH:mm:ss.SSS']
     for (let i = 0; i < validFormats.length; i++) {
         momentDate = moment(deepcopy(value), validFormats[i])
         if (momentDate.isValid()) return momentDate.toDate()
