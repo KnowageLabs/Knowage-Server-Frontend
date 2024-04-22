@@ -1326,6 +1326,46 @@
             "deleteConfirm": "sei sicuro di voler cancellare l'attività selezionata?",
             "deleteSuccess": "attività cancellata correttamente",
             "deleteTitle": "cancella attività dossier",
+            "designerDialog": {
+                "closeConfirm": "Sei sicuro di voler chiudere il designer? Tutte le modifiche saranno annullate.",
+                "closeTitle": "Chiudi Designer",
+                "deviceScaleFactor": "Fattore di scala del dispositivo",
+                "documentDriver": "Driver: {driver}",
+                "dossierDriverName": "Nome Driver del dossier",
+                "downloadable": "Scaricabile",
+                "downloadableHint": "Abilita per rendere il template docx/pptx scaricabile dall'interfaccia di esecuzione dossier",
+                "driverLinkType": "Modalità collegamento driver",
+                "driverNotHandled": "Placeholder {placeholderName}: Driver {driverName} non gestito",
+                "driversHelp": {
+                    "hint": "Seleziona una modalità per ogni driver: <br/><ol><li>Statica: Seleziona manualmente il valore del parametro</li><li>Dinamica: collega il parametero del documento a uno del dossier</li><li>Eredita: il parametro sarà collegato ad uno esistente del dossier (se presente) o importato come nuovo</li></ol>"
+                },
+                "errorDuringValidation": "Il template caricato non è valido per questo dossier",
+                "inherit": "Eredita",
+                "linkTo": "Collega a",
+                "linkToDocumentDriverPart": " or setting values for the driver parameters",
+                "linkToDocumentHint": "Seleziona il documento a cui collegare il placeholder. Scegli poi le dimensioni e il tipo di parametri per salvare",
+                "noDocumentLinkedToThePlaceholder": "Nessun documento collegato al placeholder",
+                "noPlaceholdersFound": "Il documento non contiene nessun placeholder col prefisso inserito. Cambiare prefisso o documento",
+                "noPlaceholdersHint": "NEssun placeholder selezionato. Seleziona un elemento dalla lista.",
+                "noViewsAvailable": "Nessuna vista disponibile",
+                "placeholders": "Placeholders",
+                "prefixHint": "Questo prefisso verrà usato per cercare le immagini nel template (attenzione alle maiuscole/minuscole)",
+                "resetPlaceholder": "Resetta il placeholder",
+                "saveAndRun": "Salva ed esegui",
+                "sheetHeight": "Altezza Foglio (px)",
+                "sheetWidth": "Larghezza Foglio (px)",
+                "step0": {
+                    "info": "Carica il template per il dossier e seleziona il prefisso da usare per la ricerca di immagini al suo interno",
+                    "title": "Dossier designer - Carica file e seleziona il prefisso"
+                },
+                "step1": {
+                    "title": "Dossier designer - Collegamento parametri e selezione opzioni"
+                },
+                "templateFile": "File Template",
+                "uploadable": "Caricabile",
+                "uploadableHint": "Abilita se vuoi che il template docx/ppts sia caricabile dall'interfaccia di esecuzione dossier.",
+                "urlName": "Nome URL"
+            },
             "downloadMissingError": "Errore durante il download - Il documendo è mancante",
             "headers": {
                 "activity": "nome attività",

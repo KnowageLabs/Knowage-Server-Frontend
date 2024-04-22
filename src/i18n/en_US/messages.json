@@ -1504,16 +1504,14 @@
                 "closeConfirm": "Are you sure you want to close the designer? All changes will be lost.",
                 "closeTitle": "Close Designer",
                 "deviceScaleFactor": "Device scale factor",
-                "dossierUrlName": "Dossier url name",
+                "documentDriver": "Document driver: {driver}",
+                "dossierDriverName": "Dossier driver name",
                 "downloadable": "Downloadable",
                 "downloadableHint": "Enable the flag if you want the docx/pptx template to be downloadable from the dossier execution interface",
                 "driverLinkType": "Driver link type",
                 "driverNotHandled": "Placeholder {placeholderName}: Driver {driverName} is not handled",
                 "driversHelp": {
-                    "dynamic": "2) Dynamic: you will link a document driver to one of the dossier",
-                    "hint": "Select a mode for each document driver. ",
-                    "inherit": "3) Inherit: the document driver will be linked to an existing one in the dossier (if any) or imported as a new one",
-                    "static": "1) Static: you will manually set all the parameter configuration"
+                    "hint": "Select a mode for each document driver. <br/><ol><li>Static: you will manually set all the parameter configuration</li><li>Dynamic: you will link a document driver to one of the dossier</li><li>Inherit: the document driver will be linked to an existing one in the dossier (if any) or imported as a new one</li></ol>"
                 },
                 "errorDuringValidation": "The uploaded template is not valid for the dossier document",
                 "inherit": "Inherit",
@@ -1521,9 +1519,8 @@
                 "linkToDocumentDriverPart": " or setting values for the driver parameters",
                 "linkToDocumentHint": "Select the document to attach it to the placeholder. Then choose the link type and proceed using a saved view ",
                 "noDocumentLinkedToThePlaceholder": "No document linked to the placeholder",
-                "noDriversAndNoViewsForDocument": "No driver and no views found for the document",
                 "noPlaceholdersFound": "The uploaded document doesn't contain placeholders accordingly to the prefix. Please, try again with another document",
-                "noPlaceholdersHint": "No placeholder seleted. Click on a list element to select one.",
+                "noPlaceholdersHint": "No placeholder selected. Click on a list element to select one.",
                 "noViewsAvailable": "No views available",
                 "placeholders": "Placeholders",
                 "prefixHint": "This prefix will be used case sensitive to search for images within the template",
@@ -1541,10 +1538,7 @@
                 "templateFile": "Template file",
                 "uploadable": "Uploadable",
                 "uploadableHint": "Enable the flag if you want the docx/pptx template to be uploadable from the dossier execution interface",
-                "urlName": "Url name",
-                "viewsHelp": {
-                    "hint": "Select a saved view from the table. All its configuration will be applied to the document before taking the screenshots."
-                }
+                "urlName": "Url name"
             },
             "downloadMissingError": "Download ERROR - Document is missing",
             "downloadTemplate": "Download document template",
