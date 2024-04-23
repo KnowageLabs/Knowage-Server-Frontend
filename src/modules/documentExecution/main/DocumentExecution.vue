@@ -193,6 +193,7 @@ import EnginesConstants from '@/EnginesConstants.json'
 import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 
+let seeAsFinalUserWarning
 // @ts-ignore
 // eslint-disable-next-line
 window.execExternalCrossNavigation = function (outputParameters, otherOutputParameters, crossNavigationLabel) {
@@ -1229,7 +1230,16 @@ export default defineComponent({
         toggleFinalUser() {
             if (this.seeAsFinalUser) {
                 delete this.document.seeAsFinalUser
-            } else this.document.seeAsFinalUser = true
+                seeAsFinalUserWarning()
+            } else {
+                this.document.seeAsFinalUser = true
+                seeAsFinalUserWarning = this.$q.notify({
+                    message: this.$t('documentExecution.main.seeAsFinalUserWarning'),
+                    type: 'warning',
+                    timeout: 0,
+                    position: 'top'
+                })
+            }
             this.seeAsFinalUser = !this.seeAsFinalUser
         }
     }
