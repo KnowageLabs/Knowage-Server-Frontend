@@ -51,7 +51,9 @@
             ></DashboardGeneralSettings>
         </Transition>
 
-        <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @open-new-widget-editor="openNewWidgetEditor" @close-widget-picker="onWidgetPickerClosed" />
+        <Transition>
+            <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @open-new-widget-editor="openNewWidgetEditor" @close-widget-picker="onWidgetPickerClosed" />
+        </Transition>
         <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDashboard" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
         <SelectionsListDialog v-if="selectionsDialogVisible" :visible="selectionsDialogVisible" :dashboard-id="dashboardId" @close="selectionsDialogVisible = false" @save="onSelectionsRemove" />
     </div>
