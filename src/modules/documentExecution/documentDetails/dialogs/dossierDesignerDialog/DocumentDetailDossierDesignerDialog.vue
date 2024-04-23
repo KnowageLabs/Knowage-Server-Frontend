@@ -121,7 +121,6 @@
                                 </div>
                             </AccordionTab>
 
-                            <!-- DRIVER START -->
                             <AccordionTab v-if="docHasDrivers()" :header="$t('common.parameters')" class="accordionTab">
                                 <div>
                                     <Message severity="info" :closable="true" class="p-mx-2 p-message-small">
@@ -132,9 +131,9 @@
 
                                         <div class="p-grid p-pb-4 q-gutter-sm">
                                             <q-select v-model="driver.type" :options="driverTypes" :label="$t('documentExecution.dossier.designerDialog.driverLinkType')" option-label="label" option-value="code" style="min-width: 200px" />
-                                            <q-input v-if="driver.type?.code === 'static'" v-model="driver.value" :label="$t('common.value')" class="kn-flex" />
+                                            <q-input v-if="driver.type?.code?.toLowerCase() === 'static'" v-model="driver.value" :label="$t('common.value')" class="kn-flex" />
                                             <q-select
-                                                v-else-if="driver.type?.code === 'dynamic'"
+                                                v-else-if="driver.type?.code?.toLowerCase() === 'dynamic'"
                                                 v-model="driver.dossierUrlName"
                                                 :options="document?.drivers"
                                                 :label="$t('documentExecution.dossier.designerDialog.dossierDriverName')"
@@ -142,15 +141,13 @@
                                                 option-value="parameterUrlName"
                                                 class="kn-flex"
                                             />
-                                            <q-input v-else-if="driver.type?.code === 'inherit'" v-model="driver.dossierUrlName" :disabled="true" :hidden="true" />
+                                            <q-input v-else-if="driver.type?.code?.toLowerCase() === 'inherit'" v-model="driver.dossierUrlName" :disabled="true" :hidden="true" />
                                         </div>
 
                                         <Divider class="p-m-0 p-p-0 dividerCustomConfig" type="solid" />
                                     </div>
                                 </div>
                             </AccordionTab>
-
-                            <!-- DRIVERS END -->
                         </Accordion>
                     </div>
                 </div>
@@ -633,19 +630,10 @@ export default defineComponent({
                             this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.push(par)
                         })
 
-                        this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.forEach((par, index) => {
-                            const existing = response.data.filter((x) => x.parameterUrlName == par.urlName || x.parameterUrlName == par.parameterUrlName)
-                            if (existing?.length > 0) {
-                                return
-                            }
-
-                            this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.splice(index)
-                        })
-
                         this.activeTemplate.placeholders[this.currentSelectedIndex].source = 'DRIVERS'
                     } else {
                         if (this.activeTemplate.placeholders[this.currentSelectedIndex].parameters) {
-                            delete this.activeTemplate.placeholders[this.currentSelectedIndex].parameters
+                            this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
                         }
                     }
                 })
