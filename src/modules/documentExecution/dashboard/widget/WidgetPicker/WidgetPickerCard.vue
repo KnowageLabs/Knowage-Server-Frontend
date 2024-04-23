@@ -3,7 +3,7 @@
         <div id="widget-card-icon-container" class="p-d-flex p-ai-center p-jc-center">
             <div class="innerIcon" :style="documentImageSource()"></div>
         </div>
-        <span class="p-ml-2 widgetTitle">{{ $t(widget.name) }}</span>
+        <span class="widgetTitle">{{ $t(widget.name) }}</span>
     </div>
 </template>
 

@@ -4,7 +4,7 @@
             <TabView id="document-browser-tab-view" v-model:activeIndex="activeIndex" class="p-d-flex p-flex-column kn-flex kn-tab" @tab-change="onTabChange">
                 <TabPanel>
                     <template #header>
-                        <i class="fa fa-folder-open"></i>
+                        <i class="fa fa-folder-open" style="line-height: 21px"></i>
                     </template>
 
                     <DocumentBrowserHome :document-saved="documentSaved" :document-saved-trigger="documentSavedTrigger" @itemSelected="onItemSelect($event)"></DocumentBrowserHome>
