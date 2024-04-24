@@ -389,14 +389,14 @@
     "dashboard": {
         "dashboardBeta": "Dashboard (Beta)",
         "datasetEditor": {
-            "addAssociation": "Add Association",
-            "addIndexes": "Add Indexes on Associations",
+            "addAssociation": "Association",
+            "addIndexes": "Index",
             "association": "Association",
-            "associationsDetailMsg": "TODO: Write whatever we need to write here after PR",
+            "associationsDetailMsg": "<b>Associations</b> link two or more datasets by connecting some of their fields. <br />Click the button <b>+ Association</b> to add one and picking the fields you want to use as a relation between selected datasets.",
             "associationsDetailTitle": "Dataset Associations",
             "associationsTabTitle": "Associations",
             "cached": "Cached",
-            "dataDetailMsg": "Add or select datasets, TODO: Write whatever we need to write here after PR",
+            "dataDetailMsg": "<b>Datasets</b> contain a subset of data coming from defined sources that can be used in different analysis. <br />Add at least one by clicking on the button <b>Add Dataset</b> and picking it from the list.",
             "dataDetailTitle": "Dataset Management",
             "dataTabTitle": "Data",
             "datasetDriversWarningMsg1": "You can only have one dataset with drivers! ",

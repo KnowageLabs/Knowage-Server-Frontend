@@ -41,7 +41,7 @@
             <div class="p-p-2 kn-page-content">
                 <div>
                     <template v-for="(value, key) in themeHelper.descriptor" :key="key">
-                        <Fieldset :legend="key" :toggleable="true" :collapsed="true">
+                        <Fieldset :legend="value.label" :toggleable="true" :collapsed="true">
                             <div v-for="property in value.properties" :key="property.key">
                                 <div class="p-field">
                                     <span v-if="property.type === 'text'" class="p-float-label">

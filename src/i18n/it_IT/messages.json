@@ -317,14 +317,14 @@
     "dashboard": {
         "dashboardBeta": "Dashboard (Beta)",
         "datasetEditor": {
-            "addAssociation": "Aggiungi Associazione",
-            "addIndexes": "Aggiungi indici",
+            "addAssociation": "Associazioni",
+            "addIndexes": "Indici",
             "association": "Associazione",
-            "associationsDetailMsg": "TODO: Write whatever we need to write here after PR",
+            "associationsDetailMsg": "Le associazioni mettono in relazione due o più dataset attraverso il collegamento di alcuni dei loro campi. <br />Premi il pulsante <b>+ Associazioni</b> per aggiungerne una, selezionando poi i campi da usare come relazione.",
             "associationsDetailTitle": "Associazione tra Dataset",
             "associationsTabTitle": "Associazioni",
             "cached": "Salvato in cache",
-            "dataDetailMsg": "Aggiungi o seleziona dataset",
+            "dataDetailMsg": "I <b>Dataset</b> contengono un insieme dei dati dalle sorgenti definite che possono essere utilizzati per effettuare delle analisi. <br />Aggiungine almeno uno cliccando sul pulsante <b>Aggiungi Dataset</b> e selezionalo dalla lista.",
             "dataDetailTitle": "Gestione Dataset",
             "dataTabTitle": "Dati",
             "datasetDriversWarningMsg1": "Si può selezionare solo un dataset con driver! ",

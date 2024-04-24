@@ -5,14 +5,43 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-
     .kn-hintContent {
-        border-radius: 0;
-        width: 90%;
+        background-color: var(--kn-hintcard-background-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 4px;
+        width: auto;
+        max-width: 80%;
+        padding: 48px 48px 48px 24px;
+        gap: 16px;
     }
 
     .kn-hintIcon {
-        font-size: 3rem;
+        mask: url(/images/commons/knHint/finger.svg);
+        mask-repeat: no-repeat;
+        mask-size: 100%;
+        background-color: var(--kn-hintcard-icon-color);
+        width: 120px;
+        min-width: 120px;
+        height: 120px;
+        min-height: 120px;
+    }
+
+    .kn-hintText {
+        font-family: var(--kn-font-family);
+        h3 {
+            color: var(--kn-hintcard-title-color);
+            font-size: 1.5rem;
+            padding-bottom: 16px;
+            margin: 0;
+
+            border-bottom: 1px solid var(--kn-hintcard-title-color);
+        }
+        p {
+            padding-top: 16px;
+            color: var(--kn-hintcard-text-color);
+        }
     }
 
     &-sm {

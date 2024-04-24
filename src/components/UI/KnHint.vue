@@ -1,9 +1,12 @@
 <template>
     <div class="kn-hint hint">
-        <Card class="kn-hintContent">
-            <template #title> <i class="far fa-life-ring kn-hintIcon"></i> {{ $t(title) }} </template>
-            <template #content> <div v-html="$t(hint)"></div></template>
-        </Card>
+        <div class="kn-hintContent">
+            <div class="kn-hintIcon"></div>
+            <div class="kn-hintText">
+                <h3>{{ $t(title) }}</h3>
+                <p v-html="$t(hint)"></p>
+            </div>
+        </div>
     </div>
 </template>
 
