@@ -130,7 +130,7 @@
                                         <span class="p-text-bold p-text-italic">{{ $t('documentExecution.dossier.designerDialog.documentDriver', { driver: driver.urlName || driver.parameterUrlName }) }} </span>
 
                                         <div class="p-grid p-pb-4 q-gutter-sm">
-                                            <q-select v-model="driver.type" :options="driverTypes" :label="$t('documentExecution.dossier.designerDialog.driverLinkType')" option-label="label" option-value="code" style="min-width: 200px" />
+                                            <q-select v-model="driver.type" :options="driverTypes" :label="$t('documentExecution.dossier.designerDialog.driverLinkType')" :option-label="(option) => $t(option.label)" option-value="code" style="min-width: 200px" />
                                             <q-input v-if="driver.type?.code?.toLowerCase() === 'static'" v-model="driver.value" :label="$t('common.value')" class="kn-flex" />
                                             <q-select
                                                 v-else-if="driver.type?.code?.toLowerCase() === 'dynamic'"
@@ -240,7 +240,6 @@ export default defineComponent({
             triggerUpload: false,
             uploading: false,
             activeTemplate: {} as iDossierTemplate,
-            viewColumns: [] as { name: string; header: string }[],
             docDialogVisible: false,
             docId: -1,
             currentSelectedIndex: -1,
@@ -336,30 +335,10 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => (this.documents = response.data))
                 .finally(() => (this.loading = false))
 
-            this.applyTranslations()
-
+            this.driverTypes = descriptor.driverTypes
             this.loading = false
         },
 
-        applyTranslations() {
-            const descriptorColumns = JSON.parse(JSON.stringify(descriptor.view.columns))
-            descriptorColumns.forEach((element) => {
-                element.header = this.$t(element.header)
-            })
-            this.viewColumns = descriptorColumns
-
-            const descriptorDriverTypes = JSON.parse(JSON.stringify(descriptor.driverTypes.filter((x) => (this.isFromWorkspace ? x.code !== 'dynamic' : true))))
-            descriptorDriverTypes.forEach((element) => {
-                element.label = this.$t(element.label)
-            })
-            this.driverTypes = descriptorDriverTypes
-
-            const descriptorLinkTypes = JSON.parse(JSON.stringify(descriptor.linkTypes.filter((x) => (this.isFromWorkspace ? x.code === 'VIEWS' : true))))
-            descriptorLinkTypes.forEach((element) => {
-                element.label = this.$t(element.label)
-            })
-            this.linkTypes = descriptorLinkTypes
-        },
         closeDialog(refreshDrivers: boolean, refreshHistory: boolean) {
             if (!this.isFromWorkspace) {
                 this.$emit('close', {
