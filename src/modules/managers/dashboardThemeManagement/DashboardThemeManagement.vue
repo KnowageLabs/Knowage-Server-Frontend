@@ -175,8 +175,12 @@ export default defineComponent({
             flex: 1;
         }
     }
+    .dashboard-scrollbar {
+        height: 100vh;
+    }
     .form-container {
         border-right: 1px solid #cccccc;
+        height: 100vh;
     }
     @media screen and (max-width: 1100px) {
         .theme-manager-examples {
