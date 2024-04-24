@@ -21,7 +21,7 @@
                         @deleteDataset="confirmDeleteDataset"
                     />
                 </TabPanel>
-                <TabPanel>
+                <TabPanel v-if="dashboardDatasets.length > 1">
                     <template #header>
                         <span :class="{ 'details-warning-color': modelHasEmptyAssociations }">{{ $t('dashboard.datasetEditor.associationsTabTitle') }}</span>
                         <i v-if="modelHasEmptyAssociations" class="fa-solid fa-circle-exclamation p-ml-1 details-warning-color" />
