@@ -34,7 +34,7 @@ const store = defineStore('store', {
         },
 
         updateLicense(el) {
-            const licenses = this.state.licenses
+            const licenses = this.licenses
 
             const hostNameLicenses = licenses.licenses[el.hostName]
 

@@ -58,6 +58,7 @@ import Listbox from 'primevue/listbox'
 import Tooltip from 'primevue/tooltip'
 import auth from '@/helpers/commons/authHelper'
 import mainStore from '../../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'license-tab',
@@ -73,7 +74,8 @@ export default defineComponent({
     },
     props: {
         cpunumber: {
-            type: Number
+            type: Number,
+            default: 0
         },
         licenses: {
             type: Array,
@@ -83,11 +85,6 @@ export default defineComponent({
             type: Object,
             required: true
         }
-    },
-    emits: ['reloadList'],
-    setup() {
-        const store = mainStore()
-        return { store }
     },
     data() {
         return {
@@ -115,6 +112,7 @@ export default defineComponent({
         this.loadHost()
     },
     methods: {
+        ...mapActions(mainStore, ['setError', 'setInfo', 'updateLicense']),
         logout() {
             auth.logout()
         },
@@ -140,12 +138,12 @@ export default defineComponent({
                 .then(
                     (response: AxiosResponse<any>) => {
                         if (response.data.errors) {
-                            this.store.setError({
+                            this.setError({
                                 title: this.$t('common.error.downloading'),
                                 msg: this.$t('common.error.errorCreatingPackage')
                             })
                         } else {
-                            this.store.setInfo({ title: this.$t('common.toast.success') })
+                            this.setInfo({ title: this.$t('common.toast.success') })
                             if (response.headers) {
                                 const contentDisposition = response.headers['content-disposition']
                                 const contentDispositionMatcher = contentDisposition.match(/filename[^;\n=]*=((['"]).*?\2|[^;\n]*)/i)
@@ -158,7 +156,7 @@ export default defineComponent({
                         }
                     },
                     (error) =>
-                        this.store.setError({
+                        this.setError({
                             title: this.$t('common.error.downloading'),
                             msg: this.$t(error)
                         })
@@ -195,23 +193,21 @@ export default defineComponent({
                     }
                 })
                 .then((response: AxiosResponse<any>) => {
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t('common.uploading'),
                         msg: this.$t('importExport.import.successfullyCompleted')
                     })
 
-                    this.store.updateLicense({ hostName: this.selectedHost.hostName, license: response.data })
-
-                    this.$emit('reloadList')
+                    this.updateLicense({ hostName: this.selectedHost.hostName, license: response.data })
                 })
                 .catch((response) => {
                     if (response.message == 'error.message.license.exists') {
-                        this.store.setError({
+                        this.setError({
                             title: this.$t('common.uploading'),
                             msg: this.$t('licenseDialog.errorExists')
                         })
                     } else {
-                        this.store.setError({
+                        this.setError({
                             title: this.$t('common.uploading'),
                             msg: response.message
                         })
@@ -237,12 +233,12 @@ export default defineComponent({
                 })
                 .then((response: AxiosResponse<any>) => {
                     if (response.data.errors) {
-                        this.store.setError({
+                        this.setError({
                             title: this.$t('licenseDialog.errorLicense'),
                             msg: this.$t('licenseDialog.errorMessage')
                         })
                     } else {
-                        this.store.setInfo({
+                        this.setInfo({
                             title: this.$t('common.toast.deleteTitle'),
                             msg: this.$t('common.toast.deleteSuccess')
                         })
