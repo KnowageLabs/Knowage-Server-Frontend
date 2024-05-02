@@ -16,25 +16,25 @@
         <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="views" style="height: 400px">
                 <q-splitter v-model="splitterModel" style="height: 100%">
-                    <template v-slot:before>
+                    <template #before>
                         <div class="q-pa-md">
-                            <q-tree :filter="docFilter" :nodes="folders" :default-expand-all="true" node-key="id" label-key="name" selected-color="primary" v-model:selected="selected" @update:selected="getFolderDocuments" default-expand-all />
+                            <q-tree :nodes="folders" :default-expand-all="true" node-key="id" label-key="name" selected-color="primary" v-model:selected="selected" @update:selected="getFolderDocuments" default-expand-all />
                         </div>
                     </template>
 
-                    <template v-slot:after>
+                    <template #after>
                         <q-input v-model="docFilter" label="Search" :dense="true" class="q-mb-sm q-ml-xs">
-                            <template v-slot:prepend>
+                            <template #prepend>
                                 <q-icon name="search" />
                             </template>
                         </q-input>
-                        <q-table class="q-ml-xs" flat :loading="tableLoading" bordered dense :rows="rows" :columns="columns" row-key="name" :pagination="{ rowsPerPage: 0 }" style="height: 320px" @row-click="handleSelect" />
+                        <q-table class="q-ml-xs" flat :filter="docFilter" :loading="tableLoading" bordered dense :rows="rows" :columns="columns" row-key="name" :pagination="{ rowsPerPage: 0 }" style="height: 320px" @row-click="handleSelect" />
                     </template>
                 </q-splitter>
             </q-tab-panel>
             <q-tab-panel name="documents" style="max-height: 400px">
                 <q-input v-model="docFilter" label="Search" :dense="true" class="q-mb-sm">
-                    <template v-slot:prepend>
+                    <template #prepend>
                         <q-icon name="search" />
                     </template>
                 </q-input>
