@@ -130,7 +130,7 @@
                                         <span class="p-text-bold p-text-italic">{{ $t('documentExecution.dossier.designerDialog.documentDriver', { driver: driver.urlName || driver.parameterUrlName }) }} </span>
 
                                         <div class="p-grid p-pb-4 q-gutter-sm">
-                                            <q-select v-model="driver.type" :options="driverTypes" :label="$t('documentExecution.dossier.designerDialog.driverLinkType')" :option-label="(option) => $t(option.label)" option-value="code" style="min-width: 200px" />
+                                            <q-select v-if="driverTypes.length > 0" v-model="driver.type" :options="driverTypes" :label="$t('documentExecution.dossier.designerDialog.driverLinkType')" :option-label="(option) => $t(option.label)" option-value="code" style="min-width: 200px" />
                                             <q-input v-if="driver.type?.code?.toLowerCase() === 'static'" v-model="driver.value" :label="$t('common.value')" class="kn-flex" />
                                             <q-select
                                                 v-else-if="driver.type?.code?.toLowerCase() === 'dynamic'"
