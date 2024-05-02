@@ -126,9 +126,8 @@
                                     <Message severity="info" :closable="true" class="p-mx-2 p-message-small">
                                         <p class="p-m-1" v-html="$t('documentExecution.dossier.designerDialog.driversHelp.hint')"></p>
                                     </Message>
-                                    <div v-for="driver in activeTemplate.placeholders[currentSelectedIndex].parameters" :key="driver.label" class="kn-card p-m-2 p-p-2">
+                                    <div v-for="(driver, key) in activeTemplate.placeholders[currentSelectedIndex].parameters" :key="driver.label" class="kn-card p-m-2 p-p-2">
                                         <span class="p-text-bold p-text-italic">{{ $t('documentExecution.dossier.designerDialog.documentDriver', { driver: driver.urlName || driver.parameterUrlName }) }} </span>
-
                                         <div class="p-grid p-pb-4 q-gutter-sm">
                                             <q-select
                                                 v-if="driverTypes.length > 0"
@@ -136,12 +135,14 @@
                                                 :options="driverTypes"
                                                 :label="$t('documentExecution.dossier.designerDialog.driverLinkType')"
                                                 :option-label="(option) => (option.label ? $t(option.label) : '')"
+                                                emit-value
+                                                map-options
                                                 option-value="code"
                                                 style="min-width: 200px"
                                             />
-                                            <q-input v-if="driver.type?.code?.toLowerCase() === 'static'" v-model="driver.value" :label="$t('common.value')" class="kn-flex" />
+                                            <q-input v-if="typeCheck(driver, 'static')" v-model="driver.value" :label="$t('common.value')" class="kn-flex" />
                                             <q-select
-                                                v-else-if="driver.type?.code?.toLowerCase() === 'dynamic'"
+                                                v-else-if="typeCheck(driver, 'dynamic')"
                                                 v-model="driver.dossierUrlName"
                                                 :options="document?.drivers"
                                                 :label="$t('documentExecution.dossier.designerDialog.dossierDriverName')"
@@ -149,10 +150,9 @@
                                                 option-value="parameterUrlName"
                                                 class="kn-flex"
                                             />
-                                            <q-input v-else-if="driver.type?.code?.toLowerCase() === 'inherit'" v-model="driver.dossierUrlName" :disabled="true" :hidden="true" />
+                                            <q-input v-else-if="typeCheck(driver, 'inherit')" v-model="driver.dossierUrlName" :disabled="true" :hidden="true" />
                                         </div>
-
-                                        <Divider class="p-m-0 p-p-0 dividerCustomConfig" type="solid" />
+                                        <Divider v-if="key !== activeTemplate.placeholders[currentSelectedIndex].parameters.length - 1" class="p-m-0 p-p-0 dividerCustomConfig" type="solid" />
                                     </div>
                                 </div>
                             </AccordionTab>
@@ -857,6 +857,9 @@ export default defineComponent({
                 dateStyle: 'short',
                 timeStyle: 'short'
             })
+        },
+        typeCheck(driver: any, type: string): boolean {
+            return driver.type === type || driver.type?.code === type
         }
     }
 })
