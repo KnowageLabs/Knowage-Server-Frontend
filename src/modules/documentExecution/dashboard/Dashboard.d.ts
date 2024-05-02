@@ -689,6 +689,8 @@ export interface IWidgetTitle {
         'justify-content': string
         color: string
         'background-color': string
+        'padding-left'?: string
+        'padding-right'?: string
     }
 }
 

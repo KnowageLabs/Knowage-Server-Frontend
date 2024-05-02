@@ -2,19 +2,20 @@
     <div v-if="titleStyleModel" class="p-ai-center kn-flex p-p-4">
         <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="titleStyleModel.enabled" color="black" /> </span>
 
-        <form class="p-fluid p-formgrid p-grid">
-            <div class="p-field p-col-12 p-lg-8">
-                <span class="p-float-label">
-                    <InputText v-model="(titleStyleModel as IWidgetTitle).text" class="kn-material-input p-inputtext-sm kn-flex" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.text') }}</label>
-                </span>
-            </div>
-            <div class="p-field p-col-12 p-lg-4">
-                <span class="p-float-label">
-                    <InputNumber v-model="titleStyleModel.height" class="kn-material-input p-inputtext-sm" :disabled="titleStyleDisabled" @blur="titleStyleChanged" />
-                    <label class="kn-material-input-label">{{ $t('common.height') }}</label>
-                </span>
-            </div>
+        <form class="p-fluid p-formgrid p-grid p-mb-2">
+            <q-input v-model="titleStyleModel.text" class="p-col-12 p-lg-6" outlined dense :label="$t('common.text')" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
+            <q-input v-model="titleStyleModel.height" type="number" class="p-col-12 p-lg-2" outlined dense :label="$t('common.height')" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
+            <q-input v-model="titleStyleModel.properties['padding-left']" class="p-col-12 p-lg-2" outlined dense :label="$t('dashboard.widgetEditor.padding.paddingLeft')" :title="$t('dashboard.widgetEditor.borders.bordersThicknessHint')" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
+            <q-input
+                v-model="titleStyleModel.properties['padding-right']"
+                class="p-col-12 p-lg-2"
+                outlined
+                dense
+                :label="$t('dashboard.widgetEditor.padding.paddingRight')"
+                :title="$t('dashboard.widgetEditor.borders.bordersThicknessHint')"
+                :disabled="titleStyleDisabled"
+                @change="titleStyleChanged"
+            />
         </form>
 
         <WidgetEditorStyleToolbar :options="toolbarStyleSettings" :prop-model="titleStyleModel.properties" :disabled="titleStyleDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
@@ -25,12 +26,11 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel, IWidgetTitle } from '@/modules/documentExecution/Dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'widget-title-style',
-    components: { InputNumber, WidgetEditorStyleToolbar },
+    components: { WidgetEditorStyleToolbar },
     props: {
         widgetModel: { type: Object as PropType<IWidget | null>, required: true },
         themeStyle: { type: Object as PropType<IWidgetTitle | null>, required: true },

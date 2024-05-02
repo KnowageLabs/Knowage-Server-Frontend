@@ -48,7 +48,7 @@ export default defineComponent({
             descriptor,
             shadowsStyleModel: null as IWidgetShadowsStyle | null,
             shadowSize: '',
-            shadowSizeOptionsMap: { small: '0px 1px 1px', medium: '0px 2px 3px', large: '0px 8px 19px', extraLarge: '0px 8px 19px' },
+            shadowSizeOptionsMap: { small: '0px 1px 1px', medium: '0px 2px 3px', large: '0px 4px 6px', extraLarge: '0px 8px 12px' },
             widgetType: '' as string,
             getTranslatedLabel
         }
