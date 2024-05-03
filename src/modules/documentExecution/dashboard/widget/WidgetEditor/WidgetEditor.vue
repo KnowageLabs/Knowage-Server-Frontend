@@ -30,6 +30,7 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import WidgetEditorPreview from './WidgetEditorPreview.vue'
 import WidgetEditorTabs from './WidgetEditorTabs.vue'
 import mainStore from '../../../../../App.store'
+import { updateWidgetThemeAndApplyStyle } from '../../generalSettings/themes/ThemesHelper'
 import descriptor from './WidgetEditorDescriptor.json'
 import dashStore from '../../Dashboard.store'
 import deepcopy from 'deepcopy'
@@ -101,7 +102,8 @@ export default defineComponent({
         },
         loadWidget() {
             if (!this.propWidget) return
-            this.widget = this.propWidget.new ? createNewWidget(this.propWidget.type) : deepcopy(this.propWidget)
+            this.widget = this.propWidget.new ? createNewWidget(this.propWidget.type, this.dashboardStore.dashboards[this.dashboardId]) : deepcopy(this.propWidget)
+            updateWidgetThemeAndApplyStyle(this.widget, this.dashboardStore.allThemes)
             if (!this.propWidget.new) recreateKnowageChartModel(this.widget)
         },
         loadSelectedModelDatasets() {
