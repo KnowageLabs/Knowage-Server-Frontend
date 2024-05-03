@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget, } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateTreemapChartModel } from './updater/KnowageHighchartsTreemapChartUpdater'
 import deepcopy from 'deepcopy'
 import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
@@ -46,7 +46,6 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         return this.model.series
     }
 
-
     setTreeData(data: any, attributeColumns: any[], measureColumns: any[], interactionsEnabled: boolean) {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
@@ -66,28 +65,33 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
 
     createSerieElement(measureColumn: any, interactionsEnabled: boolean) {
         const serieElement = {
-            id: 0, name: measureColumn.column.columnName, data: [] as any[],
+            id: 0,
+            name: measureColumn.column.columnName,
+            data: [] as any[],
             type: 'treemap',
             layoutAlgorithm: 'squarified',
             allowDrillToNode: !interactionsEnabled,
             showInLegend: false,
             animationLimit: 1000,
             dataLabels: {
-                enabled: false,
+                enabled: false
             },
             levels: [
                 {
                     level: 1,
                     dataLabels: {
-                        enabled: true
+                        enabled: true,
+                        textOutline: 'none'
                     },
                     borderWidth: 3,
                     levelIsConstant: false
-                }, {
+                },
+                {
                     level: 1,
                     dataLabels: {
                         style: {
-                            fontSize: '14px'
+                            fontSize: '',
+                            textOutline: 'none'
                         }
                     }
                 },
@@ -98,14 +102,14 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
                 {
                     level: 3,
                     colorVariation: {
-                        key: "brightness",
+                        key: 'brightness',
                         to: 0.5
                     }
                 },
                 {
                     level: 4,
                     colorVariation: {
-                        key: "brightness",
+                        key: 'brightness',
                         to: 0.5
                     }
                 }
@@ -115,9 +119,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         return serieElement
     }
 
-
     updateSeriesLabelSettings(widgetModel: IWidget) {
         updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
-
 }

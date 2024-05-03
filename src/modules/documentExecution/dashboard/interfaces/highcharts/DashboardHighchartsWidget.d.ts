@@ -1,34 +1,33 @@
-import { IWidgetExports, IWidgetTitle, IWidgetPaddingStyle, IWidgetBordersStyle, IWidgetShadowsStyle, IWidgetBackgroundStyle } from './../../Dashboard.d';
-import { IWidgetInteractions, IWidgetResponsive } from "../../Dashboard";
-
+import { IWidgetExports, IWidgetTitle, IWidgetPaddingStyle, IWidgetBordersStyle, IWidgetShadowsStyle, IWidgetBackgroundStyle } from './../../Dashboard.d'
+import { IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
 
 export interface IHighchartsWidgetSettings {
-    updatable: boolean,
-    clickable: boolean,
-    chartModel: IHighchartsChartModel | null,
-    configuration: IHighchartsWidgetConfiguration,
-    accesssibility: IHighchartsWidgetAccessibility,
-    series: IHighchartsSeriesSetting,
-    interactions: IWidgetInteractions,
-    chart: IHighchartsChartSettings,
-    style: IHighchartsWidgetStyle,
-    responsive: IWidgetResponsive,
+    updatable: boolean
+    clickable: boolean
+    chartModel: IHighchartsChartModel | null
+    configuration: IHighchartsWidgetConfiguration
+    accesssibility: IHighchartsWidgetAccessibility
+    series: IHighchartsSeriesSetting
+    interactions: IWidgetInteractions
+    chart: IHighchartsChartSettings
+    style: IHighchartsWidgetStyle
+    responsive: IWidgetResponsive
     advancedSettings?: IHighchartsAdvancedPropertySettings[]
 }
 
 export interface IDrillOrderItem {
     orderColumnId: string
-    orderColumn: string,
-    orderType: "ASC" | "DESC" | ""
+    orderColumn: string
+    orderType: 'ASC' | 'DESC' | ''
 }
 
 export interface IHighchartsWidgetConfiguration {
     datetypeSettings?: any
     splitting?: any
-    grouping?: any,
-    centerText?: any,
-    limit?: any,
-    axisLines?: any,
+    grouping?: any
+    centerText?: any
+    limit?: any
+    axisLines?: any
     exports: IWidgetExports
 }
 
@@ -42,28 +41,29 @@ export interface ISerieAccessibilitySetting {
 }
 
 export interface IHighchartsSeriesSetting {
-    seriesSettings: IHighchartsSeriesLabelsSetting[],
+    seriesSettings: IHighchartsSeriesLabelsSetting[]
     conditionalStyles?: any
 }
 
 export interface IHighchartsSeriesLabelsSetting {
-    names: string[],
-    label: IHighchartsSerieLabelSettings,
-    dial?: any,
-    pivot?: any,
-    serieColor?: string,
-    serieColorEnabled?: boolean,
+    names: string[]
+    label: IHighchartsSerieLabelSettings
+    dial?: any
+    pivot?: any
+    serieColor?: string
+    serieColorEnabled?: boolean
     type?: string
 }
 
 export interface IHighchartsSerieLabelSettings {
-    enabled: boolean,
+    enabled: boolean
     style: {
         fontFamily: string
         fontSize: string
         fontWeight: string
         color: string
-    },
+        textOutline?: string
+    }
     backgroundColor: string
     prefix: string
     suffix: string
@@ -75,33 +75,33 @@ export interface IHighchartsSerieLabelSettings {
 
 export interface IHighchartsWidgetStyle {
     themeName: string
-    title: IWidgetTitle,
-    padding: IWidgetPaddingStyle,
-    borders: IWidgetBordersStyle,
-    shadows: IWidgetShadowsStyle,
+    title: IWidgetTitle
+    padding: IWidgetPaddingStyle
+    borders: IWidgetBordersStyle
+    shadows: IWidgetShadowsStyle
     background: IWidgetBackgroundStyle
 }
 
 export interface IHighchartsChartModel {
-    title: string,
+    title: string
     lang: {
         noData: string
-    },
+    }
     chart: {
         options3d: IHighchartsOptions3D
-        type: string,
-        backgroundColor?: any,
-        polar?: boolean,
-        events?: any,
-        parallelCoordinates?: any,
+        type: string
+        backgroundColor?: any
+        polar?: boolean
+        events?: any
+        parallelCoordinates?: any
         parallelAxes?: any
         inverted?: any
-    },
-    noData: IHighchartsNoDataConfiguration,
-    accessibility: IHighchartsAccessibilitySettings,
-    series: any[],
+    }
+    noData: IHighchartsNoDataConfiguration
+    accessibility: IHighchartsAccessibilitySettings
+    series: any[]
     plotOptions: {
-        pie?: any,
+        pie?: any
         gauge?: any
         solidgauge?: any
         heatmap?: any
@@ -112,36 +112,35 @@ export interface IHighchartsChartModel {
         dumbbell?: any
         packedbubble?: any
         series?: any
-    },
-    legend: any,
-    tooltip: any,
+    }
+    legend: any
+    tooltip: any
     colors: string[]
     credits: {
         enabled: boolean
-    },
-    pane?: any,
+    }
+    pane?: any
     xAxis?: any
-    yAxis?: any,
-    colorAxis?: { stops: any[] },
-    seriesForRender?: any[],
+    yAxis?: any
+    colorAxis?: { stops: any[] }
+    seriesForRender?: any[]
     sonification?: any
     annotations: IHighchartsAnnotation[]
 }
 
 export interface IHighchartsOptions3D {
-    enabled: boolean,
-    alpha: number,
-    beta: number,
-    viewDistance: number,
+    enabled: boolean
+    alpha: number
+    beta: number
+    viewDistance: number
     depth: number
 }
 
-
 export interface IHighchartsNoDataConfiguration {
     position: {
-        align: string,
+        align: string
         verticalAlign: string
-    },
+    }
     style: {
         fontFamily: string
         fontSize: string
@@ -152,95 +151,96 @@ export interface IHighchartsNoDataConfiguration {
 }
 
 export interface IHighchartsAccessibilitySettings {
-    enabled: boolean,
-    description: string,
+    enabled: boolean
+    description: string
     keyboardNavigation: {
-        enabled: boolean,
+        enabled: boolean
         order: string[]
     }
 }
 
 export interface IHighchartsChartDataLabels {
-    enabled: boolean,
-    distance?: number,
+    enabled: boolean
+    distance?: number
     style: {
         fontFamily: string
         fontSize: string
         fontWeight: string
         color: string
-    },
+        textOutline: string
+    }
     position: string
-    backgroundColor: string | null,
-    linecap?: string,
-    stickyTracking?: boolean,
-    rounded?: boolean,
-    format?: string,
-    formatter?: Function,
-    formatterText?: string,
-    formatterError?: string,
+    backgroundColor: string | null
+    linecap?: string
+    stickyTracking?: boolean
+    rounded?: boolean
+    format?: string
+    formatter?: Function
+    formatterText?: string
+    formatterError?: string
     y?: number
 }
 
 export interface IHighchartsChartSerie {
-    name: string,
+    name: string
     data: IHighchartsChartSerieData[]
-    accessibility?: IHighchartsSerieAccessibility,
-    colorByPoint?: boolean,
-    groupingFunction?: string,
+    accessibility?: IHighchartsSerieAccessibility
+    colorByPoint?: boolean
+    groupingFunction?: string
 }
 
 export interface IHighchartsChartSerieData {
-    name: string,
-    y: number,
-    sliced?: boolean,
-    selected?: boolean,
+    name: string
+    y: number
+    sliced?: boolean
+    selected?: boolean
     dataLabels?: IHighchartsChartDataLabels
 }
 
 export interface IHighchartsSerieAccessibility {
-    enabled: boolean,
-    description: string,
+    enabled: boolean
+    description: string
     exposeAsGroupOnly: boolean
     keyboardNavigation: { enabled: boolean }
 }
 
 export interface IHighchartsLegend {
-    enabled: boolean,
-    align: string,
-    verticalAlign: string,
-    layout: string,
+    enabled: boolean
+    align: string
+    verticalAlign: string
+    layout: string
     itemStyle: {
         fontFamily: string
         fontSize: string
         fontWeight: string
         color: string
-    },
-    borderWidth: number,
-    backgroundColor: string,
-    borderColor: string,
-    labelFormat?: string,
-    labelFormatter?: Function,
-    labelFormatterText?: string,
+    }
+    borderWidth: number
+    backgroundColor: string
+    borderColor: string
+    labelFormat?: string
+    labelFormatter?: Function
+    labelFormatterText?: string
     labelFormatterError?: string
 }
 
 export interface IHighchartsTooltip {
-    enabled: boolean,
-    valuePrefix?: string,
-    valueSuffix?: string,
-    valueDecimals?: number,
+    enabled: boolean
+    valuePrefix?: string
+    valueSuffix?: string
+    valueDecimals?: number
     style: {
         fontFamily: string
         fontSize: string
         fontWeight: string
         color: string
-    },
-    backgroundColor: string,
-    formatter?: Function,
-    formatterText?: string,
+    }
+    backgroundColor: string
+    formatter?: Function
+    formatterText?: string
     formatterError?: string
-    pointFormatter?: Function,
-    pointFormatterText?: string,
+    pointFormatter?: Function
+    pointFormatterText?: string
     pointFormatterError?: string
 }
 
@@ -253,27 +253,27 @@ export interface IHighchartsDrilldown {
 }
 
 export interface IHighchartsAdvancedPropertySettings {
-    propertyPath: string;
+    propertyPath: string
     propertyValue: string
 }
 
 export interface IHighchartsMarkerSettings {
-    symbol: string | undefined,
-    fillColor: string | undefined,
+    symbol: string | undefined
+    fillColor: string | undefined
     radius: number
 }
 
 export interface IHighchartsConnectorSettings {
-    connectorColor: string | undefined,
+    connectorColor: string | undefined
     connectorWidth: number | undefined
 }
 
 export interface IHighchartsAnnotation {
     labels: {
         point: {
-            x: number,
+            x: number
             y: number
-        },
+        }
         text: string
     }[]
 }

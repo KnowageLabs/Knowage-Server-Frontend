@@ -59,7 +59,9 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
     }
 
     formatSeriesFromOtherChartTypeSeries() {
-        this.model.series = this.model.series.map((serie: any) => { return this.getFormattedSerieFromOtherChartTypeSerie(serie) })
+        this.model.series = this.model.series.map((serie: any) => {
+            return this.getFormattedSerieFromOtherChartTypeSerie(serie)
+        })
     }
 
     getFormattedSerieFromOtherChartTypeSerie(otherChartSerie: any) {

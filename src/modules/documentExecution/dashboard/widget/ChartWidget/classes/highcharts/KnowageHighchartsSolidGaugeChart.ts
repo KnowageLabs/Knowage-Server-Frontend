@@ -55,7 +55,6 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
         this.updateSeriesDataWithSerieSettings(this.model.series[0], seriesSettings)
     }
 
-
     updateSeriesDataWithSerieSettings(serie: any, seriesSettings: any) {
         if (!serie || !seriesSettings) return
         serie.data.forEach((data: any) => {
@@ -68,7 +67,8 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
                     fontFamily: seriesSettings.label.style.fontFamily,
                     fontSize: seriesSettings.label.style.fontSize,
                     fontWeight: seriesSettings.label.style.fontWeight,
-                    color: seriesSettings.label.style.color ?? ''
+                    color: seriesSettings.label.style.color ?? '',
+                    textOutline: 'none'
                 },
                 formatter: function () {
                     return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, this.model.chart.type)

@@ -37,7 +37,8 @@
                     "color": "",
                     "fontFamily": "",
                     "fontSize": "",
-                    "fontWeight": ""
+                    "fontWeight": "",
+                    "textOutline": "none"
                 }
             },
             "depth": 100,

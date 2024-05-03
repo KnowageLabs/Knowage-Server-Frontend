@@ -31,6 +31,7 @@ const setFormattedSerieLabelSettings = (oldModelSerie: any, formattedSettings: I
             fontSize: '',
             fontWeight: '',
             color: '',
+            textOutline: 'none'
         },
         backgroundColor: 'rgba(246,246,246, 1)',
         prefix: oldModelSerie.prefixChar ?? '',
@@ -52,7 +53,8 @@ const setFormattedSerieStyle = (oldModelSerie: any, formattedSettings: IHighchar
         fontFamily: labelsStyle.fontFamily ?? '',
         fontSize: labelsStyle.fontSize ?? '',
         fontWeight: labelsStyle.fontWeight ?? '',
-        color: labelsStyle.color ? hexToRgba(labelsStyle.color) : '',
+        textOutline: 'none',
+        color: labelsStyle.color ? hexToRgba(labelsStyle.color) : ''
     }
 }
 

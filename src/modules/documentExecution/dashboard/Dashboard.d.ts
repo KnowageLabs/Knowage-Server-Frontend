@@ -664,6 +664,7 @@ export interface IWidgetStyleToolbarModel {
     color?: string
     'background-color'?: string
     icon?: string
+    textOutline?: string
 }
 
 export interface IVariable {

@@ -5,15 +5,13 @@ import { updateGaugeChartModel } from './updater/KnowageHighchartsGaugeChartUpda
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 
-
 export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeChart {
     constructor(model: any) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) {
             this.updateModel(deepcopy(model))
-        }
-        else if (model && model.plotOptions) {
+        } else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'gauge') {
                 this.formatSeriesFromOtherChartTypeSeries()
@@ -116,7 +114,8 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
                     fontFamily: seriesSettings.label.style.fontFamily,
                     fontSize: seriesSettings.label.style.fontSize,
                     fontWeight: seriesSettings.label.style.fontWeight,
-                    color: seriesSettings.label.style.color ?? color
+                    color: seriesSettings.label.style.color ?? color,
+                    textOutline: 'none'
                 },
                 formatter: function () {
                     return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, this.model.chart.type)

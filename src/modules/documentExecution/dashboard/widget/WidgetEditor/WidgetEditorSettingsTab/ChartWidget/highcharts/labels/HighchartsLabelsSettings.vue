@@ -134,7 +134,8 @@ export default defineComponent({
                 color: this.toolbarModel.color ?? '',
                 fontSize: this.toolbarModel['font-size'] ?? '14px',
                 fontFamily: this.toolbarModel['font-family'] ?? '',
-                fontWeight: this.toolbarModel['font-weight'] ?? ''
+                fontWeight: this.toolbarModel['font-weight'] ?? '',
+                textOutline: 'none'
             }
 
             this.modelChanged()

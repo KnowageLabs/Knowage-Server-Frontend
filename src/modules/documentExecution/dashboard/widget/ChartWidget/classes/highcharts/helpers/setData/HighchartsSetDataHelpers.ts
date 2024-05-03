@@ -4,7 +4,7 @@ import moment from 'moment'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
     if (!data || !widgetModel.columns) return []
-    
+
     const formattedColumns = [] as { column: IWidgetColumn; metadata: any }[]
     widgetModel.columns.forEach((column: IWidgetColumn) => {
         if (column.fieldType === type) {
@@ -92,11 +92,11 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
         serieElement.data.push({
             name: `${firstAttributeValue} - ${secondAttributeValue}`,
             y: row[measureColumn.metadata.dataIndex],
-            drilldown: false,
-        });
-        if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] };
+            drilldown: false
+        })
+        if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
         if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) {
-            categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue);
+            categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
         }
     })
 
@@ -236,7 +236,8 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
                         fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
                         fontSize: centerTextSettings.style['font-size'] ?? '12px',
                         color: centerTextSettings.color ?? '#000000',
-                        width: '10000'
+                        width: '10000',
+                        textOutline: 'none'
                     }
                 }
             },
@@ -267,20 +268,20 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
     treemapArray.forEach((el: any) => {
         if (el.value === 0) delete el.value
     })
-        ; (treemapArray[0].parent = null),
-            (treemapArray[0].id = 'root'),
-            (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
-            (treemapArray[0].dataLabels = {
-                enabled: true,
-                backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
-                style: {
-                    fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
-                    fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
-                    fontSize: centerTextSettings.style['font-size'] ?? '12px',
-                    color: centerTextSettings.color ?? '#000000',
-                    width: '10000'
-                }
-            })
+    ;(treemapArray[0].parent = null),
+        (treemapArray[0].id = 'root'),
+        (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
+        (treemapArray[0].dataLabels = {
+            enabled: true,
+            backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
+            style: {
+                fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
+                fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
+                fontSize: centerTextSettings.style['font-size'] ?? '12px',
+                color: centerTextSettings.color ?? '#000000',
+                width: '10000'
+            }
+        })
     serieElement.data = treemapArray
 
     model.series = [serieElement]
