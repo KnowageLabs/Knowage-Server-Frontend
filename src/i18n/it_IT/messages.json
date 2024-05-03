@@ -361,6 +361,12 @@
                 "title": "Menu & Widget"
             },
             "profile": "Profilo",
+            "themes": {
+                "dashboardTheme": "Temi dashboard",
+                "dashboardThemeHint": "Componente in sviluppo, la preview dei temi sarà presto visibile qui",
+                "editTheme": "Modifica Tema",
+                "info": "Un tema è una collezione di stili che saranno applicati a tutti i widget. E' possibile selezionarne uno dalla lista o crearne uno nuovo nel Gestore Temi Dashboard"
+            },
             "title": "Configurazioni Generali",
             "variableColumnHint": "Se nessuna colonna viene selezionata verrà utilizzato l'intero dataset.",
             "variablesHint": "Le variabili possono essere usate ovunque nei widget della dashboard. Possono essere valori statici o dinamici e valorizzati in diversi modi. Controlla la documentazione o singoli widget per imparare come usarle."

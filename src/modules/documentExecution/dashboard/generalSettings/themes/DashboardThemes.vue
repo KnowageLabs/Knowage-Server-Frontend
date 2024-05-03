@@ -17,7 +17,8 @@
         </form>
 
         <div v-if="dashboardModelProp.configuration.theme?.themeName != null" class="theme-manager-examples kn-page p-p-0 kn-overflow dashboard-scrollbar">
-            <ThemeExamples :selected-theme-prop="dashboardModelProp.configuration.theme" />
+            <KnHint :title="'dashboard.generalSettings.themes.dashboardTheme'" :hint="'dashboard.generalSettings.themes.dashboardThemeHint'"></KnHint>
+            <!-- ThemeExamples :selected-theme-prop="dashboardModelProp.configuration.theme" /-->
         </div>
     </div>
 </template>
@@ -30,10 +31,11 @@ import Dropdown from 'primevue/dropdown'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { mapActions } from 'pinia'
 import ThemeExamples from '@/modules/managers/dashboardThemeManagement/dashboardThemeManagementExamples/DashboardThemeManagementExamples.vue'
+import KnHint from '@/components/UI/KnHint.vue'
 
 export default defineComponent({
     name: 'dashboard-variables',
-    components: { Message, Dropdown, ThemeExamples },
+    components: { KnHint, Message, Dropdown, ThemeExamples },
     props: {
         dashboardModelProp: {
             type: Object as any,
