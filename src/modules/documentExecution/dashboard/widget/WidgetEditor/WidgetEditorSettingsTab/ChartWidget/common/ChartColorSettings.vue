@@ -12,20 +12,20 @@
 
     <ColorPicker v-if="colorPickerVisible" class="dashboard-color-picker click-outside" theme="light" :color="customColorValue" :colors-default="descriptor.defaultColors" :sucker-hide="true" @changeColor="changeColor" />
 
-    <DataTable class="pallete-table p-m-2" :style="descriptor.colorPalleteStyle.table" :value="widgetModel.settings.chart.colors" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
-        <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPalleteStyle.column">
+    <DataTable class="pallete-table p-m-2" :style="descriptor.colorPaletteStyle.table" :value="widgetModel.settings.chart.colors" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
+        <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
             <template #body="slotProps">
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">
                     <i class="p-datatable-reorderablerow-handle pi pi-bars p-m-2"></i>
                 </span>
             </template>
         </Column>
-        <Column :sortable="false" :style="descriptor.colorPalleteStyle.columnMain">
+        <Column :sortable="false" :style="descriptor.colorPaletteStyle.columnMain">
             <template #body="slotProps">
                 <span class="kn-flex" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">{{ slotProps.data }}</span>
             </template>
         </Column>
-        <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPalleteStyle.column">
+        <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
             <template #body="slotProps">
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">
                     <i class="pi pi-pencil p-mr-2 click-outside" @click="toggleColorPicker(slotProps.index)"></i>
