@@ -17,7 +17,7 @@
             </span>
             <q-btn v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" round class="customFabButton" icon="fas fa-plus">
                 <q-menu>
-                    <q-list dense style="min-width: 150px">
+                    <q-list dense style="min-width: 200px">
                         <q-item v-for="item in items" :key="item" v-close-popup clickable @click="item.command">
                             <q-item-section
                                 ><div>

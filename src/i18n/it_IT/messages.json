@@ -20,7 +20,7 @@
         "clicked": "cliccato",
         "clone": "clona",
         "close": "chiudi",
-        "cockpit": "cockpit",
+        "cockpit": "Cockpit",
         "code": "Code",
         "codingLanguages": {
             "css": "css",
@@ -1233,7 +1233,7 @@
         "documentsSearch": "ricerca documenti",
         "editDocument": "modifica documento",
         "executeDocument": "esegui documento",
-        "genericDocument": "documento generico",
+        "genericDocument": "Documento Generico",
         "hint": "nessuna cartella selezionata",
         "moveDownDocumentState": "abbassa lo stato del documento",
         "moveUpDocumentState": "alza lo stato del documento",
