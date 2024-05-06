@@ -241,8 +241,8 @@ export default defineComponent({
         loadMenuItems() {
             this.items = [
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: canEditDashboard(this.document) || !['html', 'image', 'text'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.widgetEditor.map.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: canEditDashboard(this.document) || !['html', 'image', 'text'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.widgetEditor.map.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: canEditDashboard(this.document) && ['highcharts', 'vega'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
                 { label: this.$t('dashboard.widgetEditor.map.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },

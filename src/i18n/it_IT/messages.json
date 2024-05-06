@@ -20,7 +20,7 @@
         "clicked": "cliccato",
         "clone": "clona",
         "close": "chiudi",
-        "cockpit": "dashboard",
+        "cockpit": "cockpit",
         "code": "Code",
         "codingLanguages": {
             "css": "css",
@@ -315,7 +315,7 @@
         "yearly": "annuale"
     },
     "dashboard": {
-        "dashboardBeta": "Dashboard (Beta)",
+        "dashboard": "Dashboard",
         "datasetEditor": {
             "addAssociation": "Associazioni",
             "addIndexes": "Indici",

@@ -1,5 +1,5 @@
 <template>
-    <div class="kn-height-full detail-page-container">
+    <div ref="document" class="kn-height-full detail-page-container">
         <Toolbar v-if="showToolbar" class="kn-toolbar kn-toolbar--primary p-col-12">
             <template #start>
                 <DocumentExecutionBreadcrumb v-if="breadcrumbs.length > 1" :breadcrumbs="breadcrumbs" @breadcrumbClicked="onBreadcrumbClick"></DocumentExecutionBreadcrumb>
@@ -510,6 +510,7 @@ export default defineComponent({
                     openSaveCurrentViewDialog: this.openSaveCurrentViewDialog,
                     openSavedViewsListDialog: this.openSavedViewsListDialog,
                     openHelp: this.openHelp,
+                    fullScreen: this.fullScreen,
                     toggleFinalUser: this.toggleFinalUser
                 },
                 this.exporters,
@@ -1227,6 +1228,10 @@ export default defineComponent({
             this.selectedCockpitView = view
             this.saveViewDialogVisible = true
         },
+        fullScreen() {
+            const widgetElement = this.$refs['document'] as any
+            widgetElement.requestFullscreen()
+        },
         toggleFinalUser() {
             if (this.seeAsFinalUser) {
                 delete this.document.seeAsFinalUser
@@ -1251,6 +1256,7 @@ export default defineComponent({
     display: none;
 }
 .document-execution-view {
+    background: white;
     position: relative;
     height: 100%;
     width: 100%;

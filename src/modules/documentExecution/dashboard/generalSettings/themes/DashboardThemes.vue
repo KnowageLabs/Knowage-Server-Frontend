@@ -7,12 +7,9 @@
             <Message class="p-m-2" severity="info" :closable="false">
                 {{ $t('dashboard.generalSettings.themes.info') }}
             </Message>
-            <span class="p-field p-col-12 p-d-flex p-flex-row">
-                <span class="p-float-label kn-flex">
-                    <Dropdown id="theme" v-model="dashboardModelProp.configuration.theme" class="kn-material-input" :options="availableThemes" option-label="themeName" option-value="" />
-                    <label for="theme" class="kn-material-input-label"> {{ $t('dashboard.generalSettings.themes.dashboardTheme') }} </label>
-                </span>
-                <Button class="kn-button kn-button--primary p-ml-2" style="flex: 0.2" label="Edit Theme" />
+            <span class="p-col-12 p-grid p-mt-2">
+                <q-select v-model="dashboardModelProp.configuration.theme" clearable class="p-col-8" outlined :options="availableThemes" option-value="themeName" option-label="themeName" :label="$t('dashboard.generalSettings.themes.dashboardTheme')" />
+                <q-btn color="primary" class="kn-flex" :label="$t('dashboard.generalSettings.themes.editTheme')" />
             </span>
         </form>
 
