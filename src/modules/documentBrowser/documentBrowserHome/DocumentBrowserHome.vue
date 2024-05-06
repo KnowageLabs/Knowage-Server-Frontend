@@ -276,6 +276,10 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .customFabButton {
+    &:deep(.q-icon) {
+        font-size: 1rem;
+    }
+
     background-color: var(--kn-button-fab-background-color);
     z-index: 100;
     &:hover {
