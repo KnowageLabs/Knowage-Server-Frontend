@@ -718,19 +718,19 @@ export default defineComponent({
                 } else {
                     delete placeholder.views
                     for (let j = 0; j < placeholder.parameters?.length; j++) {
-                        if (placeholder.parameters[j].type?.code === 'static') {
+                        if (this.typeCheck(placeholder.parameters[j], 'static')) {
                             placeholder.parameters[j] = {
                                 urlName: placeholder.parameters[j].parameterUrlName,
                                 type: 'static',
                                 value: placeholder.parameters[j].value
                             }
-                        } else if (placeholder.parameters[j].type?.code === 'dynamic') {
+                        } else if (this.typeCheck(placeholder.parameters[j],'dynamic')) {
                             placeholder.parameters[j] = {
                                 urlName: placeholder.parameters[j].parameterUrlName,
                                 type: 'dynamic',
                                 dossierUrlName: placeholder.parameters[j].dossierUrlName?.parameterUrlName
                             }
-                        } else if (placeholder.parameters[j].type?.code === 'inherit') {
+                        } else if (this.typeCheck(placeholder.parameters[j], 'inherit')) {
                             this.inheritedDrivers = true
                             const existing = this.document?.drivers?.filter((x) => x.parameterUrlName === placeholder.parameters[j].parameterUrlName)
 
