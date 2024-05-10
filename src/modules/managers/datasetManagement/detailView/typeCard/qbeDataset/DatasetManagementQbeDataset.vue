@@ -70,7 +70,6 @@
         </template>
         <VCodeMirror ref="codeMirror" v-model:value="qbeQuery" class="kn-height-full" :options="codemirrorOptions" />
     </Dialog>
-    {{ qbeDataset }}
     <QBE v-if="qbeVisible" :visible="qbeVisible" :dataset="qbeDataset" :return-query-mode="true" :get-query-from-dataset-prop="getQueryFromDataset" @querySaved="onQbeDialogSave" @close="onQbeDialogClose" />
 </template>
 
