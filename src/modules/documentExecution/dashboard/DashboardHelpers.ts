@@ -135,7 +135,7 @@ const updateClonedWidgetSheetItemWithOriginalDimensions = (clonedWidgetSheetItem
     clonedWidgetSheetItem.w = originalWidgetSheetItem.w
 }
 
-export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
+export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any, selectedSheetIndex: number) => {
     for (let i = 0; i < dashboards[dashboardId].widgets.length; i++) {
         if (widget.id === dashboards[dashboardId].widgets[i].id) {
             const tempWidget = deepcopy(widget)
@@ -144,27 +144,28 @@ export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboa
             emitter.emit('widgetUpdatedFromStore', widget)
         }
     }
-    updateWidgetInSheets(dashboards[dashboardId], widget)
+    const selectedSheet = dashboards[dashboardId].sheets[selectedSheetIndex]
+    updateWidgetInSheets(dashboards[dashboardId], widget, selectedSheet)
 }
 
-const updateWidgetInSheets = (dashboardModel: IDashboard, widget: IWidget) => {
+const updateWidgetInSheets = (dashboardModel: IDashboard, widget: IWidget, selectedSheet: IDashboardSheet) => {
     if (!widget.settings.responsive) return
     const SHEET_WIDGET_SIZES = Object.keys(widget.settings.responsive)
     dashboardModel.sheets.forEach((sheet: IDashboardSheet) => {
-        if (SHEET_WIDGET_SIZES.includes('fullGrid')) updateFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, sheet, widget)
-        else SHEET_WIDGET_SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
+        if (SHEET_WIDGET_SIZES.includes('fullGrid')) updateFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, sheet, widget, selectedSheet)
+        else SHEET_WIDGET_SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget, selectedSheet))
     })
 }
 
-const updateFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, sheet: IDashboardSheet, widget: IWidget) => {
-    SHEET_WIDGET_SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget))
+const updateFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, sheet: IDashboardSheet, widget: IWidget, selectedSheet: IDashboardSheet) => {
+    SHEET_WIDGET_SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget, selectedSheet))
     disableOtherWidgetFullGridInASheet(dashboardModel, widget)
 }
 
-const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widget: IWidget) => {
+const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widget: IWidget, selectedSheet: IDashboardSheet) => {
     if (!sheet.widgets[size]) return
     const index = sheet.widgets[size].findIndex((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
-    if (index === -1 && (widget.settings.responsive[size] || widget.settings.responsive.fullGrid)) {
+    if (index === -1 && (widget.settings.responsive[size] || widget.settings.responsive.fullGrid) && selectedSheet?.id === sheet.id) {
         sheet.widgets[size].push(createDashboardSheetWidgetItem(widget))
     } else if (index !== -1 && !widget.settings.responsive[size] && !widget.settings.responsive.fullGrid) {
         sheet.widgets[size].splice(index, 1)
@@ -280,7 +281,7 @@ export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: a
     await $http
         .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
         .then((response: AxiosResponse<any>) => (datasets = response.data ? response.data.item : []))
-        .catch(() => {})
+        .catch(() => { })
     setAllDatasets(datasets)
     appStore.setLoading(false)
     return datasets
@@ -331,7 +332,7 @@ export const loadHtmlGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => {})
+        .catch(() => { })
     store.setLoading(false)
     return galleryItems
 }
@@ -342,7 +343,7 @@ export const loadPythonGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => {})
+        .catch(() => { })
     store.setLoading(false)
     return galleryItems
 }
@@ -353,7 +354,7 @@ export const loadCustomChartGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => {})
+        .catch(() => { })
     store.setLoading(false)
     return galleryItems
 }
