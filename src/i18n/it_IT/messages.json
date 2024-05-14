@@ -1063,6 +1063,9 @@
             "seriesAccessibility": {
                 "title": "Series Accessibility"
             },
+            "settings": {
+                "hint": "Seleziona uno dei <b>gruppi di opzioni</b> dalla lista a sinistra. Sarai poi in grado di modificare singole <b>proprietà del widget</b> in modo da personalizzarlo a tuo piacimento."
+            },
             "settingsListOptions": {
                 "tooltip": "Tooltip"
             },

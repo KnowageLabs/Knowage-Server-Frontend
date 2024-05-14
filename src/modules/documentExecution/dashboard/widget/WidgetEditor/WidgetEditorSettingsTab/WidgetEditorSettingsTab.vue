@@ -1,8 +1,9 @@
 <template>
     <WidgetEditorSettingsList v-if="descriptor" :widget-model="propWidget" :options="descriptor.settingsListOptions" :propSelectedItem="selectedSetting" @itemClicked="onItemClicked"></WidgetEditorSettingsList>
     <div v-if="propWidget" class="p-d-flex kn-flex kn-overflow">
+        <KnHint v-if="!selectedSetting" class="p-as-center" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
         <TableWidgetSettingsContainer
-            v-if="propWidget.type === 'table'"
+            v-if="selectedSetting && propWidget.type === 'table'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -12,7 +13,7 @@
             :dashboard-id="dashboardId"
         ></TableWidgetSettingsContainer>
         <SelectorWidgetSettingsContainer
-            v-else-if="propWidget.type === 'selector'"
+            v-else-if="selectedSetting && propWidget.type === 'selector'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -21,7 +22,7 @@
             :variables="variables"
         ></SelectorWidgetSettingsContainer>
         <SelectionsWidgetSettingsContainer
-            v-else-if="propWidget.type === 'selection'"
+            v-else-if="selectedSetting && propWidget.type === 'selection'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -30,7 +31,7 @@
             :variables="variables"
         ></SelectionsWidgetSettingsContainer>
         <HTMLWidgetSettingsContainer
-            v-else-if="propWidget.type === 'html'"
+            v-else-if="selectedSetting && propWidget.type === 'html'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -42,7 +43,7 @@
             @galleryItemSelected="onGalleryItemSelected"
         ></HTMLWidgetSettingsContainer>
         <TextWidgetSettingsContainer
-            v-else-if="propWidget.type === 'text'"
+            v-else-if="selectedSetting && propWidget.type === 'text'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -52,7 +53,7 @@
             :dashboard-id="dashboardId"
         ></TextWidgetSettingsContainer>
         <HighchartsWidgetSettingsContainer
-            v-else-if="propWidget.type === 'highcharts' && user.enterprise"
+            v-else-if="selectedSetting && propWidget.type === 'highcharts' && user.enterprise"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -64,7 +65,7 @@
         >
         </HighchartsWidgetSettingsContainer>
         <ChartJSWidgetSettingsContainer
-            v-else-if="propWidget.type === 'chartJS'"
+            v-else-if="selectedSetting && propWidget.type === 'chartJS'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -75,7 +76,7 @@
         >
         </ChartJSWidgetSettingsContainer>
         <ImageWidgetSettingsContainer
-            v-else-if="propWidget.type === 'image'"
+            v-else-if="selectedSetting && propWidget.type === 'image'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -87,7 +88,7 @@
         >
         </ImageWidgetSettingsContainer>
         <CustomChartWidgetSettingsContainer
-            v-else-if="propWidget.type === 'customchart'"
+            v-else-if="selectedSetting && propWidget.type === 'customchart'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -99,7 +100,7 @@
             @galleryItemSelected="onGalleryItemSelected"
         ></CustomChartWidgetSettingsContainer>
         <PivotTableWidgetSettingsContainer
-            v-else-if="propWidget.type === 'static-pivot-table'"
+            v-else-if="selectedSetting && propWidget.type === 'static-pivot-table'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -109,7 +110,7 @@
             :dashboard-id="dashboardId"
         ></PivotTableWidgetSettingsContainer>
         <DiscoveryWidgetSettingsContainer
-            v-else-if="propWidget.type === 'discovery'"
+            v-else-if="selectedSetting && propWidget.type === 'discovery'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widgetModel="propWidget"
             :selectedSetting="selectedSetting"
@@ -119,7 +120,7 @@
             :dashboardId="dashboardId"
         ></DiscoveryWidgetSettingsContainer>
         <MapWidgetSettingsContainer
-            v-else-if="propWidget.type === 'map'"
+            v-else-if="selectedSetting && propWidget.type === 'map'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -130,7 +131,7 @@
             :layers="layers"
         ></MapWidgetSettingsContainer>
         <VegaChartsSettingsContainer
-            v-else-if="propWidget.type === 'vega'"
+            v-else-if="selectedSetting && propWidget.type === 'vega'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -140,7 +141,7 @@
             :dashboard-id="dashboardId"
         ></VegaChartsSettingsContainer>
         <cePivotTableWidgetSettingsContainer
-            v-else-if="propWidget.type === 'ce-pivot-table'"
+            v-else-if="selectedSetting && propWidget.type === 'ce-pivot-table'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -150,7 +151,7 @@
             :dashboard-id="dashboardId"
         ></cePivotTableWidgetSettingsContainer>
         <PythonWidgetSettingsContainer
-            v-else-if="propWidget.type === 'python'"
+            v-else-if="selectedSetting && propWidget.type === 'python'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -160,7 +161,15 @@
             :prop-gallery-items="galleryItems"
             @galleryItemSelected="onGalleryItemSelected"
         ></PythonWidgetSettingsContainer>
-        <RWidgetSettingsContainer v-else-if="propWidget.type === 'r'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></RWidgetSettingsContainer>
+        <RWidgetSettingsContainer
+            v-else-if="selectedSetting && propWidget.type === 'r'"
+            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
+            :widget-model="propWidget"
+            :selected-setting="selectedSetting"
+            :datasets="datasets"
+            :selected-datasets="selectedDatasets"
+            :dashboard-id="dashboardId"
+        ></RWidgetSettingsContainer>
     </div>
 </template>
 
@@ -225,10 +234,12 @@ import rWidgetDescriptor from './RWidget/RWidgetSettingsDescriptor.json'
 import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import KnHint from '@/components/UI/KnHint.vue'
 
 export default defineComponent({
     name: 'widget-editor-settings-tab',
     components: {
+        KnHint,
         TableWidgetSettingsContainer,
         WidgetEditorSettingsList,
         SelectorWidgetSettingsContainer,

@@ -1214,6 +1214,9 @@
             "seriesAccessibility": {
                 "title": "Series Accessibility"
             },
+            "settings": {
+                "hint": "Select one of the <b>settings group</b> from the list on the left. You will then be able to select and customize single <b>properties</b> from your widget"
+            },
             "settingsListOptions": {
                 "tooltip": "Tooltip"
             },
