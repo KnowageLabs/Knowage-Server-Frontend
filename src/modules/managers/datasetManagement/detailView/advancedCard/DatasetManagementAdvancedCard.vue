@@ -68,13 +68,6 @@
         </template>
     </Card>
 
-    <Toolbar class="kn-toolbar kn-toolbar--secondary p-mt-3">
-        <template #start>
-            <InputSwitch v-model="dataset.isPersistedHDFS" class="p-mr-2" @change="$emit('touched')" />
-            <span>{{ $t('managers.datasetManagement.isPersistedHDFS') }}</span>
-        </template>
-    </Toolbar>
-
     <div v-if="dataset.dsTypeCd != 'Flat'">
         <Toolbar class="kn-toolbar kn-toolbar--secondary p-mt-3">
             <template #start>
@@ -136,6 +129,17 @@ export default defineComponent({
         transformationDataset: { type: Object as any },
         schedulingData: { type: Object as any }
     },
+    emits: ['touched'],
+    data() {
+        return {
+            v$: useValidate() as any,
+            advancedCardDescriptor,
+            dataset: {} as any,
+            testInput: 'testinput',
+            testCheckbox: true,
+            isTransformable: false
+        }
+    },
     computed: {
         ...mapState(mainStore, {
             user: 'user'
@@ -153,17 +157,7 @@ export default defineComponent({
             return this.user.functionalities.includes(UserFunctionalitiesConstants.SCHEDULING_DATASET_MANAGEMENT) && this.dataset.isPersisted && this.dataset.isScheduled
         }
     },
-    emits: ['touched'],
-    data() {
-        return {
-            v$: useValidate() as any,
-            advancedCardDescriptor,
-            dataset: {} as any,
-            testInput: 'testinput',
-            testCheckbox: true,
-            isTransformable: false
-        }
-    },
+
     watch: {
         selectedDataset() {
             this.dataset = this.selectedDataset
