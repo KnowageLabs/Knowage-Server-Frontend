@@ -21,6 +21,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
         delete this.model.chart.inverted
         delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
@@ -142,19 +143,19 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
     formatFirstSunburstElement(treemapArray: any[], attributeColumns: any[], centerTextSettings: any) {
         if (!treemapArray[0]) return
-        ;(treemapArray[0].parent = null),
-            (treemapArray[0].id = 'root'),
-            (treemapArray[0].name = centerTextSettings?.text ?? attributeColumns[0].column.columnName),
-            (treemapArray[0].dataLabels = {
-                enabled: true,
-                style: {
-                    fontFamily: centerTextSettings?.style['font-family'] ?? 'Arial',
-                    fontStyle: centerTextSettings?.style['font-style'] ?? 'normal',
-                    fontSize: centerTextSettings?.style['font-size'] ?? '12px',
-                    color: centerTextSettings?.style.color ?? '#000000',
-                    width: '10000'
-                }
-            })
+            ; (treemapArray[0].parent = null),
+                (treemapArray[0].id = 'root'),
+                (treemapArray[0].name = centerTextSettings?.text ?? attributeColumns[0].column.columnName),
+                (treemapArray[0].dataLabels = {
+                    enabled: true,
+                    style: {
+                        fontFamily: centerTextSettings?.style['font-family'] ?? 'Arial',
+                        fontStyle: centerTextSettings?.style['font-style'] ?? 'normal',
+                        fontSize: centerTextSettings?.style['font-size'] ?? '12px',
+                        color: centerTextSettings?.style.color ?? '#000000',
+                        width: '10000'
+                    }
+                })
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {

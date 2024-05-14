@@ -20,6 +20,7 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
         this.model.chart.inverted = inverted
         if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
         delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
