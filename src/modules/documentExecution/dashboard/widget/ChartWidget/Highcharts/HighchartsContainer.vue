@@ -297,11 +297,25 @@ export default defineComponent({
             return formattedChartModel
         },
         onCheckboxClicked(event: any) {
-            this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
-                const dataLabelOptions = point.options.dataLabels
-                dataLabelOptions.enabled = event.checked
-                point.update(dataLabelOptions)
-            }, false)
+            if (['area', 'bar', 'column'].includes(this.chartModel.chart.type)) {
+                this.highchartsInstance.series[event.target.index].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    dataLabelOptions.enabled = event.checked
+                    point.update(dataLabelOptions)
+                }, false)
+            } else if (this.chartModel.chart.type === 'pie') {
+                this.highchartsInstance.series[0].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    dataLabelOptions.enabled = point.name !== event.item.name || (event.checked && point.name === event.item.name)
+                    point.update(dataLabelOptions)
+                }, false)
+            } else {
+                this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    dataLabelOptions.enabled = event.checked
+                    point.update(dataLabelOptions)
+                }, false)
+            }
             this.highchartsInstance.redraw()
         },
         onSunburstLegendItemClick(event: any) {
