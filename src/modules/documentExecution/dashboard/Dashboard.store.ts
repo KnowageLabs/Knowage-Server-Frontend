@@ -45,7 +45,7 @@ const store = defineStore('dashboardStore', {
             addNewWidgetToSheets(this.dashboards[dashboardId], this.selectedSheetIndex, widget, originalWidget)
         },
         updateWidget(dashboardId: string, widget: IWidget) {
-            updateWidgetHelper(dashboardId, widget, this.dashboards)
+            updateWidgetHelper(dashboardId, widget, this.dashboards, this.selectedSheetIndex)
         },
         deleteWidget(dashboardId: string, widget: IWidget) {
             deleteWidgetHelper(dashboardId, widget, this.dashboards)
