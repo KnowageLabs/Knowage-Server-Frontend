@@ -1225,7 +1225,6 @@
             "helpTitle": "Yardım ",
             "hint": "Veri kümesi yönetimi, Knomage içinde kullanılacak veri kümelerini yönetmenize ve oluşturmanıza olanak sağlar.  Tipi, sorguyu ve ilgili tüm ayarları seçebilirsiniz.  Yan taraftaki listeden var olan bir öğeyi tıklatın ya da bir öğe eklemek için \"+\" düğmesine basın. ",
             "isPersisted": "Kalıcı Kıl ",
-            "isPersistedHDFS": "HDFS ' de dışa aktarılabilir ",
             "isScheduled": "Zamanla ",
             "jsonPathAttributes": "JSON Yolu Öznitelikleri ",
             "jsonPathValue": "JSON Yolu Değeri ",
@@ -1300,12 +1299,12 @@
             "valueName": "Değer adı "
         },
         "driversManagement": {
-            "partialSuccessMessage": "Tüm veriler başarıyla güncellenmedi.  Kaydedilmemiş bilgileriniz için yeniden denetleyin. ",
             "add": "Ekle ",
             "deleteError": "Hata ",
             "functional": "İşlevsel ",
             "hint": "Sürücü modelleri, genel veri bağlamında ayırt edici bir ölçüt olarak sık kullanılan bir kavram ya da veri parçasını modeller. Yan taraftaki listeden var olan bir öğeyi tıklatın ya da eklemek için \"+\" düğmesine basın. ",
             "options": "Seçenekler ",
+            "partialSuccessMessage": "Tüm veriler başarıyla güncellenmedi.  Kaydedilmemiş bilgileriniz için yeniden denetleyin. ",
             "temporal": "Zamansal ",
             "title": "Sürücü yönetimi ",
             "useModes": {
