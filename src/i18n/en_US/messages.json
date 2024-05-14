@@ -2445,7 +2445,6 @@
             "helpTitle": "Help",
             "hint": "Dataset management allows you to manage and create datasets to use inside Knowage. You can select the type, the query and all related settings. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "isPersisted": "Persist",
-            "isPersistedHDFS": "Exportable on HDFS",
             "isScheduled": "Schedule",
             "jsonPathAttributes": "JSON Path Attributes",
             "jsonPathValue": "JSON Path Value",

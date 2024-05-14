@@ -1225,7 +1225,6 @@
             "helpTitle": "ヘルプ",
             "hint": "データ・セット管理を使用すると、ノウレッジ内で使用するデータセットを管理および作成できます。 タイプ、照会、および関連するすべての設定を選択できます。 サイドのリストから既存の項目を 1 つクリックするか、「+」ボタンを押して 1つを追加します。",
             "isPersisted": "パーシスト",
-            "isPersistedHDFS": "HDFS でエクスポート可能",
             "isScheduled": "スケジュール",
             "jsonPathAttributes": "JSON パス属性",
             "jsonPathValue": "JSON パス値",

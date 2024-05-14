@@ -1225,7 +1225,6 @@
             "helpTitle": "救命",
             "hint": "数据集管理允许您管理和创建数据集以在 Knowage 内使用。 您可以选择类型，查询和所有相关设置。 单击侧边列表中的一个现有项，或按 \"+\" 按钮以添加一个项。",
             "isPersisted": "坚持",
-            "isPersistedHDFS": "在 HDFS 上可导出",
             "isScheduled": "附表",
             "jsonPathAttributes": "JSON 路径属性",
             "jsonPathValue": "JSON 路径值",
