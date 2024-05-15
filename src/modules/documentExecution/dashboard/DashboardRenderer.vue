@@ -1,5 +1,5 @@
 <template>
-    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
+    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
         <div id="dashboard-css" v-html="dashboardCss" />
 
         <div v-if="activeDashboardSheet" class="sheet-container">
@@ -42,6 +42,9 @@
             </grid-layout>
         </div>
     </KnDashboardTabsPanel>
+    <div v-if="canEditDashboard(document)" class="responsive-device">
+        <q-icon :name="getCurrentScreenSizeIcon" :title="$t(`dashboard.breakpoints.${currentScreenSize}`)" />
+    </div>
 </template>
 
 <script lang="ts">
@@ -98,6 +101,12 @@ export default defineComponent({
         },
         dashboardCss(): any {
             return `<style>${this.dashboardModel?.configuration?.cssToRender}</style>`
+        },
+        getCurrentScreenSizeIcon() {
+            if (['xs', 'xxs'].includes(this.currentScreenSize)) return 'smartphone'
+            if (['sm'].includes(this.currentScreenSize)) return 'tablet'
+            if (['md'].includes(this.currentScreenSize)) return 'laptop'
+            else return 'desktop_windows'
         },
         getGridStyle() {
             if (canEditDashboard(this.document) && this.dashboardModel?.configuration?.background?.showGrid) {
@@ -210,6 +219,16 @@ export default defineComponent({
             }
         }
     }
+}
+
+.responsive-device {
+    position: absolute;
+    bottom: 1px;
+    right: 8px;
+    z-index: 1000;
+    background-color: #cccccc6e;
+    border: 1px solid #ccc;
+    padding: 4px 8px;
 }
 
 @media all and (max-width: 600px) {

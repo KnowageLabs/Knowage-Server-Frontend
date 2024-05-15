@@ -315,6 +315,13 @@
         "yearly": "annuale"
     },
     "dashboard": {
+        "breakpoints": {
+            "lg": "Dispositivo Grande, es: Monitor Desktop",
+            "md": "Dispositivo Medio, es: Laptop",
+            "sm": "Dispositivo Piccolo, es: Tablet",
+            "xs": "Dispositivo Extra small, es: Phablet",
+            "xxs": "Dispositivo XXS, es: Smartphone"
+        },
         "dashboard": "Dashboard",
         "datasetEditor": {
             "addAssociation": "Associazioni",

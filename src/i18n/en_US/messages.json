@@ -387,6 +387,13 @@
         "yearly": "Yearly"
     },
     "dashboard": {
+        "breakpoints": {
+            "lg": "Very Large Device, ie: Desktop Monitor",
+            "md": "Medium Range Device, ie: Laptop",
+            "sm": "Small Device, ie: Tablet",
+            "xs": "Extra small Device, ie: Phablet",
+            "xxs": "XXS Device, ie: Smartphone"
+        },
         "dashboard": "Dashboard",
         "datasetEditor": {
             "addAssociation": "Association",
