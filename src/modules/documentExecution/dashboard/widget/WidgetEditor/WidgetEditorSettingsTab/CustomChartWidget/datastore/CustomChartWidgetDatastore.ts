@@ -288,8 +288,8 @@ export class CustomChartDatastore {
     }
 
     clickManager(columnName: string, columnValue: string | number) {
-        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, '*')
-        else window?.parent?.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, '*')
+        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, location.origin)
+        else window?.parent?.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, location.origin)
     }
 
     getState() {
@@ -298,8 +298,8 @@ export class CustomChartDatastore {
     }
 
     setState(state: any) {
-        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'setState', payload: JSON.stringify(state) }, '*')
-        else window?.parent?.postMessage({ type: 'setState', payload: JSON.stringify(state) }, '*')
+        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'setState', payload: JSON.stringify(state) }, location.origin)
+        else window?.parent?.postMessage({ type: 'setState', payload: JSON.stringify(state) }, location.origin)
     }
 }
 
