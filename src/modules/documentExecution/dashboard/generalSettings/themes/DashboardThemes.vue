@@ -8,7 +8,7 @@
                 {{ $t('dashboard.generalSettings.themes.info') }}
             </Message>
             <span class="p-col-12 p-grid p-mt-2">
-                <q-select v-model="dashboardModelProp.configuration.theme" clearable class="p-col-8" outlined :options="availableThemes" option-value="themeName" option-label="themeName" :label="$t('dashboard.generalSettings.themes.dashboardTheme')" />
+                <q-select v-model="dashboardModelProp.configuration.theme.themeName" clearable emit-value class="p-col-8" outlined :options="availableThemes" option-value="themeName" option-label="themeName" :label="$t('dashboard.generalSettings.themes.dashboardTheme')" />
                 <q-btn color="primary" class="kn-flex" :label="$t('dashboard.generalSettings.themes.editTheme')" />
             </span>
         </form>
