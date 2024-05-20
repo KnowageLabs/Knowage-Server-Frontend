@@ -85,7 +85,7 @@
                             {{ axisModel.labels.formatterError }}
                         </Message>
                         <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterCodeMirror :prop-code="axisModel.labels.formatterText" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterCodeMirror>
+                            <HighchartsFormatterMonaco :prop-code="axisModel.labels.formatterText" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterMonaco>
                             <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.labels.formatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                         </div>
                     </div>
@@ -105,14 +105,14 @@ import settingsDescriptor from '../HighchartsWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
-import HighchartsFormatterCodeMirror from '../common/HighchartsFormatterCodeMirror.vue'
+import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
 import Textarea from 'primevue/textarea'
 import Message from 'primevue/message'
 import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'highcharts-axis-settings',
-    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, HighchartsFormatterCodeMirror, Textarea, Message, InputSwitch },
+    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, HighchartsFormatterMonaco, Textarea, Message, InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, axis: { type: String, required: true } },
     data() {
         return {

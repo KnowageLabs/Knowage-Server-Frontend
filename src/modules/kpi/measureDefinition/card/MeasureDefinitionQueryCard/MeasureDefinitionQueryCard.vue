@@ -10,10 +10,10 @@
             <div v-if="selectedRule.dataSource">
                 <Toolbar class="kn-toolbar kn-toolbar--primary p-m-0">
                     <template #end>
-                        <Button class="kn-button p-button-text p-button-rounded" :disabled="previewDisabled" @click="showPreview">{{ $t('kpi.measureDefinition.preview') }}</Button>
+                        <q-btn size="sm" flat unelevated :disabled="previewDisabled" @click="showPreview">{{ $t('kpi.measureDefinition.preview') }}</q-btn>
                     </template>
                 </Toolbar>
-                <VCodeMirror ref="codeMirror" v-model:value="code" :auto-height="true" :options="options" @keyup="onKeyUp" />
+                <knMonaco ref="editor" v-model="code" style="height: 400px" language="sql" @change="onKeyUp" @editor-setup="editorSetup"></knMonaco>
             </div>
         </template>
     </Card>
@@ -24,15 +24,18 @@
 import { defineComponent } from 'vue'
 import { iRule } from '../../MeasureDefinition'
 import { AxiosResponse } from 'axios'
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
 import queryCardDescriptor from './MeasureDefinitionQueryCardDescriptor.json'
 import Card from 'primevue/card'
 import Dropdown from 'primevue/dropdown'
 import MeasureDefinitionPreviewDialog from './MeasureDefinitionPreviewDialog.vue'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
+
+let editor = null as any
+let tempMonacoInstance = null as any
 
 export default defineComponent({
     name: 'measure-definition-query-card',
-    components: { Card, Dropdown, VCodeMirror, MeasureDefinitionPreviewDialog },
+    components: { Card, Dropdown, knMonaco, MeasureDefinitionPreviewDialog },
     props: { rule: { type: Object, required: true }, datasourcesList: { type: Array, required: true }, aliases: { type: Array }, placeholders: { type: Array }, columns: { type: Array }, rows: { type: Array }, codeInput: { type: String }, preview: { type: Boolean }, activeTab: { type: Number } },
     emits: ['touched', 'queryChanged', 'loadPreview', 'closePreview'],
     data() {
@@ -40,23 +43,9 @@ export default defineComponent({
             queryCardDescriptor,
             selectedRule: {} as iRule,
             code: '',
+            monaco: {} as any,
             datasourceStructure: {},
-            codeMirror: null as any,
             hintList: [] as any,
-            options: {
-                mode: 'text/x-mysql',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true,
-                extraKeys: {
-                    'Ctrl-Space': this.keyAssistFunc
-                } as any,
-                hintOptions: { tables: this.datasourceStructure }
-            },
             cursorPosition: null
         }
     },
@@ -66,14 +55,16 @@ export default defineComponent({
         }
     },
     watch: {
-        codeInput() {
-            this.cursorPosition = this.codeMirror.getCursor()
-            this.codeMirror.replaceRange(this.codeInput, this.cursorPosition)
-            this.selectedRule.definition = this.code
+        codeInput(newValue) {
+            if (newValue) {
+                const selection = editor.getSelection()
+                const range = new this.monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn)
+
+                const op = { range: range || selection, text: newValue, forceMoveMarkers: true }
+                editor.executeEdits('my-source', [op])
+            }
+            this.colorizeCode()
             this.$emit('queryChanged')
-        },
-        activeTab(value: number) {
-            if (value === 0 && this.codeMirror) setTimeout(() => this.codeMirror.refresh(), 100)
         }
     },
     async mounted() {
@@ -87,111 +78,69 @@ export default defineComponent({
         },
         async loadDataSourceStructure() {
             if (this.selectedRule.dataSource) {
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasources/structure/${this.selectedRule.dataSource.DATASOURCE_ID}`).then((response: AxiosResponse<any>) => (this.datasourceStructure = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasources/structure/${this.selectedRule.dataSource.DATASOURCE_ID}`).then((response: AxiosResponse<any>) => {
+                    this.datasourceStructure = response.data
+                    this.editorSetup(tempMonacoInstance)
+                })
             }
             this.$emit('touched')
-
-            this.setupCodeMirror()
-
-            if (this.codeMirror && this.codeMirror.options) {
-                this.codeMirror.options.hintOptions = { tables: this.datasourceStructure }
-            }
         },
-        setupCodeMirror() {
-            const interval = setInterval(() => {
-                if (!this.$refs.codeMirror) return
-                this.codeMirror = (this.$refs.codeMirror as any).cminstance as any
-                setTimeout(() => {
-                    this.codeMirror.refresh()
-                }, 0)
-                clearInterval(interval)
-            }, 200)
 
-            CodeMirror.registerHelper('hint', 'alias', () => {
-                const cur = this.codeMirror.getCursor()
-                const tok = this.codeMirror.getTokenAt(cur)
-                const start = tok.string.trim() == '' ? tok.start + 1 : tok.start
-                const end = tok.end
-                const hintList = [] as any
-                for (const key in this.aliases) {
-                    if (tok.string.trim() == '' || this.aliases[key].name.startsWith(tok.string)) {
-                        hintList.push(this.aliases[key].name)
-                    }
-                }
-                return { list: hintList, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end) }
+        editorSetup(monacoInstance) {
+            tempMonacoInstance = monacoInstance
+            this.monaco = monacoInstance.monaco
+            editor = monacoInstance.editor
+
+            const completers = []
+            Object.keys(this.datasourceStructure).forEach((i) => {
+                completers.push({
+                    label: i,
+                    kind: this.monaco.languages.CompletionItemKind.Function,
+                    insertText: i
+                })
             })
 
-            CodeMirror.registerHelper('hint', 'placeholder', () => {
-                const cur = this.codeMirror.getCursor()
-                const tok = this.codeMirror.getTokenAt(cur)
-                const start = tok.start + 1
-                const end = tok.end
-                const str = tok.string.substring(1, tok.string.length)
-                const hintList = [] as any
-                for (const key in this.placeholders) {
-                    if (str == '' || this.placeholders[key].name.toUpperCase().startsWith(str.toUpperCase())) {
-                        hintList.push(this.placeholders[key].name)
+            this.monaco.languages.registerCompletionItemProvider('sql', {
+                provideCompletionItems: function (model, position) {
+                    const textUntilPosition = model.getValueInRange({
+                        startLineNumber: 1,
+                        startColumn: 1,
+                        endLineNumber: position.lineNumber,
+                        endColumn: position.column
+                    })
+                    const match = textUntilPosition.match(/SELECT()/)
+                    if (!match) {
+                        return { suggestions: [] }
+                    }
+                    return {
+                        suggestions: completers
                     }
                 }
-                if (this.placeholders?.length == 1) {
-                    hintList.push(str)
-                }
-
-                return { list: hintList, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end) }
             })
         },
-        keyAssistFunc() {
-            if (this.isAlias()) {
-                CodeMirror.showHint(this.codeMirror, CodeMirror.hint.alias)
-            } else if (this.isPlaceholder()) {
-                CodeMirror.showHint(this.codeMirror, CodeMirror.hint.placeholder)
-            } else {
-                CodeMirror.showHint(this.codeMirror, CodeMirror.hint.autocomplete)
-            }
-        },
-        isAlias() {
-            const cursor = this.codeMirror.getCursor()
-            let token = this.codeMirror.getTokenAt(cursor)
-
-            if (token.string.trim() != '') {
-                const tmpCursor = CodeMirror.Pos(cursor.line, token.start)
-                tmpCursor.ch = token.start
-                token = this.codeMirror.getTokenAt(tmpCursor)
-            }
-
-            const beforeCursor = CodeMirror.Pos(cursor.line, token.start)
-            beforeCursor.ch = token.start
-            const beforeToken = this.codeMirror.getTokenAt(beforeCursor)
-
-            if (beforeToken.string.toLowerCase() == 'as') {
-                const text = this.codeMirror.getDoc().getRange(CodeMirror.Pos(0, 0), beforeCursor)
-
-                const patt = new RegExp(/^((.*\)\s*select)|(\s*select)) ((?!FROM).)* AS$/gi)
-                if (!patt.test(text.replace(/\n/g, ' '))) {
-                    return false
-                } else {
-                    return true
-                }
-            }
-            return false
-        },
-        isPlaceholder() {
-            const cursor = this.codeMirror.getCursor()
-            const token = this.codeMirror.getTokenAt(cursor)
-            if (token.string.startsWith('@')) {
-                return true
+        colorizeCode() {
+            if (editor) {
+                const matches = editor.getModel().findMatches(/@[a-zA-Z0-9]{1,256}/gim, false, true, false, null, false)
+                matches.forEach((match) => {
+                    editor.createDecorationsCollection([
+                        {
+                            range: match.range,
+                            options: {
+                                isWholeLine: false,
+                                inlineClassName: 'monacoPlaceholder'
+                            }
+                        }
+                    ])
+                })
+                this.selectedRule.definition = this.code
             }
         },
         onKeyUp() {
-            const cur = this.codeMirror.getCursor()
-            const tok = this.codeMirror.getTokenAt(cur)
-            if (tok.string == '@') {
-                CodeMirror.showHint(this.codeMirror, CodeMirror.hint.placeholder)
-            }
-            this.selectedRule.definition = this.code
+            this.colorizeCode()
             this.$emit('queryChanged')
         },
         showPreview() {
+            this.colorizeCode()
             this.$emit('loadPreview')
         }
     }
@@ -209,5 +158,10 @@ export default defineComponent({
 
 .error-dialog {
     width: 60vw;
+}
+:deep(.monacoPlaceholder) {
+    background-color: #f4f4f4;
+    color: darkorange;
+    font-weight: bold;
 }
 </style>

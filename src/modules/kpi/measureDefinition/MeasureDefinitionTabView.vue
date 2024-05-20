@@ -3,10 +3,10 @@
         <Toolbar class="kn-toolbar kn-toolbar--primary p-m-0">
             <template #start>{{ title }} </template>
             <template #end>
-                <Button class="p-button-text p-button-rounded kn-button" :label="$t('kpi.measureDefinition.alias')" data-test="submit-button" @click="aliasesVisible = !aliasesVisible" />
-                <Button class="p-button-text p-button-rounded kn-button" :label="$t('kpi.measureDefinition.placeholder')" data-test="submit-button" @click="placeholderVisible = !placeholderVisible" />
-                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="metadataDisabled" data-test="submit-button" @click="submitConfirm" />
-                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplate" />
+                <q-btn size="sm" flat unelevated :label="$t('kpi.measureDefinition.alias')" @click="toggleAliases" />
+                <q-btn size="sm" flat unelevated :label="$t('kpi.measureDefinition.placeholder')" @click="togglePlaceholders" />
+                <q-btn size="sm" flat unelevated round icon="fa-solid fa-save" :disabled="metadataDisabled" :title="$t('common.save')" @click="submitConfirm" />
+                <q-btn size="sm" flat unelevated round icon="fa-solid fa-times" :title="$t('common.close')" @click="closeTemplate" />
             </template>
         </Toolbar>
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
@@ -528,6 +528,14 @@ export default defineComponent({
         },
         setTouched() {
             this.touched = true
+        },
+        toggleAliases() {
+            this.aliasesVisible = !this.aliasesVisible
+            this.placeholderVisible = false
+        },
+        togglePlaceholders() {
+            this.placeholderVisible = !this.placeholderVisible
+            this.aliasesVisible = false
         }
     }
 })
@@ -539,6 +547,9 @@ export default defineComponent({
 }
 
 .listbox {
+    position: absolute;
+    height: 100%;
+    right: 0;
     width: 320px;
 }
 </style>

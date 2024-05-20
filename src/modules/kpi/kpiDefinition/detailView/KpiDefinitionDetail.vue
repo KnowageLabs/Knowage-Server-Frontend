@@ -255,6 +255,7 @@ export default defineComponent({
             }
         },
         ifErrorInFormula(event) {
+            debugger
             if (event) {
                 this.activeTab = 0
                 this.formulaHasErrors = true

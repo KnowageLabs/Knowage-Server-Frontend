@@ -36,7 +36,7 @@
                 </template>
             </Toolbar>
             <div id="driver-details-container" class="kn-flex kn-relative">
-                <div id="codemirror-container" :style="mainDescriptor.style.absoluteScroll">
+                <div id="monaco-container" :style="mainDescriptor.style.absoluteScroll">
                     <knMonaco v-if="showTemplateContent" v-model="selectedTemplateContent" class="kn-height-full" :options="{ wordWrap: 'on', readOnly: true }" :language="getEditorLanguage" @keyup="$emit('touched')"></knMonaco>
                     <div v-else>
                         <InlineMessage severity="info" class="p-m-2 kn-width-full"> {{ $t('documentExecution.documentDetails.history.templateHint') }}</InlineMessage>
@@ -299,7 +299,7 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
-#codemirror-container {
+#monaco-container {
     overflow: hidden !important;
 }
 </style>

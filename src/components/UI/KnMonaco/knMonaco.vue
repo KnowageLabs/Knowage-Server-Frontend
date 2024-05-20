@@ -13,6 +13,7 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
 import { registerGroovyLanguageForMonaco } from './MonacoGroovy'
 import { registerCFLanguageForMonaco } from './CfLang'
+import { registerKpiLanguageForMonaco } from './kpiLang'
 
 self.MonacoEnvironment = {
     getWorker(_, label) {
@@ -43,6 +44,7 @@ const props = defineProps<{
 
 registerGroovyLanguageForMonaco()
 registerCFLanguageForMonaco()
+registerKpiLanguageForMonaco()
 
 watch(
     () => props.textToInsert,

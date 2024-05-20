@@ -34,14 +34,6 @@ export default defineComponent({
         return {
             olapMDXQueryDialogDescriptor,
             query: null as string | null,
-            codeMirror: {} as any,
-            options: {
-                mode: 'text/x-sql',
-                lineWrapping: true,
-                theme: 'eclipse',
-                lineNumbers: true,
-                readOnly: true
-            },
             loading: false
         }
     },

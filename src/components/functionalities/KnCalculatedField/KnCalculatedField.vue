@@ -143,7 +143,6 @@ export default defineComponent({
             selectedFunction: {},
             selectedCategory: '',
             availableCategories: [] as any,
-            codeMirror: null as any,
             availableFunctions: [] as any,
             monaco: {} as any,
             monacoEditor: {} as any,

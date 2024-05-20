@@ -3,28 +3,6 @@
         <template #content>
             <form class="p-fluid p-formgrid p-grid">
                 <div class="p-field p-col-6">
-                    <!-- <span class="p-float-label">
-                        <Dropdown
-                            id="sourceDatasetLabel"
-                            class="kn-material-input"
-                            :options="qbeDatasets"
-                            optionLabel="label"
-                            optionValue="label"
-                            v-model="v$.dataset.sourceDatasetLabel.$model"
-                            :class="{
-                                'p-invalid': v$.dataset.sourceDatasetLabel.$invalid && v$.dataset.sourceDatasetLabel.$dirty
-                            }"
-                            @before-show="v$.dataset.sourceDatasetLabel.$touch()"
-                        />
-                        <label for="scope" class="kn-material-input-label"> {{ $t('common.dataset') }} * </label>
-                    </span>
-                    <KnValidationMessages
-                        :vComp="v$.dataset.sourceDatasetLabel"
-                        :additionalTranslateParams="{
-                            fieldName: $t('common.dataset')
-                        }"
-                    /> -->
-
                     <span class="p-float-label">
                         <InputText id="label" v-model="v$.dataset.sourceDatasetLabel.$model" class="kn-material-input" type="text" max-length="40" disabled />
                         <label for="label" class="kn-material-input-label"> {{ $t('common.sourceDataset') }} * </label>
@@ -38,7 +16,7 @@
         </template>
     </Card>
 
-    <Dialog class="dmdialog" :visible="qbeQueryDialogVisible" :modal="true" :closable="false" :style="qbeDescriptor.style.codeMirror">
+    <Dialog class="dmdialog" :visible="qbeQueryDialogVisible" :modal="true" :closable="false">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-col-12">
                 <template #start>
@@ -49,7 +27,7 @@
                 </template>
             </Toolbar>
         </template>
-        <VCodeMirror ref="codeMirror" v-model:value="qbeQuery" class="kn-height-full" :options="codemirrorOptions" />
+        <knMonaco ref="editor" v-model="qbeQuery" style="height: 400px" language="javascript"></knMonaco>
     </Dialog>
 
     <QBE v-if="qbeVisible" :visible="qbeVisible" :dataset="qbeDataset" :get-query-from-dataset-prop="getQueryFromDataset" :source-dataset="selectedDataset" :return-query-mode="false" @querySaved="onQbeDialogSave" @close="onQbeDialogClose" />
@@ -58,16 +36,15 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
-// eslint-disable-next-line
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
 import useValidate from '@vuelidate/core'
 import qbeDescriptor from './DatasetManagementDerivedDatasetDescriptor.json'
 import Card from 'primevue/card'
 import Dialog from 'primevue/dialog'
 import QBE from '@/modules/qbe/QBE.vue'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 
 export default defineComponent({
-    components: { Card, Dialog, VCodeMirror, QBE },
+    components: { Card, Dialog, knMonaco, QBE },
     props: { parentValid: { type: Boolean }, selectedDataset: { type: Object as any }, qbeDatasets: { type: Array as any } },
     emits: ['touched', 'qbeDialogClosed', 'qbeDialogSaved'],
     data() {
@@ -78,34 +55,20 @@ export default defineComponent({
             qbeQuery: '' as any,
             qbeQueryDialogVisible: false,
             qbeVisible: false,
-            codeMirror: {} as any,
             qbeDataset: {} as any,
             sourceDataset: {} as any,
             selectedBusinessModel: {} as any,
             datsetBmChanged: false,
-            getQueryFromDataset: false,
-            codemirrorOptions: {
-                readOnly: true,
-                mode: 'text/javascript',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true
-            }
+            getQueryFromDataset: false
         }
     },
     watch: {
         selectedDataset() {
             this.dataset = this.selectedDataset
-            this.setupCodeMirror()
         }
     },
     created() {
         this.dataset = this.selectedDataset
-        this.setupCodeMirror()
     },
     validations() {
         const qbeFieldsRequired = (value) => {
@@ -116,16 +79,6 @@ export default defineComponent({
         return validationObject
     },
     methods: {
-        setupCodeMirror() {
-            const interval = setInterval(() => {
-                if (!this.$refs.codeMirror) return
-                this.codeMirror = (this.$refs.codeMirror as any).cminstance as any
-                setTimeout(() => {
-                    this.codeMirror.refresh()
-                }, 0)
-                clearInterval(interval)
-            }, 200)
-        },
         openQbeQueryDialog() {
             if (typeof this.dataset.sqlQuery === 'string') {
                 this.qbeQuery = this.dataset.sqlQuery
