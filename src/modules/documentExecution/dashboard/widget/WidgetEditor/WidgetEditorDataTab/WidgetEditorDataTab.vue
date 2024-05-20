@@ -74,32 +74,6 @@ export default defineComponent({
         onChartTypeChanged(chartType: string) {
             if (!this.widget) return
             changeChartType(chartType, this.widget, this.isEnterprise)
-
-            delete this.widget.invalid
-            const tempWidgetColors = [...this.widget.settings.chartModel.model.colors]
-
-            if (chartType === 'wordcloud') {
-                this.widget.type = 'vega'
-                this.widget.settings = createNewVegaSettings()
-                this.widget.settings.chart.colors = tempWidgetColors
-                this.widget.settings.chartModel = createVegaModel(this.widget, chartType)
-            } else if (this.isEnterprise) {
-                const oldChartModel = this.widget.settings.chartModel?.model
-                const type = chartType.replace('Stacked', '')
-                this.widget.type = 'highcharts'
-                this.widget.settings = createNewHighchartsSettings()
-                this.widget.settings.chart.colors = tempWidgetColors
-                this.widget.settings.chartModel = createNewHighchartsModel(this.widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'), chartType.endsWith('Jitter'))
-                this.widget.settings.chartModel.updateChartColorSettings(this.widget)
-            } else {
-                this.widget.type = 'chartJS'
-                this.widget.settings = createNewChartJSSettings()
-                this.widget.settings.chart.colors = tempWidgetColors
-                this.widget.settings.chartModel = createChartJSModel(chartType)
-            }
-
-            emitter.emit('chartTypeChanged', this.widget.id)
-            emitter.emit('refreshWidgetWithData', this.widget.id)
         }
     }
 })
