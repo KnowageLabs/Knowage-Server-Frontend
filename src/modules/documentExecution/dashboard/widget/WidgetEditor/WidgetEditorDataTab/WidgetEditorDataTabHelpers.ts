@@ -12,7 +12,7 @@ const dashStore = dashboardStore()
 export const changeChartType = (chartType: string, widget: IWidget, isEnterprise: boolean) => {
     const selectedThemeName = widget.settings?.style?.themeName ?? ''
     delete widget.invalid
-    const tempWidgetColors = [...widget.settings.chartModel.model.colors]
+    const tempWidgetColors = widget.settings.chartModel?.model?.colors ? [...widget.settings.chartModel.model.colors] : []
 
     if (chartType === 'wordcloud') {
         widget.type = 'vega'
