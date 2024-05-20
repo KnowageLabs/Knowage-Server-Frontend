@@ -28,7 +28,6 @@ export default defineComponent({
     components: { ActiveSelectionsChips, ActiveSelectionsList, Message },
     props: { propWidget: { type: Object as PropType<IWidget>, required: true }, propActiveSelections: { type: Array as PropType<ISelection[]>, required: true }, dashboardId: { type: String, required: true }, editorMode: { type: Boolean } },
     emits: ['close'],
-    setup() {},
     data() {
         return {
             activeSelections: [] as ISelection[]
@@ -46,8 +45,8 @@ export default defineComponent({
         },
         noSelectionsMessage(): string {
             const noSelections = this.propWidget.settings.configuration.noSelections
-            if (noSelections.enabled) return noSelections.customText
-            else return 'No Active Selections'
+            if (noSelections.enabled && noSelections.customText) return noSelections.customText
+            else return this.$t('dashboard.activeSelections.noActiveSelections')
         },
         selectionMessageEnabled(): boolean {
             return this.propWidget.settings.configuration.noSelections.enabled

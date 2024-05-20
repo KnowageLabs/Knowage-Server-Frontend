@@ -387,6 +387,9 @@
         "yearly": "Yearly"
     },
     "dashboard": {
+        "activeSelections": {
+            "noActiveSelections": "No Active Selections"
+        },
         "breakpoints": {
             "lg": "Very Large Device, ie: Desktop Monitor",
             "md": "Medium Range Device, ie: Laptop",

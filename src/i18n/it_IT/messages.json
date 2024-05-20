@@ -315,6 +315,9 @@
         "yearly": "annuale"
     },
     "dashboard": {
+        "activeSelections": {
+            "noActiveSelections": "Nessuna selezione attiva"
+        },
         "breakpoints": {
             "lg": "Dispositivo Grande, es: Monitor Desktop",
             "md": "Dispositivo Medio, es: Laptop",
