@@ -81,7 +81,7 @@
                     <template #header>
                         <i :class="['icon', galleryDescriptor.editor[allowedEditor].icon]"></i>&nbsp;<span style="text-transform: uppercase">{{ $t('common.codingLanguages.' + allowedEditor) }}</span>
                     </template>
-                    <knMonaco v-model="template.code[allowedEditor]" :options="{}" :language="allowedEditor" @change="setDirty"></knMonaco>
+                    <knMonaco v-model="template.code[allowedEditor]" :options="{}" :language="allowedEditor" style="height: 100%" @change="setDirty"></knMonaco>
                 </TabPanel>
             </TabView>
         </div>
@@ -91,7 +91,7 @@
                     <i :class="['icon', galleryDescriptor.editor[allowedEditor].icon]"></i>
                     {{ $t('common.codingLanguages.' + allowedEditor) }}
                 </h4>
-                <knMonaco v-model="template.code[allowedEditor]" :options="{ theme: 'vs-dark' }" :language="allowedEditor" @change="setDirty"></knMonaco>
+                <knMonaco v-model="template.code[allowedEditor]" :options="{ theme: 'vs-dark' }" style="height: 100%" :language="allowedEditor" @change="setDirty"></knMonaco>
             </div>
         </div>
     </div>
@@ -359,7 +359,7 @@ export default defineComponent({
         }
     }
     &:deep(.p-card-content) {
-        height: 220px;
+        max-height: 250px;
     }
 }
 </style>
