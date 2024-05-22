@@ -20,7 +20,8 @@
                     :is-selected="selectedImage?.imgId === image.imgId"
                     :image-prop="image"
                     :mode="mode"
-                    @imageSelected="setSelectedImage(image)"
+                    @open-sidebar="openSidebar(image)"
+                    @image-selected="setSelectedImage(image)"
                     @delete="onImageDelete"
                 />
             </div>
@@ -158,8 +159,11 @@ export default defineComponent({
         setSelectedImage(image: IImage) {
             this.selectedImage = image
             if (this.model) this.model.settings.configuration.image.id = image.imgId
-            if (this.mode !== 'map') this.sidebarVisible = true
             this.$emit('selectedImage', this.selectedImage)
+        },
+        openSidebar(image: IImage) {
+            this.selectedSidebarImage = image
+            this.sidebarVisible = true
         }
     }
 })
