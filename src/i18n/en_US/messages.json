@@ -397,6 +397,9 @@
             "xs": "Extra small Device, ie: Phablet",
             "xxs": "XXS Device, ie: Smartphone"
         },
+        "confirm": {
+            "deleteWidget": "Are you sure you do want to delete selected widget?"
+        },
         "dashboard": "Dashboard",
         "datasetEditor": {
             "addAssociation": "Association",
@@ -459,6 +462,20 @@
             "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "qMenu": {
+            "changeType": "Change Chart Type",
+            "clone": "Clone Widget",
+            "delete": "Delete Widget",
+            "edit": "Edit Widget",
+            "expand": "Expand to Fullscreen",
+            "lock": "Lock widget position",
+            "moveWidget": "Move Widget",
+            "quickWidget": "Add Quick Widget",
+            "screenshot": "Capture Screenshot",
+            "search": "Search on Widget",
+            "unlock": "Unlock widget position",
+            "xor": "View One Layer"
+        },
         "rWidgetError": "Error loading R widget.",
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
@@ -1100,20 +1117,6 @@
                     "pies": "Pies",
                     "pies3d": "Pies 3D"
                 },
-                "qMenu": {
-                    "changeType": "Change Chart Type",
-                    "clone": "Clone Widget",
-                    "delete": "Delete Widget",
-                    "edit": "Edit Widget",
-                    "expand": "Expand to Fullscreen",
-                    "lock": "Lock widget position",
-                    "moveWidget": "Move Widget",
-                    "quickWidget": "Add Quick Widget",
-                    "screenshot": "Capture Screenshot",
-                    "search": "Search on Widget",
-                    "unlock": "Unlock widget position",
-                    "xor": "View One Layer"
-                },
                 "range": "Range",
                 "rangeLabel": "Min size (%)/Max size (%)",
                 "south": "South",
@@ -1576,8 +1579,8 @@
             "addToMyRepository": "Add To My Repository",
             "addToWorkspace": "Add to my workspace",
             "addToWorkspaceError": "This document cannot be added to Workspace. It already exists in the root folder of the Organizer",
-            "clearCache": "Clear cache",
             "cacheCleared": "Cache succesfully cleared",
+            "clearCache": "Clear cache",
             "closeDocumentConfirmMessage": "You are leaving edit mode. Continue?",
             "closeDocumentConfirmTitle": "Close Document",
             "copyLink": "Copy link",

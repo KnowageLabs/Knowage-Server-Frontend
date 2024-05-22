@@ -1,5 +1,5 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="$t('dashboard.widgetEditor.map.qMenu.moveWidget')" :style="descriptor.dialogStyle" :closable="false" modal>
+    <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="$t('dashboard.qMenu.moveWidget')" :style="descriptor.dialogStyle" :closable="false" modal>
         <div class="p-field p-col-12 p-mt-4">
             <span class="p-float-label">
                 <Dropdown v-model="selectedSheet" class="kn-material-input kn-width-full" :options="sheets" option-label="label" />

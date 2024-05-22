@@ -325,6 +325,9 @@
             "xs": "Dispositivo Extra small, es: Phablet",
             "xxs": "Dispositivo XXS, es: Smartphone"
         },
+        "confirm": {
+            "deleteWidget": "Sei sicuro di voler cancellare il widget selezionato?"
+        },
         "dashboard": "Dashboard",
         "datasetEditor": {
             "addAssociation": "Associazioni",
@@ -382,6 +385,20 @@
             "variablesHint": "Le variabili possono essere usate ovunque nei widget della dashboard. Possono essere valori statici o dinamici e valorizzati in diversi modi. Controlla la documentazione o singoli widget per imparare come usarle."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "qMenu": {
+            "changeType": "Modifica Tipo Grafico",
+            "clone": "Clona Widget",
+            "delete": "Elimina Widget",
+            "edit": "Modifica Widget",
+            "expand": "Espandi a tutti schermo",
+            "lock": "Blocca posizione Widget",
+            "moveWidget": "Sposta Widget",
+            "quickWidget": "Aggiungi Quick Widget",
+            "screenshot": "Cattura Immagine",
+            "search": "Cerca nel Widget",
+            "unlock": "Sblocca posizione Widget",
+            "xor": "Visualizza un layer"
+        },
         "rWidgetError": "Error loading R widget.",
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
@@ -949,20 +966,6 @@
                     "donuts": "Donuts",
                     "pies": "Pies",
                     "pies3d": "Pies 3D"
-                },
-                "qMenu": {
-                    "changeType": "Modifica Tipo Grafico",
-                    "clone": "Clona Widget",
-                    "delete": "Elimina Widget",
-                    "edit": "Modifica Widget",
-                    "expand": "Espandi a tutti schermo",
-                    "lock": "Blocca posizione Widget",
-                    "moveWidget": "Sposta Widget",
-                    "quickWidget": "Aggiungi Quick Widget",
-                    "screenshot": "Cattura Immagine",
-                    "search": "Cerca nel Widget",
-                    "unlock": "Sblocca posizione Widget",
-                    "xor": "Visualizza un layer"
                 },
                 "range": "Range",
                 "rangeLabel": "Min size (%)/Max size (%)",

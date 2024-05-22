@@ -21,7 +21,6 @@ const emits = defineEmits<{
 const code = toRef(props.propCode)
 
 function onKeyUp() {
-    debugger
     emits('change', code.value)
 }
 </script>
