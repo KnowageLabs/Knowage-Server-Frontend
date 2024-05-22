@@ -166,6 +166,7 @@ import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentEx
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
 import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDriverHelpers'
 import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
+import { clearIndexedDBCache } from '../dashboard/DashboardDataProxy'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import DocumentExecutionBreadcrumb from './breadcrumbs/DocumentExecutionBreadcrumb.vue'
 import DocumentExecutionHelpDialog from './dialogs/documentExecutionHelpDialog/DocumentExecutionHelpDialog.vue'
@@ -183,6 +184,7 @@ import Olap from '../olap/Olap.vue'
 import DocumentExecutionSelectCrossNavigationDialog from './dialogs/documentExecutionSelectCrossNavigationDialog/DocumentExecutionSelectCrossNavigationDialog.vue'
 import DocumentExecutionCNContainerDialog from './dialogs/documentExecutionCNContainerDialog/DocumentExecutionCNContainerDialog.vue'
 import mainStore from '../../../App.store'
+import dashboardStore from '../dashboard/Dashboard.store'
 import deepcopy from 'deepcopy'
 import DashboardController from '../dashboard/DashboardController.vue'
 import Dialog from 'primevue/dialog'
@@ -320,6 +322,9 @@ export default defineComponent({
         ...mapState(mainStore, {
             user: 'user',
             configurations: 'configurations'
+        }),
+        ...mapState(dashboardStore, {
+            dashboards: 'dashboards'
         }),
         canEditCockpit(): boolean {
             if (!this.user || !this.document) return false
@@ -482,6 +487,23 @@ export default defineComponent({
         openHelp() {
             this.helpDialogVisible = true
         },
+        async clearCache() {
+            clearIndexedDBCache()
+            if (this.document.dashboardId) {
+                const payload = {}
+                const datasets = this.dashboards[this.document.dashboardId].configuration.datasets
+                datasets.forEach((ds) => {
+                    payload[ds.dsLabel] = {}
+                    if (ds.parameters && ds.parameters.length > 0) {
+                        ds.parameters.forEach((par) => {
+                            payload[ds.dsLabel][par.name] = par.value
+                        })
+                    }
+                })
+                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/cache/clean-datasets`, payload).then(() => this.setInfo({ title: this.$t('documentExecution.main.clearCache'), msg: this.$t('documentExecution.main.cacheCleared') }))
+            }
+            this.document
+        },
         async refresh() {
             this.parameterSidebarVisible = false
             await this.loadURL(null)
@@ -511,7 +533,8 @@ export default defineComponent({
                     openSavedViewsListDialog: this.openSavedViewsListDialog,
                     openHelp: this.openHelp,
                     fullScreen: this.fullScreen,
-                    toggleFinalUser: this.toggleFinalUser
+                    toggleFinalUser: this.toggleFinalUser,
+                    clearCache: this.clearCache
                 },
                 this.exporters,
                 this.user,

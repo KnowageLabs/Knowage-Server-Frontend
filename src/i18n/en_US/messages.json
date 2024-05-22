@@ -1577,6 +1577,7 @@
             "addToWorkspace": "Add to my workspace",
             "addToWorkspaceError": "This document cannot be added to Workspace. It already exists in the root folder of the Organizer",
             "clearCache": "Clear cache",
+            "cacheCleared": "Cache succesfully cleared",
             "closeDocumentConfirmMessage": "You are leaving edit mode. Continue?",
             "closeDocumentConfirmTitle": "Close Document",
             "copyLink": "Copy link",

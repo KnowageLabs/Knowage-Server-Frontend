@@ -6,7 +6,6 @@ import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnPa
 import { emitter } from '../dashboard/DashboardHelpers'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import store from '@/App.store.js'
-import { clearIndexedDBCache } from '../dashboard/DashboardDataProxy'
 
 const mainStore = store()
 
@@ -22,7 +21,7 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
             ]
         })
         if (mainStore.isEnterprise) toolbarMenuItems[0].items.push({ icon: 'fas fa-paint-roller', label: $t('common.themes'), command: () => functions.openDashboardGeneralSettings('Themes') })
-        toolbarMenuItems[0].items.push({ icon: 'fas fa-recycle', label: $t('documentExecution.main.clearCache'), command: () => clearIndexedDBCache() })
+        toolbarMenuItems[0].items.push({ icon: 'fas fa-recycle', label: $t('documentExecution.main.clearCache'), command: () => functions.clearCache() })
     }
 
     if (exporters && exporters.length !== 0 && !newDashboardMode) {
