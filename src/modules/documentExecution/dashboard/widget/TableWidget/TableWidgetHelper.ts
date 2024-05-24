@@ -181,7 +181,7 @@ const addActiveCrossNavigationInteractions = (tableNode: any, activeInteractions
 const addActiveLinkInteractions = (tableNode: any, activeInteractions: any[], linkSettings: IWidgetLinks | undefined) => {
     if (!linkSettings || !linkSettings.enabled) return
     linkSettings.links.forEach((link: ITableWidgetLink) => {
-        const isSingleColumnNavigationActiveForSelectedColumn = isLinkColumnInteractionActive(tableNode, linkSettings)
+        const isSingleColumnNavigationActiveForSelectedColumn = link.type === 'singleColumn' && isLinkColumnInteractionActive(tableNode, linkSettings)
         if (link.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...link, interactionType: 'link' })
     })
 }
