@@ -16,13 +16,10 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IDataset, IVariable } from '../../../Dashboard'
-import { createNewHighchartsModel, createNewHighchartsSettings } from '../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsHelpers'
-import { createChartJSModel, createNewChartJSSettings } from '../helpers/chartWidget/chartJS/ChartJSHelpers'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { mapState } from 'pinia'
 import { IHighchartsWidgetSettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { IChartJSWidgetSettings } from '../../../interfaces/chartJS/DashboardChartJSWidget'
-import { createVegaModel, createNewVegaSettings } from '../helpers/chartWidget/vega/VegaHelpers'
 import { IVegaChartsSettings } from '../../../interfaces/vega/VegaChartsWidget'
 import { changeChartType } from './WidgetEditorDataTabHelpers'
 import mainStore from '@/App.store'

@@ -40,7 +40,7 @@ export const createNewHighchartsSettings = () => {
             preview: widgetCommonDefaultValues.getDefaultPreview(),
             selection: highchartsDefaultValues.getDefaultHighchartsSelections()
         },
-        chart: { colors: descriptor.defaultColors },
+        chart: { colors: [...descriptor.defaultColors] },
         style: {
             themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
