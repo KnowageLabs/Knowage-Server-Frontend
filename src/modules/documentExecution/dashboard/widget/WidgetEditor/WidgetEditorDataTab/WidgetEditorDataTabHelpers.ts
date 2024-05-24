@@ -6,13 +6,14 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { applyStylesToWidget } from "../../../generalSettings/themes/ThemesHelper"
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { IDashboardTheme } from "@/modules/managers/dashboardThemeManagement/DashboardThememanagement"
+import descriptor from '../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 
 const dashStore = dashboardStore()
 
 export const changeChartType = (chartType: string, widget: IWidget, isEnterprise: boolean) => {
     const selectedThemeName = widget.settings?.style?.themeName ?? ''
     delete widget.invalid
-    const tempWidgetColors = widget.settings.chartModel?.model?.colors ? [...widget.settings.chartModel.model.colors] : []
+    const tempWidgetColors = widget.settings.chartModel?.model?.colors ? [...widget.settings.chartModel.model.colors] : [...descriptor.defaultColors]
 
     if (chartType === 'wordcloud') {
         widget.type = 'vega'
