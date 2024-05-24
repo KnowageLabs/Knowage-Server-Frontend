@@ -141,7 +141,7 @@ export default defineComponent({
             }
 
             this.dashboardModel.configuration.variables = this.variables
-            if (this.dashboardModel.configuration.theme) applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
+            if (this.dashboardModel.configuration.theme?.themeName) applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
             this.updateWidgetMenuSettings()
 
             if (refreshWidgets) emitter.emit('refreshAfterGeneralSettingsChange')
