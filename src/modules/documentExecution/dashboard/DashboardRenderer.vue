@@ -225,7 +225,7 @@ export default defineComponent({
     position: absolute;
     bottom: 1px;
     right: 8px;
-    z-index: 1000;
+    z-index: 999;
     background-color: #cccccc6e;
     border: 1px solid #ccc;
     padding: 4px 8px;
