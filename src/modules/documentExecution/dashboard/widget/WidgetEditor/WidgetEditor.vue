@@ -132,6 +132,7 @@ export default defineComponent({
                 this.$emit('widgetSaved', tempWidget)
                 return
             }
+            if (tempWidget.settings.configuration.updateFromSelections == undefined) tempWidget.settings.configuration.updateFromSelections = true
 
             if (tempWidget.new) {
                 delete tempWidget.new
