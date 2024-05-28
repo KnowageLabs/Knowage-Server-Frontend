@@ -49,6 +49,7 @@ import WidgetEditor from '@/modules/documentExecution/dashboard/widget/WidgetEdi
 import { createCustomHeaderWidget } from './DashboardGeneralSettingsHelper'
 import { IMenuAndWidgets } from '../Dashboard'
 import { addMissingMenuWidgetsConfiguration } from '../DashboardHelpers'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
@@ -83,7 +84,7 @@ export default defineComponent({
         this.loadMenuAndWidgetConfiguration()
     },
     methods: {
-        ...mapActions(store, ['getDashboard']),
+        ...mapActions(store, ['getDashboard', 'getAllThemes']),
         ...mapActions(mainStore, ['getUser']),
         loadDashboardModel() {
             this.dashboardModel = this.getDashboard(this.dashboardId)
@@ -141,11 +142,19 @@ export default defineComponent({
             }
 
             this.dashboardModel.configuration.variables = this.variables
-            if (this.dashboardModel.configuration.theme?.themeName) applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
+            if (this.dashboardModel.configuration.theme?.themeName) {
+                const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.themeName)
+                if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
+                applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
+            }
             this.updateWidgetMenuSettings()
 
             if (refreshWidgets) emitter.emit('refreshAfterGeneralSettingsChange')
             this.$emit('closeGeneralSettings')
+        },
+        getSelectedTheme(themeName: string) {
+            const allThemes = this.getAllThemes()
+            return allThemes.find((theme: IDashboardTheme) => theme.themeName === themeName)
         },
         onCustomHeaderSaved(customHeader: IWidget) {
             this.dashboardModel.configuration.customHeader = deepcopy(customHeader)
