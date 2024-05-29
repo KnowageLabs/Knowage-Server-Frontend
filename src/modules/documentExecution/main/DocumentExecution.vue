@@ -556,7 +556,7 @@ export default defineComponent({
                 this.exportOlap(type)
             } else if (this.document.typeCode === 'REPORT') {
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
-            } else if (type === 'PDF') {
+            } else if (type === 'PDF' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
                 await this.asyncExport('pdf')
             } else if (type === 'XLSX') {
                 await this.asyncExport('xlsx')
