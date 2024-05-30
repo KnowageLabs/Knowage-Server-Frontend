@@ -60,7 +60,7 @@ export const formatHighchartsWidget = (widget: IWidget) => {
     const chartType = chartModel.chart.type
     const isStacking = chartModel.plotOptions?.series?.stacking
     const isInverted = chartModel.chart.inverted
-    const isJittered = chartModel.plotOptions?.jitter !== undefined  // TODO - See if it can be written better
+    const isJittered = chartModel.plotOptions?.jitter !== undefined
     switch (chartType) {
         case 'pie':
             widget.settings.chartModel = new KnowageHighchartsPieChart(chartModel)
