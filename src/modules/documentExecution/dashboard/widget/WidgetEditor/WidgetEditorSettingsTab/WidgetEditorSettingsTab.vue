@@ -235,6 +235,7 @@ import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import KnHint from '@/components/UI/KnHint.vue'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'widget-editor-settings-tab',
@@ -369,7 +370,7 @@ export default defineComponent({
                 case 'bubble':
                     return HighchartsBubbleSettingsDescriptor
                 case 'scatter':
-                    return HighchartsScatterSettingsDescriptor
+                    return this.getScatterChartDescriptor()
                 case 'line':
                     return HighchartsLineSettingsDescriptor
                 case 'treemap':
@@ -395,6 +396,12 @@ export default defineComponent({
                 case 'waterfall':
                     return HighchartsWaterfallSettingsDescriptor
             }
+        },
+        getScatterChartDescriptor() {
+            const isJittered = this.propWidget?.settings.chartModel?.model?.plotOptions?.scatter?.jitter ?? false
+            const descriptor = deepcopy(HighchartsScatterSettingsDescriptor)
+            if (!isJittered) descriptor.settings.Configuration = descriptor.settings.Configuration.filter((item) => item.type !== 'JitterSettings')
+            return descriptor
         },
         onItemClicked(item: any) {
             this.selectedSetting = item.value
