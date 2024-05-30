@@ -24,7 +24,8 @@ const store = defineStore('store', {
             mainMenuVisibility: false,
             documentExecution: {},
             theme: {},
-            defaultTheme: {}
+            defaultTheme: {},
+            CSRFToken: ''
         }
     },
     actions: {
@@ -122,6 +123,9 @@ const store = defineStore('store', {
         },
         storeClearIndexedDBCache() {
             indexedDB.widgetData.clear()
+        },
+        setCSRFToken(token) {
+            this.CSRFToken = token
         }
     }
 })

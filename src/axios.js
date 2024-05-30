@@ -36,6 +36,11 @@ axios.interceptors.request.use(
         config.headers.common['Content-Type'] = 'application/json; charset=utf-8'
         config.headers.common['Access-Control-Allow-Origin'] = '*'
 
+        const store = mainStore()
+        if (store.$state.CSRFToken) {
+            config.headers.common['X-CSRF-TOKEN'] = store.$state.CSRFToken
+        }
+
         if (localStorage.getItem('public')) {
             if (new Date().getTime() - localStorage.getItem('lastResponseTimestamp') > import.meta.env.VITE_SESSION_TIMEOUT) {
                 const sessionPending = await sessionPendingTimeoutFn()
