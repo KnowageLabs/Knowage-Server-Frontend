@@ -123,7 +123,7 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetVisualizationType, IWidgetColumn, IWidgetStyleToolbarModel, ITableWidgetVisualizationTypes } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
-import { formatDate } from '@/helpers/commons/localeHelper'
+import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputNumber from 'primevue/inputnumber'
@@ -192,7 +192,7 @@ export default defineComponent({
                 if (column.id) {
                     this.widgetColumnsAliasMap[column.id] = column.alias
                     if (column.fieldType) this.widgetColumnsTypeMap[column.id] = column.fieldType
-                    this.widgetColumnsIsDateMap[column.id] = column.type.includes('DATE') || column.type.includes('TIMESTAMP')
+                    this.widgetColumnsIsDateMap[column.id] = column.type.toLowerCase().includes('date') || column.type.toLowerCase().includes('timestamp')
                 }
             })
         },
@@ -310,7 +310,7 @@ export default defineComponent({
             this.loadWidgetColumnMaps()
         },
         getFormattedDate(date: any, format: any) {
-            return formatDate(date, format)
+            return luxonFormatDate(date, undefined, format)
         }
     }
 })

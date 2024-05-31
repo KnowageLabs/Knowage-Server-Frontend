@@ -1,6 +1,6 @@
 import moment from 'moment'
 import { getCellConditionalStyles } from './TableWidgetHelper'
-import { formatNumberWithLocale, getLocale } from '@/helpers/commons/localeHelper'
+import { formatNumberWithLocale, luxonFormatDate } from '@/helpers/commons/localeHelper'
 import { ITableWidgetLink, ITableWidgetVisualizationTypes, IWidgetInteractions } from '../../Dashboard'
 // import helpersDecriptor from '../WidgetEditor/helpers/tableWidget/TableWidgetHelpersDescriptor.json'
 
@@ -168,8 +168,8 @@ export default class CellRenderer {
         }
 
         function setCellContent() {
-            if (isColumnOfType('date')) return dateFormatter(params.value)
-            else if (isColumnOfType('timestamp')) return dateTimeFormatter(params.value)
+            if (isColumnOfType('timestamp') || isColumnOfType('datetime')) return dateTimeFormatter(params.value)
+            else if (isColumnOfType('date')) return dateFormatter(params.value)
             else if (params.colId === 'iconColumn') {
                 return `<i class="${getActiveIconFromWidget()}"></i>` ?? 'ICON ERROR'
             } else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') {
@@ -206,23 +206,11 @@ export default class CellRenderer {
         }
         function dateFormatter(cellValue) {
             const visType = getColumnVisualizationType(params.colId)
-
-            const isDateValid = moment(cellValue, 'DD/MM/YYYY').isValid()
-            return isDateValid
-                ? moment(cellValue, 'DD/MM/YYYY')
-                      .locale(getLocale(true))
-                      .format(visType?.dateFormat || 'LL')
-                : cellValue
+            return luxonFormatDate(cellValue, 'dd/MM/yyyy', visType?.dateFormat || 'D')
         }
         function dateTimeFormatter(cellValue) {
             const visType = getColumnVisualizationType(params.colId)
-
-            const isDateValid = moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS').isValid()
-            return isDateValid
-                ? moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS')
-                      .locale(getLocale(true))
-                      .format(visType?.dateFormat || 'LLL')
-                : cellValue
+            return luxonFormatDate(cellValue, 'dd/MM/yyyy HH:mm:ss.SSS', visType?.dateFormat || 'f')
         }
         function numberFormatter(cellValue) {
             const visType = getColumnVisualizationType(params.colId)
