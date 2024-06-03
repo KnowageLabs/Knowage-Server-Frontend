@@ -558,7 +558,7 @@ export default defineComponent({
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
             } else if (type === 'PDF' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
                 await this.asyncExport('pdf')
-            } else if (type === 'XLSX') {
+            } else if (type === 'XLSX' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
                 await this.asyncExport('xlsx')
             } else {
                 const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
