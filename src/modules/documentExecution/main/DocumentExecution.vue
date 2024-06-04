@@ -168,6 +168,7 @@ import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutio
 import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
 import { clearIndexedDBCache } from '../dashboard/DashboardDataProxy'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
+import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import DocumentExecutionBreadcrumb from './breadcrumbs/DocumentExecutionBreadcrumb.vue'
 import DocumentExecutionHelpDialog from './dialogs/documentExecutionHelpDialog/DocumentExecutionHelpDialog.vue'
 import DocumentExecutionRankDialog from './dialogs/documentExecutionRankDialog/DocumentExecutionRankDialog.vue'
@@ -585,14 +586,15 @@ export default defineComponent({
         async asyncExport(format) {
             this.setLoading(true)
             await this.$http
-                .post(import.meta.env.VITE_HOST_URL + `/knowagecockpitengine/api/1.0/pages/execute/${format.includes('xls') ? 'spreadsheet' : format}`, this.hiddenFormData, {
+                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format.includes('xls') ? 'spreadsheet' : format}`, this.hiddenFormData, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
                     }
                 })
-                .then(() => this.setInfo({ title: this.$t('common.exportSuccess'), msg: this.$t('common.toast.success') }))
-                .catch(() => {})
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
             this.setLoading(false)
         },
         openMailDialog() {
