@@ -53,7 +53,7 @@
         <div ref="document-execution-view" class="p-d-flex p-flex-row document-execution-view myDivToPrint">
             <Button id="scheduledExcelExportButton" class="hidden-button" @click="hiddenExport('XLSX')"></Button>
             <div v-if="parameterSidebarVisible" :class="propMode === 'document-execution-cross-navigation-popup' ? 'document-execution-backdrop-popup-dialog' : 'document-execution-backdrop'" @click="parameterSidebarVisible = false"></div>
-            <div v-show="downloadMode">Downloading</div>
+            <div v-show="downloadMode" class="downloadingBox">{{ $t('dashboard.warning.downloading') }}</div>
             <div v-show="!downloadMode && (showExecutedDocument || newDashboardMode)" class="kn-flex">
                 <Registry v-if="showExecutedDocument && mode === 'registry'" :id="urlData?.sbiExecutionId" :reload-trigger="reloadTrigger"></Registry>
                 <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData" :user-role="userRole"></Dossier>
@@ -1386,5 +1386,16 @@ export default defineComponent({
 #add-widget-button {
     background-color: var(--kn-color-fab);
     min-width: 120px;
+}
+.downloadingBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--kn-message-warning-color);
+    background-color: var(--kn-message-warning-background-color);
+    color: 1px solid var(--kn-message-warning-color);
+    font-weight: bold;
+    padding: 16px 32px;
 }
 </style>

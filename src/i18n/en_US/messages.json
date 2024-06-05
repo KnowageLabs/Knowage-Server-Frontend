@@ -494,6 +494,9 @@
         "tableWidget": {
             "launchSelection": "LAUNCH SELECTION"
         },
+        "warning": {
+            "downloading": "The document has been requested in a specific output type and will be available soon"
+        },
         "widgetEditor": {
             "absolute": "Absolute",
             "accessibility": {

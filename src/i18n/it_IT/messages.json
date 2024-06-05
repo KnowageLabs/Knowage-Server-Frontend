@@ -417,6 +417,9 @@
         "tableWidget": {
             "launchSelection": "AVVIA SELEZIONE"
         },
+        "warning": {
+            "downloading": "Il documento è stato richiesto in un formato di output specifico. Elaborazione in corso."
+        },
         "widgetEditor": {
             "absolute": "Absolute",
             "accessibility": {
