@@ -199,6 +199,7 @@ export default defineComponent({
         async executeInteractions(event: any) {
             if (this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
+                const tempDataLabelSettings = this.widgetModel.settings.chartModel?.model?.series[0] && this.widgetModel.settings.chartModel.model.series[0].data[0] ? this.widgetModel.settings.chartModel.model.series[0].data[0].dataLabels : null
                 const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
                 if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
@@ -212,9 +213,11 @@ export default defineComponent({
                 newSeries.forEach((serie: any) => {
                     this.highchartsInstance.addSeriesAsDrilldown(event.point, {
                         data: serie.data,
-                        name: event.point.name
+                        name: event.point.name,
+                        dataLabels: tempDataLabelSettings
                     })
                 })
+                if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
                 if (!event.point) return
