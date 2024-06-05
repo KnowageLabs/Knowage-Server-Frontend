@@ -72,7 +72,7 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
                     textOutline: 'none'
                 },
                 formatter: function () {
-                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, this.model.chart.type)
+                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, 'solidgauge')
                 }
             }
         })
