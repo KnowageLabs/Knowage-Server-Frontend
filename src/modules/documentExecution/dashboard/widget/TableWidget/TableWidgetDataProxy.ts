@@ -114,7 +114,8 @@ const formatTableWidgetModelForService = (dashboardId: any, dashboardConfig: IDa
 
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
-            const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
+            const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: '' } as any
+            column.id === widget.settings.sortingColumn ? (measureToPush.orderType = widget.settings.sortingOrder) : ''
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
 
             dataToSend.aggregations.measures.push(measureToPush)
