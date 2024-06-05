@@ -46,14 +46,15 @@
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
                     <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode != 'document-execution-cross-navigation-popup'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
                     <Button v-if="isInDocBrowser" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
-                    <Button id="scheduledExcelExportButton" class="hidden-button" @click="hiddenExport('XLSX')"></Button>
                 </div>
             </template>
         </Toolbar>
         <ProgressBar v-if="loading || loadingCrossNavigationDocument" class="kn-progress-bar" mode="indeterminate" />
         <div ref="document-execution-view" class="p-d-flex p-flex-row document-execution-view myDivToPrint">
+            <Button id="scheduledExcelExportButton" class="hidden-button" @click="hiddenExport('XLSX')"></Button>
             <div v-if="parameterSidebarVisible" :class="propMode === 'document-execution-cross-navigation-popup' ? 'document-execution-backdrop-popup-dialog' : 'document-execution-backdrop'" @click="parameterSidebarVisible = false"></div>
-            <div v-show="showExecutedDocument || newDashboardMode" class="kn-flex">
+            <div v-show="downloadMode">Downloading</div>
+            <div v-show="!downloadMode && (showExecutedDocument || newDashboardMode)" class="kn-flex">
                 <Registry v-if="showExecutedDocument && mode === 'registry'" :id="urlData?.sbiExecutionId" :reload-trigger="reloadTrigger"></Registry>
                 <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData" :user-role="userRole"></Dossier>
                 <Olap
@@ -316,7 +317,8 @@ export default defineComponent({
             selectedCockpitView: null as IDashboardView | null,
             cockpitViewForExecution: null as IDashboardView | null,
             dataLoaded: false,
-            seeAsFinalUser: false
+            seeAsFinalUser: false,
+            downloadMode: false
         }
     },
     computed: {
@@ -425,6 +427,10 @@ export default defineComponent({
         if (this.$route.query.viewName) await this.loadView()
         if (this.$route.query.role) this.userRole = '' + this.$route.query.role
         else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
+        if (this.$route.query.finalUser) {
+            this.document.seeAsFinalUser = true
+            this.seeAsFinalUser = true
+        }
 
         let invalidRole = false
         getCorrectRolesForExecution(this.document).then(async (response: any) => {
@@ -595,7 +601,7 @@ export default defineComponent({
                 .then((response) => {
                     downloadDirectFromResponse(response)
                 })
-            this.setLoading(false)
+                .finally(() => this.setLoading(false))
         },
         openMailDialog() {
             this.mailDialogVisible = true
@@ -680,6 +686,10 @@ export default defineComponent({
                 this.parameterSidebarVisible = true
             }
             this.updateMode(true)
+            if (this.$route.query.outputType) {
+                this.downloadMode = true
+                await this.asyncExport(this.$route.query.outputType)
+            }
             this.loading = false
         },
         updateMode(refresh = false) {
