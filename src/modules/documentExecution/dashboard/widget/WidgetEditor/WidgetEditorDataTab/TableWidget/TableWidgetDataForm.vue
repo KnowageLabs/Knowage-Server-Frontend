@@ -15,11 +15,11 @@
         <div class="p-d-flex p-flex-row p-ai-center p-mt-2">
             <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
-                <Dropdown v-model="sortingColumn" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" @change="sortingChanged"> </Dropdown>
+                <Dropdown v-model="sortingColumn" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" show-clear @change="sortingChanged"> </Dropdown>
             </div>
             <div class="p-d-flex p-flex-column kn-flex p-m-2">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                <Dropdown v-model="sortingOrder" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="sortingChanged">
+                <Dropdown v-model="sortingOrder" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" show-clear @change="sortingChanged">
                     <template #value="slotProps">
                         <div>
                             <span>{{ slotProps.value }}</span>
