@@ -14,6 +14,7 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
     const selectedThemeName = widget.settings?.style?.themeName ?? ''
     delete widget.invalid
     const tempWidgetColors = widget.settings.chartModel?.model?.colors ? [...widget.settings.chartModel.model.colors] : [...descriptor.defaultColors]
+    const originalChartStyle = widget.settings.style
 
     if (chartType === 'wordcloud') {
         widget.type = 'vega'
@@ -36,6 +37,7 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
     }
 
     widget.settings.style.themeName = selectedThemeName
+    widget.settings.style = originalChartStyle
     reapplyThemeToChartWidget(widget, selectedThemeName)
 
     emitter.emit('chartTypeChanged', widget.id)
