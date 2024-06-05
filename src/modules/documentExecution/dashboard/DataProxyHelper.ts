@@ -533,7 +533,7 @@ export const getChartDrilldownData = async (dashboardId: any, widget: IWidget, d
 
     if (selectedDataset) {
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
-        const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, {}, drillDownLevel)
+        const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, null, drillDownLevel)
         addParametersToData(selectedDataset, dashboardId, postData)
 
         postData.likeSelections = formattedSelections
