@@ -563,6 +563,8 @@ export default defineComponent({
                 this.exportOlap(type)
             } else if (this.document.typeCode === 'REPORT') {
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
+            } else if (this.document.typeCode === 'REPORT') {
+                await this.exportRegistry(type.toLowerCase())
             } else if (type === 'PDF' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
                 await this.asyncExport('pdf')
             } else if (type === 'XLSX' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
@@ -588,6 +590,20 @@ export default defineComponent({
                     ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}`
                     : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
             window.open(url)
+        },
+        async exportRegistry(format) {
+            this.setLoading(true)
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}`, this.hiddenFormData, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
         },
         async asyncExport(format) {
             this.setLoading(true)
