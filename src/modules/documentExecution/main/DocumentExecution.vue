@@ -594,7 +594,7 @@ export default defineComponent({
         async exportRegistry(format) {
             this.setLoading(true)
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}`, this.hiddenFormData, {
+                .post(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}`, this.hiddenFormData, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
