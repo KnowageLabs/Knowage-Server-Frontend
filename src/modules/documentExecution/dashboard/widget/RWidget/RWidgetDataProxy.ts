@@ -59,7 +59,7 @@ export const getRData = async (dashboardId: any, dashboardConfig: IDashboardConf
         }
 
         await $http
-            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/RWidget/edit/${widget.settings.editor.outputType == 'img' ? 'img' : 'html'}`, imgPostData, { headers: { 'X-Disable-Errors': 'true' } })
+            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/RWidget/edit/${widget.settings.editor.outputType == 'image' ? 'img' : 'html'}`, imgPostData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
