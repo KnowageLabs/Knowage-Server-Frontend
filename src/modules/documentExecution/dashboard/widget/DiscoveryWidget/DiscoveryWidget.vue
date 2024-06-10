@@ -391,7 +391,7 @@ export default defineComponent({
                         }
 
                         tempCol.autoHeight = true
-                        tempCol.wrapText = true
+                        tempCol.wrapText = responseFields[responseField].type === 'text'
                         // tempCol.cellStyle = { 'white-space': 'normal' }
 
                         columns.push(tempCol)
