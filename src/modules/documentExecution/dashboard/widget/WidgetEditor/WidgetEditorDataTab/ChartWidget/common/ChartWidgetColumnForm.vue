@@ -3,8 +3,8 @@
         <div class="p-my-2">
             <div class="p-d-flex p-flex-row p-ai-center">
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.alias') }}</label>
-                    <InputText v-model="column.alias" class="kn-material-input p-inputtext-sm" @change="onColumnAliasRenamed" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('common.name') }}</label>
+                    <InputText v-model="column.alias" class="kn-material-input p-inputtext-sm" disabled="true" />
                 </div>
 
                 <div v-if="column.fieldType === 'MEASURE'" class="p-d-flex p-flex-column kn-flex p-m-2">
