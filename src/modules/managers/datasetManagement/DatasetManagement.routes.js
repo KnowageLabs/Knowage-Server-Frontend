@@ -2,6 +2,7 @@ const routes = [
     {
         path: '/dataset-management',
         name: 'dataset-management',
+        meta: { functionality: 'DatasetManagement' },
         component: () => import('@/modules/managers/datasetManagement/DatasetManagement.vue'),
         children: [
             {
