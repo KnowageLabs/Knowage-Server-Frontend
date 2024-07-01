@@ -104,10 +104,10 @@ router.beforeEach(async (to, from, next) => {
             next()
         })*/
     } else {
-        if (to.meta.functionality) {
-            if (from.path === '/' && !store.user?.functionalities?.includes(to.meta.functionality)) await sleep(1000)
+        if (to.meta?.functionality) {
+            if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
         }
-        if (to.meta.functionality && !store.user?.functionalities?.includes(to.meta.functionality)) next({ replace: true, name: '404' })
+        if (to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
         else next()
     }
 })
