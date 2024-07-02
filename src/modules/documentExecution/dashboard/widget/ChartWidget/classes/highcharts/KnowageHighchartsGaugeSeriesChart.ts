@@ -104,19 +104,28 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
     }
 
     updateSeriesDataWithSerieSettings(serie: any, seriesSettings: IHighchartsSeriesLabelsSetting, index: number, color: string) {
+        const dataLabelsDefaultSettings = highchartsDefaultValues.getDafaultGaugeChartPlotOptions().dataLabels
+        let backgroundColor = seriesSettings.label.backgroundColor ?? color
+        if (!backgroundColor && dataLabelsDefaultSettings.backgroundColor) {
+            backgroundColor = dataLabelsDefaultSettings.backgroundColor
+        }
+        let tempColor = seriesSettings.label.style.color ?? color
+        if (!tempColor && dataLabelsDefaultSettings.style.color) {
+            tempColor = dataLabelsDefaultSettings.style.color
+        }
         serie.data.forEach((data: any) => {
             data.dataLabels = {
                 y: index * 40,
-                backgroundColor: seriesSettings.label.backgroundColor ?? color,
+                backgroundColor: backgroundColor,
                 distance: 30,
-                enabled: true,
-                position: '',
+                enabled: dataLabelsDefaultSettings.enabled,
+                position: dataLabelsDefaultSettings.position,
                 style: {
-                    fontFamily: seriesSettings.label.style.fontFamily,
-                    fontSize: seriesSettings.label.style.fontSize,
-                    fontWeight: seriesSettings.label.style.fontWeight,
-                    color: seriesSettings.label.style.color ?? color,
-                    textOutline: 'none'
+                    fontFamily: seriesSettings.label.style.fontFamily ? seriesSettings.label.style.fontFamily : dataLabelsDefaultSettings.style.fontFamily,
+                    fontSize: seriesSettings.label.style.fontSize ? seriesSettings.label.style.fontSize : dataLabelsDefaultSettings.style.fontSize,
+                    fontWeight: seriesSettings.label.style.fontWeight ? seriesSettings.label.style.fontWeight : dataLabelsDefaultSettings.style.fontWeight,
+                    color: tempColor,
+                    textOutline: dataLabelsDefaultSettings.style.textOutline ?? 'none'
                 },
                 formatter: function () {
                     return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, 'gauge')
