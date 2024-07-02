@@ -311,34 +311,10 @@ export default defineComponent({
                 .then(async (response: AxiosResponse<any>) => {
                     this.olap = response.data
                     if (this.noTemplate === 'true') {
-                        this.olapDesigner = {
-                            ENGINE: this.olapEngine,
-                            template: {
-                                wrappedObject: {
-                                    olap: {
-                                        cube: {
-                                            reference: this.reference
-                                        },
-                                        MDXMondrianQuery: {
-                                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF
-                                        },
-                                        MDXQUERY: {
-                                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF,
-                                            parameter: []
-                                        },
-                                        JSONTEMPLATE: {
-                                            XML_TAG_TEXT_CONTENT: ''
-                                        },
-                                        calculated_fields: {
-                                            calculated_field: []
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        this.olapDesigner.template.wrappedObject.olap.JSONTEMPLATE.XML_TAG_TEXT_CONTENT = JSON.stringify(this.olapDesigner.template.wrappedObject)
+                        this.createOlapDesginerFromOLAP()
                     } else {
                         await this.loadOlapDesigner()
+                        if (!this.olapDesigner.template) this.olapDesigner.template = this.createOlapDesginerTemplateFromOLAP()
                     }
 
                     if (this.olapDesigner) {
@@ -352,6 +328,37 @@ export default defineComponent({
                 })
                 .catch(() => {})
             this.loading = false
+        },
+        createOlapDesginerFromOLAP() {
+            this.olapDesigner = {
+                ENGINE: this.olapEngine,
+                template: this.createOlapDesginerTemplateFromOLAP()
+            }
+            this.olapDesigner.template.wrappedObject.olap.JSONTEMPLATE.XML_TAG_TEXT_CONTENT = JSON.stringify(this.olapDesigner.template.wrappedObject)
+        },
+        createOlapDesginerTemplateFromOLAP() {
+            return {
+                wrappedObject: {
+                    olap: {
+                        cube: {
+                            reference: this.reference
+                        },
+                        MDXMondrianQuery: {
+                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF
+                        },
+                        MDXQUERY: {
+                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF,
+                            parameter: []
+                        },
+                        JSONTEMPLATE: {
+                            XML_TAG_TEXT_CONTENT: ''
+                        },
+                        calculated_fields: {
+                            calculated_field: []
+                        }
+                    }
+                }
+            }
         },
         setClickedButtons() {
             if (this.olapDesigner && this.olapDesigner.template?.wrappedObject?.olap?.TOOLBAR) {
@@ -707,6 +714,7 @@ export default defineComponent({
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.updateSuccess') })
                     await this.loadOlapDesigner()
+                    if (!this.olapDesigner.template) this.olapDesigner.template = this.createOlapDesginerTemplateFromOLAP()
                 })
                 .catch(() => {})
             this.loading = false
