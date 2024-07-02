@@ -1,0 +1,933 @@
+<template>
+    <Dialog class="kn-dialog--toolbar--primary dossier-designer-dialog" :visible="visible" footer="footer" :header="$t(`documentExecution.dossier.designerDialog.step${step}.title`)" modal :base-z-index="9990" :closable="false">
+        <ProgressSpinner v-if="loading" class="kn-progress-spinner" />
+        <Message v-if="step == 0" class="p-mx-2" severity="info" :closable="false">
+            {{ $t(`documentExecution.dossier.designerDialog.step0.info`) }}
+        </Message>
+
+        <div v-if="step == 0">
+            <Accordion :active-index="0" class="p-px-3">
+                <AccordionTab :header="$t('common.settings')">
+                    <div class="p-grid p-pl-2 p-ml-2 p-pr-2 p-mr-2">
+                        <div class="p-col-6 p-d-flex p-mt-2 p-mb-4">
+                            <span class="p-float-label kn-width-full">
+                                <InputText id="fileName" v-model="v$.activeTemplate.name.$model" class="kn-material-input kn-width-full" :disabled="true" @change="setDirty()" />
+                                <label for="fileName" class="kn-material-input-label">
+                                    {{ $t('documentExecution.documentDetails.info.uploadTemplate') }}
+                                </label>
+                            </span>
+                            <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" @click="setUploadType" />
+                            <KnInputFile v-if="!uploading" :label="$t('documentExecution.dossier.designerDialog.templateFile')" :change-function="startTemplateUpload" accept=".docx, .pptx" :trigger-input="triggerUpload" />
+                            <KnValidationMessages class="p-mt-1" :v-comp="v$.activeTemplate.name.$model" />
+                        </div>
+                        <div class="p-col-6 p-d-flex p-mt-2 p-mb-4">
+                            <span class="p-float-label">
+                                <InputText
+                                    id="prefix"
+                                    v-model="v$.activeTemplate.prefix.$model"
+                                    class="kn-material-input kn-width-full"
+                                    type="text"
+                                    max-length="100"
+                                    :class="{
+                                        'p-invalid': v$.activeTemplate.prefix.$invalid && v$.activeTemplate.prefix.$dirty
+                                    }"
+                                    @blur="v$.activeTemplate.prefix.$touch()"
+                                    @change="setDirty()"
+                                />
+                                <label for="prefix" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.prefix') }}</label>
+                                <small id="prefix-help" class="hint">{{ $t('documentExecution.dossier.designerDialog.prefixHint') }}</small>
+                            </span>
+
+                            <KnValidationMessages
+                                class="p-mt-1"
+                                :v-comp="v$.activeTemplate.prefix"
+                                :additional-translate-params="{
+                                    fieldName: $t('dashboard.widgetEditor.prefix')
+                                }"
+                            />
+                        </div>
+
+                        <div class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
+                            <div class="p-col-5 p-float-label">
+                                <InputSwitch v-model="activeTemplate.uploadable" class="p-mr-2" />
+                                <span>{{ $t('documentExecution.dossier.designerDialog.uploadable') }}</span>
+                            </div>
+                            <i v-tooltip.bottom="$t('documentExecution.dossier.designerDialog.uploadableHint')" class="p-col-1 pi pi-question-circle endIcon"></i>
+                        </div>
+                        <div class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
+                            <div class="p-col-5 p-float-label">
+                                <InputSwitch v-model="activeTemplate.downloadable" class="p-mr-2" />
+                                <span>{{ $t('documentExecution.dossier.designerDialog.downloadable') }}</span>
+                            </div>
+                            <i v-tooltip.bottom="$t('documentExecution.dossier.designerDialog.downloadableHint')" class="p-col-1 pi pi-question-circle endIcon"></i>
+                        </div>
+                    </div> </AccordionTab
+            ></Accordion>
+        </div>
+
+        <div v-if="step == 1" class="p-grid kn-width-full kn-height-full">
+            <Listbox
+                option-label="name"
+                class="kn-list kn-height-full p-col-4"
+                :options="activeTemplate.placeholders"
+                :filter="true"
+                :filter-placeholder="$t('common.search')"
+                filter-match-mode="contains"
+                :filter-fields="['label']"
+                :empty-filter-message="$t('common.info.noDataFound')"
+                @change="selected($event)"
+            >
+                <template #option="slotProps">
+                    <div :class="['kn-list-item', 'selected']">
+                        <div class="kn-list-item-text">
+                            {{ slotProps.option.imageName }}
+                        </div>
+
+                        <Button
+                            v-if="slotProps.option.label"
+                            v-tooltip="$t('documentExecution.dossier.designerDialog.resetPlaceholder')"
+                            icon="fa-solid fa-arrows-rotate"
+                            class="p-button-text p-button-rounded p-button-plain"
+                            @click="resetPlaceholder()"
+                            :disabled="isIconDisabled(slotProps.option)"
+                        ></Button>
+                        <i v-if="!slotProps.option.label" :v-tooltip="$t('documentExecution.dossier.designerDialog.noDocumentLinkedToThePlaceholder')" class="p-button-text p-button-rounded p-button-plain fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                </template>
+            </Listbox>
+
+            <div v-if="currentSelectedIndex == -1" class="p-col">
+                <KnHint class="kn-hint-sm" :title="$t('documentExecution.dossier.designerDialog.placeholders')" :hint="$t('documentExecution.dossier.designerDialog.noPlaceholdersHint')" data-test="hint"></KnHint>
+            </div>
+            <div v-else class="p-col placeholders-detail">
+                <div class="p-col">
+                    <Message v-if="!activeTemplate.placeholders[currentSelectedIndex].label" class="p-my-4 p-px-0" severity="info" :closable="false">
+                        {{ $t(`documentExecution.dossier.designerDialog.linkToDocumentHint`) }}
+                        <template v-if="!isFromWorkspace"> {{ $t(`documentExecution.dossier.designerDialog.linkToDocumentDriverPart`) }}</template>
+                    </Message>
+                    <div :class="['p-col p-d-flex p-ai-center', activeTemplate.placeholders[currentSelectedIndex].label ? 'p-my-2 p-px-0' : '']">
+                        <q-input v-model="activeTemplate.placeholders[currentSelectedIndex].label" :label="$t('common.document')" class="kn-flex" :disable="true" />
+                        <Button icon="pi pi-plus-circle" class="p-button-text p-button-rounded p-button-plain" @click="handleDocDialog"></Button>
+
+                        <DocDialog :dialog-visible="docDialogVisible" :selected-doc="docId" :documents="documents" @close="docDialogVisible = false" @apply="handleDoc"></DocDialog>
+                    </div>
+                    <div v-if="activeTemplate.placeholders[currentSelectedIndex].label">
+                        <Accordion :active-index="activeIndex" class="kn-height-full">
+                            <AccordionTab :header="$t('common.settings')">
+                                <div class="p-grid p-mx-2 p-pb-4 q-gutter-sm">
+                                    <q-input v-model="activeTemplate.placeholders[currentSelectedIndex].sheetWidth" :label="$t('documentExecution.dossier.designerDialog.sheetWidth')" type="number" class="kn-flex" />
+                                    <q-input v-model="activeTemplate.placeholders[currentSelectedIndex].sheetHeight" :label="$t('documentExecution.dossier.designerDialog.sheetHeight')" type="number" class="kn-flex" />
+                                    <q-input v-model="activeTemplate.placeholders[currentSelectedIndex].deviceScaleFactor" :label="$t('documentExecution.dossier.designerDialog.deviceScaleFactor')" type="number" class="kn-flex" min="0" max="3" />
+                                </div>
+                            </AccordionTab>
+
+                            <AccordionTab v-if="docHasDrivers()" :header="$t('common.parameters')" class="accordionTab">
+                                <div>
+                                    <Message severity="info" :closable="true" class="p-mx-2 p-message-small">
+                                        <p class="p-m-1" v-html="$t('documentExecution.dossier.designerDialog.driversHelp.hint')"></p>
+                                    </Message>
+                                    <div v-for="(driver, key) in activeTemplate.placeholders[currentSelectedIndex].parameters" :key="driver.label" class="kn-card p-m-2 p-p-2">
+                                        <span class="p-text-bold p-text-italic">{{ $t('documentExecution.dossier.designerDialog.documentDriver', { driver: driver.urlName || driver.parameterUrlName }) }} </span>
+                                        <div class="p-grid p-pb-4 q-gutter-sm">
+                                            <q-select
+                                                v-if="driverTypes.length > 0"
+                                                v-model="driver.type"
+                                                :options="driverTypes"
+                                                :label="$t('documentExecution.dossier.designerDialog.driverLinkType')"
+                                                :option-label="(option) => (option.label ? $t(option.label) : '')"
+                                                emit-value
+                                                map-options
+                                                option-value="code"
+                                                style="min-width: 200px"
+                                            />
+                                            <q-input v-if="typeCheck(driver, 'static')" v-model="driver.value" :label="$t('common.value')" class="kn-flex" />
+                                            <q-select
+                                                v-else-if="typeCheck(driver, 'dynamic')"
+                                                v-model="driver.dossierUrlName"
+                                                :options="document?.drivers"
+                                                :label="$t('documentExecution.dossier.designerDialog.dossierDriverName')"
+                                                option-label="label"
+                                                option-value="parameterUrlName"
+                                                class="kn-flex"
+                                            />
+                                            <q-input v-else-if="typeCheck(driver, 'inherit')" v-model="driver.dossierUrlName" :disabled="true" :hidden="true" />
+                                        </div>
+                                        <Divider v-if="key !== activeTemplate.placeholders[currentSelectedIndex].parameters.length - 1" class="p-m-0 p-p-0 dividerCustomConfig" type="solid" />
+                                    </div>
+                                </div>
+                            </AccordionTab>
+                        </Accordion>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDossier" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
+        <template #footer>
+            <div class="left">
+                <Button class="kn-button kn-button--warning" @click="cancel()"> {{ $t('common.close') }}</Button>
+            </div>
+            <div class="right">
+                <Button v-if="step >= 0 && step < 2" class="kn-button kn-button--secondary" @click="back"> {{ $t('common.back') }}</Button>
+                <Button v-if="step == 0" class="kn-button kn-button--primary" :disabled="v$.$invalid" @click="next"> {{ $t('common.next') }}</Button>
+
+                <Button v-if="step == 1" class="kn-button kn-button--primary" @click="saveAndClose()"> {{ $t('common.save') }}</Button>
+                <Button v-if="step == 1" class="kn-button kn-button--primary" @click="saveAndRun()"> {{ $t('documentExecution.dossier.designerDialog.saveAndRun') }}</Button>
+            </div>
+        </template>
+    </Dialog>
+</template>
+
+<script lang="ts">
+import { defineComponent, PropType } from 'vue'
+import { AxiosResponse } from 'axios'
+import { iDocument } from '../../DocumentDetails'
+import { createValidations } from '@/helpers/commons/validationHelper'
+import { mapState, mapActions } from 'pinia'
+import Dialog from 'primevue/dialog'
+import ProgressSpinner from 'primevue/progressspinner'
+import mainStore from '../../../../../App.store'
+import { iDossierTemplate, iPlaceholder } from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DossierTemplate'
+import useValidate from '@vuelidate/core'
+import KnInputFile from '@/components/UI/KnInputFile.vue'
+import descriptor from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialogDescriptor.json'
+import { filterDefault } from '@/helpers/commons/filterHelper'
+import { FilterOperator } from 'primevue/api'
+import Dropdown from 'primevue/dropdown'
+import DocDialog from './DocumentDetailDossierDocumentSelectionDialog.vue'
+import KnHint from '@/components/UI/KnHint.vue'
+import Message from 'primevue/message'
+import Listbox from 'primevue/listbox'
+import InputSwitch from 'primevue/inputswitch'
+import InputNumber from 'primevue/inputnumber'
+import Accordion from 'primevue/accordion'
+import AccordionTab from 'primevue/accordiontab'
+import Divider from 'primevue/divider'
+import DashboardControllerSaveDialog from '@/modules/documentExecution/dashboard/DashboardControllerSaveDialog.vue'
+import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
+import { v4 as uuidv4 } from 'uuid'
+
+export default defineComponent({
+    name: 'document-detail-dossier-designer-dialog',
+    components: {
+        Accordion,
+        AccordionTab,
+        Divider,
+        Dialog,
+        Dropdown,
+        DocDialog,
+        KnInputFile,
+        KnHint,
+        InputNumber,
+        InputSwitch,
+        Listbox,
+        Message,
+        ProgressSpinner,
+        DashboardControllerSaveDialog
+    },
+    props: {
+        visible: { type: Boolean },
+        selectedDocument: { type: Object as PropType<iDocument> },
+        isFromWorkspace: Boolean
+    },
+    emits: ['designerStarted', 'close', 'touched'],
+    data() {
+        return {
+            descriptor,
+            filterDefault,
+            FilterOperator,
+            formatDateWithLocale,
+            document: null as iDocument | null,
+            loading: false,
+            uploadedFile: {} as any,
+            name: '',
+            step: 0,
+            v$: useValidate() as any,
+            dirty: false,
+            maxSizeLimit: 10000000,
+            triggerUpload: false,
+            uploading: false,
+            activeTemplate: {} as iDossierTemplate,
+            docDialogVisible: false,
+            docId: -1,
+            currentSelectedIndex: -1,
+            documents: [],
+            driverTypes: [] as { code: string; label: string }[],
+            linkTypes: [] as { code: string; label: string }[],
+            sheetHeight: 768,
+            sheetWidth: 1024,
+            deviceScaleFactor: 1,
+            activeIndex: 1,
+            saveDialogVisible: false,
+            fileHasBeenUploaded: false,
+            inheritedDrivers: false,
+            uuid: '',
+            uuidv4,
+            isToRun: false,
+            filters: {
+                global: [filterDefault],
+                typeCode: {
+                    operator: FilterOperator.AND,
+                    constraints: [filterDefault]
+                },
+                name: {
+                    operator: FilterOperator.AND,
+                    constraints: [filterDefault]
+                },
+                label: {
+                    operator: FilterOperator.AND,
+                    constraints: [filterDefault]
+                },
+                creationUser: {
+                    operator: FilterOperator.AND,
+                    constraints: [filterDefault]
+                },
+                stateCodeStr: {
+                    operator: FilterOperator.AND,
+                    constraints: [filterDefault]
+                }
+            } as any
+        }
+    },
+    computed: {
+        ...mapState(mainStore, {
+            user: 'user'
+        })
+    },
+    watch: {
+        selectedDocument() {
+            this.loadDocument()
+        },
+
+        async currentSelectedIndex() {
+            const docId = this.activeTemplate.placeholders[this.currentSelectedIndex]?.docId
+
+            if (docId) {
+                if (!this.isFromWorkspace) await this.loadParameters(docId)
+                //await this.loadViews(docId)
+            }
+        }
+    },
+    async created() {
+        await this.loadDocument()
+        await this.setActiveTemplate()
+    },
+    validations() {
+        const validationObject = {
+            activeTemplate: createValidations('activeTemplate', descriptor.validations.activeTemplate)
+        }
+        return validationObject
+    },
+    methods: {
+        ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading']),
+
+        isEmpty(): boolean {
+            const selectedPlaceholder = this.activeTemplate.placeholders[this.currentSelectedIndex]
+            return (this.currentSelectedIndex != -1 && selectedPlaceholder?.parameters?.length != 0) || selectedPlaceholder?.views.availableViews?.length != 0
+        },
+
+        docHasDrivers() {
+            return this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters && this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters.length > 0
+        },
+        async loadDocument() {
+            this.document = this.selectedDocument ? { ...this.selectedDocument } : ({} as iDocument)
+
+            await this.initialize()
+        },
+        async initialize() {
+            if (!this.document || !this.user) return
+            this.loading = true
+
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/listDocument')
+                .then((response: AxiosResponse<any>) => (this.documents = response.data))
+                .finally(() => (this.loading = false))
+
+            this.driverTypes = descriptor.driverTypes
+            this.loading = false
+        },
+
+        closeDialog(refreshDrivers: boolean, refreshHistory: boolean) {
+            if (!this.isFromWorkspace) {
+                this.$emit('close', {
+                    refreshDrivers: refreshDrivers,
+                    refreshHistory: refreshHistory
+                })
+            } else {
+                this.$emit('close', { refreshHistory: refreshHistory })
+            }
+        },
+        async setActiveTemplate() {
+            const documentId = this.getDocument()?.id
+            if (documentId) {
+                const userId = this.user?.userUniqueIdentifier
+                const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/dossierTemplate?user_id=${userId}&documentId=${documentId}`
+
+                this.loading = true
+                await this.$http
+                    .get(url)
+                    .then((response: any) => {
+                        if (response.data.name) {
+                            this.activeTemplate = response.data
+                            this.uploadedFile.name = this.activeTemplate.name
+                            this.activeTemplate.type = this.getDossierType(this.activeTemplate.name)
+                            this.activeTemplate.placeholders?.forEach((x: any) => {
+                                if (x.viewId != null) {
+                                    x.views = {
+                                        selected: { id: x.viewId },
+                                        availableViews: []
+                                    }
+
+                                    x.source = 'VIEWS'
+                                }
+                                delete x.viewId
+                            })
+                        }
+                    })
+                    .finally(() => (this.loading = false))
+            }
+        },
+        async next() {
+            if (this.step == 0) {
+                await this.handleStepZero()
+            } else if (this.step == 1) {
+                this.saveDialogVisible = true
+                this.step++
+            } else {
+                this.step++
+            }
+        },
+        async handleStepZero() {
+            let valid = true
+            if (this.fileHasBeenUploaded) {
+                const formData = new FormData()
+                formData.append('file', this.uploadedFile)
+                formData.append('uuid', this.uuid)
+
+                this.loading = true
+                await this.$http
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'X-Disable-Errors': 'true'
+                        }
+                    })
+                    .then(async (response: any) => {
+                        if (response.status === 'KO') {
+                            this.setError({
+                                title: this.$t('common.error.generic'),
+                                msg: this.$t('documentExecution.dossier.templateUploadError')
+                            })
+                            valid = false
+                        } else {
+                            if (!(await this.isValidFile())) {
+                                valid = false
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        this.setError({
+                            title: this.$t('common.error.generic'),
+                            msg: this.$t('documentExecution.dossier.templateUploadError')
+                        })
+                        valid = false
+                    })
+                    .finally(() => (this.triggerUpload = false))
+            }
+            if (valid) {
+                const ppt = this.activeTemplate.type === 'PPT_TEMPLATE_V2'
+                const typeEndpoint = ppt ? 'pptplaceholders' : 'docplaceholders'
+                let url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/${typeEndpoint}`
+
+                const fileName = this.activeTemplate.name
+                const userId = this.user?.userUniqueIdentifier
+                const prefix = this.activeTemplate.prefix
+
+                url += `?fileName=${fileName}&prefix=${prefix}&user_id=${userId}`
+
+                if (this.uuid) {
+                    url += `&uuid=${this.uuid}`
+                } else {
+                    const docId = this.getDocument()?.id
+                    url += `&documentId=${docId}`
+                }
+
+                const placeholdersInTheLastTemplate = this.activeTemplate.placeholders?.length > 0
+                this.loading = true
+                await this.$http
+                    .get(url)
+                    .then((response: AxiosResponse<any>) => {
+                        response.data.forEach((element) => {
+                            if (placeholdersInTheLastTemplate) {
+                                const existing = this.activeTemplate.placeholders.filter((x) => x.imageName == element.name)
+                                if (existing.length > 0) {
+                                    return
+                                }
+                            }
+                            const item = {
+                                imageName: element.name,
+                                sheetHeight: this.sheetHeight,
+                                sheetWidth: this.sheetWidth,
+                                deviceScaleFactor: this.deviceScaleFactor
+                            } as iPlaceholder
+                            this.activeTemplate.placeholders.push(item)
+                        })
+                    })
+                    .finally(() => (this.loading = false))
+
+                if (this.activeTemplate.placeholders.length == 0) {
+                    this.setInfo({
+                        title: this.$t('common.information'),
+                        msg: this.$t('documentExecution.dossier.designerDialog.noPlaceholdersFound')
+                    })
+                    return
+                }
+
+                this.step++
+            }
+        },
+        async saveNewDossier(document: { name: string; label: string }) {
+            await this.saveDossier(document)
+        },
+        async saveDossier(document: any) {
+            if (!this.document) return
+
+            const formattedAnalysis = {
+                document: {
+                    name: document.name,
+                    label: document.label,
+                    description: document.description,
+                    type: 'DOSSIER'
+                },
+                action: 'DOC_SAVE',
+                updateFromWorkspace: false,
+                customData: {
+                    templateContent: {}
+                }
+            }
+
+            this.loading = true
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/saveDocument/', formattedAnalysis, { headers: { 'X-Disable-Errors': 'true' } })
+                .then(async (response: any) => {
+                    this.setInfo({
+                        title: this.$t('common.toast.createTitle'),
+                        msg: this.$t('common.toast.success')
+                    })
+                    this.saveDialogVisible = false
+
+                    this.document = { ...response.data }
+
+                    if (this.isToRun) {
+                        this.isToRun = false
+                        await this.saveAndRun()
+                    } else await this.save()
+                })
+                .catch((response: any) => {
+                    this.setError({
+                        title: this.$t('common.toast.createTitle'),
+                        msg: response
+                    })
+                })
+                .finally(() => (this.loading = false))
+        },
+        back() {
+            this.dirty = false
+            this.step--
+            if (this.step < 0) {
+                this.step = 0
+                this.closeDialog(false, false)
+            }
+        },
+        cancel() {
+            console.log(this.dirty)
+            if (this.dirty) {
+                this.$confirm.require({
+                    message: this.$t('documentExecution.dossier.designerDialog.closeConfirm'),
+                    header: this.$t('documentExecution.dossier.designerDialog.closeTitle'),
+                    icon: 'pi pi-exclamation-triangle',
+                    accept: () => {
+                        this.dirty = false
+                        this.step = 0
+                        this.closeDialog(false, false)
+                    }
+                })
+            } else {
+                this.dirty = false
+                this.step = 0
+                this.closeDialog(false, false)
+            }
+        },
+        setUploadType() {
+            this.triggerUpload = false
+            setTimeout(() => (this.triggerUpload = true), 200)
+        },
+        startTemplateUpload(event) {
+            this.uploading = true
+            this.uploadedFile = event.target.files[0]
+            this.uploadTemplate()
+            this.setUploadType()
+            setTimeout(() => (this.uploading = false), 200)
+        },
+        async uploadTemplate() {
+            this.activeTemplate.name = this.uploadedFile.name
+            this.activeTemplate.type = this.getDossierType(this.activeTemplate.name)
+            this.activeTemplate.placeholders = []
+            this.fileHasBeenUploaded = true
+            this.uuid = uuidv4()
+        },
+        selected(event) {
+            const pos = this.activeTemplate.placeholders.map((e) => e.imageName).indexOf(event.value.imageName)
+
+            if (pos == -1) {
+                this.setError({
+                    title: this.$t('common.error.generic'),
+                    msg: this.$t('documentExecution.dossier.designerDialog.errorSelectingPlaceholder')
+                })
+                return
+            }
+
+            this.currentSelectedIndex = pos
+        },
+        async handleDoc(doc) {
+            this.docDialogVisible = false
+            this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
+
+            if (doc.type === 'VIEW') {
+                this.activeTemplate.placeholders[this.currentSelectedIndex].viewId = doc.id
+                this.activeTemplate.placeholders[this.currentSelectedIndex].label = doc.documentLabel
+            } else this.activeTemplate.placeholders[this.currentSelectedIndex].label = doc.DOCUMENT_LABEL
+
+            if (!this.isFromWorkspace && !doc.type) await this.loadParameters(doc.DOCUMENT_ID)
+            // await this.loadViews(doc.DOCUMENT_ID)
+        },
+        async loadParameters(docId) {
+            this.loading = true
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${docId}/drivers`)
+                .then((response: AxiosResponse<any>) => {
+                    if (response.data.length > 0) {
+                        response.data.forEach((par) => {
+                            const existing = this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters?.filter((x) => x.urlName == par.parameterUrlName)
+                            if (existing?.length > 0) {
+                                return
+                            }
+
+                            if (!this.activeTemplate.placeholders[this.currentSelectedIndex]?.parameters) this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
+                            this.activeTemplate.placeholders[this.currentSelectedIndex].parameters.push(par)
+                        })
+
+                        this.activeTemplate.placeholders[this.currentSelectedIndex].source = 'DRIVERS'
+                    } else {
+                        if (this.activeTemplate.placeholders[this.currentSelectedIndex].parameters) {
+                            this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
+                        }
+                    }
+                })
+                .finally(() => (this.loading = false))
+        },
+        /*async loadViews(docId) {
+            this.loading = true
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/view/document/${docId}`)
+                .then((response: AxiosResponse<any>) => {
+                    const tmp = this.activeTemplate.placeholders[this.currentSelectedIndex]
+                    this.setupViewsObj(tmp)
+                    tmp.views.availableViews = response.data
+                    if (tmp.views?.selected?.id && !tmp.views.selected.name) {
+                        tmp.views.selected = tmp.views.availableViews.filter((x) => (x.id = tmp.views?.selected?.id))[0]
+                        tmp.source = 'VIEWS'
+                    }
+                })
+                .finally(() => (this.loading = false))
+        },*/
+        setupViewsObj(template) {
+            if (!template.views) template.views = {}
+            if (!template.views.availableViews) template.views.availableViews = []
+        },
+        handleDocDialog() {
+            const currentDocId = this.document?.id
+            // docId decreased just to trigger the document loading in the DocDialog
+            this.docId = currentDocId ? currentDocId : this.docId - 1
+            this.docDialogVisible = true
+        },
+        async saveAndRun() {
+            const documentId = this.getDocument()?.id
+            if (!documentId) {
+                this.saveDialogVisible = true
+                this.isToRun = true
+            } else {
+                await this.save().then(() => {
+                    this.$router.push(`/dossier/${this.document?.label}`)
+                })
+            }
+        },
+        async saveAndClose() {
+            const documentId = this.getDocument()?.id
+            if (!documentId) {
+                this.saveDialogVisible = true
+            } else {
+                await this.save()
+            }
+        },
+        async save() {
+            await this.saveTemplate()
+        },
+
+        async saveTemplate() {
+            this.activeTemplate.name = this.uploadedFile.name
+            this.activeTemplate.type = this.getDossierType(this.activeTemplate.name)
+
+            const templateToSave = await this.handleDrivers()
+
+            const objToSend = { template: templateToSave } as any
+            const docId = this.getDocument()?.id
+            if (docId) {
+                objToSend.id = this.getDocument()?.id
+            }
+
+            if (this.fileHasBeenUploaded) {
+                objToSend.uuid = this.uuid
+            }
+
+            // SAVE TEMPLATE
+            this.loading = true
+            await this.$http
+                .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/saveTemplate?user_id=${this.user?.userUniqueIdentifier}`, objToSend)
+                .then(() => {
+                    this.closeDialog(this.inheritedDrivers, true)
+                    this.setInfo({
+                        title: this.$t('common.toast.success'),
+                        msg: this.$t('common.toast.uploadSuccess')
+                    })
+                })
+                .finally(() => (this.loading = false))
+        },
+        async handleDrivers() {
+            const objToSave = JSON.parse(JSON.stringify(this.activeTemplate))
+            objToSave.placeholders = objToSave.placeholders.filter((x) => x.label)
+            const tempDrivers = objToSave.placeholders.filter((x) => x.label)
+            for (let i = 0; i < tempDrivers.length; i++) {
+                const placeholder = tempDrivers[i]
+
+                if (placeholder.source === 'VIEWS') {
+                    delete placeholder.parameters
+                    placeholder.viewId = placeholder.views.selected.id
+
+                    delete placeholder.views
+                } else {
+                    delete placeholder.views
+                    for (let j = 0; j < placeholder.parameters?.length; j++) {
+                        if (this.typeCheck(placeholder.parameters[j], 'static')) {
+                            placeholder.parameters[j] = {
+                                urlName: placeholder.parameters[j].parameterUrlName,
+                                type: 'static',
+                                value: placeholder.parameters[j].value
+                            }
+                        } else if (this.typeCheck(placeholder.parameters[j],'dynamic')) {
+                            placeholder.parameters[j] = {
+                                urlName: placeholder.parameters[j].parameterUrlName,
+                                type: 'dynamic',
+                                dossierUrlName: placeholder.parameters[j].dossierUrlName?.parameterUrlName
+                            }
+                        } else if (this.typeCheck(placeholder.parameters[j], 'inherit')) {
+                            this.inheritedDrivers = true
+                            const existing = this.document?.drivers?.filter((x) => x.parameterUrlName === placeholder.parameters[j].parameterUrlName)
+
+                            if (existing?.length > 0) {
+                                placeholder.parameters[j] = {
+                                    urlName: existing[0].parameterUrlName,
+                                    type: 'dynamic',
+                                    dossierUrlName: existing[0].parameterUrlName
+                                }
+                            } else {
+                                const newDriver = { ...placeholder.parameters[j] }
+                                newDriver.modifiable = 0
+                                delete newDriver.id
+                                newDriver.biObjectID = this.getDocument()?.id
+                                delete newDriver.type
+                                newDriver.prog = this.document?.drivers?.length ?? 1
+
+                                this.loading = true
+                                await this.$http
+                                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, {
+                                        headers: {
+                                            Accept: 'application/json, text/plain, */*',
+                                            'X-Disable-Errors': 'true'
+                                        }
+                                    })
+                                    .then(() => {
+                                        placeholder.parameters[j] = {
+                                            urlName: newDriver.parameterUrlName,
+                                            type: 'dynamic',
+                                            dossierUrlName: newDriver.dossierUrlName
+                                        }
+                                    })
+                                    .catch(() =>
+                                        this.setError({
+                                            title: this.$t('common.error.generic'),
+                                            msg: this.$t('documentExecution.documentDetails.drivers.persistError')
+                                        })
+                                    )
+                                    .finally(() => (this.loading = false))
+
+                                this.loading = true
+                                await this.$http
+                                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`)
+                                    .then((response: AxiosResponse<any>) => {
+                                        if (this.document && this.document.drivers) this.document.drivers = response.data
+                                    })
+                                    .finally(() => (this.loading = false))
+                            }
+                        } else {
+                            this.setError({
+                                title: this.$t('common.error.generic'),
+                                msg: this.$t('documentExecution.dossier.designerDialog.driverNotHandled', {
+                                    driverName: placeholder.parameters[j].label,
+                                    placeholderName: placeholder.imageName
+                                })
+                            })
+                            return
+                        }
+                    }
+                }
+            }
+            return objToSave
+        },
+        setDirty() {
+            this.dirty = true
+            this.$emit('touched')
+        },
+        getDossierType(fileName: string): string {
+            return fileName.indexOf('.docx') == -1 ? 'PPT_TEMPLATE_V2' : 'DOC_TEMPLATE'
+        },
+        async isValidFile() {
+            const fileName = this.uploadedFile?.name
+            let valid = !this.activeTemplate?.type || this.activeTemplate?.type === this.getDossierType(fileName)
+            if (!valid) return false
+
+            const formData = new FormData()
+            if (!this.isFromWorkspace) {
+                formData.append('documentId', '' + this.getDocument()?.id)
+            }
+            if (this.fileHasBeenUploaded) {
+                formData.append('uuid', this.uuid)
+            }
+            formData.append('prefix', '' + this.activeTemplate.prefix)
+            formData.append('fileName', fileName)
+            this.loading = true
+            await this.$http
+                .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossiervalidator/validateDocument?user_id=${this.user?.userUniqueIdentifier}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'X-Disable-Errors': 'true'
+                    }
+                })
+                .then(() => (valid = true))
+                .catch(() => {
+                    this.setError({
+                        title: this.$t('common.error.generic'),
+                        msg: this.$t('documentExecution.dossier.designerDialog.errorDuringValidation')
+                    })
+                    valid = false
+                })
+                .finally(() => (this.loading = false))
+
+            return valid
+        },
+        getDocument() {
+            return this.selectedDocument || this.document
+        },
+        resetPlaceholder() {
+            if (this.currentSelectedIndex >= 0) {
+                this.activeTemplate.placeholders[this.currentSelectedIndex].label = undefined
+                this.activeTemplate.placeholders[this.currentSelectedIndex].source = ''
+                this.activeTemplate.placeholders[this.currentSelectedIndex].parameters = []
+                if (this.activeTemplate.placeholders[this.currentSelectedIndex].viewId) delete this.activeTemplate.placeholders[this.currentSelectedIndex].viewId
+            }
+        },
+        isIconDisabled(option) {
+            if (this.currentSelectedIndex >= 0) {
+                return option.imageName !== this.activeTemplate.placeholders[this.currentSelectedIndex].imageName
+            }
+            return true
+        },
+        formatDate(date) {
+            return formatDateWithLocale(date, {
+                dateStyle: 'short',
+                timeStyle: 'short'
+            })
+        },
+        typeCheck(driver: any, type: string): boolean {
+            return driver.type === type || driver.type?.code === type
+        }
+    }
+})
+</script>
+
+<style lang="scss">
+.dossier-designer-dialog {
+    min-width: 900px;
+    width: 70%;
+    max-width: 1200px;
+    min-height: 550px;
+    height: 70%;
+
+    .p-dialog-content {
+        height: calc(100% - 35px);
+        padding: 0;
+        overflow-x: hidden;
+    }
+    .p-dialog-footer {
+        display: flex;
+        .left {
+            justify-content: flex-start;
+        }
+        .right {
+            flex: 1;
+            justify-content: flex-end;
+        }
+    }
+
+    .p-fileupload-buttonbar {
+        border: none;
+
+        .p-button:not(.p-fileupload-choose) {
+            display: none;
+        }
+
+        .p-fileupload-choose {
+            @extend .kn-button--primary;
+        }
+    }
+
+    .p-card,
+    .p-card .p-card-body,
+    .p-card .p-card-content {
+        padding: 0.25rem;
+    }
+}
+.dividerCustomConfig {
+    border: 0.5px solid;
+    border-color: var(--kn-color-borders);
+}
+
+.widget-editor-accordion {
+    ::v-deep(.p-accordion-tab-active) {
+        margin: 0;
+    }
+}
+
+.accordionTab {
+    min-height: 50px;
+}
+
+.placeholders-detail {
+    height: 100%;
+    overflow: auto;
+}
+
+.endIcon {
+    justify-content: flex-end;
+}
+</style>

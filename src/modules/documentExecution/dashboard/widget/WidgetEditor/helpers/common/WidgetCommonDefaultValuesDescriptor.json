@@ -17,11 +17,28 @@
             "border-width": "1px"
         }
     },
+    "defaultConditionalStyle": {
+        "condition": {
+            "operator": "",
+            "type": "",
+            "value": ""
+        },
+        "properties": {
+            "color": ""
+        },
+        "target": ""
+    },
     "defaultCrossNavigation": {
         "column": "",
         "enabled": false,
         "name": "",
         "parameters": [],
+        "type": ""
+    },
+    "defaultIFrameInteraction": {
+        "column": "",
+        "enabled": false,
+        "json": "",
         "type": ""
     },
     "defaultLinks": {
@@ -49,8 +66,8 @@
         "lg": true,
         "md": true,
         "sm": true,
-        "xl": true,
-        "xs": true
+        "xs": true,
+        "xxs": true
     },
     "defaultShadowsStyle": {
         "enabled": false,

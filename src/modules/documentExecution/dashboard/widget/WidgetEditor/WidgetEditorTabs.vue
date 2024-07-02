@@ -2,20 +2,10 @@
     <TabView :active-index="activeIndex">
         <TabPanel v-if="propWidget && propWidget.type !== 'selection' && propWidget.type !== 'image'" :header="$t(propWidget.type === 'map' ? 'common.layers' : 'common.data')">
             <MapWidgetLayersTab v-if="propWidget.type === 'map'" :prop-widget="propWidget" :datasets="datasets" :selected-datasets="selectedDatasets" :layers="layers"></MapWidgetLayersTab>
-            <WidgetEditorDataTab v-else :prop-widget="propWidget" :datasets="datasets" :selected-datasets="selectedDatasets" data-test="data-tab" @datasetSelected="$emit('datasetSelected', $event)"></WidgetEditorDataTab>
+            <WidgetEditorDataTab v-else :prop-widget="propWidget" :datasets="datasets" :variables="variables" :selected-datasets="selectedDatasets" data-test="data-tab" @datasetSelected="$emit('datasetSelected', $event)"></WidgetEditorDataTab>
         </TabPanel>
         <TabPanel :header="$t('common.settings')">
-            <WidgetEditorSettingsTab
-                :prop-widget="propWidget"
-                :datasets="datasets"
-                :selected-datasets="selectedDatasets"
-                :variables="variables"
-                :dashboard-id="dashboardId"
-                :html-gallery-prop="htmlGalleryProp"
-                :custom-chart-gallery-prop="customChartGalleryProp"
-                :layers="layers"
-                @settingChanged="$emit('settingChanged', $event)"
-            ></WidgetEditorSettingsTab>
+            <WidgetEditorSettingsTab :prop-widget="propWidget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :layers="layers" @settingChanged="$emit('settingChanged', $event)"></WidgetEditorSettingsTab>
         </TabPanel>
     </TabView>
 </template>
@@ -25,7 +15,7 @@
  * ! this component will be in charge of managing the widget editing sections.
  */
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IVariable, IGalleryItem } from '../../Dashboard'
+import { IWidget, IDataset, IVariable } from '../../Dashboard'
 import { ILayer } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -42,8 +32,6 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
         dashboardId: { type: String, required: true }
     },
     emits: ['datasetSelected', 'settingChanged'],
@@ -59,7 +47,7 @@ export default defineComponent({
     methods: {
         async loadLayers() {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'layers')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/layers')
                 .then((response: AxiosResponse<any>) => (this.layers = response.data.root))
                 .catch(() => {})
         }

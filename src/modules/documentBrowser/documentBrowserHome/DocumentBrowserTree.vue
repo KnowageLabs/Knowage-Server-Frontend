@@ -105,6 +105,7 @@ export default defineComponent({
                 node.children = foldersWithMissingParent.filter((folder: iNode) => node.id === folder.parentId && folder.data.codType !== 'LOW_FUNCT')
                 this.attachFolderToTree(node, foldersWithMissingParent, personalFolder)
             })
+            while (foldersWithMissingParent.length !== 0) this.attachFoldersFromMissngParentArrayToTheTree(foldersWithMissingParent, personalFolder)
             this.sortNodesAndChildren(this.nodes)
         },
         sortNodesAndChildren(nodes: iNode[]) {
@@ -125,7 +126,6 @@ export default defineComponent({
                 }
                 for (let i = 0; i < this.nodes.length; i++) {
                     parentFolder = this.findParentFolder(folder, this.nodes[i])
-
                     if (parentFolder && parentFolder.data.codType !== 'USER_FUNCT') {
                         folder.data.parentFolder = parentFolder
                         parentFolder.children?.push(folder)
@@ -160,6 +160,12 @@ export default defineComponent({
                     }
                 }
                 return tempFolder
+            }
+        },
+        attachFoldersFromMissngParentArrayToTheTree(foldersWithMissingParent: iNode[], personalFolder: iNode) {
+            for (let i = foldersWithMissingParent.length - 1; i >= 0; i--) {
+                this.attachFolderToTree(foldersWithMissingParent[i], foldersWithMissingParent, personalFolder)
+                foldersWithMissingParent.splice(i)
             }
         },
         setSelectedFolder(node: iNode) {
@@ -222,8 +228,8 @@ export default defineComponent({
         &:deep(.p-tree-wrapper) {
             max-height: 100% !important;
         }
-        &:deep(.p-treenode:last-child .p-treenode-children) {
-            padding-bottom: 70px;
+        &:deep(.p-tree-container) {
+            padding-bottom: 30px;
         }
     }
 }

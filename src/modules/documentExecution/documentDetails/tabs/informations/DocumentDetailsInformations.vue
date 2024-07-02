@@ -217,7 +217,7 @@
                                     <Dropdown id="attributes" v-model="document.parametersRegion" class="kn-material-input kn-width-full" :options="driversPositions" :option-label="translatedLabel" option-value="value">
                                         <template #option="slotProps">
                                             <div class="p-dropdown-option">
-                                                <span class="kn-capitalize">{{ $t(slotProps.option.label) }}</span>
+                                                <span>{{ $t(slotProps.option.label) }}</span>
                                             </div>
                                         </template>
                                     </Dropdown>
@@ -346,10 +346,10 @@ export default defineComponent({
             }
         },
         getImageUrl(): string {
-            return import.meta.env.VITE_HOST_URL + `/knowage/servlet/AdapterHTTP?ACTION_NAME=MANAGE_PREVIEW_FILE_ACTION&SBI_ENVIRONMENT=DOCBROWSER&LIGHT_NAVIGATOR_DISABLED=TRUE&operation=DOWNLOAD&fileName=${this.selectedDocument?.previewFile}`
+            return `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=MANAGE_PREVIEW_FILE_ACTION&SBI_ENVIRONMENT=DOCBROWSER&LIGHT_NAVIGATOR_DISABLED=TRUE&operation=DOWNLOAD&fileName=${this.selectedDocument?.previewFile}`
         },
         designerButtonVisible(): boolean {
-            return this.document.typeCode == 'OLAP' || this.document.typeCode == 'KPI' || this.document.engine == 'knowagegisengine'
+            return this.document.typeCode == 'OLAP' || this.document.typeCode == 'KPI' || this.document.engine == 'knowagegisengine' || (this.document.engine == 'knowagedossierengine' && this.document.id !== undefined)
         },
         ...mapState(mainStore, {
             user: 'user'
@@ -482,11 +482,18 @@ export default defineComponent({
                             this.openGis()
                             break
                         }
+                        case 'DOSSIER': {
+                            this.openDossierDesigner()
+                            break
+                        }
                         default:
                             this.openDesigner()
                     }
                 }
             })
+        },
+        async openDossierDesigner() {
+            this.$emit('openDesignerDialog')
         },
         async openDesigner() {
             if (this.listOfTemplates.length === 0) {
@@ -517,7 +524,7 @@ export default defineComponent({
             this.$router.push(`/gis/edit?documentId=${this.document.id}`)
         },
         async getAllTemplates() {
-            if (this.document && this.document.id) this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.document.id}/templates`).then((response: AxiosResponse<any>) => (this.listOfTemplates = response.data as iTemplate[]))
+            if (this.document && this.document.id) this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.document.id}/templates`).then((response: AxiosResponse<any>) => (this.listOfTemplates = response.data as iTemplate[]))
         },
         touchValidatedFields() {
             this.v$.document.label.$touch()
@@ -527,9 +534,6 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
-.p-dropdown-label {
-    text-transform: capitalize;
-}
 .card-0-padding .p-card-body,
 .card-0-padding .p-card-content {
     padding: 0px;

@@ -34,7 +34,7 @@ export default defineComponent({
         border-radius: 50%;
         background-color: var(--kn-button-fab-background-color);
         color: var(--kn-button-fab-color);
-        z-index: 100;
+        z-index: 101;
         cursor: pointer;
         box-shadow: 0px 3px 5px -1px rgba(black, 0.2), 0px 6px 10px 0px rgba(black, 0.14), 0px 1px 18px 0px rgba(black, 0.12);
         transition: background-color 0.3s cubic-bezier(0.445, 0.05, 0.55, 0.95);

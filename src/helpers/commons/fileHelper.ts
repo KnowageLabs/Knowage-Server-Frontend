@@ -43,12 +43,6 @@ export function downloadDirect(jsonData, filename, contentType) {
 
             link.setAttribute('download', filename)
 
-            /*             let lastDot = filename.lastIndexOf('.')
-            if (lastDot != -1) {
-                let fileNameWithoutExtension = filename.substring(0, lastDot)
-                link.setAttribute('download', fileNameWithoutExtension)
-            } */
-
             link.style.visibility = 'hidden'
             document.body.appendChild(link)
             link.click()

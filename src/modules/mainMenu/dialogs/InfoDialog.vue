@@ -5,7 +5,7 @@
                 <div class="p-d-flex p-jc-center">
                     <img :src="`${publicPath}/images/commons/logo_knowage.svg`" height="100" />
                 </div>
-                <p>
+                <p v-if="!configurations || !configurations['KNOWAGE.HIDE_VERSION']">
                     <strong>{{ $t('common.version') }}:</strong> {{ currentVersion }}
                 </p>
                 <p>
@@ -44,13 +44,14 @@ export default defineComponent({
         return {
             currentYear: moment().year(),
             // eslint-disable-next-line no-undef
-            currentVersion: _KNOWAGE_VERSION,
+            currentVersion: import.meta.env.PACKAGE_VERSION,
             publicPath: import.meta.env.VITE_PUBLIC_PATH
         }
     },
     computed: {
         ...mapState(mainStore, {
-            user: 'user'
+            user: 'user',
+            configurations: 'configurations'
         })
     },
     methods: {

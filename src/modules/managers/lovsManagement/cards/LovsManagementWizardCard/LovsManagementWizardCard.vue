@@ -25,7 +25,17 @@
     <LovsManagementProfileAttributesList v-show="profileAttributesDialogVisible" :visible="profileAttributesDialogVisible" :profile-attributes="profileAttributes" @selected="setCodeInput($event)" @close="profileAttributesDialogVisible = false"></LovsManagementProfileAttributesList>
     <LovsManagementParamsDialog v-show="paramsDialogVisible" :visible="paramsDialogVisible" :dependencies-list="dependenciesList" :mode="paramsDialogMode" @preview="onPreview" @close="onParamsDialogClose" @test="onTest"></LovsManagementParamsDialog>
     <LovsManagementPreviewDialog v-show="previewDialogVisible" :visible="previewDialogVisible" :data-for-preview="dataForPreview" :pagination="pagination" @close="onPreviewClose" @pageChanged="previewLov($event, false, true)"></LovsManagementPreviewDialog>
-       <LovsManagementTestDialog v-if="testDialogVisible" :visible="testDialogVisible" :selectedLov="lov" :testModel="treeListTypeModel" :testLovModel="testLovModel" :testLovTreeModel="testLovTreeModel" @close="onTestDialogClose()" @save="onTestSave($event)"></LovsManagementTestDialog>
+    <LovsManagementTestDialog
+        v-if="testDialogVisible"
+        :visible="testDialogVisible"
+        :selectedLov="lov"
+        :testModel="treeListTypeModel"
+        :testLovModel="testLovModel"
+        :testLovTreeModel="testLovTreeModel"
+        :tableModelForTest="tableModelForTest"
+        @close="onTestDialogClose()"
+        @save="onTestSave($event)"
+    ></LovsManagementTestDialog>
 </template>
 
 <script lang="ts">
@@ -47,6 +57,7 @@ import LovsManagementTestDialog from './LovsManagementTestDialog/LovsManagementT
 import LovsManagementParamsDialog from './LovsManagementParamsDialog/LovsManagementParamsDialog.vue'
 import LovsManagementDataset from './LovsManagementDataset/LovsManagementDataset.vue'
 import mainStore from '../../../../../App.store'
+import { removeUnusedVisibleColumnsFromModel } from './LovsManagementTestDialog/LovsManagementTestDialogHelpers'
 
 export default defineComponent({
     name: 'lovs-management-wizard-card',
@@ -246,7 +257,7 @@ export default defineComponent({
             this.formatForTest()
             let listOfEmptyDependencies = [] as any[]
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/lovs/checkdependecies', { provider: this.x2js.js2xml(this.lov.lovProviderJSON) })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/lovs/checkdependecies', { provider: this.x2js.js2xml(this.lov.lovProviderJSON) })
                 .then((response: AxiosResponse<any>) => {
                     listOfEmptyDependencies = response.data
                 })
@@ -287,7 +298,7 @@ export default defineComponent({
                 postData.dependencies = this.dependenciesList
             }
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/lovs/preview', postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/lovs/preview', postData)
                 .then((response: AxiosResponse<any>) => {
                     if (response.status === 204) {
                         this.store.setError({
@@ -404,6 +415,7 @@ export default defineComponent({
             this.setFormatedVisibleValues()
         },
         setColumnValues() {
+            removeUnusedVisibleColumnsFromModel(this.treeListTypeModel, this.tableModelForTest)
             if (this.lov.id || this.treeListTypeModel.LOVTYPE !== 'simple') {
                 this.formatedVisibleValues = this.treeListTypeModel['VISIBLE-COLUMNS']?.length > 0 ? this.treeListTypeModel['VISIBLE-COLUMNS'].split(',') : []
                 this.formatedInvisibleValues = []
@@ -521,10 +533,10 @@ export default defineComponent({
             }
         },
         async saveLov() {
-            let url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/lovs/save'
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/lovs/save'
             if (this.lov.id) {
                 this.operation = 'update'
-                url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/lovs/'
+                url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/lovs/'
             }
             await this.sendRequest(url)
                 .then((response: AxiosResponse<any>) => {

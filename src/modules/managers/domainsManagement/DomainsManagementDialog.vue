@@ -171,7 +171,7 @@ export default defineComponent({
                 return
             }
 
-            let url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/domains'
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/domains'
             if (this.domain.valueId) {
                 this.operation = 'update'
                 url += '/' + this.domain.valueId

@@ -1,12 +1,25 @@
 {
     "defaultLanguageColumns": [
         {
+            "align": "left",
             "field": "label",
-            "header": "common.label"
+            "label": "common.label",
+            "name": "label",
+            "sortable": true
         },
         {
+            "align": "left",
             "field": "message",
-            "header": "managers.internationalizationManagement.table.messageCode"
+            "label": "managers.internationalizationManagement.table.messageCode",
+            "name": "message",
+            "sortable": true
+        },
+        {
+            "align": "right",
+            "field": "",
+            "label": "",
+            "name": "buttons",
+            "sortable": false
         }
     ],
     "defaultMessage": {
@@ -15,24 +28,38 @@
         "message": ""
     },
     "headerStyles": {
-        "buttonsHeaderStyle": "width:200px",
-        "dirtyHeaderStyle": "width: 2%",
-        "searchBoxStyle": "width: 20%"
+        "buttonsHeaderStyle": "max-width:200px",
+        "dirtyHeaderStyle": "max-width: 2%",
+        "searchBoxStyle": "max-width: 20%"
     },
     "notDefaultLanguageColumns": [
         {
-            "disabled": true,
+            "align": "left",
             "field": "label",
-            "header": "common.label"
+            "label": "common.label",
+            "name": "label",
+            "sortable": true
         },
         {
-            "disabled": true,
+            "align": "left",
             "field": "defaultMessageCode",
-            "header": "managers.internationalizationManagement.table.defaultMessage"
+            "label": "managers.internationalizationManagement.table.defaultMessage",
+            "name": "defaultMessage",
+            "sortable": true
         },
         {
+            "align": "left",
             "field": "message",
-            "header": "managers.internationalizationManagement.table.messageCode"
+            "label": "managers.internationalizationManagement.table.messageCode",
+            "name": "message",
+            "sortable": true
+        },
+        {
+            "align": "right",
+            "field": "",
+            "label": "",
+            "name": "buttons",
+            "sortable": false
         }
     ]
 }

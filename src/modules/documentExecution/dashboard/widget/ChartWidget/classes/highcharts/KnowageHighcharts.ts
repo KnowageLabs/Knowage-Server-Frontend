@@ -1,54 +1,20 @@
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
-import { createSerie, createGaugeSerie } from './updater/KnowageHighchartsCommonUpdater'
+import { createSerie, createGaugeSerie, createPolarSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import Highcharts from 'highcharts'
+import chartColorSettingsDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 
 export class KnowageHighcharts {
     model: IHighchartsChartModel
-    cardinality: any[]
-    range: any[]
 
     constructor() {
         this.model = this.createNewChartModel()
-            ; (this.cardinality = []), (this.range = [])
-    }
-
-    async updateCardinality(data: any) {
-        const cardinalityObj = {}
-        this.model.settings.categories.forEach((category) => {
-            const tempCategory = data.metaData.fields.filter((i) => i.header === category)
-            if (tempCategory.length > 0) {
-                cardinalityObj[tempCategory[0].name] = {
-                    category: category,
-                    set: new Set()
-                }
-            }
-        })
-        await data.rows.forEach((row: any) => {
-            for (const k in cardinalityObj) {
-                if (row[k]) cardinalityObj[k].set.add(row[k])
-            }
-        })
-        this.cardinality = []
-        for (const i in cardinalityObj) {
-            this.cardinality.push({ [cardinalityObj[i].category]: cardinalityObj[i].set.size })
-        }
-        return this.cardinality
     }
 
     getModel() {
         return this.model
     }
-
-    getCardinality() {
-        return this.range
-    }
-
-    getRange() {
-        return this.range
-    }
-
 
     createNewChartModel() {
         return {
@@ -60,25 +26,31 @@ export class KnowageHighcharts {
             },
             noData: highchartsDefaultValues.getDefaultNoDataConfiguration(),
             accessibility: highchartsDefaultValues.getDefaultAccessibilitySettings(),
+            sonification: highchartsDefaultValues.getDefaultSonificationSettings(),
             series: [],
             settings: {
                 drilldown: {},
                 categories: []
             },
             plotOptions: {
-                series: { events: {} }
+                series: { events: {}, cursor: "pointer" }
             },
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),
-            colors: [],
+            colors: [...chartColorSettingsDescriptor.defaultColors],
+            annotations: highchartsDefaultValues.getDefaultAnnotations(),
             credits: { enabled: false }
         }
     }
 
-    addSerie(column: IWidgetColumn, serieType: 'pie' | 'gauge') {
-        switch (serieType) {
+    addSerie(column: IWidgetColumn, type: 'pie' | 'gauge' | 'radar' | 'column') {
+        switch (type) {
             case 'pie':
-                this.model.series.push(createSerie(column.columnName, column.aggregation, true))
+            case 'column':
+                this.model.series.push(createSerie(column.columnName, column.aggregation, true, column.serieType))
+                break
+            case 'radar':
+                this.model.series.push(createPolarSerie(column.columnName, column.serieType ?? 'line'))
                 break
             case 'gauge':
                 this.model.series.push(createGaugeSerie(column.columnName))
@@ -157,26 +129,29 @@ export class KnowageHighcharts {
 
     updateChartColorSettings(widgetModel: IWidget) {
         if (!this.model.plotOptions || !this.model.chart.type) return
-        this.model.colors = widgetModel.settings.chart.colors
+        this.model.colors = [...widgetModel.settings.chart.colors]
     }
 
-    handleFormatter(that: any, seriesLabelSetting: IHighchartsSerieLabelSettings) {
+    handleFormatter(that: any, seriesLabelSetting: IHighchartsSerieLabelSettings, chartType: string) {
         const prefix = seriesLabelSetting.prefix
         const suffix = seriesLabelSetting.suffix
+
+        if (['dependencywheel', 'sankey'].includes(chartType)) return `${prefix}${that.point.weight}${suffix}`
+        if (!that.y && that.key && typeof that.key === 'string') return that.point?.id === 'root' ? that.key : `${prefix}${that.key}${suffix}`
+
         const precision = seriesLabelSetting.precision
         const decimalPoints = Highcharts.getOptions().lang?.decimalPoint
         const thousandsSep = Highcharts.getOptions().lang?.thousandsSep
 
         const showAbsolute = seriesLabelSetting.absolute
-        const absoluteValue = showAbsolute ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, Math.abs(that.y), precision, decimalPoints, thousandsSep) : ''
+        const absoluteValue = showAbsolute ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, Math.abs(that.y ?? that.key), precision, decimalPoints, thousandsSep) : ''
 
         const showPercentage = seriesLabelSetting.percentage
         const percentValue = showPercentage ? this.createPercentageValue(that.point.percentage, precision, decimalPoints, thousandsSep) : ''
 
-        const rawValue = !showAbsolute && !showPercentage ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, that.y, precision, decimalPoints, thousandsSep) : ''
+        const rawValue = !showAbsolute && !showPercentage ? this.createSeriesLabelFromParams(seriesLabelSetting.scale, that.y ?? that.key, precision, decimalPoints, thousandsSep) : ''
 
         const showBrackets = showAbsolute && showPercentage
-
         return `${prefix}${rawValue}${absoluteValue} ${showBrackets ? `(${percentValue})` : `${percentValue}`}${suffix}`
     }
 

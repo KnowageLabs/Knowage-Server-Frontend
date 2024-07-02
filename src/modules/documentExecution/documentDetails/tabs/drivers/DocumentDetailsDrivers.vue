@@ -165,7 +165,12 @@ import mainStore from '../../../../../App.store'
 export default defineComponent({
     name: 'document-drivers',
     components: { DataConditions, VisibilityConditions, KnListBox, KnValidationMessages, InputSwitch, Dropdown, InlineMessage },
-    props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, availableDrivers: { type: Array as PropType<iDriver[]>, required: true }, availableAnalyticalDrivers: { type: Array as PropType<iAnalyticalDriver[]>, required: true } },
+    props: {
+        selectedDocument: { type: Object as PropType<iDocument>, required: true },
+        availableDrivers: { type: Array as PropType<iDriver[]>, required: true },
+        availableAnalyticalDrivers: { type: Array as PropType<iAnalyticalDriver[]>, required: true },
+        refresh: { type: Boolean, required: false }
+    },
     emits: ['driversChanged'],
     setup() {
         const store = mainStore()
@@ -191,9 +196,12 @@ export default defineComponent({
     },
     watch: {
         selectedDocument() {
-            this.getDocumentDrivers()
-            this.document = this.selectedDocument
-            this.selectedDriver = {} as iDriver
+            this.update()
+        },
+        refresh(newValue) {
+            if (newValue && newValue == true) {
+                this.update()
+            }
         }
     },
     created() {
@@ -221,7 +229,7 @@ export default defineComponent({
             this.loading = true
             if (this.selectedDocument?.id) {
                 this.$http
-                    .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument?.id}/drivers`)
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument?.id}/drivers`)
                     .then((response: AxiosResponse<any>) => (this.document.drivers = response.data))
                     .finally(() => (this.loading = false))
             }
@@ -279,7 +287,7 @@ export default defineComponent({
         async movePriority(driver, direction) {
             direction == 'up' ? (driver.priority -= 1) : (driver.priority += 1)
             await this.$http
-                .put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
                 .then(() => {
                     this.store.setInfo({ title: 'Succes', msg: 'Driver priority changed' })
                     this.getDocumentDrivers()
@@ -297,7 +305,7 @@ export default defineComponent({
         async deleteDriver(driverToDelete) {
             if (driverToDelete.id) {
                 await this.$http
-                    .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.document.id}/drivers/${driverToDelete.id}`, { headers: { 'X-Disable-Errors': 'true' } })
+                    .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.document.id}/drivers/${driverToDelete.id}`, { headers: { 'X-Disable-Errors': 'true' } })
                     .then(() => {
                         const deletedDriver = this.document.drivers.findIndex((param) => param.id === driverToDelete.id)
                         this.document.drivers.splice(deletedDriver, 1)
@@ -312,6 +320,11 @@ export default defineComponent({
                 this.document.drivers.splice(deletedDriver, 1)
                 this.selectedDriver = {} as iDriver
             }
+        },
+        update() {
+            this.getDocumentDrivers()
+            this.document = this.selectedDocument
+            this.selectedDriver = {} as iDriver
         }
     }
 })

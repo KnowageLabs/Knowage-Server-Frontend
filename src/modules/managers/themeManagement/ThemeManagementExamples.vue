@@ -31,21 +31,17 @@
             </template>
         </Card>
         <Toolbar class="kn-toolbar kn-toolbar--primary p-mt-4">
-            <template #start>
-                Example Primary toolbar
-            </template>
+            <template #start> Example Primary toolbar </template>
             <template #end>
                 <Button icon="fas fa-bookmark" class="p-button-text p-button-rounded p-button-plain" />
                 <Button icon="pi pi-briefcase" class="p-button-text p-button-rounded p-button-plain" />
                 <Button icon="fas fa-box" class="p-button-text p-button-rounded p-button-plain" disabled />
-                <FabButton icon="fas fa-plus" style="z-index:10" />
+                <FabButton icon="fas fa-plus" style="z-index: 10" />
             </template>
         </Toolbar>
 
         <Toolbar class="kn-toolbar kn-toolbar--secondary p-mt-4">
-            <template #start>
-                Example Secondary toolbar
-            </template>
+            <template #start> Example Secondary toolbar </template>
             <template #end>
                 <Button icon="fas fa-bookmark" class="p-button-text p-button-rounded p-button-plain" />
                 <Button icon="pi pi-briefcase" class="p-button-text p-button-rounded p-button-plain" />
@@ -91,6 +87,7 @@
                 <Message severity="error">Error Message Content</Message>
             </template>
         </Card>
+        <KnHint title="Example hint card title text" hint="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam"></KnHint>
         <Card class="p-mt-4">
             <template #content>
                 <TabView class="kn-tab">
@@ -127,7 +124,7 @@
                             <i v-else class="fas fa-check-circle"></i>
                         </template>
                     </Column>
-                    <Column style="padding:0; text-align:end;">
+                    <Column style="padding: 0; text-align: end">
                         <template #body>
                             <Button icon="fas fa-play-circle" class="p-button-text p-button-rounded p-button-plain p-button-link" />
                             <Button icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-button-link" />
@@ -152,10 +149,11 @@ import Message from 'primevue/message'
 import TabPanel from 'primevue/tabpanel'
 import TabView from 'primevue/tabview'
 import ThemeManagementDescriptor from './ThemeManagementDescriptor.json'
+import KnHint from '@/components/UI/KnHint.vue'
 
 export default defineComponent({
     name: 'theme-management-examples',
-    components: { Breadcrumb, Button, Card, Column, DataTable, FabButton, Message, TabPanel, TabView },
+    components: { Breadcrumb, Button, Card, Column, DataTable, FabButton, KnHint, Message, TabPanel, TabView },
     props: { properties: Object },
     data() {
         return {
@@ -184,5 +182,8 @@ export default defineComponent({
 }
 .hiddenProperties {
     display: none;
+}
+.kn-hint {
+    height: 300px;
 }
 </style>

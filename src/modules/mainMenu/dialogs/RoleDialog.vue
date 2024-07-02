@@ -1,48 +1,59 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('role.roleSelection')" :closable="false" modal>
-        <Dropdown v-model="user.sessionRole" class="kn-material-input" :options="[$t('role.defaultRolePlaceholder'), ...user.roles]" :placeholder="$t('role.defaultRolePlaceholder')" @change="setDirty" />
+    <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('role.roleSelection')" :closable="false" :base-z-index="9000" modal>
+        <Message v-if="mandatory" severity="warn">{{ $t('role.mandatoryRoleWarning') }}</Message>
+        <Dropdown v-model="user.sessionRole" class="kn-material-input" :options="getRoleOptions()" :placeholder="$t('role.defaultRolePlaceholder')" @change="setDirty" />
         <template #footer>
-            <Button v-t="'common.close'" class="p-button-text kn-button" @click="closeDialog" />
-            <Button v-t="'common.save'" class="kn-button kn-button--primary" @click="changeRole" />
+            <Button v-if="!mandatory" v-t="'common.close'" class="p-button-text kn-button" @click="closeDialog" />
+            <Button v-t="'common.save'" class="kn-button kn-button--primary" :disabled="!user.sessionRole" @click="changeRole" />
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
 import mainStore from '../../../App.store.js'
+import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'role-dialog',
     components: {
         Dialog,
-        Dropdown
+        Dropdown,
+        Message
     },
     props: {
-        visibility: Boolean
+        visibility: Boolean,
+        mandatory: Boolean
     },
     emits: ['update:visibility'],
-    setup() {
-        const store = mainStore()
-        return { store }
+    computed: {
+        ...mapState(mainStore, {
+            user: 'user'
+        })
     },
     methods: {
+        ...mapActions(mainStore, ['setUser']),
         formUrlEncoded(x) {
             return Object.keys(x)
                 .reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '')
                 .substring(1)
         },
+        getRoleOptions(): Array<string> {
+            const rolesOptions = this.user.roles
+            if (!this.mandatory) rolesOptions.unshift(this.$t('role.defaultRolePlaceholder'))
+            return rolesOptions
+        },
         changeRole() {
             const role = this.user.sessionRole === this.$t('role.defaultRolePlaceholder') ? '' : this.user.sessionRole
             const headers = { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }
             const data = this.formUrlEncoded({ ACTION_NAME: 'SET_SESSION_ROLE_ACTION', SELECTED_ROLE: role })
-            const postUrl = '/knowage/servlet/AdapterHTTP'
+            const postUrl = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP`
 
             this.$http.post(postUrl, data, { headers: headers }).then(() => {
-                this.store.setUser(this.user)
+                this.setUser(this.user)
                 localStorage.setItem('sessionRole', this.user.sessionRole)
                 this.closeDialog()
                 this.$router.go(0)
@@ -51,11 +62,6 @@ export default defineComponent({
         closeDialog() {
             this.$emit('update:visibility', false)
         }
-    },
-    computed: {
-        ...mapState(mainStore, {
-            user: 'user'
-        })
     }
 })
 </script>
@@ -70,7 +76,9 @@ export default defineComponent({
         }
     }
 }
-.RoleDialog #role {
-    width: 300px;
+.RoleDialog {
+    #role {
+        width: 300px;
+    }
 }
 </style>

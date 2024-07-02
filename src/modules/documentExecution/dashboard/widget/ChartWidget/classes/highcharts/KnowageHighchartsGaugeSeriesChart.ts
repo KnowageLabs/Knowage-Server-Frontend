@@ -5,15 +5,13 @@ import { updateGaugeChartModel } from './updater/KnowageHighchartsGaugeChartUpda
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 
-
 export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeChart {
     constructor(model: any) {
         super()
         this.setSpecificOptionsDefaultValues()
         if (model && model.CHART) {
             this.updateModel(deepcopy(model))
-        }
-        else if (model) {
+        } else if (model && model.plotOptions) {
             this.model = deepcopy(model)
             if (model.chart.type !== 'gauge') {
                 this.formatSeriesFromOtherChartTypeSeries()
@@ -21,6 +19,10 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
             }
         }
         this.model.chart.type = 'gauge'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
@@ -46,18 +48,18 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
     }
 
     setGaugeYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultGaugeYAxis()
+        this.model.yAxis = [highchartsDefaultValues.getDefaultGaugeYAxis()]
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
-        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesLabelsSettings) return
+        if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings) return
         const chartColors = widgetModel.settings.chart.colors
         this.setAllSeriesSettings(widgetModel, chartColors)
         this.setSpecificSeriesSettings(widgetModel, chartColors)
     }
 
     setAllSeriesSettings(widgetModel: IWidget, chartColors: string[]) {
-        const allSeriesSettings = widgetModel.settings.series.seriesLabelsSettings[0]
+        const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
         if (allSeriesSettings.label.enabled) {
             this.model.series.forEach((serie: any, index: number) => {
                 const color = chartColors[index % chartColors.length] ?? ''
@@ -87,8 +89,8 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
     }
 
     setSpecificSeriesSettings(widgetModel: IWidget, chartColors: string[]) {
-        for (let i = 1; i < widgetModel.settings.series.seriesLabelsSettings.length; i++) {
-            const seriesSettings = widgetModel.settings.series.seriesLabelsSettings[i] as IHighchartsSeriesLabelsSetting
+        for (let i = 1; i < widgetModel.settings.series.seriesSettings.length; i++) {
+            const seriesSettings = widgetModel.settings.series.seriesSettings[i] as IHighchartsSeriesLabelsSetting
             if (seriesSettings.label.enabled) seriesSettings.names.forEach((serieName: string) => this.updateSpecificSeriesLabelSettings(serieName, seriesSettings, chartColors))
         }
     }
@@ -102,21 +104,31 @@ export class KnowageHighchartsGaugeSeriesChart extends KnowageHighchartsGaugeCha
     }
 
     updateSeriesDataWithSerieSettings(serie: any, seriesSettings: IHighchartsSeriesLabelsSetting, index: number, color: string) {
+        const dataLabelsDefaultSettings = highchartsDefaultValues.getDafaultGaugeChartPlotOptions().dataLabels
+        let backgroundColor = seriesSettings.label.backgroundColor ?? color
+        if (!backgroundColor && dataLabelsDefaultSettings.backgroundColor) {
+            backgroundColor = dataLabelsDefaultSettings.backgroundColor
+        }
+        let tempColor = seriesSettings.label.style.color ?? color
+        if (!tempColor && dataLabelsDefaultSettings.style.color) {
+            tempColor = dataLabelsDefaultSettings.style.color
+        }
         serie.data.forEach((data: any) => {
             data.dataLabels = {
                 y: index * 40,
-                backgroundColor: seriesSettings.label.backgroundColor ?? color,
+                backgroundColor: backgroundColor,
                 distance: 30,
-                enabled: true,
-                position: '',
+                enabled: dataLabelsDefaultSettings.enabled,
+                position: dataLabelsDefaultSettings.position,
                 style: {
-                    fontFamily: seriesSettings.label.style.fontFamily,
-                    fontSize: seriesSettings.label.style.fontSize,
-                    fontWeight: seriesSettings.label.style.fontWeight,
-                    color: seriesSettings.label.style.color ?? color
+                    fontFamily: seriesSettings.label.style.fontFamily ? seriesSettings.label.style.fontFamily : dataLabelsDefaultSettings.style.fontFamily,
+                    fontSize: seriesSettings.label.style.fontSize ? seriesSettings.label.style.fontSize : dataLabelsDefaultSettings.style.fontSize,
+                    fontWeight: seriesSettings.label.style.fontWeight ? seriesSettings.label.style.fontWeight : dataLabelsDefaultSettings.style.fontWeight,
+                    color: tempColor,
+                    textOutline: dataLabelsDefaultSettings.style.textOutline ?? 'none'
                 },
                 formatter: function () {
-                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label)
+                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, 'gauge')
                 }
             }
         })

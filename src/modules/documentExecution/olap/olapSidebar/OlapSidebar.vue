@@ -267,7 +267,7 @@ export default defineComponent({
             if (!this.olap) return
             this.$emit('loading', true)
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/locker/${this.olap.modelConfig.artifactId}`, null, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/locker/${this.olap.modelConfig.artifactId}`, null, {
                     headers: {
                         Accept: 'application/json, text/plain, */*',
                         'Content-Type': 'application/json;charset=UTF-8',

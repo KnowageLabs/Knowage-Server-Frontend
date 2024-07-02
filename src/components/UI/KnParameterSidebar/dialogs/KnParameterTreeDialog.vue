@@ -1,9 +1,9 @@
 <template>
-    <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="knParameterTreeDialogDescriptor.dialog.style" :visible="visible" :modal="true" :closable="false">
+    <Dialog v-model:visible="dialogVisible" class="p-fluid kn-dialog--toolbar--primary" :content-style="knParameterTreeDialogDescriptor.dialog.style" :modal="true" :dismissable-mask="true" :closable="true" @after-hide="closeDialog">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
                 <template #start>
-                    {{ $t('common.parameter') + ': ' + parameter?.urlName }}
+                    {{ $t('common.parameter') + ': ' + parameter?.label }}
                 </template>
             </Toolbar>
         </template>
@@ -62,7 +62,8 @@ export default defineComponent({
             multipleSelectedValues: [] as any[],
             multivalue: false,
             selectedNodes: [] as any[],
-            loading: false
+            loading: false,
+            dialogVisible: false
         }
     },
     computed: {
@@ -72,16 +73,22 @@ export default defineComponent({
     },
     watch: {
         async visible() {
+            this.changeDialogVisibility()
             await this.loadTree()
         },
         async selectedParameter() {
+            this.changeDialogVisibility()
             await this.loadTree()
         }
     },
     async created() {
+        this.changeDialogVisibility()
         await this.loadTree()
     },
     methods: {
+        changeDialogVisibility() {
+            this.dialogVisible = this.visible
+        },
         async loadTree() {
             this.loadParameter()
             if (this.parameter && this.formatedParameterValues && this.visible) {
@@ -119,15 +126,15 @@ export default defineComponent({
             const sessionRole = this.user.sessionRole
             const role = sessionRole && sessionRole !== this.$t('role.defaultRolePlaceholder') ? sessionRole : this.selectedRole
 
-            let url = '2.0/documentexecution/admissibleValuesTree'
+            let url = '/restful-services/2.0/documentexecution/admissibleValuesTree'
             if (this.mode !== 'execution') {
-                url = this.document.type === 'businessModel' ? `1.0/businessmodel/${this.document.name}/admissibleValuesTree` : `/3.0/datasets/${this.document.label}/admissibleValuesTree`
+                url = this.document.type === 'businessModel' ? `/restful-services/1.0/businessmodel/${this.document.name}/admissibleValuesTree` : `/restful-services/3.0/datasets/${this.document.label}/admissibleValuesTree`
             }
 
             const postData = { label: this.document.label ?? this.document.name, role: role, parameterId: this.parameter?.urlName, mode: 'complete', treeLovNode: parent ? parent.id : 'lovroot', parameters: this.formatedParameterValues }
             const content = [] as any[]
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData)
                 .then((response: AxiosResponse<any>) =>
                     response.data.rows.forEach((el: any) => {
                         content.push(this.createNode(el, parent))

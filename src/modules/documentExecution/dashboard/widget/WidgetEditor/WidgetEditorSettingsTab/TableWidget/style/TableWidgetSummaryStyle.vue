@@ -9,26 +9,26 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetSummaryStyle, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
-import { emitter } from '../../../../../DashboardHelpers'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import settingsDescriptor from '../../WidgetEditorSettingsTabDescriptor.json'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 
 export default defineComponent({
     name: 'table-widget-summary-style',
     components: { WidgetEditorStyleToolbar },
-    props: {
-        widgetModel: { type: Object as PropType<IWidget>, required: true }
-    },
+    props: { widgetModel: { type: Object as PropType<IWidget | null>, required: true }, themeStyle: { type: Object as PropType<ITableWidgetSummaryStyle | null>, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             settingsDescriptor,
-            model: {} as IWidget,
+            model: {} as IWidget | null,
             summaryStyleModel: null as ITableWidgetSummaryStyle | null
         }
     },
     computed: {
         summaryStyleDisabled() {
-            return !this.model.settings?.configuration?.summaryRows?.enabled
+            if (this.themeStyle) return false
+            return !this.model || !this.model.settings?.configuration?.summaryRows?.enabled
         }
     },
     watch: {
@@ -36,32 +36,41 @@ export default defineComponent({
             this.loadModel()
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadModel()
         this.loadSummaryRowsStyle()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.loadSummaryRowsStyle)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.loadSummaryRowsStyle)
+        },
         loadModel() {
             this.model = this.widgetModel
         },
         loadSummaryRowsStyle() {
-            if (this.model?.settings?.style?.summary) this.summaryStyleModel = this.model.settings.style.summary
+            if (this.widgetModel?.settings?.style?.summary) this.summaryStyleModel = this.widgetModel.settings.style.summary
+            else if (this.themeStyle) this.summaryStyleModel = this.themeStyle
         },
         summaryStyleChanged() {
-            emitter.emit('summaryStyleChanged', this.summaryStyleModel)
-            emitter.emit('refreshTable', this.model.id)
+            if (this.widgetModel) this.$emit('styleChanged')
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
-            this.summaryStyleModel = {
-                'background-color': model['background-color'] ?? '',
-                color: model.color ?? '',
-                'justify-content': model['justify-content'] ?? '',
-                'font-size': model['font-size'] ?? '14px',
-                'font-family': model['font-family'] ?? '',
-                'font-style': model['font-style'] ?? '',
-                'font-weight': model['font-weight'] ?? ''
-            }
-            this.model.settings.style.summary = this.summaryStyleModel
+            if (!this.summaryStyleModel) return
+            this.summaryStyleModel['background-color'] = model['background-color'] ?? ''
+            this.summaryStyleModel.color = model.color ?? ''
+            this.summaryStyleModel['justify-content'] = model['justify-content'] ?? ''
+            this.summaryStyleModel['font-size'] = model['font-size'] ?? ''
+            this.summaryStyleModel['font-family'] = model['font-family'] ?? ''
+            this.summaryStyleModel['font-style'] = model['font-style'] ?? ''
+            this.summaryStyleModel['font-weight'] = model['font-weight'] ?? ''
+            if (this.model) this.model.settings.style.summary = this.summaryStyleModel
             this.summaryStyleChanged()
         }
     }

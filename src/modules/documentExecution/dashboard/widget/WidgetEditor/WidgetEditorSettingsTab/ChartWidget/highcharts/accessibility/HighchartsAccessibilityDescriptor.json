@@ -1,0 +1,12 @@
+{
+    "sonificationOrderOptions": [
+        {
+            "label": "dashboard.widgetEditor.highcharts.sonification.sequential",
+            "value": "sequential"
+        },
+        {
+            "label": "dashboard.widgetEditor.highcharts.sonification.simultaneous",
+            "value": "simultaneous"
+        }
+    ]
+}

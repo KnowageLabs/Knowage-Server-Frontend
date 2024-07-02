@@ -3,13 +3,51 @@ import axios from 'axios'
 import mainStore from './App.store.js'
 import authHelper from '@/helpers/commons/authHelper'
 
+async function refreshPublicInstance() {
+    localStorage.setItem('sessionRefreshPending', true)
+    const store = mainStore()
+    const response = await fetch(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/3.0/public-user?organization=${localStorage.getItem('organization')}`)
+    if (response.status === 200) {
+        const responseJson = await response.json()
+        localStorage.setItem('token', responseJson.userUniqueIdentifier)
+        localStorage.setItem('lastResponseTimestamp', new Date().getTime())
+    } else store.setError({ title: 'common.error.generic', msg: 'common.error.refresh' })
+    localStorage.removeItem('sessionRefreshPending')
+}
+
+async function sessionPendingTimeoutFn() {
+    return new Promise((resolve) => {
+        if (localStorage.getItem('sessionRefreshPending')) {
+            const interval = setInterval(() => {
+                if (!localStorage.getItem('sessionRefreshPending')) {
+                    clearInterval(interval)
+                    resolve()
+                }
+            }, 500)
+        } else resolve('pending')
+    })
+}
+
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
 
 axios.interceptors.request.use(
-    (config) => {
+    async (config) => {
         config.headers.common['Accept'] = 'application/json; charset=utf-8'
         config.headers.common['Content-Type'] = 'application/json; charset=utf-8'
         config.headers.common['Access-Control-Allow-Origin'] = '*'
+
+        const store = mainStore()
+        if (store.$state.CSRFToken) {
+            config.headers.common['X-CSRF-TOKEN'] = store.$state.CSRFToken
+        }
+
+        if (localStorage.getItem('public')) {
+            if (new Date().getTime() - localStorage.getItem('lastResponseTimestamp') > import.meta.env.VITE_SESSION_TIMEOUT) {
+                const sessionPending = await sessionPendingTimeoutFn()
+                if (sessionPending === 'pending') await refreshPublicInstance()
+            }
+        }
+
         if (localStorage.getItem('token')) config.headers.common[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
         return config
     },
@@ -20,6 +58,7 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
     (res) => {
+        localStorage.setItem('lastResponseTimestamp', new Date().getTime())
         const store = mainStore()
         if (res.config.headers['X-Disable-Interceptor']) return res
         if (res.data && res.data.errors) {

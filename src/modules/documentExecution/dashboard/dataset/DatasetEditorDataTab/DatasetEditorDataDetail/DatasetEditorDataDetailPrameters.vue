@@ -125,7 +125,7 @@ export default defineComponent({
         },
         createMenuItems(paramName) {
             this.menuButtons = this.documentDriversProp.filterStatus.map((driver) => {
-                return { label: driver.label, urlName: driver.urlName, command: () => this.addDriverValueToParameter(driver.label, paramName) }
+                return { label: driver.label, urlName: driver.urlName, command: () => this.addDriverValueToParameter(driver.urlName, paramName) }
             })
         },
         addDriverValueToParameter(driverUrl, paramName) {

@@ -1,6 +1,6 @@
-import { createNewDiscoveryWidgetSettings } from './discoveryWidget/DiscoveryWidgetFunctions';
-import { formatVegaForSave } from './chartWidget/vega/VegaBackendSaveHelper';
-import { formatVegaWidget, createNewVegaSettings } from './chartWidget/vega/VegaHelpers';
+import { createNewDiscoveryWidgetSettings } from './discoveryWidget/DiscoveryWidgetFunctions'
+import { formatVegaForSave } from './chartWidget/vega/VegaBackendSaveHelper'
+import { formatVegaWidget, createNewVegaSettings } from './chartWidget/vega/VegaHelpers'
 import { IWidget, IWidgetColumn } from '../../../Dashboard'
 import { formatTableWidgetForSave } from './tableWidget/TableWidgetBackendSaveHelper'
 import { createNewTableWidgetSettings } from '../helpers/tableWidget/TableWidgetFunctions'
@@ -18,11 +18,15 @@ import { createNewPivotTableWidgetSettings } from './pivotTableWidget/PivotTable
 import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import useStore from '@/App.store'
-import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions';
+import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
+import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
+import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
+import { createNewRWidgetSettings } from './rWidget/RWidgetFunctions'
+import { addWidgetMenuConfig } from '../../../DashboardHelpers'
 
 const store = useStore()
 
-export function createNewWidget(type: string) {
+export function createNewWidget(type: string, dashboardModel: any) {
     const widget = {
         id: cryptoRandomString({ length: 16, type: 'base64' }),
         new: true,
@@ -31,9 +35,11 @@ export function createNewWidget(type: string) {
         columns: [],
         settings: {}
     } as IWidget
-    if (widget.type === 'static-pivot-table') widget.fields = { columns: [], rows: [], data: [], filters: [] }
+    if (widget.type === 'static-pivot-table' || widget.type === 'ce-pivot-table') widget.fields = { columns: [], rows: [], data: [], filters: [] }
 
-    createNewWidgetSettings(widget)
+    createNewWidgetSettings(widget, dashboardModel)
+    addWidgetMenuConfig(widget)
+    widget.settings.configuration.updateFromSelections = true
 
     return widget
 }
@@ -52,7 +58,7 @@ export const createNewWidgetColumn = (eventData: any, widgetType: string) => {
     return tempColumn
 }
 
-const createNewWidgetSettings = (widget: IWidget) => {
+export const createNewWidgetSettings = (widget: IWidget, dashboardModel: any) => {
     switch (widget.type) {
         case 'table':
             widget.settings = createNewTableWidgetSettings()
@@ -84,6 +90,9 @@ const createNewWidgetSettings = (widget: IWidget) => {
         case 'static-pivot-table':
             widget.settings = createNewPivotTableWidgetSettings()
             break
+        case 'ce-pivot-table':
+            widget.settings = createCeNewPivotTableWidgetSettings()
+            break
         case 'discovery':
             widget.settings = createNewDiscoveryWidgetSettings()
             break
@@ -94,7 +103,18 @@ const createNewWidgetSettings = (widget: IWidget) => {
             widget.layers = []
             widget.settings = createNewMapWidgetSettings()
             break
+        case 'python':
+            widget.settings = createNewPythonWidgetSettings()
+            break
+        case 'r':
+            widget.settings = createNewRWidgetSettings()
     }
+    widget.settings = addDefaultTheme(widget.settings, dashboardModel)
+}
+
+export function addDefaultTheme(widget: any, dashboardModel: any) {
+    if (dashboardModel.configuration.theme?.themeName) widget.style.themeName = dashboardModel.configuration.theme.themeName
+    return widget
 }
 
 export function formatWidgetForSave(tempWidget: IWidget) {
@@ -113,9 +133,9 @@ export function formatWidgetForSave(tempWidget: IWidget) {
             formatChartJSForSave(widget)
             break
         case 'vega':
-
             formatVegaForSave(widget)
     }
+    ;['state', 'search', 'invalid'].forEach((property: string) => delete widget[property])
     return widget
 }
 

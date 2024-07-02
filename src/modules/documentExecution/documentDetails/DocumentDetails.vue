@@ -39,7 +39,7 @@
                         <span :class="{ 'details-warning-color': invalidDrivers }">{{ $t('documentExecution.documentDetails.drivers.title') }}</span>
                         <Badge v-if="invalidDrivers > 0" :value="invalidDrivers" class="p-ml-2" severity="danger"></Badge>
                     </template>
-                    <DriversTab :selected-document="selectedDocument" :available-drivers="drivers" :available-analytical-drivers="analyticalDrivers" />
+                    <DriversTab :selected-document="selectedDocument" :available-drivers="drivers" :available-analytical-drivers="analyticalDrivers" :refresh="refreshDrivers" />
                 </TabPanel>
                 <TabPanel v-if="selectedDocument?.id">
                     <template #header>
@@ -59,7 +59,7 @@
                     <template #header>
                         <span>{{ $t('documentExecution.documentDetails.history.title') }}</span>
                     </template>
-                    <HistoryTab :selected-document="selectedDocument" @openDesignerDialog="openDesignerDialog" />
+                    <HistoryTab :selected-document="selectedDocument" @openDesignerDialog="openDesignerDialog" :refresh="refreshHistory" />
                 </TabPanel>
                 <TabPanel v-if="selectedDocument?.id && selectedDocument?.typeCode == 'REPORT' && selectedDocument?.engine == 'knowagejasperreporte'">
                     <template #header>
@@ -72,6 +72,7 @@
         </div>
 
         <DocumentDetailOlapDesignerDialog v-if="designerDialogVisible" :visible="designerDialogVisible" :selected-document="selectedDocument" @close="designerDialogVisible = false" @designerStarted="onDesignerStart"></DocumentDetailOlapDesignerDialog>
+        <DocumentDetailDossierDesignerDialog v-if="user.enterprise && dossierDesignerDialogVisible" :visible="dossierDesignerDialogVisible" :selected-document="selectedDocument" @close="closeDossierDesignerDialog($event)"></DocumentDetailDossierDesignerDialog>
     </div>
 </template>
 
@@ -92,8 +93,10 @@ import TabPanel from 'primevue/tabpanel'
 import ProgressSpinner from 'primevue/progressspinner'
 import { iDataSource, iAnalyticalDriver, iDriver, iEngine, iTemplate, iAttribute, iParType, iDateFormat, iFolder, iTableSmall, iOutputParam, iDocumentType } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import DocumentDetailOlapDesignerDialog from './dialogs/olapDesignerDialog/DocumentDetailOlapDesignerDialog.vue'
+import DocumentDetailDossierDesignerDialog from './dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialog.vue'
 import mainStore from '../../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { mapState, mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'document-details',
@@ -108,7 +111,8 @@ export default defineComponent({
         TabPanel,
         Badge,
         ProgressSpinner,
-        DocumentDetailOlapDesignerDialog
+        DocumentDetailOlapDesignerDialog,
+        DocumentDetailDossierDesignerDialog
     },
     props: { propDocId: { type: String }, propFolderId: { type: String }, propMode: { type: String }, viewMode: { type: String }, wholeItem: { type: Object } },
     emits: ['closeDetails', 'documentSaved'],
@@ -143,10 +147,16 @@ export default defineComponent({
             allDocumentDetails: [] as any,
             savedSubreports: [] as any,
             selectedSubreports: [] as any,
-            designerDialogVisible: false
+            designerDialogVisible: false,
+            dossierDesignerDialogVisible: false,
+            refreshDrivers: false,
+            refreshHistory: false
         }
     },
     computed: {
+        ...mapState(mainStore, {
+            user: 'user'
+        }),
         invalidOutputParams(): number {
             if (this.selectedDocument && this.selectedDocument.outputParameters) {
                 return this.selectedDocument.outputParameters.filter((parameter: any) => parameter.numberOfErrors > 0).length
@@ -163,7 +173,7 @@ export default defineComponent({
             return this.selectedDocument?.functionalities?.length
         },
         showDataLineageTab(): boolean {
-            return (this.store.$state as any).user.functionalities.includes(UserFunctionalitiesConstants.DATA_SOURCE_MANAGEMENT)
+            return this.user.functionalities.includes(UserFunctionalitiesConstants.DATA_SOURCE_MANAGEMENT)
         }
     },
     watch: {
@@ -193,6 +203,7 @@ export default defineComponent({
         }
     },
     methods: {
+        ...mapActions(mainStore, ['setLoading']),
         setDocumentAndFolderIds() {
             if (this.propMode === 'execution') {
                 this.docId = this.propDocId
@@ -231,14 +242,14 @@ export default defineComponent({
         },
         async getSelectedDocumentById(id) {
             if (id) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documents/${id}`).then((response: AxiosResponse<any>) => (this.selectedDocument = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${id}`).then((response: AxiosResponse<any>) => (this.selectedDocument = response.data))
             } else {
                 this.selectedDocument = { ...this.mainDescriptor.newDocument }
                 this.selectedDocument.functionalities = []
             }
         },
         async getFunctionalities() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/folders?includeDocs=false`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/folders?includeDocs=false`).then((response: AxiosResponse<any>) => {
                 this.availableFolders = response.data
                 if (this.$route.params.folderId) {
                     const sourceFolder = this.availableFolders.find((folder) => folder.id == parseInt(this.folderId)) as iFolder
@@ -247,48 +258,48 @@ export default defineComponent({
             })
         },
         async getAnalyticalDrivers() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/analyticalDrivers`).then((response: AxiosResponse<any>) => (this.analyticalDrivers = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/analyticalDrivers`).then((response: AxiosResponse<any>) => (this.analyticalDrivers = response.data))
         },
         async getDatasources() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasources`).then((response: AxiosResponse<any>) => (this.dataSources = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasources`).then((response: AxiosResponse<any>) => (this.dataSources = response.data))
         },
         async getDocumentDrivers() {
             if (this.selectedDocument?.id) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument?.id}/drivers`).then((response: AxiosResponse<any>) => (this.drivers = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument?.id}/drivers`).then((response: AxiosResponse<any>) => (this.drivers = response.data))
             }
         },
         async getTemplates() {
             if (this.selectedDocument?.id) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument?.id}/templates`).then((response: AxiosResponse<any>) => (this.templates = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument?.id}/templates`).then((response: AxiosResponse<any>) => (this.templates = response.data))
             }
         },
         async getTypes() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/document-detail/types`).then((response: AxiosResponse<any>) => (this.types = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/document-detail/types`).then((response: AxiosResponse<any>) => (this.types = response.data))
         },
         async getEngines() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/document-detail/engines`).then((response: AxiosResponse<any>) => (this.engines = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/document-detail/engines`).then((response: AxiosResponse<any>) => (this.engines = response.data))
         },
         async getAttributes() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/attributes`).then((response: AxiosResponse<any>) => (this.attributes = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/attributes`).then((response: AxiosResponse<any>) => (this.attributes = response.data))
         },
         async getParTypes() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/domains/listByCode/PAR_TYPE`).then((response: AxiosResponse<any>) => (this.parTypes = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/domains/listByCode/PAR_TYPE`).then((response: AxiosResponse<any>) => (this.parTypes = response.data))
         },
         async getDateFormats() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/domains/listByCode/DATE_FORMAT`).then((response: AxiosResponse<any>) => (this.dateFormats = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/domains/listByCode/DATE_FORMAT`).then((response: AxiosResponse<any>) => (this.dateFormats = response.data))
         },
         async getDataSources() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaSourceResource/`).then((response: AxiosResponse<any>) => (this.metaSourceResource = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaSourceResource/`).then((response: AxiosResponse<any>) => (this.metaSourceResource = response.data))
         },
         async getSavedTablesByDocumentID() {
             if (this.selectedDocument.id) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaDocumetRelationResource/document/${this.selectedDocument.id}`).then((response: AxiosResponse<any>) => (this.savedTables = response.data))
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDocumetRelationResource/document/${this.selectedDocument.id}`).then((response: AxiosResponse<any>) => (this.savedTables = response.data))
             }
         },
         async getDataset() {
             if (this.selectedDocument?.dataSetId) {
                 await this.$http
-                    .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/dataset/id/${this.selectedDocument?.dataSetId}`, { headers: { 'X-Disable-Errors': 'true' } })
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/dataset/id/${this.selectedDocument?.dataSetId}`, { headers: { 'X-Disable-Errors': 'true' } })
                     .then((response: AxiosResponse<any>) => {
                         this.selectedDataset = response.data[0]
                     })
@@ -299,7 +310,7 @@ export default defineComponent({
         },
         async getAllSubreports() {
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/`).then((response: AxiosResponse<any>) => (this.allDocumentDetails = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/`).then((response: AxiosResponse<any>) => (this.allDocumentDetails = response.data))
             this.loading = false
         },
         setTemplateForUpload(event) {
@@ -310,7 +321,7 @@ export default defineComponent({
                 const formData = new FormData()
                 formData.append('file', uploadedFile)
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${responseId}/templates`, formData, {
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${responseId}/templates`, formData, {
                         headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' }
                     })
                     .then(() => (this.templateToUpload = null))
@@ -321,7 +332,7 @@ export default defineComponent({
         },
         deleteImage() {
             this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/image`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/image`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
                 .then(() => this.loadPage(this.docId))
                 .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.info.imageError') }))
         },
@@ -334,7 +345,7 @@ export default defineComponent({
                 formData.append('file', uploadedFile)
                 formData.append('fileName', uploadedFile.name)
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${responseId}/image`, formData, {
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${responseId}/image`, formData, {
                         headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' }
                     })
                     .then(() => (this.imageToUpload = null))
@@ -351,13 +362,13 @@ export default defineComponent({
                         delete parameter.tempId
                         delete parameter.isChanged
                         this.$http
-                            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/outputparameters`, parameter, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters`, parameter, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
                             .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
                     } else if (parameter.isChanged) {
                         delete parameter.numberOfErrors
                         delete parameter.isChanged
                         this.$http
-                            .put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${parameter.id}`, parameter, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                            .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${parameter.id}`, parameter, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
                             .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
                     }
                 })
@@ -371,13 +382,13 @@ export default defineComponent({
                         delete driver.numberOfErrors
                         delete driver.isChanged
                         this.$http
-                            .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/drivers`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
                             .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
                     } else if (driver.isChanged) {
                         delete driver.numberOfErrors
                         delete driver.isChanged
                         this.$http
-                            .put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                            .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
                             .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
                     }
                 })
@@ -385,9 +396,9 @@ export default defineComponent({
         },
         saveRequest(docToSave) {
             if (!this.selectedDocument.id) {
-                return this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails`, docToSave, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                return this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails`, docToSave, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
             } else {
-                return this.$http.put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${docToSave.id}`, docToSave, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                return this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${docToSave.id}`, docToSave, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
             }
         },
         async saveDocument() {
@@ -423,10 +434,25 @@ export default defineComponent({
             event.index === 5 ? this.getAllSubreports() : ''
         },
         openDesignerDialog() {
-            this.designerDialogVisible = true
+            if (this.selectedDocument.engine === 'knowagedossierengine') {
+                this.dossierDesignerDialogVisible = true
+                this.refreshDrivers = false
+                this.refreshHistory = false
+                this.designerDialogVisible = false
+            } else {
+                this.designerDialogVisible = true
+                this.dossierDesignerDialogVisible = false
+            }
         },
         onDesignerStart(document: any) {
             this.$router.push(`/olap-designer/${document.sbiExecutionId}?olapId=${document.id}&olapName=${document.name}&olapLabel=${document.label}&noTemplate=${true}&reference=${document.reference}&engine=${document.engine}&artifactId=${document.artifactId}`)
+        },
+        closeDossierDesignerDialog(refreshObj) {
+            this.dossierDesignerDialogVisible = false
+
+            if (refreshObj.refreshDrivers) this.refreshDrivers = true
+
+            if (refreshObj.refreshHistory) this.refreshHistory = true
         }
     }
 })

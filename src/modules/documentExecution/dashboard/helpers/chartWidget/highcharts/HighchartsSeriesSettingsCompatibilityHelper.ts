@@ -4,7 +4,7 @@ import { getMaximumNumberOfSeries } from '../CommonChartCompatibilityHelper'
 import * as highchartsDefaultValues from '../../../widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const getFormattedSerieLabelsSettings = (widget: any) => {
-    const formattedSerieSettings = widget.content.chartTemplate.CHART.type !== 'PIE' ? highchartsDefaultValues.getDefaultSeriesSettings() : ([] as IHighchartsSeriesLabelsSetting[])
+    const formattedSerieSettings = !['PIE', 'SUNBURST', 'TREEMAP'].includes(widget.content.chartTemplate.CHART.type) ? highchartsDefaultValues.getDefaultSeriesSettings() : ([] as IHighchartsSeriesLabelsSetting[])
     if (widget.content.chartTemplate.CHART.type === 'GAUGE') {
         formattedSerieSettings[0].dial = highchartsDefaultValues.getDefaultSerieDialSettings()
         formattedSerieSettings[0].pivot = highchartsDefaultValues.getDefaultSeriePivotSettings()
@@ -13,9 +13,11 @@ export const getFormattedSerieLabelsSettings = (widget: any) => {
     if (endIndex > widget.content.chartTemplate.CHART.VALUES.SERIE.length) endIndex = widget.content.chartTemplate.CHART.VALUES.SERIE.length
     for (let i = 0; i < endIndex; i++) {
         const oldModelSerie = widget.content.chartTemplate.CHART.VALUES.SERIE[i]
+        if (widget.content.chartTemplate.CHART.type === 'BUBBLE' && oldModelSerie.axis !== 'Y') continue
         const formattedSettings = { names: [oldModelSerie.name] } as IHighchartsSeriesLabelsSetting
         setFormattedSerieLabelSettings(oldModelSerie, formattedSettings)
         setSerieSettingsForGaugeChart(oldModelSerie, formattedSettings, widget)
+        if (widget.content.chartTemplate.CHART.type === 'RADAR') formattedSettings.type = oldModelSerie.type
         formattedSerieSettings.push(formattedSettings)
     }
     return formattedSerieSettings
@@ -25,10 +27,11 @@ const setFormattedSerieLabelSettings = (oldModelSerie: any, formattedSettings: I
     formattedSettings.label = {
         enabled: oldModelSerie.showValue,
         style: {
-            fontFamily: oldModelSerie.dataLabels?.style?.fontFamily ?? '',
-            fontSize: oldModelSerie.dataLabels?.style?.fontSize ?? '',
-            fontWeight: oldModelSerie.dataLabels?.style?.fontWeight ?? '',
-            color: oldModelSerie.dataLabels?.style?.color ? hexToRgba(oldModelSerie.dataLabels.style.color) : '',
+            fontFamily: '',
+            fontSize: '',
+            fontWeight: '',
+            color: '',
+            textOutline: 'none'
         },
         backgroundColor: 'rgba(246,246,246, 1)',
         prefix: oldModelSerie.prefixChar ?? '',
@@ -37,6 +40,21 @@ const setFormattedSerieLabelSettings = (oldModelSerie: any, formattedSettings: I
         precision: oldModelSerie.precision ?? 2,
         absolute: oldModelSerie.showAbsValue,
         percentage: oldModelSerie.showPercentage
+    }
+    setFormattedSerieStyle(oldModelSerie, formattedSettings)
+}
+
+const setFormattedSerieStyle = (oldModelSerie: any, formattedSettings: IHighchartsSeriesLabelsSetting) => {
+    let labelsStyle = null as any
+    if (oldModelSerie.dataLabels?.style) labelsStyle = oldModelSerie.dataLabels.style
+    else if (oldModelSerie.TOOLTIP?.style) labelsStyle = oldModelSerie.TOOLTIP.style
+    if (!labelsStyle) return
+    formattedSettings.label.style = {
+        fontFamily: labelsStyle.fontFamily ?? '',
+        fontSize: labelsStyle.fontSize ?? '',
+        fontWeight: labelsStyle.fontWeight ?? '',
+        textOutline: 'none',
+        color: labelsStyle.color ? hexToRgba(labelsStyle.color) : ''
     }
 }
 

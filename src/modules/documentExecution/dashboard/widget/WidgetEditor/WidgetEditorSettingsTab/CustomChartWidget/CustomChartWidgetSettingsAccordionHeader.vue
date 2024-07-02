@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'custom-chart-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -23,16 +24,28 @@ export default defineComponent({
     computed: {},
     watch: {
         type() {
-            this.model = this.loadModel()
+            this.updateModel()
         }
     },
-    created() {
-        this.model = this.loadModel()
+    mounted() {
+        this.setEventListeners()
+        this.updateModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.updateModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.updateModel)
+        },
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings) return null
             switch (this.type) {
+                case 'MenuConfiguration':
+                    return this.widgetModel.settings.configuration.widgetMenu
                 case 'Title':
                     return this.widgetModel.settings.style.title
                 case 'BackgroundColorStyle':
@@ -47,9 +60,14 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.crossNavigation
                 case 'Preview':
                     return this.widgetModel.settings.interactions.preview
+                case 'IFrameInteraction':
+                    return this.widgetModel.settings.interactions.iframe
                 default:
                     return null
             }
+        },
+        updateModel() {
+            this.model = this.loadModel()
         },
         onModelChange() {
             switch (this.type) {
@@ -59,6 +77,7 @@ export default defineComponent({
                 case 'BordersStyle':
                 case 'PaddingStyle':
                 case 'ShadowsStyle':
+                    this.$emit('styleChanged')
                     setTimeout(() => emitter.emit('refreshCustomChart', this.widgetModel.id), 250)
             }
         }

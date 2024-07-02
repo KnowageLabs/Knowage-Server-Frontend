@@ -36,11 +36,11 @@
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.suffix') }}</label>
                 <InputText v-model="serieSetting.label.suffix" class="kn-material-input p-inputtext-sm" :disabled="!serieSetting.label.enabled" @change="modelChanged" />
             </div>
-            <div v-if="formattingSectionAvailable" class="p-col-12 p-md-6 p-lg-2 p-d-flex p-flex-column kn-flex">
+            <div v-if="precisionAvailable" class="p-col-12 p-md-6 p-lg-2 p-d-flex p-flex-column kn-flex">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.precision') }}</label>
                 <InputNumber v-model="serieSetting.label.precision" class="kn-material-input p-inputtext-sm" :disabled="!serieSetting.label.enabled" @blur="modelChanged" />
             </div>
-            <div v-if="formattingSectionAvailable" class="p-col-6 p-d-flex p-flex-column kn-flex p-m-2">
+            <div v-if="scaleVisible" class="p-col-6 p-d-flex p-flex-column kn-flex p-m-2">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.series.scale') }}</label>
                 <div class="p-d-flex p-flex-row p-ai-center">
                     <Dropdown v-model="serieSetting.label.scale" class="kn-material-input" :options="descriptor.scaleOptions" :disabled="!serieSetting.label.enabled" @change="modelChanged"> </Dropdown>
@@ -48,11 +48,12 @@
                 </div>
             </div>
 
-            <div v-if="formattingSectionAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
+            <div v-if="percentageAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.percentage') }}</label>
                 <InputSwitch v-model="serieSetting.label.percentage" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
             </div>
-            <div v-if="formattingSectionAvailable" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
+
+            <div v-if="absoluteVisible" class="p-col-12 p-md-4 p-lg-2 p-pt-4 p-px-4 p-d-flex p-flex-column">
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.absolute') }}</label>
                 <InputSwitch v-model="serieSetting.label.absolute" :disabled="!serieSetting.label.enabled" @change="modelChanged"></InputSwitch>
             </div>
@@ -74,9 +75,9 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetStyleToolbarModel } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { IHighchartsChartModel, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
@@ -119,26 +120,35 @@ export default defineComponent({
         }
     },
     computed: {
-        modelSerieNames() {
-            return this.model ? this.model.series.map((serie: IHighchartsChartSerie) => serie.name) : []
-        },
         allSeriesOptionEnabled() {
-            return this.model && this.model.chart.type !== 'pie' && this.model.chart.type !== 'solidgauge'
+            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes(this.model.chart.type)
         },
         formattingSectionAvailable() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
+        },
+        precisionAvailable() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
+        },
+        scaleVisible() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
+        },
+        percentageAvailable() {
             return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
+        },
+        absoluteVisible() {
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble'].includes(this.model.chart.type)
         },
         advancedSectionAvailable() {
             return this.model?.chart.type === 'gauge'
         },
         styleToolbarVisible() {
-            return this.model && ['pie', 'gauge'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
         },
         serieColorPickerVisible() {
             return this.model?.chart.type === 'activitygauge'
         },
         labelOptionsVisible() {
-            return this.model && ['pie', 'gauge', 'solidgauge'].includes(this.model.chart.type)
+            return this.model && ['pie', 'gauge', 'solidgauge', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.model.chart.type)
         }
     },
     watch: {
@@ -148,6 +158,10 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
+        this.loadModel()
+    },
+    mounted() {
         this.loadWidgetModel()
         this.loadModel()
     },
@@ -171,8 +185,8 @@ export default defineComponent({
         loadModel() {
             this.seriesSettings = []
             this.model = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
-            if (this.widgetModel.settings?.series?.seriesLabelsSettings) {
-                this.widgetModel.settings.series.seriesLabelsSettings.forEach((seriesSettings: IHighchartsSeriesLabelsSetting) => {
+            if (this.widgetModel.settings?.series?.seriesSettings) {
+                this.widgetModel.settings.series.seriesSettings.forEach((seriesSettings: IHighchartsSeriesLabelsSetting) => {
                     if (this.model?.chart.type !== 'gauge') {
                         ;['dial', 'pivot'].forEach((property: string) => delete seriesSettings[property])
                     }
@@ -184,11 +198,12 @@ export default defineComponent({
             this.removeSeriesFromAvailableOptions()
             this.removeAllSerieSettingsFromModel()
             if (this.seriesSettings.length === 0) this.addFirstSeriesSetting()
+            if (!this.allSeriesOptionEnabled) this.seriesSettings.splice(1)
         },
         removeAllSerieSettingsFromModel() {
             if (this.seriesSettings[0]?.names[0] && this.seriesSettings[0].names[0] === 'all' && !this.allSeriesOptionEnabled) {
                 this.seriesSettings.splice(0, 1)
-                this.widgetModel.settings.series.seriesLabelsSettings.splice(0, 1)
+                this.widgetModel.settings.series.seriesSettings.splice(0, 1)
             }
         },
         loadToolbarModels() {
@@ -204,9 +219,9 @@ export default defineComponent({
         },
         loadSeriesOptions() {
             this.availableSeriesOptions = []
-            if (!this.model) return
-            this.model.series.forEach((serie: IHighchartsChartSerie) => {
-                this.availableSeriesOptions.push(serie.name)
+            if (!this.widgetModel) return
+            this.widgetModel.columns.forEach((column: IWidgetColumn) => {
+                if (column.fieldType === 'MEASURE' && (!column.axis || ['Y', 'start'].includes(column.axis))) this.availableSeriesOptions.push(column.columnName)
             })
         },
         addFirstSeriesSetting() {
@@ -223,13 +238,13 @@ export default defineComponent({
                     formattedSeriesSettings.pivot = highchartsDefaultValues.getDefaultSeriePivotSettings()
                 }
                 this.seriesSettings.push(formattedSeriesSettings)
-                this.widgetModel.settings.series.seriesLabelsSettings.push(formattedSeriesSettings)
+                this.widgetModel.settings.series.seriesSettings.push(formattedSeriesSettings)
             }
         },
         removeSeriesFromAvailableOptions() {
-            for (let i = 1; i < this.widgetModel.settings.series.seriesLabelsSettings.length; i++) {
-                for (let j = 0; j < this.widgetModel.settings.series.seriesLabelsSettings[i].names.length; j++) {
-                    this.removeSerieFromAvailableOptions(this.widgetModel.settings.series.seriesLabelsSettings[i].names[j])
+            for (let i = 1; i < this.widgetModel.settings.series.seriesSettings?.length; i++) {
+                for (let j = 0; j < this.widgetModel.settings.series.seriesSettings[i].names.length; j++) {
+                    this.removeSerieFromAvailableOptions(this.widgetModel.settings.series.seriesSettings[i].names[j])
                 }
             }
         },
@@ -265,7 +280,7 @@ export default defineComponent({
                 newSerieSetting.pivot = highchartsDefaultValues.getDefaultSeriePivotSettings()
             }
             this.seriesSettings.push(newSerieSetting)
-            this.widgetModel.settings.series.seriesLabelsSettings.push(newSerieSetting)
+            this.widgetModel.settings.series.seriesSettings.push(newSerieSetting)
             this.toolbarModels.push({
                 'font-family': '',
                 'font-size': '',
@@ -277,7 +292,7 @@ export default defineComponent({
         removeSerieSetting(index: number) {
             this.seriesSettings[index].names.forEach((serieName: string) => this.availableSeriesOptions.push(serieName))
             this.advancedVisible[index] = false
-            this.widgetModel.settings.series.seriesLabelsSettings.splice(index, 1)
+            this.widgetModel.settings.series.seriesSettings.splice(index, 1)
             this.seriesSettings.splice(index, 1)
             this.toolbarModels.splice(index, 1)
             this.modelChanged()
@@ -306,7 +321,7 @@ export default defineComponent({
             this.modelChanged()
         },
         onChartTypeChanged() {
-            this.widgetModel.settings.series.seriesLabelsSettings = []
+            this.widgetModel.settings.series.seriesSettings = []
             this.loadModel()
         }
     }

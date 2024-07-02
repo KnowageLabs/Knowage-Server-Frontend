@@ -20,6 +20,7 @@
         "chart": "Chart",
         "chipsHint": "Press Enter to confirm the input value",
         "choose": "choose",
+        "circle": "Circle",
         "clean": "Clean",
         "clear": "Clear",
         "clicked": "Clicked",
@@ -57,8 +58,10 @@
         "details": "Details",
         "development": "Development",
         "dialog": "Dialog",
+        "document": "Document",
         "documentDetails": "Document Details",
         "documents": "Documents",
+        "dossier": "Dossier",
         "download": "download",
         "downloading": "Downloading",
         "dragAndDropFileHere": "Drag and drop file here.",
@@ -75,12 +78,14 @@
             "exceededSize": "Uploaded file exceedes max size {size}",
             "generic": "Generic Error",
             "incompatibleType": "Incompatible file type",
+            "refresh": "Something went wrong. Try refreshing the page",
             "sameFileName": "It is not possible to upload a file with the same name",
             "saving": "Error saving",
             "tags": {
                 "tagIsNotValid": "Tag ({tag}) is not valid'"
             },
-            "uploading": "Error uploading "
+            "uploading": "Error uploading ",
+            "validation": "Error during {what}validation"
         },
         "execute": "Execute",
         "expand": "expand",
@@ -106,6 +111,7 @@
         "horizontalAlign": "Horizontal Align",
         "icon": "Icon",
         "id": "id",
+        "iframe": "Iframe",
         "image": "image",
         "import": "import",
         "inUse": "In use",
@@ -115,7 +121,8 @@
             "emptySearch": "The search returns no data",
             "info": "Info",
             "noDataFound": "No data found",
-            "noElementSelected": "No element selected"
+            "noElementSelected": "No element selected",
+            "noImageFound": "No image available"
         },
         "information": "information",
         "input": "Input",
@@ -167,6 +174,7 @@
         "output": "Output",
         "owner": "Owner",
         "packages": "Packages",
+        "padding": "Padding",
         "parameter": "Parameter",
         "parameters": "Parameters",
         "password": "Password",
@@ -174,6 +182,7 @@
         "paused": "Paused",
         "preview": "Preview",
         "print": "Print",
+        "private": "Private",
         "properties": "properties",
         "public": "Public",
         "rank": "Rank",
@@ -210,10 +219,12 @@
         "source": "Source",
         "sourceDataset": "Source dataset",
         "sqlExpression": "SQL expression",
+        "square": "Square",
         "start": "Start",
         "state": "State",
         "static": "Static",
         "status": "Status",
+        "stream": "Stream",
         "string": "String",
         "style": "Style",
         "suspended": "Suspended",
@@ -224,6 +235,7 @@
             "table": "Table"
         },
         "tags": "tags",
+        "target": "Target",
         "temporal": "Temporal",
         "tenant": "tenant",
         "test": "test",
@@ -250,6 +262,7 @@
             "warning": "Warning"
         },
         "top": "top",
+        "triangle": "Triangle",
         "type": "type",
         "update": "Update",
         "upload": "upload",
@@ -264,7 +277,8 @@
             "minLength": "This field should have at least {min} characters",
             "noQuestionMark": "The value of the field must not contain the question mark (?)",
             "regex": "Invalid format",
-            "required": "{fieldName} is required"
+            "required": "{fieldName} is required",
+            "validating": "validating"
         },
         "value": "Value",
         "values": "Values",
@@ -274,6 +288,7 @@
         "vertical": "Vertical",
         "verticalAlign": "Vertical Align",
         "view": "View",
+        "views": "Views",
         "visibility": "Visibility",
         "visible": "Visible",
         "warning": "Warning",
@@ -294,6 +309,11 @@
             "officialDocumentation": "Official documentation ({function})",
             "title": "Calculated field",
             "type": "Type"
+        },
+        "knIconPicker": {
+            "chooseIcon": "Choose Icon",
+            "recentlyUsed": "Recently Used",
+            "upload": "Upload your image"
         }
     },
     "cron": {
@@ -367,16 +387,29 @@
         "yearly": "Yearly"
     },
     "dashboard": {
-        "dashboardBeta": "Dashboard (Beta)",
+        "activeSelections": {
+            "noActiveSelections": "No Active Selections"
+        },
+        "breakpoints": {
+            "lg": "Very Large Device, ie: Desktop Monitor",
+            "md": "Medium Range Device, ie: Laptop",
+            "sm": "Small Device, ie: Tablet",
+            "xs": "Extra small Device, ie: Phablet",
+            "xxs": "XXS Device, ie: Smartphone"
+        },
+        "confirm": {
+            "deleteWidget": "Are you sure you do want to delete selected widget?"
+        },
+        "dashboard": "Dashboard",
         "datasetEditor": {
-            "addAssociation": "Add Association",
-            "addIndexes": "Add Indexes on Associations",
+            "addAssociation": "Association",
+            "addIndexes": "Index",
             "association": "Association",
-            "associationsDetailMsg": "TODO: Write whatever we need to write here after PR",
+            "associationsDetailMsg": "<b>Associations</b> link two or more datasets by connecting some of their fields. <br />Click the button <b>+ Association</b> to add one and picking the fields you want to use as a relation between selected datasets.",
             "associationsDetailTitle": "Dataset Associations",
             "associationsTabTitle": "Associations",
             "cached": "Cached",
-            "dataDetailMsg": "Add or select datasets, TODO: Write whatever we need to write here after PR",
+            "dataDetailMsg": "<b>Datasets</b> contain a subset of data coming from defined sources that can be used in different analysis. <br />Add at least one by clicking on the button <b>Add Dataset</b> and picking it from the list.",
             "dataDetailTitle": "Dataset Management",
             "dataTabTitle": "Data",
             "datasetDriversWarningMsg1": "You can only have one dataset with drivers! ",
@@ -392,19 +425,77 @@
             "static": "Static",
             "title": "Dataset Management"
         },
+        "errors": {
+            "screenshotError": "An error occurred during the screenshot capture"
+        },
         "generalSettings": {
             "attribute": "Attribute",
+            "background": {
+                "sheetsColor": "Sheets Background Color",
+                "sheetsImage": "Sheets Background Image URL",
+                "sheetsImageHint": "Paste the image URL or base64 code here",
+                "sheetsSize": "Sheets Background Size",
+                "sheetsSizeHint": "Use px, % or CSS keywords like 'contain' or 'cover'",
+                "showGrid": "Show Grid on edit"
+            },
+            "css": "CSS Editor",
+            "customHeader": "Custom Header",
+            "menuWidgets": {
+                "enableCaching": "Enable dashboard caching",
+                "enableChartChange": "Enable chart changing",
+                "enableCustomHeader": "Enable custom header",
+                "enableWidgetMenu": "Enable widget menu",
+                "showExcelExport": "Show excel export functionality on widgets",
+                "showScreenshot": "Enable screenshot functionality on widgets",
+                "showSelectionButton": "Always show selection button",
+                "title": "Menu & Widgets"
+            },
             "profile": "Profile",
+            "themes": {
+                "dashboardTheme": "Dashboard Theme",
+                "dashboardThemeHint": "Work in progress, themes preview will be soon visible here",
+                "editTheme": "Edit Theme",
+                "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager"
+            },
             "title": "General Settings",
             "variableColumnHint": "If no column is defined the whole dataset will be used.",
             "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "qMenu": {
+            "changeType": "Change Chart Type",
+            "clone": "Clone Widget",
+            "delete": "Delete Widget",
+            "edit": "Edit Widget",
+            "expand": "Expand to Fullscreen",
+            "lock": "Lock widget position",
+            "moveWidget": "Move Widget",
+            "quickWidget": "Add Quick Widget",
+            "screenshot": "Capture Screenshot",
+            "search": "Search on Widget",
+            "unlock": "Unlock widget position",
+            "xor": "View One Layer"
+        },
+        "rWidgetError": "Error loading R widget.",
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
         "selectionsList": "Selections List",
+        "sheet": "Sheet",
+        "sheets": {
+            "add": "Add Sheet",
+            "confirmDeleteMessage": "Are you sure you want to delete the selected sheet? ",
+            "delete": "Delete Sheet",
+            "manageIcon": "Manage Sheet Icon",
+            "moveLeft": "Move Sheet to Left",
+            "moveRight": "Move Sheet to Right",
+            "newSheet": "New Sheet",
+            "rename": "Rename Sheet"
+        },
         "tableWidget": {
             "launchSelection": "LAUNCH SELECTION"
+        },
+        "warning": {
+            "downloading": "The document has been requested in a specific output type and will be available soon"
         },
         "widgetEditor": {
             "absolute": "Absolute",
@@ -425,15 +516,17 @@
             },
             "addWidget": "Add widget",
             "aggregation": "Aggregation",
+            "area": "Area",
             "ascending": "Ascending",
             "axis": "Axis",
             "background": "Background",
             "blur": "Blur",
             "borders": {
-                "borderRadiusBottomLeft": "Border radius bottom left",
-                "borderRadiusBottomRight": "Border radius bottom right",
-                "borderRadiusTopLeft": "Border radius top left",
-                "borderRadiusTopRight": "Border radius top right",
+                "borderRadius": "Border Radius",
+                "borderRadiusBottomLeft": "Bottom left",
+                "borderRadiusBottomRight": "Bottom right",
+                "borderRadiusTopLeft": "Top left",
+                "borderRadiusTopRight": "Top right",
                 "bordersColor": "Borders Color",
                 "bordersStyle": "Borders Style",
                 "bordersThickness": "Borders Thickness",
@@ -458,19 +551,32 @@
                 "areaChart": "Area Chart",
                 "barChart": "Bar Chart",
                 "bubbleChart": "Bubble Chart",
-                "columnsChart": "Columns Chart",
+                "chord": "Chord Chart",
+                "columnChart": "Column Chart",
                 "donutChart": "Donut Chart",
+                "dumbbellChart": "Dumbbell Chart",
                 "funnelChart": "Funnel Chart",
                 "gauge": "Gauge",
                 "heatmap": "Heatmap",
                 "lineChart": "Line Chart",
+                "packedbubble": "Packed Bubble Chart",
                 "parallelChart": "Parallel Chart",
+                "pictorial": "Pictorial",
                 "pieChart": "Pie Chart",
                 "radar": "Radar",
+                "sankey": "Sankey",
+                "sankeyInverted": "Sankey Inverted",
                 "scatterChart": "Scatter Chart",
+                "scatterJitter": "Scatter Jitter",
                 "solidgauge": "Solid Gauge",
+                "stackedAreaChart": "Stacked Area Chart",
+                "stackedBarChart": "Stacked Bar Chart",
+                "stackedColumnChart": "Stacked Column Chart",
                 "stackedColumnsChart": "Stacked Columns Chart",
+                "streamgraph": "Streamgraph",
+                "sunburst": "Sunburst",
                 "treemap": "Treemap",
+                "waterfall": "Waterfall",
                 "wordcloud": "Wordcloud"
             },
             "chips": "Chips",
@@ -533,6 +639,8 @@
                 }
             },
             "dragColumnsHint": "Drag columns here",
+            "drillSortingColumn": "Drill sorting column",
+            "drillSortingOrder": "Drill sorting order",
             "drilldown": {
                 "title": "Drilldown"
             },
@@ -550,16 +658,18 @@
                     "columnsData": "This tag is used to show a field value from the selected dataset column. The optional attribute ROW make the tag show the field value of the specified row for that column. If a row is not specified the tag will show the first occurrence for the column.",
                     "conditional": "This tag is used to conditionally show a specific HTML section delimited by the tag ending. If the condition is verified the tag will be displayed, else it will be hidden. Other tags can be used to dinamically get a value for the condition.",
                     "crossnav": "This tag is used to create an interactive element bind to the selected cross-navigation. Cross-navigation must be enabled in the 'Cross' tab of this widget setting. If you selected \"Dynamic\" output you can add a value to the kn-cross attribute.",
+                    "iframe": "This tag is used to create and interactive element sending a message to the parent Iframe. The message will be a JSON defined in the editor.",
                     "internationalization": "This tag is used to show a label value depending on the user locale and using the internationalization manager.",
                     "parameters": "This tag is used to show a parameter value from the ones available to the selected dataset.",
                     "preview": "This tag is used to create an interactive element creating a link to a popup showing the specified dataset preview.",
                     "repeatIndex": "This tag is used inside a kn-repeat to get the current row value of the repeater..Dynamic fields from dataset will take the value of the repeated row.",
                     "repeater": "This tag is used to repeat the HTML section delimited by the tag ending for every row in the dataset if the condition is verified. Set the condition to \"true\" to always show.The limit attribute limits the number of rows shown. Dynamic fields from dataset will take the value of the repeated row.",
                     "selection": "This tag is used to create an interactive element generating a selection on the specified column with the specified value.",
-                    "toLocale": "TODO: Add to locale hint",
+                    "toLocale": "This tag is used to show a label set in the internationalization section of the product.s",
                     "variables": "This tag is used to show the value of the selected variable."
                 },
                 "i18n": "i18n",
+                "iframe": "Iframe Message",
                 "internationalization": "Internationalization",
                 "limit": "Limit",
                 "parameters": "Parameters",
@@ -601,8 +711,28 @@
                 "activityGauge": {
                     "valuesTableHint": "Measures only."
                 },
+                "advancedSettings": "Advanced Settings",
+                "advancedSettingsErrorArrayIndexOutOfBounds": "Error applying property {property}, array index out of bounds!",
+                "advancedSettingsHint": "Advanced Settings Hint Placeholder",
+                "annotations": "Annotations",
+                "areaRangeHigh": "Area Range High",
+                "areaRangeLow": "Area Range Low",
+                "axisLines": {
+                    "crosshairColor": "Crosshair Color",
+                    "crosshairWidth": "Crosshair Width",
+                    "title": "Axis Line Details"
+                },
+                "axisTickSettings": {
+                    "endOnTick": "End On Tick",
+                    "endOnTickHint": "Whether to force the axis to end on a tick.",
+                    "showLastLabel": "Show Last Label",
+                    "showLastLabelHint": "Whether to show the last tick label.",
+                    "startOnTick": "Start On Tick",
+                    "startOnTickHint": "Whether to force the axis to start on a tick."
+                },
                 "bands": {
-                    "bandsHint": "An array of colored bands stretching across the plot area marking an interval on the axis. In a gauge, a plot band on the Y axis (value axis) will stretch along the perimeter of the gauge.",
+                    "bandsGaugeHint": "In a gauge, a plot band on the Y axis (value axis) will stretch along the perimeter of the gauge.",
+                    "bandsHint": "An array of colored bands stretching across the plot area marking an interval on the axis.",
                     "colorHint": "The color of the plot band.",
                     "fromHint": "The start position of the plot band in axis units.",
                     "thickness": "Thickness",
@@ -610,14 +740,55 @@
                     "title": "bands",
                     "toHint": "The end position of the plot band in axis units."
                 },
+                "barchart": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories. The item that precedes should have a lower granularity. If you enable grouping categories, you need to define exactly two categories. If you enable splitting serie using second category, you need to define exactly two categories and one serie. If you enable splitting serie using second serie, you need to define exactly one category and two series.",
+                    "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second serie, you need to define exactly two series. If you enable splitting serie using second category, you need to define exactly one serie."
+                },
+                "bubblechart": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories. If you want to use split function, you can select maximum 2 categories",
+                    "valuesTableHint": "Click on at least one measure to define series.",
+                    "xAndZAxesHint": "Click on exactly one measure to define series."
+                },
+                "centerText": {
+                    "hint": "Center Text Hint",
+                    "title": "Center Text"
+                },
+                "connector": {
+                    "connectorColor": "Connector color",
+                    "connectorWidth": "Connector width",
+                    "title": "Connector"
+                },
+                "datetype": "Date Type",
                 "dial": {
                     "dialBaseWitdh": "Dial Base Width",
                     "dialColor": "Dial Color",
                     "dialRadius": "Dial Radius",
                     "dialRadiusHint": "The radius or length of the dial, in percentages relative to the radius of the gauge itself."
                 },
+                "dumbbell": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories..",
+                    "endTableHint": "Click on exactly one measure to define series.",
+                    "startTableHint": "Click on exactly one measure to define series.."
+                },
+                "funnel": {
+                    "neck": "Neck",
+                    "neckHeight": "Neck Height",
+                    "neckHeightHint": "The height of the neck, the lower part of the funnel. A number defines pixel width, a percentage string defines a percentage of the plot area height",
+                    "neckWidth": "Neck Width",
+                    "neckWidthHint": "The width of the neck, the lower part of the funnel. A number defines pixel width, a percentage string defines a percentage of the plot area width."
+                },
                 "gauge": {
                     "valuesTableHint": "Measures only."
+                },
+                "grouping": {
+                    "groupByCategories": "Group by categories",
+                    "groupByCategoriesHint": "Option available only if you are not using datetime, splitting functions and 3d option.",
+                    "secondCategory": "Second Category",
+                    "secondCategoryHint": "Option available only if you are not using datetime and group by categories. You can use only one splitting function.",
+                    "secondCategoryToUse": "Series to use on second category options",
+                    "secondSerie": "Second Serie",
+                    "secondSerieHint": "Option available only if you are not using datetime and group by categories. You can use only one splitting function.",
+                    "title": "Grouping"
                 },
                 "heatmap": {
                     "axisMaxHint": "The minimum value of the axis. If null the min value is automatically calculated.",
@@ -633,11 +804,18 @@
                     "rotation": "Rotation",
                     "valuesTableHint": "Exactly one measure only to define series"
                 },
+                "jitter": {
+                    "title": "Jitter",
+                    "xAxisJitter": "X axis jitter",
+                    "yAxisJitter": "Y axis jitter"
+                },
                 "labels": {
                     "distance": "Distance",
                     "distanceHint": "The distance of the data label from the pie's edge. Negative numbers put the data label on top of the pie slices. Can also be defined as a percentage of pie's radius. Connectors are only shown for data labels outside the pie.",
                     "formatHint": "A format string for the data label. Available variables are the same as for formatter.",
-                    "formatterHint": "Callback JavaScript function to format the data label. Note that if a format is defined, the format takes precedence and the formatter is ignored."
+                    "formatterHint": "Callback JavaScript function to format the data label. Note that if a format is defined, the format takes precedence and the formatter is ignored.",
+                    "xAlignValueHint": "What part of the string the given position is anchored to. Can be one of \"left\", \"center\" or \"right\". The exact position also depends on the labels.x setting.",
+                    "xCoordinate": "X Coordinate"
                 },
                 "legend": {
                     "alignHint": "The horizontal alignment of the legend box within the chart area. Valid values are left, center and right. In the case that the legend is aligned in a corner position, the layout option will determine whether to place it above/below or on the side of the plot area.",
@@ -646,6 +824,39 @@
                     "layoutHint": "The layout of the legend items. Can be one of horizontal or vertical or proximate. When proximate, the legend items will be placed as close as possible to the graphs they're representing, except in inverted charts or when the legend position doesn't allow it.",
                     "verticalAlignHint": "The vertical alignment of the legend box. Can be one of top, middle or bottom. Vertical position can be further determined by the y option. In the case that the legend is aligned in a corner position, the layout option will determine whether to place it above/below or on the side of the plot area. When the layout option is proximate, the verticalAlign option doesn't apply."
                 },
+                "limit": {
+                    "direction": "Direction",
+                    "itemsNumber": "Maximum number of records",
+                    "sortBySerie": "Sort by Serie",
+                    "title": "Limit"
+                },
+                "lines": {
+                    "lineColor": "Line Color",
+                    "lineInterval": "Line Interval",
+                    "lineType": "Line Type",
+                    "linesHint": "An array of lines stretching across the plot area, marking a specific value on one of the axes.",
+                    "title": "Lines",
+                    "valueHint": "The position of the line in axis units.",
+                    "widthHint": "The width or thickness of the plot line."
+                },
+                "majorGridDetails": "Axis major grid details",
+                "marker": {
+                    "diamond": "Diamond",
+                    "endMarkerColor": "End Marker Color",
+                    "endMarkerRadius": "End Marker Radiues",
+                    "endMarkerType": "End Marker Type",
+                    "startMarkerColor": "Start Marker Color",
+                    "startMarkerRadius": "Start Marker Radiues",
+                    "startMarkerType": "Start Marker Type",
+                    "title": "Marker",
+                    "triangleDown": "Triangle down"
+                },
+                "minorGridDetails": "Axis minor grid details",
+                "packedBubble": {
+                    "groupTableHint": "Click on exactly one attribute to define group category",
+                    "labelTableHint": "Click on exactly one attribute to define label category",
+                    "valuesTableHint": "Click on exactly one measure to define series"
+                },
                 "paneSettings": {
                     "centralHorizontalPosition": "Centar Horizontal Position",
                     "centralVerticalPosition": "Centar Vertical Position",
@@ -653,6 +864,10 @@
                     "endAngleHint": "The end angle of the polar X axis or gauge value axis, given in degrees where 0 is north.",
                     "startAngle": "Start Angle",
                     "startAngleHint": "The start angle of the polar X axis or gauge axis, given in degrees where 0 is north."
+                },
+                "pictorial": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on exactly one measure to define series."
                 },
                 "piechart": {
                     "dimensionsTableHint": "Attributes only. Each different value in the selected column will create a different slice. If more than one dimension is present, the list will be the drill-down sequence.",
@@ -663,20 +878,75 @@
                     "pivotRadius": "Pivot Radius",
                     "pivotRadiusHint": "The pixel radius of the pivot."
                 },
+                "property": "Property",
                 "proximate": "Proximate",
+                "radar": {
+                    "dimensionsTableHint": "Click on at least one attribute to define categories If you enable splitting serie using second category, you need to define exactly two categories and one serie.",
+                    "valuesTableHint": "Click on at least one measure to define series. If you enable splitting serie using second category, you need to define exactly one serie."
+                },
+                "sankey": {
+                    "fromTableHint": "Click on exactly one attribute to define from category",
+                    "toTableHint": "Click on exactly one attribute to define to category",
+                    "valuesTableHint": "Click on exactly one measure to define series"
+                },
                 "scale": {
                     "maxHint": "The maximum value of the axis. If null, the max value is automatically calculated.",
                     "minHint": "The minimum value of the axis. If null the min value is automatically calculated."
                 },
+                "scatterJitter": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on at least one measure to define series."
+                },
+                "scatterchart": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories. Numerical values only.",
+                    "valuesTableHint": "Click on at least one measure to define series."
+                },
+                "showChekboxes": "Show Checkboxes",
                 "solidGauge": {
                     "valuesTableHint": "Measures only."
                 },
+                "sonification": {
+                    "duration": "Duration",
+                    "durationHint": "The total duration of the sonification, in milliseconds.",
+                    "order": "Order",
+                    "orderHint": "What order to play the data series in, either sequential where the series play individually one after the other, or simultaneous where the series play all at once.",
+                    "sequential": "Sequential",
+                    "simultaneous": "Simultaneous",
+                    "title": "Sonification"
+                },
+                "spline": {
+                    "dimensionsTableHint": "Click on at exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on at least two measures to define series."
+                },
+                "splitting": {
+                    "hint": "Options available only if you are not using datetime and Group by categories. You can use only one Splitting function.",
+                    "secondCategory": "Series to use on second category options",
+                    "title": "Serie splitting"
+                },
+                "stacking": {
+                    "normal": "Normal",
+                    "percent": "Percent",
+                    "title": "Stacking"
+                },
+                "stackingMode": "Stacking Mode",
                 "stops": {
                     "colorHint": "Solid gauge series only. Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
                     "relativePosition": "Relative Position",
                     "relativePositionHint": "Solid gauge series only. Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
                     "stopsHint": "Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
                     "title": "Stops"
+                },
+                "streamgraph": {
+                    "streamTableHint": "Click on exactly one attribute to define stream category",
+                    "valuesTableHint": "Click on exactly one measure to define series",
+                    "xTableHint": "Click on exactly one attribute to define x-axis category"
+                },
+                "svg": {
+                    "definition": "Definition",
+                    "error": "No path element with d attribute found in SVG file.",
+                    "hint": "SVG Hint Placeholder",
+                    "title": "SVG",
+                    "upload": "Upload SVG"
                 },
                 "tick": {
                     "minorTickInterval": "Minor Tick Interval",
@@ -695,6 +965,14 @@
                     "formatterHint": "Callback function to format the text of the tooltip from scratch. In case of single or shared tooltips, a string should be returned. In case of split tooltips, it should return an array where the first item is the header, and subsequent items are mapped to the points. Return false to disable tooltip for a specific point on series. A subset of HTML is supported. Unless useHTML is true, the HTML of the tooltip is parsed and converted to SVG, therefore this isn't a complete HTML renderer. The following HTML tags are supported: b, br, em, i, span, strong. Spans can be styled with a style attribute, but only text-related CSS, that is shared with SVG, is handled. The available data in the formatter differ a bit depending on whether the tooltip is shared or split, or belongs to a single point. In a shared/split tooltip, all properties except x, which is common for all points, are kept in an array, this.points.",
                     "pointFormatter": "Point Formatter",
                     "pointFormatterHint": "A callback function for formatting the HTML output for a single point in the tooltip. Like the pointFormat string, but with more flexibility."
+                },
+                "treemapchart": {
+                    "dimensionsTableHint": "Click on at least two attribute to define categories. The item that precedes should have a lower granularity.",
+                    "valuesTableHint": "Click on at exactly one measure to define series."
+                },
+                "waterfall": {
+                    "dimensionsTableHint": "Click on exactly one attribute to define categories.",
+                    "valuesTableHint": "Click on exactly one measure to define series."
                 }
             },
             "hint": "Select dataset",
@@ -743,6 +1021,10 @@
                 "enableClickOnSingleColumn": "Enable click on a single column",
                 "enableClickOnWholeRow": "Enable click on whole row",
                 "enableMultiselection": "Enable Multiselection",
+                "iframeInteractionHint": {
+                    "partOne": "Write the JSON message in the following editor. By clicking over the widget it will be propagated to a container window.",
+                    "partTwo": "You can use $P{parameterPlaceholder}, $V{variablePlaceholder} and {value} placeholder to retrieve dynamic data."
+                },
                 "json": "JSON",
                 "jwt": "JWT",
                 "link": "Link",
@@ -757,9 +1039,11 @@
                 "title": "Interactions"
             },
             "itemsPerPage": "Items per page",
+            "jsonLinkParsingError": "Error while parsing JSON link.",
             "legend": {
                 "title": "Legend"
             },
+            "line": "Line",
             "manualInput": "Manual input",
             "map": {
                 "addThreshold": "Add Threshold",
@@ -852,6 +1136,7 @@
                     "pies": "Pies"
                 }
             },
+            "menuConfiguration": "Menu Configuration",
             "noData": {
                 "title": "No data"
             },
@@ -868,9 +1153,10 @@
                 "paddingRight": "Padding Right",
                 "paddingTop": "Padding Top",
                 "title": "Padding",
-                "unlinkAllHint": "Unink all paddings"
+                "unlinkAllHint": "Unlink all paddings"
             },
             "pagination": "Pagination",
+            "paginator": "Paginator",
             "percentage": "Percentage",
             "pivot": {
                 "configuration": {
@@ -884,6 +1170,7 @@
                 },
                 "style": {
                     "columnHeaders": "Column Headers",
+                    "crossTabHeaders": "Cross Tab Headers",
                     "fieldHeaders": "Field Headers",
                     "rowHeaders": "Row Headers",
                     "subTotals": "SubTotals",
@@ -897,11 +1184,22 @@
             "position": "Position",
             "precision": "Precision",
             "prefix": "Prefix",
+            "python": {
+                "error": "Error loading Python widget.",
+                "outputFileName": "Output File Name",
+                "tagsDialog": {
+                    "hint": {
+                        "columnsData": "This tag is used to select a specific column from the selected dataset",
+                        "parameters": "This tag is used to choose an analytical driver from the ones available"
+                    }
+                }
+            },
             "radius": "Radius",
             "recentlyUsed": "Recently Used",
             "responsive": {
                 "extraLargeDevices": "Show On Extra Large Devices",
                 "extraSmallDevices": "Show On Extra Small Devices",
+                "fullGrid": "Show the widget at full grid dimension. (Only one widget per dashboard)",
                 "largeDevices": "Show On Large Devices",
                 "smallerDevices": "Show On Smaller Devices",
                 "tablets": "Show On Tablets",
@@ -933,6 +1231,9 @@
             "seriesAccessibility": {
                 "title": "Series Accessibility"
             },
+            "settings": {
+                "hint": "Select one of the <b>settings group</b> from the list on the left. You will then be able to select and customize single <b>properties</b> from your widget"
+            },
             "settingsListOptions": {
                 "tooltip": "Tooltip"
             },
@@ -959,6 +1260,7 @@
                 "wordPadding": "Word Padding"
             },
             "textParsingError": "Text Parsing Error",
+            "themeChangedWarning": "By changing one of the theme properties the connection to the theme is no longer active. If you want to inherit future theme changes select one of the available themes.",
             "thresholds": "Thresholds",
             "title": "Widget Editor",
             "titles": {
@@ -972,6 +1274,8 @@
                 "customHeader": "Custom Header",
                 "title": "Tooltips"
             },
+            "updateFromSelections": "Update From Selections",
+            "useAsResource": "Use as resource",
             "valuesManagement": {
                 "alwaysEnableValues": "Always Enable Values",
                 "alwaysEnableValuesHint": "Always enable values hint placeholder",
@@ -1006,6 +1310,9 @@
                 "onVariableValue": "On Variable Value",
                 "title": "Visibility Conditions"
             },
+            "visualisationType": {
+                "thresholdHint": "You must set the threshold in order to see the icon."
+            },
             "visualization": "Visualization",
             "visualizationOptions": {
                 "chart": "Chart",
@@ -1015,11 +1322,13 @@
             "visualizationType": {
                 "alignment": "Alignment",
                 "bar": "Bar",
+                "barAndText": "Bar & Text",
                 "pinned": "Pinned",
                 "sparkline": "Sparkline",
                 "textAndIcon": "Text & Icon",
                 "title": "Visualization Type"
             },
+            "widgetTheme": "Widget Theme",
             "xAxis": "X Axis",
             "yAxis": "Y Axis"
         },
@@ -1083,7 +1392,7 @@
         },
         "wizard": {
             "addDataset": "Add a new dataset to the dashboard",
-            "addWidget": "Add a new Widget to the dashboard"
+            "addWidget": "Add a new Widget to the sheet"
         }
     },
     "documentBrowser": {
@@ -1094,7 +1403,7 @@
         "closeCurrentDocument": "Close current document",
         "closeDocumentConfirmMessage": "Are you sure you want to continue?",
         "closeDocumentConfirmTitle": "You are closing {numberOfDocuments} documents.",
-        "closeDocumentRight": "Close documents on right",
+        "closeDocumentRight": "Close documents to the right",
         "closeOtherDocuments": "Close other documents",
         "deleteDocument": "Delete Document",
         "development": "Development",
@@ -1212,6 +1521,46 @@
             "deleteConfirm": "Are you sure you want to delete the selected activity?",
             "deleteSuccess": "Successfully deleted selected activity.",
             "deleteTitle": "Delete dossier activity",
+            "designerDialog": {
+                "closeConfirm": "Are you sure you want to close the designer? All changes will be lost.",
+                "closeTitle": "Close Designer",
+                "deviceScaleFactor": "Device scale factor",
+                "documentDriver": "Document driver: {driver}",
+                "dossierDriverName": "Dossier driver name",
+                "downloadable": "Downloadable",
+                "downloadableHint": "Enable the flag if you want the docx/pptx template to be downloadable from the dossier execution interface",
+                "driverLinkType": "Driver link type",
+                "driverNotHandled": "Placeholder {placeholderName}: Driver {driverName} is not handled",
+                "driversHelp": {
+                    "hint": "Select a mode for each document driver. <br/><ol><li>Static: you will manually set all the parameter configuration</li><li>Dynamic: you will link a document driver to one of the dossier</li><li>Inherit: the document driver will be linked to an existing one in the dossier (if any) or imported as a new one</li></ol>"
+                },
+                "errorDuringValidation": "The uploaded template is not valid for the dossier document",
+                "inherit": "Inherit",
+                "linkTo": "Link to",
+                "linkToDocumentDriverPart": " or setting values for the driver parameters",
+                "linkToDocumentHint": "Select the document to attach it to the placeholder. Then choose the link type and proceed using a saved view ",
+                "noDocumentLinkedToThePlaceholder": "No document linked to the placeholder",
+                "noPlaceholdersFound": "The uploaded document doesn't contain placeholders accordingly to the prefix. Please, try again with another document",
+                "noPlaceholdersHint": "No placeholder selected. Click on a list element to select one.",
+                "noViewsAvailable": "No views available",
+                "placeholders": "Placeholders",
+                "prefixHint": "This prefix will be used case sensitive to search for images within the template",
+                "resetPlaceholder": "Reset placeholder",
+                "saveAndRun": "Save and run",
+                "sheetHeight": "Sheet Height (px)",
+                "sheetWidth": "Sheet width (px)",
+                "step0": {
+                    "info": "Upload the template for the dossier and set the prefix to use to search for images within",
+                    "title": "Dossier designer - Upload file and choose the prefix for images"
+                },
+                "step1": {
+                    "title": "Dossier designer - Hook placeholders to documents"
+                },
+                "templateFile": "Template file",
+                "uploadable": "Uploadable",
+                "uploadableHint": "Enable the flag if you want the docx/pptx template to be uploadable from the dossier execution interface",
+                "urlName": "Url name"
+            },
             "downloadMissingError": "Download ERROR - Document is missing",
             "downloadTemplate": "Download document template",
             "headers": {
@@ -1231,9 +1580,10 @@
             "uploadTemplate": "Upload document template"
         },
         "main": {
+            "addToMyRepository": "Add To My Repository",
             "addToWorkspace": "Add to my workspace",
             "addToWorkspaceError": "This document cannot be added to Workspace. It already exists in the root folder of the Organizer",
-            "asFinalUser": "As a final user",
+            "cacheCleared": "Cache succesfully cleared",
             "clearCache": "Clear cache",
             "closeDocumentConfirmMessage": "You are leaving edit mode. Continue?",
             "closeDocumentConfirmTitle": "Close Document",
@@ -1253,21 +1603,37 @@
             "firstToRate": "Be the first rating this document",
             "inFullScreen": "In full-screen",
             "linkToDocument ": "Link to document",
+            "newSavedView": "New Saved View",
             "parameterClearTooltip": "Reset to default value",
+            "publicExecution": "Public Execution",
             "publicUrlExecutionDisabled": "Current document cannot be executed by public user",
             "rankSaveSucces": "Rating Saved.Thanks for your feedback",
             "replyToHint": "Enter \"reply to\" if you want to set the sender.",
+            "resetParameters": "Reset Parameters",
             "resetParametersTooltip": "Reset parameters form to default values",
+            "saveCurrentView": "Save Current View",
             "saveParametersFromStateTooltip": "Save parameters form state as viewpoint",
+            "saveViewHint": "Saved views will save your current parameters, selection and widget settings in order to easily reopen the same result. They will be saved in the \"My Analysis space\" of your workspace",
             "savedParameters": "Saved parameters",
             "savedParametersTooltip": "Open saved parameters window",
+            "savedViews": "Saved Views",
+            "savedViewsList": "Saved Views List",
             "scheduledExecutions": "Scheduled executions",
+            "seeAsEditor": "See as an Editor",
+            "seeAsFinalUser": "See as final user",
+            "seeAsFinalUserWarning": "You are experiencing the dashboard as a final user. Remember to switch to \"Use as an editor\" to make your changes",
             "selectFileError": "Select a file to Upload!",
             "sendEmailMessage": "Enter user / password if you want to send the email with your user, remember that it must exist in the mail server.",
+            "shareQRCode": "Share QR Code",
+            "showMenu": "Show Menu",
             "showOLAPCustomView": "Show OLAP Custom View",
             "showScheduledExecutions": "Show scheduled executions",
+            "showToolbar": "Show Toolbar",
+            "urlCopiedToClipboard": "Url copied to clipboard",
             "userRoleError": "User does not have valid roles for the execution of the selected document",
             "viewCockpit": "View cockpit document",
+            "viewVisibilityHint": "View Visibility Hint Placeholder",
+            "views": "Views",
             "yourRating": "Your rating"
         },
         "olap": {
@@ -1725,14 +2091,19 @@
         }
     },
     "language": {
+        "bg_BG": "Bulgarian",
         "de_DE": "German",
         "en_GB": "english (GB)",
         "en_US": "english (US)",
         "es_ES": "espanol",
         "fr_FR": "french",
         "it_IT": "italian",
+        "ja_JP": "Japanese",
+        "ko_KR": "Korean",
         "languageSelection": "Language Selection",
-        "pt_BR": "portuguese",
+        "pt_BR": "Portuguese",
+        "ru_RU": "Russian",
+        "tr_TR": "Turkish",
         "zh_CN_#Hans": "Chinese (simplified)"
     },
     "licenseDialog": {
@@ -1897,7 +2268,7 @@
         "categoriesManagement": {
             "code": "Category code",
             "name": "Category name",
-            "occurrences": "Used by",
+            "occurences": "Used by",
             "title": "Categories Management",
             "type": "Type"
         },
@@ -1956,6 +2327,43 @@
             "title": "Cross Navigation",
             "width": "Window width",
             "widthHelp": "Width in px of the popup window."
+        },
+        "dashboardThemeManager": {
+            "scrollToWidget": "Find Widget in Preview",
+            "styleTypes": {
+                "background": "Background",
+                "borders": "Borders",
+                "chips": "Chips",
+                "columnGroups": "Column Groups",
+                "columns": "Columns",
+                "fieldHeaders": "Field Headers",
+                "fields": "Fields",
+                "headers": "Headers",
+                "label": "Label",
+                "padding": "Padding",
+                "paginator": "Paginator",
+                "rows": "Rows",
+                "shadows": "Shadows",
+                "subTotals": "SubTotals",
+                "summary": "Summary",
+                "title": "Title",
+                "totals": "Totals"
+            },
+            "widgetNames": {
+                "activeSelections": "Active Selections",
+                "chart": "Chart",
+                "customChart": "Custom Chart",
+                "discovery": "Discovery",
+                "html": "HTML",
+                "image": "Image",
+                "map": "Map",
+                "pivot": "Pivot",
+                "python": "Python",
+                "r": "R",
+                "selector": "Selector",
+                "table": "Table",
+                "text": "Text"
+            }
         },
         "dataSourceManagement": {
             "form": {
@@ -2058,7 +2466,6 @@
             "helpTitle": "Help",
             "hint": "Dataset management allows you to manage and create datasets to use inside Knowage. You can select the type, the query and all related settings. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "isPersisted": "Persist",
-            "isPersistedHDFS": "Exportable on HDFS",
             "isScheduled": "Schedule",
             "jsonPathAttributes": "JSON Path Attributes",
             "jsonPathValue": "JSON Path Value",
@@ -2338,6 +2745,26 @@
             "synchronize": "Synchronize",
             "technical": "Technical"
         },
+        "importExportDocs": {
+            "date": "Filter after Date",
+            "dev": "Development",
+            "driverName": "Driver Name",
+            "export": {
+                "EXPORT_BIRT": "Export BIRT translations",
+                "EXPORT_RELATED_DOCS": "Export related documents",
+                "EXPORT_SCHEDULER": "Export Schedule configurations",
+                "EXPORT_SELECTED_FUNCTIONALITY": "Export the document only in the selected functionality",
+                "EXPORT_SNAPSHOT": "Export Scheduled documents",
+                "EXPORT_SUB_OBJ": "Export Olap customized View"
+            },
+            "fileUploadFail": "Error uploading file, please try again.",
+            "fileUploadSuccess": "is uploaded correctly, you can move to the next step.",
+            "importComplete": "Import completed successfully.",
+            "rel": "Released",
+            "status": "Filter by Status",
+            "test": "Test",
+            "title": "Import/Export Documents"
+        },
         "internationalizationManagement": {
             "defaultLanguage": "(Default)",
             "delete": {
@@ -2416,6 +2843,7 @@
             "preview": "Preview",
             "profileAttributes": "Profile Attributes",
             "profileDependencyText": "The lov needs some profile attributes.Your personal profile doesn't contain all the necessary attributes.To proceed with the test assign a value to the missing profile attributes.",
+            "queryColumnsNameNotAllowed": "Column names including null, ' ' , '/' and '.'  are not allowed. Use aliases.",
             "queryDefinition": "Query definition",
             "queryWizard": "WIZARD QUERY",
             "sameLabelError": "LOV with same label already exists",
@@ -2603,6 +3031,12 @@
             }
         },
         "rolesManagement": {
+            "authGroups": {
+                "dashboard": "Dashboard",
+                "documentExecutionToolbar": "Document Execution Toolbar",
+                "menuConfiguration": "Menu Configuration",
+                "workspace": "Workspace"
+            },
             "authorizations": {
                 "buildQbe": "Build QbE Queries",
                 "copyAndEmbed": "Copy and Embed link",
@@ -2615,6 +3049,9 @@
                 "datasetPersistence": "Dataset Persistence",
                 "doMassiveExport": "Do massive export",
                 "editPythonScripts": "Edit Python/R Scripts",
+                "enableDashboardThemeManagement": "Enable Dashboard Theme Management",
+                "enableDataPreparation": "Enable Data Preparation",
+                "enableDossier": "Enable Dossier",
                 "federatedDataset": "Federated Dataset",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
@@ -2635,6 +3072,7 @@
                 "saveOlapView": "Save OLAP View",
                 "saveRemember": "Save to remember",
                 "seeFavourites": "See favourites",
+                "seeHelpOnline": "See Help Online",
                 "seeSubobj": "See subobject",
                 "seeSubscriptions": "See subscriptions",
                 "seeToDoList": "See ToDo list",
@@ -2777,6 +3215,7 @@
             "title": "Scheduler",
             "triggerAlreadyPresent": "Trigger already existing with this name",
             "uniqueMail": "Send unique mail for all scheduled document (use this tab mail settings)",
+            "uniqueMailSelectedInfo": "A unique mail has been set for all scheduled document, so the settings from that tab will be used. Different settings set in here will be applied over.",
             "useDatasetList": "Use a DataSet as recipients' list",
             "useDatasetListHelp": "Recipients list will be retrieved by the specified dataset: this dataset should be a 2-columns dataset, the former to contain the parameter value to be matched with the specified parameter, the latter to contain a email address.",
             "useExpression": "Use an expression",
@@ -2819,6 +3258,10 @@
                 "title": "Data Source"
             },
             "detail": {
+                "logo": "Tenant Logo",
+                "logoHint": "The company/product logo, visible on the menu bar. If not present the default Knowage \"K\" will be shown.",
+                "logoWide": "Tenant Logo Wide",
+                "logoWideHint": "This logo will be used within dashboards XLSX exports. If no image is provided it will not be visible in those instances. The images should be below 200KB and in jpg or png format.",
                 "theme": "Theme",
                 "title": "Detail"
             },
@@ -2888,6 +3331,7 @@
         "widgetGallery": {
             "deleteTemplate": "Delete template",
             "downloadTemplate": "Download template",
+            "fieldIsMandatory": "{field} is mandatory",
             "hint": "The templates allow you to access ready-made elements to proceed more quickly to the creation of dashboards. To view the details of a template, select one of those on the side, or press the \"+\" button to add or import one.",
             "importTemplate": "Import template",
             "newTemplate": "New template",
@@ -2905,7 +3349,6 @@
             "templateSuccessfullySaved": "@:managers.widgetGallery.templateSuccessfully saved",
             "templateSuccessfullyUploaded": "@:managers.widgetGallery.templateSuccessfully uploaded",
             "title": "Gallery management",
-            "fieldIsMandatory": "{field} is mandatory",
             "uploadTemplate": "Upload template"
         },
         "workspaceManagement": {
@@ -3295,9 +3738,15 @@
     },
     "role": {
         "defaultRolePlaceholder": "No default role selected",
+        "mandatoryRoleWarning": "Role selection is mandatory. Select a role to proceed.",
         "roleSelection": "Role Selection"
     },
+    "unauthorized": {
+        "invalidRequest": "The sent request is not valid",
+        "outsideIframe": "You are not allowed to access Knowage from outside the application"
+    },
     "workspace": {
+        "addViewFolderHint": "Please add at least one folder in your workspace.",
         "advancedData": {
             "chooseDataset": "Choose dataset",
             "title": "Data preparation"
@@ -3396,6 +3845,7 @@
                 "clone": "Clone Document",
                 "delete": "Delete Document",
                 "edit": "Edit Document",
+                "editTemplate": "Edit template",
                 "share": "Share Document",
                 "showDsDetails": "Show dataset details",
                 "unshare": "Unshare Document",
@@ -3437,10 +3887,12 @@
             "userRoleError": "User does not have valid roles for the execution of the selected model"
         },
         "myRepository": {
+            "deleteView": "Delete View",
             "destinationFolder": "Destination folder",
             "folderCreatedMessage": "Folder is created and added to the current path",
             "folderDeleteError": "Folder could not be deleted. It contains at least one subfolder or at least one document",
             "moveDocument": "Move Document",
+            "moveView": "Move View",
             "newFolderTitle": "Create new folder"
         },
         "recent": {

@@ -103,7 +103,7 @@ export default defineComponent({
         async loadTarget() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpiee/' + this.id + '/loadTarget')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpiee/' + this.id + '/loadTarget')
                 .then((response: AxiosResponse<any>) => {
                     this.target = {
                         id: this.clone == 'true' ? null : response.data.id,
@@ -132,7 +132,7 @@ export default defineComponent({
             this.loadingAllKpi = true
             this.filteredKpi = []
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpi/listKpi')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpi/listKpi')
                 .then(
                     (response: AxiosResponse<any>) =>
                         (this.filteredKpi = response.data
@@ -153,7 +153,7 @@ export default defineComponent({
                 .finally(() => (this.loadingAllKpi = false))
         },
         async loadCategory() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/domains/listByCode/KPI_TARGET_CATEGORY').then((response: AxiosResponse<any>) => (this.categories = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/domains/listByCode/KPI_TARGET_CATEGORY').then((response: AxiosResponse<any>) => (this.categories = response.data))
         },
         async saveTemplate() {
             if (this.kpi.length < 1) {
@@ -169,7 +169,7 @@ export default defineComponent({
         },
         async handleSubmit() {
             this.categoryDialogVisiable = false
-            const url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpiee/saveTarget'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpiee/saveTarget'
 
             this.target.values = this.kpi.map((kpi: iValues) => {
                 return {

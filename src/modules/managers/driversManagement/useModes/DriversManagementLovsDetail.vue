@@ -27,7 +27,7 @@
                 <label for="desc" class="kn-material-input-label">{{ $t('common.description') }} </label>
             </span>
         </div>
-        <VCodeMirror v-if="codeMirrorVisiable" ref="codeMirror" v-model:value="code" class="p-mt-2" :options="options" :auto-height="true" />
+        <knMonaco v-if="editorVisible" ref="editor" v-model="code" style="height: 400px" :language="language"></knMonaco>
         <DataTable v-if="selectedLov.itypeCd === 'FIX_LOV'" :value="rows" class="p-datatable-sm kn-table" responsive-layout="stack">
             <template #empty>
                 {{ $t('common.info.noDataFound') }}
@@ -53,17 +53,16 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import useModeDescriptor from './UseModesDescriptor.json'
-// eslint-disable-next-line
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
 import { decode } from 'js-base64'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 export default defineComponent({
     name: 'lovs-detail',
     components: {
-        VCodeMirror,
         Column,
-        DataTable
+        DataTable,
+        knMonaco
     },
     props: {
         lov: {
@@ -75,44 +74,26 @@ export default defineComponent({
     data() {
         return {
             selectedLov: {} as any,
+            language: 'sql',
             useModeDescriptor,
             code: '',
             rows: [],
-            codeMirror: {} as any,
-            codeMirrorVisiable: false,
+            editorVisible: false,
             label: null,
-            name: null,
-            options: {
-                mode: 'text/x-mysql',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true,
-                readOnly: true
-            }
+            name: null
         }
     },
     watch: {
         lov() {
             this.selectedLov = { ...this.lov }
             this.decode()
-            this.setupCodeMirror()
         }
     },
     mounted() {
         this.selectedLov = { ...this.lov }
         this.decode()
-        this.setupCodeMirror()
     },
     methods: {
-        setupCodeMirror() {
-            if (this.$refs.codeMirror) {
-                this.codeMirror = (this.$refs.codeMirror as any).cminstance as any
-            }
-        },
         escapeXml(value: string) {
             return value
                 .replace(/'/g, "'")
@@ -124,25 +105,25 @@ export default defineComponent({
         },
         decode() {
             if (this.selectedLov.itypeCd === 'QUERY') {
-                this.codeMirrorVisiable = true
-                this.options.mode = 'text/x-mysql'
+                this.editorVisible = true
+                this.language = 'sql'
                 const x = JSON.parse(this.lov?.lovProviderJSON)
                 this.code = this.escapeXml(decode(x.QUERY.STMT))
             } else if (this.selectedLov.itypeCd === 'SCRIPT') {
-                this.codeMirrorVisiable = true
-                this.options.mode = 'text/javascript'
+                this.editorVisible = true
+                this.language = 'javascript'
                 const x = JSON.parse(this.lov?.lovProviderJSON)
                 this.code = this.escapeXml(decode(x.SCRIPTLOV.SCRIPT))
             } else if (this.selectedLov.itypeCd === 'FIX_LOV') {
-                this.codeMirrorVisiable = false
+                this.editorVisible = false
                 const x = JSON.parse(this.lov?.lovProviderJSON)
                 Array.isArray(x.FIXLISTLOV.ROWS.ROW) ? (this.rows = x.FIXLISTLOV.ROWS.ROW) : (this.rows = Object.values(x.FIXLISTLOV.ROWS))
             } else if (this.selectedLov.itypeCd === 'DATASET') {
-                this.codeMirrorVisiable = false
+                this.editorVisible = false
                 const x = JSON.parse(this.lov?.lovProviderJSON)
                 this.label = x.DATASET.LABEL
             } else if (this.selectedLov.itypeCd === 'JAVACLASS') {
-                this.codeMirrorVisiable = false
+                this.editorVisible = false
                 const x = JSON.parse(this.lov?.lovProviderJSON)
                 this.label = x.JAVACLASS.label
                 this.name = x.JAVACLASS.name

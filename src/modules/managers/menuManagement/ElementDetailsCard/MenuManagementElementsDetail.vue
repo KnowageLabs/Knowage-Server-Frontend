@@ -31,7 +31,7 @@
                                 <span class="p-float-label">
                                     <InputText id="descr" v-model.trim="v$.menuNode.descr.$model" type="text" class="p-inputtext p-component kn-material-input" aria-describedby="descr-help" @blur="onDataChange(v$.menuNode.descr)" />
                                     <Button v-if="isIconSelectorShown(menuNode) && (menuNode.icon != null || menuNode.custIcon != null)" icon="pi pi-times" @click="clearSelectedIcon" />
-                                    <Button v-if="isCustomIconShown(menuNode)"><img style="max-height: 26px; max-width: 26px" :src="selectedIcon" /></Button>
+                                    <Button v-if="isCustomIconShown(menuNode)"><img style="max-height: 26px; max-width: 26px" :src="menuNode.custIcon.src" /></Button>
                                     <Button v-if="isFaIconShown(menuNode)" style="display: inline-flex; justify-content: center"><i :class="selectedIcon"></i></Button>
                                     <Button v-if="isIconSelectorShown(menuNode)" class="p-button" @click="openFontAwesomeSelectionModal()">{{ $t('managers.menuManagement.chooseIcon').toUpperCase() }}</Button>
                                     <label for="descr">{{ $t('managers.menuManagement.description') }} *</label>
@@ -41,7 +41,7 @@
                             <KnValidationMessages :v-comp="v$.menuNode.descr" :additional-translate-params="{ fieldName: $t('managers.menuManagement.description') }"></KnValidationMessages>
                         </div>
 
-                        <FontAwesomePicker :show-modal="chooseIconModalShown" @chooseIcon="onChoosenIcon" @closeFontAwesomeModal="closeFontAwesomeSelectionModal"></FontAwesomePicker>
+                        <kn-icon-picker v-if="chooseIconModalShown" :enable-base64="true" :current-icon="selectedIcon" @save="onChoosenIcon" @close="closeFontAwesomeSelectionModal"></kn-icon-picker>
 
                         <div class="p-field p-mb-5">
                             <div class="p-inputgroup">
@@ -164,7 +164,7 @@ import Dialog from 'primevue/dialog'
 import RelatedDocumentList from '../RelatedDocumentsList/MenuManagementRelatedDocumentList.vue'
 import RolesCard from '../RolesCard/MenuManagementRolesCard.vue'
 import DocumentBrowserTree from '../DocumentBrowserTree/MenuManagementDocumentBrowserTree.vue'
-import FontAwesomePicker from '../IconPicker/IconPicker.vue'
+import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import MenuConfigurationDescriptor from '../MenuManagementDescriptor.json'
 import MenuConfigurationValidationDescriptor from './MenuManagementValidationDescriptor.json'
@@ -173,7 +173,7 @@ import mainStore from '../../../../App.store'
 
 export default defineComponent({
     name: 'profile-attributes-detail',
-    components: { Dropdown, DocumentBrowserTree, RelatedDocumentList, KnValidationMessages, Dialog, FontAwesomePicker, RolesCard },
+    components: { Dropdown, DocumentBrowserTree, RelatedDocumentList, KnIconPicker, KnValidationMessages, Dialog, RolesCard },
     props: { roles: { type: Array }, selectedMenuNode: { type: Object, required: true }, selectedRoles: { type: Array }, staticPagesList: { type: Array }, menuNodes: { type: Array }, parentNodeRoles: { type: Array } },
     emits: ['refreshRecordSet', 'closesForm', 'dataChanged'],
     setup() {
@@ -183,7 +183,7 @@ export default defineComponent({
     data() {
         return {
             v$: useValidate() as any,
-            apiUrl: import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/',
+            apiUrl: import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/',
             menuNode: {} as iMenuNode,
             loading: false as boolean,
             hideForm: false as boolean,
@@ -198,7 +198,7 @@ export default defineComponent({
             chooseIconModalShown: false as boolean,
             relatedDocuments: [],
             selectedRelatedDocument: null as string | null,
-            selectedIcon: null as string | null,
+            selectedIcon: undefined as string | undefined,
             selectedFunctionality: {},
             menuNodeContent: MenuConfigurationDescriptor.menuNodeContent,
             workspaceOptions: MenuConfigurationDescriptor.workspaceOptions,
@@ -345,24 +345,16 @@ export default defineComponent({
                 unicode: null,
                 category: 'custom',
                 label: 'logo.png',
-                src: base64image,
+                src: base64image.image,
                 visible: true
             }
             this.selectedIcon = base64image
         },
         onChoosenIcon(choosenIcon) {
-            if (typeof choosenIcon == 'string') {
+            if (choosenIcon.category === 'custom') {
                 this.setBase64Image(choosenIcon)
             } else {
-                this.menuNode.icon = {
-                    id: choosenIcon.id,
-                    className: `fa-${choosenIcon.membership.free[0] || 'solid'} fa-${choosenIcon.id}`,
-                    unicode: choosenIcon.unicode,
-                    category: 'solid',
-                    label: '',
-                    src: null,
-                    visible: true
-                }
+                this.menuNode.icon = choosenIcon
 
                 this.menuNode.custIcon = null
                 this.selectedIcon = this.menuNode.icon.className
@@ -431,11 +423,11 @@ export default defineComponent({
 
             if (menuNode.custIcon != null) {
                 //var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-                this.selectedIcon = menuNode.custIcon.src
+                this.selectedIcon = menuNode.custIcon.src || undefined
             } else if (menuNode.icon != null) {
                 this.selectedIcon = menuNode.icon.className
             } else {
-                this.selectedIcon = null
+                this.selectedIcon = undefined
             }
             if (this.menuNode.functionality != null) {
                 this.menuNode.menuNodeContent = 4

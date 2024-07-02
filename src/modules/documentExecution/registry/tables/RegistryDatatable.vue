@@ -62,11 +62,7 @@ export default defineComponent({
             rows: [] as any[],
             configuration: {} as any,
             comboColumnOptions: {} as any,
-            buttons: {
-                enableButtons: false,
-                enableDeleteRecords: false,
-                enableAddRecords: false
-            },
+            buttons: {} as any,
             lazyParams: {} as any,
             dependentColumns: [] as any[],
             selectedRow: null as any,
@@ -95,10 +91,14 @@ export default defineComponent({
             return (column) => (column.isEditable ? column.format || primeVueDate() : localeDate())
         },
         deleteButtonEnabled(): boolean {
-            return this.buttons.enableButtons && this.buttons.enableDeleteRecords
+            const enableDeleteRecords = Object.prototype.hasOwnProperty.call(this.buttons, 'enableDeleteRecords')
+            if (enableDeleteRecords) return this.buttons.enableDeleteRecords
+            else return this.buttons.enableButtons
         },
         addButtonEnabled(): boolean {
-            return this.buttons.enableButtons && this.buttons.enableAddRecords
+            const enableAddRecords = Object.prototype.hasOwnProperty.call(this.buttons, 'enableAddRecords')
+            if (enableAddRecords) return this.buttons.enableAddRecords
+            else return this.buttons.enableButtons
         }
     },
     watch: {
@@ -247,7 +247,7 @@ export default defineComponent({
             }
         },
         addColumnCheckboxRendererProps(el) {
-            if (el.editorType == 'TEXT' && el.columnInfo.type === 'boolean') {
+            if (el.editorType == 'TEXT' && el.columnInfo?.type === 'boolean') {
                 el.cellRenderer = (params) => {
                     return `<i class="fas fa-${params.value ? 'check' : 'times'}"/>`
                 }
@@ -264,7 +264,7 @@ export default defineComponent({
                 el.valueFormatter = (params) => {
                     return this.getFormattedDateTime(params.value, { dateStyle: 'short', timeStyle: 'medium' }, true)
                 }
-            } else if (['int', 'float', 'decimal', 'long'].includes(el.columnInfo.type)) {
+            } else if (['int', 'float', 'decimal', 'long'].includes(el.columnInfo?.type)) {
                 el.valueFormatter = (params: any) => {
                     let configuration = { useGrouping: false, minFractionDigits: 0, maxFractionDigits: 0 } as { useGrouping: boolean; minFractionDigits: number; maxFractionDigits: number } | null
                     configuration = formatRegistryNumber(el)
@@ -320,7 +320,7 @@ export default defineComponent({
                 postData.append('DEPENDENCES', this.entity + subEntity + ':' + column.dependences + '=' + row[column.dependences])
             }
             await this.$http
-                .post(`/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
                 .then((response: AxiosResponse<any>) => (this.comboColumnOptions[column.field][row[column.dependences] ?? 'All'] = response.data.rows))
             this.gridApi?.hideOverlay()
         },
@@ -387,7 +387,8 @@ export default defineComponent({
             const newRow = { uniqueId: cryptoRandomString({ length: 16, type: 'base64' }), id: this.rows.length + 1, isNew: true }
             this.columns.forEach((el: any) => {
                 if (el.isVisible && el.field && el.field !== 'id') {
-                    newRow[el.field] = el.defaultValue ?? ''
+                    if (el.defaultValue) newRow[el.field] = el.defaultValue
+                    else newRow[el.field] = ['int', 'float', 'double'].includes(el.columnInfo.type) ? 0 : ''
                 }
             })
             this.addRowToFirstPosition(newRow)
@@ -403,7 +404,7 @@ export default defineComponent({
                 tempRow.isNew = true
                 delete tempRow.id
                 if (this.keyColumnName) tempRow[this.keyColumnName] = ''
-				this.columns.filter((x) => x.isAudit).forEach((column) => delete tempRow[column.field])
+                this.columns.filter((x) => x.isAudit).forEach((column) => delete tempRow[column.field])
                 this.addRowToFirstPosition(tempRow)
                 this.$emit('rowChanged', tempRow)
             })
@@ -578,7 +579,7 @@ export default defineComponent({
             this.setInfo({ title: this.$t('common.error.generic'), msg: message })
         },
         getCellType(colDef) {
-            if (colDef.editorType == 'TEXT' && colDef.columnInfo.type === 'boolean') return 'checkbox'
+            if (colDef.editorType == 'TEXT' && colDef.columnInfo?.type === 'boolean') return 'checkbox'
             if (colDef.editorType !== 'COMBO' && colDef.columnInfo?.type !== 'date' && colDef.columnInfo?.type !== 'timestamp' && setInputDataType(colDef.columnInfo?.type) === 'text') return 'text'
             if (colDef.editorType !== 'COMBO' && colDef.columnInfo?.type !== 'date' && colDef.columnInfo?.type !== 'timestamp' && setInputDataType(colDef.columnInfo?.type) === 'number') return 'number'
             if (colDef.editorType === 'COMBO') return 'dropdown'

@@ -2,11 +2,28 @@ import { IDrillOrderItem, IHighchartsDrilldown } from './interfaces/highcharts/D
 import { IPivotFields } from './interfaces/pivotTable/DashboardPivotTableWidget'
 
 export interface IDashboard {
-    sheets: []
+    sheets: IDashboardSheet[]
     widgets: IWidget[]
     configuration: IDashboardConfiguration
-    version: string,
+    version: string
     allDatasetsLoaded?: boolean
+}
+
+export interface IDashboardSheet {
+    id: string
+    index: number
+    label: string
+    widgets: { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }
+}
+
+export interface IWidgetSheetItem {
+    id: string
+    h: number
+    i: string
+    w: number
+    x: number
+    y: number
+    moved: boolean
 }
 
 export interface IDashboardConfiguration {
@@ -14,11 +31,15 @@ export interface IDashboardConfiguration {
     name: string
     label: string
     description: string
+    cssToRender: string
     associations: IAssociation[]
     datasets: IDashboardDataset[]
     variables: IVariable[]
     selections: ISelection[]
-    themes: any
+    theme: any
+    background: IBackground
+    menuWidgets: IMenuAndWidgets
+    customHeader?: IWidget | null
 }
 
 export interface IDatasetParameter {
@@ -42,6 +63,10 @@ export interface IWidget {
     new?: boolean
     fields?: IPivotFields
     layers?: any
+    state?: any
+    search?: any
+    invalid?: any
+    locked?: boolean
 }
 
 export interface ITableWidgetSettings {
@@ -66,7 +91,7 @@ export interface ITableWidgetConditionalStyles {
 
 export interface ITableWidgetConditionalStyle {
     target: string
-    applyToWholeRow: boolean
+    applyToWholeRow?: boolean
     condition: {
         type: string
         variable?: string
@@ -78,6 +103,7 @@ export interface ITableWidgetConditionalStyle {
         formula?: string
     }
     properties: {
+        'text-align': string
         'justify-content': string
         'font-family': string
         'font-size': string
@@ -173,6 +199,7 @@ export interface IWidgetInteractions {
     preview?: IWidgetPreview
     selection?: IWidgetSelection
     drilldown?: IHighchartsDrilldown
+    iframe?: IFrameInteractionSettings
 }
 
 export interface IWidgetCrossNavigation {
@@ -209,6 +236,7 @@ export interface IWidgetInteractionParameter {
     driver?: string
     dataset?: string
     json?: string
+    useAsResource?: boolean
 }
 
 export interface IWidgetPreview {
@@ -233,6 +261,15 @@ export interface IWidgetSelection {
     }
 }
 
+export interface IFrameInteractionSettings {
+    enabled: boolean
+    type: string
+    column: string
+    icon?: string
+    label?: string
+    json: string
+}
+
 export interface ITableWidgetPagination {
     enabled: boolean
     properties: {
@@ -243,16 +280,18 @@ export interface ITableWidgetPagination {
 }
 
 export interface ITableWidgetStyle {
-    title: IWidgetTitle
-    borders: IWidgetBordersStyle
+    themeName: string
     columns: ITableWidgetColumnStyles
     columnGroups: ITableWidgetColumnStyles
     headers: ITableWidgetHeadersStyle
-    padding: IWidgetPaddingStyle
     rows: IWidgetRowsStyle
-    shadows: IWidgetShadowsStyle
     summary: ITableWidgetSummaryStyle
+    paginator: ITableWidgetPaginatorStyle
+    title: IWidgetTitle
     background: IWidgetBackgroundStyle
+    borders: IWidgetBordersStyle
+    padding: IWidgetPaddingStyle
+    shadows: IWidgetShadowsStyle
 }
 
 export interface IWidgetBordersStyle {
@@ -339,6 +378,12 @@ export interface ITableWidgetSummaryStyle {
     'justify-content': string
 }
 
+export interface ITableWidgetPaginatorStyle {
+    color: string
+    'background-color': string
+    'justify-content': string
+}
+
 export interface ITableWidgetTooltipStyle {
     target: string | string[]
     enabled: boolean
@@ -398,11 +443,12 @@ export interface ITableWidgetVisibilityCondition {
 }
 
 export interface IWidgetResponsive {
+    fullGrid: boolean
+    xxs: boolean
     xs: boolean
     sm: boolean
     md: boolean
     lg: boolean
-    xl: boolean
 }
 
 export interface IWidgetColumn {
@@ -420,6 +466,8 @@ export interface IWidgetColumn {
     drillOrder?: IDrillOrderItem
     orderType?: string
     sort?: string
+    serieType?: string
+    axis?: string
 }
 
 export interface IWidgetColumnFilter {
@@ -437,6 +485,7 @@ export interface IDashboardDataset {
     parameters?: any[]
     drivers?: IDashboardDatasetDriver[]
     indexes?: any[]
+    frequency?: number
 }
 
 export interface IDashboardDatasetDriver {
@@ -458,12 +507,10 @@ export interface IDashboardDatasetDriver {
 }
 
 export interface IWidgetPickerType {
-    cssClass: string
-    descKey: string
-    img: string
+    description: string
     name: string
-    tags: Array<string>
     type: string
+    functionality?: string
 }
 
 export interface IDatasetOptions {
@@ -566,6 +613,23 @@ interface IAssociation {
     }
 }
 
+interface IBackground {
+    sheetsBackgroundColor: string
+    imageBackgroundUrl: string
+    imageBackgroundSize: string
+    showGrid: boolean
+}
+
+interface IMenuAndWidgets {
+    showExcelExport: boolean
+    showScreenshot: boolean
+    showSelectionButton: boolean
+    enableChartChange: boolean
+    enableCaching: boolean
+    enableCustomHeader: boolean
+    enableWidgetMenu: boolean
+}
+
 interface IAssociationField {
     column: string
     dataset: number
@@ -600,6 +664,7 @@ export interface IWidgetStyleToolbarModel {
     color?: string
     'background-color'?: string
     icon?: string
+    textOutline?: string
 }
 
 export interface IVariable {
@@ -625,6 +690,8 @@ export interface IWidgetTitle {
         'justify-content': string
         color: string
         'background-color': string
+        'padding-left'?: string
+        'padding-right'?: string
     }
 }
 
@@ -711,4 +778,53 @@ interface IDashboardOutputParameterType {
     valueDescription: string
     valueId: number
     valueName: string
+}
+
+export interface IMenuItem {
+    label: string
+    icon: string
+    command: Function
+    visible: boolean
+}
+
+export interface IDashboardView {
+    id?: string
+    label: string
+    name: string
+    description: string
+    drivers: any
+    settings: any
+    biObjectId: number
+    parentId: string
+    visibility: string
+    type?: string
+    biObjectTypeCode?: string
+    new?: boolean
+}
+
+export interface IWidgetSearch {
+    searchText: string
+    searchColumns: string[]
+}
+
+export interface IHighchartsCommonConditionalStyles {
+    enabled: boolean
+    conditions: IHighchartsCommonConditionalStyle[]
+}
+
+export interface IHighchartsCommonConditionalStyle {
+    target: string
+    condition: {
+        type: string
+        variable?: string
+        parameter?: string
+        variableKey?: string
+        variablePivotDatasetOptions?: any
+        operator: string
+        value: string
+        formula?: string
+    }
+    properties: {
+        color: string
+    }
 }

@@ -1,6 +1,6 @@
 <template>
-    <div class="kn-height-full detail-page-container">
-        <Toolbar v-if="!embed && !olapDesignerMode && !managementOpened && !dashboardGeneralSettingsOpened" class="kn-toolbar kn-toolbar--primary p-col-12">
+    <div ref="document" class="kn-height-full detail-page-container">
+        <Toolbar v-if="showToolbar" class="kn-toolbar kn-toolbar--primary p-col-12">
             <template #start>
                 <DocumentExecutionBreadcrumb v-if="breadcrumbs.length > 1" :breadcrumbs="breadcrumbs" @breadcrumbClicked="onBreadcrumbClick"></DocumentExecutionBreadcrumb>
                 <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
@@ -8,7 +8,7 @@
             <template #end>
                 <div class="p-d-flex p-jc-around">
                     <Button
-                        v-if="mode == 'dashboard' && propMode !== 'document-execution-cross-navigation-popup'"
+                        v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.datasets')"
                         icon="fas fa-database"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
@@ -16,7 +16,7 @@
                         @click="openDashboardDatasetManagement"
                     ></Button>
                     <Button
-                        v-if="mode == 'dashboard' && propMode !== 'document-execution-cross-navigation-popup'"
+                        v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.save')"
                         icon="pi pi-save"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
@@ -25,7 +25,6 @@
                     ></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button v-if="mode !== 'dashboard'" v-tooltip.left="$t('common.onlineHelp')" icon="pi pi-book" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="openHelp"></Button>
                     <Button
                         v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.refresh')"
@@ -35,7 +34,7 @@
                         @click="refresh"
                     ></Button>
                     <Button
-                        v-if="isParameterSidebarVisible && !newDashboardMode"
+                        v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters"
                         v-tooltip.left="$t('common.parameters')"
                         icon="fa fa-filter"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
@@ -45,17 +44,19 @@
                     ></Button>
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
-                    <Button v-if="mode == 'dashboard'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
-                    <Button v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
+                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode != 'document-execution-cross-navigation-popup'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
+                    <Button v-if="isInDocBrowser" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
                 </div>
             </template>
         </Toolbar>
         <ProgressBar v-if="loading || loadingCrossNavigationDocument" class="kn-progress-bar" mode="indeterminate" />
         <div ref="document-execution-view" class="p-d-flex p-flex-row document-execution-view myDivToPrint">
+            <Button id="scheduledExcelExportButton" class="hidden-button" @click="hiddenExport('XLSX')"></Button>
             <div v-if="parameterSidebarVisible" :class="propMode === 'document-execution-cross-navigation-popup' ? 'document-execution-backdrop-popup-dialog' : 'document-execution-backdrop'" @click="parameterSidebarVisible = false"></div>
-            <div v-show="showExecutedDocument || newDashboardMode" class="kn-flex">
+            <div v-show="downloadMode" class="downloadingBox">{{ $t('dashboard.warning.downloading') }}</div>
+            <div v-show="!downloadMode && (showExecutedDocument || newDashboardMode)" class="kn-flex">
                 <Registry v-if="showExecutedDocument && mode === 'registry'" :id="urlData?.sbiExecutionId" :reload-trigger="reloadTrigger"></Registry>
-                <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData"></Dossier>
+                <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData" :user-role="userRole"></Dossier>
                 <Olap
                     v-else-if="showExecutedDocument && mode === 'olap'"
                     :id="urlData?.sbiExecutionId"
@@ -75,7 +76,7 @@
                     :reload-trigger="reloadTrigger"
                     :hidden-form-data="document.hiddenFormData"
                     :mode="'dashboard-popup'"
-                    :filters-data="document.filtersData"
+                    :filters-data="filtersData"
                     :new-dashboard-mode="false"
                 ></DashboardController>
                 <div v-show="mode === 'dashboard' || newDashboardMode" class="p-d-flex p-flex-row" style="height: 100%">
@@ -88,6 +89,8 @@
                             :filters-data="item.filtersData"
                             :new-dashboard-mode="newDashboardMode"
                             :mode="mode"
+                            :prop-view="dashboardView"
+                            @executeView="executeView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
                             @executeCrossNavigation="onExecuteCrossNavigation"
@@ -107,7 +110,7 @@
             <DocumentExecutionSchedulationsTable v-if="schedulationsTableVisible" id="document-execution-schedulations-table" :prop-schedulations="schedulations" @deleteSchedulation="onDeleteSchedulation" @close="schedulationsTableVisible = false"></DocumentExecutionSchedulationsTable>
 
             <KnParameterSidebar
-                v-if="parameterSidebarVisible"
+                v-show="parameterSidebarVisible"
                 class="document-execution-parameter-sidebar kn-overflow-y"
                 :filters-data="filtersData"
                 :prop-document="document"
@@ -126,11 +129,12 @@
 
             <DocumentExecutionRankDialog :visible="rankDialogVisible" :prop-document-rank="documentRank" @close="rankDialogVisible = false" @saveRank="onSaveRank"></DocumentExecutionRankDialog>
             <DocumentExecutionNotesDialog :visible="notesDialogVisible" :prop-document="document" @close="notesDialogVisible = false"></DocumentExecutionNotesDialog>
-            <DocumentExecutionMetadataDialog :visible="metadataDialogVisible" :prop-document="document" :prop-metadata="metadata" :prop-loading="loading" @close="metadataDialogVisible = false" @saveMetadata="onMetadataSave"></DocumentExecutionMetadataDialog>
+            <DocumentExecutionMetadataDialog :visible="metadataDialogVisible" :prop-document="document" :prop-metadata="metadata" :prop-loading="metadataLoading" @close="metadataDialogVisible = false" @saveMetadata="onMetadataSave"></DocumentExecutionMetadataDialog>
             <DocumentExecutionMailDialog :visible="mailDialogVisible" @close="mailDialogVisible = false" @sendMail="onMailSave"></DocumentExecutionMailDialog>
-            <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :parameters="linkParameters" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
+            <DocumentExecutionLinkDialog :visible="linkDialogVisible" :link-info="linkInfo" :embed-h-t-m-l="embedHTML" :prop-document="document" :prop-filters-data="filtersData" @close="linkDialogVisible = false"></DocumentExecutionLinkDialog>
             <DocumentExecutionSelectCrossNavigationDialog :visible="destinationSelectDialogVisible" :cross-navigation-documents="crossNavigationDocuments" @close="destinationSelectDialogVisible = false" @selected="onCrossNavigationSelected"></DocumentExecutionSelectCrossNavigationDialog>
             <DocumentExecutionCNContainerDialog v-if="angularData && crossNavigationContainerData" :visible="crossNavigationContainerVisible" :data="crossNavigationContainerData" @close="onCrossNavigationContainerClose"></DocumentExecutionCNContainerDialog>
+            <WorkspaceFolderPickerDialog v-if="workspaceFolderPickerDialogVisible" :visible="workspaceFolderPickerDialogVisible" :document="document" @close="workspaceFolderPickerDialogVisible = false"></WorkspaceFolderPickerDialog>
             <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="descriptor.popupDialog.style" :visible="crossNavigationDialogVisible" :modal="true" :show-header="false" :closable="false">
                 <DocumentExecution
                     v-if="crossNavigationPopupDialogDocument"
@@ -143,6 +147,9 @@
                     @close="onCrossNavigationPopupClose()"
                 ></DocumentExecution>
             </Dialog>
+
+            <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedCockpitView" :document="document" @close="onSaveViewDialogClose"></DashboardSaveViewDialog>
+            <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
         </div>
     </div>
 </template>
@@ -158,9 +165,11 @@ import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
 import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentExecutionAngularCrossNavigationHelper'
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
-import { loadFilters } from './DocumentExecutionDirverHelpers'
-import { IDashboardCrossNavigation } from '../dashboard/Dashboard'
+import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDriverHelpers'
+import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
+import { clearIndexedDBCache } from '../dashboard/DashboardDataProxy'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
+import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import DocumentExecutionBreadcrumb from './breadcrumbs/DocumentExecutionBreadcrumb.vue'
 import DocumentExecutionHelpDialog from './dialogs/documentExecutionHelpDialog/DocumentExecutionHelpDialog.vue'
 import DocumentExecutionRankDialog from './dialogs/documentExecutionRankDialog/DocumentExecutionRankDialog.vue'
@@ -177,12 +186,18 @@ import Olap from '../olap/Olap.vue'
 import DocumentExecutionSelectCrossNavigationDialog from './dialogs/documentExecutionSelectCrossNavigationDialog/DocumentExecutionSelectCrossNavigationDialog.vue'
 import DocumentExecutionCNContainerDialog from './dialogs/documentExecutionCNContainerDialog/DocumentExecutionCNContainerDialog.vue'
 import mainStore from '../../../App.store'
+import dashboardStore from '../dashboard/Dashboard.store'
 import deepcopy from 'deepcopy'
 import DashboardController from '../dashboard/DashboardController.vue'
 import Dialog from 'primevue/dialog'
 import descriptor from './DocumentExecutionDescriptor.json'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/WorkspaceFolderPickerDialog.vue'
+import EnginesConstants from '@/EnginesConstants.json'
+import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
+import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 
+let seeAsFinalUserWarning
 // @ts-ignore
 // eslint-disable-next-line
 window.execExternalCrossNavigation = function (outputParameters, otherOutputParameters, crossNavigationLabel) {
@@ -218,7 +233,10 @@ export default defineComponent({
         DocumentExecutionSelectCrossNavigationDialog,
         DocumentExecutionCNContainerDialog,
         DashboardController,
-        Dialog
+        Dialog,
+        WorkspaceFolderPickerDialog,
+        DashboardSaveViewDialog,
+        DashboardSavedViewsDialog
     },
     props: {
         id: { type: String },
@@ -233,6 +251,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            EnginesConstants,
             managementOpened: false,
             document: null as any,
             hiddenFormData: {} as any,
@@ -265,10 +284,9 @@ export default defineComponent({
             embedHTML: false,
             reloadTrigger: false,
             breadcrumbs: [] as ICrossNavigationBreadcrumb[],
-            linkParameters: [],
             embed: false,
             olapCustomViewVisible: false,
-            userRole: null,
+            userRole: null as string | null,
             loading: false,
             olapDesignerMode: false,
             sessionEnabled: false,
@@ -289,13 +307,27 @@ export default defineComponent({
             crossNavigationPopupDialogDocument: null as any,
             crossNavigationDialogVisible: false,
             loadingCrossNavigationDocument: false,
-            crossNavigationSourceDocumentName: ''
+            crossNavigationSourceDocumentName: '',
+            dashboardView: null as IDashboardView | null,
+            workspaceFolderPickerDialogVisible: false,
+            metadataLoading: false,
+            saveViewDialogVisible: false,
+            savedViewsListDialogVisible: false,
+            currentCockpitView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
+            selectedCockpitView: null as IDashboardView | null,
+            cockpitViewForExecution: null as IDashboardView | null,
+            dataLoaded: false,
+            seeAsFinalUser: false,
+            downloadMode: false
         }
     },
     computed: {
         ...mapState(mainStore, {
             user: 'user',
             configurations: 'configurations'
+        }),
+        ...mapState(dashboardStore, {
+            dashboards: 'dashboards'
         }),
         canEditCockpit(): boolean {
             if (!this.user || !this.document) return false
@@ -307,8 +339,9 @@ export default defineComponent({
         },
         url(): string {
             return this.document
-                ? import.meta.env.VITE_HOST_URL +
-                      `/knowage/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${this.document.id}&OBJECT_LABEL=${this.document.label}&TOOLBAR_VISIBLE=false&MENU_PARAMETERS=%7B%7D&LIGHT_NAVIGATOR_DISABLED=TRUE&SBI_EXECUTION_ID=${this.sbiExecutionId}&OBJECT_NAME=${this.document.name}&CROSS_PARAMETER=null`
+                ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${this.document.id}&OBJECT_LABEL=${
+                      this.document.label
+                  }&TOOLBAR_VISIBLE=false&MENU_PARAMETERS=%7B%7D&LIGHT_NAVIGATOR_DISABLED=TRUE&SBI_EXECUTION_ID=${this.sbiExecutionId}&OBJECT_NAME=${this.document.name}&CROSS_PARAMETER=null`
                 : ''
         },
         isParameterSidebarVisible(): boolean {
@@ -325,6 +358,19 @@ export default defineComponent({
         },
         showExecutedDocument() {
             return this.filtersData && this.filtersData.isReadyForExecution && !this.loading && !this.schedulationsTableVisible
+        },
+        showToolbar() {
+            if (this.$route.query.toolbar !== 'false') {
+                return !this.embed && !this.olapDesignerMode && !this.managementOpened && !this.dashboardGeneralSettingsOpened
+            } else {
+                return this.propMode === 'document-execution-cross-navigation-popup'
+            }
+        },
+        isInDocBrowser() {
+            return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
+        },
+        isMobileDevice() {
+            return /Android|iPhone/i.test(navigator.userAgent)
         }
     },
     watch: {
@@ -378,7 +424,14 @@ export default defineComponent({
             await this.loadDocument()
         }
 
-        this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
+        if (this.$route.query.viewName) await this.loadView()
+        if (this.$route.query.role) this.userRole = '' + this.$route.query.role
+        else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
+        if (this.$route.query.finalUser) {
+            this.document.seeAsFinalUser = true
+            this.seeAsFinalUser = true
+        }
+
         let invalidRole = false
         getCorrectRolesForExecution(this.document).then(async (response: any) => {
             const correctRolesForExecution = response
@@ -401,14 +454,20 @@ export default defineComponent({
                     }
                 }
             }
-            if (!invalidRole) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
+            if (!invalidRole && !this.dataLoaded) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
         })
     },
     unmounted() {
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(mainStore, ['setInfo', 'setError', 'setDocumentExecutionEmbed']),
+        canSeeDashboardFunctions() {
+            if (this.seeAsFinalUser) return false
+            if (!this.user || !this.document) return false
+            if (!this.document.dashboardId && this.document.crossType != 1) return true
+            else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
+        },
+        ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
         iframeEventsListener(event) {
             if (event.data.type === 'crossNavigation') {
                 executeAngularCrossNavigation(this, event, this.$http)
@@ -435,6 +494,23 @@ export default defineComponent({
         openHelp() {
             this.helpDialogVisible = true
         },
+        async clearCache() {
+            clearIndexedDBCache()
+            if (this.document.dashboardId) {
+                const payload = {}
+                const datasets = this.dashboards[this.document.dashboardId].configuration.datasets
+                datasets.forEach((ds) => {
+                    payload[ds.dsLabel] = {}
+                    if (ds.parameters && ds.parameters.length > 0) {
+                        ds.parameters.forEach((par) => {
+                            payload[ds.dsLabel][par.name] = par.value
+                        })
+                    }
+                })
+                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/cache/clean-datasets`, payload).then(() => this.setInfo({ title: this.$t('documentExecution.main.clearCache'), msg: this.$t('documentExecution.main.cacheCleared') }))
+            }
+            this.document
+        },
         async refresh() {
             this.parameterSidebarVisible = false
             await this.loadURL(null)
@@ -459,44 +535,99 @@ export default defineComponent({
                     addToWorkspace: this.addToWorkspace,
                     showOLAPCustomView: this.showOLAPCustomView,
                     copyLink: this.copyLink,
-                    openDashboardGeneralSettings: this.openDashboardGeneralSettings
+                    openDashboardGeneralSettings: this.openDashboardGeneralSettings,
+                    openSaveCurrentViewDialog: this.openSaveCurrentViewDialog,
+                    openSavedViewsListDialog: this.openSavedViewsListDialog,
+                    openHelp: this.openHelp,
+                    fullScreen: this.fullScreen,
+                    toggleFinalUser: this.toggleFinalUser,
+                    clearCache: this.clearCache
                 },
                 this.exporters,
                 this.user,
                 this.isOrganizerEnabled(),
                 this.mode,
                 this.$t,
-                this.newDashboardMode
+                this.newDashboardMode,
+                this.filtersData
             )
         },
         print() {
             window.print()
         },
-        export(type: string) {
+        hiddenExport(type: string) {
+            this.export(type)
+        },
+        async export(type: string) {
             if (this.document.typeCode === 'OLAP') {
                 this.exportOlap(type)
             } else if (this.document.typeCode === 'REPORT') {
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
+            } else if (this.document.typeCode === 'DATAMART') {
+                await this.exportRegistry(type.toLowerCase())
+            } else if (type === 'PDF' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
+                await this.asyncExport('pdf')
+            } else if (type === 'XLSX' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
+                await this.asyncExport('xlsx')
             } else {
+                const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
-                let tempFrame = window.frames[tempIndex]
+
+                let tempFrame = filteredFrames[tempIndex]
+                if (tempFrame && tempFrame.name === 'documentFrame' + tempIndex) {
+                    tempFrame.postMessage({ type: 'export', format: type.toLowerCase() }, '*')
+                    return
+                }
+
                 while (tempFrame && tempFrame.name !== 'documentFrame' + tempIndex) tempFrame = tempFrame[0].frames
 
                 tempFrame.postMessage({ type: 'export', format: type.toLowerCase() }, '*')
             }
         },
         exportOlap(type: string) {
-            const url = type === 'PDF' ? `/knowagewhatifengine/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}` : `/knowagewhatifengine/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
+            const url =
+                type === 'PDF'
+                    ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}`
+                    : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
             window.open(url)
+        },
+        async exportRegistry(format) {
+            this.setLoading(true)
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}`, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
+        },
+        async asyncExport(format) {
+            this.setLoading(true)
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format.includes('xls') ? 'spreadsheet' : format}`, this.hiddenFormData, {
+                    responseType: 'blob',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
         },
         openMailDialog() {
             this.mailDialogVisible = true
         },
         async openMetadata() {
-            this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecutionee/${this.document.id}/documentMetadata`).then((response: AxiosResponse<any>) => (this.metadata = response.data))
+            this.metadataLoading = true
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecutionee/${this.document.id}/documentMetadata`).then((response: AxiosResponse<any>) => (this.metadata = response.data))
             this.metadataDialogVisible = true
-            this.loading = false
+            this.metadataLoading = false
         },
         async openRank() {
             await this.getRank()
@@ -509,14 +640,15 @@ export default defineComponent({
             this.loading = true
             this.parameterSidebarVisible = false
             this.schedulationsTableVisible = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentsnapshot/getSnapshots?id=${this.document.id}`).then((response: AxiosResponse<any>) => response.data?.schedulers.forEach((el: any) => this.schedulations.push({ ...el, urlPath: response.data.urlPath })))
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/getSnapshots?id=${this.document.id}`)
+                .then((response: AxiosResponse<any>) => response.data?.schedulers.forEach((el: any) => this.schedulations.push({ ...el, urlPath: response.data.urlPath })))
             this.loading = false
         },
         async copyLink(embedHTML: boolean) {
             this.loading = true
-            this.linkParameters = this.getFormattedParameters()
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecution/canHavePublicExecutionUrl`, { label: this.document.label })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/canHavePublicExecutionUrl`, { label: this.document.label })
                 .then((response: AxiosResponse<any>) => {
                     this.embedHTML = embedHTML
                     this.linkInfo = response.data
@@ -542,6 +674,7 @@ export default defineComponent({
                 this.$router.push(this.$route.path.includes('workspace') ? '/workspace' : '/document-browser')
                 this.breadcrumbs = []
             }
+            if (this.newDashboardMode) emitter.emit('newDashboardClosed', this.document.dashboardId)
             this.$emit('close')
         },
         setMode() {
@@ -555,7 +688,13 @@ export default defineComponent({
         },
         async loadPage(initialLoading = false, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             this.loading = crossNavigationPopupMode ? false : true
+            if (!this.userRole) {
+                this.parameterSidebarVisible = true
+                return
+            }
             this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
+            if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
+            else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
             if (this.filtersData?.isReadyForExecution) {
                 this.parameterSidebarVisible = false
                 await this.loadURL(null, documentLabel, crossNavigationPopupMode)
@@ -563,18 +702,24 @@ export default defineComponent({
             } else if (this.filtersData?.filterStatus) {
                 this.parameterSidebarVisible = true
             }
-            this.updateMode()
+            this.updateMode(true)
+            if (this.$route.query.outputType) {
+                this.downloadMode = true
+                await this.asyncExport(this.$route.query.outputType)
+            }
             this.loading = false
         },
-        updateMode() {
+        updateMode(refresh = false) {
             if (this.document.typeCode === 'DATAMART') this.mode = 'registry'
             else if (this.document.typeCode === 'DOSSIER') this.mode = 'dossier'
             else if (this.document.typeCode === 'OLAP') this.mode = 'olap'
-            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.path.includes('dashboard')) || this.document.typeCode === 'DASHBOARD') this.mode = 'dashboard'
-            else this.mode = 'iframe'
+            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.path.includes('dashboard')) || this.document.typeCode === 'DASHBOARD') {
+                this.mode = 'dashboard'
+                if (refresh) this.reloadTrigger = !this.reloadTrigger
+            } else this.mode = 'iframe'
         },
         async loadDocument() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documents/${this.document?.label}`).then((response: AxiosResponse<any>) => (this.document = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${this.document?.label}`).then((response: AxiosResponse<any>) => (this.document = response.data))
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             index !== -1
                 ? (this.breadcrumbs[index].document = this.document)
@@ -582,6 +727,17 @@ export default defineComponent({
                       label: this.document.name,
                       document: this.document
                   })
+        },
+        async loadView() {
+            this.loading = true
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/view/${this.$route.query.viewId}`)
+                .then(async (response: AxiosResponse<any>) => {
+                    this.$route.path.includes('cockpit-view') ? (this.cockpitViewForExecution = response.data) : (this.dashboardView = response.data)
+                    if (this.cockpitViewForExecution) await this.executeView(this.cockpitViewForExecution)
+                })
+                .catch(() => {})
+            this.loading = false
         },
         async loadURL(olapParameters: any, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             let error = false
@@ -596,7 +752,7 @@ export default defineComponent({
             if (this.sbiExecutionId) postData.SBI_EXECUTION_ID = this.sbiExecutionId
             if (this.document.typeCode === 'MAP') postData.EDIT_MODE = 'edit_map'
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecution/url`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/url`, postData)
                 .then((response: AxiosResponse<any>) => {
                     error = false
                     this.urlData = response.data
@@ -618,9 +774,10 @@ export default defineComponent({
         },
         async loadExporters() {
             if (!this.urlData || !this.urlData.engineLabel) return
-            if (!this.urlData || !this.urlData.engineLabel) return
-            const engineLabel = 'knowagedashboardengine' === this.urlData.engineLabel ? 'knowagecockpitengine' : this.urlData.engineLabel
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
+            const engineLabel = this.urlData.engineLabel
+            if (engineLabel !== EnginesConstants.DOSSIER_ENGINE) {
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
+            }
         },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
             const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name) as any
@@ -645,7 +802,8 @@ export default defineComponent({
             postForm.action = import.meta.env.VITE_HOST_URL + postObject.url
             postForm.method = 'post'
             const iframeName = crossNavigationPopupMode ? 'documentFramePopup' : 'documentFrame'
-            postForm.target = tempIndex !== -1 ? iframeName + tempIndex : documentLabel
+            if (this.isMobileDevice && postObject.params.outputType?.toLowerCase() === 'pdf') postForm.target = '_blank'
+            else postForm.target = tempIndex !== -1 ? iframeName + tempIndex : documentLabel
             postForm.acceptCharset = 'UTF-8'
             document.body.appendChild(postForm)
 
@@ -677,8 +835,8 @@ export default defineComponent({
                 }
             }
             this.hiddenFormData.append('documentMode', this.documentMode)
-
-            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
+            if (this.document.typeCode === 'DASHBOARD') return
+            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             if (index !== -1) this.breadcrumbs[index].hiddenFormData = this.hiddenFormData
         },
@@ -727,7 +885,7 @@ export default defineComponent({
             }
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/export/cockpitData`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/cockpitData`, postData)
                 .then(() =>
                     this.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -793,7 +951,7 @@ export default defineComponent({
         async getRank() {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `documentrating/getvote`, { obj: this.document.id })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documentrating/getvote`, { obj: this.document.id })
                 .then((response: AxiosResponse<any>) => (this.documentRank = response.data))
                 .catch((error: any) => this.setError({ title: this.$t('common.error.generic'), msg: error }))
             this.loading = false
@@ -802,7 +960,7 @@ export default defineComponent({
             if (newRank) {
                 this.loading = true
                 await this.$http
-                    .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `documentrating/vote`, { rating: newRank, obj: this.document.id })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documentrating/vote`, { rating: newRank, obj: this.document.id })
                     .then(() =>
                         this.setInfo({
                             title: this.$t('common.toast.updateTitle'),
@@ -820,7 +978,7 @@ export default defineComponent({
             this.rankDialogVisible = false
         },
         async onMetadataSave(metadata: any) {
-            this.loading = true
+            this.metadataLoading = true
             const jsonMeta = [] as any[]
             const properties = ['shortText', 'longText', 'file']
             properties.forEach((property: string) =>
@@ -832,7 +990,7 @@ export default defineComponent({
                 })
             )
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecutionee/saveDocumentMetadata`, { id: this.document.id, jsonMeta: jsonMeta })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecutionee/saveDocumentMetadata`, { id: this.document.id, jsonMeta: jsonMeta })
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.createTitle'),
@@ -841,7 +999,7 @@ export default defineComponent({
                     this.metadataDialogVisible = false
                 })
                 .catch(() => {})
-            this.loading = false
+            this.metadataLoading = false
         },
         async onMailSave(mail: any) {
             this.loading = true
@@ -853,7 +1011,7 @@ export default defineComponent({
                 parameters: this.getFormattedParameters()
             }
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentexecutionmail/sendMail`, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecutionmail/sendMail`, postData)
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.createTitle'),
@@ -867,7 +1025,7 @@ export default defineComponent({
         async onDeleteSchedulation(schedulation: any) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentsnapshot/deleteSnapshot`, { SNAPSHOT: '' + schedulation.id })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/deleteSnapshot`, { SNAPSHOT: '' + schedulation.id })
                 .then(async () => {
                     this.removeSchedulation(schedulation)
                     this.setInfo({
@@ -884,7 +1042,10 @@ export default defineComponent({
         },
         getFormattedDate(date: any, useDefaultFormat?: boolean) {
             const format = date instanceof Date ? undefined : 'dd/MM/yyyy'
-            return luxonFormatDate(date, format, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            const formattedDate = luxonFormatDate(date, format, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            if (formattedDate === 'Invalid DateTime') {
+                return luxonFormatDate(new Date(date), undefined, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            } else return formattedDate
         },
         async onBreadcrumbClick(item: any) {
             if (!item) return
@@ -904,6 +1065,7 @@ export default defineComponent({
             }
             this.urlData = null
             this.exporters = null
+            this.dataLoaded = true
             await this.loadPage()
         },
         setNavigationParametersFromCurrentFilters(formatedParams: any, navigationParams: any) {
@@ -933,7 +1095,7 @@ export default defineComponent({
         async executeOLAPCrossNavigation(crossNavigationParams: any) {
             let temp = {} as any
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/crossNavigation/${this.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => (temp = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${this.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => (temp = response.data))
             this.loading = false
 
             if (!temp || temp.length === 0) {
@@ -972,23 +1134,8 @@ export default defineComponent({
         isOrganizerEnabled() {
             return this.user.isSuperadmin || this.user.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.user.functionalities.includes(UserFunctionalitiesConstants.SAVE_INTO_FOLDER_FUNCTIONALITY)
         },
-        async addToWorkspace() {
-            this.loading = true
-            await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/${this.document.id}`, {}, { headers: { 'X-Disable-Errors': 'true' } })
-                .then(() =>
-                    this.setInfo({
-                        title: this.$t('common.toast.updateTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                )
-                .catch((error) =>
-                    this.setError({
-                        title: this.$t('common.toast.updateTitle'),
-                        msg: error.message === 'sbi.workspace.organizer.document.addtoorganizer.error.duplicateentry' ? this.$t('documentExecution.main.addToWorkspaceError') : error.message
-                    })
-                )
-            this.loading = false
+        addToWorkspace() {
+            this.workspaceFolderPickerDialogVisible = true
         },
         async loadUserConfig() {
             this.sessionEnabled = this.configurations['SPAGOBI.SESSION_PARAMETERS_MANAGER.enabled'] === 'false' ? false : true
@@ -1017,12 +1164,14 @@ export default defineComponent({
             emitter.emit('openDatasetManagement', this.document.dashboardId)
         },
         setEventListeners() {
+            emitter.on('datasetManagementOpened', this.onWidgetEditorOpened)
             emitter.on('datasetManagementClosed', this.onDatasetManagementClosed)
             emitter.on('widgetEditorOpened', this.onWidgetEditorOpened)
             emitter.on('widgetEditorClosed', this.onWidgetEditorClosed)
             emitter.on('dashboardGeneralSettingsClosed', this.onDashboardGeneralSettingsClosed)
         },
         removeEventListeners() {
+            emitter.off('datasetManagementOpened', this.onWidgetEditorOpened)
             emitter.off('datasetManagementClosed', this.onDatasetManagementClosed)
             emitter.off('widgetEditorOpened', this.onWidgetEditorOpened)
             emitter.off('widgetEditorClosed', this.onWidgetEditorClosed)
@@ -1040,9 +1189,9 @@ export default defineComponent({
         onDashboardGeneralSettingsClosed() {
             this.dashboardGeneralSettingsOpened = false
         },
-        openDashboardGeneralSettings() {
+        openDashboardGeneralSettings(mode: string) {
             this.dashboardGeneralSettingsOpened = true
-            emitter.emit('openDashboardGeneralSettings', this.document.dashboardId)
+            emitter.emit('openDashboardGeneralSettings', { dashboardId: this.document.dashboardId, mode: mode })
         },
         saveDashboard() {
             emitter.emit('saveDashboard', this.document.dashboardId)
@@ -1092,7 +1241,7 @@ export default defineComponent({
         },
         openCrossNavigationInNewWindow(tempDocument: any, crossNavigation: IDashboardCrossNavigation) {
             const parameters = encodeURI(JSON.stringify(tempDocument.formattedCrossNavigationParameters))
-            const url = import.meta.env.VITE_HOST_URL + `/knowage-vue/document-browser/dashboard/${this.document.label}?role=${this.userRole}&crossNavigationParameters=${parameters}`
+            const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/document-browser/dashboard/${this.document.label}?role=${this.userRole}&crossNavigationParameters=${parameters}`
             const popupOptions = crossNavigation.popupOptions ?? {
                 width: '800',
                 height: '600'
@@ -1107,13 +1256,59 @@ export default defineComponent({
         onSetDashboardId(event: any, breadcrumb: ICrossNavigationBreadcrumb) {
             breadcrumb.document.dashboardId = event
             this.document.dashboardId = event
+        },
+        async executeView(view: IDashboardView) {
+            this.savedViewsListDialogVisible = false
+            if (view.biObjectTypeCode === 'DASHBOARD') this.dashboardView = view
+            else this.cockpitViewForExecution = view
+            await this.loadPage()
+        },
+        openSaveCurrentViewDialog() {
+            this.currentCockpitView.drivers = this.filtersData
+            this.selectedCockpitView = { ...this.currentCockpitView, new: true }
+            this.saveViewDialogVisible = true
+        },
+        openSavedViewsListDialog() {
+            this.savedViewsListDialogVisible = true
+        },
+        onSaveViewDialogClose() {
+            this.saveViewDialogVisible = false
+            this.selectedCockpitView = null
+        },
+        moveView(view: IDashboardView) {
+            this.savedViewsListDialogVisible = false
+            this.selectedCockpitView = view
+            this.saveViewDialogVisible = true
+        },
+        fullScreen() {
+            const widgetElement = this.$refs['document'] as any
+            widgetElement.requestFullscreen()
+        },
+        toggleFinalUser() {
+            if (this.seeAsFinalUser) {
+                delete this.document.seeAsFinalUser
+                seeAsFinalUserWarning()
+            } else {
+                this.document.seeAsFinalUser = true
+                seeAsFinalUserWarning = this.$q.notify({
+                    message: this.$t('documentExecution.main.seeAsFinalUserWarning'),
+                    type: 'warning',
+                    timeout: 0,
+                    position: 'top'
+                })
+            }
+            this.seeAsFinalUser = !this.seeAsFinalUser
         }
     }
 })
 </script>
 
 <style lang="scss">
+.hidden-button {
+    display: none;
+}
 .document-execution-view {
+    background: white;
     position: relative;
     height: 100%;
     width: 100%;
@@ -1208,5 +1403,16 @@ export default defineComponent({
 #add-widget-button {
     background-color: var(--kn-color-fab);
     min-width: 120px;
+}
+.downloadingBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--kn-message-warning-color);
+    background-color: var(--kn-message-warning-background-color);
+    color: 1px solid var(--kn-message-warning-color);
+    font-weight: bold;
+    padding: 16px 32px;
 }
 </style>

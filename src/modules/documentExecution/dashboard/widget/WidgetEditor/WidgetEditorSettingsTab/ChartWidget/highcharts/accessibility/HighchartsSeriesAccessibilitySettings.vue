@@ -34,9 +34,9 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '../../../../../../Dashboard'
+import { IWidget, IWidgetColumn } from '../../../../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { IHighchartsChartModel, IHighchartsChartSerie, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
+import { IHighchartsChartModel, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import descriptor from '../HighchartsWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputSwitch from 'primevue/inputswitch'
@@ -59,7 +59,7 @@ export default defineComponent({
     },
     computed: {
         allSeriesOptionEnabled() {
-            return this.model && this.model.chart.type !== 'pie' && this.model.chart.type !== 'solidgauge' && this.model.chart.type !== 'heatmap'
+            return this.model && !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes(this.model.chart.type)
         }
     },
     watch: {
@@ -96,6 +96,7 @@ export default defineComponent({
             this.removeSeriesFromAvailableOptions()
             this.removeAllSerieSettingsFromModel()
             if (this.seriesSettings.length === 0) this.addFirstSeriesSetting()
+            if (!this.allSeriesOptionEnabled) this.seriesSettings.splice(1)
         },
         removeAllSerieSettingsFromModel() {
             if (this.seriesSettings[0]?.names[0] && this.seriesSettings[0].names[0] === 'all' && !this.allSeriesOptionEnabled) {
@@ -104,7 +105,7 @@ export default defineComponent({
             }
         },
         removeSeriesFromAvailableOptions() {
-            for (let i = 1; i < this.widgetModel.settings.accesssibility.seriesAccesibilitySettings.length; i++) {
+            for (let i = 1; i < this.widgetModel.settings.accesssibility.seriesAccesibilitySettings?.length; i++) {
                 for (let j = 0; j < this.widgetModel.settings.accesssibility.seriesAccesibilitySettings[i].names.length; j++) {
                     this.removeSerieFromAvailableOptions(this.widgetModel.settings.accesssibility.seriesAccesibilitySettings[i].names[j])
                 }
@@ -116,9 +117,9 @@ export default defineComponent({
         },
         loadSeriesOptions() {
             this.availableSeriesOptions = []
-            if (!this.model) return
-            this.model.series.forEach((serie: IHighchartsChartSerie) => {
-                this.availableSeriesOptions.push(serie.name)
+            if (!this.widgetModel) return
+            this.widgetModel.columns.forEach((column: IWidgetColumn) => {
+                if (column.fieldType === 'MEASURE' && (!column.axis || ['Y', 'start'].includes(column.axis))) this.availableSeriesOptions.push(column.columnName)
             })
         },
         addFirstSeriesSetting() {
@@ -128,7 +129,7 @@ export default defineComponent({
                 const name = this.allSeriesOptionEnabled ? 'all' : this.availableSeriesOptions[0]
                 const formattedSeriesSettings = {
                     names: [name],
-                    accessibility: highchartsDefaultValues.getDefaultSerieAccessibilitySetting()
+                    accessibility: { ...highchartsDefaultValues.getDefaultSerieAccessibilitySetting() }
                 } as ISerieAccessibilitySetting
 
                 this.seriesSettings.push(formattedSeriesSettings)

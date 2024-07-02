@@ -13,6 +13,7 @@ import { formatForCrossNavigation } from './CustomChartWidgetHelpers'
 import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import cryptoRandomString from 'crypto-random-string'
+import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 
 export default defineComponent({
     name: 'custom-chart-widget',
@@ -25,7 +26,7 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]>, required: true },
         editorMode: { type: Boolean }
     },
-    emits: ['loading'],
+    emits: ['loading', 'datasetInteractionPreview'],
     data() {
         return {
             id: cryptoRandomString({ length: 16, type: 'base64' }),
@@ -55,6 +56,7 @@ export default defineComponent({
     mounted() {
         this.setEventListeners()
         this.loadActiveSelections()
+        this.loadWidgetState()
         this.loadDataToShow()
         this.loadProfileAttributesToDatastore()
         this.loadVariablesToDatastore()
@@ -65,8 +67,9 @@ export default defineComponent({
         this.iframeDocument = null
         this.loadedScriptsCount = 0
     },
+
     methods: {
-        ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes']),
+        ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes', 'getCurrentDashboardView']),
         ...mapActions(appStore, ['setError']),
         setEventListeners() {
             window.addEventListener('message', this.iframeEventsListener)
@@ -78,6 +81,7 @@ export default defineComponent({
             if (event.data.type === 'error' && event.data.editorMode === this.editorMode) {
                 this.setError({ title: this.$t('common.error.generic'), msg: event.data.error?.message ?? '' })
             } else if (event.data.type === 'clickManager') this.onClickManager(event.data.payload.columnName, event.data.payload.columnValue)
+            else if (event.data.type === 'setState') this.onSetState(event.data.payload)
         },
         loadProfileAttributesToDatastore() {
             const profileAttributes = this.getProfileAttributes()
@@ -85,6 +89,9 @@ export default defineComponent({
         },
         loadVariablesToDatastore() {
             this.datastore.setVariables(this.variables)
+        },
+        loadWidgetState() {
+            if (this.propWidget.state) this.datastore.state = this.propWidget.state
         },
         async loadDataToShow() {
             this.dataToShow = this.widgetData
@@ -102,13 +109,16 @@ export default defineComponent({
             this.htmlContent = this.propWidget.settings.editor.html
             this.webComponentCss = this.propWidget.settings.editor.css
             this.webComponentJs = this.propWidget.settings.editor.js
-            this.$emit('loading', false)
 
             this.renderCustomWidget()
+            this.$emit('loading', false)
         },
         renderCustomWidget() {
             this.loadedScriptsCount = 0
             const iframe = this.recreateIframeElement()
+            setTimeout(() => this.createIframeContent(iframe), 300)
+        },
+        createIframeContent(iframe: any) {
             this.iframeDocument = iframe.contentWindow.document
             this.iframeDocument.body.innerHTML = `<html>
                 <head></head>
@@ -123,6 +133,7 @@ export default defineComponent({
             this.insertUsersHtmlContent()
             this.insertUsersCssContent()
             this.setDatastoreObjectInFrame(iframe)
+            iframe.sandbox = 'allow-scripts'
             this.loadUserImportScripts()
         },
         recreateIframeElement() {
@@ -132,7 +143,7 @@ export default defineComponent({
             iframe.id = 'iframe-' + this.id
             iframe.src = 'about:blank'
             iframe.style = 'width: 100%; height: 100%; border: none;'
-            wrapper.appendChild(iframe)
+            if (wrapper) wrapper.appendChild(iframe)
             return iframe
         },
         createWrapperDiv(containerElement: Element) {
@@ -151,6 +162,9 @@ export default defineComponent({
         },
         insertUsersHtmlContent() {
             const tempEl = this.iframeDocument.querySelector('.component-wrapper')
+            this.htmlContent = this.htmlContent.replace(/(?:\[kn-i18n='([a-zA-Z0-9_\-\s]*)'\])/gm, (match, g1) => {
+                return (this as any).$internationalization(g1) || g1
+            })
             if (tempEl) tempEl.innerHTML = this.htmlContent
             this.getUserImportScripts(tempEl)
         },
@@ -160,8 +174,7 @@ export default defineComponent({
             for (let i = 0; i < userImports.length; i++) {
                 if (userImports.item(i)?.attributes?.src?.textContent) {
                     const textContent = userImports.item(i).attributes.src.textContent
-                    const url = textContent.startsWith('http') ? textContent : import.meta.env.VITE_HOST_URL + '/' + userImports.item(i).attributes.src.textContent
-                    this.userScriptsURLs.push(url)
+                    this.userScriptsURLs.push(textContent)
                 }
             }
         },
@@ -178,11 +191,9 @@ export default defineComponent({
 
             setTimeout(() => {
                 this.iframeDocument?.body?.appendChild(userScript)
-                this.$emit('loading', false)
             }, 1000)
         },
         loadUserImportScripts() {
-            this.$emit('loading', true)
             if (this.loadedScriptsCount === this.userScriptsURLs.length) this.createScriptTagFromUsersJSScript()
             else this.loadUserImportScript(this.userScriptsURLs[this.loadedScriptsCount])
         },
@@ -222,6 +233,10 @@ export default defineComponent({
             if (this.propWidget.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(columnValue, this.propWidget.settings.interactions.crossNavigation)
                 executeChartCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
+            } else if (this.propWidget.settings.interactions.preview.enabled) {
+                this.$emit('datasetInteractionPreview', { columnValue: columnValue, previewSettings: this.propWidget.settings.interactions.preview })
+            } else if (this.propWidget.settings.interactions.iframe.enabled) {
+                startHTMLAndCustomChartIFrameInteractions(columnValue, this.propWidget.settings.interactions.iframe, this.dashboardId, this.variables, window)
             } else {
                 if (!columnName) return
                 updateStoreSelections(this.createNewSelection([columnValue], columnName), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
@@ -234,6 +249,11 @@ export default defineComponent({
             const datasets = this.getAllDatasets()
             const index = datasets.findIndex((dataset: IDataset) => dataset.id.dsId == datasetId)
             return index !== -1 ? datasets[index].label : ''
+        },
+        onSetState(state: any) {
+            this.datastore.state = state
+            const currentState = this.getCurrentDashboardView(this.dashboardId)
+            if (currentState && this.propWidget.id) currentState.settings.states[this.propWidget.id] = { type: this.propWidget.type, state: state }
         }
     }
 })

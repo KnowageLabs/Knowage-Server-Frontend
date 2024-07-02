@@ -70,11 +70,31 @@ export default defineComponent({
     },
     methods: {
         loadData() {
-            this.rows = this.parameterPopUpData?.result.data
+            if (!this.parameterPopUpData) return
+            this.rows = this.parameterPopUpData.result.data
 
             this.columns = []
-            Object.keys(this.parameterPopUpData?.result.metadata.colsMap).forEach((key: string) => {
-                this.columns.push({ header: this.parameterPopUpData?.result.metadata.colsMap[key], field: key })
+            
+            let keyMap: any[] = []
+            let pref: string = ''
+ 
+            Object.keys(this.parameterPopUpData.result.metadata.colsMap).forEach((col) => {
+                const colMatch = col.match(/(?<pref>[a-zA-Z_\-\.]+)(?<key>\d+)/)
+                if (colMatch && colMatch.groups) {
+                    pref = colMatch.groups.pref // col_
+                    keyMap.push(parseInt(colMatch.groups.key)) // 1-2
+                }
+            })
+
+            keyMap = keyMap.sort().map((k) => pref + k)
+            
+            keyMap.forEach((key: string) => {
+                if (this.parameterPopUpData?.result.metadata.visibleColumns?.includes(this.parameterPopUpData.result.metadata.colsMap[key])) {
+                    this.columns.push({
+                        header: this.parameterPopUpData?.result.metadata.colsMap[key],
+                        field: key
+                    })
+                }
             })
 
             this.columns.forEach((el: any) => this.globalFilterFields.push(el.field))

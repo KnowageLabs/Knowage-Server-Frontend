@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { indexedDB } from '@/idb'
 
 const store = defineStore('store', {
     state() {
@@ -20,9 +21,11 @@ const store = defineStore('store', {
                 licenses: {},
                 cpuNumber: -1
             },
+            mainMenuVisibility: false,
             documentExecution: {},
             theme: {},
-            defaultTheme: {}
+            defaultTheme: {},
+            CSRFToken: ''
         }
     },
     actions: {
@@ -32,7 +35,7 @@ const store = defineStore('store', {
         },
 
         updateLicense(el) {
-            const licenses = this.state.licenses
+            const licenses = this.licenses
 
             const hostNameLicenses = licenses.licenses[el.hostName]
 
@@ -46,6 +49,9 @@ const store = defineStore('store', {
 
             this.setLicenses(licenses)
         },
+        getConfigurations(configName) {
+            return this.configurations && this.configurations[configName]
+        },
         setConfigurations(configs) {
             this.configurations = configs
         },
@@ -53,6 +59,9 @@ const store = defineStore('store', {
             return this.user
         },
         setUser(user) {
+            localStorage.setItem('organization', user.organization)
+            if (user.userId === `public-${user.organization}`) localStorage.setItem('public', true)
+            else localStorage.removeItem('public')
             this.user = user
         },
         setError(error) {
@@ -103,8 +112,20 @@ const store = defineStore('store', {
         setDefaultTheme(defaultTheme) {
             this.defaultTheme = defaultTheme
         },
+        hideMainMenu() {
+            this.mainMenuVisibility = false
+        },
+        showMainMenu() {
+            this.mainMenuVisibility = true
+        },
         getLocale() {
             return this.locale
+        },
+        storeClearIndexedDBCache() {
+            indexedDB.widgetData.clear()
+        },
+        setCSRFToken(token) {
+            this.CSRFToken = token
         }
     }
 })

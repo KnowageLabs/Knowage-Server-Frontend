@@ -1,4 +1,4 @@
-import { IWidgetResponsive, IWidgetTitle, IWidgetPaddingStyle, IWidgetBordersStyle, IWidgetShadowsStyle, IWidgetBackgroundStyle } from '../Dashboard'
+import { IWidgetResponsive, IWidgetTitle, IWidgetPaddingStyle, IWidgetBordersStyle, IWidgetShadowsStyle, IWidgetBackgroundStyle, IWidgetExports } from '../Dashboard'
 
 export interface ISelectorWidgetSettings {
     isDateType: boolean,
@@ -37,6 +37,7 @@ export interface ISelectorWidgetValuesManagement {
 }
 
 export interface ISelectorWidgetStyle {
+    themeName: string
     title: IWidgetTitle,
     label: ISelectorWidgetLabelStyle,
     padding: IWidgetPaddingStyle,

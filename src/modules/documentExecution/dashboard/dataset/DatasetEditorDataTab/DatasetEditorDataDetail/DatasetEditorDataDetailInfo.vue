@@ -20,13 +20,19 @@
                         <label for="description" class="kn-material-input-label"> {{ $t('common.description') }} </label>
                     </span>
                 </div>
-                <div class="p-field p-col-12 p-lg-6">
+                <div class="p-field p-col-12 p-lg-4">
                     <span class="p-float-label">
                         <InputText id="type" v-model="dataDialogDescriptor.datasetTypes[selectedDataset.type]" class="kn-material-input" type="text" :disabled="true" />
                         <label for="type" class="kn-material-input-label"> {{ $t('common.type') }} </label>
                     </span>
                 </div>
-                <div class="p-field p-col-12 p-lg-6 p-as-center">
+                <div class="p-field p-col-12 p-lg-4">
+                    <span class="p-float-label">
+                        <InputText id="frequency" v-model="selectedDataset.frequency" class="kn-material-input" type="number" />
+                        <label for="frequency" class="kn-material-input-label"> Frequency </label>
+                    </span>
+                </div>
+                <div class="p-field p-col-12 p-lg-4 p-as-center">
                     <span class="p-float-label">
                         <InputSwitch v-model="selectedDataset.modelCache" class="p-mr-2" :disabled="cacheDisabled" />
                         <span>{{ $t('dashboard.datasetEditor.cached') }}</span>

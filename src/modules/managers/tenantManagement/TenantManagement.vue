@@ -28,8 +28,8 @@
                     <template #option="slotProps">
                         <div class="kn-list-item" data-test="list-item">
                             <div class="kn-list-item-text">
-                                <span>{{ slotProps.option.MULTITENANT_NAME }}</span>
-                                <span class="kn-list-item-text-secondary">{{ slotProps.option.MULTITENANT_THEME }}</span>
+                                <span>{{ slotProps.option.TENANT_NAME }}</span>
+                                <span class="kn-list-item-text-secondary">{{ slotProps.option.TENANT_THEME }}</span>
                             </div>
                             <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" data-test="delete-button" @click.stop="deleteTenantConfirm(slotProps.option)" />
                         </div>
@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { iMultitenant } from './TenantManagement'
+import { iTenant } from './TenantManagement'
 import { AxiosResponse } from 'axios'
 import tenantsDescriptor from './TenantManagementDescriptor.json'
 import FabButton from '@/components/UI/KnFabButton.vue'
@@ -68,8 +68,8 @@ export default defineComponent({
     },
     data() {
         return {
-            multitenants: [] as iMultitenant[],
-            selTenant: {} as iMultitenant,
+            multitenants: [] as iTenant[],
+            selTenant: {} as iTenant,
             listOfThemes: [] as any,
             listOfDataSources: [] as any,
             listOfProductTypes: [] as any,
@@ -83,14 +83,15 @@ export default defineComponent({
     async created() {
         await this.loadTenants()
         await this.getLicences()
+        if (this.$route?.params) this.hintVisible = false
     },
     methods: {
-        loadData(dataType: string) {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `multitenant${dataType}`).finally(() => (this.loading = false))
+        loadData() {
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant`).finally(() => (this.loading = false))
         },
         async getLicences() {
             return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/license`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license`)
                 .then((response: AxiosResponse<any>) => {
                     const host = response.data.hosts[0].hostName
                     const licenses = response.data.licenses[host]
@@ -100,7 +101,7 @@ export default defineComponent({
         },
         async loadTenants() {
             this.loading = true
-            await this.loadData('').then((response: AxiosResponse<any>) => {
+            await this.loadData().then((response: AxiosResponse<any>) => {
                 this.multitenants = response.data.root
             })
             this.loading = false
@@ -114,7 +115,7 @@ export default defineComponent({
             })
         },
         async deleteTenant(selectedTenant: Object) {
-            const url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'multitenant'
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/multitenant'
             await this.$http.delete(url, { data: selectedTenant }).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
@@ -125,7 +126,7 @@ export default defineComponent({
             })
         },
         showForm(event: any) {
-            const path = event.value ? `/tenants-management/${event.value.MULTITENANT_ID}` : '/tenants-management/new-tenant'
+            const path = event.value ? `/tenants-management/${event.value.TENANT_ID}` : '/tenants-management/new-tenant'
             this.hintVisible = false
 
             if (!this.touched) {

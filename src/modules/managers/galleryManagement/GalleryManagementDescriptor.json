@@ -6,20 +6,16 @@
     },
     "editor": {
         "css": {
-            "icon": "fab fa-css3",
-            "name": "cssCodemirror"
+            "icon": "fab fa-css3"
         },
         "html": {
-            "icon": "fab fa-html5",
-            "name": "htmlCodemirror"
+            "icon": "fab fa-html5"
         },
         "javascript": {
-            "icon": "fab fa-js-square",
-            "name": "javascriptCodemirror"
+            "icon": "fab fa-js-square"
         },
         "python": {
-            "icon": "fab fa-python",
-            "name": "pythonCodemirror"
+            "icon": "fab fa-python"
         }
     },
     "iconTypesMap": {
@@ -194,11 +190,7 @@
             },
             {
                 "fieldName": "outputType",
-                "validators": [
-                    {
-                        "key": "required"
-                    }
-                ]
+                "validators": []
             }
         ]
     }

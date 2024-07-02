@@ -3,8 +3,8 @@
         class="kn-list knListBox"
         :options="sortedOptions"
         :class="{ noSorting: !settings.sortFields }"
-        list-style="max-height:calc(100% - 62px)"
-        :filter="true"
+        list-style="max-height:calc(100% - 66px)"
+        :filter="!settings.fullTextSearch"
         :filter-placeholder="$t('common.search')"
         filter-match-mode="contains"
         :filter-fields="settings.filterFields"
@@ -12,9 +12,15 @@
         data-test="list"
     >
         <template v-if="settings.sortFields" #header>
+            <div v-if="settings.fullTextSearch" ref="filter" class="p-listbox-header">
+                <div class="p-listbox-filter-container">
+                    <input type="text" class="p-listbox-filter p-inputtext p-component" placeholder="search" role="searchbox" :value="filterValue" @keyup="testFilter($event)" />
+                    <span class="p-listbox-filter-icon pi pi-search"></span>
+                </div>
+            </div>
             <Button v-tooltip.bottom="$t('common.sort')" icon="fas fa-sort-amount-down-alt" class="p-button-text p-button-rounded p-button-plain headerButton" @click="toggleSort" />
             <Menu id="sortMenu" ref="sortMenu" :model="settings.sortFields" :popup="true">
-                <template #item="{item}">
+                <template #item="{ item }">
                     <a class="p-menuitem-link" role="menuitem" tabindex="0" @click="sort($event, item.name || item)">
                         <span v-if="selectedDirection === 'asc'" class="p-menuitem-icon fas" :class="{ 'fa-sort-amount-up-alt': selectedSort === (item.name || item) }"></span>
                         <span v-else class="p-menuitem-icon fas" :class="{ 'fa-sort-amount-down-alt': selectedSort === (item.name || item) }"></span>
@@ -48,7 +54,7 @@
             >
                 <Avatar v-if="settings.avatar && settings.avatar.values[slotProps.option[settings.avatar.property]]" :icon="settings.avatar.values[slotProps.option[settings.avatar.property]].icon" shape="circle" :style="settings.avatar.values[slotProps.option[settings.avatar.property]].style" />
                 <div class="kn-list-item-text">
-                    <span v-if="settings.titleField !== false">{{ slotProps.option[settings.titleField || 'label'] }}</span>
+                    <span v-if="settings.titleField !== false" v-tooltip.top="slotProps.option[settings.titleField || 'label']" class="kn-list-item-label">{{ slotProps.option[settings.titleField || 'label'] }}</span>
                     <span v-if="settings.textField !== false && !settings.textFieldType" class="kn-list-item-text-secondary kn-truncated">{{ slotProps.option[settings.textField || 'name'] }}</span>
                     <span v-if="settings.textField !== false && settings.textFieldType && settings.textFieldType === 'date'" class="kn-list-item-text-secondary kn-truncated">{{ getTime(slotProps.option[settings.textField || 'name']) }}</span>
                 </div>
@@ -91,6 +97,7 @@ export default defineComponent({
     emits: ['click'],
     data() {
         return {
+            filterValue: '',
             selectedSort: 'label',
             selectedDirection: '',
             sortedOptions: [] as Array<any>
@@ -105,6 +112,10 @@ export default defineComponent({
         this.sort(null, this.selectedSort, true)
     },
     methods: {
+        testFilter(e) {
+            this.filterValue = e.target.value
+            this.sortedOptions = this.options.filter((i) => JSON.stringify(i).indexOf(this.filterValue) > -1)
+        },
         clickedButton(e, item) {
             const emits = e.item && e.item.emits
             e.item = item
@@ -130,7 +141,8 @@ export default defineComponent({
             this.$refs.sortMenu.toggle(e)
         },
         sort(e, item, desc?) {
-            this.sortedOptions = this.options ? this.options : []
+            if (this.settings.fullTextSearch) this.sortedOptions = this.filterValue ? this.sortedOptions : this.options
+            else this.sortedOptions = this.options ? this.options : []
             if (this.selectedSort === item) this.selectedDirection = this.selectedDirection === 'desc' ? 'asc' : 'desc'
             else {
                 this.selectedSort = item
@@ -154,6 +166,15 @@ export default defineComponent({
     position: relative;
     flex: 1;
     overflow-y: auto;
+
+    .kn-list-item {
+        .kn-list-item-label {
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
 
     .headerButton {
         position: absolute;

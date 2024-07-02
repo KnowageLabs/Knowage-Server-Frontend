@@ -1,97 +1,84 @@
 <template>
     <div class="cssMirrorContainer" style="height: 500px; width: 100%">
-        <VCodeMirror ref="codeMirrorJsEditor" v-model:value="code" :options="scriptOptions" @keyup="onKeyUp" @keyDown="onKeyUp" @change="onKeyUp" @blur="onKeyUp" />
+        <knMonaco ref="editor" v-model="model.settings.editor.js" style="height: 500px" language="javascript" @editor-setup="editorSetup"></knMonaco>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
-import descriptor from './CustomChartWidgetAutocomplete.json'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
+
+let editor,
+    monaco = null
 
 export default defineComponent({
     name: 'custom-chart-js-editor',
-    components: { VCodeMirror },
+    components: { knMonaco },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, activeIndex: { type: Number, required: true } },
     data() {
         return {
-            descriptor,
             model: {} as IWidget,
-            codeMirrorJsEditor: null as any,
-            scriptOptions: {
-                cursor: true,
-                line: false,
-                lineNumbers: true,
-                mode: 'javascript',
-                tabSize: 4,
-                theme: 'eclipse',
-                matchBrackets: true,
-                extraKeys: {
-                    'Ctrl-Space': this.keyAssistFunc
-                } as any
-            },
             code: ''
         }
     },
     watch: {
         widgetModel() {
             this.loadModel()
-        },
-        activeIndex(value: number) {
-            if (value === 2 && this.codeMirrorJsEditor) setTimeout(() => this.codeMirrorJsEditor.refresh(), 100)
         }
     },
     created() {
         this.loadModel()
-        this.setupCodeMirror()
     },
     methods: {
         loadModel() {
             this.model = this.widgetModel
         },
-        setupCodeMirror() {
-            const interval = setInterval(() => {
-                if (!this.$refs.codeMirrorJsEditor) return
-                this.code = this.model.settings.editor.js
-                this.codeMirrorJsEditor = (this.$refs.codeMirrorJsEditor as any).cminstance as any
-                setTimeout(() => {
-                    this.codeMirrorJsEditor.refresh()
-                }, 0)
-                clearInterval(interval)
-            }, 200)
-
-            CodeMirror.registerHelper('hint', 'placeholder', () => {
-                const cur = this.codeMirrorJsEditor.getCursor()
-                const tok = this.codeMirrorJsEditor.getTokenAt(cur)
-                //const start = tok.string.trim() == '' ? tok.start + 1 : tok.start
-                const end = tok.end
-                const hintList = descriptor.cmAutocomplete as any
-
-                return { list: hintList, from: CodeMirror.Pos(cur.line, end), to: CodeMirror.Pos(cur.line, end) }
-            })
-        },
-        onKeyUp() {
-            this.model.settings.editor.js = this.code
-        },
-        keyAssistFunc() {
-            if (this.isDatastore()) {
-                CodeMirror.showHint(this.codeMirrorJsEditor, CodeMirror.hint.placeholder)
-            }
-        },
-        isDatastore() {
-            const cursor = this.codeMirrorJsEditor.getCursor()
-            const token = this.codeMirrorJsEditor.getTokenAt(cursor)
-            if (token.string == 'datastore') {
-                return true
-            }
+        editorSetup(monacoInstance) {
+            monaco = monacoInstance.monaco
+            editor = monacoInstance.editor
+            const fact = `/** 
+                         * datastore is the main API keyword for the custom chart usage.
+                         * press ctrl + spacebar to see all available methods
+                        */
+                        declare class datastore {
+                            /** 
+                             * @param columnName
+                             * The param should be a string representing the column name of the column which values will be returned.
+                            */
+                            static getColumn(columnName:string):[string]
+                            /** 
+                             * @param record
+                             * The record param should be a method, returning a string or an object that will be iterated for each row of the datastore.
+                            */
+                            static getDataArray(record:any):[record]
+                            /**
+                             * Returns an array of objects; each object is composed by key:value where the key is the name of the column in the dataset
+                             */
+                            static getRecords() : [object]
+                            /**
+                             * @param columnName The name of the column that will be used as aggregation serie
+                             * @param record The record param should be a method, returning a string or an object that will be iterated for each row of the datastore.
+                             * 
+                             */
+                            static getSeriesAndData(columnName:string, record:any):[record]
+                            /**
+                             * @param sortOptions the column name to be ordered, ascending by default. Alternatively an object that contains datasets columns names the direction of the sorting (asc/desc). 
+                             * (ie: {column:'asc'})
+                             * 
+                             */
+                            static sort(sortOptions:string|object):datastore
+                            /**
+                             * @param filterOptions object that contains datasets columns names for properties and the value to be filtered. (ie: {column:'value'})
+                             * @param strict Optional, if set to true will return just the items exactly corresponding to the selected filters
+                             * 
+                             */
+                            static filter(filterOptions:object,strict?:boolean):datastore
+                        }
+`
+            const factFilename = 'datastore'
+            monaco.languages.typescript.javascriptDefaults.addExtraLib(fact, factFilename)
         }
     }
 })
 </script>
-
-<style lang="scss">
-.CodeMirror-hints {
-    z-index: 99999;
-}
-</style>

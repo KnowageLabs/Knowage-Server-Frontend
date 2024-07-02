@@ -15696,6 +15696,7 @@
         "font-style": "dashboard.widgetEditor.iconTooltips.italic",
         "font-weight": "dashboard.widgetEditor.iconTooltips.bold",
         "icon": "dashboard.widgetEditor.iconTooltips.iconPicker",
-        "justify-content": "dashboard.widgetEditor.iconTooltips.textAlignment"
+        "justify-content": "dashboard.widgetEditor.iconTooltips.textAlignment",
+        "text-align": "dashboard.widgetEditor.iconTooltips.textAlignment"
     }
 }

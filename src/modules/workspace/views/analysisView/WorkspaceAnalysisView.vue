@@ -6,7 +6,7 @@
         </template>
         <template #end>
             <Button v-if="toggleCardDisplay" icon="fas fa-list" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" />
-            <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" />
+            <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" /> -->
             <KnFabButton v-if="addButtonIsVisible" icon="fas fa-plus" data-test="new-folder-button" @click="showCreationMenu" />
         </template>
     </Toolbar>
@@ -22,6 +22,7 @@
             <template #filter="{ filterModel }">
                 <InputText v-model="filterModel.value" type="text" class="p-column-filter"></InputText>
             </template>
+            <Column field="typeCode" :header="$t('common.type').replace(/^./, $t('common.type')[0].toUpperCase())" :sortable="true" />
             <Column field="name" :header="$t('importExport.gallery.column.name')" :sortable="true" />
             <Column field="creationUser" :header="$t('kpi.targetDefinition.kpiAuthor')" :sortable="true" />
             <Column field="creationDate" :header="$t('kpi.targetDefinition.kpiDate')" :sortable="true">
@@ -80,6 +81,7 @@
 
     <KnInputFile v-if="!uploading" :change-function="uploadAnalysisFile" accept="image/*" :trigger-input="triggerUpload" />
     <WorkspaceCockpitDialog :visible="cockpitDialogVisible" @close="closeCockpitDialog"></WorkspaceCockpitDialog>
+    <DocumentDetailDossierDesignerDialog v-if="user.enterprise && dossierDesignerDialogVisible" :visible="dossierDesignerDialogVisible" :selected-document="selectedDocument" :is-from-workspace="true" @close="closeDossierDialog($event)"></DocumentDetailDossierDesignerDialog>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
@@ -102,28 +104,13 @@ import mainStore from '../../../../App.store'
 import { getCorrectRolesForExecution } from '../../../../helpers/commons/roleHelper'
 import { mapState } from 'pinia'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import DocumentDetailDossierDesignerDialog from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialog.vue'
 
 export default defineComponent({
     name: 'workspace-analysis-view',
-    components: { DataTable, Column, DetailSidebar, WorkspaceCard, KnFabButton, Menu, Message, KnInputFile, WorkspaceAnalysisViewEditDialog, WorkspaceWarningDialog, WorkspaceAnalysisViewShareDialog, WorkspaceCockpitDialog },
+    components: { DataTable, Column, DetailSidebar, WorkspaceCard, KnFabButton, Menu, Message, KnInputFile, WorkspaceAnalysisViewEditDialog, WorkspaceWarningDialog, WorkspaceAnalysisViewShareDialog, WorkspaceCockpitDialog, DocumentDetailDossierDesignerDialog },
     props: { toggleCardDisplay: { type: Boolean } },
     emits: ['showMenu', 'toggleDisplayView', 'execute'],
-    computed: {
-        isOwner(): any {
-            return (this.store.$state as any).user.userId === this.selectedAnalysis.creationUser
-        },
-        isShared(): any {
-            return this.selectedAnalysis.functionalities.length > 1
-        },
-        ...mapState(mainStore, {
-            user: 'user'
-        }),
-        addButtonIsVisible(): boolean {
-            return (
-                this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)
-            )
-        }
-    },
     setup() {
         const store = mainStore()
         return { store }
@@ -146,9 +133,29 @@ export default defineComponent({
             uploading: false,
             shareDialogVisible: false,
             creationMenuButtons: [] as any,
-            cockpitDialogVisible: false
+            cockpitDialogVisible: false,
+            dossierDesignerDialogVisible: false,
+            selectedDocument: null
         }
     },
+    computed: {
+        isOwner(): any {
+            return (this.store.$state as any).user.userId === this.selectedAnalysis.creationUser
+        },
+        isShared(): any {
+            return this.selectedAnalysis.functionalities.length > 1
+        },
+        ...mapState(mainStore, {
+            user: 'user',
+            isEnterprise: 'isEnterprise'
+        }),
+        addButtonIsVisible(): boolean {
+            return (
+                this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)
+            )
+        }
+    },
+
     created() {
         this.getAnalysisDocs()
     },
@@ -157,7 +164,7 @@ export default defineComponent({
         getAnalysisDocs() {
             this.loading = true
             return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `documents/myAnalysisDocsList`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documents/myAnalysisDocsList`)
                 .then((response: AxiosResponse<any>) => {
                     this.analysisDocuments = [...response.data.root]
                     this.filteredAnalysisDocuments = [...this.analysisDocuments]
@@ -182,12 +189,13 @@ export default defineComponent({
         createMenuItems() {
             this.menuButtons = []
             this.menuButtons.push({ key: '0', label: this.$t('workspace.myAnalysis.menuItems.edit'), icon: 'fas fa-edit', command: () => { this.editAnalysisDocument(this.selectedAnalysis) }, visible: this.isOwner })
-            this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.share'), icon: 'fas fa-share-alt', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: !this.isShared })
-            this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.unshare'), icon: 'fas fa-times-circle', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: this.isShared })
-            this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.clone'), icon: 'fas fa-clone', command: () => { this.cloneAnalysisDocument(this.selectedAnalysis) } })
+            this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.editTemplate'), icon: 'fa-solid fa-wand-magic-sparkles', command: () => { this.editTemplateDocument(this.selectedAnalysis) }, visible: this.isOwner && this.selectedAnalysis.typeCode === 'DOSSIER'})
+            this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.share'), icon: 'fas fa-share-alt', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: !this.isShared })
+            this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.unshare'), icon: 'fas fa-times-circle', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: this.isShared })
+            this.menuButtons.push({ key: '3', label: this.$t('workspace.myAnalysis.menuItems.clone'), icon: 'fas fa-clone', command: () => { this.cloneAnalysisDocument(this.selectedAnalysis) } })
 
-            this.menuButtons.push({ key: '3', label: this.$t('workspace.myAnalysis.menuItems.upload'), icon: 'fas fa-upload', command: () => { this.uploadAnalysisPreviewFile(this.selectedAnalysis) } })
-            this.menuButtons.push({ key: '4', label: this.$t('workspace.myAnalysis.menuItems.delete'), icon: 'fas fa-trash', command: () => { this.deleteAnalysisDocumentConfirm(this.selectedAnalysis) } })
+            this.menuButtons.push({ key: '4', label: this.$t('workspace.myAnalysis.menuItems.upload'), icon: 'fas fa-upload', command: () => { this.uploadAnalysisPreviewFile(this.selectedAnalysis) } })
+            this.menuButtons.push({ key: '5', label: this.$t('workspace.myAnalysis.menuItems.delete'), icon: 'fas fa-trash', command: () => { this.deleteAnalysisDocumentConfirm(this.selectedAnalysis) } })
 
         },
         executeAnalysisDocument(document: any) {
@@ -202,6 +210,7 @@ export default defineComponent({
             this.selectedAnalysis = analysis
             this.editDialogVisible = true
         },
+
         async handleEditAnalysis(analysis: any) {
             const formatedAnalysis = {
                 document: {
@@ -213,7 +222,7 @@ export default defineComponent({
                 updateFromWorkspace: true
             }
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/saveDocument/', formatedAnalysis, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/saveDocument/', formatedAnalysis, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -233,7 +242,7 @@ export default defineComponent({
             this.loading = true
             const shared = this.selectedAnalysis.functionalities.length > 1
             if (!shared) {
-                await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/functionalities/forsharing/${analysis.id}`).then((response: AxiosResponse<any>) => {
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/functionalities/forsharing/${analysis.id}`).then((response: AxiosResponse<any>) => {
                     this.folders = response.data
                     this.shareDialogVisible = true
                 })
@@ -245,7 +254,7 @@ export default defineComponent({
         async handleAnalysShared(selectedFolders: any, shared: boolean) {
             this.loading = true
 
-            let url = import.meta.env.VITE_RESTFUL_SERVICES_PATH + `documents/share?docId=${this.selectedAnalysis.id}&`
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documents/share?docId=${this.selectedAnalysis.id}&`
             if (!shared) {
                 Object.keys(selectedFolders).forEach((id: any) => (url += `functs=${selectedFolders[id]}&`))
             }
@@ -275,7 +284,7 @@ export default defineComponent({
         async cloneAnalysisDocument(analysis: any) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `documents/clone?docId=${analysis.id}`)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documents/clone?docId=${analysis.id}`)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.createTitle'),
@@ -298,7 +307,7 @@ export default defineComponent({
         deleteAnalysis(analysis: any) {
             this.loading = true
             this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documents/${analysis.label}`)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${analysis.label}`)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
@@ -328,7 +337,7 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFile)
             this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/analysis/${this.selectedAnalysis.id}`, formData, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/analysis/${this.selectedAnalysis.id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -373,6 +382,7 @@ export default defineComponent({
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT)) this.creationMenuButtons.push({ key: '0', label: this.$t('common.cockpit'), command: () => this.openCockpitDialog(), visible: true })
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT)) this.creationMenuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.geoRef'), command: () => this.openGeoRefCreation(), visible: true })
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)) this.creationMenuButtons.push({ key: '2', label: this.$t('common.kpi'), command: () => this.openKpiDocumentDesigner(), visible: true })
+            if (this.isEnterprise && this.user.functionalities.includes(UserFunctionalitiesConstants.DOSSIER_CREATION)) this.creationMenuButtons.push({ key: '3', label: this.$t('common.dossier'), command: () => this.openDossierDesigner(), visible: true })
         },
         openCockpitDialog() {
             this.cockpitDialogVisible = true
@@ -386,6 +396,20 @@ export default defineComponent({
         },
         openGeoRefCreation() {
             this.$router.push('/gis/new')
+        },
+        editTemplateDocument(analysis: any) {
+            this.openDossierDesigner()
+            this.selectedDocument = analysis
+        },
+        openDossierDesigner() {
+            this.selectedDocument = null
+            this.cockpitDialogVisible = false
+            this.dossierDesignerDialogVisible = true
+        },
+        closeDossierDialog(refreshObj) {
+            this.dossierDesignerDialogVisible = false
+
+            if (refreshObj.refreshHistory) this.getAnalysisDocs()
         }
     }
 })

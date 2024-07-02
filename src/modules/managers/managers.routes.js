@@ -36,6 +36,8 @@ import scorecardsRoutes from '@/modules/managers/scorecards/Scorecards.routes.js
 import eventsManagementRoutes from '@/modules/managers/eventsManagement/EventsManagement.routes.js'
 import dashboardRoutes from '@/modules/documentExecution/dashboard/Dashboard.routes.js'
 import categoriesManagementRoutes from '@/modules/managers/categoriesManagement/CategoriesManagement.routes.js'
+import dashboardThemeManagementRoutes from '@/modules/managers/dashboardThemeManagement/DashboardThemeManagement.routes.js'
+import importExportDocumentsRoutes from '@/modules/managers/importExportDocuments/ImportExportDocuments.routes.js'
 
 const baseRoutes = []
 
@@ -78,5 +80,7 @@ const routes = baseRoutes
     .concat(eventsManagementRoutes)
     .concat(dashboardRoutes)
     .concat(categoriesManagementRoutes)
+    .concat(dashboardThemeManagementRoutes)
+    .concat(importExportDocumentsRoutes)
 
 export default routes

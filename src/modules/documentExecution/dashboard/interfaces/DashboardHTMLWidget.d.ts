@@ -1,4 +1,4 @@
-import { IWidgetInteractions, IWidgetResponsive } from "../Dashboard";
+import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from "../Dashboard";
 
 export interface IHTMLWidgetSettings {
     sortingColumn?: string,
@@ -18,10 +18,12 @@ export interface IHTMLWidgetEditor {
 }
 
 export interface IHTMLWidgetConfiguration {
-    exports: IWidgetExports
+    exports: IWidgetExports,
+    customDashboardHeaderConfiguration?: ICustomDashboardHeaderConfiguration
 }
 
 export interface IHTMLWidgetStyle {
+    themeName: string
     title: IWidgetTitle,
     padding: IWidgetPaddingStyle,
     borders: IWidgetBordersStyle,
@@ -29,3 +31,6 @@ export interface IHTMLWidgetStyle {
     background: IWidgetBackgroundStyle
 }
 
+export interface ICustomDashboardHeaderConfiguration {
+    height: string
+}

@@ -1,10 +1,10 @@
 const routes = [
-  {
-    path: '/users-management',
-    name: 'users-management',
-    component: () =>
-      import('@/modules/managers/usersManagement/UsersManagement.vue')
-  }
-];
+    {
+        path: '/users-management',
+        name: 'users-management',
+        meta: { functionality: 'FinalUsersManagement' },
+        component: () => import('@/modules/managers/usersManagement/UsersManagement.vue')
+    }
+]
 
-export default routes;
+export default routes

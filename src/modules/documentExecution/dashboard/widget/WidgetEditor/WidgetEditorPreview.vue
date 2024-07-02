@@ -19,9 +19,18 @@
                     :dashboard-id="dashboardId"
                     :variables="variables"
                 ></WebComponentContainer>
-                <HighchartsContainer v-if="propWidget.type === 'highcharts' && !loading && isEnterprise" :widget-model="propWidget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="true" :dashboard-id="dashboardId"></HighchartsContainer>
+                <HighchartsContainer
+                    v-if="propWidget.type === 'highcharts' && !loading && isEnterprise"
+                    :widget-model="propWidget"
+                    :datasets="datasets"
+                    :data-to-show="widgetData"
+                    :prop-active-selections="activeSelections"
+                    :editor-mode="true"
+                    :dashboard-id="dashboardId"
+                    :prop-variables="variables"
+                ></HighchartsContainer>
                 <ChartJSContainer v-if="propWidget.type === 'chartJS' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections"></ChartJSContainer>
-                <ImageWidget v-if="propWidget.type === 'image'" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" />
+                <ImageWidget v-if="propWidget.type === 'image'" :widget-model="propWidget" :dashboard-id="dashboardId" :editor-mode="true" :prop-variables="variables" />
                 <CustomChartWidget
                     v-if="propWidget.type == 'customchart' && !loading"
                     :prop-widget="propWidget"
@@ -33,7 +42,10 @@
                     @loading="customChartLoading = $event"
                 ></CustomChartWidget>
                 <DiscoveryWidget v-if="propWidget.type == 'discovery'" :propWidget="propWidget" :datasets="datasets" :dataToShow="widgetData" :editorMode="true" :dashboardId="dashboardId" :propActiveSelections="activeSelections" @pageChanged="getWidgetData" />
-                <VegaContainer v-if="propWidget.type === 'vega' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections"></VegaContainer>
+                <VegaContainer v-if="propWidget.type === 'vega' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :editor-mode="true" :dashboard-id="dashboardId" :prop-active-selections="activeSelections" :prop-variables="variables"></VegaContainer>
+                <PythonWidgetContainer v-if="propWidget.type === 'python' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
+                <RWidgetContainer v-if="propWidget.type === 'r' && !loading" :widget-model="propWidget" :data-to-show="widgetData" :dashboard-id="dashboardId" :editor-mode="true" />
+                <CEPivotWidget v-if="propWidget.type == 'ce-pivot-table' && !loading" :prop-widget="propWidget" :datasets="datasets" :data-to-show="widgetData" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             </div>
         </div>
     </div>
@@ -44,7 +56,8 @@ import { defineComponent, PropType } from 'vue'
 import { IDashboardDataset, ISelection, IVariable, IWidget } from '../../Dashboard'
 import { getWidgetStyleByType } from '../TableWidget/TableWidgetHelper'
 import { emitter } from '../../DashboardHelpers'
-import { getWidgetData } from '../../DataProxyHelper'
+// import { getWidgetData } from '../../DataProxyHelper'
+import { getWidgetData } from '../../DashboardDataProxy'
 import { mapState, mapActions } from 'pinia'
 import descriptor from '../../dataset/DatasetEditorDescriptor.json'
 import ProgressBar from 'primevue/progressbar'
@@ -61,10 +74,13 @@ import ImageWidget from '../ImageWidget/ImageWidget.vue'
 import CustomChartWidget from '../CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../DiscoveryWidget/DiscoveryWidget.vue'
 import VegaContainer from '../ChartWidget/Vega/VegaContainer.vue'
+import PythonWidgetContainer from '../PythonWidget/PythonWidgetContainer.vue'
+import RWidgetContainer from '../RWidget/RWidgetContainer.vue'
+import CEPivotWidget from '../cePivotWidget/cePivotWidget.vue'
 
 export default defineComponent({
     name: 'widget-editor-preview',
-    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, ProgressBar, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, DiscoveryWidget, VegaContainer },
+    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, ProgressBar, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, DiscoveryWidget, VegaContainer, PythonWidgetContainer, RWidgetContainer, CEPivotWidget },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDashboardDataset[]>, required: true },
@@ -112,7 +128,7 @@ export default defineComponent({
         loadWebComponentData() {},
         async getWidgetData() {
             this.loading = true
-            this.widgetData = await getWidgetData(this.dashboardId, this.propWidget, this.datasets, this.$http, false, this.activeSelections)
+            this.widgetData = await getWidgetData(this.dashboardId, this.propWidget, this.datasets, this.$http, true, this.activeSelections, { searchText: '', searchColumns: [] }, this.dashboards[this.dashboardId].configuration)
             this.activeSelections = deepcopy(this.getSelections(this.dashboardId))
             this.loading = false
         },

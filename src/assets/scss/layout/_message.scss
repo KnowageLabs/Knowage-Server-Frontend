@@ -27,4 +27,10 @@
         }
         padding: var(--kn-message-padding) !important;
     }
+
+    &.p-message-small {
+        .p-message-text {
+            font-size: 0.8rem !important;
+        }
+    }
 }

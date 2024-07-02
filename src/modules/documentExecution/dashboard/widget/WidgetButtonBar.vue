@@ -1,13 +1,27 @@
 <template>
-    <i class="fa-solid fa-grip-vertical drag-handle drag-widget-icon"></i>
     <div v-if="(selectionIsLocked || playSelectionButtonVisible) && inFocus" class="lockButtonContainer" @mouseover="$emit('changeFocus', true)" @mouseleave="$emit('changeFocus', false)">
         <i v-if="selectionIsLocked" class="fas fa-lock kn-cursor-pointer" @click="$emit('unlockSelection')" />
         <i v-if="playSelectionButtonVisible" class="fas fa-play kn-cursor-pointer" @click="$emit('launchSelection')" />
     </div>
 
     <div class="widgetButtonBarContainer">
-        <Button type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="toggle" />
-        <Menu ref="widgetmenu" label="Toggle" :model="menuItems" :popup="true" @click="toggle" />
+        <i class="fa-solid fa-grip-vertical drag-handle drag-widget-icon"></i>
+        <Button v-if="widgetButtonBarVisible" type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
+    </div>
+
+    <div class="qmenu-anchor">
+        <q-menu v-model:model-value="qMenuShown" anchor="top right" self="top left" no-parent-event>
+            <q-list style="min-width: 100px">
+                <q-item v-for="(item, index) in menuItems" :key="index" v-ripple dense clickable :style="{ display: item.visible ? 'flex' : 'none' }" @click="closeMenu(item.command)">
+                    <q-item-section>
+                        <div>
+                            <i class="p-mr-3" :class="item.icon" />
+                            <label>{{ item.label }}</label>
+                        </div>
+                    </q-item-section>
+                </q-item>
+            </q-list>
+        </q-menu>
     </div>
 </template>
 
@@ -16,28 +30,49 @@
  * ! this component will be in charge of managing the widget buttons and visibility.
  */
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '../Dashboard'
-import Menu from 'primevue/menu'
+import { IDashboard, IMenuItem, IWidget } from '../Dashboard'
+import { mapActions } from 'pinia'
+import store from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { canEditDashboard } from '../DashboardHelpers'
 
 export default defineComponent({
     name: 'widget-button-bar',
-    components: { Menu },
+    components: {},
     props: {
+        document: { type: Object, required: true },
         widget: { type: Object as PropType<IWidget>, required: true },
         playSelectionButtonVisible: { type: Boolean, required: true },
         selectionIsLocked: { type: Boolean, required: true },
         dashboardId: { type: String, required: true },
         inFocus: { type: Boolean, required: true },
-        menuItems: { type: Object as PropType<any> }
+        menuItems: { type: Object as PropType<IMenuItem[]> }
     },
     emits: ['editWidget', 'unlockSelection', 'launchSelection', 'changeFocus'],
+    data() {
+        return {
+            qMenuShown: false,
+            dashboardModel: null as IDashboard | null
+        }
+    },
+    computed: {
+        widgetButtonBarVisible() {
+            if (canEditDashboard(this.document)) return true
+            const dashboardModel = this.getDashboard(this.dashboardId)
+            return dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu && this.widget?.settings?.configuration?.widgetMenu?.enabled
+        }
+    },
     methods: {
+        ...mapActions(store, ['getDashboard']),
         toggle(event) {
             const menu = this.$refs.widgetmenu as any
             menu.toggle(event)
         },
         editWidget() {
             this.$emit('editWidget')
+        },
+        closeMenu(command) {
+            this.qMenuShown = false
+            command()
         }
     }
 })
@@ -60,9 +95,10 @@ export default defineComponent({
 }
 .widgetButtonBarContainer {
     display: none;
+    z-index: 1001;
     position: absolute;
-    top: 2px;
-    right: 2px;
+    bottom: 2px;
+    left: 2px;
     .widgetMenuButton.p-button.p-button-outlined:enabled {
         background-color: rgba(256, 256, 256, 0.6);
         &:hover {
@@ -74,11 +110,15 @@ export default defineComponent({
         }
     }
 }
-.drag-widget-icon {
+
+.qmenu-anchor {
     position: absolute;
+    bottom: 15px;
+    left: 20px;
+}
+
+.drag-widget-icon {
     display: none;
-    top: 0;
-    left: 0;
     height: 26px;
     width: 26px;
     text-align: center;

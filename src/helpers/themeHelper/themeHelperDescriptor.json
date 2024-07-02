@@ -129,6 +129,31 @@
             }
         ]
     },
+    "hintcard": {
+        "label": "hint card",
+        "properties": [
+            {
+                "key": "--kn-hintcard-background-color",
+                "label": "Background Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-hintcard-title-color",
+                "label": "Title Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-hintcard-text-color",
+                "label": "Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-hintcard-icon-color",
+                "label": "Icon Color",
+                "type": "color"
+            }
+        ]
+    },
     "menu": {
         "label": "main menu",
         "properties": [

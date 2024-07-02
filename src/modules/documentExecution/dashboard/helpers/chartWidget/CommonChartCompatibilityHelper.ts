@@ -35,14 +35,14 @@ export const getFormattedWidgetColumns = (widget: any, chartLibrary: 'chartJS' |
     const index = getMaximumNumberOfSeries(chartLibrary, chartType, widget)
     if (widget.content.chartTemplate.CHART.VALUES.SERIE) {
         const endIndex = index ?? widget.content.chartTemplate.CHART.VALUES.SERIE.length
-        for (let i = 0; i < endIndex && i < widget.content.chartTemplate.CHART.VALUES.SERIE.length; i++) addSerieColumn(widget.content.chartTemplate.CHART.VALUES.SERIE[i], widgetColumNameMap, formattedColumns)
+        for (let i = 0; i < endIndex && i < widget.content.chartTemplate.CHART.VALUES.SERIE.length; i++) addSerieColumn(widget.content.chartTemplate.CHART.VALUES.SERIE[i], widgetColumNameMap, formattedColumns, chartType)
     }
     return formattedColumns
 }
 
 export const getMaximumNumberOfSeries = (chartLibrary: 'chartJS' | 'highcharts' | 'vega', chartType: string, widget: any) => {
     if (['chartJS', 'vega'].includes(chartLibrary)) return 1
-    if (chartLibrary === 'highcharts' && store.user.enterprise && chartType === 'PIE') return 1
+    if (chartLibrary === 'highcharts' && store.user.enterprise && ['PIE', 'SUNBURST', 'TREEMAP'].includes(chartType)) return 1
     if (chartType === 'GAUGE') {
         const chartSubtype = widget.content.chartTemplate.CHART.subtype
         switch (chartSubtype) {
@@ -103,10 +103,12 @@ const createDrillOrder = (orderColumn: string | null, orderType: string) => {
     return orderColumn ? { orderColumnId: orderColumn ? getColumnId(orderColumn) : '', orderColumn: orderColumn, orderType: orderType ? orderType.toUpperCase() : '' } : { orderColumnId: '', orderColumn: '', orderType: '' }
 }
 
-export const addSerieColumn = (serie: any, widgetColumNameMap: any, formattedColumns: IWidgetColumn[]) => {
+export const addSerieColumn = (serie: any, widgetColumNameMap: any, formattedColumns: IWidgetColumn[], chartType: string) => {
     const tempColumn = widgetColumNameMap[serie.column] as IWidgetColumn
     tempColumn.aggregation = serie.groupingFunction
     if (serie.orderType) tempColumn.orderType = serie.orderType.toUpperCase()
+    if (serie.type) tempColumn.serieType = serie.type
+    if (serie.axis && chartType === 'BUBBLE') tempColumn.axis = serie.axis
     formattedColumns.push(tempColumn)
 }
 

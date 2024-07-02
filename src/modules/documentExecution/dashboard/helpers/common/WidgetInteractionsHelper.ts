@@ -10,11 +10,12 @@ import mainStore from '@/App.store'
 export const getFormattedInteractions = (widget: any) => {
     const interactions = {} as IWidgetInteractions
     const chartType = getChartType(widget)
-    if (['table', 'chart', 'static-pivot-table', 'map'].includes(widget.type) && chartType !== 'GAUGE') interactions.selection = getFormattedSelection(widget) as IWidgetSelection
+    if (['table', 'chart', 'static-pivot-table', 'map'].includes(widget.type) && chartType !== 'GAUGE') interactions.selection = getFormattedSelection(widget, chartType) as IWidgetSelection
     if (['table', 'html', 'text', 'chart', 'discovery', 'image', 'customchart', 'static-pivot-table', 'map'].includes(widget.type)) interactions.crossNavigation = getFormattedCrossNavigation(widget) as IWidgetCrossNavigation
-    if (['table', 'chart', 'discovery', 'static-pivot-table', 'map'].includes(widget.type)) interactions.link = getFormattedLinkInteraction(widget) as IWidgetLinks
-    if (['table', 'html', 'text', 'chart', 'discovery', 'customchart', 'map'].includes(widget.type)) interactions.preview = getFormattedPreview(widget) as IWidgetPreview
+    if (['table', 'image', 'chart', 'discovery'].includes(widget.type)) interactions.link = getFormattedLinkInteraction(widget) as IWidgetLinks
+    if (['table', 'html', 'text', 'chart', 'discovery', 'customchart'].includes(widget.type)) interactions.preview = getFormattedPreview(widget) as IWidgetPreview
     if (['chart'].includes(widget.type)) interactions.drilldown = { enabled: false } as IHighchartsDrilldown
+    if (['table', 'html', 'customchart'].includes(widget.type)) interactions.iframe = getFormattedIFrameInteraction(widget)
     return interactions
 }
 
@@ -22,11 +23,11 @@ const getChartType = (widget: any) => {
     return widget.content?.chartTemplate?.CHART?.type ?? null
 }
 
-const getFormattedSelection = (widget: any) => {
+const getFormattedSelection = (widget: any, chartType: string | null) => {
     if (widget.type === 'table') {
         return getFormattedTableSelection(widget)
     } else if (widget.type === 'chart') {
-        return getFormattedChartSelection(widget)
+        return getFormattedChartSelection(widget, chartType)
     } else if (['static-pivot-table', 'map'].includes(widget.type)) {
         return getFormattedCommonSelection()
     }
@@ -49,12 +50,15 @@ const getFormattedTableSelection = (widget: any) => {
     return formattedSelection
 }
 
-const getFormattedChartSelection = (widget: any) => {
+const getFormattedChartSelection = (widget: any, chartType: string | null) => {
     const store = mainStore()
     const user = store.getUser()
-    // TODO widgetChange
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return chartJSDefaultValues.getDefaultChartJSSelections()
-    return user?.enterprise ? highchartsDefaultValues.getDefaultHighchartsSelections() : chartJSDefaultValues.getDefaultChartJSSelections()
+    else {
+        const highchartsDefaultSelections = highchartsDefaultValues.getDefaultHighchartsSelections()
+        if (chartType && ['SUNBURST', 'TREEMAP'].includes(chartType)) highchartsDefaultSelections.enabled = false
+        return user?.enterprise ? highchartsDefaultSelections : chartJSDefaultValues.getDefaultChartJSSelections()
+    }
 }
 
 const getFormattedCommonSelection = () => {
@@ -83,7 +87,7 @@ export const getFormattedCrossNavigation = (widget: any) => {
 const getOldCrossNavigation = (widget: any) => {
     switch (widget.type) {
         case 'chart':
-            return widget.content.cross;
+            return widget.content.cross
         case 'table':
         case 'image':
         case 'html':
@@ -94,7 +98,6 @@ const getOldCrossNavigation = (widget: any) => {
             return widget.cross.cross
         default:
             return widget.cross
-
     }
 }
 
@@ -146,7 +149,7 @@ const getFormattededLinks = (links: any) => {
             type: link.interactionType,
             baseurl: link.baseurl,
             action: link.type,
-            parameters: getFormattedLinkParameters(link.parameters)
+            parameters: getFormattedLinkParameters(link.parameters),
         } as ITableWidgetLink
 
         if (link.icon) formattedLink.icon = link.icon
@@ -161,18 +164,24 @@ const getFormattededLinks = (links: any) => {
 const getFormattedLinkParameters = (linkParameters: any[]) => {
     if (!linkParameters || linkParameters.length === 0) return []
     const formattedParameters = [] as IWidgetInteractionParameter[]
+    let useAsResourceSelected = false;
     linkParameters.forEach((linkParameter: any) => {
         const formattedParameter = {
             enabled: true,
             name: linkParameter.name,
             type: linkParameter.bindType,
-            value: linkParameter.value ?? ''
+            value: linkParameter.value ?? '',
+            useAsResource: false
         } as IWidgetInteractionParameter
 
         if (linkParameter.column) formattedParameter.column = linkParameter.column
         if (linkParameter.dataset) formattedParameter.dataset = linkParameter.dataset
         if (linkParameter.driver) formattedParameter.driver = linkParameter.driver
         if (linkParameter.json) formattedParameter.json = linkParameter.json
+        if (linkParameter.resource && !useAsResourceSelected) {
+            formattedParameter.useAsResource = linkParameter.resource
+            useAsResourceSelected = true
+        }
 
         formattedParameters.push(formattedParameter)
     })
@@ -215,4 +224,11 @@ const getFormattedPreviewParameters = (previewParameters: any) => {
     })
 
     return formattedParameters
+}
+
+const getFormattedIFrameInteraction = (widget: any) => {
+    let iFrameInteraction = widgetCommonDefaultValues.getDefaultIFrameInteraction()
+    if (!widget.cross || !widget.cross.message) return iFrameInteraction
+    iFrameInteraction = { enabled: widget.cross.message.enable, json: widget.cross.message.json, type: '', column: widget.cross.message.column ?? '' }
+    return iFrameInteraction
 }

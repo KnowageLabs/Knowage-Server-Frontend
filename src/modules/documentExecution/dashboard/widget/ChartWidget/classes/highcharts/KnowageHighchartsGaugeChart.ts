@@ -18,9 +18,10 @@ export class KnowageHighchartsGaugeChart extends KnowageHighcharts {
             const serie = this.model.series[i] as any
             serie.data = []
             data?.rows?.forEach((row: any) => {
+                const value = row[`column_${i + 1}`]
                 const serieElement = {
                     name: serie.name,
-                    y: row[`column_${i + 1}`]
+                    y: isNaN(value) || value == '' ? 0 : value
                 } as any
                 if (this.model.chart.type === 'activitygauge') {
                     serieElement.radius = startingRadius + '%'

@@ -94,7 +94,7 @@ export default defineComponent({
         },
         async loadMeasures() {
             this.measuresList = []
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpi/listMeasure').then((response: AxiosResponse<any>) =>
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpi/listMeasure').then((response: AxiosResponse<any>) =>
                 response.data.forEach((measure) => {
                     if (measure.category) {
                         measure.categoryName = measure.translatedValueName
@@ -123,7 +123,7 @@ export default defineComponent({
         },
         async deleteMeasure(measure: iMeasure) {
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/${measure.ruleId}/${measure.ruleVersion}/deleteRule`)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${measure.ruleId}/${measure.ruleVersion}/deleteRule`)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

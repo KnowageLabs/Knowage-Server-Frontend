@@ -36,9 +36,8 @@
                 </template>
             </Toolbar>
             <div id="driver-details-container" class="kn-flex kn-relative">
-                <div id="codemirror-container" :style="mainDescriptor.style.absoluteScroll">
-                    {{ scriptOptions.mode }}
-                    <VCodeMirror v-if="showTemplateContent" ref="codeMirrorScriptType" v-model:value="selectedTemplateContent" class="kn-height-full" :options="scriptOptions" @keyup="$emit('touched')" />
+                <div id="monaco-container" :style="mainDescriptor.style.absoluteScroll">
+                    <knMonaco v-if="showTemplateContent" v-model="selectedTemplateContent" class="kn-height-full" :options="{ wordWrap: 'on', readOnly: true }" :language="getEditorLanguage" @keyup="$emit('touched')"></knMonaco>
                     <div v-else>
                         <InlineMessage severity="info" class="p-m-2 kn-width-full"> {{ $t('documentExecution.documentDetails.history.templateHint') }}</InlineMessage>
                     </div>
@@ -54,7 +53,7 @@ import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iDocument } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { downloadDirect } from '@/helpers/commons/fileHelper'
-import VCodeMirror from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import { mapState } from 'pinia'
 import { startOlap } from '../../dialogs/olapDesignerDialog/DocumentDetailOlapHelpers'
 import mainDescriptor from '@/modules/documentExecution/documentDetails/DocumentDetailsDescriptor.json'
@@ -69,8 +68,27 @@ import cryptoRandomString from 'crypto-random-string'
 
 export default defineComponent({
     name: 'document-drivers',
-    components: { KnListBox, KnInputFile, VCodeMirror, InlineMessage },
-    props: { selectedDocument: { type: Object as PropType<iDocument>, required: true } },
+    components: { KnListBox, KnInputFile, knMonaco, InlineMessage },
+    props: { selectedDocument: { type: Object as PropType<iDocument>, required: true }, refresh: { type: Boolean, required: false } },
+
+    setup() {
+        const store = mainStore()
+        return { store }
+    },
+    data() {
+        return {
+            mainDescriptor,
+            driversDescriptor,
+            historyDescriptor,
+            selectedTemplate: {} as iTemplate,
+            listOfTemplates: [] as iTemplate[],
+            selectedTemplateFileType: null as any,
+            selectedTemplateContent: '' as any,
+            loading: false,
+            triggerUpload: false,
+            uploading: false
+        }
+    },
     computed: {
         showTemplateContent(): any {
             switch (this.selectedTemplateFileType) {
@@ -90,6 +108,29 @@ export default defineComponent({
                     return false
             }
         },
+        getEditorLanguage(): string {
+            let mode = ''
+            switch (this.selectedTemplateFileType) {
+                case 'xml':
+                    mode = 'html'
+                    break
+                case 'xls':
+                    mode = 'html'
+                    break
+                case 'rptdesign':
+                    mode = 'html'
+                    break
+                case 'sbicockpit':
+                    mode = 'json'
+                    break
+                case 'json':
+                    mode = 'json'
+                    break
+                case 'sbigeoreport':
+                    mode = 'json'
+            }
+            return mode
+        },
         designerButtonVisible(): boolean {
             return this.selectedDocument.typeCode == 'OLAP' || this.selectedDocument.typeCode == 'KPI' || this.selectedDocument.engine == 'knowagegisengine'
         },
@@ -97,82 +138,30 @@ export default defineComponent({
             user: 'user'
         })
     },
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
-    data() {
-        return {
-            mainDescriptor,
-            driversDescriptor,
-            historyDescriptor,
-            selectedTemplate: {} as iTemplate,
-            listOfTemplates: [] as iTemplate[],
-            selectedTemplateFileType: null as any,
-            selectedTemplateContent: '' as any,
-            loading: false,
-            triggerUpload: false,
-            uploading: false,
-            codeMirrorScriptType: {} as any,
-            scriptOptions: {
-                readOnly: true,
-                mode: '',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true
+    watch: {
+        refresh(newValue) {
+            if (newValue && newValue == true) {
+                this.getAllTemplates()
             }
         }
     },
     created() {
-        const interval = setInterval(() => {
-            if (!this.$refs.codeMirrorScriptType) return
-            this.codeMirrorScriptType = (this.$refs.codeMirrorScriptType as any).cminstance as any
-            clearInterval(interval)
-        }, 200)
         this.getAllTemplates()
     },
     methods: {
         async getAllTemplates() {
             this.loading = true
             this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/templates`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates`)
                 .then((response: AxiosResponse<any>) => (this.listOfTemplates = response.data as iTemplate[]))
                 .finally(() => (this.loading = false))
         },
         async getSelectedTemplate(templateId) {
-            this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/templates/selected/${templateId}`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } }).then((response: AxiosResponse<any>) => {
+            this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/selected/${templateId}`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } }).then((response: AxiosResponse<any>) => {
                 this.selectedTemplateFileType == 'sbicockpit' || this.selectedTemplateFileType == 'json' || this.selectedTemplateFileType == 'sbigeoreport' ? (this.selectedTemplateContent = JSON.stringify(response.data, null, 4)) : (this.selectedTemplateContent = response.data)
             })
         },
-        changeCodemirrorMode() {
-            let mode = ''
-            switch (this.selectedTemplateFileType) {
-                case 'xml':
-                    mode = 'text/html'
-                    break
-                case 'xls':
-                    mode = 'text/html'
-                    break
-                case 'rptdesign':
-                    mode = 'text/html'
-                    break
-                case 'sbicockpit':
-                    mode = 'text/javascript'
-                    break
-                case 'json':
-                    mode = 'text/javascript'
-                    break
-                case 'sbigeoreport':
-                    mode = 'text/javascript'
-            }
-            setTimeout(() => {
-                this.codeMirrorScriptType.setOption('mode', mode)
-            }, 250)
-        },
+
         setFileType(template) {
             if (template && template.name) {
                 const fileType = template.name.split('.')
@@ -182,7 +171,6 @@ export default defineComponent({
         selectTemplate(event) {
             this.selectedTemplate = event as iTemplate
             this.setFileType(event)
-            this.changeCodemirrorMode()
             this.getSelectedTemplate(event.id)
         },
         setUploadType() {
@@ -199,7 +187,7 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFile)
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/templates`, formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates`, formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
                     await this.getAllTemplates()
@@ -210,7 +198,7 @@ export default defineComponent({
         },
         setActiveTemplate(template) {
             this.$http
-                .put(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/templates/${template.id}`, { headers: { 'X-Disable-Errors': 'true' } })
+                .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/${template.id}`, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(() => {
                     this.store.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('documentExecution.documentDetails.history.activeOk') })
                     this.getAllTemplates()
@@ -220,7 +208,7 @@ export default defineComponent({
         async downloadTemplate(template) {
             const fileType = template.name.split('.')
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/templates/${template.id}/${fileType[fileType.length - 1]}/file`, {
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/${template.id}/${fileType[fileType.length - 1]}/file`, {
                     headers: { Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 'X-Disable-Errors': 'true' }
                 })
                 .then((response: AxiosResponse<any>) => {
@@ -255,7 +243,7 @@ export default defineComponent({
         },
         async deleteTemplate(template) {
             await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/documentdetails/${this.selectedDocument.id}/templates/${template.id}`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/${template.id}`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
                 .then(() => {
                     this.store.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
                     this.getAllTemplates()
@@ -311,7 +299,7 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
-#codemirror-container {
+#monaco-container {
     overflow: hidden !important;
 }
 </style>

@@ -1,4 +1,4 @@
-import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver } from '../../Dashboard'
+import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink, IWidgetPreview, IWidgetInteractions } from '../../Dashboard'
 
 export const getColumnGroup = (propWidget: IWidget, col: ITableWidgetColumnGroup) => {
     const modelGroups = propWidget.settings.configuration.columnGroups.groups
@@ -36,90 +36,98 @@ export const getWidgetStyleByTypeWithoutValidation = (propWidget: IWidget, style
     return styleString + ';'
 }
 
-export const getColumnConditionalStyles = (propWidget: IWidget, colId: string, valueToCompare: any, returnString?: boolean, variables?: IVariable[], drivers?: IDashboardDriver[]) => {
-    const conditionalStyles = propWidget.settings.conditionalStyles
-    let styleString = null as any
+export const getCellConditionalStyles = (cellParams: any) => {
+    let conditionalStypeProps = null as any
+    const cellConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => condition.target.includes(cellParams.colId)) as ITableWidgetConditionalStyle[]
+    const brotherConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => !condition.target.includes(cellParams.colId)) as ITableWidgetConditionalStyle[]
 
-    const columnConditionalStyles = conditionalStyles.conditions.filter((condition) => condition.target.includes(colId) || condition.condition.formula)
-    const columnName = propWidget.columns.find((column) => column.id === colId)?.columnName
+    if (cellConditionalStyles.length > 0) conditionalStypeProps = getCellConditionalStyle(cellConditionalStyles, cellParams)
+    if (brotherConditionalStyles.length > 0 && conditionalStypeProps == null) conditionalStypeProps = getBrotherConditionalStyle(brotherConditionalStyles, cellParams)
 
-    if (columnConditionalStyles.length > 0) {
-        for (let i = 0; i < columnConditionalStyles.length; i++) {
-            if (
-                (columnConditionalStyles[i].condition.formula && isFormulaConditionMet(columnConditionalStyles[i].condition.formula, valueToCompare, columnName, variables, drivers)) ||
-                (!columnConditionalStyles[i].condition.formula && isConditionMet(columnConditionalStyles[i].condition, valueToCompare))
-            ) {
-                if (columnConditionalStyles[i].applyToWholeRow && !returnString) {
-                    styleString = columnConditionalStyles[i].properties
-                } else if (returnString) {
-                    styleString = Object.entries(columnConditionalStyles[i].properties)
-                        .map(([k, v]) => `${k}:${v}`)
-                        .join(';')
-                } else if (!returnString) {
-                    styleString = columnConditionalStyles[i].properties
-                }
-                break
-            }
-        }
+    return conditionalStypeProps
+}
+
+const getCellConditionalStyle = (cellConditionalStyles: ITableWidgetConditionalStyle[], cellParams: any) => {
+    for (let i = 0; i < cellConditionalStyles.length; i++) {
+        const cellConditionalStyle = cellConditionalStyles[i]
+        if (isCellConditionMet(cellConditionalStyle, cellParams)) return cellConditionalStyle.properties
     }
-    return styleString
 }
 
-const isFormulaConditionMet = (formula, valueToCompare, columnName, variables?: IVariable[], drivers?: IDashboardDriver[]) => {
-    const formattedFormula = replacePlaceholders(formula, valueToCompare, false, columnName, variables, drivers)
-    return eval(formattedFormula)
+const isCellConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
+    if (cellConditionalStyle.condition.formula) return eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
+    else return !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.value, cellParams.dashboardVariables, cellParams.dashboardDrivers)
 }
 
-const replacePlaceholders = (text, data, skipAdapting, columnName, variables?: IVariable[], drivers?: IDashboardDriver[]) => {
+const getBrotherConditionalStyle = (brotherConditionalStyles: ITableWidgetConditionalStyle[], cellParams: any) => {
+    for (let i = 0; i < brotherConditionalStyles.length; i++) {
+        const brotherConditionalStyle = brotherConditionalStyles[i]
+        if (isBrotherConditionMet(brotherConditionalStyle, cellParams)) return brotherConditionalStyle.properties
+    }
+}
+
+const isBrotherConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
+    const columnDataMap = cellParams.columnDataMap
+
+    if (cellConditionalStyle.condition.formula) return cellConditionalStyle.applyToWholeRow && eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
+    else return cellConditionalStyle.applyToWholeRow && !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.data[columnDataMap[cellConditionalStyle.target]], cellParams.variables, cellParams.drivers)
+}
+
+const replacePlaceholders = (cellParams, formula, variables: IVariable[], drivers: IDashboardDriver[], skipAdapting: boolean) => {
     function adaptToType(value) {
         if (skipAdapting) return value
         else return isNaN(value) ? '"' + value + '"' : value
     }
     // variables
-    text = text.replace(/\$V\{([a-zA-Z0-9_\-.]+)\}/g, (match, variableName) => {
+    formula = formula.replace(/\$V\{([a-zA-Z0-9_\-.]+)\}/g, (match, variableName) => {
         if (variables && variables.length > 0) {
             const dashboardVariable = variables.find((variable) => variable.name === variableName)
             if (dashboardVariable) return adaptToType(dashboardVariable.value)
         }
     })
     // fields
-    text = text.replace(/\$F\{([a-zA-Z0-9_\-.]+)\}/g, (match, field) => {
-        if (field === columnName) return adaptToType(data)
+    formula = formula.replace(/\$F\{([a-zA-Z0-9_\-.]+)\}/g, (match, field) => {
+        const columnToCompareIndex = cellParams.propWidget.columns.findIndex((column) => column.columnName === field)
+        // if(colToCompare) return adaptToType(data)
+        return adaptToType(cellParams.data[`column_${columnToCompareIndex + 1}`])
     })
     // parameters/drivers
-    text = text.replace(/\$P\{([a-zA-Z0-9_\-.]+)\}/g, (match, parameterName) => {
+    formula = formula.replace(/\$P\{([a-zA-Z0-9_\-.]+)\}/g, (match, parameterName) => {
         if (drivers && drivers.length > 0) {
             const dashboardVariable = drivers.find((driver) => driver.urlName === parameterName)
             if (dashboardVariable) return adaptToType(dashboardVariable.value)
         }
     })
 
-    return text
+    return formula
 }
 
-export const isConditionMet = (condition, valueToCompare) => {
+export const isConditionMet = (condition, valueToCompare, variables?, drivers?) => {
     let fullfilledCondition = false
+    let comparer = condition.value
+    if (condition.type == 'variable' && variables) comparer = variables.find((i) => i.name === condition.variable).value
+    if (condition.type == 'parameter' && drivers) comparer = drivers.find((i) => i.name === condition.variable).value
     switch (condition.operator) {
         case '==':
-            fullfilledCondition = valueToCompare == condition.value
+            fullfilledCondition = valueToCompare == comparer
             break
         case '>=':
-            fullfilledCondition = valueToCompare >= condition.value
+            fullfilledCondition = valueToCompare >= comparer
             break
         case '<=':
-            fullfilledCondition = valueToCompare <= condition.value
+            fullfilledCondition = valueToCompare <= comparer
             break
         case 'IN':
-            fullfilledCondition = condition.value.split(',').indexOf(valueToCompare) != -1
+            fullfilledCondition = comparer.split(',').indexOf(valueToCompare) != -1
             break
         case '>':
-            fullfilledCondition = valueToCompare > condition.value
+            fullfilledCondition = valueToCompare > comparer
             break
         case '<':
-            fullfilledCondition = valueToCompare < condition.value
+            fullfilledCondition = valueToCompare < comparer
             break
         case '!=':
-            fullfilledCondition = valueToCompare != condition.value
+            fullfilledCondition = valueToCompare != comparer
             break
     }
     return fullfilledCondition
@@ -134,18 +142,11 @@ const getDatasetLabel = (datasetId: number, datasets: IDataset[]) => {
     return index !== -1 ? datasets[index].label : ''
 }
 
-export const isCrossNavigationActive = (tableNode: any, crossNavigationOptions: IWidgetCrossNavigation) => {
-    if (!crossNavigationOptions.enabled) return false
-    if (crossNavigationOptions.type === 'singleColumn' && (!crossNavigationOptions.column || tableNode.colDef?.colId !== crossNavigationOptions.column)) return false
-    if (crossNavigationOptions.type === 'icon' && tableNode.colDef?.colId !== 'iconColumn') return false
-    return true
-}
-
 export const formatRowDataForCrossNavigation = (tableNode: any, dataToShow: any) => {
     const columnDefs = tableNode.columnApi?.columnModel?.columnDefs
     const rowData = tableNode.node.data
     if (!columnDefs || !rowData) return {}
-    const formattedRow = {}
+    const formattedRow = { columnName: tableNode.colDef?.columnName ?? '' }
     columnDefs.forEach((columnDef: any) => (formattedRow[columnDef.columnName] = { value: rowData[columnDef.field], type: getColumnType(columnDef.field, dataToShow) }))
     return formattedRow
 }
@@ -161,20 +162,44 @@ const getColumnType = (columnField: string, dataToShow: any) => {
     return index !== -1 ? dataToShow.metaData.fields[index].type : ''
 }
 
-export const addIconColumn = (columns: any[], propWidget: IWidget, HeaderRenderer: any, CellRenderer: any) => {
-    const crossNavigationOptions = propWidget.settings.interactions.crossNavigation as IWidgetCrossNavigation
-    if (crossNavigationOptions.enabled && crossNavigationOptions.type === 'icon')
-        columns.push({
-            colId: 'iconColumn',
-            valueGetter: `node.rowIndex + 1`,
-            headerName: '',
-            pinned: 'right',
-            width: 55,
-            sortable: false,
-            filter: false,
-            headerComponent: HeaderRenderer,
-            headerComponentParams: { propWidget: propWidget },
-            cellRenderer: CellRenderer,
-            cellRendererParams: { colId: 'iconColumn', propWidget: propWidget }
-        })
+
+export const getActiveInteractions = (tableNode: any, widgetInteracitonsConfiguration: IWidgetInteractions) => {
+    const activeInteractions = []
+    addActiveCrossNavigationInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.crossNavigation)
+    addActiveLinkInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.link)
+    addActivePreviewInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.preview)
+    addActiveIFrameInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.iframe)
+    return activeInteractions
+}
+
+const addActiveCrossNavigationInteractions = (tableNode: any, activeInteractions: any[], crossNavigationSettings: IWidgetCrossNavigation | undefined) => {
+    if (!crossNavigationSettings || !crossNavigationSettings.enabled) return
+    const isSingleColumnNavigationActiveForSelectedColumn = crossNavigationSettings.type === 'singleColumn' && crossNavigationSettings.column && tableNode.colDef?.colId === crossNavigationSettings.column
+    if (crossNavigationSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...crossNavigationSettings, interactionType: 'crossNavigation' })
+}
+
+const addActiveLinkInteractions = (tableNode: any, activeInteractions: any[], linkSettings: IWidgetLinks | undefined) => {
+    if (!linkSettings || !linkSettings.enabled) return
+    linkSettings.links.forEach((link: ITableWidgetLink) => {
+        const isSingleColumnNavigationActiveForSelectedColumn = link.type === 'singleColumn' && isLinkColumnInteractionActive(tableNode, linkSettings)
+        if (link.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...link, interactionType: 'link' })
+    })
+}
+
+const isLinkColumnInteractionActive = (tableNode: any, linkOptions: IWidgetLinks) => {
+    if (!tableNode.colDef?.columnName) return false
+    const index = linkOptions.links.findIndex((link: ITableWidgetLink) => link.type === 'singleColumn' && link.column === tableNode.colDef.columnName)
+    return index !== -1
+}
+
+const addActivePreviewInteractions = (tableNode: any, activeInteractions: any[], previewSettings: IWidgetPreview | undefined) => {
+    if (!previewSettings || !previewSettings.enabled) return
+    const isSingleColumnNavigationActiveForSelectedColumn = previewSettings.type === 'singleColumn' && previewSettings.column && tableNode.colDef?.columnName === previewSettings.column
+    if (previewSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...previewSettings, interactionType: 'preview' })
+}
+
+const addActiveIFrameInteractions = (tableNode: any, activeInteractions: any[], iFrameInteractionSettings: IFrameInteractionSettings | undefined) => {
+    if (!iFrameInteractionSettings || !iFrameInteractionSettings.enabled) return
+    const isSingleColumnNavigationActiveForSelectedColumn = iFrameInteractionSettings.type === 'singleColumn' && iFrameInteractionSettings.column && tableNode.colDef?.colId === iFrameInteractionSettings.column
+    if (iFrameInteractionSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...iFrameInteractionSettings, interactionType: 'iframe' })
 }

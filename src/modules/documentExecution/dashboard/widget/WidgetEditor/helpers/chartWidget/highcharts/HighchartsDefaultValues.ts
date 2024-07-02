@@ -1,5 +1,5 @@
 import { IWidgetSelection } from "@/modules/documentExecution/dashboard/Dashboard"
-import { IHighchartsAccessibilitySettings, IHighchartsChartPlotOptions, IHighchartsLegend, IHighchartsNoDataConfiguration, IHighchartsOptions3D, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, IHighchartsSeriesLabelsSetting, IHighchartsTooltip, ISerieAccessibilitySetting } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
+import { IHighchartsAccessibilitySettings, IHighchartsLegend, IHighchartsNoDataConfiguration, IHighchartsOptions3D, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, IHighchartsSeriesLabelsSetting, IHighchartsTooltip, ISerieAccessibilitySetting } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
 import deepcopy from "deepcopy"
 import descriptor from './HighchartsDefaultValuesDescriptor.json'
 
@@ -28,7 +28,7 @@ export const getDefaultLegendSettings = () => {
 }
 
 export const getDafaultPieChartPlotOptions = () => {
-    return deepcopy(descriptor.defaultPieChartPlotOptions) as IHighchartsChartPlotOptions
+    return deepcopy(descriptor.defaultPieChartPlotOptions)
 }
 
 export const getDefaultHighchartsSelections = () => {
@@ -64,11 +64,11 @@ export const getDefaultSeriePivotSettings = () => {
 }
 
 export const getDafaultGaugeChartPlotOptions = () => {
-    return deepcopy(descriptor.defaultGaugeChartPlotOptions) as IHighchartsChartPlotOptions
+    return deepcopy(descriptor.defaultGaugeChartPlotOptions)
 }
 
 export const getdefaultActivityGaugeChartPlotOptions = () => {
-    return deepcopy(descriptor.defaultActivityGaugeChartPlotOptions) as IHighchartsChartPlotOptions
+    return deepcopy(descriptor.defaultActivityGaugeChartPlotOptions)
 }
 
 export const getDafaultPaneOptions = () => {
@@ -115,7 +115,7 @@ export const getDefaultHeatmapYAxis = () => {
 }
 
 export const getDafaultHeatmapPlotOptions = () => {
-    return deepcopy(descriptor.dafaultHeatmapPlotOptions) as IHighchartsChartPlotOptions
+    return deepcopy(descriptor.dafaultHeatmapPlotOptions)
 }
 
 export const getDefaultDateTypeSettings = () => {
@@ -124,4 +124,43 @@ export const getDefaultDateTypeSettings = () => {
 
 export const getDefaultHeatmapLegendSettings = () => {
     return deepcopy(descriptor.defaultHeatmapLegendSettings)
+}
+
+export const getDefaultRadarXAxis = () => {
+    return deepcopy(descriptor.defaultRadarXAxis)
+}
+
+export const getDefaultRadarYAxis = () => {
+    return deepcopy(descriptor.defaultRadarYAxis)
+}
+
+export const getDefaultPlotLinesSetting = () => {
+    return deepcopy(descriptor.defaultPlotLinesSetting)
+}
+
+export const getDefaultBarXAxis = () => {
+    return deepcopy(descriptor.defaultBarXAxis)
+}
+
+export const getDefaultBarYAxis = () => {
+    return deepcopy(descriptor.defaultBarYAxis)
+}
+
+export const getDefaultScatterXAxis = () => {
+    return deepcopy(descriptor.defaultScatterXAxis)
+}
+
+export const getDefaultScatterYAxis = () => {
+    return deepcopy(descriptor.defaultScatterYAxis)
+}
+
+export const getDefaultSonificationSettings = () => {
+    return deepcopy(descriptor.defaultSonificationSettings)
+}
+
+export const getDefaultAnnotations = () => {
+    return deepcopy(descriptor.defaultAnnotations)
+}
+export const getDefaultPackedBubblePlotOptions = () => {
+    return deepcopy(descriptor.defaultPackedBubblePlotOptions)
 }

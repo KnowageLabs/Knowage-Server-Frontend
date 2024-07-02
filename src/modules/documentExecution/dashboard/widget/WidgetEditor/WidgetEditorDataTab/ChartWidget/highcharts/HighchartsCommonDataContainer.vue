@@ -1,12 +1,13 @@
 <template>
     <div v-if="widgetModel" class="p-d-flex p-flex-column">
         <WidgetEditorColumnTable
-            v-if="['pie', 'heatmap'].includes(chartType)"
+            v-if="['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'bubble', 'scatter', 'line', 'treemap', 'sunburst', 'spline', 'pictorial', 'funnel', 'waterfall'].includes(chartType)"
             class="p-m-2 p-order-1"
             :widget-model="widgetModel"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="columnTableSettings"
             :chart-type="chartType"
+            :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -19,6 +20,7 @@
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="valuesColumnSettings"
             :chart-type="chartType"
+            :error="isMeasureTableInvalid()"
             @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -59,30 +61,82 @@ export default defineComponent({
         chartType() {
             return this.widgetModel?.settings.chartModel?.model?.chart.type
         },
+        scatterChartIsJittered() {
+            if (this.chartType !== 'scatter') return false
+            return this.widgetModel?.settings.chartModel?.model?.plotOptions?.scatter?.jitter
+        },
         columnTableSettings() {
             switch (this.chartType) {
                 case 'pie':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
                 case 'heatmap':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.heatmapColumnTableSettings[0] }
+                case 'radar':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.radarColumnTableSettings[0] }
+                case 'area':
+                case 'bar':
+                case 'column':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.barChartColumnTableSettings[0] }
+                case 'bubble':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[0] }
+                case 'scatter':
+                    return this.scatterChartIsJittered ? { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.scatterJitterChartColumnTableSettings[0] } : { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.scatterChartColumnTableSettings[0] }
+                case 'line':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.lineChartColumnTableSettings[0] }
+                case 'treemap':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.treemapChartColumnTableSettings[0] }
+                case 'sunburst':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[0] }
+                case 'spline':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.splineChartColumnTableSettings[0] }
+                case 'pictorial':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
+                case 'funnel':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[0] }
+                case 'waterfall':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[0] }
                 default:
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pieChartColumnTableSettings[0] }
             }
         },
         valuesColumnSettings() {
             switch (this.chartType) {
                 case 'pie':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.pieChartColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pieChartColumnTableSettings[1] }
                 case 'gauge':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[0] }
                 case 'activitygauge':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.activitygaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.activitygaugeChartColumnTableSettings[0] }
                 case 'solidgauge':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.solidgaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.solidgaugeChartColumnTableSettings[0] }
                 case 'heatmap':
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.heatmapColumnTableSettings[1] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.heatmapColumnTableSettings[1] }
+                case 'radar':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.radarColumnTableSettings[1] }
+                case 'area':
+                case 'bar':
+                case 'column':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.barChartColumnTableSettings[1] }
+                case 'bubble':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.bubbleChartColumnTableSettings[1] }
+                case 'scatter':
+                    return this.scatterChartIsJittered ? { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.scatterJitterChartColumnTableSettings[1] } : { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.scatterChartColumnTableSettings[1] }
+                case 'line':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.lineChartColumnTableSettings[1] }
+                case 'treemap':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.treemapChartColumnTableSettings[1] }
+                case 'sunburst':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.sunburstChartColumnTableSettings[1] }
+                case 'spline':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.splineChartColumnTableSettings[1] }
+                case 'pictorial':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
+                case 'funnel':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.pictorialChartColumnTableSettings[1] }
+                case 'waterfall':
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.waterfallChartColumnTableSettings[1] }
                 default:
-                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[0] }
+                    return { ...commonDescriptor.columnChartSettings, ...highchartDescriptor.gaugeChartColumnTableSettings[1] }
             }
         }
     },
@@ -92,16 +146,27 @@ export default defineComponent({
         },
         selectedDataset() {
             this.selectedColumn = null
+            this.clearSelectedWidgetColumnsFromWidgetModel()
         }
     },
-    async created() {
+    created() {
+        this.setEventListeners()
         this.loadWidgetModel()
-        this.$watch('widgetModel.columns', () => this.loadColumnTableItems())
         this.loadColumnTableItems()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('reloadChartColumns', this.loadColumnTableItems)
+        },
+        removeEventListeners() {
+            emitter.off('reloadChartColumns', this.loadColumnTableItems)
+        },
         loadWidgetModel() {
             this.widgetModel = this.propWidgetModel
+            this.loadColumnTableItems()
         },
         loadColumnTableItems() {
             this.columnTableItems = []
@@ -109,20 +174,8 @@ export default defineComponent({
             this.columnTableItems['MEASURES'] = []
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
                 const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
-                const maxNumberOfDimensions = this.getMaximumNumberOfDimensions()
-                if (type === 'MEASURES' && maxNumberOfDimensions && this.columnTableItems['MEASURES'].length === maxNumberOfDimensions) return
                 this.columnTableItems[type].push(column)
             })
-        },
-        getMaximumNumberOfDimensions() {
-            switch (this.chartType) {
-                case 'pie':
-                    return 1
-                case 'heatmap':
-                    return 2
-                default:
-                    return null
-            }
         },
         onColumnsReorder(columns: IWidgetColumn[], type: 'ATTRIBUTES' | 'MEASURES') {
             this.columnTableItems[type] = columns
@@ -168,6 +221,87 @@ export default defineComponent({
             const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
+        },
+        isAttributesTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'area':
+                    case 'bar':
+                    case 'column':
+                    case 'line':
+                        invalid =
+                            (this.widgetModel.settings.configuration?.grouping?.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2) ||
+                            (this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['ATTRIBUTES'].length !== 1) ||
+                            (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
+                        break
+                    case 'scatter':
+                    case 'spline':
+                    case 'pictorial':
+                    case 'funnel':
+                    case 'waterfall':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
+                        break
+                    case 'sunburst':
+                    case 'treemap':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length < 2
+                        break
+                    case 'heatmap':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 2
+                        break
+                    case 'radar':
+                        invalid = this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.attributesInvalid = invalid
+            return invalid
+        },
+        isMeasureTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['MEASURES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'area':
+                    case 'bar':
+                    case 'column':
+                    case 'line':
+                        invalid = this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['MEASURES'].length !== 2
+                        break
+                    case 'solidgauge':
+                    case 'heatmap':
+                    case 'sunburst':
+                    case 'treemap':
+                    case 'pictorial':
+                    case 'funnel':
+                    case 'waterfall':
+                    case 'scatter':
+                        invalid = this.columnTableItems['MEASURES'].length !== 1
+                        break
+                    case 'pie':
+                    case 'gauge':
+                    case 'activitygauge':
+                        invalid = this.columnTableItems['MEASURES'].length > 4
+                        break
+                    case 'spline':
+                        invalid = this.columnTableItems['MEASURES'].length < 2
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.measuresInvalid = invalid
+            return invalid
+        },
+        clearSelectedWidgetColumnsFromWidgetModel() {
+            for (let i = this.widgetModel.columns.length - 1; i >= 0; i--) {
+                this.widgetModel.columns.forEach((column: IWidgetColumn) => this.onColumnDelete(column))
+            }
         }
     }
 })

@@ -86,7 +86,12 @@ export const parseHtml = (tempWidgetModel: IWidget, tempDrivers: any[], tempVari
 
             const parseHtmlFunctionsResult = parseHtmlFunctions(wrappedHtmlToRender)
             trustedHtml = sanitizeHtml(parseHtmlFunctionsResult, {
-                allowedAttributes: { '*': ['*'] }
+                allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+                allowedAttributes: {
+                    '*': ['*'],
+                    img: ['src', 'align'],
+                },
+                allowedSchemes: ['data', 'http', 'https']
             })
         }
     } catch (error: any) {
@@ -206,6 +211,9 @@ const parseAttrs = (allElements: any) => {
         }
         if (allElements[j] && allElements[j].hasAttribute('kn-selection-column')) {
             allElements[j].classList.add('select-class-temp')
+        }
+        if (allElements[j] && allElements[j].hasAttribute('kn-message')) {
+            allElements[j].classList.add('iframe-class-temp')
         }
         j++
     } while (j < nodesNumber)

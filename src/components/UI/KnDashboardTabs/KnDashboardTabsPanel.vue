@@ -1,17 +1,66 @@
 <template>
     <div class="sheets-container">
-        <!-- <div class="sheets-list" :class="labelPosition" role="tablist" v-if="sheets && sheets.length > 1"> -->
-        <div v-if="sheets && sheets.length >= 1" class="sheets-list" :class="labelPosition" role="tablist">
-            <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index }" @touchstart.passive="setPage(index)" @click="setPage(index)">
+        <div v-if="(edit && sheets && sheets.length >= 1) || (!edit && sheets && sheets.length > 1)" class="sheets-list" :class="labelPosition" role="tablist">
+            <a v-for="(sheet, index) in sheets" :key="index" class="sheet-label" :class="{ active: currentPage === index, hidden: sheets.length <= 1 }" @touchstart.passive="setPage(index)" @click="setPage(index)" @dblclick.stop="renameSheet(index)">
                 <slot name="label" v-bind="sheet">
-                    <i v-if="sheet.icon" :class="sheet.icon" class="p-mr-1"></i>
-                    <span>{{ sheet.label }} </span>
-                    <Button icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" @click="toggleMenu" />
-                    <Menu id="buttons_menu" ref="buttons_menu" :model="menuButtons" :popup="true"> </Menu>
+                    <template v-if="sheet.icon">
+                        <i v-if="sheet.icon.className" :class="sheet.icon.className" class="p-mr-1"></i>
+                        <div v-if="sheet.icon.category === 'custom'" class="custom-image" :style="{ 'background-image': `url(${sheet.icon.image})` }"></div>
+                    </template>
+
+                    <input v-if="index === sheetToRenameIndex" v-model="tempLabel" :ref="`input_${index}`" type="text" @click.stop="" @blur="saveRename(index, $event)" @keyup.enter="saveRename(index, $event)" />
+                    <span v-else class="kn-truncated sheet-label-text" :title="sheet.label" :class="{ hasIcon: sheet.icon }">{{ sheet.label }} </span>
+                    <Button v-if="edit" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
+                    <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`">
+                        <q-list style="min-width: 100px" dense>
+                            <q-item clickable v-close-popup @click="renameSheet(index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-edit" />
+                                        <label>{{ $t('dashboard.sheets.rename') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup @click="manageIcon(index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-icons" />
+                                        <label>{{ $t('dashboard.sheets.manageIcon') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                            <q-item v-if="sheets.length > 1 && index !== sheets.length - 1" clickable v-close-popup @click="move('right', index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-arrow-right" />
+                                        <label>{{ $t('dashboard.sheets.moveRight') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                            <q-item v-if="sheets.length > 1 && index !== 0" clickable v-close-popup @click="move('left', index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-arrow-left" />
+                                        <label>{{ $t('dashboard.sheets.moveLeft') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                            <q-separator v-if="sheets.length > 1" />
+                            <q-item v-if="sheets.length > 1" clickable v-close-popup @click="deleteSheet(index)">
+                                <q-item-section>
+                                    <div>
+                                        <i class="p-mr-3 fa-solid fa-trash" />
+                                        <label>{{ $t('dashboard.sheets.delete') }}</label>
+                                    </div>
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-menu>
                 </slot>
             </a>
-            <a class="sheet-label" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
+            <a v-if="edit" class="sheet-label" :title="$t('dashboard.sheets.add')" @click="addSheet"><i class="fa-solid fa-circle-plus"></i></a>
         </div>
+        <kn-icon-picker v-if="iconPickerVisible" :enable-base64="true" :current-icon="sheets[iconPickerVisible - 1].icon" @save="saveIcon" @close="closeIcon"></kn-icon-picker>
 
         <div class="sheets-wrapper" @touchstart.passive="onTouchStart($event)" @touchmove.passive="onTouchMove($event)" @touchend.passive="onTouchEnd($event)">
             <div class="sheet-content" :style="{ transform: `translate3d(${translateX}px, 0, 0)` }">
@@ -24,22 +73,22 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
-import Menu from 'primevue/menu'
 import type { ISheet } from '@/modules/documentExecution/dashboard/Dashboard'
+import cryptoRandomString from 'crypto-random-string'
+import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
 
 export default defineComponent({
     name: 'kn-dashboard-tabs-panel',
-    components: { Menu },
+    components: { KnIconPicker },
     props: {
+        edit: { type: Boolean, default: false },
         sheets: {
             type: Array as PropType<Array<ISheet>>,
             required: true
         },
-        indexTab: {
-            type: String
-        },
         labelPosition: {
-            type: String
+            type: String,
+            default: 'bottom'
         }
     },
     emits: ['sheetChange', 'update:sheets'],
@@ -52,45 +101,86 @@ export default defineComponent({
                 left: 0,
                 top: 0
             },
-            menuButtons: [
-                {
-                    label: 'Options',
-                    items: [
-                        { label: 'New', icon: 'pi pi-fw pi-plus', command: () => {} },
-                        { label: 'Delete', icon: 'pi pi-fw pi-trash', url: 'http://primetek.com.tr' }
-                    ]
-                },
-                {
-                    label: 'Account',
-                    items: [
-                        { label: 'Options', icon: 'pi pi-fw pi-cog', to: '/options' },
-                        { label: 'Sign Out', icon: 'pi pi-fw pi-power-off', to: '/logout' }
-                    ]
-                }
-            ],
+            iconPickerVisible: null,
             touchPoint: {
                 startLeft: 0,
                 startTop: 0,
                 startTime: 0
             },
+            sheetToRenameIndex: null,
             startTranslateX: 0,
             startTime: 0,
-            swipeType: 'init'
+            swipeType: 'init',
+            tempLabel: '',
+            initialLoad: true
+        }
+    },
+    watch: {
+        sheets() {
+            this.loadActiveSheetFromQuery()
         }
     },
     mounted() {
         this.initDPR()
+        this.loadActiveSheetFromQuery()
     },
     methods: {
         addSheet(): void {
-            this.$emit('update:sheets', [...this.sheets, { label: 'new sheet', widgets: { lg: [] } }])
+            this.$emit('update:sheets', [...this.sheets, { label: this.$t('dashboard.sheets.newSheet'), widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] }, id: cryptoRandomString({ length: 16, type: 'base64' }) }])
+        },
+        renameSheet(index): void {
+            if (this.edit) {
+                this.sheetToRenameIndex = index
+                this.tempLabel = this.sheets[index].label
+                setTimeout(() => {
+                    this.$refs[`input_${index}`][0].focus()
+                }, 100)
+            }
+        },
+        saveRename(index, event): void {
+            if (this.edit) {
+                const tempSheets = [...this.sheets]
+                tempSheets[index].label = this.tempLabel
+                this.$emit('update:sheets', tempSheets)
+                this.sheetToRenameIndex = null
+            }
+        },
+        deleteSheet(index): void {
+            this.$confirm.require({
+                message: this.$t('dashboard.sheets.confirmDeleteMessage'),
+                header: this.$t('dashboard.sheets.delete'),
+                icon: 'pi pi-exclamation-triangle',
+                accept: () => {
+                    const tempSheet = [...this.sheets]
+                    tempSheet.splice(index, 1)
+                    this.$emit('update:sheets', tempSheet)
+                }
+            })
+        },
+        manageIcon(index) {
+            this.iconPickerVisible = index + 1
+        },
+        closeIcon() {
+            this.iconPickerVisible = null
+        },
+        saveIcon(event) {
+            const tempSheets = [...this.sheets]
+            tempSheets[this.iconPickerVisible - 1].icon = event
+            this.$emit('update:sheets', tempSheets)
+            this.iconPickerVisible = null
+        },
+        move(direction, index) {
+            const tempSheets = [...this.sheets]
+            const tempSheet = tempSheets.splice(index, 1)
+            tempSheets.splice(direction == 'right' ? index + 1 : index - 1, 0, tempSheet[0])
+            this.$emit('update:sheets', tempSheets)
         },
         setPage(index): void {
             this.$refs
             this.currentPage = index
             this.$emit('sheetChange', index)
             this.translateX = -this.sheets.reduce((total, item, i) => {
-                return i > index - 1 ? total : total + document.querySelectorAll('#sheet_' + index)[0].clientWidth
+                return i > index - 1 ? total : total + document.querySelectorAll('#sheet_' + index)[0]?.clientWidth
             }, 0)
         },
         next() {
@@ -168,12 +258,18 @@ export default defineComponent({
                 this.dpr = 1
             }
         },
-        toggleMenu(e) {
+        toggleMenu(e, index) {
             e.preventDefault()
             e.stopImmediatePropagation()
             // eslint-disable-next-line
             // @ts-ignore
-            this.$refs.buttons_menu.toggle(e)
+            this.$refs[`menu_${index}`][0].show()
+        },
+        loadActiveSheetFromQuery() {
+            if (this.initialLoad && this.$route.query.sheet !== undefined && this.$route.query.sheet !== null && this.sheets?.length > +this.$route.query.sheet) {
+                this.setPage(+this.$route.query.sheet)
+                this.initialLoad = false
+            }
         }
     }
 })
@@ -203,25 +299,31 @@ export default defineComponent({
         position: relative;
         height: 35px;
         margin: 0;
-        padding: 0;
+        padding: 0 4px;
         border-bottom: 1px solid #ccc;
         list-style: none;
         display: inline-flex;
         order: 0;
+        background-color: #f1f1f1;
         &.bottom {
             order: 2;
-            border-top: 1px solid #ccc;
+            border-top: 1px solid #e4e4e4;
             border-bottom: 0;
         }
         .sheet-label {
             position: relative;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
+            width: auto;
+            max-width: 250px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
             height: 100%;
             position: relative;
+            padding: 0 16px;
+            background: white;
             color: #999;
             cursor: pointer;
             text-decoration: none;
@@ -235,6 +337,7 @@ export default defineComponent({
             &.active {
                 color: #000;
                 font-weight: 900;
+                border-top: 2px solid var(--kn-toolbar-primary-background-color);
             }
         }
     }
@@ -242,8 +345,17 @@ export default defineComponent({
 
 @media all and (max-width: 600px) {
     .sheets-container {
+        .sheets-list {
+            height: 50px;
+            max-width: calc(100vw - var(--kn-mainmenu-width));
+        }
         .sheet-label {
-            span {
+            flex: 1 0 0;
+            max-width: unset;
+            i {
+                font-size: 2rem;
+            }
+            .sheet-label-text.hasIcon {
                 display: none;
             }
         }

@@ -7,6 +7,7 @@
         <div v-if="widgetModel.type !== 'selector'" class="p-col-12 p-d-flex">
             <label class="kn-material-input-label p-as-center p-ml-1"> {{ $t('common.columns') }} </label>
             <Button :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" @click="createNewCalcField"></Button>
+            <Button id="add-all-columns-button" icon="fa fa-arrow-right" class="p-button-text p-button-rounded p-button-plain" @click="addAllColumnsToWidgetModel" />
         </div>
 
         <Listbox v-if="selectedDataset" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="selectedDatasetColumns" :filter="true" :filter-placeholder="$t('common.search')" :filter-fields="descriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')">
@@ -22,12 +23,13 @@
             </template>
         </Listbox>
     </div>
-
     <KnCalculatedField
         v-if="calcFieldDialogVisible"
         v-model:template="selectedCalcField"
         v-model:visibility="calcFieldDialogVisible"
         :fields="calcFieldColumns"
+        :validation="true"
+        :variables="variables"
         :descriptor="calcFieldDescriptor"
         :prop-calc-field-functions="availableFunctions"
         :read-only="false"
@@ -42,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDashboardDataset, IDatasetColumn, IDataset, IWidget } from '../../../../Dashboard'
+import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn, IVariable } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { removeColumnFromDiscoveryWidgetModel } from '../../helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import descriptor from './WidgetEditorDataListDescriptor.json'
@@ -54,11 +56,12 @@ import KnCalculatedField from '@/components/functionalities/KnCalculatedField/Kn
 import calcFieldDescriptor from './WidgetEditorCalcFieldDescriptor.json'
 import cryptoRandomString from 'crypto-random-string'
 import { AxiosResponse } from 'axios'
+import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
     components: { Dropdown, Listbox, KnCalculatedField },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected'],
     setup() {
         const store = mainStore()
@@ -111,7 +114,7 @@ export default defineComponent({
                 this.availableFunctions = JSON.parse(JSON.stringify(calcFieldDescriptor.availableFunctions))
             }
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/availableFunctions/${dataset.id}?useCache=false`)
                 .then((response: AxiosResponse<any>) => {
                     this.datasetFunctions = response.data
 
@@ -161,6 +164,7 @@ export default defineComponent({
             this.loadDatasetColumns()
         },
         onDatasetSelected() {
+            if (this.availableFunctions.length == 0) this.loadAvailableFunctions(this.selectedDataset)
             this.loadDatasetColumns()
             if (this.model) {
                 this.model.dataset = this.selectedDataset ? this.selectedDataset.id : null
@@ -168,6 +172,20 @@ export default defineComponent({
             }
             this.$emit('datasetSelected', this.selectedDataset)
             emitter.emit('clearWidgetData', this.widgetModel.id)
+        },
+        addAllColumnsToWidgetModel() {
+            const formattedColumns = [] as IWidgetColumn[]
+            this.selectedDatasetColumns.forEach((column: IDatasetColumn) => {
+                formattedColumns.push(createNewWidgetColumn({ name: column.name, alias: column.alias, type: column.type, fieldType: column.fieldType }, this.model ? this.model.type : ''))
+            })
+
+            formattedColumns.forEach((column: IWidgetColumn) => {
+                const index = this.model?.columns.findIndex((modelColumn: IWidgetColumn) => modelColumn.columnName === column.columnName)
+                if (index === -1) {
+                    this.model?.columns.push(column)
+                    emitter.emit('columnAdded', column)
+                }
+            })
         },
         removeSelectedColumnsFromModel() {
             if (!this.model?.columns) return
@@ -207,9 +225,18 @@ export default defineComponent({
         },
         createCalcFieldColumns() {
             this.calcFieldColumns = []
-            this.model?.columns.forEach((field) => {
-                if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
-            })
+            if (this.model?.type == 'static-pivot-table' || this.model?.type == 'ce-pivot-table') {
+                const modelFields = this.model.fields as any
+                const allFields = [].concat(modelFields?.columns, modelFields?.data, modelFields?.filters, modelFields?.rows) as any
+
+                allFields.forEach((field) => {
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                })
+            } else {
+                this.model?.columns.forEach((field) => {
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                })
+            }
         },
         onCalcFieldSave(calcFieldOutput) {
             if (this.selectedCalcField.id) {
@@ -238,5 +265,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 .dashboard-editor-list-alias-container {
     font-size: 0.8rem;
+}
+
+#add-all-columns-button {
+    font-size: 1.5rem;
 }
 </style>

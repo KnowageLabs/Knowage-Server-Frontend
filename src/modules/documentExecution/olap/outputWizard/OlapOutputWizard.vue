@@ -98,7 +98,7 @@ export default defineComponent({
             if (this.selectedType === 'file') {
                 this.loading = true
                 this.$http
-                    .get(import.meta.env.VITE_OLAP_PATH + `1.0/analysis/csv/${this.selectedVersion.id}/${this.fieldDelimiter}?SBI_EXECUTION_ID=${this.sbiExecutionId}`, {
+                    .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/analysis/csv/${this.selectedVersion.id}/${this.fieldDelimiter}?SBI_EXECUTION_ID=${this.sbiExecutionId}`, {
                         responseType: 'arraybuffer',
                         headers: {
                             'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ export default defineComponent({
             } else {
                 this.loading = true
                 this.$http
-                    .get(import.meta.env.VITE_OLAP_PATH + `1.0/analysis/table/${this.selectedVersion.id}/${this.tableName}?SBI_EXECUTION_ID=${this.sbiExecutionId}`, { headers: { Accept: 'application/json, text/plain, */*' } })
+                    .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/analysis/table/${this.selectedVersion.id}/${this.tableName}?SBI_EXECUTION_ID=${this.sbiExecutionId}`, { headers: { Accept: 'application/json, text/plain, */*' } })
                     .then(async () => {
                         this.store.setInfo({ title: this.$t('common.information'), msg: this.$t('common.toast.updateSuccess') })
                     })

@@ -1,4 +1,4 @@
-import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn } from '../../../../Dashboard'
+import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
 
 const columnIdNameMap = {}
 
@@ -28,9 +28,12 @@ const getColumnName = (columnId: string) => {
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
+    if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnName(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
+    formatTableWidgetColumnStyles(widgetSettings.style.columns)
     formatTableWidgetVisualisation(widgetSettings.visualization)
     formatTableWidgetConditionalStyle(widgetSettings.conditionalStyles)
+    formatTableWidgetTooltips(widgetSettings.tooltips)
     formatTableInteractions(widgetSettings.interactions)
 }
 
@@ -38,6 +41,19 @@ const formatTableWidgetConfiguration = (widgetConfiguration: ITableWidgetConfigu
     formatRowsConfiguration(widgetConfiguration)
     formatHeadersConfiguration(widgetConfiguration)
     formatColumnGroups(widgetConfiguration)
+}
+
+const formatTableWidgetColumnStyles = (columnStyles: ITableWidgetColumnStyles) => {
+    for (let i = 0; i < columnStyles.styles.length; i++) {
+        const tempStyle = columnStyles.styles[i]
+        const formattedTargetColumns = [] as string[]
+        if (Array.isArray(tempStyle.target)) {
+            for (let j = 0; j < tempStyle.target.length; j++) {
+                formattedTargetColumns.push(getColumnName(tempStyle.target[j]))
+            }
+            tempStyle.target = formattedTargetColumns
+        }
+    }
 }
 
 const formatRowsConfiguration = (widgetConfiguration: ITableWidgetConfiguration) => {
@@ -97,6 +113,7 @@ const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisualizati
 const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidgetConditionalStyles) => {
     for (let i = 0; i < widgetConditionalStyles.conditions.length; i++) {
         const tempCondition = widgetConditionalStyles.conditions[i]
+        tempCondition.target = getColumnName(tempCondition.target)
         delete tempCondition.condition.variablePivotDatasetOptions
     }
 }
@@ -109,6 +126,17 @@ const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidge
             formattedColumnGroupColumns.push(getColumnName(tempColumnGroup.columns[j]))
         }
         tempColumnGroup.columns = formattedColumnGroupColumns
+    }
+}
+
+const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
+    for (let i = 1; i < tableTooltips.length; i++) {
+        const tempTooltip = tableTooltips[i]
+        const formattedTooltipColumns = [] as string[]
+        for (let j = 0; j < tempTooltip.target.length; j++) {
+            formattedTooltipColumns.push(getColumnName(tempTooltip.target[j]))
+        }
+        tempTooltip.target = formattedTooltipColumns
     }
 }
 

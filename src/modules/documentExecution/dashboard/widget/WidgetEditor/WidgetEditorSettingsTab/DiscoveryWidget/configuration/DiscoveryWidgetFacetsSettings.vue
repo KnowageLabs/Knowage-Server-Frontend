@@ -17,7 +17,7 @@
 
         <div class="p-col-12 p-md-4 p-lg-2 p-d-flex p-flex-column">
             <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.discoveryWidget.facets.columnWidth') }}</label>
-            <InputText class="kn-material-input p-inputtext-sm" v-model="facetSettings.width" :disabled="facetSettingsDisabled" @change="facetsSettingsChanged" />
+            <InputText v-tooltip.top="$t('dashboard.widgetEditor.inputHintForPixels')" class="kn-material-input p-inputtext-sm" v-model="facetSettings.width" :disabled="facetSettingsDisabled" @change="facetsSettingsChanged" />
         </div>
 
         <div class="p-col-12 p-md-4 p-lg-2 p-d-flex p-flex-column">

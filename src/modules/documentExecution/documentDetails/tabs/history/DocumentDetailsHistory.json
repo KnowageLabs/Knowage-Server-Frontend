@@ -21,6 +21,7 @@
         },
         "buttons": [
             {
+                "condition": "!active",
                 "emits": "setActive",
                 "icon": "fas fa-check-circle",
                 "label": "documentExecution.documentDetails.history.activeButton"
@@ -31,17 +32,23 @@
                 "label": "documentExecution.documentDetails.history.downloadButton"
             },
             {
+                "condition": "!active",
                 "emits": "delete",
                 "icon": "fas fa-trash-alt",
                 "label": "documentExecution.documentDetails.history.deleteButton"
             }
         ],
         "defaultSortField": "active",
-        "filterFields": ["name"],
+        "filterFields": [
+            "name"
+        ],
         "interaction": {
             "type": "event"
         },
-        "sortFields": ["name", "active"],
+        "sortFields": [
+            "name",
+            "active"
+        ],
         "textField": "creationDate",
         "textFieldType": "date",
         "titleField": "name"

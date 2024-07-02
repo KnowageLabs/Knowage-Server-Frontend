@@ -1,0 +1,25 @@
+{
+    "dialog": {
+        "style": {
+            "width": "60vw"
+        }
+    },
+    "validations": {
+        "newFolder": [
+            {
+                "fieldName": "name",
+                "validators": [
+                    {
+                        "key": "required"
+                    },
+                    {
+                        "key": "regex",
+                        "validator": {
+                            "type": "extendedAlphanumericRegex"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

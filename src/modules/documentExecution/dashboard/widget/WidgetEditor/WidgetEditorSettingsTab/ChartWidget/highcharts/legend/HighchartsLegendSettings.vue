@@ -1,6 +1,6 @@
 <template>
     <div v-if="model?.legend" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column kn-flex p-m-2">
+        <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-m-2">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center">
                 <Dropdown v-model="model.legend.align" class="kn-material-input kn-flex" :options="descriptor.alignmentOptions" option-value="value" :disabled="legendDisabled" @change="modelChanged">
@@ -18,7 +18,7 @@
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.alignHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
-        <div class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column kn-flex p-m-2">
+        <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-m-2">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.verticalAlign') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center">
                 <Dropdown v-model="model.legend.verticalAlign" class="kn-material-input kn-flex" :options="descriptor.verticalAlignmentOptions" option-value="value" :disabled="legendDisabled" @change="modelChanged">
@@ -36,7 +36,7 @@
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.verticalAlignHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
-        <div class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column kn-flex p-m-2">
+        <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column kn-flex p-m-2">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.layout') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center">
                 <Dropdown v-model="model.legend.layout" class="kn-material-input kn-flex" :options="descriptor.layoutOptions" option-value="value" :disabled="legendDisabled" @change="modelChanged">
@@ -53,6 +53,10 @@
                 </Dropdown>
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.layoutHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
+        </div>
+        <div v-if="['area', 'bar', 'column'].includes(chartType) && model.plotOptions.series" class="p-col-12 p-md-6 p-lg-3 p-p-4">
+            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.showChekboxes') }}</label>
+            <InputSwitch v-model="model.plotOptions.series.showCheckbox"></InputSwitch>
         </div>
         <div class="p-col-12 p-py-4">
             <WidgetEditorStyleToolbar :options="descriptor.legendStyleOptions" :prop-model="toolbarModel" :disabled="legendDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
@@ -77,7 +81,7 @@
                             {{ model.legend.labelFormatterError }}
                         </Message>
                         <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterCodeMirror :prop-code="model.legend.labelFormatterText" :disabled="legendDisabled" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterCodeMirror>
+                            <HighchartsFormatterMonaco :prop-code="model.legend.labelFormatterText" :disabled="legendDisabled" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterMonaco>
                             <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.formatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                         </div>
                     </div>
@@ -98,11 +102,12 @@ import Dropdown from 'primevue/dropdown'
 import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import Textarea from 'primevue/textarea'
-import HighchartsFormatterCodeMirror from '../common/HighchartsFormatterCodeMirror.vue'
+import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
+import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'hihgcharts-legend-settings',
-    components: { Dropdown, Message, WidgetEditorStyleToolbar, Textarea, HighchartsFormatterCodeMirror },
+    components: { Dropdown, Message, WidgetEditorStyleToolbar, Textarea, HighchartsFormatterMonaco, InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -114,6 +119,9 @@ export default defineComponent({
         }
     },
     computed: {
+        chartType() {
+            return this.widgetModel?.settings.chartModel?.model?.chart.type
+        },
         legendDisabled(): boolean {
             return !this.model || !this.model.legend.enabled
         }
@@ -171,7 +179,8 @@ export default defineComponent({
                     return 'center'
             }
         },
-        onFormatterChange(newValue: string) {
+        onFormatterChange(newValue?: string) {
+            debugger
             if (!this.model) return
             this.model.legend.labelFormatterText = newValue
         }

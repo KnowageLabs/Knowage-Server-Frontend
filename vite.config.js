@@ -4,6 +4,8 @@ import vue from '@vitejs/plugin-vue'
 import builtins from 'rollup-plugin-node-builtins'
 import forwardToTrailingSlashPlugin from './forward-to-trailing-slash-plugin.js'
 import { VitePWA } from 'vite-plugin-pwa'
+import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
+import loadVersion from 'vite-plugin-package-version'
 
 const path = require('path')
 
@@ -21,7 +23,10 @@ export default defineConfig((command, mode) => {
     const env = loadEnv(mode, process.cwd())
     return {
         plugins: [
-            vue(),
+            loadVersion(),
+            vue({
+                template: { transformAssetUrls }
+            }),
             builtinsPlugin,
             forwardToTrailingSlashPlugin(Object.keys(build.rollupOptions.input)),
             VitePWA({
@@ -29,13 +34,71 @@ export default defineConfig((command, mode) => {
                 devOptions: {
                     enabled: true
                 },
+                workbox: {
+                    globPatterns: ['**/*.html'],
+                    runtimeCaching: [
+                        {
+                            urlPattern: /^.+\.(ttf|woff2)/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'fonts',
+                                expiration: {
+                                    maxEntries: 10,
+                                    maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.css/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'styles',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.js/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'scripts',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 10 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.(svg|png|jpg)/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'images',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 10 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        }
+                    ]
+                },
                 useCredentials: true,
                 manifest: {
                     name: 'Knowage',
                     short_name: 'Knowage',
                     start_url: '.',
                     display: 'standalone',
-                    scope: '/knowage-vue/',
+                    scope: env.VITE_PUBLIC_PATH,
                     orientation: 'landscape',
                     background_color: '#3b678c',
                     theme_color: '#3b678c',
@@ -73,15 +136,14 @@ export default defineConfig((command, mode) => {
                         }
                     ]
                 }
-            })
+            }),
+            quasar()
         ],
-        define: {
-            _KNOWAGE_VERSION: JSON.stringify(process.env.npm_package_version)
-        },
         resolve: {
             extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
             alias: {
-                '@': path.resolve(__dirname, './src')
+                '@': path.resolve(__dirname, './src'),
+                'devextreme/ui': 'devextreme/esm/ui'
             }
         },
         css: {
@@ -93,21 +155,31 @@ export default defineConfig((command, mode) => {
         },
         base: env.VITE_PUBLIC_PATH,
         build: {
-            outDir: './target/knowage-vue',
+            outDir: `./target/knowage-vue`,
             sourcemap: true,
             rollupOptions: {
                 output: {
                     chunkFileNames: 'assets/js/[name]-[hash].js',
                     entryFileNames: 'assets/js/[name]-[hash].js'
-                }
+                },
+                plugins: [
+                    {
+                        name: 'no-treeshake',
+                        transform(_, id) {
+                            if (id.includes('devextreme-vue/pivot-grid')) {
+                                return { moduleSideEffects: 'no-treeshake' }
+                            }
+                        }
+                    }
+                ]
             }
         },
         server: {
             port: 3000,
-            host: 'localhost',
+            host: '127.0.0.1',
             https: env.VITE_HOST_HTTPS === 'true',
             proxy: {
-                '^/knowagedossierengine/api': {
+                '^/knowagedossierengine/api/': {
                     target: env.VITE_HOST_URL,
                     changeOrigin: true
                 },

@@ -1,5 +1,5 @@
 <template>
-    <div class="p-grid p-m-0 kn-theme-management">
+    <div class="kn-page--row p-grid p-m-0 kn-theme-management">
         <div class="kn-list--column kn-page p-col-2 p-sm-2 p-md-3 p-p-0">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
                 <template #start>
@@ -41,7 +41,7 @@
             <div class="p-p-2 kn-page-content">
                 <div>
                     <template v-for="(value, key) in themeHelper.descriptor" :key="key">
-                        <Fieldset :legend="key" :toggleable="true" :collapsed="true">
+                        <Fieldset :legend="value.label" :toggleable="true" :collapsed="true">
                             <div v-for="property in value.properties" :key="property.key">
                                 <div class="p-field">
                                     <span v-if="property.type === 'text'" class="p-float-label">
@@ -139,7 +139,7 @@ export default defineComponent({
         },
         async deleteTheme(event) {
             this.loading = true
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `thememanagement/${event.item.id}`).then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/${event.item.id}`).then(() => {
                 this.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
 
                 this.themeToSend = { config: {} }
@@ -151,7 +151,7 @@ export default defineComponent({
         },
         async getAllThemes(fullRefresh = true) {
             this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `thememanagement`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement`).then((response: AxiosResponse<any>) => {
                 this.availableThemes = response.data
 
                 if (fullRefresh) this.overrideDefaultValues(this.availableThemes.filter((item) => item.active === true)[0])
@@ -166,7 +166,7 @@ export default defineComponent({
         },
 
         async handleSave() {
-            await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `thememanagement`, this.themeToSend).then((response) => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement`, this.themeToSend).then((response) => {
                 this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.updateSuccess') })
                 if (!this.themeToSend.id) {
                     this.themeToSend.id = response.data
@@ -216,14 +216,14 @@ export default defineComponent({
             this.importWidget(json)
         },
         importWidget(json: JSON) {
-            this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + 'thememanagement', json).then(() => {
+            this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/thememanagement', json).then(() => {
                 this.setInfo({ title: this.$t('managers.themeManagement.uploadTheme'), msg: this.$t('managers.themeManagement.themeSuccessfullyUploaded') })
 
                 this.getAllThemes()
             })
         },
         downloadTheme(): void {
-            let themeToDownload = { ...this.selectedTheme }
+            const themeToDownload = { ...this.selectedTheme }
             if (themeToDownload.id) delete themeToDownload.id
             downloadDirect(JSON.stringify(themeToDownload), themeToDownload.themeName, 'application/json')
         }

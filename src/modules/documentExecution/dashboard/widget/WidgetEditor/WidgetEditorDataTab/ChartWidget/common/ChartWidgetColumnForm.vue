@@ -3,8 +3,8 @@
         <div class="p-my-2">
             <div class="p-d-flex p-flex-row p-ai-center">
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.alias') }}</label>
-                    <InputText v-model="column.alias" class="kn-material-input p-inputtext-sm" @change="onColumnAliasRenamed" />
+                    <label class="kn-material-input-label p-mr-2">{{ $t('common.name') }}</label>
+                    <InputText v-model="column.alias" class="kn-material-input p-inputtext-sm" disabled="true" />
                 </div>
 
                 <div v-if="column.fieldType === 'MEASURE'" class="p-d-flex p-flex-column kn-flex p-m-2">
@@ -12,14 +12,11 @@
                     <Dropdown v-model="column.aggregation" class="kn-material-input" :options="commonDescriptor.columnAggregationOptions" option-value="value" option-label="label" @change="selectedColumnUpdated"> </Dropdown>
                 </div>
             </div>
-            <div v-if="chartType === 'pie' && column.drillOrder" class="p-d-flex p-flex-row p-ai-center p-mt-2">
-                <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
-                    <Dropdown v-model="column.drillOrder.orderColumnId" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" @change="sortingChanged"> </Dropdown>
-                </div>
+
+            <div class="p-d-flex p-flex-row p-ai-center kn-flex p-mt-2">
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                    <Dropdown v-model="column.drillOrder.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
+                    <Dropdown v-model="column.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
                         <template #value="slotProps">
                             <div>
                                 <span>{{ slotProps.value }}</span>
@@ -32,12 +29,34 @@
                         </template>
                     </Dropdown>
                 </div>
+
+                <div v-if="['area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.fieldType === 'MEASURE'" class="p-d-flex p-flex-column kn-flex">
+                    <div class="p-d-flex p-flex-column kn-flex p-m-2">
+                        <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
+                        <Dropdown v-model="column.serieType" class="kn-material-input" :options="descriptor.serieTypeOptions" option-value="value" @change="selectedColumnUpdated">
+                            <template #value="slotProps">
+                                <div>
+                                    <span>{{ getTranslatedLabel(slotProps.value, descriptor.serieTypeOptions, $t) }}</span>
+                                </div>
+                            </template>
+                            <template #option="slotProps">
+                                <div>
+                                    <span>{{ $t(slotProps.option.label) }}</span>
+                                </div>
+                            </template>
+                        </Dropdown>
+                    </div>
+                </div>
             </div>
 
-            <div v-else-if="['pie', 'heatmap'].includes(chartType)" class="p-d-flex p-flex-row p-ai-center p-mt-2">
+            <div v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="p-d-flex p-flex-row p-ai-center p-mt-2">
+                <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.drillSortingColumn') }}</label>
+                    <Dropdown v-model="column.drillOrder.orderColumnId" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" @change="sortingChanged"> </Dropdown>
+                </div>
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                    <Dropdown v-model="column.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
+                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.drillSortingOrder') }}</label>
+                    <Dropdown v-model="column.drillOrder.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
                         <template #value="slotProps">
                             <div>
                                 <span>{{ slotProps.value }}</span>
@@ -63,9 +82,11 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn, IWidgetColumnFilter } from '../../../../../Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
+import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import WidgetEditorFilterForm from '../../common/WidgetEditorFilterForm.vue'
+import descriptor from './ChartWidgetColumnFormDescriptor.json'
 
 export default defineComponent({
     name: 'table-widget-column-form',
@@ -73,8 +94,10 @@ export default defineComponent({
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedColumn: { type: Object as PropType<IWidgetColumn | null>, required: true }, chartType: { type: String, required: true } },
     data() {
         return {
+            descriptor,
             commonDescriptor,
-            column: null as IWidgetColumn | null
+            column: null as IWidgetColumn | null,
+            getTranslatedLabel
         }
     },
     computed: {

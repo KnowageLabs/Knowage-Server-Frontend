@@ -142,7 +142,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(`/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=LOAD_REGISTRY_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, {
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOAD_REGISTRY_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, {
                     headers: {
                         Accept: 'application/json, text/plain, */*',
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -254,7 +254,7 @@ export default defineComponent({
             const postData = new URLSearchParams()
             postData.append('records', '' + JSON.stringify(updatedRowsToIsoStrings))
             await this.$http
-                .post(`/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=UPDATE_RECORDS_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=UPDATE_RECORDS_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -273,7 +273,7 @@ export default defineComponent({
             } else postData.append('records', '' + JSON.stringify(row))
 
             await this.$http
-                .post(`/knowageqbeengine/servlet/AdapterHTTP?ACTION_NAME=DELETE_RECORDS_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=DELETE_RECORDS_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
                 .then(async (response: AxiosResponse<any>) => {
                     this.setInfo({
                         title: this.$t('common.toast.deleteTitle'),

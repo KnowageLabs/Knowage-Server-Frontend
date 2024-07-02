@@ -122,7 +122,7 @@ export default defineComponent({
     methods: {
         async loadAlert() {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/alert/' + this.id + '/load')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/alert/' + this.id + '/load')
                 .then((response: AxiosResponse<any>) => {
                     this.selectedAlert = { ...response.data }
                     this.selectedAlert.jsonOptions = JSON.parse(this.selectedAlert.jsonOptions ? this.selectedAlert.jsonOptions : '{}')
@@ -144,17 +144,17 @@ export default defineComponent({
                 .finally(() => (this.expiredCard = this.selectedAlert.jobStatus == 'EXPIRED'))
         },
         async loadListener() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/alert/listListener').then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/alert/listListener').then((response: AxiosResponse<any>) => {
                 this.listeners = response.data
             })
         },
         async loadKpiList() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/kpi/listKpi').then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/kpi/listKpi').then((response: AxiosResponse<any>) => {
                 this.kpiList = [...response.data]
             })
         },
         async loadActionList() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/alert/listAction').then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/alert/listAction').then((response: AxiosResponse<any>) => {
                 this.actionList = [...response.data]
             })
         },
@@ -183,7 +183,7 @@ export default defineComponent({
             const operation = alertToSave.id ? 'update' : 'insert'
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/alert/save', alertToSave)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/alert/save', alertToSave)
                 .then((response: AxiosResponse<any>) => {
                     this.touched = false
                     this.store.setInfo({

@@ -1,7 +1,7 @@
 <template>
     <div v-if="crossNavigationModel" class="p-grid p-jc-center p-ai-center p-p-4">
         <div class="p-grid p-col-12 p-ai-center">
-            <div v-if="!['html', 'text', 'highcharts', 'chartJS', 'image', 'customchart', 'static-pivot-table', 'vega', 'map'].includes(widgetModel.type)" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
+            <div v-if="!['html', 'text', 'highcharts', 'chartJS', 'image', 'customchart', 'static-pivot-table', 'vega', 'map', 'ce-pivot-table'].includes(widgetModel.type)" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
                 <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
                 <Dropdown v-model="crossNavigationModel.type" class="kn-material-input" :options="interactionTypes" option-value="value" :disabled="crossNavigationDisabled" @change="onInteractionTypeChanged">
                     <template #value="slotProps">
@@ -72,6 +72,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widget: null as IWidget | null,
             crossNavigationModel: null as IWidgetCrossNavigation | null,
             crossNavigationOptions: [] as string[],
             outputParameters: [] as any[],
@@ -91,8 +92,14 @@ export default defineComponent({
             return this.widgetModel && this.widgetModel.type === 'table' ? this.descriptor.interactionTypes : this.descriptor.interactionTypes.slice(0, 2)
         }
     },
+    watch: {
+        crossNavigationDisabled() {
+            this.onCrossNavigationEnabledChange()
+        }
+    },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
         this.loadCrossNavigationModel()
         this.loadCrossNavigationOptions()
         this.loadOutputParameters()
@@ -111,6 +118,9 @@ export default defineComponent({
         },
         onColumnRemovedFromCrossNavigation() {
             this.onColumnRemoved()
+        },
+        loadWidgetModel() {
+            this.widget = this.widgetModel
         },
         loadCrossNavigationModel() {
             if (this.widgetModel?.settings?.interactions?.crossNavigation) this.crossNavigationModel = this.widgetModel.settings.interactions.crossNavigation
@@ -165,6 +175,13 @@ export default defineComponent({
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (this.crossNavigationModel) this.crossNavigationModel.icon = model.icon
+        },
+        onCrossNavigationEnabledChange() {
+            if (this.widget && this.crossNavigationModel?.enabled && this.widgetType !== 'table') {
+                if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
+                if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
+                if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
+            }
         }
     }
 })

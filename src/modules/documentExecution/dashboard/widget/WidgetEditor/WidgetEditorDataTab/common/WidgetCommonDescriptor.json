@@ -39,89 +39,120 @@
     ],
     "chartTypeOptions": [
         {
-            "disabled": false,
-            "label": "dashboard.widgetEditor.chartTypes.pieChart",
-            "value": "pie"
-        },
-        {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.donutChart",
-            "value": "donut"
-        },
-        {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.columnsChart",
-            "value": "columns"
-        },
-        {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.stackedColumnsChart",
-            "value": "stackedColumns"
-        },
-        {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.barChart",
-            "value": "bar"
-        },
-        {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.scatterChart",
-            "value": "scatter"
-        },
-        {
-            "disabled": true,
             "label": "dashboard.widgetEditor.chartTypes.areaChart",
             "value": "area"
         },
         {
-            "disabled": true,
+            "label": "dashboard.widgetEditor.chartTypes.stackedAreaChart",
+            "value": "areaStacked"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.pieChart",
+            "value": "pie"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.columnChart",
+            "value": "column"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.stackedColumnChart",
+            "value": "columnStacked"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.barChart",
+            "value": "bar"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.stackedBarChart",
+            "value": "barStacked"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.scatterChart",
+            "value": "scatter"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.bubbleChart",
+            "value": "bubble"
+        },
+        {
             "label": "dashboard.widgetEditor.chartTypes.radar",
             "value": "radar"
         },
         {
-            "disabled": true,
             "label": "dashboard.widgetEditor.chartTypes.funnelChart",
             "value": "funnel"
         },
         {
-            "disabled": true,
-            "label": "dashboard.widgetEditor.chartTypes.parallelChart",
-            "value": "parallel"
+            "label": "dashboard.widgetEditor.chartTypes.dumbbellChart",
+            "value": "dumbbell"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.gauge",
             "value": "gauge"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.activitygauge",
             "value": "activitygauge"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.solidgauge",
             "value": "solidgauge"
         },
         {
-            "disabled": true,
             "label": "dashboard.widgetEditor.chartTypes.lineChart",
             "value": "line"
         },
         {
-            "disabled": true,
             "label": "dashboard.widgetEditor.chartTypes.treemap",
-            "value": "treeMap"
+            "value": "treemap"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.wordcloud",
             "value": "wordcloud"
         },
         {
-            "disabled": false,
             "label": "dashboard.widgetEditor.chartTypes.heatmap",
             "value": "heatmap"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.sunburst",
+            "value": "sunburst"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.chord",
+            "value": "dependencywheel"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.parallelChart",
+            "value": "spline"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.pictorial",
+            "value": "pictorial"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.sankey",
+            "value": "sankey"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.sankeyInverted",
+            "value": "sankeyInverted"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.streamgraph",
+            "value": "streamgraph"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.packedbubble",
+            "value": "packedbubble"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.scatterJitter",
+            "value": "scatterJitter"
+        },
+        {
+            "label": "dashboard.widgetEditor.chartTypes.waterfall",
+            "value": "waterfall"
         }
     ],
     "columnAggregationOptions": [
@@ -154,6 +185,28 @@
             "value": "COUNT_DISTINCT"
         }
     ],
+    "columnChartSettings": {
+        "buttonColumnStyle": {
+            "min-width": "125px",
+            "text-align": "end"
+        },
+        "columns": [
+            {
+                "field": "columnName"
+            },
+            {
+                "field": "aggregation",
+                "style": "max-width: 100px"
+            }
+        ],
+        "dataKey": "columnName",
+        "dragColumnsHint": "dashboard.widgetEditor.dragColumnsHint",
+        "dropIsActive": true,
+        "label": "dashboard.widgetEditor.selectedColumns",
+        "rowReorder": {
+            "rowReorderColumnStyle": "width: 3rem"
+        }
+    },
     "columnTableSettings": {
         "buttonColumnStyle": {
             "min-width": "125px",

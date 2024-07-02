@@ -143,6 +143,13 @@
             "visible": false
         },
         {
+            "category": "documentExecutionMenu",
+            "dbname": "SEE_HELP_ONLINE",
+            "fieldName": "ableToSeeHelpOnline",
+            "label": "managers.rolesManagement.authorizations.seeHelpOnline",
+            "visible": false
+        },
+        {
             "category": "menuConfiguration",
             "dbname": "SEE_DOCUMENT_BROWSER",
             "fieldName": "ableToSeeDocumentBrowser",
@@ -262,6 +269,20 @@
             "visible": false
         },
         {
+            "category": "myWorskpace",
+            "dbname": "ENABLE_DATA_PREPARATION",
+            "fieldName": "ableToUseDataPreparation",
+            "label": "managers.rolesManagement.authorizations.enableDataPreparation",
+            "visible": false
+        },
+        {
+            "category": "myWorskpace",
+            "dbname": "ENABLE_DOSSIER",
+            "fieldName": "ableToUseDossier",
+            "label": "managers.rolesManagement.authorizations.enableDossier",
+            "visible": false
+        },
+        {
             "category": "SEE",
             "dbname": "SEE_SUBOBJECTS",
             "fieldName": "ableToSeeSubobjects",
@@ -337,6 +358,13 @@
             "fieldName": "ableToCreateCustomChart",
             "label": "managers.rolesManagement.authorizations.createCustomChart",
             "visible": false
+        },
+        {
+            "category": "cockpitWidgets",
+            "dbname": "ENABLE_DASHBOARD_THEME_MANAGEMENT",
+            "fieldName": "ableToUseDashboardThemeManagement",
+            "label": "managers.rolesManagement.authorizations.enableDashboardThemeManagement",
+            "visible": false
         }
     ],
     "card": {
@@ -348,19 +376,19 @@
     "categories": [
         {
             "categoryName": "documentExecutionMenu",
-            "name": "document execution menu"
+            "name": "managers.rolesManagement.authGroups.documentExecutionToolbar"
         },
         {
             "categoryName": "menuConfiguration",
-            "name": "menu configuration"
+            "name": "managers.rolesManagement.authGroups.menuConfiguration"
         },
         {
             "categoryName": "myWorskpace",
-            "name": "my workspace"
+            "name": "managers.rolesManagement.authGroups.workspace"
         },
         {
             "categoryName": "cockpitWidgets",
-            "name": "cockpit widgets"
+            "name": "managers.rolesManagement.authGroups.dashboard"
         }
     ],
     "column": {

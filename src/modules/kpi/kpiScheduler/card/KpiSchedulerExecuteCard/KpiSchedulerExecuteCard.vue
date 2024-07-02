@@ -106,7 +106,7 @@ export default defineComponent({
             if (this.schedule && this.schedule.id) {
                 this.loading = true
                 this.$http
-                    .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/${this.schedule.id}/${this.numberOfLogs}/logExecutionList`)
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${this.schedule.id}/${this.numberOfLogs}/logExecutionList`)
                     .then((response: AxiosResponse<any>) => (this.executionList = response.data))
                     .finally(() => (this.loading = false))
             }
@@ -115,7 +115,7 @@ export default defineComponent({
             return formatDate(date, 'YYYY-MM-DD HH:mm:ss')
         },
         async downloadFile(id: number) {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/kpi/${id}/logExecutionListOutputContent`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/kpi/${id}/logExecutionListOutputContent`).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
                     this.store.setError({
                         title: this.$t('common.error.downloading'),

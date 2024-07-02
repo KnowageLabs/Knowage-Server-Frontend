@@ -35,9 +35,9 @@
                     <Button icon="fas fa-info-circle" class="p-button-text p-button-rounded p-button-plain p-col-1" @click="helpDialogVisible = true" />
                 </template>
             </Toolbar>
-            <Card v-show="expandQueryCard">
+            <Card v-show="expandQueryCard" class="editorCard">
                 <template #content>
-                    <VCodeMirror ref="codeMirror" v-model:value="dataset.query" :auto-height="true" :options="codemirrorOptions" @keyup="$emit('queryEdited')" />
+                    <knMonaco v-model="dataset.query" style="height: 200px" language="sql" @change="$emit('queryEdited')"></knMonaco>
                 </template>
             </Card>
 
@@ -48,13 +48,13 @@
                     {{ $t('managers.datasetManagement.editScript') }}
                 </template>
             </Toolbar>
-            <Card v-show="expandScriptCard">
+            <Card v-show="expandScriptCard" class="editorCard">
                 <template #content>
                     <span class="p-float-label">
-                        <Dropdown id="queryScriptLanguage" v-model="dataset.queryScriptLanguage" class="kn-material-input" :style="queryDescriptor.style.maxWidth" :options="scriptTypes" option-label="VALUE_NM" option-value="VALUE_CD" @change="onLanguageChanged($event.value)" />
+                        <Dropdown id="queryScriptLanguage" v-model="dataset.queryScriptLanguage" class="kn-material-input" :style="queryDescriptor.style.maxWidth" :options="scriptTypes" option-label="VALUE_NM" option-value="VALUE_CD" />
                         <label for="queryScriptLanguage" class="kn-material-input-label"> {{ $t('managers.lovsManagement.placeholderScript') }} </label>
                     </span>
-                    <VCodeMirror ref="codeMirrorScript" v-model:value="dataset.queryScript" class="p-mt-2" :auto-height="true" :options="scriptOptions" @keyup="$emit('touched')" />
+                    <knMonaco v-model="dataset.queryScript" style="height: 200px" language="javascript" @change="$emit('touched')"></knMonaco>
                 </template>
             </Card>
         </template>
@@ -66,7 +66,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
-import VCodeMirror from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import useValidate from '@vuelidate/core'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import queryDescriptor from './DatasetManagementQueryDataset.json'
@@ -75,67 +75,28 @@ import Card from 'primevue/card'
 import HelpDialog from './DatasetManagementQueryHelpDialog.vue'
 
 export default defineComponent({
-    components: { Card, Dropdown, KnValidationMessages, VCodeMirror, HelpDialog },
+    components: { Card, Dropdown, knMonaco, KnValidationMessages, HelpDialog },
     props: { selectedDataset: { type: Object as any }, dataSources: { type: Array as any }, scriptTypes: { type: Array as any }, activeTab: { type: Number as any } },
     emits: ['touched', 'queryEdited'],
     data() {
         return {
             queryDescriptor,
             dataset: {} as any,
-            codeMirror: {} as any,
-            codeMirrorScript: {} as any,
             v$: useValidate() as any,
             expandQueryCard: true,
             expandScriptCard: true,
-            helpDialogVisible: false,
-            codemirrorOptions: {
-                mode: 'text/x-sql',
-                lineWrapping: true,
-                indentWithTabs: true,
-                smartIndent: true,
-                matchBrackets: true,
-                theme: 'eclipse',
-                lineNumbers: true
-            },
-            scriptOptions: {
-                mode: '',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true
-            }
+            helpDialogVisible: false
         }
     },
     watch: {
         selectedDataset() {
             this.loadDataset()
-            this.loadScriptMode()
-        },
-        activeTab() {
-            if (this.activeTab === 1 && this.codeMirror && this.codeMirrorScript) {
-                setTimeout(() => {
-                    this.codeMirror.refresh()
-                    this.codeMirrorScript.refresh()
-                }, 0)
-            }
         }
     },
     created() {
-        const interval = setInterval(() => {
-            if (!this.$refs.codeMirror) return
-            this.codeMirror = (this.$refs.codeMirror as any).cminstance as any
-            if (!this.$refs.codeMirrorScript) return
-            this.codeMirrorScript = (this.$refs.codeMirrorScript as any).cminstance as any
-
-            this.loadDataset()
-            this.loadScriptMode()
-
-            clearInterval(interval)
-        }, 200)
+        this.loadDataset()
     },
+
     validations() {
         const queryFieldsRequired = (value) => {
             return this.dataset.dsTypeCd != 'Query' || value
@@ -149,18 +110,14 @@ export default defineComponent({
             this.dataset = this.selectedDataset
             this.dataset.query ? '' : (this.dataset.query = '')
             this.dataset.queryScript ? '' : (this.dataset.queryScript = '')
-        },
-        loadScriptMode() {
-            if (this.dataset.queryScriptLanguage) {
-                this.scriptOptions.mode = this.dataset.queryScriptLanguage === 'ECMAScript' ? 'text/javascript' : 'text/x-groovy'
-                this.codeMirrorScript.setOption('mode', this.dataset.queryScriptLanguage === 'ECMAScript' ? 'text/javascript' : 'text/x-groovy')
-            }
-        },
-        onLanguageChanged(value: string) {
-            const scriptMode = value === 'ECMAScript' ? 'text/javascript' : 'text/x-groovy'
-            this.codeMirrorScript.setOption('mode', scriptMode)
-            this.$emit('touched')
         }
     }
 })
 </script>
+<style lang="scss" scoped>
+.editorCard.p-card {
+    &:deep(.p-card-body) {
+        padding: 0;
+    }
+}
+</style>

@@ -1,6 +1,8 @@
-import { luxonFormatDate } from '@/helpers/commons/localeHelper';
+import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import { AxiosResponse } from 'axios'
 import { iParameter } from './KnParameterSidebar'
+import { updateVisualDependency } from './KnParameterSidebarVisualDependency'
+import { updateLovDependency } from './KnParameterSidebarLovsDependency'
 
 export function setDataDependency(loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, parameter: iParameter) {
     if (parameter.dependencies?.data.length !== 0) {
@@ -21,37 +23,40 @@ export async function updateDataDependency(loadedParameters: { filterStatus: iPa
     if (parameter && parameter.dataDependentParameters) {
         for (let i = 0; i < parameter.dataDependentParameters.length; i++) {
             await dataDependencyCheck(loadedParameters, parameter.dataDependentParameters[i], loading, document, sessionRole, $http, mode, resetValue, userDateFormat)
-
         }
     }
 }
 
 export async function dataDependencyCheck(loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, parameter: iParameter, loading: boolean, document: any, sessionRole: string | null, $http: any, mode: string, resetValue: boolean, userDateFormat: string) {
     loading = true
-    if (parameter.parameterValue[0]) {
-        parameter.parameterValue[0] = { value: '', description: '' }
-    } else {
-        parameter.parameterValue = [{ value: '', description: '' }]
-    }
 
+    resetParameterValueToEmptyValues(parameter)
     if (resetValue) return
 
     const postData = { label: document?.label, parameters: getFormattedParameters(loadedParameters, userDateFormat), paramId: parameter.urlName, role: sessionRole }
-    let url = '2.0/documentExeParameters/admissibleValues'
+    let url = '/restful-services/2.0/documentExeParameters/admissibleValues'
 
     if (mode !== 'execution' && document) {
-        url = document.type === 'businessModel' ? `1.0/businessmodel/${document.name}/admissibleValues` : `/3.0/datasets/${document.label}/admissibleValues`
+        url = document.type === 'businessModel' ? `/restful-services/1.0/businessmodel/${document.name}/admissibleValues` : `/restful-services/3.0/datasets/${document.label}/admissibleValues`
     }
 
-    await $http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData).then((response: AxiosResponse<any>) => {
+    await $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData).then(async (response: AxiosResponse<any>) => {
         parameter.data = response.data.result.data
         parameter.metadata = response.data.result.metadata
-        formatParameterAfterDataDependencyCheck(parameter)
+        await formatParameterAfterDataDependencyCheck(parameter, loadedParameters, loading, document, sessionRole, $http, mode, resetValue, userDateFormat)
     })
     loading = false
 }
 
-export function formatParameterAfterDataDependencyCheck(parameter: any) {
+export function resetParameterValueToEmptyValues(parameter: any) {
+    if (parameter.parameterValue[0] && !parameter.multivalue) {
+        parameter.parameterValue[0] = { value: '', description: '' }
+    } else {
+        parameter.parameterValue = parameter.multivalue ? [] : [{ value: '', description: '' }]
+    }
+}
+
+export async function formatParameterAfterDataDependencyCheck(parameter: any, loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, loading: boolean, document: any, sessionRole: string | null, $http: any, mode: string, resetValue: boolean, userDateFormat: string) {
     if (!checkIfParameterDataContainsNewValue(parameter)) {
         parameter.parameterValue = parameter.multivalue ? [] : [{ value: '', description: '' }]
     }
@@ -76,6 +81,11 @@ export function formatParameterAfterDataDependencyCheck(parameter: any) {
     }
 
     addDefaultValueForSelectionTypeParameters(parameter)
+    if (parameter.data.length === 1) {
+        updateVisualDependency(parameter)
+        await updateDataDependency(loadedParameters, parameter, loading, document, sessionRole, $http, mode, resetValue, userDateFormat)
+        await updateLovDependency(loadedParameters, parameter, loading, document, sessionRole, $http, mode, resetValue, userDateFormat)
+    }
 }
 
 export function formatParameterDataOptions(parameter: iParameter, data: any) {
@@ -89,7 +99,6 @@ const getValueAndDescriptionIndex = (parameter: iParameter) => {
     const valueIndex = Object.keys(parameter.metadata.colsMap).find((key: string) => parameter.metadata.colsMap[key] === valueColumn)
     const descriptionIndex = Object.keys(parameter.metadata.colsMap).find((key: string) => parameter.metadata.colsMap[key] === descriptionColumn)
 
-
     return { valueIndex: valueIndex ?? '', descriptionIndex: descriptionIndex ?? '' }
 }
 
@@ -99,12 +108,11 @@ export function getFormattedParameters(loadedParameters: { filterStatus: iParame
     Object.keys(loadedParameters.filterStatus).forEach((key: any) => {
         const parameter = loadedParameters.filterStatus[key]
 
-
         if (parameter.type === 'DATE') {
             const dateValue = getFormattedDateParameterValue(parameter, userDateFormat)
             parameters.push({ urlName: parameter.urlName, value: dateValue, description: dateValue })
-        }
-        else if (!parameter.multivalue) {
+        } else if (!parameter.multivalue) {
+            if (!parameter.parameterValue[0]) parameter.parameterValue[0] = { value: '', description: '' }
             parameters.push({ urlName: parameter.urlName, value: parameter.parameterValue[0].value, description: parameter.parameterValue[0].description })
         } else {
             parameters.push({ urlName: parameter.urlName, value: parameter.parameterValue?.map((el: any) => el.value), description: parameter.parameterDescription ?? '' })
@@ -150,14 +158,16 @@ export function addDefaultValueForSelectionTypeParameters(parameter: iParameter)
     }
 }
 
-function addSingleDriverDefaultValue(parameter: iParameter, valueAndDescriptionIndex: { valueIndex: string, descriptionIndex: string }) {
+function addSingleDriverDefaultValue(parameter: iParameter, valueAndDescriptionIndex: { valueIndex: string; descriptionIndex: string }) {
     if (!parameter.driverDefaultValue[0]) return
     parameter.parameterValue = [{ value: parameter.driverDefaultValue[0][valueAndDescriptionIndex.valueIndex], description: parameter.driverDefaultValue[0][valueAndDescriptionIndex.descriptionIndex] }]
     removeNonCompatibleParameterValues(parameter)
 }
 
-function addMultiDriverDefaultValue(parameter: iParameter, valueAndDescriptionIndex: { valueIndex: string, descriptionIndex: string }) {
-    parameter.parameterValue = parameter.driverDefaultValue.map((defaultValue: any) => { return { value: defaultValue[valueAndDescriptionIndex.valueIndex], description: defaultValue[valueAndDescriptionIndex.descriptionIndex] } })
+function addMultiDriverDefaultValue(parameter: iParameter, valueAndDescriptionIndex: { valueIndex: string; descriptionIndex: string }) {
+    parameter.parameterValue = parameter.driverDefaultValue.map((defaultValue: any) => {
+        return { value: defaultValue[valueAndDescriptionIndex.valueIndex], description: defaultValue[valueAndDescriptionIndex.descriptionIndex] }
+    })
     removeNonCompatibleParameterValues(parameter)
 }
 

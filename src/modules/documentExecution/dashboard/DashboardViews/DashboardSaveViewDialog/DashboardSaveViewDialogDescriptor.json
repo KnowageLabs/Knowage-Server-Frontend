@@ -1,0 +1,21 @@
+{
+    "dialogBreakpoints": {
+        "640px": "100vw",
+        "960px": "75vw"
+    },
+    "dialogStyle": {
+        "max-width": "1200px",
+        "min-width": "600px",
+        "width": "60%"
+    },
+    "visibilityTypes": [
+        {
+            "label": "common.public",
+            "value": "public"
+        },
+        {
+            "label": "common.private",
+            "value": "private"
+        }
+    ]
+}

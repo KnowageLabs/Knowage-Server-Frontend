@@ -1225,7 +1225,6 @@
             "helpTitle": "Ayuda",
             "hint": "La gestión de conjuntos de datos le permite gestionar y crear conjuntos de datos para utilizarlos dentro de Knowage.  Puede seleccionar el tipo, la consulta y todos los valores relacionados.  Haga clic en un elemento existente de la lista en el lado, o pulse el botón \"+\" para agregar uno.",
             "isPersisted": "Persistir",
-            "isPersistedHDFS": "Exportable en HDFS",
             "isScheduled": "Calendario",
             "jsonPathAttributes": "Atributos de ruta JSON",
             "jsonPathValue": "Valor de ruta JSON",
@@ -1300,12 +1299,12 @@
             "valueName": "Nombre del valor"
         },
         "driversManagement": {
-            "partialSuccessMessage": "No todos los datos se han actualizado satisfactoriamente.  Vuelva a comprobar las informaciones no guardadas.",
             "add": "Añadir",
             "deleteError": "Error",
             "functional": "Funcional",
             "hint": "El controlador modela un concepto o una pieza de datos utilizados con frecuencia como criterio de distinción en el contexto de datos globales. Haga clic en un elemento existente de la lista en el lado, o pulse el botón \"+\" para agregar uno.",
             "options": "Opciones",
+            "partialSuccessMessage": "No todos los datos se han actualizado satisfactoriamente.  Vuelva a comprobar las informaciones no guardadas.",
             "temporal": "Temporal",
             "title": "Gestión de controladores",
             "useModes": {

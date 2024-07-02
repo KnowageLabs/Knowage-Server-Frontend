@@ -131,7 +131,7 @@ export default defineComponent({
             const postBody = { aggregations: this.buildPreviewAggregations(), parameters: this.buildPreviewParameters(), selections: {}, indexes: [] }
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasets/${this.selectedDataset?.label}/data`, postBody, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${this.selectedDataset?.label}/data`, postBody, { headers: { 'X-Disable-Errors': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     this.setPreviewColumns(response.data)
                     this.previewRows = response.data.rows
@@ -162,17 +162,17 @@ export default defineComponent({
         formatDatasetMetaColumns(measures: any[], categories: any[]) {
             const datasetMetaColumns = this.getFormattedColumnsMap(this.selectedDataset?.meta.columns)
             const keys = Object.keys(datasetMetaColumns)
-            
-            for (let i = 0; i < keys.length; i ++) {
+
+            for (let i = 0; i < keys.length; i++) {
                 const name = keys[i]
                 const tempColumn = datasetMetaColumns[keys[i]]
                 const object = { id: name, alias: tempColumn.fieldAlias, columnName: name, funct: 'NONE' } as any
-                this.addObjectToMeasuresOrCategories( tempColumn.fieldType, object, measures, categories, name)
+                this.addObjectToMeasuresOrCategories(tempColumn.fieldType, object, measures, categories, name)
             }
         },
-        getFormattedColumnsMap(columns: {column: string, pname: string, pvalue: string}[]) {
+        getFormattedColumnsMap(columns: { column: string; pname: string; pvalue: string }[]) {
             const columnMap = {}
-            for (let i = 0;  i < columns.length; i++) {
+            for (let i = 0; i < columns.length; i++) {
                 if (!columnMap[columns[i].column]) columnMap[columns[i].column] = {}
                 columnMap[columns[i].column][columns[i].pname] = columns[i].pvalue
             }

@@ -6,7 +6,7 @@
         </template>
         <template #end>
             <Button v-if="toggleCardDisplay" icon="fas fa-list" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" />
-            <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" />
+            <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" /> -->
         </template>
     </Toolbar>
     <InputText v-model="searchWord" class="kn-material-input p-m-2" :style="mainDescriptor.style.filterInput" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
@@ -81,7 +81,7 @@ export default defineComponent({
         getRecentDocuments() {
             this.loading = true
             return this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/recents`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/recents`)
                 .then((response: AxiosResponse<any>) => {
                     this.recentDocumentsList = [...response.data]
                     this.filteredDocuments = [...this.recentDocumentsList]

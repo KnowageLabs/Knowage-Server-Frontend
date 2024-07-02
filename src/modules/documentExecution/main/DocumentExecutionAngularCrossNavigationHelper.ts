@@ -2,7 +2,6 @@ import { AxiosResponse } from 'axios'
 import { getValidDate } from './DocumentExecutionHelpers'
 import deepcopy from 'deepcopy'
 
-
 export const executeAngularCrossNavigation = async (vueComponent: any, event: any, $http: any) => {
     vueComponent.angularData = event.data
     await loadCrossNavigationByDocument(vueComponent, event.data, $http)
@@ -14,7 +13,7 @@ const loadCrossNavigationByDocument = async (vueComponent: any, angularData: any
     let temp = {} as any
 
     vueComponent.loadingCrossNavigationDocument = true
-    await $http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/crossNavigation/${vueComponent.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => (temp = response.data))
+    await $http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/crossNavigation/${vueComponent.document.label}/loadCrossNavigationByDocument`).then((response: AxiosResponse<any>) => (temp = response.data))
     vueComponent.loadingCrossNavigationDocument = false
 
     if (temp.length === 0) return
@@ -89,7 +88,7 @@ const formatAngularOutputParameters = (vueComponent: any, otherOutputParameters:
 const getParameterValueForCrossNavigation = (vueComponent: any, parameterLabel: string) => {
     if (!parameterLabel) return
     const index = vueComponent.filtersData.filterStatus?.findIndex((param: any) => param.label === parameterLabel)
-    return index !== -1 ? vueComponent.filtersData.filterStatus[index].parameterValue[0].value : ''
+    return index !== -1 && vueComponent.filtersData.filterStatus[index].parameterValue[0] ? vueComponent.filtersData.filterStatus[index].parameterValue[0].value : ''
 }
 
 const formatNavigationParams = (vueComponent: any, otherOutputParameters: any[], navigationParams: any) => {
@@ -133,7 +132,6 @@ const setNavigationParametersFromCurrentFilters = (vueComponent: any, formatedPa
     }
 }
 
-
 const addDocumentOtherParametersToNavigationParamas = (vueComponent: any, navigationParams: any[], angularData: any, crossNavigationDocument: any) => {
     if (!angularData.outputParameters || angularData.outputParameters.length === 0 || !crossNavigationDocument?.navigationParams) return
     const keys = Object.keys(angularData.outputParameters)
@@ -160,13 +158,12 @@ const addSourceDocumentParameterValuesFromDocumentNavigationParameters = (vueCom
                 return parameter.urlName === crossNavigationDocument.navigationParams[key].value.label
             })
             if (sourceParameter) {
-                navigationParams[key] = sourceParameter.parameterValue[0].value ?? ''
-                navigationParams[key + '_field_visible_description'] = sourceParameter.parameterValue[0].description ?? ''
+                navigationParams[key] = sourceParameter.parameterValue[0] && sourceParameter.parameterValue[0].value ? sourceParameter.parameterValue[0].value : ''
+                navigationParams[key + '_field_visible_description'] = sourceParameter.parameterValue[0] && sourceParameter.parameterValue[0].description ? sourceParameter.parameterValue[0].description : ''
             }
         }
     })
 }
-
 
 const checkIfParameterHasFixedValue = (navigationParams: any, crossNavigationDocument: any) => {
     if (!crossNavigationDocument || !crossNavigationDocument.navigationParams) return
@@ -182,9 +179,8 @@ const checkIfParameterHasFixedValue = (navigationParams: any, crossNavigationDoc
 const openCrossNavigationInNewWindow = (vueComponent: any, popupOptions: any, crossNavigationDocument: any, navigationParams: any) => {
     if (!crossNavigationDocument || !crossNavigationDocument.document) return
     const parameters = encodeURI(JSON.stringify(navigationParams))
-    const url =
-        import.meta.env.VITE_HOST_URL +
-        `/knowage/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${crossNavigationDocument.document.id}&OBJECT_LABEL=${crossNavigationDocument.document.label}&SELECTED_ROLE=${vueComponent.sessionRole}&SBI_EXECUTION_ID=null&OBJECT_NAME=${crossNavigationDocument.document.name}&CROSS_PARAMETER=${parameters}`
+    const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${crossNavigationDocument.document.id}&OBJECT_LABEL=${crossNavigationDocument.document.label}&SELECTED_ROLE=${vueComponent.sessionRole
+        }&SBI_EXECUTION_ID=null&OBJECT_NAME=${crossNavigationDocument.document.name}&CROSS_PARAMETER=${parameters}`
     window.open(url, '_blank', `toolbar=0,status=0,menubar=0,width=${popupOptions.width || '800'},height=${popupOptions.height || '600'}`)
 }
 
@@ -212,7 +208,7 @@ export function loadNavigationParamsInitialValue(vueComponent: any) {
                     if (!checkIfMultivalueDriverContainsCrossNavigationValue(tempParam, crossNavigationValue) || parameterDescription === 'NOT ADMISSIBLE') return
                     if (crossNavigationValue) tempParam.parameterValue[0] = { value: crossNavigationValue, description: parameterDescription }
                     if (tempParam.type === 'DATE' && tempParam.parameterValue[0] && tempParam.parameterValue[0].value) {
-                        tempParam.parameterValue[0].value = getValidDate(tempParam.parameterValue[0].value)
+                        tempParam.parameterValue[0].value = getValidDate(tempParam.parameterValue[0].value, vueComponent.dateFormat)
                     }
                 }
                 if (tempParam.selectionType === 'COMBOBOX') formatCrossNavigationComboParameterDescription(tempParam)

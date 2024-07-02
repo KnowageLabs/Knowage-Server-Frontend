@@ -34,7 +34,7 @@
                             {{ dataLabelsModel.formatterError }}
                         </Message>
                         <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterCodeMirror :prop-code="dataLabelsModel.formatterText" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterCodeMirror>
+                            <HighchartsFormatterMonaco :prop-code="dataLabelsModel.formatterText" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterMonaco>
                             <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.labels.formatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                         </div>
                     </div>
@@ -55,7 +55,7 @@ import InputSwitch from 'primevue/inputswitch'
 import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import Textarea from 'primevue/textarea'
-import HighchartsFormatterCodeMirror from '../common/HighchartsFormatterCodeMirror.vue'
+import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
 
 export default defineComponent({
     name: 'hihgcharts-labels-settings',
@@ -65,7 +65,7 @@ export default defineComponent({
         Message,
         WidgetEditorStyleToolbar,
         Textarea,
-        HighchartsFormatterCodeMirror
+        HighchartsFormatterMonaco
     },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
@@ -134,7 +134,8 @@ export default defineComponent({
                 color: this.toolbarModel.color ?? '',
                 fontSize: this.toolbarModel['font-size'] ?? '14px',
                 fontFamily: this.toolbarModel['font-family'] ?? '',
-                fontWeight: this.toolbarModel['font-weight'] ?? ''
+                fontWeight: this.toolbarModel['font-weight'] ?? '',
+                textOutline: 'none'
             }
 
             this.modelChanged()

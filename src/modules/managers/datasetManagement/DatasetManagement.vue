@@ -87,7 +87,7 @@ export default defineComponent({
     methods: {
         //#region ===================== Get All Data and Format ====================================================
         getEnvironmentByConfiguration(configuration: string) {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/configs/category/${configuration}`)
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/category/${configuration}`)
         },
         buildEnvironments(environmentsArray) {
             return environmentsArray.map((environment) => ({ label: environment.label, value: environment.valueCheck }))
@@ -97,7 +97,7 @@ export default defineComponent({
             this.getEnvironmentByConfiguration('R_CONFIGURATION').then((response: AxiosResponse<any>) => (this.rEnvironments = this.buildEnvironments(response.data)))
         },
         getDomainByType(type: string) {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `domains/listValueDescriptionByType?DOMAIN_TYPE=${type}`)
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/domains/listValueDescriptionByType?DOMAIN_TYPE=${type}`)
         },
         async getDomainData() {
             await this.getDomainByType('DS_SCOPE').then((response: AxiosResponse<any>) => (this.scopeTypes = response.data))
@@ -111,21 +111,21 @@ export default defineComponent({
             await this.getDomainByType('SCRIPT_TYPE').then((response: AxiosResponse<any>) => (this.scriptTypes = response.data))
         },
         async getDatasources() {
-            this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/datasources`).then((response: AxiosResponse<any>) => (this.dataSources = response.data))
+            this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasources`).then((response: AxiosResponse<any>) => (this.dataSources = response.data))
         },
         async getBusinessModels() {
-            this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/businessmodels`).then((response: AxiosResponse<any>) => (this.businessModels = response.data))
+            this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/businessmodels`).then((response: AxiosResponse<any>) => (this.businessModels = response.data))
         },
         async getMetaSourceResource() {
-            this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/metaSourceResource/`).then((response: AxiosResponse<any>) => (this.metaSourceResource = response.data))
+            this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaSourceResource/`).then((response: AxiosResponse<any>) => (this.metaSourceResource = response.data))
         },
         async getTags() {
-            this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/tags/`).then((response: AxiosResponse<any>) => (this.tags = response.data))
+            this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/tags/`).then((response: AxiosResponse<any>) => (this.tags = response.data))
         },
         async getDatasets() {
             const url = '{"reverseOrdering":false,"columnOrdering":""}'
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `3.0/datasets/catalog?offset=0&fetchSize=0&ordering=` + encodeURI(url))
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/3.0/datasets/catalog?offset=0&fetchSize=0&ordering=` + encodeURI(url))
                 .then((response: AxiosResponse<any>) => (this.listOfDatasets = [...response.data.root]))
                 .finally(() => (this.loading = false))
         },
@@ -173,7 +173,7 @@ export default defineComponent({
                 icon: 'pi pi-exclamation-triangle',
                 accept: () => {
                     this.$http
-                        .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/${event.item.label}/`)
+                        .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${event.item.label}/`)
                         .then(() => {
                             this.store.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
                             this.loading = true

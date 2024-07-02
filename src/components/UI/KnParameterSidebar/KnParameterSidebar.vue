@@ -1,15 +1,5 @@
 <template>
     <div class="kn-parameter-sidebar" :class="positionClass">
-        <Toolbar v-if="mode !== 'workspaceView' && mode !== 'qbeView' && mode !== 'datasetManagement'" id="kn-parameter-sidebar-toolbar" class="kn-toolbar kn-toolbar--secondary">
-            <template #start>
-                <div id="kn-parameter-sidebar-toolbar-icons-container" class="p-d-flex p-flex-row p-jc-around">
-                    <Button v-tooltip.top="$t('documentExecution.main.resetParametersTooltip')" icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="resetAllParameters"></Button>
-                    <Button v-tooltip.top="$t('documentExecution.main.savedParametersTooltip')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="openSavedParametersDialog"></Button>
-                    <Button v-tooltip.top="$t('documentExecution.main.saveParametersFromStateTooltip')" icon="fas fa-save" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="openSaveParameterDialog"></Button>
-                </div>
-            </template>
-        </Toolbar>
-
         <div class="p-fluid kn-parameter-sidebar-content kn-alternated-rows">
             <div v-if="user && (!sessionRole || sessionRole === $t('role.defaultRolePlaceholder')) && (mode === 'execution' || mode === 'qbeView' || (mode === 'workspaceView' && dataset?.drivers?.length > 0)) && availableRolesForExecution.length > 1" class="p-field p-my-1 p-p-2">
                 <div class="p-d-flex">
@@ -128,7 +118,7 @@
                         >
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <Dropdown v-if="!parameter.multivalue && parameter.parameterValue" v-model="parameter.parameterValue[0].value" class="kn-material-input" :options="parameter.data" option-value="value" option-label="description" @change="onDropdownChange(parameter)" />
+                    <Dropdown v-if="!parameter.multivalue && parameter.parameterValue[0]" v-model="parameter.parameterValue[0].value" class="kn-material-input" :options="parameter.data" option-value="value" option-label="description" @change="onDropdownChange(parameter)" />
 
                     <MultiSelect v-else v-model="parameter.parameterValue" :options="parameter.data" option-label="description" @change="updateDependency(parameter)" />
                 </div>
@@ -166,7 +156,7 @@
                     <div class="p-d-flex p-flex-row">
                         <i class="pi pi-external-link kn-cursor-pointer p-mr-2" @click="openTreeDialog(parameter)"></i>
                         <div>
-                            <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index">{{ parameterValue.description ?? parameterValue.value }}</Chip>
+                            <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index">{{ parameterValue.description ?? parameterValue.value }} </Chip>
                         </div>
                     </div>
                 </div>
@@ -178,8 +168,7 @@
             <Menu ref="executeButtonMenu" :model="executeMenuItems" :popup="true" />
         </div>
         <KnParameterPopupDialog v-if="popupDialogVisible" :visible="popupDialogVisible" :selected-parameter="selectedParameter" :prop-loading="loading" :parameter-pop-up-data="parameterPopUpData" @close="popupDialogVisible = false" @save="onPopupSave"></KnParameterPopupDialog>
-        <KnParameterTreeDialog v-if="treeDialogVisible" :visible="treeDialogVisible" :selected-parameter="selectedParameter" :formated-parameter-values="formatedParameterValues" :document="document" :mode="mode" :selected-role="role" @close="onTreeClose" @save="onTreeSave"></KnParameterTreeDialog>
-        <KnParameterSaveDialog :visible="parameterSaveDialogVisible" :prop-loading="loading" @close="parameterSaveDialogVisible = false" @saveViewpoint="saveViewpoint"></KnParameterSaveDialog>
+        <KnParameterTreeDialog v-if="treeDialogVisible" :visible="treeDialogVisible" :selected-parameter="selectedParameter" :formated-parameter-values="formatedParameterValues" :document="document" :mode="mode" :selected-role="role" @close="onTreeClose" @save="onTreeSave"> </KnParameterTreeDialog>
         <KnParameterSavedParametersDialog :visible="savedParametersDialogVisible" :prop-viewpoints="viewpoints" @close="savedParametersDialogVisible = false" @fillForm="fillParameterForm" @executeViewpoint="executeViewpoint" @deleteViewpoint="deleteViewpoint"></KnParameterSavedParametersDialog>
     </div>
 </template>
@@ -198,7 +187,6 @@ import Checkbox from 'primevue/checkbox'
 import Dropdown from 'primevue/dropdown'
 import KnParameterPopupDialog from './dialogs/KnParameterPopupDialog.vue'
 import KnParameterTreeDialog from './dialogs/KnParameterTreeDialog.vue'
-import KnParameterSaveDialog from './dialogs/KnParameterSaveDialog.vue'
 import KnParameterSavedParametersDialog from './dialogs/KnParameterSavedParametersDialog.vue'
 import Menu from 'primevue/menu'
 import MultiSelect from 'primevue/multiselect'
@@ -206,10 +194,11 @@ import RadioButton from 'primevue/radiobutton'
 import ScrollPanel from 'primevue/scrollpanel'
 import mainStore from '../../../App.store'
 import { getCorrectRolesForExecutionForType } from '../../../helpers/commons/roleHelper'
+import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
 
 export default defineComponent({
     name: 'kn-parameter-sidebar',
-    components: { Calendar, Chip, Chips, Checkbox, Dropdown, KnParameterPopupDialog, KnParameterTreeDialog, KnParameterSaveDialog, KnParameterSavedParametersDialog, Menu, MultiSelect, RadioButton, ScrollPanel },
+    components: { Calendar, Chip, Chips, Checkbox, Dropdown, KnParameterPopupDialog, KnParameterTreeDialog, KnParameterSavedParametersDialog, Menu, MultiSelect, RadioButton, ScrollPanel },
     props: {
         filtersData: { type: Object },
         propDocument: { type: Object },
@@ -263,10 +252,15 @@ export default defineComponent({
             return this.document?.parametersRegion ? 'kn-parameter-sidebar-' + this.document.parametersRegion : 'kn-parameter-sidebar'
         }
     },
+
     watch: {
         sessionRole() {
             this.role = ''
             this.parameters = { isReadyForExecution: false, filterStatus: [] }
+        },
+        propDocument() {
+            this.loadDocument()
+            this.loadParameters()
         },
         filtersData() {
             this.loadDocument()
@@ -286,6 +280,7 @@ export default defineComponent({
         }
     },
     mounted() {
+        this.setEventListeners()
         this.loadMode()
         if (this.mode === 'qbeView' || this.mode === 'workspaceView' || this.mode === 'datasetManagement') this.loadQBEParameters()
 
@@ -295,7 +290,16 @@ export default defineComponent({
         this.loadParameters()
         this.userDateFormat = this.dateFormat as string
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            parameterSidebarEmitter.on('resetAllParameters', this.onResetAllParameters)
+        },
+        removeEventListeners() {
+            parameterSidebarEmitter.off('resetAllParameters', this.onResetAllParameters)
+        },
         applyFieldClass(cssClass: string): string {
             const cssCompleteClass = this.primary ? cssClass + ' fieldBackgroundColorPrimary' : cssClass + ' fieldBackgroundColorSecondary'
             this.primary = !this.primary
@@ -307,6 +311,7 @@ export default defineComponent({
         },
         loadDocument() {
             this.document = this.propDocument as iDocument
+            if (!this.document) return
 
             if (this.correctRolesForExecution) {
                 this.availableRolesForExecution = this.correctRolesForExecution
@@ -322,13 +327,14 @@ export default defineComponent({
                     id = this.document.federation_id
                 }
 
-                getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
-                    this.availableRolesForExecution = response
-                    if (!this.role && this.availableRolesForExecution.length == 1) {
-                        this.role = this.availableRolesForExecution[0]
-                        this.setNewSessionRole()
-                    }
-                })
+                if (id || this.document.label) {
+                    getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
+                        this.availableRolesForExecution = response
+                        if (!this.role && this.availableRolesForExecution.length == 1) {
+                            this.role = this.availableRolesForExecution[0]
+                        }
+                    })
+                }
             }
         },
         loadParameters() {
@@ -345,20 +351,6 @@ export default defineComponent({
             this.parameters?.filterStatus.forEach((el: any) => setLovsDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => this.updateVisualDependency(el))
         },
-        setDataDependency(parameter: iParameter) {
-            if (parameter.dependencies.data.length !== 0) {
-                parameter.dependencies.data.forEach((dependency: any) => {
-                    const index = this.parameters.filterStatus.findIndex((param: any) => {
-                        return param.urlName === dependency.parFatherUrlName
-                    })
-                    if (index !== -1) {
-                        const tempParameter = this.parameters.filterStatus[index]
-                        parameter.dataDependsOnParameters ? parameter.dataDependsOnParameters.push(tempParameter) : (parameter.dataDependsOnParameters = [tempParameter])
-                        tempParameter.dataDependentParameters ? tempParameter.dataDependentParameters.push(parameter) : (tempParameter.dataDependentParameters = [parameter])
-                    }
-                })
-            }
-        },
         resetParameterValue(parameter: any) {
             if (!parameter.driverDefaultValue) {
                 if (parameter.multivalue) {
@@ -367,7 +359,7 @@ export default defineComponent({
                 } else {
                     parameter.parameterValue[0] = { value: '', description: '' }
                 }
-                this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el, true))
+                this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
                 return
             }
 
@@ -392,8 +384,8 @@ export default defineComponent({
                     }
                 }
             } else if (parameter.selectionType === 'TREE' && parameter.showOnPanel === 'true' && parameter.multivalue) {
-                parameter.parameterValue = parameter.driverDefaultValue?.map((el: { value: string; desc: string }) => {
-                    return { value: el.value, description: el.desc }
+                parameter.parameterValue = parameter.driverDefaultValue.map((el: any) => {
+                    return { value: valueIndex ? el[valueIndex] : '', description: descriptionIndex ? el[descriptionIndex] : '' }
                 })
             } else if (parameter.selectionType === 'TREE' && parameter.showOnPanel === 'true' && !parameter.multivalue) {
                 parameter.parameterValue[0] = { value: parameter.driverDefaultValue[0][valueIndex], description: parameter.driverDefaultValue[0][descriptionIndex] }
@@ -413,9 +405,14 @@ export default defineComponent({
                 }
                 parameter.parameterValue[0].value = parameter.driverDefaultValue[0].value ?? parameter.driverDefaultValue[0][valueIndex]
             }
-            this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el))
+            this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
         },
-        resetAllParameters() {
+        updateParameterDependencyAfterParameterResetDefaultValue(parameter: any) {
+            parameter.dependentParameters?.forEach((el: any) => this.updateDependency(el, true))
+            parameter.dataDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
+            parameter.lovDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
+        },
+        onResetAllParameters() {
             this.parameters.filterStatus.forEach((el: any) => this.resetParameterValue(el))
             this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el))
         },
@@ -484,13 +481,13 @@ export default defineComponent({
             const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
             const postData = { label: this.document?.label, parameters: this.getFormattedParameters(), paramId: parameter.urlName, role: role }
 
-            let url = '2.0/documentExeParameters/admissibleValues'
+            let url = '/restful-services/2.0/documentExeParameters/admissibleValues'
             if (this.mode !== 'execution' && this.document) {
-                url = this.document.type === 'businessModel' ? `1.0/businessmodel/${this.document.name}/admissibleValues` : `/3.0/datasets/${this.document.label}/admissibleValues`
+                url = this.document.type === 'businessModel' ? `/restful-services/1.0/businessmodel/${this.document.name}/admissibleValues` : `/restful-services/3.0/datasets/${this.document.label}/admissibleValues`
             }
 
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + url, postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData)
                 .then((response: AxiosResponse<any>) => (this.parameterPopUpData = response.data))
                 .catch((error: any) => console.log('ERROR: ', error))
             this.loading = false
@@ -549,38 +546,6 @@ export default defineComponent({
             this.$emit('parametersChanged', { parameters: this.parameters, document: this.propDocument })
             this.loading = false
         },
-        openSaveParameterDialog() {
-            this.parameterSaveDialogVisible = true
-        },
-        async saveViewpoint(viewpoint: any) {
-            const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
-
-            if (!role) return
-
-            const postData = { ...viewpoint, OBJECT_LABEL: this.document?.label, ROLE: role, VIEWPOINT: this.getParameterValues() }
-            this.loading = true
-            await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentviewpoint/addViewpoint`, postData)
-                .then(() => {
-                    this.store.setInfo({
-                        title: this.$t('common.toast.createTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                    this.parameterSaveDialogVisible = false
-                })
-                .catch(() => {})
-            this.loading = false
-        },
-        async openSavedParametersDialog() {
-            const role = this.sessionRole && this.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.sessionRole : this.role
-            if (!role) return
-            this.loading = true
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentviewpoint/getViewpoints?label=${this.document?.label}&role=${role}`).then((response: AxiosResponse<any>) => {
-                this.viewpoints = response.data.viewpoints
-                this.savedParametersDialogVisible = true
-            })
-            this.loading = false
-        },
         fillParameterForm(viewpoint: any) {
             const tempParameters = this.decodeViewpointPrameterValues(viewpoint.vpValueParams)
 
@@ -633,7 +598,7 @@ export default defineComponent({
         async deleteViewpoint(viewpoint: any) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/documentviewpoint/deleteViewpoint`, { VIEWPOINT: '' + viewpoint.vpId })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentviewpoint/deleteViewpoint`, { VIEWPOINT: '' + viewpoint.vpId })
                 .then(async () => {
                     this.removeViewpoint(viewpoint)
                     this.store.setInfo({
@@ -678,12 +643,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-#kn-parameter-sidebar-toolbar .p-toolbar-group-left {
-    width: 100%;
-}
-#kn-parameter-sidebar-toolbar-icons-container {
-    width: 100%;
-}
 .kn-parameter-sidebar {
     z-index: 100;
     background-color: white;
@@ -697,53 +656,65 @@ export default defineComponent({
     flex-direction: column;
     font-size: 0.9rem;
     border-left: 1px solid var(--kn-color-borders);
+
     .kn-parameter-sidebar-content {
         min-height: 0;
         flex: 1;
         overflow: auto;
         position: relative;
+
         .p-field {
             label {
                 padding: 4px 0;
             }
+
             display: flex;
             flex-direction: column;
             min-height: 70px;
+
             .inputScrollPanel {
                 height: 150px;
             }
+
             .lookupScrollPanel {
                 height: 50px;
             }
+
             .p-flex-row {
                 min-height: 0;
                 flex: 1;
             }
         }
     }
+
     &.kn-parameter-sidebar-west {
         right: unset;
         border-left: unset;
         border-right: 1px solid var(--kn-color-borders);
     }
+
     &.kn-parameter-sidebar-north {
         right: unset;
         border-left: unset;
         border-bottom: 1px solid var(--kn-color-borders);
         width: 100%;
         height: 200px;
+
         .kn-parameter-sidebar-content {
             display: flex;
             flex-direction: row;
             overflow-y: clip;
+
             .p-field {
                 margin: 0 !important;
                 min-width: 300px;
                 max-width: 300px;
+
                 .inputScrollPanel,
                 .lookupScrollPanel {
                     height: 75px;
                 }
+
                 .p-flex-row,
                 .p-flex-column {
                     overflow-y: auto;
@@ -755,11 +726,13 @@ export default defineComponent({
 
         .kn-parameter-sidebar-buttons {
             justify-content: flex-end;
+
             .kn-button {
                 width: auto;
             }
         }
     }
+
     &.kn-parameter-sidebar-south {
         right: unset;
         top: unset;
@@ -768,18 +741,22 @@ export default defineComponent({
         border-top: 1px solid var(--kn-color-borders);
         width: 100%;
         height: 200px;
+
         .kn-parameter-sidebar-content {
             display: flex;
             flex-direction: row;
             overflow-y: clip;
+
             .p-field {
                 margin: 0 !important;
                 min-width: 300px;
                 max-width: 300px;
+
                 .inputScrollPanel,
                 .lookupScrollPanel {
                     height: 75px;
                 }
+
                 .p-flex-row,
                 .p-flex-column {
                     overflow-y: auto;
@@ -789,39 +766,49 @@ export default defineComponent({
             }
         }
     }
+
     .parameter-clear-icon {
         margin-left: auto;
         line-height: 22px;
     }
+
     .p-calendar {
         background-color: transparent;
     }
+
     .p-field-radiobutton {
         font-size: 1rem;
         margin: 0.1rem;
         width: calc(100% - 3px);
         height: 15px;
+
         .p-radiobutton {
             width: 15px;
             height: 15px;
+
             .p-radiobutton-box {
                 width: 15px;
                 height: 15px;
+
                 .p-radiobutton-icon {
                     width: 5px;
                     height: 5px;
                 }
             }
         }
+
         .p-checkbox {
             width: 15px;
             height: 15px;
+
             .p-checkbox-box {
                 width: 15px;
                 height: 15px;
+
                 .p-checkbox-icon {
                     width: 5px;
                     height: 5px;
+
                     &.pi-check::before {
                         top: 4px;
                         left: -1px;
@@ -830,17 +817,21 @@ export default defineComponent({
             }
         }
     }
+
     .p-dropdown {
         background-color: transparent;
         font-size: 0.9rem;
     }
+
     .p-inputtext {
         padding: 0.5rem 0.5rem;
         background-color: transparent;
+
         &.p-inputtext-sm {
             padding: 0.5rem 0.5rem;
         }
     }
+
     .parameterValueChip {
         font-size: 0.9rem;
         margin: 2px;

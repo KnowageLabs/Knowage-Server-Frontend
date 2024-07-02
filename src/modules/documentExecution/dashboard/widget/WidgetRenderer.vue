@@ -2,7 +2,7 @@
     <div class="widget-container" :style="getWidgetContainerStyle()">
         <ProgressSpinner v-if="widget.type == 'static-pivot-table' && widgetLoading" class="kn-progress-spinner" />
         <div v-if="widget.settings.style.title && widget.settings.style.title.enabled" class="p-d-flex p-ai-center" style="border-radius: 0px" :style="getWidgetTitleStyle()">
-            {{ widget.settings.style.title.text }}
+            {{ widget.settings?.style.title.text }}
         </div>
         <div class="widget-container-renderer" :style="getWidgetPadding()">
             <TableWidget
@@ -14,9 +14,10 @@
                 :prop-active-selections="activeSelections"
                 :dashboard-id="dashboardId"
                 :prop-variables="variables"
-                @pageChanged="$emit('reloadData')"
-                @sortingChanged="$emit('reloadData')"
-                @launchSelection="$emit('launchSelection', $event)"
+                @page-changed="$emit('reloadData')"
+                @sorting-changed="$emit('reloadData')"
+                @launch-selection="$emit('launchSelection', $event)"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
             />
             <SelectorWidget
                 v-if="widget.type == 'selector'"
@@ -30,13 +31,43 @@
                 :selection-is-locked="selectionIsLocked"
             />
             <ActiveSelectionsWidget v-if="widget.type == 'selection'" :prop-widget="widget" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" />
-            <WebComponentContainer v-if="widget.type == 'html' || widget.type == 'text'" :prop-widget="widget" :widget-data="dataToShow" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables"></WebComponentContainer>
-            <HighchartsContainer v-if="widget.type === 'highcharts' && isEnterprise" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId"></HighchartsContainer>
+            <WebComponentContainer
+                v-if="widget.type == 'html' || widget.type == 'text'"
+                :prop-widget="widget"
+                :widget-data="dataToShow"
+                :prop-active-selections="activeSelections"
+                :editor-mode="false"
+                :dashboard-id="dashboardId"
+                :variables="variables"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
+            ></WebComponentContainer>
+            <HighchartsContainer
+                v-if="widget.type === 'highcharts' && isEnterprise"
+                :widget-model="widget"
+                :datasets="datasets"
+                :data-to-show="widgetData"
+                :prop-active-selections="activeSelections"
+                :editor-mode="false"
+                :dashboard-id="dashboardId"
+                :prop-variables="variables"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
+            ></HighchartsContainer>
             <ChartJSContainer v-if="widget.type === 'chartJS'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId"></ChartJSContainer>
-            <ImageWidget v-if="widget.type === 'image'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" />
-            <CustomChartWidget v-if="widget.type == 'customchart'" :prop-widget="widget" :widget-data="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables" @loading="$emit('loading', $event)"></CustomChartWidget>
+            <ImageWidget v-if="widget.type === 'image'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" :prop-variables="variables" />
+            <CustomChartWidget
+                v-if="widget.type == 'customchart'"
+                :prop-widget="widget"
+                :widget-data="widgetData"
+                :prop-active-selections="activeSelections"
+                :editor-mode="false"
+                :dashboard-id="dashboardId"
+                :variables="variables"
+                @loading="$emit('loading', $event)"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
+            ></CustomChartWidget>
             <PivotWidget v-if="widget.type == 'static-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             <MapWidget v-if="widget.type == 'map' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
+            <CEPivotWidget v-if="widget.type == 'ce-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             <DiscoveryWidget
                 v-if="widget.type === 'discovery'"
                 :prop-widget="widget"
@@ -46,11 +77,16 @@
                 :prop-active-selections="activeSelections"
                 :dashboard-id="dashboardId"
                 :widget-loading="widgetLoading"
-                @pageChanged="$emit('reloadData')"
-                @facetsChanged="$emit('reloadData')"
-                @searchWordChanged="$emit('reloadData')"
+                :prop-variables="variables"
+                @page-changed="$emit('reloadData')"
+                @facets-changed="$emit('reloadData')"
+                @sorting-changed="$emit('reloadData')"
+                @search-word-changed="$emit('reloadData')"
+                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
             />
-            <VegaContainer v-if="widget.type === 'vega'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId"></VegaContainer>
+            <VegaContainer v-if="widget.type === 'vega'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :prop-variables="variables"></VegaContainer>
+            <PythonWidgetContainer v-if="widget.type === 'python'" :widget-model="widget" :data-to-show="dataToShow" :dashboard-id="dashboardId" :editor-mode="false" />
+            <RWidgetContainer v-if="widget.type === 'r'" :widget-model="widget" :data-to-show="dataToShow" :dashboard-id="dashboardId" :editor-mode="false" />
         </div>
     </div>
 </template>
@@ -70,16 +106,19 @@ import HighchartsContainer from '../widget/ChartWidget/Highcharts/HighchartsCont
 import ChartJSContainer from '../widget/ChartWidget/ChartJS/ChartJSContainer.vue'
 import ImageWidget from '../widget/ImageWidget/ImageWidget.vue'
 import PivotWidget from '@/workspaces/PivotWidget/PivotWidget.vue'
+import CEPivotWidget from '../widget/cePivotWidget/cePivotWidget.vue'
 import CustomChartWidget from '../widget/CustomChartWidget/CustomChartWidget.vue'
 import DiscoveryWidget from '../widget/DiscoveryWidget/DiscoveryWidget.vue'
 import VegaContainer from '../widget/ChartWidget/Vega/VegaContainer.vue'
 import MapWidget from '../widget/MapWidget/MapWidget.vue'
+import PythonWidgetContainer from '../widget/PythonWidget/PythonWidgetContainer.vue'
+import RWidgetContainer from '../widget/RWidget/RWidgetContainer.vue'
 import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'widget-renderer',
-    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, VegaContainer, MapWidget },
+    components: { TableWidget, SelectorWidget, ActiveSelectionsWidget, WebComponentContainer, HighchartsContainer, ChartJSContainer, ImageWidget, CustomChartWidget, PivotWidget, DiscoveryWidget, VegaContainer, CEPivotWidget, PythonWidgetContainer, RWidgetContainer },
     props: {
         widget: { required: true, type: Object as any },
         widgetLoading: { required: true, type: Boolean as any },
@@ -91,7 +130,7 @@ export default defineComponent({
         propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
         variables: { type: Array as PropType<IVariable[]>, required: true }
     },
-    emits: ['interaction', 'launchSelection', 'reloadData', 'loading'],
+    emits: ['interaction', 'launchSelection', 'reloadData', 'loading', 'datasetInteractionPreview'],
     data() {
         return {
             dataToShow: {} as any,

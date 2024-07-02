@@ -2,25 +2,14 @@
     <div id="kn-main-menu" ref="mainMenu" class="layout-menu-container">
         <InfoDialog v-model:visibility="display"></InfoDialog>
         <LanguageDialog v-model:visibility="languageDisplay"></LanguageDialog>
-        <RoleDialog v-model:visibility="roleDisplay"></RoleDialog>
+        <RoleDialog v-model:visibility="roleDisplay" :mandatory="mandatoryRole()"></RoleDialog>
         <DownloadsDialog v-model:visibility="downloadsDisplay"></DownloadsDialog>
         <NewsDialog v-model:visibility="newsDisplay"></NewsDialog>
         <LicenseDialog v-if="user && user.isSuperadmin && isEnterprise" v-model:visibility="licenseDisplay"></LicenseDialog>
         <MainMenuAdmin v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" :opened-panel-event="adminMenuOpened" :model="technicalUserFunctionalities" @click="itemClick"></MainMenuAdmin>
-        <TieredMenu ref="menu" :class="['kn-tieredMenu', tieredMenuClass]" :model="selectedCustomMenu" :popup="true" @blur="hideItemMenu" @mouseleave="checkTimer">
-            <template #item="{ item }">
-                <router-link v-if="item.to" class="p-menuitem-link" :to="cleanTo(item)" exact @click="itemClick(item)">
-                    <span v-if="item.descr" v-tooltip.top="item.descr" class="p-menuitem-text kn-truncated">{{ $internationalization($t(item.descr)) }}</span>
-                    <span v-else v-tooltip.top="$internationalization($t(item.label))" class="p-menuitem-text kn-truncated">{{ $internationalization($t(item.label)) }}</span>
-                    <span v-if="item.items" class="p-submenu-icon pi pi-angle-right kn-truncated"></span>
-                </router-link>
-                <a v-else class="p-menuitem-link" :target="item.target" role="menuitem" :tabindex="item.disabled ? null : '0'" @click="itemClick(item)">
-                    <span v-if="item.descr" v-tooltip.top="item.descr" class="p-menuitem-text kn-truncated">{{ $internationalization($t(item.descr)) }}</span>
-                    <span v-else v-tooltip.top="$internationalization($t(item.label))" class="p-menuitem-text kn-truncated">{{ $internationalization($t(item.label)) }}</span>
-                    <span v-if="item.items" class="p-submenu-icon pi pi-angle-right kn-truncated"></span>
-                </a>
-            </template>
-        </TieredMenu>
+        <q-menu ref="menu" :target="menuTargetElem" anchor="top right" self="top left">
+            <MainMenuTieredMenu :items="selectedCustomMenu" @link="itemClick"></MainMenuTieredMenu>
+        </q-menu>
 
         <div class="menu-scroll-content">
             <div ref="menuProfile" class="profile">
@@ -71,7 +60,7 @@ import auth from '@/helpers/commons/authHelper'
 import { AxiosResponse } from 'axios'
 import DownloadsDialog from '@/modules/mainMenu/dialogs/DownloadsDialog/DownloadsDialog.vue'
 import { IMenuItem } from '@/modules/mainMenu/MainMenu'
-import TieredMenu from 'primevue/tieredmenu'
+import MainMenuTieredMenu from '@/modules/mainMenu/MainMenuTieredMenu.vue'
 import ScrollPanel from 'primevue/scrollpanel'
 import mainStore from '../../App.store'
 
@@ -86,10 +75,11 @@ export default defineComponent({
         NewsDialog,
         RoleDialog,
         DownloadsDialog,
-        TieredMenu,
+        MainMenuTieredMenu,
         ScrollPanel
     },
-    emits: ['update:visibility', 'menuItemSelected'],
+    emits: ['update:visibility', 'menuItemSelected', 'openMenu'],
+    props: ['closeMenu'],
     data() {
         return {
             adminMenuOpened: false,
@@ -108,7 +98,29 @@ export default defineComponent({
             licenseDisplay: false,
             selectedCustomMenu: {},
             hoverTimer: false as any,
+            menuTargetElem: '' as any,
             publicPath: import.meta.env.VITE_PUBLIC_PATH
+        }
+    },
+    computed: {
+        ...mapState(mainStore, {
+            user: 'user',
+            downloads: 'downloads',
+            locale: 'locale',
+            news: 'news',
+            stateHomePage: 'homePage',
+            isEnterprise: 'isEnterprise',
+            licenses: 'licenses'
+        })
+    },
+    watch: {
+        news() {
+            const orig = JSON.parse(JSON.stringify(this.allowedUserFunctionalities))
+            this.setConditionedVisibility(orig)
+        },
+        closeMenu(newProp) {
+            // @ts-ignore
+            if (newProp) this.$refs.menu.hide()
         }
     },
     async mounted() {
@@ -118,12 +130,19 @@ export default defineComponent({
         window.removeEventListener('resize', this.getDimensions)
     },
     methods: {
-        ...mapActions(mainStore, ['setHomePage', 'setLoading']),
+        ...mapActions(mainStore, ['setHomePage', 'setLoading', 'getConfigurations']),
+        mandatoryRole() {
+            if (this.getConfigurations('KNOWAGE.MANDATORY-ROLE') && this.user.roles.length > 1 && !this.user.defaultRole) {
+                this.roleDisplay = true
+                return true
+            }
+            return false
+        },
         info() {
             this.display = !this.display
         },
         logout() {
-            auth.logout()
+            auth.logout(localStorage.getItem('public') ? true : undefined)
         },
         roleSelection() {
             this.roleDisplay = !this.roleDisplay
@@ -151,6 +170,9 @@ export default defineComponent({
                 this.$refs.menu.hide()
             }, import.meta.env.VITE_MENU_FADE_TIMER)
         },
+        deleteTimer() {
+            clearTimeout(this.hoverTimer)
+        },
         newsSelection() {
             this.newsDisplay = !this.newsDisplay
         },
@@ -159,13 +181,19 @@ export default defineComponent({
         },
         itemClick(event) {
             const item = event.item ? event.item : event
+            if (item.label === 'Home' && this.user?.configuration && this.user.configuration['home.button.url']) {
+                location.replace(this.user?.configuration['home.button.url'])
+            }
             if (item.command) {
                 this[item.command]()
-            } else if (item.to && event.navigate) {
-                event.navigate(event.originalEvent)
-                this.$emit('menuItemSelected', item)
+            } else if (item.to) {
+                if (event.navigate) {
+                    event.navigate(event.originalEvent)
+                    this.$emit('menuItemSelected', item)
+                } else location.replace(this.getHref(item))
             } else if (item.url && (!item.target || item.target === 'insideKnowage')) this.$router.push({ name: 'externalUrl', params: { url: item.url } })
             if (this.adminMenuOpened) this.adminMenuOpened = false
+            this.hideItemMenu()
         },
         getHref(item) {
             let to = item.to
@@ -173,7 +201,7 @@ export default defineComponent({
                 to = to.replace(/\\\//g, '/')
                 if (to.startsWith('/')) to = to.substring(1)
                 return import.meta.env.VITE_PUBLIC_PATH + to
-            }
+            } else return to
         },
         toggleProfile() {
             this.showProfileMenu = !this.showProfileMenu
@@ -224,17 +252,15 @@ export default defineComponent({
             return toRet
         },
         toggleMenu(event, item) {
+            this.hideItemMenu()
+
             if (item.items) {
+                this.$emit('openMenu')
                 clearTimeout(this.hoverTimer)
+                this.menuTargetElem = document.querySelector(`li[role="menu"][title="${item.label}"]`)
                 this.selectedCustomMenu = item.items
-                if (event.target.getBoundingClientRect().bottom + Object.keys(this.selectedCustomMenu).length * 40 > window.innerHeight) {
-                    this.tieredMenuClass = 'smallScreen'
-                } else this.tieredMenuClass = 'largeScreen'
                 // @ts-ignore
-                this.$refs.menu.show(event)
-            } else {
-                // @ts-ignore
-                this.$refs.menu.hide()
+                this.$refs.menu.show()
             }
         },
         hideItemMenu() {
@@ -264,7 +290,7 @@ export default defineComponent({
                 localObject.locale = splittedLocale[0] + '-' + splittedLocale[2].replaceAll('#', '') + '-' + splittedLocale[1]
             }
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '3.0/menu/enduser?locale=' + encodeURIComponent(localObject.locale))
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/menu/enduser?locale=' + encodeURIComponent(localObject.locale))
                 .then((response: AxiosResponse<any>) => {
                     this.technicalUserFunctionalities = response.data.technicalUserFunctionalities
                     this.setConditionedVisibility(response.data.allowedUserFunctionalities)
@@ -305,23 +331,6 @@ export default defineComponent({
                 this.allowedUserFunctionalities.push(item)
             }
         }
-    },
-    computed: {
-        ...mapState(mainStore, {
-            user: 'user',
-            downloads: 'downloads',
-            locale: 'locale',
-            news: 'news',
-            stateHomePage: 'homePage',
-            isEnterprise: 'isEnterprise',
-            licenses: 'licenses'
-        })
-    },
-    watch: {
-        news() {
-            const orig = JSON.parse(JSON.stringify(this.allowedUserFunctionalities))
-            this.setConditionedVisibility(orig)
-        }
     }
 })
 </script>
@@ -339,6 +348,9 @@ export default defineComponent({
 }
 .p-scrollpanel:deep(.p-scrollpanel-content) {
     padding: 0 0 18px 0;
+}
+.itemSection {
+    cursor: pointer;
 }
 .layout-menu-container {
     z-index: 9000;
@@ -438,9 +450,22 @@ export default defineComponent({
         }
     }
 }
-.p-tieredmenu {
-    padding: 0;
-    border: none;
-    border-radius: 0;
+@supports (-moz-appearance: none) {
+    .layout-menu-container {
+        .layout-menu {
+            & > li {
+                & > span {
+                    width: var(--kn-mainmenu-width);
+                    padding-left: 0px;
+                    padding-right: 0px;
+                }
+            }
+            &:deep(a[role='menuitem']) {
+                width: var(--kn-mainmenu-width);
+                padding-left: 0px;
+                padding-right: 0px;
+            }
+        }
+    }
 }
 </style>

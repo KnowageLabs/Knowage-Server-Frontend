@@ -12,20 +12,20 @@
 
     <ColorPicker v-if="colorPickerVisible" class="dashboard-color-picker click-outside" theme="light" :color="customColorValue" :colors-default="descriptor.defaultColors" :sucker-hide="true" @changeColor="changeColor" />
 
-    <DataTable class="pallete-table p-m-2" :style="descriptor.colorPalleteStyle.table" :value="widgetModel.settings.chart.colors" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
-        <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPalleteStyle.column">
+    <DataTable class="pallete-table p-m-2" :style="descriptor.colorPaletteStyle.table" :value="widgetModel.settings.chart.colors" :reorderable-columns="false" responsive-layout="scroll" @rowReorder="onRowReorder">
+        <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
             <template #body="slotProps">
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">
                     <i class="p-datatable-reorderablerow-handle pi pi-bars p-m-2"></i>
                 </span>
             </template>
         </Column>
-        <Column :sortable="false" :style="descriptor.colorPalleteStyle.columnMain">
+        <Column :sortable="false" :style="descriptor.colorPaletteStyle.columnMain">
             <template #body="slotProps">
                 <span class="kn-flex" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">{{ slotProps.data }}</span>
             </template>
         </Column>
-        <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPalleteStyle.column">
+        <Column :row-reorder="true" :reorderable-column="false" :style="descriptor.colorPaletteStyle.column">
             <template #body="slotProps">
                 <span class="kn-height-full" :style="`background-color: ${slotProps.data}; color:${getContrastYIQ()}`">
                     <i class="pi pi-pencil p-mr-2 click-outside" @click="toggleColorPicker(slotProps.index)"></i>
@@ -75,24 +75,38 @@ export default defineComponent({
     },
     watch: {
         widgetModel() {
-            this.widget = this.widgetModel
+            this.loadWidgetModel()
         }
     },
     created() {
-        this.widget = this.widgetModel
+        this.setEventListeners()
+        this.loadWidgetModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('chartTypeChanged', this.loadWidgetModel)
+        },
+        removeEventListeners() {
+            emitter.off('chartTypeChanged', this.loadWidgetModel)
+        },
+        loadWidgetModel() {
+            this.widget = this.widgetModel
+        },
         toggleColorPicker(index) {
             this.colorPickerVisible = !this.colorPickerVisible
             this.editIndex = index
-            this.customColorValue = this.widgetModel.settings.chart.colors[this.editIndex]
         },
         onRowReorder(event) {
-            this.widget.settings.chart.colors = event.value
+            this.widget.settings.chart.colors = [...event.value]
+            this.updateChartModel()
             emitter.emit('refreshChart', this.widgetModel.id)
         },
         addColor() {
             this.widget.settings.chart.colors.push(this.customColorValue)
+            this.updateChartModel()
             emitter.emit('refreshChart', this.widgetModel.id)
         },
         changeColor(color) {
@@ -111,7 +125,11 @@ export default defineComponent({
         },
         deleteColor(index) {
             this.widget.settings.chart.colors.splice(index, 1)
+            this.updateChartModel()
             emitter.emit('refreshChart', this.widgetModel.id)
+        },
+        updateChartModel() {
+            if (this.widget.settings.chartModel?.model) this.widget.settings.chartModel.model.colors = this.widget.settings.chart.colors
         },
         getContrastYIQ() {
             //getContrastYIQ(hexcolor) {

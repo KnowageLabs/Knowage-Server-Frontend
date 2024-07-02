@@ -1,11 +1,9 @@
 <template>
-    <div id="widget-card" class="p-m-2" :style="descriptor.style.widgetCard" :title="$t(`dashboard.widgets.${widget.type}.description`)">
+    <div id="widget-card" :title="$t(widget.description)">
         <div id="widget-card-icon-container" class="p-d-flex p-ai-center p-jc-center">
             <div class="innerIcon" :style="documentImageSource()"></div>
         </div>
-        <div class="p-d-flex p-flex-column p-ai-start p-jc-center">
-            <span class="p-ml-2 widgetTitle">{{ $t(`dashboard.widgets.${widget.type}.title`) }}</span>
-        </div>
+        <span class="widgetTitle">{{ $t(widget.name) }}</span>
     </div>
 </template>
 
@@ -29,9 +27,10 @@ export default defineComponent({
     },
     methods: {
         documentImageSource(): any {
+            const widgetImg = this.widget.type === 'highcharts' || this.widget.type === 'chartJS' ? 'chart' : this.widget.type
             return {
-                'mask-image': `url(${descriptor.imagePath}${this.widget.type}${descriptor.imageExtension})`,
-                '-webkit-mask-image': `url(${descriptor.imagePath}${this.widget.type}${descriptor.imageExtension})`
+                'mask-image': `url(${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${descriptor.imagePath}${widgetImg}${descriptor.imageExtension})`,
+                '-webkit-mask-image': `url(${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}${descriptor.imagePath}${widgetImg}${descriptor.imageExtension})`
             }
         }
     }
@@ -40,23 +39,31 @@ export default defineComponent({
 <style lang="scss" scoped>
 #widget-card {
     cursor: pointer;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     .widgetTitle {
         text-transform: capitalize;
         font-size: 1.1rem;
+        height: 50px;
+        text-align: center;
     }
     #widget-card-icon-container {
         background-color: var(--kn-color-secondary);
-        border-right: 1px solid var(--kn-color-borders);
-        transition: 0.2s ease-in;
+        height: 60px;
+        width: 60px;
+        border-radius: 50%;
         .innerIcon {
-            width: 100px;
+            width: 60px;
             height: 100%;
             mask-size: 80%;
             mask-repeat: no-repeat;
-            mask-position: 180% 180%;
+            mask-position: center;
             -webkit-mask-size: 80%;
             -webkit-mask-repeat: no-repeat;
-            -webkit-mask-position: 180% 180%;
+            -webkit-mask-position: center;
             background-repeat: no-repeat;
             background-color: var(--kn-color-primary);
             position: relative;
@@ -71,7 +78,7 @@ export default defineComponent({
             background-color: var(--kn-color-primary);
             .innerIcon {
                 background-color: white;
-                mask-position: center;
+
                 -webkit-mask-position: center;
             }
         }

@@ -1,12 +1,14 @@
 import { IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import deepcopy from 'deepcopy'
 import { filter } from './CustomChartWidgetFilter'
+import mainStore from '@/App.store'
 
 export class CustomChartDatastore {
     data: any = {}
     globalTree: any[] = []
     variables: any = {}
     profile: any = {}
+    state: any = {}
 
     constructor(data) {
         this.data = data
@@ -83,6 +85,12 @@ export class CustomChartDatastore {
             series.push(serieObj)
         }
         return series
+    }
+
+    getInternationalization(label) {
+        const store = mainStore()
+        const translation = store.internationalization?.filter((i) => i.label === label)[0]
+        return translation?.message ? translation.message : label
     }
 
     sort(sortParams) {
@@ -280,7 +288,18 @@ export class CustomChartDatastore {
     }
 
     clickManager(columnName: string, columnValue: string | number) {
-        window?.parent?.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, '*')
+        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, location.origin)
+        else window?.parent?.postMessage({ type: 'clickManager', payload: { columnName: columnName, columnValue: columnValue } }, location.origin)
+    }
+
+    getState() {
+        if (typeof this.state === 'string') return JSON.parse(this.state)
+        return this.state
+    }
+
+    setState(state: any) {
+        if (window.frames.document.querySelector('#_KNOWAGE_VUE')) window.postMessage({ type: 'setState', payload: JSON.stringify(state) }, location.origin)
+        else window?.parent?.postMessage({ type: 'setState', payload: JSON.stringify(state) }, location.origin)
     }
 }
 
@@ -400,7 +419,7 @@ class node {
         return contains
     }
     traverseDF(tree, callback) {
-        ; (function recurse(currentNode) {
+        ;(function recurse(currentNode) {
             callback(currentNode)
             if (!Array.isArray(currentNode)) {
                 for (var i = 0; i < currentNode.children.length; i++) {

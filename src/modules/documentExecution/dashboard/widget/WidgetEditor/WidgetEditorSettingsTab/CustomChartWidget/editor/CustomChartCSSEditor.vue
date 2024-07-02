@@ -1,62 +1,35 @@
 <template>
     <div id="cssMirrorContainer">
-        <VCodeMirror ref="codeMirrorCssEditor" v-model:value="code" :options="scriptOptions" @keyup="onKeyUp" @keyDown="onKeyUp" @change="onKeyUp" @blur="onKeyUp" />
+        <knMonaco ref="editor" v-model="model.settings.editor.css" style="height: 500px" language="css"></knMonaco>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/Dashboard/Dashboard'
-import VCodeMirror from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 
 export default defineComponent({
     name: 'custom-chart-css-editor',
-    components: { VCodeMirror },
+    components: { knMonaco },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, activeIndex: { type: Number, required: true } },
     data() {
         return {
-            codeMirrorCssEditor: null as any,
             model: {} as IWidget,
-            scriptOptions: {
-                cursor: true,
-                line: false,
-                lineNumbers: true,
-                mode: 'css',
-                tabSize: 4,
-                theme: 'eclipse'
-            },
             code: ''
         }
     },
     watch: {
         widgetModel() {
             this.loadModel()
-        },
-        activeIndex(value: number) {
-            if (value === 0 && this.codeMirrorCssEditor) setTimeout(() => this.codeMirrorCssEditor.refresh(), 100)
         }
     },
     created() {
         this.loadModel()
-        this.setupCodeMirror()
     },
     methods: {
         loadModel() {
             this.model = this.widgetModel
-        },
-        setupCodeMirror() {
-            const interval = setInterval(() => {
-                if (!this.$refs.codeMirrorCssEditor) return
-                this.code = this.model.settings.editor.css
-                this.codeMirrorCssEditor = (this.$refs.codeMirrorCssEditor as any).cminstance as any
-                setTimeout(() => {
-                    this.codeMirrorCssEditor.refresh()
-                }, 0)
-                clearInterval(interval)
-            }, 200)
-        },
-        onKeyUp() {
-            this.model.settings.editor.css = this.code
         }
     }
 })

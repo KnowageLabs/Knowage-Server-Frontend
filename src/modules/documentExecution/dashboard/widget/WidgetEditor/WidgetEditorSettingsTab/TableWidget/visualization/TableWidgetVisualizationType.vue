@@ -32,16 +32,17 @@
                         </template>
                     </Dropdown>
                 </div>
-                <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
+                <div class="p-col-1 p-d-flex p-flex-row p-jc-center p-ai-center p-pl-2 p-mt-3">
+                    <i v-if="['Icon', 'Text & Icon'].includes(visualizationType.type)" v-tooltip.top="$t('dashboard.widgetEditor.visualisationType.thresholdHint')" class="pi pi pi-exclamation-triangle threshold-warning-icon kn-cursor-pointer p-mr-4"></i>
                     <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', visualizationTypeDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-ml-2" @click="index === 0 ? addVisualizationType() : removeVisualizationType(index)"></i>
                 </div>
             </div>
             <div class="p-col-12 p-grid p-ai-center">
-                <div class="p-col-6 p-md-3 p-d-flex p-flex-column p-pr-2">
+                <div v-if="visualizationType.type && visualizationType.type !== 'Bar'" class="p-col-6 p-md-3 p-d-flex p-flex-column p-pr-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.prefix') }}</label>
                     <InputText v-model="visualizationType.prefix" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged" />
                 </div>
-                <div class="p-col-6 p-md-3 p-d-flex p-flex-column kn-flex p-pr-2">
+                <div v-if="visualizationType.type && visualizationType.type !== 'Bar'" class="p-col-6 p-md-3 p-d-flex p-flex-column kn-flex p-pr-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.suffix') }}</label>
                     <InputText v-model="visualizationType.suffix" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged" />
                 </div>
@@ -76,7 +77,7 @@
                     </Dropdown>
                 </div>
             </div>
-            <div v-if="optionsContainMeasureColumn(visualizationType) && (visualizationType.type === 'Bar' || visualizationType.type === 'Sparkline')" class="p-col-12 p-grid p-ai-center p-pt-1">
+            <div v-if="optionsContainMeasureColumn(visualizationType) && (visualizationType.type === 'Bar' || visualizationType.type === 'Sparkline' || visualizationType.type === 'Bar & Text')" class="p-col-12 p-grid p-ai-center p-pt-1">
                 <div class="p-col-12 p-md-6 p-lg-3 p-d-flex p-flex-column p-px-2">
                     <label class="kn-material-input-label">{{ $t('common.min') }}</label>
                     <InputNumber v-model="visualizationType.min" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
@@ -101,7 +102,7 @@
                         </template>
                     </Dropdown>
                 </div>
-                <div class="p-col-6 p-md-6 p-lg-3 style-toolbar-container">
+                <div class="p-col-6 p-md-6 p-lg-3 p-as-end style-toolbar-container">
                     <WidgetEditorStyleToolbar
                         :options="descriptor.styleToolbarVisualizationTypeOptions"
                         :prop-model="{
@@ -122,7 +123,7 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetVisualizationType, IWidgetColumn, IWidgetStyleToolbarModel, ITableWidgetVisualizationTypes } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
-import { formatDate } from '@/helpers/commons/localeHelper'
+import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputNumber from 'primevue/inputnumber'
@@ -191,7 +192,7 @@ export default defineComponent({
                 if (column.id) {
                     this.widgetColumnsAliasMap[column.id] = column.alias
                     if (column.fieldType) this.widgetColumnsTypeMap[column.id] = column.fieldType
-                    this.widgetColumnsIsDateMap[column.id] = column.type.includes('DATE') || column.type.includes('TIMESTAMP')
+                    this.widgetColumnsIsDateMap[column.id] = column.type.toLowerCase().includes('date') || column.type.toLowerCase().includes('timestamp')
                 }
             })
         },
@@ -309,7 +310,7 @@ export default defineComponent({
             this.loadWidgetColumnMaps()
         },
         getFormattedDate(date: any, format: any) {
-            return formatDate(date, format)
+            return luxonFormatDate(date, undefined, format)
         }
     }
 })
@@ -325,5 +326,9 @@ export default defineComponent({
 }
 .style-toolbar-container {
     max-width: 120px;
+}
+
+.threshold-warning-icon {
+    font-size: 1.5rem;
 }
 </style>

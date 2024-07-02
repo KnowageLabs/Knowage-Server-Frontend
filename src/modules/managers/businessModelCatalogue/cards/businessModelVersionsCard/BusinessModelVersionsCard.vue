@@ -125,7 +125,7 @@ export default defineComponent({
         },
         async downloadFile(versionId: number, filetype: string) {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/businessmodels/${this.id}/versions/${versionId}/${filetype}/file`, {
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/businessmodels/${this.id}/versions/${versionId}/${filetype}/file`, {
                     responseType: 'arraybuffer',
                     headers: {
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
@@ -162,7 +162,7 @@ export default defineComponent({
             })
         },
         async deleteVersion(versionId: number) {
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/businessmodels/${this.id}/versions/${versionId}/`).then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/businessmodels/${this.id}/versions/${versionId}/`).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')

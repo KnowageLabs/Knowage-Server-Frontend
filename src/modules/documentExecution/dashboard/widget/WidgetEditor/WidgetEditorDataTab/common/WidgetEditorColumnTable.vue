@@ -1,5 +1,5 @@
 <template>
-    <div class="widget-editor-card p-p-2">
+    <div class="widget-editor-card p-p-2" :class="{ ['widget-editor-column-table-invalid']: error }">
         <div class="p-d-flex p-flex-column">
             <label v-if="settings.label" class="kn-material-input-label">{{ $t(settings.label) }}</label>
             <small v-if="settings.hint"> {{ $t(settings.hint) }}</small>
@@ -40,7 +40,7 @@
                                 option-value="value"
                                 @change="$emit('itemUpdated', slotProps.data)"
                             />
-                            <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ '(' + slotProps.data[column.field] + ')' }}</span>
+                            <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                             <span v-else-if="!slotProps.data.formula" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                         </div>
                     </template>
@@ -74,7 +74,7 @@ import commonDescriptor from '../common/WidgetCommonDescriptor.json'
 export default defineComponent({
     name: 'widget-editor-column-table',
     components: { Column, DataTable, Dropdown },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {
@@ -134,10 +134,11 @@ export default defineComponent({
             if (event.dataTransfer.getData('text/plain') === 'b') return
             const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
             const tempColumn = createNewWidgetColumn(eventData, this.widgetType)
-            if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'vega'].includes(this.widgetModel.type)) {
+            if (['table', 'html', 'text', 'highcharts', 'chartJS', 'discovery', 'customchart', 'vega', 'python', 'r'].includes(this.widgetModel.type)) {
                 if (['chartJS', 'highcharts', 'vega'].includes(this.widgetModel.type)) {
+                    if (this.axis) tempColumn.axis = this.axis
                     addChartColumnToTable(tempColumn, this.rows, this.chartType, this.settings.attributesOnly, this.settings.measuresOnly, this.widgetModel)
-                } else if (['table'].includes(this.widgetModel.type) || !this.checkIfColumnIsAlreadyPresent(tempColumn)) this.rows.push(tempColumn as IWidgetColumn)
+                } else if (['table', 'python', 'r'].includes(this.widgetModel.type) || !this.checkIfColumnIsAlreadyPresent(tempColumn)) this.rows.push(tempColumn as IWidgetColumn)
             } else {
                 this.rows = [tempColumn]
             }
@@ -152,7 +153,7 @@ export default defineComponent({
             this.$emit('itemDeleted', item)
         },
         aggregationDropdownIsVisible(row: any) {
-            return row.fieldType === 'MEASURE' && this.widgetType !== 'discovery' && !row.formula
+            return (row.fieldType === 'MEASURE' || ['Y', 'Z'].includes(row.axis)) && this.widgetType !== 'discovery' && !row.formula
         },
         updateSelectedColumn(selectedColumn: IWidgetColumn) {
             const index = this.rows.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === selectedColumn.id)
@@ -169,6 +170,7 @@ export default defineComponent({
             emitter.emit('editCalculatedField', column)
         },
         onCalcFieldAdded(field) {
+            if (this.settings.attributesOnly || (this.axis && !['Y', 'start'].includes(this.axis))) return
             this.rows.push(field as IWidgetColumn)
             this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings })
         }
@@ -191,5 +193,9 @@ export default defineComponent({
 .column-aggregation-dropdown {
     min-width: 200px;
     max-width: 400px;
+}
+
+.widget-editor-column-table-invalid {
+    border: 1.5px solid red;
 }
 </style>

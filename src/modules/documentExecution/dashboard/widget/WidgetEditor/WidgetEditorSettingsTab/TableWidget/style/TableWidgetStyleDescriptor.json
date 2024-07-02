@@ -1,0 +1,13 @@
+{
+    "paginatorStyleSettings": [
+        {
+            "type": "justify-content"
+        },
+        {
+            "type": "color"
+        },
+        {
+            "type": "background-color"
+        }
+    ]
+}

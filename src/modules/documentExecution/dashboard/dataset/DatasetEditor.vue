@@ -21,20 +21,12 @@
                         @deleteDataset="confirmDeleteDataset"
                     />
                 </TabPanel>
-                <TabPanel>
+                <TabPanel v-if="dashboardDatasets.length > 1">
                     <template #header>
                         <span :class="{ 'details-warning-color': modelHasEmptyAssociations }">{{ $t('dashboard.datasetEditor.associationsTabTitle') }}</span>
                         <i v-if="modelHasEmptyAssociations" class="fa-solid fa-circle-exclamation p-ml-1 details-warning-color" />
                     </template>
-                    <AssociationsTab
-                        :dashboard-associations-prop="dashboardAssociations"
-                        :selected-datasets-prop="selectedDatasets"
-                        :selected-association-prop="selectedAssociation"
-                        @createNewAssociation="createNewAssociation"
-                        @associationDeleted="deleteAssociation"
-                        @associationSelected="selectAssociation"
-                        @addIndexesOnAssociations="addIndexesOnAssociations"
-                    />
+                    <AssociationsTab :dashboard-associations-prop="dashboardAssociations" :selected-datasets-prop="selectedDatasets" :selected-association-prop="selectedAssociation" @associationSelected="selectAssociation" />
                 </TabPanel>
             </TabView>
         </div>
@@ -62,7 +54,7 @@ import deepcopy from 'deepcopy'
 export default defineComponent({
     name: 'dataset-editor',
     components: { TabView, TabPanel, DataTab, AssociationsTab, DriverWarningDialog },
-    props: { availableDatasetsProp: { required: true, type: Array as PropType<IDataset[]> }, filtersDataProp: { type: Object }, dashboardIdProp: { type: String, required: true } },
+    props: { availableDatasetsProp: { required: true, type: Array as PropType<IDataset[]> }, filtersDataProp: { type: Object }, dashboardIdProp: { type: String, required: true }, datasetsLoaded: { type: Boolean } },
     emits: ['closeDatasetEditor', 'datasetEditorSaved', 'allDatasetsLoaded'],
     setup() {
         const store = mainStore()
@@ -103,7 +95,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapActions(dashStore, ['setAllDatasets', 'getAllDatasetLoadedFlag', 'setAllDatasetLoadedFlag']),
+        ...mapActions(dashStore, ['setAllDatasets']),
         async setDatasetsData() {
             await this.loadAvailableDatasets()
             this.dashboardDatasets = deepcopy(this.dashboardStore.$state.dashboards[this.dashboardIdProp].configuration.datasets)
@@ -114,10 +106,9 @@ export default defineComponent({
         },
         async loadAvailableDatasets() {
             this.availableDatasets = deepcopy(this.availableDatasetsProp)
-            if (this.getAllDatasetLoadedFlag(this.dashboardIdProp)) return
+            if (this.datasetsLoaded === true) return
             this.availableDatasets = await loadDatasets(null, this.store, this.setAllDatasets, this.$http)
             this.$emit('allDatasetsLoaded', this.availableDatasets)
-            this.setAllDatasetLoadedFlag(this.dashboardIdProp, true)
         },
         selectModelDatasetsFromAvailable() {
             return this.availableDatasets?.filter((responseDataset) => {
@@ -238,6 +229,7 @@ export default defineComponent({
                 id: datasetToFormat.id.dsId,
                 dsLabel: datasetToFormat.label,
                 cache: datasetToFormat.modelCache ?? false,
+                frequency: datasetToFormat.frequency,
                 indexes: datasetToFormat.modelCache ? datasetToFormat.modelIndexes : [],
                 parameters: datasetToFormat.parameters.map((parameter) => {
                     return { name: parameter.name, type: parameter.modelType, value: parameter.value, multivalue: parameter.multivalue ?? false } as IDashboardDatasetParameter

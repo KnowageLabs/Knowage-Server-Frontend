@@ -105,7 +105,7 @@ export default defineComponent({
         async loadCategories() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '3.0/category/categories')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/category/categories')
                 .then((response: AxiosResponse<any>) => (this.categories = response.data))
                 .finally(() => (this.loading = false))
         },
@@ -120,7 +120,7 @@ export default defineComponent({
         async deleteCategory(category: iCategory) {
             const dataToDelete = { code: category.code, id: category.id, name: category.name, type: category.type } as any
 
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '3.0/category', { data: dataToDelete }).then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/3.0/category', { data: dataToDelete }).then(() => {
                 this.store.setInfo({ title: this.$t('common.toast.deleteTitle'), msg: this.$t('common.toast.deleteSuccess') })
                 this.loadCategories()
             })

@@ -84,7 +84,7 @@ export default defineComponent({
             this.loading = true
             this.newsList = []
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/news')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/news')
                 .then((response: AxiosResponse<any>) => {
                     response.data.map((news: iNews) => {
                         this.newsList.push({ ...news, newsType: this.setNewsType(news.type) })
@@ -125,7 +125,7 @@ export default defineComponent({
         },
         async deleteNews(news) {
             let responseOk = false
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/news/' + news.id).then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/news/' + news.id).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')

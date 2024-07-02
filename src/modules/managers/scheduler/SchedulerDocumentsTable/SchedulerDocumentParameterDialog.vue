@@ -72,7 +72,7 @@ export default defineComponent({
             this.$emit('close')
         },
         async loadFormulas() {
-            await this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/formulas/`).then((response: AxiosResponse<any>) => (this.formulas = response.data))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/formulas/`).then((response: AxiosResponse<any>) => (this.formulas = response.data))
         },
         setParameters() {
             this.$emit('setParameters', this.parameters)

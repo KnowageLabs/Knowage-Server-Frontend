@@ -5,7 +5,7 @@
             :widget-model="widget"
             :items="columnTableItems['ATTRIBUTES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[0] }"
-            chart-type="chartJSPieChart"
+            :error="isAttributesTableInvalid()"
             @rowReorder="onColumnsReorder"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
@@ -17,7 +17,7 @@
             :widget-model="widget"
             :items="columnTableItems['MEASURES'] ?? []"
             :settings="{ ...commonDescriptor.columnTableSettings, ...chartJSDescriptor.pieChartColumnTableSettings[1] }"
-            chart-type="chartJSPieChart"
+            :error="isMeasureTableInvalid()"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
             @itemSelected="setSelectedColumn($event, 4)"
@@ -52,9 +52,15 @@ export default defineComponent({
             formFlexOrder: 4
         }
     },
+    computed: {
+        chartType() {
+            return this.widgetModel?.settings.chartModel?.model?.chart.type
+        }
+    },
     watch: {
         selectedDataset() {
             this.selectedColumn = null
+            this.clearSelectedWidgetColumnsFromWidgetModel()
         }
     },
     async created() {
@@ -72,7 +78,6 @@ export default defineComponent({
             this.columnTableItems['MEASURES'] = []
             this.widget.columns.forEach((column: IWidgetColumn) => {
                 const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
-                if ((type === 'MEASURES' && this.columnTableItems['MEASURES'].length === 1) || (type === 'ATTRIBUTES' && this.columnTableItems['ATTRIBUTES'].length === 1)) return
                 this.columnTableItems[type].push(column)
             })
         },
@@ -119,6 +124,45 @@ export default defineComponent({
             const type = column.fieldType == 'MEASURE' ? 'MEASURES' : 'ATTRIBUTES'
             const index = this.columnTableItems[type].findIndex((tempColumn: IWidgetColumn) => tempColumn.id === column.id)
             if (index !== -1) this.columnTableItems[type].splice(index, 1)
+        },
+        isAttributesTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['ATTRIBUTES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'bar':
+                    case 'line':
+                    case 'pie':
+                        invalid = this.columnTableItems['ATTRIBUTES'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            if (!this.widget.invalid) this.widget.invalid = {}
+            this.widget.invalid.attributesInvalid = invalid
+            return invalid
+        },
+        isMeasureTableInvalid() {
+            let invalid = false
+            if (this.columnTableItems['MEASURES'].length === 0) invalid = true
+            else {
+                switch (this.chartType) {
+                    case 'pie':
+                        invalid = this.columnTableItems['MEASURES'].length !== 1
+                        break
+                    default:
+                        invalid = false
+                }
+            }
+            if (!this.widget.invalid) this.widget.invalid = {}
+            this.widget.invalid.measuresInvalid = invalid
+            return invalid
+        },
+        clearSelectedWidgetColumnsFromWidgetModel() {
+            for (let i = this.widgetModel.columns.length - 1; i >= 0; i--) {
+                this.widgetModel.columns.forEach((column: IWidgetColumn) => this.onColumnDelete(column))
+            }
         }
     }
 })

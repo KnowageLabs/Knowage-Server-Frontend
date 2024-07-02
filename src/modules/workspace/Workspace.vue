@@ -7,7 +7,7 @@
                 </template>
             </Toolbar>
             <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-            <Listbox v-if="displayMenu && storeFunctionalitiesExist" :options="menuItems" data-test="menu-list" class="kn-list">
+            <Listbox v-if="storeFunctionalitiesExist" :options="menuItems" data-test="menu-list" class="kn-list">
                 <template #option="slotProps">
                     <div v-if="slotProps.option.value !== 'repository'" class="kn-list-item" @click="setActiveView(`/workspace/${slotProps.option.value}`)">
                         <i :class="slotProps.option.icon"></i>
@@ -26,7 +26,7 @@
                                         <i v-if="!accordionIcon" class="pi pi-chevron-down menu-accordion-icon"></i>
                                     </div>
                                 </template>
-                                <WorkspaceDocumentTree :prop-folders="allFolders" mode="select" :selected-breadcrumb="selectedBreadcrumb" data-test="document-tree" @folderSelected="setSelectedFolder" @delete="deleteFolder" @createFolder="showCreateFolderDialog"></WorkspaceDocumentTree>
+                                <WorkspaceDocumentTree mode="select" :selected-breadcrumb="selectedBreadcrumb" data-test="document-tree" @folderSelected="setSelectedFolder"></WorkspaceDocumentTree>
                             </AccordionTab>
                         </Accordion>
                     </div>
@@ -103,19 +103,17 @@
                                     <span class="p-ml-2">{{ $t('workspace.menuLabels.myRepository') }}</span>
                                 </div>
                             </template>
-                            <WorkspaceDocumentTree :prop-folders="allFolders" mode="select" :selected-breadcrumb="selectedBreadcrumb" data-test="document-tree" @folderSelected="setSelectedFolder" @delete="deleteFolder" @createFolder="showCreateFolderDialog"></WorkspaceDocumentTree>
+                            <WorkspaceDocumentTree mode="select" :selected-breadcrumb="selectedBreadcrumb" data-test="document-tree" @folderSelected="setSelectedFolder" @delete="deleteFolder" @createFolder="showCreateFolderDialog"></WorkspaceDocumentTree>
                         </AccordionTab>
                     </Accordion>
                 </div>
             </template>
         </Listbox>
     </Sidebar>
-
-    <WorkspaceNewFolderDialog :visible="displayCreateFolderDialog" @close="displayCreateFolderDialog = false" @create="createNewFolder"></WorkspaceNewFolderDialog>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { IDocument, IFolder } from '@/modules/workspace/Workspace'
+import { IFolder } from '@/modules/workspace/Workspace'
 import { AxiosResponse } from 'axios'
 import Sidebar from 'primevue/sidebar'
 import Accordion from 'primevue/accordion'
@@ -123,7 +121,6 @@ import AccordionTab from 'primevue/accordiontab'
 import Listbox from 'primevue/listbox'
 import WorkspaceDocumentTree from './genericComponents/WorkspaceDocumentTree.vue'
 import workspaceDescriptor from './WorkspaceDescriptor.json'
-import WorkspaceNewFolderDialog from './views/repositoryView/dialogs/WorkspaceNewFolderDialog.vue'
 import Dialog from 'primevue/dialog'
 import KnParameterSidebar from '@/components/UI/KnParameterSidebar/KnParameterSidebar.vue'
 import moment from 'moment'
@@ -131,10 +128,11 @@ import { mapState } from 'pinia'
 import cryptoRandomString from 'crypto-random-string'
 import mainStore from '../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { IDashboardView } from '../documentExecution/dashboard/Dashboard'
 
 export default defineComponent({
     name: 'dataset-management',
-    components: { Sidebar, Listbox, Accordion, AccordionTab, WorkspaceDocumentTree, WorkspaceNewFolderDialog, Dialog, KnParameterSidebar },
+    components: { Sidebar, Listbox, Accordion, AccordionTab, WorkspaceDocumentTree, Dialog, KnParameterSidebar },
 
     setup() {
         const store = mainStore()
@@ -145,12 +143,8 @@ export default defineComponent({
             workspaceDescriptor,
             sidebarVisible: false,
             toggleCardDisplay: false,
-            allFolders: [] as IFolder[],
             selectedFolder: {} as any,
-            allDocuments: [] as IDocument[],
             items: [] as IFolder[],
-            displayMenu: false,
-            displayCreateFolderDialog: false,
             breadcrumbs: [] as any[],
             selectedBreadcrumb: null as any,
             accordionIcon: true,
@@ -184,7 +178,6 @@ export default defineComponent({
     },
     created() {
         this.uniqueID = cryptoRandomString({ length: 16, type: 'base64' })
-        this.getAllRepositoryData()
     },
     mounted() {
         this.createMenuItems()
@@ -192,23 +185,6 @@ export default defineComponent({
     methods: {
         closeSidebar() {
             this.sidebarVisible = false
-        },
-        async getAllRepositoryData() {
-            this.loading = true
-            await this.getAllFolders()
-            await this.getAllDocuments()
-            this.loading = false
-        },
-        async getAllFolders() {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/folders/`).then((response: AxiosResponse<any>) => {
-                this.allFolders = [...response.data]
-                this.displayMenu = true
-            })
-        },
-        async getAllDocuments() {
-            return this.$http.get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/documents/`).then((response: AxiosResponse<any>) => {
-                this.allDocuments = [...response.data]
-            })
         },
         setActiveView(route) {
             this.$router.push(route)
@@ -220,49 +196,8 @@ export default defineComponent({
         setSelectedFolder(folder: any) {
             this.selectedFolder = folder
             this.createBreadcrumbs()
-            this.$router.push(`/workspace/repository/${folder.id}`)
-        },
-        async deleteFolder(folder: any) {
-            this.loading = true
-            await this.$http
-                .delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `2.0/organizer/foldersee/${folder.id}`, { headers: { 'X-Disable-Errors': 'true' } })
-                .then(() => {
-                    this.store.setInfo({
-                        title: this.$t('common.toast.deleteTitle'),
-                        msg: this.$t('common.toast.success')
-                    })
-                    this.getAllRepositoryData()
-                    this.$router.push('/workspace')
-                })
-                .catch((response: any) => {
-                    this.store.setError({
-                        title: this.$t('common.toast.deleteTitle'),
-                        msg: response.message === 'sbi.workspace.organizer.folder.error.delete' ? this.$t('workspace.myRepository.folderDeleteError') : response.message
-                    })
-                })
-            this.loading = false
-        },
-        showCreateFolderDialog(folder: any) {
-            this.selectedFolder = folder
-            this.displayCreateFolderDialog = true
-        },
-        async createNewFolder(newFolder: any) {
-            newFolder.parentFunct = this.selectedFolder?.id
-            newFolder.path = this.selectedFolder?.path + `/` + encodeURIComponent(newFolder.code)
-            newFolder.prog = this.selectedFolder?.prog
-            await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '2.0/organizer/foldersee/', newFolder, { headers: { 'X-Disable-Errors': 'true' } })
-                .then(() => {
-                    this.store.setInfo({ title: this.$t('workspace.myRepository.folderCreatedMessage') })
-                    this.getAllFolders()
-                })
-                .catch((response: any) => {
-                    this.store.setError({
-                        title: this.$t('common.error.generic'),
-                        msg: response
-                    })
-                })
-                .finally(() => (this.displayCreateFolderDialog = false))
+            const route = folder.id ? `/workspace/repository/${folder.id}` : `/workspace`
+            this.$router.push(route)
         },
         createBreadcrumbs() {
             let currentFolder = this.selectedFolder as any
@@ -300,13 +235,32 @@ export default defineComponent({
                 this.menuItems.push({ icon: 'fas fa-cogs', key: '6', label: 'workspace.menuLabels.advanced', value: 'advanced' })
             }
         },
-        executeDocument(document: any) {
-            const routeType = this.getRouteDocumentType(document)
-            const label = document.label ? document.label : document.documentLabel
-            this.$router.push(`/workspace/${routeType}/${label}`)
+        async executeDocument(document: any) {
+            const isView = document.type === 'VIEW'
+            let routeType = ''
+            if (isView && document.biObjectTypeCode === 'DASHBOARD') routeType = isView && !document.executeAsDocument ? 'dashboard-view' : 'dashboard'
+            else if (isView) routeType = isView && !document.executeAsDocument ? 'cockpit-view' : 'document-composite'
+            else routeType = this.getRouteDocumentType(document)
+            let label = ''
+            if (['VIEW', 'IMPORTED_DOC'].includes(document.type)) label = await this.getDocumentLabelFromView(document)
+            else label = document.label ? document.label : document.documentLabel
+            if (!label) return
+            let route = `/workspace/${routeType}/${label}`
+            if (isView && !document.executeAsDocument) route += `?viewName=${document.name}&viewId=${document.id}`
+            this.$router.push(route)
+        },
+        async getDocumentLabelFromView(view: IDashboardView) {
+            this.loading = true
+            let label = ''
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${view.biObjectId}`)
+                .then((response: AxiosResponse<any>) => (label = response.data ? response.data.label : ''))
+                .catch(() => {})
+            this.loading = false
+            return label
         },
         getRouteDocumentType(item: any) {
-            let routeDocumentType = ''
+            let routeDocumentType = item.biObjectTypeCode === 'DOCUMENT_COMPOSITE' ? 'document-composite' : 'dashboard'
 
             const type = item.typeCode ? item.typeCode : item.documentType
 
@@ -344,7 +298,7 @@ export default defineComponent({
         },
         async loadQBEDataset(dataset) {
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/datasets/${dataset.label}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${dataset.label}`)
                 .then((response: AxiosResponse<any>) => {
                     this.qbeDataset = response.data
                 })
@@ -352,7 +306,7 @@ export default defineComponent({
         },
         async loadDatasetDrivers(dataset) {
             await this.$http
-                .post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + `1.0/businessmodel/${dataset.name}/filters`, { name: dataset.name, role: this.userRole })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/businessmodel/${dataset.name}/filters`, { name: dataset.name, role: this.userRole })
                 .then((response: AxiosResponse<any>) => {
                     this.filtersData = response.data
                     this.formatDrivers()
@@ -419,7 +373,9 @@ export default defineComponent({
             const language = this.user.locale.split('_')[0]
             const country = this.user.locale.split('_')[1]
             const drivers = encodeURI(JSON.stringify(this.datasetDrivers))
-            initialUrl = `/knowageqbeengine/servlet/AdapterHTTP?NEW_SESSION=TRUE&SBI_LANGUAGE=${language}&SBI_SCRIPT=&user_id=${this.user.userUniqueIdentifier}&DEFAULT_DATASOURCE_FOR_WRITING_LABEL=CacheDS&SBI_COUNTRY=${country}&SBI_EXECUTION_ID=${this.uniqueID}&ACTION_NAME=QBE_ENGINE_START_ACTION_FROM_BM&MODEL_NAME=${dataset.name}&DATA_SOURCE_LABEL=${dataset.dataSourceLabel}&DATA_SOURCE_ID=${dataset.dataSourceId}&isTechnicalUser=true&DRIVERS=${drivers}`
+            initialUrl = `${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?NEW_SESSION=TRUE&SBI_LANGUAGE=${language}&SBI_SCRIPT=&user_id=${this.user.userUniqueIdentifier}&DEFAULT_DATASOURCE_FOR_WRITING_LABEL=CacheDS&SBI_COUNTRY=${country}&SBI_EXECUTION_ID=${
+                this.uniqueID
+            }&ACTION_NAME=QBE_ENGINE_START_ACTION_FROM_BM&MODEL_NAME=${dataset.name}&DATA_SOURCE_LABEL=${dataset.dataSourceLabel}&DATA_SOURCE_ID=${dataset.dataSourceId}&isTechnicalUser=true&DRIVERS=${drivers}`
             this.qbeUrl = import.meta.env.VITE_HOST_URL + initialUrl
         },
         getFormattedParameters(loadedParameters: { filterStatus: any[]; isReadyForExecution: boolean }) {
@@ -458,7 +414,7 @@ export default defineComponent({
         },
         saveQbeDataset() {
             const iframe = this.$refs.qbeIframe as any
-            iframe.contentWindow.postMessage('saveDS', '*')
+            iframe.contentWindow.postMessage('saveDS', location.origin)
         }
     }
 })

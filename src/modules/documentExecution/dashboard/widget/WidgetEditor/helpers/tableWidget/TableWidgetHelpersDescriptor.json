@@ -91,6 +91,11 @@
             "totalItems": 0
         }
     },
+    "defaultPaginatorStyle": {
+        "background-color": "",
+        "color": "",
+        "justify-content": ""
+    },
     "defaultRowsConfiguration": {
         "indexColumn": false,
         "rowSpan": {

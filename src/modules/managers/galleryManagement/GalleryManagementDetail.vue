@@ -35,7 +35,7 @@
                                     <label class="kn-material-input-label" for="type">{{ $t('common.type') }}</label>
                                 </span>
                             </div>
-                            <div v-if="v$.template.type === 'python'" class="p-col-3">
+                            <div v-if="template.type === 'python'" class="p-col-3">
                                 <span class="p-float-label">
                                     <Dropdown id="outputType" v-model="v$.template.outputType.$model" class="kn-material-input" :options="galleryDescriptor.outputTypes" option-label="name" option-value="value" @change="setDirty" />
                                     <label class="kn-material-input-label" for="outputType">{{ $t('managers.widgetGallery.outputType') }}</label>
@@ -77,11 +77,11 @@
         </div>
         <div v-if="template.type && windowWidth < windowWidthBreakPoint" class="p-grid p-m-2 flex">
             <TabView class="tabview-custom" style="width: 100%">
-                <TabPanel v-for="(allowedEditor, index) in galleryDescriptor.allowedEditors[template.type]" :key="allowedEditor">
+                <TabPanel v-for="allowedEditor in galleryDescriptor.allowedEditors[template.type]" :key="allowedEditor">
                     <template #header>
                         <i :class="['icon', galleryDescriptor.editor[allowedEditor].icon]"></i>&nbsp;<span style="text-transform: uppercase">{{ $t('common.codingLanguages.' + allowedEditor) }}</span>
                     </template>
-                    <knMonaco v-model="template.code[allowedEditor]" :options="{}" :language="allowedEditor" @change="setDirty"></knMonaco>
+                    <knMonaco v-model="template.code[allowedEditor]" :options="{}" :language="allowedEditor" style="height: 100%" @change="setDirty"></knMonaco>
                 </TabPanel>
             </TabView>
         </div>
@@ -91,7 +91,7 @@
                     <i :class="['icon', galleryDescriptor.editor[allowedEditor].icon]"></i>
                     {{ $t('common.codingLanguages.' + allowedEditor) }}
                 </h4>
-                <knMonaco v-model="template.code[allowedEditor]" :options="{ theme: 'vs-dark' }" :language="allowedEditor" @change="setDirty"></knMonaco>
+                <knMonaco v-model="template.code[allowedEditor]" :options="{ theme: 'vs-dark' }" style="height: 100%" :language="allowedEditor" @change="setDirty"></knMonaco>
             </div>
         </div>
     </div>
@@ -208,7 +208,7 @@ export default defineComponent({
             this.loading = true
             if (id) {
                 this.$http
-                    .get(import.meta.env.VITE_API_PATH + '1.0/widgetgallery/' + (id || this.id))
+                    .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/widgetgallery/' + (id || this.id))
                     .then((response: AxiosResponse<any>) => {
                         this.template = response.data
                     })
@@ -225,7 +225,7 @@ export default defineComponent({
         },
         saveTemplate(): void {
             if (this.validateTags()) {
-                const postUrl = this.id ? '1.0/widgetgallery/' + this.id : '1.0/widgetgallery'
+                const postUrl = this.id ? '/api/1.0/widgetgallery/' + this.id : '/api/1.0/widgetgallery'
                 const label = this.template.label
                 const name = this.template.name
                 if (!label && !name) {
@@ -235,7 +235,7 @@ export default defineComponent({
                 if (!label && name) this.template.label = name
                 if (label && !name) this.template.name = label
                 this.$http
-                    .post(import.meta.env.VITE_API_PATH + postUrl, this.template)
+                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + postUrl, this.template)
                     .then((response: AxiosResponse<any>) => {
                         this.store.setInfo({ title: this.$t('managers.widgetGallery.saveTemplate'), msg: this.$t('managers.widgetGallery.templateSuccessfullySaved') })
                         this.$router.push('/gallery-management/' + response.data.id)
@@ -323,12 +323,6 @@ export default defineComponent({
         height: 100%;
         display: flex;
         flex-direction: column;
-        .Codemirror {
-            max-width: 450px;
-        }
-    }
-    &:deep(.CodeMirror) {
-        font-size: 0.8rem;
     }
     display: flex;
     height: 100%;
@@ -364,15 +358,8 @@ export default defineComponent({
             max-width: 100%;
         }
     }
-    .codemirrorContainer {
-        width: 100%;
-        display: inline-flex;
-        .editorContainer {
-            flex: 1;
-        }
-    }
     &:deep(.p-card-content) {
-        height: 220px;
+        max-height: 250px;
     }
 }
 </style>

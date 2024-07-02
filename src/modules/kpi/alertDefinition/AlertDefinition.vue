@@ -75,7 +75,7 @@ export default defineComponent({
         async loadAllAlerts() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/alert/listAlert')
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/alert/listAlert')
                 .then(
                     (response: AxiosResponse<any>) =>
                         (this.alertList = response.data.map((alert: any) => {
@@ -101,7 +101,7 @@ export default defineComponent({
             })
         },
         async deleteAlert(id: number) {
-            await this.$http.delete(import.meta.env.VITE_RESTFUL_SERVICES_PATH + '1.0/alert/' + id + '/delete').then(() => {
+            await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/alert/' + id + '/delete').then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')
@@ -113,7 +113,7 @@ export default defineComponent({
         async handleStatus(alert) {
             if (alert.status !== 'EXPIRED') {
                 const data = 'scheduler/' + (alert.status == 'SUSPENDED' ? 'resumeTrigger' : 'pauseTrigger') + '?jobGroup=ALERT_JOB_GROUP&triggerGroup=ALERT_JOB_GROUP&jobName=' + alert.id + '&triggerName=' + alert.id
-                await this.$http.post(import.meta.env.VITE_RESTFUL_SERVICES_PATH + data)
+                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + data)
                 this.loadAllAlerts()
             }
         },

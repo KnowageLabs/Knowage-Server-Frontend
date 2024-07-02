@@ -41,7 +41,7 @@ export default defineComponent({
     props: {
         selectedRole: {
             type: Object,
-            requried: false
+            required: false
         },
         authList: Array,
         authCBs: Object as any
