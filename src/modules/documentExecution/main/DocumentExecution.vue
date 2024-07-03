@@ -705,9 +705,10 @@ export default defineComponent({
                 this.parameterSidebarVisible = true
             }
             this.updateMode(true)
-            if (this.$route.query.outputType) {
+            if (this.$route.query.outputType && ['png', 'xls', 'xlsx', 'pdf'].includes(this.$route.query.outputType.toLowerCase())) {
                 this.downloadMode = true
-                await this.asyncExport(this.$route.query.outputType)
+                await this.asyncExport(this.$route.query.outputType.toLowerCase())
+                return
             }
             this.loading = false
         },
