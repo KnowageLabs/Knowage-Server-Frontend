@@ -17,6 +17,7 @@ import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
 import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
 import { getHighchartsWidgetData } from './widget/ChartWidget/Highcharts/HighchartsDataProxy'
+import { getMapWidgetData } from './widget/MapWidget/MapWidgetDataProxy'
 import { getPivotData } from '@/workspaces/PivotWidget/PivotWidgetDataProxy'
 import { getDiscoveryWidgetData } from './widget/DiscoveryWidget/DiscoveryWidgetDataProxy'
 import { getHighchartsBarData } from './widget/ChartWidget/Highcharts/dataProxy/HighchartsBarDataProxy'
@@ -65,6 +66,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getPythonData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'r':
             return await getRData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'map':
+            return await getMapWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }

@@ -34,8 +34,7 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDashboardDataset[]>, required: true },
         dataToShow: { type: Object as any, required: true },
         propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
-        dashboardId: { type: String, required: true },
-        propVariables: { type: Array as PropType<IVariable[]>, required: true }
+        dashboardId: { type: String, required: true }
     },
     emits: ['launchSelection'],
     data() {

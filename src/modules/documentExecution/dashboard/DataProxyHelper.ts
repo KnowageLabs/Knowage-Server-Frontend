@@ -955,7 +955,7 @@ const formatPivotModelForGet = (dashboardId: any, propWidget: IWidget, dataset: 
 }
 //#endregion ================================================================================================
 
-//#region ===================== Table Widget ====================================================
+//#region ===================== Map Widget ====================================================
 export const getMapWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {}
 
