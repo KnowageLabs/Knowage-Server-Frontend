@@ -1209,7 +1209,7 @@ export default defineComponent({
         },
         async onExecuteCrossNavigation(payload: { documentCrossNavigationOutputParameters: ICrossNavigationParameter[]; crossNavigationName: string | undefined; crossNavigations: IDashboardCrossNavigation[] }) {
             this.crossNavigationPayload = payload
-            if (payload.crossNavigations.length === 0) {
+            if (!payload.crossNavigations || payload.crossNavigations.length === 0) {
                 this.setError({
                     title: this.$t('common.error.generic'),
                     msg: this.$t('documentExecution.main.crossNavigationError')
