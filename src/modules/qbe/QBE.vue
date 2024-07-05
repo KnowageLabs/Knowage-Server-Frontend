@@ -70,8 +70,8 @@
                         </span>
                         <InputSwitch v-model="smartView" class="p-mr-2" @change="updateSmartView" :disabled="showWarning" />
                         <span>{{ $t('qbe.viewToolbar.smartView') }}</span>
-                        <i v-show="!smartView" class="fas fa-play p-m-2 kn-cursor-pointer" @click="openPreviewDialog" :disabled="showWarning"></i>
-                        <Button icon="fas fa-ellipsis-v kn-cursor-pointer" class="p-button-text p-button-rounded p-button-plain" @click="showMenu" />
+                        <Button v-show="!smartView" icon="fas fa-play" class="p-button-text p-button-rounded p-button-plain kn-cursor-pointer" v-tooltip.top="$t('common.preview')" @click="openPreviewDialog" :disabled="showWarning" />
+                        <Button icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain kn-cursor-pointer" @click="showMenu" />
                     </template>
                 </Toolbar>
                 <div class="kn-relative kn-flex p-mt-2">
