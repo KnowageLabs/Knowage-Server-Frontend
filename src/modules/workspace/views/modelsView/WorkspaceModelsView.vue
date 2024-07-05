@@ -21,7 +21,7 @@
         <SelectButton v-model="tableMode" class="p-mx-2" :options="selectButtonOptions" @click="onTableModeChange" />
     </div>
 
-    <div class="p-m-2 kn-overflow">
+    <div class="p-m-2 kn-overflow workspaceTableContainer">
         <WorkspaceModelsTable v-if="!toggleCardDisplay" :prop-items="filteredItems" data-test="models-table" @selected="setSelectedModel" @openDatasetInQBEClick="openDatasetInQBE" @editDatasetClick="editDataset" @deleteDatasetClick="deleteDatasetConfirm"></WorkspaceModelsTable>
         <div v-if="toggleCardDisplay" class="p-grid p-m-2" data-test="card-container">
             <Message v-if="filteredItems.length === 0" class="kn-flex p-m-2" severity="info" :closable="false" :style="mainDescriptor.style.message">
@@ -286,5 +286,8 @@ export default defineComponent({
 <style lang="scss" scoped>
 .model-search {
     flex: 0.3;
+}
+.workspaceTableContainer {
+    flex: 1 0 0;
 }
 </style>
