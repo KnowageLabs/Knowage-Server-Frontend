@@ -7,24 +7,9 @@
                 <label class="kn-material-input-label">{{ $t('common.name') }}</label>
             </div>
 
-            <div class="p-float-label p-col-12 p-lg-6 kn-flex">
+            <div class="p-float-label p-col-12 kn-flex">
                 <InputText v-model="view.description" class="kn-material-input" />
                 <label class="kn-material-input-label">{{ $t('common.description') }}</label>
-            </div>
-
-            <div class="p-col-12 p-lg-3 p-d-flex p-flex-row p-ai-center">
-                <span class="p-field p-float-label kn-flex">
-                    <Dropdown v-model="view.visibility" class="kn-material-input" :options="descriptor.visibilityTypes" option-value="value" :disabled="!view.new">
-                        <template #value="slotProps">
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.visibilityTypes, $t) }}</span>
-                        </template>
-                        <template #option="slotProps">
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </template>
-                    </Dropdown>
-                    <label class="kn-material-input-label"> {{ $t('common.visibility') }} </label>
-                </span>
-                <i v-tooltip.top="$t('documentExecution.main.viewVisibilityHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-3 p-mb-2"></i>
             </div>
         </div>
 
