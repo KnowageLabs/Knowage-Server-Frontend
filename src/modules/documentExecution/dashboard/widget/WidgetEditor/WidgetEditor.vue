@@ -11,7 +11,9 @@
             <WidgetEditorTabs class="dashboardEditor-tabs" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :selected-setting-prop="selectedSetting" @settingChanged="onSettingChanged" />
 
             <div v-if="selectedSetting != 'Gallery'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px">
-                <Button icon="fas fa-magnifying-glass" class="p-button-rounded p-button-text p-button-plain expand-button" @click="togglePreview" />
+                <q-btn icon="preview" size="sm" round flat @click="togglePreview">
+                    <q-tooltip :delay="500">{{ $t('common.preview') }}</q-tooltip>
+                </q-btn>
             </div>
 
             <WidgetEditorPreview v-if="widget.type != 'static-pivot-table' && selectedSetting != 'Gallery' && !chartPickerVisible && showPreview" :prop-widget="widget" :dashboard-id="dashboardId" :datasets="selectedModelDatasets" :variables="variables" />
