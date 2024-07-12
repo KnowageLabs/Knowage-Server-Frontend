@@ -11,7 +11,20 @@ import i18n from '@/App.i18n'
 const { t } = i18n.global
 const mainStore = store()
 
-export const loadFilters = async (initialLoading: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, document: any, breadcrumbs: any[], userRole: string | null, parameterValuesMap: any, tabKey: string, sessionEnabled: boolean, $http: any, dateFormat: string, route: any, vueComponenet: any) => {
+export const loadFilters = async (
+    initialLoading: boolean,
+    filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean },
+    document: any,
+    breadcrumbs: any[],
+    userRole: string | null,
+    parameterValuesMap: any,
+    tabKey: string,
+    sessionEnabled: boolean,
+    $http: any,
+    dateFormat: string,
+    route: any,
+    vueComponenet: any
+) => {
     if (parameterValuesMap && parameterValuesMap[document.label + '-' + tabKey] && initialLoading) return loadFiltersFromParametersMap(parameterValuesMap, document, tabKey, filtersData, breadcrumbs)
     if (sessionEnabled && !document.navigationParams) {
         const filtersFromSession = loadFiltersFromSession(document, filtersData, breadcrumbs)
@@ -191,9 +204,17 @@ export const formatDriversUsingDashboardView = (filtersData: { filterStatus: iPa
     filtersData.filterStatus.forEach((driver: iParameter) => {
         const driverFromView = dashboardView.drivers.filterStatus.find((tempDriver: iParameter) => tempDriver.urlName === driver.urlName)
         if (driverFromView) {
-            driver.parameterValue = driverFromView.parameterValue
+            driver.parameterValue = driverFromView.type === 'DATE' ? formatDateDriverFromView(driverFromView.parameterValue) : driverFromView.parameterValue
             if (driverFromView.data) driver.data = driverFromView.data
         }
     })
     updateFiltersDataIsReadyForExecution(filtersData)
+}
+
+const formatDateDriverFromView = (parameterValue: any) => {
+    if (!Array.isArray(parameterValue) || !parameterValue[0]) return []
+    const date = new Date(parameterValue[0].value)
+    if (isNaN(date.getTime())) return []
+    parameterValue[0].value = date
+    return parameterValue
 }
