@@ -113,7 +113,7 @@ export const createNewWidgetSettings = (widget: IWidget, dashboardModel: any) =>
 }
 
 export function addDefaultTheme(widget: any, dashboardModel: any) {
-    if (dashboardModel.configuration.theme?.themeName) widget.style.themeName = dashboardModel.configuration.theme.themeName
+    if (dashboardModel?.configuration?.theme?.themeName) widget.style.themeName = dashboardModel.configuration.theme.themeName
     return widget
 }
 
