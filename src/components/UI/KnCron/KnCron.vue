@@ -34,7 +34,7 @@
                 </div>
             </div>
 
-            <div class="p-d-flex p-ai-center  p-mt-3">
+            <div class="p-d-flex p-ai-center p-mt-3">
                 <div class="p-d-flex p-flex-row p-col-5">
                     <label for="endDate" class="kn-material-input-label p-m-2"> {{ $t('cron.endDate') + ':' }}</label>
                     <span>
@@ -226,30 +226,6 @@ export default defineComponent({
         }
     },
     watch: {
-        repeatInterval() {
-            switch (this.repeatInterval) {
-                case 'minute':
-                    this.fillParameterOptions(60)
-                    break
-
-                case 'hour':
-                    this.fillParameterOptions(24)
-                    break
-                case 'day':
-                    this.fillParameterOptions(31)
-                    break
-                case 'week':
-                    this.selectedDays = []
-                    break
-                case 'month': {
-                    this.fillParameterOptions(12)
-                    this.fillDayOptions()
-                    this.selectedDays = []
-                }
-            }
-            this.parameter = '1' as any
-            this.simpleDayParameter = '1' as any
-        },
         simpleMonth(value) {
             if (value) {
                 this.fillParameterOptions(12)
@@ -310,6 +286,7 @@ export default defineComponent({
             }
 
             this.repeatInterval = this.currentFrequency.cron.type
+            this.updateParameterOptionsBasedOnRepeatInterval()
             switch (this.repeatInterval) {
                 case 'minute':
                 case 'hour':
@@ -342,6 +319,30 @@ export default defineComponent({
                 }
             }
         },
+        updateParameterOptionsBasedOnRepeatInterval() {
+            switch (this.repeatInterval) {
+                case 'minute':
+                    this.fillParameterOptions(60)
+                    break
+
+                case 'hour':
+                    this.fillParameterOptions(24)
+                    break
+                case 'day':
+                    this.fillParameterOptions(31)
+                    break
+                case 'week':
+                    this.selectedDays = []
+                    break
+                case 'month': {
+                    this.fillParameterOptions(12)
+                    this.fillDayOptions()
+                    this.selectedDays = []
+                }
+            }
+            this.parameter = '1' as any
+            this.simpleDayParameter = '1' as any
+        },
         fillParameterOptions(number: number) {
             this.parameterOptions = []
             for (let i = 1; i <= number; i++) {
@@ -361,6 +362,7 @@ export default defineComponent({
             }
         },
         updateCronInterval() {
+            this.updateParameterOptionsBasedOnRepeatInterval()
             this.currentFrequency.cron ? (this.currentFrequency.cron.type = this.repeatInterval) : (this.currentFrequency.cron = { type: this.repeatInterval })
             switch (this.repeatInterval) {
                 case 'minute':
