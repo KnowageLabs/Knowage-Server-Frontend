@@ -157,3 +157,10 @@ export const getDefaultScatterYAxis = () => {
 export const getDefaultSonificationSettings = () => {
     return deepcopy(descriptor.defaultSonificationSettings)
 }
+
+export const getDefaultAnnotations = () => {
+    return deepcopy(descriptor.defaultAnnotations)
+}
+export const getDefaultPackedBubblePlotOptions = () => {
+    return deepcopy(descriptor.defaultPackedBubblePlotOptions)
+}

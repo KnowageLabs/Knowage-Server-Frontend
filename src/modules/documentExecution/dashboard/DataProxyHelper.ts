@@ -13,6 +13,7 @@ import { AxiosResponse } from 'axios'
 import { setDatasetInterval, clearDatasetInterval } from './helpers/datasetRefresh/DatasetRefreshHelpers'
 import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './helpers/common/DashboardRegexHelper'
 import { IDataset, ISelection, IVariable, IWidget, IDashboardDataset, IDashboardDatasetDriver } from './Dashboard'
+import { addParametersToData } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -222,7 +223,7 @@ export const getVariableData = async (variable: IVariable, datasets: IDataset[],
 }
 
 const getVariableDatasetLabel = (variable: IVariable, datasets: IDataset[]) => {
-    const datasetIndex = datasets.findIndex((dataset: IDataset) => variable.dataset === dataset.id)
+    const datasetIndex = datasets.findIndex((dataset: IDataset) => variable.dataset === dataset.id.dsId)
     return datasetIndex !== -1 ? datasets[datasetIndex] : null
 }
 //#endregion ================================================================================================
@@ -466,7 +467,6 @@ export const getHighchartsWidgetData = async (widget: IWidget, datasets: IDashbo
     const chartType = widget.settings.chartModel?.model?.chart.type
     switch (chartType) {
         case 'pie':
-
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'area':
         case 'bar':
@@ -519,7 +519,7 @@ export const getPieChartData = async (widget: IWidget, datasets: IDashboardDatas
     }
 }
 
-export const getChartDrilldownData = async (widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], likeSelections: any, drillDownLevel: number) => {
+export const getChartDrilldownData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], likeSelections: any, drillDownLevel: number) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
@@ -533,7 +533,9 @@ export const getChartDrilldownData = async (widget: IWidget, datasets: IDashboar
 
     if (selectedDataset) {
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
-        const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, {}, drillDownLevel)
+        const postData = formatChartWidgetForGet(widget, selectedDataset, initialCall, selections, null, drillDownLevel)
+        addParametersToData(selectedDataset, dashboardId, postData)
+
         postData.likeSelections = formattedSelections
         let tempResponse = null as any
 

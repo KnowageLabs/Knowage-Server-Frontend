@@ -1,9 +1,9 @@
 <template>
-    <div v-if="model?.yAxis" class="p-grid p-jc-center p-ai-center p-p-4">
+    <div v-if="model?.yAxis && model.yAxis[0]" class="p-grid p-jc-center p-ai-center p-p-4">
         <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.tick.tickPosition') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center">
-                <Dropdown v-model="model.yAxis.tickPosition" class="kn-material-input kn-flex" :options="descriptor.tickPositionOptions" option-value="value" @change="modelChanged">
+                <Dropdown v-model="model.yAxis[0].tickPosition" class="kn-material-input kn-flex" :options="descriptor.tickPositionOptions" option-value="value" @change="modelChanged">
                     <template #value="slotProps">
                         <div>
                             <span>{{ getTranslatedLabel(slotProps.value, descriptor.tickPositionOptions, $t) }}</span>
@@ -19,19 +19,19 @@
             </div>
         </div>
         <div class="p-col-12 p-md-6 p-lg-6 p-px-2 p-pt-4">
-            <WidgetEditorColorPicker :initial-value="model.yAxis.tickColor" :label="$t('dashboard.widgetEditor.highcharts.tick.tickColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
+            <WidgetEditorColorPicker :initial-value="model.yAxis[0].tickColor" :label="$t('dashboard.widgetEditor.highcharts.tick.tickColor')" @change="onSelectionColorChanged"></WidgetEditorColorPicker>
         </div>
         <div class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.tick.tickLength') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="model.yAxis.tickLength" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                <InputNumber v-model="model.yAxis[0].tickLength" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.tick.tickLengthHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
         <div class="p-col-12 p-md-6 p-lg-4 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.tick.tickWidth') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
-                <InputNumber v-model="model.yAxis.tickWidth" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                <InputNumber v-model="model.yAxis[0].tickWidth" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.tick.tickWidthHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
             </div>
         </div>
@@ -76,7 +76,7 @@ export default defineComponent({
     methods: {
         loadModel() {
             this.model = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
-            if (this.model?.yAxis.minorTickInterval) this.minorTickInterval = this.model.yAxis.minorTickInterval
+            if (this.model?.yAxis && this.model?.yAxis[0].minorTickInterval) this.minorTickInterval = this.model.yAxis[0].minorTickInterval
         },
         modelChanged() {
             emitter.emit('refreshChart', this.widgetModel.id)
@@ -86,19 +86,19 @@ export default defineComponent({
         },
         onSelectionColorChanged(event: string | null) {
             if (!event || !this.model) return
-            this.model.yAxis.tickColor = event
+            this.model.yAxis[0].tickColor = event
             this.modelChanged()
         },
         onMinorIntervalChange() {
             if (!this.model) return
-            if (this.minorTickInterval === 'auto' || this.minorTickInterval === null) this.model.yAxis.minorTickInterval = this.minorTickInterval
-            else this.model.yAxis.minorTickInterval = +this.minorTickInterval
+            if (this.minorTickInterval === 'auto' || this.minorTickInterval === null) this.model.yAxis[0].minorTickInterval = this.minorTickInterval
+            else this.model.yAxis[0].minorTickInterval = +this.minorTickInterval
             this.modelChanged()
         },
         removeMinorTickInterval() {
             if (!this.model) return
             this.minorTickInterval = null
-            this.model.yAxis.minorTickInterval = null
+            this.model.yAxis[0].minorTickInterval = null
             this.modelChanged()
         }
     }

@@ -1,22 +1,24 @@
 <template>
-    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
+    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
         <div id="dashboard-css" v-html="dashboardCss" />
+
         <div v-if="activeDashboardSheet" class="sheet-container">
             <grid-layout
-                v-model:layout="activeDashboardSheet.widgets['lg']"
+                :layout.sync="activeDashboardSheet.widgets[currentScreenSize]"
                 :responsive-layouts="activeDashboardSheet.widgets"
                 :responsive="true"
-                :cols="{ lg: 50, md: 100, sm: 50, xs: 20, xxs: 10 }"
+                :cols="colSizes"
                 :row-height="30"
                 :is-draggable="canEditDashboard(document)"
                 :is-resizable="canEditDashboard(document)"
                 :vertical-compact="false"
                 :use-css-transforms="false"
                 :margin="[0, 0]"
+                :style="getGridStyle"
                 @breakpoint-changed="breakpointChangedEvent"
             >
                 <WidgetController
-                    v-for="item in activeDashboardSheet.widgets['lg']"
+                    v-for="item in activeDashboardSheet.widgets[currentScreenSize]"
                     :key="item.i"
                     :active-sheet="activeDashboardSheet"
                     :document="document"
@@ -40,6 +42,9 @@
             </grid-layout>
         </div>
     </KnDashboardTabsPanel>
+    <div v-if="canEditDashboard(document)" class="responsive-device">
+        <q-icon :name="getCurrentScreenSizeIcon" :title="$t(`dashboard.breakpoints.${currentScreenSize}`)" />
+    </div>
 </template>
 
 <script lang="ts">
@@ -51,6 +56,7 @@ import { IBackground, IDashboardSheet, IDataset, IVariable } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { emitter } from './DashboardHelpers'
+import cryptoRandomString from 'crypto-random-string'
 import WidgetController from './widget/WidgetController.vue'
 import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTabsPanel.vue'
 import dashboardStore from './Dashboard.store'
@@ -69,8 +75,10 @@ export default defineComponent({
     data() {
         return {
             dashboardModel: {} as any,
+            colSizes: { lg: 100, md: 100, sm: 50, xs: 20, xxs: 10 } as any,
             startingBreakpoint: '' as string,
             activeDashboardSheet: null as IDashboardSheet | null,
+            currentScreenSize: 'lg',
             canEditDashboard
         }
     },
@@ -93,18 +101,63 @@ export default defineComponent({
         },
         dashboardCss(): any {
             return `<style>${this.dashboardModel?.configuration?.cssToRender}</style>`
+        },
+        getCurrentScreenSizeIcon() {
+            if (['xs', 'xxs'].includes(this.currentScreenSize)) return 'smartphone'
+            if (['sm'].includes(this.currentScreenSize)) return 'tablet'
+            if (['md'].includes(this.currentScreenSize)) return 'laptop'
+            else return 'desktop_windows'
+        },
+        getGridStyle() {
+            if (canEditDashboard(this.document) && this.dashboardModel?.configuration?.background?.showGrid) {
+                return { 'background-size': `${100 / this.colSizes[this.currentScreenSize]}% 30px`, 'background-position': `-${100 / this.colSizes[this.currentScreenSize] / 2}% -15px`, 'background-image': 'radial-gradient(circle, #ccc 1px, rgba(0, 0, 0, 0) 1px)' }
+            } else return {}
+        }
+    },
+    watch: {
+        model() {
+            this.loadDashboardModel()
         }
     },
     mounted() {
-        this.dashboardModel = this.model ?? {}
-        if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
-        if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: 'new sheet', widgets: { lg: [] } })
-        this.activeDashboardSheet = this.dashboardModel.sheets[0]
+        this.loadDashboardModel()
     },
     methods: {
-        ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet']),
-        breakpointChangedEvent: function () {
-            // breakpointChangedEvent: function(newBreakpoint, newLayout) {
+        ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet', 'getDashboard']),
+        loadDashboardModel() {
+            this.dashboardModel = this.getDashboard(this.dashboardId) ?? {}
+            const fullGridWidgets = this.dashboardModel.widgets.filter((widget) => widget.settings?.responsive?.fullGrid)
+            if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
+            if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: this.$t('dashboard.sheets.newSheet'), widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] } })
+            this.activeDashboardSheet = this.dashboardModel.sheets[0]
+            if (fullGridWidgets.length > 0) {
+                ;['lg', 'md', 'sm', 'xs', 'xxs'].forEach((size) => {
+                    if (this.activeDashboardSheet?.widgets[size] && this.activeDashboardSheet?.widgets[size].some((widget) => widget.id === fullGridWidgets[0].id)) {
+                        this.activeDashboardSheet?.widgets[size].map((widget) => {
+                            if (widget.id === fullGridWidgets[0].id) {
+                                widget.w = this.colSizes[this.currentScreenSize]
+                                widget.y = 0
+                                widget.x = 0
+                                widget.h = 20
+                            }
+                            return widget
+                        })
+                    } else {
+                        if (!this.activeDashboardSheet?.widgets[size]) this.activeDashboardSheet.widgets[size] = []
+                        this.activeDashboardSheet?.widgets[size].push({
+                            id: fullGridWidgets[0].id,
+                            w: this.colSizes[size],
+                            y: 0,
+                            x: 0,
+                            h: 20,
+                            i: cryptoRandomString({ length: 16, type: 'base64' })
+                        })
+                    }
+                })
+            }
+        },
+        breakpointChangedEvent(size: string) {
+            this.currentScreenSize = size
         },
         getImageSource(chartValue: string) {
             return `${import.meta.env.VITE_PUBLIC_PATH}${chartValue}`
@@ -164,6 +217,25 @@ export default defineComponent({
             img {
                 height: 100px;
             }
+        }
+    }
+}
+
+.responsive-device {
+    position: absolute;
+    bottom: 1px;
+    right: 8px;
+    z-index: 999;
+    background-color: #cccccc6e;
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+}
+
+@media all and (max-width: 600px) {
+    .vue-grid-layout {
+        .emptyDashboardWizard {
+            flex-direction: column;
+            gap: 16px;
         }
     }
 }

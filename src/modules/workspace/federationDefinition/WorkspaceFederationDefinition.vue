@@ -286,12 +286,12 @@ export default defineComponent({
             return formattedRelationships
         },
         async saveFederationDataset(federatedDataset: IFederatedDataset) {
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + 'federateddataset/post'
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/federateddataset/post'
             const tempDataset = { ...federatedDataset }
 
             if (tempDataset.federation_id) {
                 this.operation = 'update'
-                url = import.meta.env.VITE_KNOWAGE_CONTEXT + `federateddataset/${federatedDataset.federation_id}`
+                url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/federateddataset/${federatedDataset.federation_id}`
                 delete tempDataset.federation_id
             }
 

@@ -1,0 +1,12 @@
+{
+    "imagePath": "/images/dashboard/themeExamples/",
+    "widgets": {
+        "customChart": {},
+        "html": {},
+        "image": {},
+        "map": {},
+        "python": {},
+        "r": {},
+        "text": {}
+    }
+}

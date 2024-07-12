@@ -17,6 +17,10 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
             }
         }
         this.model.chart.type = 'solidgauge'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
@@ -42,8 +46,8 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
     }
 
     setGaugeYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultGaugeYAxis()
-        this.model.yAxis.tickWidth = 0
+        this.model.yAxis = [highchartsDefaultValues.getDefaultGaugeYAxis()]
+        this.model.yAxis[0].tickWidth = 0
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
@@ -51,7 +55,6 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
         const seriesSettings = widgetModel.settings.series.seriesSettings[0]
         this.updateSeriesDataWithSerieSettings(this.model.series[0], seriesSettings)
     }
-
 
     updateSeriesDataWithSerieSettings(serie: any, seriesSettings: any) {
         if (!serie || !seriesSettings) return
@@ -65,10 +68,11 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
                     fontFamily: seriesSettings.label.style.fontFamily,
                     fontSize: seriesSettings.label.style.fontSize,
                     fontWeight: seriesSettings.label.style.fontWeight,
-                    color: seriesSettings.label.style.color ?? ''
+                    color: seriesSettings.label.style.color ?? '',
+                    textOutline: 'none'
                 },
                 formatter: function () {
-                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label)
+                    return KnowageHighchartsGaugeChart.prototype.handleFormatter(this, seriesSettings.label, 'solidgauge')
                 }
             }
         })

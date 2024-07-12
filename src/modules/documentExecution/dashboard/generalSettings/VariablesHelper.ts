@@ -8,7 +8,7 @@ export const setVariableValueFromDataset = async (variable: IVariable, datasets:
 }
 
 const setVariableValueFromColumn = (variable: IVariable, variableData: any) => {
-    const index = variableData.metaData?.fields.findIndex((field: any) => field.header === variable.column)
+    const index = variableData.metaData?.fields.findIndex((field: any) => field.header?.toLowerCase() === variable.column?.toLowerCase())
     if (index === -1) return variable.value = ''
     const columnName = variableData.metaData.fields[index].name
     variable.value = variableData.rows[0] ? variableData.rows[0][columnName] : ''

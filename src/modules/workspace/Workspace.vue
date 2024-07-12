@@ -414,7 +414,7 @@ export default defineComponent({
         },
         saveQbeDataset() {
             const iframe = this.$refs.qbeIframe as any
-            iframe.contentWindow.postMessage('saveDS', '*')
+            iframe.contentWindow.postMessage('saveDS', location.origin)
         }
     }
 })

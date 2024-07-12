@@ -6,7 +6,6 @@ import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAll
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
-
 export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
     constructor(model: any) {
         super()
@@ -19,6 +18,10 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'sunburst'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
@@ -34,7 +37,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
     setPlotOptions() {
         this.model.plotOptions.line = {
             marker: {
-                symbol: "circle",
+                symbol: 'circle',
                 lineWidth: 2
             }
         }
@@ -61,7 +64,6 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         return this.model.series
     }
 
-
     setSunburstData = (data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], interactionsEnabled = false) => {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
         const measureColumn = measureColumns[0]
@@ -69,7 +71,6 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         const serieElement = this.createSerieElement(measureColumn, interactionsEnabled)
         const hierarchy = {} as any
         createHierarchyFromData(this.model, hierarchy, data, attributeColumns, measureColumn)
-
 
         const treemapArray = createTreeSeriesStructureFromHierarchy(hierarchy)
         treemapArray.forEach((el: any) => {
@@ -84,10 +85,10 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         let index = 0
         hierarchy.children?.forEach((el: any) => {
             this.model.series.push({
-                "id": el.id,
-                "type": "area",
-                "name": el.name,
-                "color": this.model.colors[index],
+                id: el.id,
+                type: 'area',
+                name: el.name,
+                color: this.model.colors[index],
                 showInLegend: true
             })
             index++
@@ -99,7 +100,9 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
     createSerieElement(measureColumn: any, interactionsEnabled: boolean) {
         const serieElement = {
-            id: 0, name: measureColumn.column.columnName, data: [] as any[],
+            id: 0,
+            name: measureColumn.column.columnName,
+            data: [] as any[],
             layoutAlgorithm: 'squarified',
             type: 'sunburst',
             allowDrillToNode: !interactionsEnabled,
@@ -111,6 +114,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
                     levelIsConstant: false,
                     dataLabels: {
                         enabled: true,
+                        textOutline: 'none'
                     }
                 },
                 {
@@ -120,18 +124,18 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
                 {
                     level: 3,
                     colorVariation: {
-                        key: "brightness",
+                        key: 'brightness',
                         to: 0.5
                     }
                 },
                 {
                     level: 4,
                     colorVariation: {
-                        key: "brightness",
+                        key: 'brightness',
                         to: 0.5
                     }
                 }
-            ],
+            ]
         }
 
         return serieElement
@@ -139,24 +143,22 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
     formatFirstSunburstElement(treemapArray: any[], attributeColumns: any[], centerTextSettings: any) {
         if (!treemapArray[0]) return
-        treemapArray[0].parent = null,
-            treemapArray[0].id = 'root',
-            treemapArray[0].name = centerTextSettings?.text ?? attributeColumns[0].column.columnName,
-            treemapArray[0].dataLabels = {
-                enabled: true,
-                style: {
-                    fontFamily: centerTextSettings?.style['font-family'] ?? 'Arial',
-                    fontStyle: centerTextSettings?.style['font-style'] ?? "normal",
-                    fontSize: centerTextSettings?.style['font-size'] ?? "12px",
-                    color: centerTextSettings?.style.color ?? "#000000",
-                    width: "10000"
-                }
-            }
+            ; (treemapArray[0].parent = null),
+                (treemapArray[0].id = 'root'),
+                (treemapArray[0].name = centerTextSettings?.text ?? attributeColumns[0].column.columnName),
+                (treemapArray[0].dataLabels = {
+                    enabled: true,
+                    style: {
+                        fontFamily: centerTextSettings?.style['font-family'] ?? 'Arial',
+                        fontStyle: centerTextSettings?.style['font-style'] ?? 'normal',
+                        fontSize: centerTextSettings?.style['font-size'] ?? '12px',
+                        color: centerTextSettings?.style.color ?? '#000000',
+                        width: '10000'
+                    }
+                })
     }
-
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
         updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
-
 }

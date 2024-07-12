@@ -14,6 +14,12 @@
                 "type": "SonificationSettings"
             }
         ],
+        "Advanced": [
+            {
+                "title": "dashboard.widgetEditor.highcharts.advancedSettings",
+                "type": "AdvancedSettings"
+            }
+        ],
         "Colors": [
             {
                 "title": "dashboard.widgetEditor.colors.title",
@@ -21,6 +27,18 @@
             }
         ],
         "Configuration": [
+            {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.annotations",
+                "type": "Annotations"
+            },
             {
                 "title": "dashboard.widgetEditor.configurationOf3D.title",
                 "type": "ConfigurationOf3D"
@@ -54,6 +72,10 @@
             {
                 "title": "dashboard.widgetEditor.interactions.crossNavigation",
                 "type": "CrossNavigation"
+            },
+            {
+                "title": "dashboard.widgetEditor.interactions.link",
+                "type": "Link"
             },
             {
                 "title": "dashboard.widgetEditor.interactions.preview",
@@ -113,11 +135,11 @@
         "XAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapXAxisSettings"
+                "type": "HighchartsXAxisSettings"
             },
             {
                 "title": "common.title",
-                "type": "HeatmapXAxisTitleSettings"
+                "type": "HighchartsXAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
@@ -131,11 +153,11 @@
         "YAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapYAxisSettings"
+                "type": "HighchartsYAxisSettings"
             },
             {
                 "title": "common.title",
-                "type": "HeatmapYAxisTitleSettings"
+                "type": "HighchartsYAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
@@ -210,6 +232,11 @@
             "icon": "pi pi-tablet",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
+        },
+        {
+            "icon": "fa-solid fa-ellipsis",
+            "label": "common.advanced",
+            "value": "Advanced"
         }
     ]
 }

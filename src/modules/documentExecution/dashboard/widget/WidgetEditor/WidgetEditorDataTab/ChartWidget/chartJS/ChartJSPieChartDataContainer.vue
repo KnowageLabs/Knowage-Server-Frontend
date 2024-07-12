@@ -60,6 +60,7 @@ export default defineComponent({
     watch: {
         selectedDataset() {
             this.selectedColumn = null
+            this.clearSelectedWidgetColumnsFromWidgetModel()
         }
     },
     async created() {
@@ -157,6 +158,11 @@ export default defineComponent({
             if (!this.widget.invalid) this.widget.invalid = {}
             this.widget.invalid.measuresInvalid = invalid
             return invalid
+        },
+        clearSelectedWidgetColumnsFromWidgetModel() {
+            for (let i = this.widgetModel.columns.length - 1; i >= 0; i--) {
+                this.widgetModel.columns.forEach((column: IWidgetColumn) => this.onColumnDelete(column))
+            }
         }
     }
 })

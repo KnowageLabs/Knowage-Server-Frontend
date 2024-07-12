@@ -16,6 +16,14 @@
     "settings": {
         "Configuration": [
             {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "common.image",
                 "type": "ImageSettings"
             },
@@ -29,6 +37,10 @@
             {
                 "title": "dashboard.widgetEditor.interactions.crossNavigation",
                 "type": "CrossNavigation"
+            },
+            {
+                "title": "dashboard.widgetEditor.interactions.link",
+                "type": "Link"
             }
         ],
         "Responsive": [

@@ -1225,7 +1225,6 @@
             "helpTitle": "Hilfe ",
             "hint": "Mit dem Dataset-Management können Sie Datasets verwalten und erstellen, die innerhalb von Knowage verwendet werden können.  Sie können den Typ, die Abfrage und alle zugehörigen Einstellungen auswählen.  Klicken Sie auf ein vorhandenes Element in der Liste auf der Seite, oder klicken Sie auf die \"+\" -Schaltfläche, um einen Eintrag hinzuzufügen. ",
             "isPersisted": "Persistent ",
-            "isPersistedHDFS": "Exportierbar auf HDFS ",
             "isScheduled": "Zeitplan ",
             "jsonPathAttributes": "JSON-Pfadattribute ",
             "jsonPathValue": "JSON-Pfadwert ",
@@ -1300,12 +1299,12 @@
             "valueName": "Wertname "
         },
         "driversManagement": {
-            "partialSuccessMessage": "Nicht alle Daten wurden erfolgreich aktualisiert.  Überprüfen Sie erneut, ob nicht gespeicherte Informationen vorhanden sind. ",
             "add": "Hinzufügen ",
             "deleteError": "Fehler ",
             "functional": "Funktional ",
             "hint": "Der Treiber modelliert ein Konzept oder ein Datenstück, das häufig als Unterscheidungskriterium für den globalen Datenkontext verwendet wird. Klicken Sie auf ein vorhandenes Element in der Liste auf der Seite, oder klicken Sie auf die Schaltfläche \"+\", um einen Eintrag hinzuzufügen. ",
             "options": "Optionen ",
+            "partialSuccessMessage": "Nicht alle Daten wurden erfolgreich aktualisiert.  Überprüfen Sie erneut, ob nicht gespeicherte Informationen vorhanden sind. ",
             "temporal": "Temporale ",
             "title": "Treiber-Management ",
             "useModes": {

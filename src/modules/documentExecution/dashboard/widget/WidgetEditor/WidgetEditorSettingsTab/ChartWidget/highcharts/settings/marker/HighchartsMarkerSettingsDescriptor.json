@@ -1,0 +1,24 @@
+{
+    "markerTypes": [
+        {
+            "label": "common.circle",
+            "value": "circle"
+        },
+        {
+            "label": "common.square",
+            "value": "square"
+        },
+        {
+            "label": "dashboard.widgetEditor.highcharts.marker.diamond",
+            "value": "diamond"
+        },
+        {
+            "label": "common.triangle",
+            "value": "triangle"
+        },
+        {
+            "label": "dashboard.widgetEditor.highcharts.marker.triangleDown",
+            "value": "triangle-down"
+        }
+    ]
+}

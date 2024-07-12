@@ -15,8 +15,20 @@
             <span v-if="!searchMode" class="p-mx-4">
                 <i class="pi pi-search search-pointer" @click="openSearchBar()" />
             </span>
-            <KnFabButton v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" icon="fas fa-plus" aria-haspopup="true" aria-controls="overlay_menu" @click="toggle($event)"></KnFabButton>
-            <Menu ref="menu" :model="items" :popup="true" />
+            <q-btn v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" round class="customFabButton" icon="fas fa-plus">
+                <q-menu>
+                    <q-list dense style="min-width: 200px">
+                        <q-item v-for="item in items" :key="item" v-close-popup clickable @click="item.command">
+                            <q-item-section
+                                ><div>
+                                    {{ item.label }}
+                                    <q-badge v-if="item.beta" rounded color="red" text-color="white" label="Beta" />
+                                </div>
+                            </q-item-section>
+                        </q-item>
+                    </q-list>
+                </q-menu>
+            </q-btn>
         </template>
     </Toolbar>
 
@@ -122,6 +134,8 @@ export default defineComponent({
             this.setFolderFromRoute()
         }
 
+        this.createMenuItems()
+
         this.setRouterWatcher()
     },
     beforeUnmount() {
@@ -220,17 +234,12 @@ export default defineComponent({
         exitSearchMode() {
             this.searchMode = false
         },
-        toggle(event: any) {
-            this.createMenuItems()
-            const menu = this.$refs.menu as any
-            menu.toggle(event)
-        },
         createMenuItems() {
             this.items = []
             this.items.push({ label: this.$t('documentBrowser.genericDocument'), command: () => this.createNewDocument() })
             if (this.hasCreateCockpitFunctionality) {
                 this.items.push({ label: this.$t('common.cockpit'), command: () => this.createNewCockpit() })
-                this.items.push({ label: this.$t('dashboard.dashboardBeta'), command: () => this.createNewDashboard() })
+                this.items.push({ label: this.$t('dashboard.dashboard'), beta: true, command: () => this.createNewDashboard() })
             }
         },
         createNewDocument() {
@@ -266,6 +275,17 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.customFabButton {
+    &:deep(.q-icon) {
+        font-size: 1rem;
+    }
+
+    background-color: var(--kn-button-fab-background-color);
+    z-index: 100;
+    &:hover {
+        background-color: var(--kn-button-fab-hover-background-color);
+    }
+}
 #sidebar-button {
     display: none;
     cursor: pointer;

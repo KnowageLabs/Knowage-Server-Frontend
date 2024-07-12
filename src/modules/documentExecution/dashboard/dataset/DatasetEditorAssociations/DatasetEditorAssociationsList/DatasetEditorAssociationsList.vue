@@ -2,8 +2,8 @@
     <div class="dashboard-editor-list-card-container p-m-3">
         <div class="dashboard-editor-list-card">
             <div class="p-d-flex p-m-2" :style="associationListDescriptor.style.buttonContainer">
-                <Button :label="$t('dashboard.datasetEditor.addIndexes')" class="p-button-outlined kn-flex p-mr-1" @click="$emit('addIndexesOnAssociations')"></Button>
-                <Button :label="$t('dashboard.datasetEditor.addAssociation')" icon="pi pi-plus-circle" class="p-button-outlined" @click="$emit('createNewAssociation')"></Button>
+                <Button :label="$t('dashboard.datasetEditor.addAssociation')" icon="pi pi-plus-circle" class="p-button-outlined kn-flex p-mr-1" @click="$emit('createNewAssociation')"></Button>
+                <!--Button :label="$t('dashboard.datasetEditor.addIndexes')" icon="pi pi-plus-circle" class="p-button-outlined kn-flex" @click="$emit('addIndexesOnAssociations')"></Button-->
             </div>
             <Listbox
                 v-model="selectedAssociation"

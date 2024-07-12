@@ -48,7 +48,7 @@ export default defineComponent({
                             'justify-content': 'flex-end',
                             border: 'none'
                         },
-                        width: 50,
+                        width: 100,
                         suppressSizeToFit: true,
                         tooltip: false
                     }
@@ -61,7 +61,7 @@ export default defineComponent({
                 suppressMovableColumns: true,
                 suppressDragLeaveHidesColumns: true,
                 suppressRowGroupHidesColumns: true,
-                rowHeight: 25,
+                rowHeight: 36,
                 headerHeight: 30,
                 onGridReady: this.onGridReady
             } as any,
@@ -84,8 +84,8 @@ export default defineComponent({
             this.gridColumnApi = params.columnApi
 
             params.api.sizeColumnsToFit()
-            window.addEventListener('resize', function() {
-                setTimeout(function() {
+            window.addEventListener('resize', function () {
+                setTimeout(function () {
                     params.api.sizeColumnsToFit()
                 })
             })

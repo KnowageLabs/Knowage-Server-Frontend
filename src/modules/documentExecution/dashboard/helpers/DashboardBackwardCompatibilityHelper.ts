@@ -16,9 +16,10 @@ import { formatImageWidget } from './imageWidget/ImageWidgetCompatibilityHelper'
 import { formatCustomChartWidget } from './customChart/CustomChartWidgetCompatibilityHelper'
 import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHelper'
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
-import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
 import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
+import { addWidgetMenuConfig } from '../DashboardHelpers'
+import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 
 const datasetIdLabelMap = {}
 
@@ -63,7 +64,7 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
         datasets: getFormattedDatasets(model),
         variables: await getFormattedVariables(model, drivers, profileAttributes, datasets, $http),
         selections: getFormattedSelections(model),
-        themes: {},
+        theme: {},
         background: getFormattedSheetBackground(model),
         menuWidgets: getFormattedMenuAndWidgets(model)
     } as IDashboardConfiguration
@@ -74,17 +75,26 @@ const getFormattedModelConfiguration = async (model: any, document: any, drivers
 const getFormattedSheetBackground = (model: any) => {
     const modelStyle = model.configuration.style
 
-    const formattedBackground = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '' } as IBackground
+    const formattedBackground = { sheetsBackgroundColor: '', imageBackgroundUrl: '', imageBackgroundSize: '', showGrid: true } as IBackground
     if (modelStyle.sheetsBackgroundColor) formattedBackground.sheetsBackgroundColor = modelStyle.sheetsBackgroundColor
     if (modelStyle.imageBackgroundUrl) formattedBackground.imageBackgroundUrl = modelStyle.imageBackgroundUrl
     if (modelStyle.imageBackgroundSize) formattedBackground.imageBackgroundSize = modelStyle.imageBackgroundSize
+    if (modelStyle.showGrid) formattedBackground.showGrid = modelStyle.showGrid
 
     return formattedBackground
 }
 
 const getFormattedMenuAndWidgets = (model: any) => {
     const modelConfig = model.configuration
-    const formattedMenuAndWIdgets = { showExcelExport: modelConfig.showExcelExport ?? true, showScreenshot: modelConfig.showScreenshot ?? true, showSelectionButton: modelConfig.showSelectionButton ?? true } as IMenuAndWidgets
+    const formattedMenuAndWIdgets = {
+        showExcelExport: modelConfig.showExcelExport ?? true,
+        showScreenshot: modelConfig.showScreenshot ?? true,
+        showSelectionButton: modelConfig.showSelectionButton ?? true,
+        enableChartChange: true,
+        enableCaching: true,
+        enableCustomHeader: false,
+        enableWidgetMenu: true
+    } as IMenuAndWidgets
 
     return formattedMenuAndWIdgets
 }
@@ -190,11 +200,12 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
 
     const formattedSheet = deepcopy(sheet)
     formattedSheet.id = cryptoRandomString({ length: 16, type: 'base64' })
-    formattedSheet.widgets = { lg: [] }
+    formattedSheet.widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
 
     for (let i = 0; i < sheet.widgets.length; i++) {
         const tempWidget = sheet.widgets[i]
-        formattedSheet.widgets.lg.push({ id: tempWidget.id, h: tempWidget.sizeY, w: tempWidget.sizeX, x: tempWidget.col, y: tempWidget.row, i: cryptoRandomString({ length: 16, type: 'base64' }), moved: false })
+        const sizes = ['lg', 'md', 'sm', 'xs', 'xxs']
+        sizes.forEach((size: string) => formattedSheet.widgets[size].push({ id: tempWidget.id, h: tempWidget.sizeY, w: tempWidget.sizeX, x: tempWidget.col, y: tempWidget.row, i: cryptoRandomString({ length: 16, type: 'base64' }), moved: false }))
         addWidgetToModel(tempWidget, formattedModel, user, drivers)
     }
 
@@ -203,7 +214,10 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
 
 const addWidgetToModel = (widget: any, formattedModel: any, user: any, drivers: IDashboardDriver[]) => {
     if (checkIfWidgetInModel(widget, formattedModel)) return
-    formattedModel.widgets.push(formatWidget(widget, formattedModel, user, drivers))
+    const formattedWidget = formatWidget(widget, formattedModel, user, drivers)
+    if (formattedWidget.settings.configuration.updateFromSelections === undefined) formattedWidget.settings.configuration.updateFromSelections = true
+    addWidgetMenuConfig(formattedWidget)
+    formattedModel.widgets.push(formattedWidget)
 }
 
 const checkIfWidgetInModel = (widget: any, formattedModel: any) => {
@@ -266,18 +280,14 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
 }
 
 const getFormattedChartWidget = (widget: any, user: any) => {
-    // TODO widgetChange
     if (widget.content?.chartTemplate?.CHART?.type === 'WORDCLOUD') return formatVegaChartsWidget(widget)
     else if (user?.enterprise) return formatHighchartsWidget(widget)
     else return formatChartJSWidget(widget)
 }
 
 const getFormattedPivotWidget = (widget: any, user: any) => {
-    // TODO widgetChange
-    // return formatCEPivotTabletWidget(widget)
-
     if (user?.enterprise) return formatPivotTabletWidget(widget)
-    else return formatPivotTabletWidget(widget)
+    else return formatCEPivotTabletWidget(widget)
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {

@@ -13,6 +13,10 @@ import { loadLanguageAsync } from '@/App.i18n.js'
 import { getCorrectRolesForExecutionForType } from '@/helpers/commons/roleHelper'
 import mainStore from '@/App.store'
 
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 const baseRoutes = [
     {
         path: '/',
@@ -61,10 +65,11 @@ const baseRoutes = [
         name: 'unauthorized',
         component: () => import('@/views/Unauthorized.vue'),
         props: true,
-        meta: { hideMenu: true }
+        meta: { hideMenu: true, public: true }
     },
     {
-        path: '/:catchAll(.*)',
+        name: '404',
+        path: '/:catchAll(.*)*',
         component: () => import('@/modules/commons/404.vue')
     }
 ]
@@ -81,26 +86,29 @@ router.afterEach(async () => {
     if (localStorage.getItem('locale')) loadLanguageAsync(localStorage.getItem('locale'))
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     const store = mainStore()
-
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
     const loggedIn = localStorage.getItem('token')
 
-    const validRoutes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', '/kpi/', 'dossier', 'etl']
-    const invalidRoutes = ['olap-designer']
+    //const validRoutes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', '/kpi/', 'dossier', 'etl']
+    //const invalidRoutes = ['olap-designer']
     if (to.meta.hideMenu || (to.query.menu != 'undefined' && to.query.menu === 'false')) {
         store.hideMainMenu()
     } else store.showMainMenu()
 
-    if (checkRequired && !loggedIn) {
+    if (checkRequired && !to.meta.public && !loggedIn && !to.query.public) {
         authHelper.handleUnauthorized()
-    } else if (validRoutes.some((el) => to.fullPath.includes(el)) && !invalidRoutes.some((el) => to.fullPath.includes(el))) {
+        /*} else if (validRoutes.some((el) => to.fullPath.includes(el)) && !invalidRoutes.some((el) => to.fullPath.includes(el))) {
         getCorrectRolesForExecutionForType('DOCUMENT', null, to.params.id).then(() => {
             next()
-        })
+        })*/
     } else {
-        next()
+        if (to.meta?.functionality) {
+            if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
+        }
+        if (to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
+        else next()
     }
 })
 

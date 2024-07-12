@@ -89,6 +89,14 @@
         ],
         "Configuration": [
             {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
                 "title": "common.text",
                 "type": "TextConfiguration"
             },
@@ -109,6 +117,10 @@
             {
                 "title": "dashboard.widgetEditor.interactions.crossNavigation",
                 "type": "CrossNavigation"
+            },
+            {
+                "title": "dashboard.widgetEditor.interactions.link",
+                "type": "Link"
             }
         ],
         "Responsive": [

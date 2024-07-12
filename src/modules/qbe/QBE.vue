@@ -68,16 +68,16 @@
                             <i class="fas fa-ban fa-stack-2x"></i>
                             <i v-tooltip.top="$t('qbe.viewToolbar.deleteAllFilters')" class="fas fa-filter fa-stack-1x kn-cursor-pointer" @click="deleteAllFilters"></i>
                         </span>
-                        <InputSwitch v-model="smartView" class="p-mr-2" @change="updateSmartView" />
+                        <InputSwitch v-model="smartView" class="p-mr-2" @change="updateSmartView" :disabled="showWarning" />
                         <span>{{ $t('qbe.viewToolbar.smartView') }}</span>
-                        <i v-show="!smartView" class="fas fa-play p-m-2 kn-cursor-pointer" @click="openPreviewDialog"></i>
-                        <Button icon="fas fa-ellipsis-v kn-cursor-pointer" class="p-button-text p-button-rounded p-button-plain" @click="showMenu" />
+                        <Button v-show="!smartView" icon="fas fa-play" class="p-button-text p-button-rounded p-button-plain kn-cursor-pointer" v-tooltip.top="$t('common.preview')" @click="openPreviewDialog" :disabled="showWarning" />
+                        <Button icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain kn-cursor-pointer" @click="showMenu" />
                     </template>
                 </Toolbar>
                 <div class="kn-relative kn-flex p-mt-2">
                     <div class="kn-height-full kn-width-full kn-absolute">
                         <QBESimpleTable
-                            v-if="!smartView"
+                            v-if="!smartView || showWarning"
                             :query="selectedQuery"
                             @columnVisibilityChanged="checkIfHiddenColumnsExist"
                             @openFilterDialog="openFilterDialog"
@@ -285,7 +285,8 @@ export default defineComponent({
             qbeMetadata: [] as any,
             colors: ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D', '#3F51B5', '#8BC34A', '#009688', '#F44336'],
             /* CONST */
-            DERIVED_CONST: 'Derived'
+            DERIVED_CONST: 'Derived',
+            showWarning: false as boolean
         }
     },
     computed: {
@@ -631,6 +632,14 @@ export default defineComponent({
         //#region ===================== Manage Fields Logic =========================================================
         onDropComplete(field) {
             if (field.connector) return
+            if (field.attributes.subjectId) {
+                this.showWarning = false
+                if (this.selectedQuery.fields.filter((field) => field.subjectId).length + 1 > this.entities.entities.filter((e) => e.attributes.subjectId).length) {
+                    this.showWarning = true
+                    this.smartView = false
+                    this.store.setWarning({ title: this.$t('common.toast.warning'), msg: 'Drag all personal fields before preview' })
+                }
+            }
             if (field.children) {
                 for (const i in field.children) {
                     this.addEntityToMainQuery(field.children[i])
@@ -1037,8 +1046,10 @@ export default defineComponent({
             }
         },
         async openPreviewDialog() {
-            this.pagination.limit = 20
-            await this.executeQBEQuery(true)
+            if (!this.showWarning) {
+                this.pagination.limit = 20
+                await this.executeQBEQuery(true)
+            } else this.store.setWarning({ title: this.$t('common.toast.warning'), msg: 'Drag all personal fields before preview' })
         },
         updateSmartView() {
             this.smartView && this.selectedQuery.fields.length > 0 ? this.executeQBEQuery(false) : this.resetQueryPreviewAndPagination()
@@ -1121,6 +1132,9 @@ export default defineComponent({
 
                     this.qbe.dsTypeCd = this.DERIVED_CONST
                     this.qbe.qbeDataSource = this.sourceDataset?.dataSource
+                }
+                if (this.dataset?.type === 'federatedDataset') {
+                    this.qbe.federation_id = this.dataset.federation_id
                 }
                 this.savingDialogVisible = true
             }

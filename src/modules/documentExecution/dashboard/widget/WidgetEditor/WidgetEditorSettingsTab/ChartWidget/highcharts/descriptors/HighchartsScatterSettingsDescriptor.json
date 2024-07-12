@@ -10,6 +10,12 @@
                 "type": "SeriesAccessibilitySettings"
             }
         ],
+        "Advanced": [
+            {
+                "title": "dashboard.widgetEditor.highcharts.advancedSettings",
+                "type": "AdvancedSettings"
+            }
+        ],
         "Colors": [
             {
                 "title": "dashboard.widgetEditor.colors.title",
@@ -17,6 +23,22 @@
             }
         ],
         "Configuration": [
+            {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.annotations",
+                "type": "Annotations"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.jitter.title",
+                "type": "JitterSettings"
+            },
             {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
@@ -32,10 +54,6 @@
         ],
         "Interactions": [
             {
-                "title": "dashboard.widgetEditor.drilldown.title",
-                "type": "Drilldown"
-            },
-            {
                 "title": "dashboard.widgetEditor.interactions.selection",
                 "type": "Selection"
             },
@@ -44,8 +62,18 @@
                 "type": "CrossNavigation"
             },
             {
+                "title": "dashboard.widgetEditor.interactions.link",
+                "type": "Link"
+            },
+            {
                 "title": "dashboard.widgetEditor.interactions.preview",
                 "type": "Preview"
+            }
+        ],
+        "Legend": [
+            {
+                "title": "dashboard.widgetEditor.legend.title",
+                "type": "Legend"
             }
         ],
         "Responsive": [
@@ -91,11 +119,11 @@
         "XAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapXAxisSettings"
+                "type": "HighchartsXAxisSettings"
             },
             {
                 "title": "common.title",
-                "type": "HeatmapXAxisTitleSettings"
+                "type": "HighchartsXAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
@@ -109,11 +137,11 @@
         "YAxis": [
             {
                 "title": "dashboard.widgetEditor.axis",
-                "type": "HeatmapYAxisSettings"
+                "type": "HighchartsYAxisSettings"
             },
             {
                 "title": "common.title",
-                "type": "HeatmapYAxisTitleSettings"
+                "type": "HighchartsYAxisTitleSettings"
             },
             {
                 "title": "dashboard.widgetEditor.highcharts.bands.title",
@@ -150,6 +178,11 @@
             "value": "Style"
         },
         {
+            "icon": "pi pi-table",
+            "label": "dashboard.widgetEditor.legend.title",
+            "value": "Legend"
+        },
+        {
             "icon": "fa-solid fa-arrow-up",
             "label": "dashboard.widgetEditor.yAxis",
             "value": "YAxis"
@@ -183,6 +216,11 @@
             "icon": "pi pi-tablet",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
+        },
+        {
+            "icon": "fa-solid fa-ellipsis",
+            "label": "common.advanced",
+            "value": "Advanced"
         }
     ]
 }

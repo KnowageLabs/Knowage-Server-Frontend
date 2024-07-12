@@ -15,6 +15,7 @@ export default defineComponent({
     name: 'highcharts-widget-settings-accordion-header',
     components: { InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, title: { type: String }, type: { type: String, required: true } },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any,
@@ -24,16 +25,28 @@ export default defineComponent({
     computed: {},
     watch: {
         type() {
-            this.model = this.loadModel()
+            this.updateModel()
         }
     },
-    created() {
-        this.model = this.loadModel()
+    mounted() {
+        this.setEventListeners()
+        this.updateModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.updateModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.updateModel)
+        },
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings || !this.widgetModel.settings.chartModel) return null
             switch (this.type) {
+                case 'MenuConfiguration':
+                    return this.widgetModel.settings.configuration.widgetMenu
                 case 'ConfigurationOf3D':
                     return this.widgetModel.settings.chartModel.model?.chart?.options3d
                 case 'AccessibilitySettings':
@@ -43,9 +56,9 @@ export default defineComponent({
                 case 'Tooltip':
                 case 'ActivityGaugeTooltip':
                     return this.widgetModel.settings.chartModel.model?.tooltip
-                case 'HeatmapXAxisTitleSettings':
+                case 'HighchartsXAxisTitleSettings':
                     return this.widgetModel.settings.chartModel.model?.xAxis?.title
-                case 'HeatmapYAxisTitleSettings':
+                case 'HighchartsYAxisTitleSettings':
                     return this.widgetModel.settings.chartModel.model?.xAxis?.title
                 case 'DatetypeSettings':
                     return this.widgetModel.settings.configuration.datetypeSettings
@@ -85,6 +98,9 @@ export default defineComponent({
                     return null
             }
         },
+        updateModel() {
+            this.model = this.loadModel()
+        },
         onModelChange() {
             switch (this.type) {
                 case 'ConfigurationOf3D':
@@ -93,6 +109,14 @@ export default defineComponent({
                 case 'Tooltip':
                 case 'ActivityGaugeTooltip':
                     setTimeout(() => emitter.emit('refreshChart', this.widgetModel.id), 250)
+                    break
+                case 'Header':
+                case 'Title':
+                case 'BackgroundColorStyle':
+                case 'BordersStyle':
+                case 'PaddingStyle':
+                case 'ShadowsStyle':
+                    this.$emit('styleChanged')
             }
         }
     }

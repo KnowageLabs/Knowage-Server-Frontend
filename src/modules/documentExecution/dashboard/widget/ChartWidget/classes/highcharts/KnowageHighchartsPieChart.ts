@@ -21,6 +21,9 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'pie'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
     }
 
     updateModel(oldModel: any) {
@@ -56,7 +59,9 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
     }
 
     formatSeriesFromOtherChartTypeSeries() {
-        this.model.series = this.model.series.map((serie: any) => { return this.getFormattedSerieFromOtherChartTypeSerie(serie) })
+        this.model.series = this.model.series.map((serie: any) => {
+            return this.getFormattedSerieFromOtherChartTypeSerie(serie)
+        })
     }
 
     getFormattedSerieFromOtherChartTypeSerie(otherChartSerie: any) {

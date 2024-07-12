@@ -10,6 +10,12 @@
                 "type": "SeriesAccessibilitySettings"
             }
         ],
+        "Advanced": [
+            {
+                "title": "dashboard.widgetEditor.highcharts.advancedSettings",
+                "type": "AdvancedSettings"
+            }
+        ],
         "Colors": [
             {
                 "title": "dashboard.widgetEditor.colors.title",
@@ -17,6 +23,18 @@
             }
         ],
         "Configuration": [
+            {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.highcharts.annotations",
+                "type": "Annotations"
+            },
             {
                 "title": "dashboard.widgetEditor.highcharts.datetype",
                 "type": "DatetypeSettings"
@@ -42,6 +60,10 @@
             {
                 "title": "dashboard.widgetEditor.interactions.crossNavigation",
                 "type": "CrossNavigation"
+            },
+            {
+                "title": "dashboard.widgetEditor.interactions.link",
+                "type": "Link"
             },
             {
                 "title": "dashboard.widgetEditor.interactions.preview",
@@ -140,6 +162,11 @@
             "icon": "pi pi-tablet",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
+        },
+        {
+            "icon": "fa-solid fa-ellipsis",
+            "label": "common.advanced",
+            "value": "Advanced"
         }
     ]
 }

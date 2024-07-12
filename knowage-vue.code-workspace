@@ -18,7 +18,7 @@
         "prettier.trailingComma": "none",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.fixAll.sortJSON": true
+            "source.fixAll.sortJSON": "explicit"
         },
         "sortJSON.contextMenu": {
             "sortJSON": true,

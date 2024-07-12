@@ -118,7 +118,7 @@
                         >
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <Dropdown v-if="!parameter.multivalue && parameter.parameterValue" v-model="parameter.parameterValue[0].value" class="kn-material-input" :options="parameter.data" option-value="value" option-label="description" @change="onDropdownChange(parameter)" />
+                    <Dropdown v-if="!parameter.multivalue && parameter.parameterValue[0]" v-model="parameter.parameterValue[0].value" class="kn-material-input" :options="parameter.data" option-value="value" option-label="description" @change="onDropdownChange(parameter)" />
 
                     <MultiSelect v-else v-model="parameter.parameterValue" :options="parameter.data" option-label="description" @change="updateDependency(parameter)" />
                 </div>
@@ -332,7 +332,6 @@ export default defineComponent({
                         this.availableRolesForExecution = response
                         if (!this.role && this.availableRolesForExecution.length == 1) {
                             this.role = this.availableRolesForExecution[0]
-                            this.setNewSessionRole()
                         }
                     })
                 }
@@ -352,20 +351,6 @@ export default defineComponent({
             this.parameters?.filterStatus.forEach((el: any) => setLovsDependency(this.parameters, el))
             this.parameters?.filterStatus.forEach((el: any) => this.updateVisualDependency(el))
         },
-        setDataDependency(parameter: iParameter) {
-            if (parameter.dependencies.data.length !== 0) {
-                parameter.dependencies.data.forEach((dependency: any) => {
-                    const index = this.parameters.filterStatus.findIndex((param: any) => {
-                        return param.urlName === dependency.parFatherUrlName
-                    })
-                    if (index !== -1) {
-                        const tempParameter = this.parameters.filterStatus[index]
-                        parameter.dataDependsOnParameters ? parameter.dataDependsOnParameters.push(tempParameter) : (parameter.dataDependsOnParameters = [tempParameter])
-                        tempParameter.dataDependentParameters ? tempParameter.dataDependentParameters.push(parameter) : (tempParameter.dataDependentParameters = [parameter])
-                    }
-                })
-            }
-        },
         resetParameterValue(parameter: any) {
             if (!parameter.driverDefaultValue) {
                 if (parameter.multivalue) {
@@ -374,7 +359,7 @@ export default defineComponent({
                 } else {
                     parameter.parameterValue[0] = { value: '', description: '' }
                 }
-                this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el, true))
+                this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
                 return
             }
 
@@ -420,7 +405,12 @@ export default defineComponent({
                 }
                 parameter.parameterValue[0].value = parameter.driverDefaultValue[0].value ?? parameter.driverDefaultValue[0][valueIndex]
             }
-            this.parameters.filterStatus.forEach((el: any) => this.updateDependency(el))
+            this.updateParameterDependencyAfterParameterResetDefaultValue(parameter)
+        },
+        updateParameterDependencyAfterParameterResetDefaultValue(parameter: any) {
+            parameter.dependentParameters?.forEach((el: any) => this.updateDependency(el, true))
+            parameter.dataDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
+            parameter.lovDependentParameters?.forEach((el: any) => this.updateDependency(el, true))
         },
         onResetAllParameters() {
             this.parameters.filterStatus.forEach((el: any) => this.resetParameterValue(el))

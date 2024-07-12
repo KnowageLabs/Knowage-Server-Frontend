@@ -6,7 +6,7 @@
         </template>
         <template #end>
             <Button v-if="toggleCardDisplay" icon="fas fa-list" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" />
-            <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" />
+            <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" /> -->
             <KnFabButton v-if="addButtonIsVisible" icon="fas fa-plus" data-test="new-folder-button" @click="showCreationMenu" />
         </template>
     </Toolbar>
@@ -254,7 +254,7 @@ export default defineComponent({
         async handleAnalysShared(selectedFolders: any, shared: boolean) {
             this.loading = true
 
-            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `documents/share?docId=${this.selectedAnalysis.id}&`
+            let url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/documents/share?docId=${this.selectedAnalysis.id}&`
             if (!shared) {
                 Object.keys(selectedFolders).forEach((id: any) => (url += `functs=${selectedFolders[id]}&`))
             }
@@ -382,7 +382,7 @@ export default defineComponent({
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT)) this.creationMenuButtons.push({ key: '0', label: this.$t('common.cockpit'), command: () => this.openCockpitDialog(), visible: true })
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT)) this.creationMenuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.geoRef'), command: () => this.openGeoRefCreation(), visible: true })
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)) this.creationMenuButtons.push({ key: '2', label: this.$t('common.kpi'), command: () => this.openKpiDocumentDesigner(), visible: true })
-            if (this.isEnterprise) this.creationMenuButtons.push({ key: '3', label: this.$t('common.dossier'), command: () => this.openDossierDesigner(), visible: true })
+            if (this.isEnterprise && this.user.functionalities.includes(UserFunctionalitiesConstants.DOSSIER_CREATION)) this.creationMenuButtons.push({ key: '3', label: this.$t('common.dossier'), command: () => this.openDossierDesigner(), visible: true })
         },
         openCockpitDialog() {
             this.cockpitDialogVisible = true

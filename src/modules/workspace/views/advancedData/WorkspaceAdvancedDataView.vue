@@ -6,7 +6,7 @@
         </template>
         <template #end>
             <Button v-if="toggleCardDisplay" icon="fas fa-list" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" />
-            <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" />
+            <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" /> -->
             <KnFabButton icon="fas fa-plus" data-test="new-folder-button" @click="showDataSetCatalog" />
         </template>
     </Toolbar>
@@ -250,7 +250,7 @@ export default defineComponent({
             this.selectedDataset.type = 'PreparedDataset'
             await this.$http({
                 method: 'POST',
-                url: import.meta.env.VITE_KNOWAGE_CONTEXT + 'selfservicedataset/update',
+                url: import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/selfservicedataset/update',
                 data: this.selectedDataset,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Disable-Errors': 'true' },
                 transformRequest: function (obj) {

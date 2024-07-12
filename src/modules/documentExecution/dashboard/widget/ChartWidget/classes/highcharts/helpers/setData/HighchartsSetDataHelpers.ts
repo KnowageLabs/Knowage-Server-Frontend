@@ -4,6 +4,7 @@ import moment from 'moment'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
     if (!data || !widgetModel.columns) return []
+
     const formattedColumns = [] as { column: IWidgetColumn; metadata: any }[]
     widgetModel.columns.forEach((column: IWidgetColumn) => {
         if (column.fieldType === type) {
@@ -32,13 +33,17 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
             const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
+            if (drilldownEnabled && model.xAxis && model.xAxis[0]) delete model.xAxis[0].categories
+            else if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []
             data?.rows?.forEach((row: any) => {
+                const serieName = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex]
                 serieElement.data.push({
-                    name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
+                    name: serieName,
                     y: row[metadata.dataIndex],
                     color: getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex])?.color,
                     drilldown: drilldownEnabled && attributeColumns.length > 1
                 })
+                if (!drilldownEnabled && model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
             })
             model.series.push(serieElement)
         } else {
@@ -57,14 +62,18 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
     if (!lowAreaRangeColumn || !highAreaRangeColumn) return
     const serieElement = { id: model.series.length, name: lowAreaRangeColumn.column.columnName + ' / ' + highAreaRangeColumn.column.columnName, data: [] as any[], connectNulls: true } as any
     serieElement.type = 'arearange'
+    if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []
     data?.rows?.forEach((row: any) => {
+        const serieName = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex]
         serieElement.data.push({
-            name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : row[attributeColumn.metadata.dataIndex],
+            name: serieName,
             low: row[lowAreaRangeColumn.metadata.dataIndex],
             high: row[highAreaRangeColumn.metadata.dataIndex],
             drilldown: false
         })
+        if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
     })
+
     model.series.push(serieElement)
 }
 
@@ -73,18 +82,22 @@ export const setGroupedCategoriesData = (model: any, data: any, attributeColumns
     const measureColumn = measureColumns[0]
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
+
     const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], connectNulls: true }
-    const categoryValuesMap = {}
+    const categoryValuesMap: Record<string, { categories: string[] }> = {}
+
     data.rows.forEach((row: any) => {
+        const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
+        const secondAttributeValue = dateFormat && ['date', 'timestamp'].includes(secondAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]
         serieElement.data.push({
-            name: dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex],
+            name: `${firstAttributeValue} - ${secondAttributeValue}`,
             y: row[measureColumn.metadata.dataIndex],
             drilldown: false
         })
-        const firstAttributeValue = row[firstAttributeColumn.metadata.dataIndex]
-        const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
         if (!categoryValuesMap[firstAttributeValue]) categoryValuesMap[firstAttributeValue] = { categories: [] }
-        if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
+        if (!categoryValuesMap[firstAttributeValue].categories.includes(secondAttributeValue)) {
+            categoryValuesMap[firstAttributeValue].categories.push(secondAttributeValue)
+        }
     })
 
     updateXAxisForGroupingCategoriesData(model, categoryValuesMap)
@@ -223,7 +236,8 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
                         fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
                         fontSize: centerTextSettings.style['font-size'] ?? '12px',
                         color: centerTextSettings.color ?? '#000000',
-                        width: '10000'
+                        width: '10000',
+                        textOutline: 'none'
                     }
                 }
             },
@@ -254,20 +268,20 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
     treemapArray.forEach((el: any) => {
         if (el.value === 0) delete el.value
     })
-        ; (treemapArray[0].parent = null),
-            (treemapArray[0].id = 'root'),
-            (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
-            (treemapArray[0].dataLabels = {
-                enabled: true,
-                backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
-                style: {
-                    fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
-                    fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
-                    fontSize: centerTextSettings.style['font-size'] ?? '12px',
-                    color: centerTextSettings.color ?? '#000000',
-                    width: '10000'
-                }
-            })
+    ;(treemapArray[0].parent = null),
+        (treemapArray[0].id = 'root'),
+        (treemapArray[0].name = centerTextSettings.text ?? attributeColumns[0].column.columnName),
+        (treemapArray[0].dataLabels = {
+            enabled: true,
+            backroundColor: centerTextSettings.style['background-color'] ?? '#ffffff',
+            style: {
+                fontFamily: centerTextSettings.style['font-family'] ?? 'Arial',
+                fontStyle: centerTextSettings.style['font-style'] ?? 'normal',
+                fontSize: centerTextSettings.style['font-size'] ?? '12px',
+                color: centerTextSettings.color ?? '#000000',
+                width: '10000'
+            }
+        })
     serieElement.data = treemapArray
 
     model.series = [serieElement]
@@ -352,7 +366,7 @@ export const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'ro
 
 export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCompare: any, returnString?: boolean) => {
     const conditionalStyles = propWidget.settings.series?.conditionalStyles
-    if (!conditionalStyles) return ''
+    if (!conditionalStyles || !conditionalStyles.enabled) return ''
     let styleString = null as any
 
     const columnConditionalStyles = conditionalStyles.conditions.filter((condition) => condition.target.includes(colId) || condition.condition.formula)

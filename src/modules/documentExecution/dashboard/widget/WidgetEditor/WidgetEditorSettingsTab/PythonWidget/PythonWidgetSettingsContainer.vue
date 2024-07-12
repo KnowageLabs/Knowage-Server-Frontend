@@ -2,7 +2,7 @@
     <div v-show="widgetModel">
         <PythonWidgetSettingsAccordion v-if="selectedSetting != 'Gallery'" v-show="selectedSetting" :widget-model="widgetModel" :settings="descriptor.settings[selectedSetting]" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></PythonWidgetSettingsAccordion>
 
-        <HTMLWidgetSettingsGallery v-if="selectedSetting == 'Gallery'" v-show="selectedSetting" :widget-model="widgetModel" :html-gallery-prop="pythonGalleryProp" @galleryItemSelected="$emit('galleryItemSelected')"></HTMLWidgetSettingsGallery>
+        <HTMLWidgetSettingsGallery v-if="selectedSetting == 'Gallery'" v-show="selectedSetting" :widget-model="widgetModel" :dashboard-id="dashboardId" :prop-gallery-items="propGalleryItems" @galleryItemSelected="$emit('galleryItemSelected')"></HTMLWidgetSettingsGallery>
     </div>
 </template>
 
@@ -21,8 +21,8 @@ export default defineComponent({
         selectedSetting: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
-        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        dashboardId: { type: String, required: true }
+        dashboardId: { type: String, required: true },
+        propGalleryItems: { type: Array as PropType<IGalleryItem[]>, required: true }
     },
     emits: ['galleryItemSelected'],
     data() {

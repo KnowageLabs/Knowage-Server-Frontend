@@ -1,0 +1,39 @@
+{
+    "settings": {
+        "Configuration": [
+            {
+                "title": "dashboard.widgetEditor.configuration",
+                "type": "CustomDashboardHeaderConfiguration"
+            }
+        ],
+        "Editor": [
+            {
+                "title": "CSS",
+                "type": "CSS"
+            },
+            {
+                "title": "HTML",
+                "type": "HTML"
+            }
+        ],
+        "Gallery": []
+    },
+    "settingsListOptions": [
+        {
+            "disabled": false,
+            "icon": "fa fa-book",
+            "label": "dashboard.widgetEditor.gallery",
+            "value": "Gallery"
+        },
+        {
+            "icon": "fa fa-code",
+            "label": "dashboard.widgetEditor.editor",
+            "value": "Editor"
+        },
+        {
+            "icon": "fa fa-cogs",
+            "label": "dashboard.widgetEditor.configuration",
+            "value": "Configuration"
+        }
+    ]
+}

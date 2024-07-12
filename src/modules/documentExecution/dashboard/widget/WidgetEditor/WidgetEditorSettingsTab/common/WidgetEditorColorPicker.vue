@@ -1,9 +1,11 @@
 <template>
-    <div ref="knowageStyleIcon" class="color-picker-container">
-        <label v-if="label" class="kn-material-input-label p-mr-2">{{ $t(label) }}</label>
-        <Button :disabled="disabled" class="click-outside" :style="`background-color:${color ? color : '#000000'}; padding: 0;`" @click="colorPickerVisible = !colorPickerVisible"></Button>
-        <ColorPicker v-if="colorPickerVisible" class="dashboard-color-picker click-outside" theme="light" :color="color" :sucker-hide="true" @changeColor="changeColor" />
+    <div ref="knowageStyleIcon" class="color-picker-container" :style="disabled ? 'border-bottom: 1px solid #cccccc' : ''">
+        <span class="p-float-label" style="text-align: center">
+            <Button :disabled="disabled" class="click-outside color-picker-button" :style="`background-color:${color ? color : '#000000'}; padding: 0;`" @click="colorPickerVisible = !colorPickerVisible"></Button>
+            <label v-if="label" class="color-picker-label">{{ $t(label) }}</label>
+        </span>
     </div>
+    <ColorPicker v-if="colorPickerVisible" class="dashboard-color-picker click-outside" theme="light" :color="color" :sucker-hide="true" @changeColor="changeColor" />
 </template>
 
 <script lang="ts">
@@ -72,14 +74,26 @@ export default defineComponent({
 
 <style lang="scss">
 .color-picker-container {
-    border: 1px solid #c2c2c2;
-    border-radius: 4px;
-    padding: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.38);
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    min-width: 100px;
+    height: 37.75px;
+    flex-direction: column;
+    .color-picker-button {
+        width: 92%;
+        font-size: 0.875rem;
+        padding: 0.65625rem 0.65625rem;
+        background-color: rgb(212, 212, 212);
+        margin-top: 12px;
+    }
+    .color-picker-label {
+        font-size: 12px;
+        top: -0.5rem;
+        background-color: #ffffff;
+        padding: 2px 4px;
+        margin-left: -4px;
+        margin-top: 0;
+        color: #43749e;
+    }
 }
 .dashboard-color-picker {
     position: absolute;

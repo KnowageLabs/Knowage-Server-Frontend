@@ -11,6 +11,7 @@ export const createNewRWidgetSettings = () => {
         },
         editor: rWidgetDefaultValues.getDefaultEditorSettings(),
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

@@ -71,6 +71,10 @@ export default defineComponent({
             switch (this.chartType) {
                 case 'dependencywheel':
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[2] }
+                case 'streamgraph':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[2] }
+                case 'packedbubble':
+                    return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.packedBubbleChartColumnTableSettings[2] }
                 default:
                     return { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[2] }
             }
@@ -82,6 +86,7 @@ export default defineComponent({
         },
         selectedDataset() {
             this.selectedColumn = null
+            this.clearSelectedWidgetColumnsFromWidgetModel()
         }
     },
     created() {
@@ -115,7 +120,16 @@ export default defineComponent({
             })
         },
         getAttributesAxisSettings(axis: string) {
-            return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[1] }
+            switch (this.chartType) {
+                case 'dependencywheel':
+                    return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[1] }
+                case 'streamgraph':
+                    return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.streamgraphChartColumnTableSettings[1] }
+                case 'packedbubble':
+                    return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.packedBubbleChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.packedBubbleChartColumnTableSettings[1] }
+                default:
+                    return axis === 'from' ? { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[0] } : { ...commonDescriptor.columnTableSettings, ...highchartDescriptor.sankeyChartColumnTableSettings[1] }
+            }
         },
         onColumnsReorder(columns: IWidgetColumn[], type: string) {
             this.columnTableItems[type] = columns
@@ -186,6 +200,8 @@ export default defineComponent({
                 switch (this.chartType) {
                     case 'dependencywheel':
                     case 'sankey':
+                    case 'streamgraph':
+                    case 'packedbubble':
                         invalid = this.columnTableItems[type].length !== 1
                         break
                     default:
@@ -202,6 +218,8 @@ export default defineComponent({
                 switch (this.chartType) {
                     case 'dependencywheel':
                     case 'sankey':
+                    case 'streamgraph':
+                    case 'packedbubble':
                         invalid = this.columnTableItems['MEASURES'].length !== 1
                         break
                     default:
@@ -211,6 +229,11 @@ export default defineComponent({
             if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
             this.widgetModel.invalid.measuresInvalid = invalid
             return invalid
+        },
+        clearSelectedWidgetColumnsFromWidgetModel() {
+            for (let i = this.widgetModel.columns.length - 1; i >= 0; i--) {
+                this.widgetModel.columns.forEach((column: IWidgetColumn) => this.onColumnDelete(column))
+            }
         }
     }
 })

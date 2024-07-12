@@ -1,7 +1,7 @@
 <template>
     <div v-if="linksModel" class="p-grid p-p-4">
         <div v-for="(link, index) in linksModel.links" :key="index" class="dynamic-form-item p-grid p-ai-center p-col-12">
-            <div class="p-sm-11 p-md-10 p-d-flex p-flex-column">
+            <div v-if="widgetType === 'table'" class="p-sm-12 p-md-12 p-d-flex p-flex-column">
                 <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
                 <Dropdown v-model="link.type" class="kn-material-input" :options="descriptor.interactionTypes" option-value="value" :disabled="linksDisabled" @change="onInteractionTypeChanged(link)">
                     <template #value="slotProps">
@@ -17,26 +17,22 @@
                 </Dropdown>
             </div>
 
-            <div class="p-sm-1 p-md-2 p-text-center">
-                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer" @click="index === 0 ? addLink() : removeLink(index)"></i>
-            </div>
-
-            <div class="p-sm-12 p-md-4 p-d-flex p-flex-column p-pt-2">
+            <div class="kn-flex p-d-flex p-flex-column p-pt-2 p-ml-2">
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.interactions.basicUrl') }}</label>
                 <InputText v-model="link.baseurl" class="kn-material-input p-inputtext-sm" :disabled="linksDisabled" />
             </div>
 
-            <div v-if="link.type === 'singleColumn'" class="p-sm-12 p-md-3">
+            <div v-if="link.type === 'singleColumn'" class="kn-flex">
                 <div class="p-d-flex p-flex-column kn-flex p-mx-2">
                     <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
                     <Dropdown v-model="link.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="columnName" :disabled="linksDisabled"> </Dropdown>
                 </div>
             </div>
-            <div v-else-if="link.type === 'icon'" class="p-sm-6 p-md-3 p-p-4">
+            <div v-else-if="link.type === 'icon'" class="kn-flex p-mt-5 p-mx-2">
                 <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: link.icon }" :disabled="linksDisabled" @change="onStyleToolbarChange($event, link)"> </WidgetEditorStyleToolbar>
             </div>
 
-            <div class="p-sm-6 p-md-4 p-d-flex p-flex-column">
+            <div class="kn-flex p-d-flex p-flex-column p-mx-2">
                 <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.linkType') }}</label>
                 <Dropdown v-model="link.action" class="kn-material-input" :options="descriptor.linkTypes" option-value="value" :disabled="linksDisabled" @change="onInteractionTypeChanged(link)">
                     <template #value="slotProps">
@@ -50,6 +46,10 @@
                         </div>
                     </template>
                 </Dropdown>
+            </div>
+
+            <div class="p-text-left p-mt-3 p-ml-3">
+                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer" @click="index === 0 ? addLink() : removeLink(index)"></i>
             </div>
 
             <div class="p-sm-12 p-md-12">
@@ -91,6 +91,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
+            widget: null as IWidget | null,
             linksModel: null as IWidgetLinks | null,
             selectedDatasetColumnNameMap: {},
             getTranslatedLabel
@@ -99,6 +100,9 @@ export default defineComponent({
     computed: {
         linksDisabled() {
             return !this.linksModel || !this.linksModel.enabled
+        },
+        widgetType() {
+            return this.widgetModel?.type
         }
     },
     watch: {
@@ -108,6 +112,7 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadWidgetModel()
         this.loadLinksModel()
         this.loadSelectedDatasetColumnNames()
     },
@@ -123,6 +128,9 @@ export default defineComponent({
         },
         onColumnRemovedFromLinks() {
             this.onColumnRemoved()
+        },
+        loadWidgetModel() {
+            this.widget = this.widgetModel
         },
         loadLinksModel() {
             if (this.widgetModel?.settings?.interactions?.link) this.linksModel = this.widgetModel.settings.interactions.link
@@ -160,6 +168,15 @@ export default defineComponent({
             if (!this.linksModel) return
             if (this.linksModel.enabled && this.linksModel.links.length === 0) {
                 this.linksModel.links.push({ type: '', baseurl: '', action: '', parameters: [] })
+            }
+            this.updateOtherInteractions()
+        },
+        updateOtherInteractions() {
+            if (this.widget && this.linksModel?.enabled && this.widgetType !== 'table') {
+                if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
+                if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
+                if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
+                if (this.widget.settings.interactions.iframe) this.widget.settings.interactions.iframe.enabled = false
             }
         },
         addLink() {

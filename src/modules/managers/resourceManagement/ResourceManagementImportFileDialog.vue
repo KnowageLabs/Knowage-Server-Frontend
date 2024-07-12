@@ -6,7 +6,18 @@
         <span v-if="notifyExtractionWarning()">
             <Message severity="warn">{{ $t('managers.resourceManagement.uploadFile.fileAndFoldersContentWillBeOverwritten') }}</Message>
         </span>
-        <FileUpload name="demo[]" :choose-label="$t('common.choose')" :custom-upload="true" auto="true" :max-file-size="50000000" :multiple="false" :file-limit="1" @uploader="onUpload" @remove="onDelete">
+        <FileUpload
+            name="demo[]"
+            :choose-label="$t('common.choose')"
+            :custom-upload="true"
+            auto="true"
+            :invalidFileSizeMessage="$t('common.error.exceededSize', { size: configurations['KNOWAGE.RESOURCE.UPLOAD.MAX_SIZE'] || 50000000 })"
+            :max-file-size="configurations['KNOWAGE.RESOURCE.UPLOAD.MAX_SIZE'] || 50000000"
+            :multiple="false"
+            :file-limit="1"
+            @uploader="onUpload"
+            @remove="onDelete"
+        >
             <template #empty>
                 <p>{{ $t('common.dragAndDropFileHere') }}</p>
             </template>
@@ -33,6 +44,7 @@ import resourceManagementDescriptor from './ResourceManagementDescriptor.json'
 import { PropType } from 'vue'
 import { IFileTemplate } from './ResourceManagement'
 import Message from 'primevue/message'
+import { mapState, mapActions } from 'pinia'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
@@ -44,14 +56,14 @@ export default defineComponent({
         existingFiles: Array as PropType<Array<IFileTemplate>>
     },
     emits: ['update:visibility', 'fileUploaded'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return { checked: false, descriptor: resourceManagementDescriptor, uploadedFiles: [], loading: false }
     },
+    computed: {
+        ...mapState(mainStore, ['configurations'])
+    },
     methods: {
+        ...mapActions(mainStore, ['setError', 'setInfo', 'setWarning']),
         isArchive() {
             // eslint-disable-next-line
             // @ts-ignore
@@ -106,12 +118,12 @@ export default defineComponent({
                     .then(
                         (response: AxiosResponse<any>) => {
                             if (response.data.errors) {
-                                this.store.setError({ title: this.$t('common.error.uploading'), msg: this.$t('managers.resourceManagement.upload.completedWithErrors') })
+                                this.setError({ title: this.$t('common.error.uploading'), msg: this.$t('managers.resourceManagement.upload.completedWithErrors') })
                             } else {
-                                this.store.setInfo({ title: this.$t('common.uploading'), msg: this.$t('common.toast.uploadSuccess') })
+                                this.setInfo({ title: this.$t('common.uploading'), msg: this.$t('common.toast.uploadSuccess') })
                             }
                         },
-                        (error) => this.store.setError({ title: this.$t('common.error.uploading'), msg: this.$t(error) })
+                        (error) => this.setError({ title: this.$t('common.error.uploading'), msg: this.$t(error) })
                     )
 
                     .finally(() => {
@@ -121,7 +133,7 @@ export default defineComponent({
                         this.$emit('fileUploaded')
                     })
             } else {
-                this.store.setWarning({ title: this.$t('common.uploading'), msg: this.$t('managers.widgetGallery.noFileProvided') })
+                this.setWarning({ title: this.$t('common.uploading'), msg: this.$t('managers.widgetGallery.noFileProvided') })
             }
         }
     }

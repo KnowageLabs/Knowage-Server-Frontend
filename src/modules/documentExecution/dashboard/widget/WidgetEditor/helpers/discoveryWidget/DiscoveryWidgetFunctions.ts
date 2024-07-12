@@ -20,6 +20,7 @@ export const createNewDiscoveryWidgetSettings = () => {
             preview: widgetCommonDefaultValues.getDefaultPreview(),
         },
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             headers: tableWidgetDefaultValues.getDefaultHeadersStyle(),

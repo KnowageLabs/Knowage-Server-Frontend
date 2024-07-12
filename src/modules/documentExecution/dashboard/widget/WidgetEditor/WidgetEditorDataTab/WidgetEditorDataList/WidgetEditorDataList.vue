@@ -23,12 +23,13 @@
             </template>
         </Listbox>
     </div>
-
     <KnCalculatedField
         v-if="calcFieldDialogVisible"
         v-model:template="selectedCalcField"
         v-model:visibility="calcFieldDialogVisible"
         :fields="calcFieldColumns"
+        :validation="true"
+        :variables="variables"
         :descriptor="calcFieldDescriptor"
         :prop-calc-field-functions="availableFunctions"
         :read-only="false"
@@ -43,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn } from '../../../../Dashboard'
+import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn, IVariable } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { removeColumnFromDiscoveryWidgetModel } from '../../helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import descriptor from './WidgetEditorDataListDescriptor.json'
@@ -60,7 +61,7 @@ import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
 export default defineComponent({
     name: 'widget-editor-data-list',
     components: { Dropdown, Listbox, KnCalculatedField },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected'],
     setup() {
         const store = mainStore()
@@ -163,6 +164,7 @@ export default defineComponent({
             this.loadDatasetColumns()
         },
         onDatasetSelected() {
+            if (this.availableFunctions.length == 0) this.loadAvailableFunctions(this.selectedDataset)
             this.loadDatasetColumns()
             if (this.model) {
                 this.model.dataset = this.selectedDataset ? this.selectedDataset.id : null
@@ -223,9 +225,18 @@ export default defineComponent({
         },
         createCalcFieldColumns() {
             this.calcFieldColumns = []
-            this.model?.columns.forEach((field) => {
-                if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
-            })
+            if (this.model?.type == 'static-pivot-table' || this.model?.type == 'ce-pivot-table') {
+                const modelFields = this.model.fields as any
+                const allFields = [].concat(modelFields?.columns, modelFields?.data, modelFields?.filters, modelFields?.rows) as any
+
+                allFields.forEach((field) => {
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                })
+            } else {
+                this.model?.columns.forEach((field) => {
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                })
+            }
         },
         onCalcFieldSave(calcFieldOutput) {
             if (this.selectedCalcField.id) {

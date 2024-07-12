@@ -1,5 +1,5 @@
 <template>
-    <div class="p-grid p-m-0 kn-theme-management">
+    <div class="kn-page--row p-grid p-m-0 kn-theme-management">
         <div class="kn-list--column kn-page p-col-2 p-sm-2 p-md-3 p-p-0">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
                 <template #start>
@@ -41,7 +41,7 @@
             <div class="p-p-2 kn-page-content">
                 <div>
                     <template v-for="(value, key) in themeHelper.descriptor" :key="key">
-                        <Fieldset :legend="key" :toggleable="true" :collapsed="true">
+                        <Fieldset :legend="value.label" :toggleable="true" :collapsed="true">
                             <div v-for="property in value.properties" :key="property.key">
                                 <div class="p-field">
                                     <span v-if="property.type === 'text'" class="p-float-label">

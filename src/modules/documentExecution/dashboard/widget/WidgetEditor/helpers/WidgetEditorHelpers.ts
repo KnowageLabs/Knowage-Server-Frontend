@@ -22,10 +22,11 @@ import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
 import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
 import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
 import { createNewRWidgetSettings } from './rWidget/RWidgetFunctions'
+import { addWidgetMenuConfig } from '../../../DashboardHelpers'
 
 const store = useStore()
 
-export function createNewWidget(type: string) {
+export function createNewWidget(type: string, dashboardModel: any) {
     const widget = {
         id: cryptoRandomString({ length: 16, type: 'base64' }),
         new: true,
@@ -36,7 +37,9 @@ export function createNewWidget(type: string) {
     } as IWidget
     if (widget.type === 'static-pivot-table' || widget.type === 'ce-pivot-table') widget.fields = { columns: [], rows: [], data: [], filters: [] }
 
-    createNewWidgetSettings(widget)
+    createNewWidgetSettings(widget, dashboardModel)
+    addWidgetMenuConfig(widget)
+    widget.settings.configuration.updateFromSelections = true
 
     return widget
 }
@@ -55,7 +58,7 @@ export const createNewWidgetColumn = (eventData: any, widgetType: string) => {
     return tempColumn
 }
 
-const createNewWidgetSettings = (widget: IWidget) => {
+export const createNewWidgetSettings = (widget: IWidget, dashboardModel: any) => {
     switch (widget.type) {
         case 'table':
             widget.settings = createNewTableWidgetSettings()
@@ -106,6 +109,12 @@ const createNewWidgetSettings = (widget: IWidget) => {
         case 'r':
             widget.settings = createNewRWidgetSettings()
     }
+    widget.settings = addDefaultTheme(widget.settings, dashboardModel)
+}
+
+export function addDefaultTheme(widget: any, dashboardModel: any) {
+    if (dashboardModel.configuration.theme?.themeName) widget.style.themeName = dashboardModel.configuration.theme.themeName
+    return widget
 }
 
 export function formatWidgetForSave(tempWidget: IWidget) {

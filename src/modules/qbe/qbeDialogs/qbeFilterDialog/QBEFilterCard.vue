@@ -178,6 +178,14 @@ export default defineComponent({
     methods: {
         loadFilter() {
             this.filter = this.propFilter as iFilter
+
+            let isEncrypted = false;
+            if (this.field.attributes) {
+                isEncrypted = this.field.attributes.decrypt;
+            } else {
+                isEncrypted = this.field.decrypt;
+            }
+
             if (this.subqueries?.length > 0) {
                 this.targetValues.push({
                     label: this.$t('qbe.filters.targets.subquery'),
@@ -187,7 +195,12 @@ export default defineComponent({
 
             this.formatFilter()
 
-            this.filterOperatorOptions = this.QBEFilterDialogDescriptor.operatorValues
+            if (isEncrypted) {
+                this.filterOperatorOptions = this.QBEFilterDialogDescriptor.operatorValues.filter((operator) => operator.allowedWithDecrypt);
+            } else {
+                this.filterOperatorOptions = this.QBEFilterDialogDescriptor.operatorValues;
+            }
+
             const tempEntity = this.getEntity() as any
             if (tempEntity?.iconCls === 'geographic_dimension') {
                 this.filterOperatorOptions = this.filterOperatorOptions.concat(this.QBEFilterDialogDescriptor.spatialOperatorValues)
@@ -250,7 +263,6 @@ export default defineComponent({
                 case 'valueOfField':
                     this.filter.rightOperandType = 'Static Content'
                     this.selectedValues = this.filter.rightOperandValue.filter((el: any) => el !== '')
-                    await this.loadFilterValues()
 
                     this.filter.hasParam = false
                     this.filter.paramName = ''
@@ -336,7 +348,7 @@ export default defineComponent({
         async loadFilterValues() {
             this.loading = true
             await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/restful-services/AdapterHTTP?ACTION_NAME=GET_VALUES_FOR_QBE_FILTER_LOOKUP_ACTION&ENTITY_ID=${this.filter?.leftOperandValue}&SBI_EXECUTION_ID=${this.id}`, {
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_VALUES_FOR_QBE_FILTER_LOOKUP_ACTION&ENTITY_ID=${this.filter?.leftOperandValue}&SBI_EXECUTION_ID=${this.id}`, {
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8' }
                 })
                 .then((response: AxiosResponse<any>) => (this.filterValuesData = response.data))

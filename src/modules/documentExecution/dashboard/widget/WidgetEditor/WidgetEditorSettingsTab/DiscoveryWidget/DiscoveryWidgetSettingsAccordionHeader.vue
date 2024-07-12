@@ -19,6 +19,7 @@ export default defineComponent({
         title: { type: String },
         type: { type: String, required: true }
     },
+    emits: ['styleChanged'],
     data() {
         return {
             model: null as any
@@ -27,16 +28,28 @@ export default defineComponent({
     computed: {},
     watch: {
         type() {
-            this.model = this.loadModel()
+            this.updateModel()
         }
     },
-    created() {
-        this.model = this.loadModel()
+    mounted() {
+        this.setEventListeners()
+        this.updateModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
+        setEventListeners() {
+            emitter.on('themeSelected', this.updateModel)
+        },
+        removeEventListeners() {
+            emitter.off('themeSelected', this.updateModel)
+        },
         loadModel() {
             if (!this.widgetModel || !this.widgetModel.settings) return null
             switch (this.type) {
+                case 'MenuConfiguration':
+                    return this.widgetModel.settings.configuration.widgetMenu
                 case 'FacetsSettings':
                     return this.widgetModel.settings.facets
                 case 'SearchSettings':
@@ -63,16 +76,22 @@ export default defineComponent({
                     return null
             }
         },
+        updateModel() {
+            this.model = this.loadModel()
+        },
         onModelChange() {
             switch (this.type) {
                 case 'FacetsSettings':
                 case 'SearchSettings':
+                    setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
+                    break
                 case 'Title':
                 case 'ColumnStyle':
                 case 'BackgroundColorStyle':
                 case 'BordersStyle':
                 case 'PaddingStyle':
                 case 'ShadowsStyle':
+                    this.$emit('styleChanged')
                     setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
             }
         }

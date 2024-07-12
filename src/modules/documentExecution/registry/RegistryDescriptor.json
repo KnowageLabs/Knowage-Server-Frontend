@@ -7,14 +7,8 @@
         },
         "colors": {
             "disabledCellColor": "rgba(231, 231, 231, 0.8)",
-            "newRowColor": "#a8ca81",
-            "editedCellColor": "#749e43"
-        },
-        "fieldsContainer": {
-            "flex-grow": 1
-        },
-        "filterContainer": {
-            "display": "flex"
+            "editedCellColor": "#749e43",
+            "newRowColor": "#a8ca81"
         },
         "filtersButton": {
             "height": "40px",

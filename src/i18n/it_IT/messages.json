@@ -20,7 +20,7 @@
         "clicked": "cliccato",
         "clone": "clona",
         "close": "chiudi",
-        "cockpit": "dashboard",
+        "cockpit": "Cockpit",
         "code": "Code",
         "codingLanguages": {
             "css": "css",
@@ -42,6 +42,7 @@
         "detail": "Detail",
         "details": "dettagli",
         "development": "sviluppo",
+        "document": "Documento",
         "documentDetails": "dettagli documento",
         "documents": "documenti",
         "download": "download",
@@ -57,11 +58,13 @@
             "exceededSize": "il file caricato supera la dimensione massima di {size}",
             "generic": "errore generico",
             "incompatibleType": "tipo di file incompatibile",
+            "refresh": "Qualcosa è andato storto. Prova a ricaricare la pagina",
             "saving": "errore durante il salvataggio",
             "tags": {
                 "tagIsNotValid": "tag ({tag}) non valido"
             },
-            "uploading": "errore durante il caricamento"
+            "uploading": "errore durante il caricamento",
+            "validation": "Errore durante la validazione {what}"
         },
         "execute": "esegui",
         "expand": "espandi",
@@ -212,7 +215,8 @@
             "maximumCharacters": "la lunghezza massima consentita è {max}",
             "minLength": "il campo deve avere almeno {min} caratteri",
             "regex": "formato non valido",
-            "required": "{fieldName} è richiesto"
+            "required": "{fieldName} è richiesto",
+            "validating": "validazione"
         },
         "value": "valore",
         "values": "valori",
@@ -233,6 +237,11 @@
             "officialDocumentation": "documentazione ufficiale ({function})",
             "title": "campo calcolato",
             "type": "Type"
+        },
+        "knIconPicker": {
+            "chooseIcon": "Seleziona Icona",
+            "recentlyUsed": "Usati di recente",
+            "upload": "Carica la tua immagine"
         }
     },
     "cron": {
@@ -306,16 +315,29 @@
         "yearly": "annuale"
     },
     "dashboard": {
-        "dashboardBeta": "Dashboard (Beta)",
+        "activeSelections": {
+            "noActiveSelections": "Nessuna selezione attiva"
+        },
+        "breakpoints": {
+            "lg": "Dispositivo Grande, es: Monitor Desktop",
+            "md": "Dispositivo Medio, es: Laptop",
+            "sm": "Dispositivo Piccolo, es: Tablet",
+            "xs": "Dispositivo Extra small, es: Phablet",
+            "xxs": "Dispositivo XXS, es: Smartphone"
+        },
+        "confirm": {
+            "deleteWidget": "Sei sicuro di voler cancellare il widget selezionato?"
+        },
+        "dashboard": "Dashboard",
         "datasetEditor": {
-            "addAssociation": "Aggiungi Associazione",
-            "addIndexes": "Aggiungi indici",
+            "addAssociation": "Associazioni",
+            "addIndexes": "Indici",
             "association": "Associazione",
-            "associationsDetailMsg": "TODO: Write whatever we need to write here after PR",
+            "associationsDetailMsg": "Le associazioni mettono in relazione due o più dataset attraverso il collegamento di alcuni dei loro campi. <br />Premi il pulsante <b>+ Associazioni</b> per aggiungerne una, selezionando poi i campi da usare come relazione.",
             "associationsDetailTitle": "Associazione tra Dataset",
             "associationsTabTitle": "Associazioni",
             "cached": "Salvato in cache",
-            "dataDetailMsg": "Aggiungi o seleziona dataset",
+            "dataDetailMsg": "I <b>Dataset</b> contengono un insieme dei dati dalle sorgenti definite che possono essere utilizzati per effettuare delle analisi. <br />Aggiungine almeno uno cliccando sul pulsante <b>Aggiungi Dataset</b> e selezionalo dalla lista.",
             "dataDetailTitle": "Gestione Dataset",
             "dataTabTitle": "Dati",
             "datasetDriversWarningMsg1": "Si può selezionare solo un dataset con driver! ",
@@ -339,7 +361,10 @@
             "background": {
                 "sheetsColor": "Colore di sfondo dei fogli",
                 "sheetsImage": "Indirizzo immagine di sfondo dei fogli",
-                "sheetsSize": "Dimensione sfondo dei fogli"
+                "sheetsImageHint": "Incolla l'indirizzo dell'immagine o il codice base64",
+                "sheetsSize": "Dimensione sfondo dei fogli",
+                "sheetsSizeHint": "Usa px, % o proprietà CSS come 'contain' o 'cover'",
+                "showGrid": "Mostra griglia in modifica"
             },
             "css": "Editor CSS",
             "menuWidgets": {
@@ -349,11 +374,31 @@
                 "title": "Menu & Widget"
             },
             "profile": "Profilo",
+            "themes": {
+                "dashboardTheme": "Temi dashboard",
+                "dashboardThemeHint": "Componente in sviluppo, la preview dei temi sarà presto visibile qui",
+                "editTheme": "Modifica Tema",
+                "info": "Un tema è una collezione di stili che saranno applicati a tutti i widget. E' possibile selezionarne uno dalla lista o crearne uno nuovo nel Gestore Temi Dashboard"
+            },
             "title": "Configurazioni Generali",
             "variableColumnHint": "Se nessuna colonna viene selezionata verrà utilizzato l'intero dataset.",
             "variablesHint": "Le variabili possono essere usate ovunque nei widget della dashboard. Possono essere valori statici o dinamici e valorizzati in diversi modi. Controlla la documentazione o singoli widget per imparare come usarle."
         },
         "getDataError": "Unable to load data from dataset {datasetLabel}. Please check dataset & widget configuration.",
+        "qMenu": {
+            "changeType": "Modifica Tipo Grafico",
+            "clone": "Clona Widget",
+            "delete": "Elimina Widget",
+            "edit": "Modifica Widget",
+            "expand": "Espandi a tutti schermo",
+            "lock": "Blocca posizione Widget",
+            "moveWidget": "Sposta Widget",
+            "quickWidget": "Aggiungi Quick Widget",
+            "screenshot": "Cattura Immagine",
+            "search": "Cerca nel Widget",
+            "unlock": "Sblocca posizione Widget",
+            "xor": "Visualizza un layer"
+        },
         "rWidgetError": "Error loading R widget.",
         "saveCockpit": "Save Cockpit",
         "saveCockpitHint": "Please enter a valid name",
@@ -363,12 +408,17 @@
             "add": "Aggiungi Foglio",
             "confirmDeleteMessage": "Confermi di voler eliminare il foglio selezionato? ",
             "delete": "Elimina foglio",
+            "manageIcon": "Gestisci icona del foglio",
             "moveLeft": "Sposta foglio a sinistra",
             "moveRight": "Sposta foglio a destra",
+            "newSheet": "Nuovo foglio",
             "rename": "Rinomina foglio"
         },
         "tableWidget": {
             "launchSelection": "AVVIA SELEZIONE"
+        },
+        "warning": {
+            "downloading": "Il documento è stato richiesto in un formato di output specifico. Elaborazione in corso."
         },
         "widgetEditor": {
             "absolute": "Absolute",
@@ -738,10 +788,11 @@
                     "title": "Serie splitting"
                 },
                 "stacking": {
-                    "normal": "Normal",
-                    "percent": "Percent",
+                    "normal": "Normale",
+                    "percent": "Percentuale",
                     "title": "Stacking"
                 },
+                "stackingMode": "Modalità di impilamento",
                 "stops": {
                     "colorHint": "Solid gauge series only. Color stops for the solid gauge. Use this in cases where a linear gradient between a minColor and maxColor is not sufficient. The stops is an array of tuples, where the first item is a float between 0 and 1 assigning the relative position in the gradient, and the second item is the color.",
                     "relativePosition": "Relative Position",
@@ -920,18 +971,6 @@
                     "pies": "Pies",
                     "pies3d": "Pies 3D"
                 },
-                "qMenu": {
-                    "changeType": "Modifica Tipo Grafico",
-                    "clone": "Clona Widget",
-                    "delete": "Elimina Widget",
-                    "edit": "Modifica Widget",
-                    "expand": "Espandi a tutti schermo",
-                    "moveWidget": "Sposta Widget",
-                    "quickWidget": "Aggiungi Quick Widget",
-                    "screenshot": "Cattura Immagine",
-                    "search": "Cerca nel Widget",
-                    "xor": "Visualizza un layer"
-                },
                 "range": "Range",
                 "rangeLabel": "Min size (%)/Max size (%)",
                 "south": "South",
@@ -1040,6 +1079,9 @@
             },
             "seriesAccessibility": {
                 "title": "Series Accessibility"
+            },
+            "settings": {
+                "hint": "Seleziona uno dei <b>gruppi di opzioni</b> dalla lista a sinistra. Sarai poi in grado di modificare singole <b>proprietà del widget</b> in modo da personalizzarlo a tuo piacimento."
             },
             "settingsListOptions": {
                 "tooltip": "Tooltip"
@@ -1211,7 +1253,7 @@
         "documentsSearch": "ricerca documenti",
         "editDocument": "modifica documento",
         "executeDocument": "esegui documento",
-        "genericDocument": "documento generico",
+        "genericDocument": "Documento Generico",
         "hint": "nessuna cartella selezionata",
         "moveDownDocumentState": "abbassa lo stato del documento",
         "moveUpDocumentState": "alza lo stato del documento",
@@ -1310,6 +1352,46 @@
             "deleteConfirm": "sei sicuro di voler cancellare l'attività selezionata?",
             "deleteSuccess": "attività cancellata correttamente",
             "deleteTitle": "cancella attività dossier",
+            "designerDialog": {
+                "closeConfirm": "Sei sicuro di voler chiudere il designer? Tutte le modifiche saranno annullate.",
+                "closeTitle": "Chiudi Designer",
+                "deviceScaleFactor": "Fattore di scala del dispositivo",
+                "documentDriver": "Driver: {driver}",
+                "dossierDriverName": "Nome Driver del dossier",
+                "downloadable": "Scaricabile",
+                "downloadableHint": "Abilita per rendere il template docx/pptx scaricabile dall'interfaccia di esecuzione dossier",
+                "driverLinkType": "Modalità collegamento driver",
+                "driverNotHandled": "Placeholder {placeholderName}: Driver {driverName} non gestito",
+                "driversHelp": {
+                    "hint": "Seleziona una modalità per ogni driver: <br/><ol><li>Statica: Seleziona manualmente il valore del parametro</li><li>Dinamica: collega il parametero del documento a uno del dossier</li><li>Eredita: il parametro sarà collegato ad uno esistente del dossier (se presente) o importato come nuovo</li></ol>"
+                },
+                "errorDuringValidation": "Il template caricato non è valido per questo dossier",
+                "inherit": "Eredita",
+                "linkTo": "Collega a",
+                "linkToDocumentDriverPart": " or setting values for the driver parameters",
+                "linkToDocumentHint": "Seleziona il documento a cui collegare il placeholder. Scegli poi le dimensioni e il tipo di parametri per salvare",
+                "noDocumentLinkedToThePlaceholder": "Nessun documento collegato al placeholder",
+                "noPlaceholdersFound": "Il documento non contiene nessun placeholder col prefisso inserito. Cambiare prefisso o documento",
+                "noPlaceholdersHint": "NEssun placeholder selezionato. Seleziona un elemento dalla lista.",
+                "noViewsAvailable": "Nessuna vista disponibile",
+                "placeholders": "Placeholders",
+                "prefixHint": "Questo prefisso verrà usato per cercare le immagini nel template (attenzione alle maiuscole/minuscole)",
+                "resetPlaceholder": "Resetta il placeholder",
+                "saveAndRun": "Salva ed esegui",
+                "sheetHeight": "Altezza Foglio (px)",
+                "sheetWidth": "Larghezza Foglio (px)",
+                "step0": {
+                    "info": "Carica il template per il dossier e seleziona il prefisso da usare per la ricerca di immagini al suo interno",
+                    "title": "Dossier designer - Carica file e seleziona il prefisso"
+                },
+                "step1": {
+                    "title": "Dossier designer - Collegamento parametri e selezione opzioni"
+                },
+                "templateFile": "File Template",
+                "uploadable": "Caricabile",
+                "uploadableHint": "Abilita se vuoi che il template docx/ppts sia caricabile dall'interfaccia di esecuzione dossier.",
+                "urlName": "Nome URL"
+            },
             "downloadMissingError": "Errore durante il download - Il documendo è mancante",
             "headers": {
                 "activity": "nome attività",
@@ -1327,6 +1409,8 @@
         "main": {
             "addToWorkspace": "aggiungi al mio workspace",
             "addToWorkspaceError": "Il documento non può essere aggiunto nel workspace. Esiste già nella cartella padre dell'organizer.",
+            "cacheCleared": "Cache cancellata corretamente",
+            "clearCache": "Cancellazione Cache",
             "copyLink": "copia link",
             "copyLinkAndShare": "copia e condividi link",
             "crossNavigationNoTargetError": "nessun punto di arrivo disponibile per la cross-navigazione ",
@@ -1342,6 +1426,7 @@
             "firstToRate": "Sii il primo a valutare questo documento",
             "linkToDocument ": "collegamento al documento",
             "parameterClearTooltip": "Reimposta al valore di default",
+            "publicExecution": "Esecuzione Pubblica",
             "publicUrlExecutionDisabled": "il documento attuale non può essere eseguito da un utente pubblico",
             "rankSaveSucces": "valutazione salvata. grazie per il tuo feedback",
             "replyToHint": "Inserisci \"rispondi a\" se vuoi impostare il mittente.",
@@ -1350,10 +1435,16 @@
             "savedParameters": "parametri salvati",
             "savedParametersTooltip": "elenco parametri salvati",
             "scheduledExecutions": "esecuzioni schedulate",
+            "seeAsEditor": "Visualizza come amministratore",
+            "seeAsFinalUser": "Visualizza come utente finale",
+            "seeAsFinalUserWarning": "Stai visualizzando la dashboard come utente finale. Ricorda di tornare a \"Visualizza come amministratore\" per effettuare le tue modifiche",
             "selectFileError": "seleziona un file da caricare",
             "sendEmailMessage": "Inserisci user / password se vuoi inviare il messaggio con il tuo utente, ricordati di verificarne la correttezza.",
+            "showMenu": "Mostra Menu",
             "showOLAPCustomView": "Mostra le Custom View dell'OLAP",
             "showScheduledExecutions": "mostra esecuzioni schedulate",
+            "showToolbar": "Mostra Toolbar",
+            "urlCopiedToClipboard": "Indirizzo copiato negli appunti",
             "userRoleError": "l'utente non ha ruoli validi per l'esecuzione del documento selezionato",
             "viewCockpit": "visualizza dashboard",
             "yourRating": "la tua valutazione"
@@ -1802,9 +1893,13 @@
         "en_US": "Inglese (US)",
         "es_ES": "Spagnolo",
         "fr_FR": "Francese",
-        "it_IT": "italiano",
+        "it_IT": "Italiano",
+        "ja_JP": "Giapponese",
+        "ko_KR": "Coreano",
         "languageSelection": "Selezione della lingua",
         "pt_BR": "Portoghese",
+        "ru_RU": "Russo",
+        "tr_TR": "Turco",
         "zh_CN_#Hans": "Cinese (semplificato)"
     },
     "licenseDialog": {
@@ -1833,7 +1928,7 @@
         "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
         "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         "firstDayOfWeek": 0,
-        "monthNames": ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Augosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
+        "monthNames": ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
         "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         "today": "Today",
         "weekHeader": "Wk"
@@ -2117,7 +2212,6 @@
             "helpTitle": "Help",
             "hint": "Dataset management allows you to manage and create datasets to use inside Knowage. You can select the type, the query and all related settings. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "isPersisted": "Persist",
-            "isPersistedHDFS": "Exportable on HDFS",
             "isScheduled": "schedulatore",
             "jsonPathAttributes": "JSON Path Attributes",
             "jsonPathValue": "JSON Path Value",
@@ -2652,6 +2746,12 @@
             }
         },
         "rolesManagement": {
+            "authGroups": {
+                "dashboard": "Dashboard",
+                "documentExecutionToolbar": "Barra di esecuzione documento",
+                "menuConfiguration": "Configurazione menu",
+                "workspace": "Workspace"
+            },
             "authorizations": {
                 "buildQbe": "Build QbE Queries",
                 "copyAndEmbed": "Copy and Embed link",
@@ -2664,6 +2764,9 @@
                 "datasetPersistence": "Dataset Persistence",
                 "doMassiveExport": "Do massive export",
                 "editPythonScripts": "Edit Python/R Scripts",
+                "enableDashboardThemeManagement": "Abilita gestione temi dashboard",
+                "enableDataPreparation": "Abilita Data Preparation",
+                "enableDossier": "Abilita Dossier",
                 "federatedDataset": "Federated Dataset",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
@@ -2684,6 +2787,7 @@
                 "saveOlapView": "Save OLAP View",
                 "saveRemember": "Save to remember",
                 "seeFavourites": "See favourites",
+                "seeHelpOnline": "Visualizza Help Online",
                 "seeSubobj": "See subobject",
                 "seeSubscriptions": "See subscriptions",
                 "seeToDoList": "See ToDo list",
@@ -3317,8 +3421,9 @@
         }
     },
     "role": {
-        "defaultRolePlaceholder": "No default role selected",
-        "roleSelection": "Role Selection"
+        "defaultRolePlaceholder": "Nessun Ruolo di default selezionato",
+        "mandatoryRoleWarning": "E' obbligatorio selezionare un ruolo per procedere.",
+        "roleSelection": "Selezione ruolo"
     },
     "unauthorized": {
         "outsideIframe": "You are not allowed to access Knowage from outside the application"

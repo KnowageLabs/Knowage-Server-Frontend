@@ -81,7 +81,7 @@
                             {{ model.legend.labelFormatterError }}
                         </Message>
                         <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterCodeMirror :prop-code="model.legend.labelFormatterText" :disabled="legendDisabled" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterCodeMirror>
+                            <HighchartsFormatterMonaco :prop-code="model.legend.labelFormatterText" :disabled="legendDisabled" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterMonaco>
                             <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.legend.formatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                         </div>
                     </div>
@@ -102,12 +102,12 @@ import Dropdown from 'primevue/dropdown'
 import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import Textarea from 'primevue/textarea'
-import HighchartsFormatterCodeMirror from '../common/HighchartsFormatterCodeMirror.vue'
+import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
 import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'hihgcharts-legend-settings',
-    components: { Dropdown, Message, WidgetEditorStyleToolbar, Textarea, HighchartsFormatterCodeMirror, InputSwitch },
+    components: { Dropdown, Message, WidgetEditorStyleToolbar, Textarea, HighchartsFormatterMonaco, InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {
@@ -179,7 +179,8 @@ export default defineComponent({
                     return 'center'
             }
         },
-        onFormatterChange(newValue: string) {
+        onFormatterChange(newValue?: string) {
+            debugger
             if (!this.model) return
             this.model.legend.labelFormatterText = newValue
         }

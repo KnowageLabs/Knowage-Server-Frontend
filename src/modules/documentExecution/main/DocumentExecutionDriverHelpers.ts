@@ -11,20 +11,7 @@ import i18n from '@/App.i18n'
 const { t } = i18n.global
 const mainStore = store()
 
-export const loadFilters = async (
-    initialLoading: boolean,
-    filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean },
-    document: any,
-    breadcrumbs: any[],
-    userRole: string | null,
-    parameterValuesMap: any,
-    tabKey: string,
-    sessionEnabled: boolean,
-    $http: any,
-    dateFormat: string,
-    route: any,
-    vueComponenet: any
-) => {
+export const loadFilters = async (initialLoading: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, document: any, breadcrumbs: any[], userRole: string | null, parameterValuesMap: any, tabKey: string, sessionEnabled: boolean, $http: any, dateFormat: string, route: any, vueComponenet: any) => {
     if (parameterValuesMap && parameterValuesMap[document.label + '-' + tabKey] && initialLoading) return loadFiltersFromParametersMap(parameterValuesMap, document, tabKey, filtersData, breadcrumbs)
     if (sessionEnabled && !document.navigationParams) {
         const filtersFromSession = loadFiltersFromSession(document, filtersData, breadcrumbs)
@@ -39,15 +26,15 @@ export const loadFilters = async (
     filtersData = await getFilters(document, userRole, $http)
     formatDrivers(filtersData)
 
-    if (route.query.params) {
-        const driversFromUrl = JSON.parse(atob(route.query.params))
-        filtersData = getFormattedDriversFromURL(driversFromUrl, filtersData)
-    } else if (document.navigationParams || document.formattedCrossNavigationParameters) {
+    if (document.navigationParams || document.formattedCrossNavigationParameters) {
         if (document.navigationFromDashboard) loadNavigationInitialValuesFromDashboard(document, filtersData, dateFormat)
         else {
             vueComponenet.filtersData = filtersData
             loadNavigationParamsInitialValue(vueComponenet)
         }
+    } else if (route.query.params) {
+        const driversFromUrl = JSON.parse(atob(route.query.params))
+        filtersData = getFormattedDriversFromURL(driversFromUrl, filtersData)
     }
     setFiltersForBreadcrumbItem(breadcrumbs, filtersData, document)
 
@@ -57,7 +44,10 @@ export const loadFilters = async (
 const getFormattedDriversFromURL = (driversFromUrl: IURLDriver[], filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) => {
     driversFromUrl.forEach((driver: IURLDriver) => {
         const index = filtersData.filterStatus.findIndex((parameter: iParameter) => driver.urlName === parameter.urlName)
-        if (index !== -1) filtersData.filterStatus[index].parameterValue = driver.value
+        if (index !== -1) {
+            filtersData.filterStatus[index].parameterValue = driver.value
+            addDefaultEmptyParameterValuesIfNoValuesPresent(filtersData.filterStatus[index])
+        }
     })
     updateFiltersDataIsReadyForExecution(filtersData)
     return filtersData
@@ -158,19 +148,18 @@ const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExec
             el.visible = false
         }
 
-        if (!el.parameterValue) {
-            el.parameterValue = [{ value: '', description: '' }]
-        }
-
-        if (el.parameterValue[0] && !el.parameterValue[0].description) {
-            el.parameterValue[0].description = el.parameterDescription ? el.parameterDescription[0] : ''
-        }
+        addDefaultEmptyParameterValuesIfNoValuesPresent(el)
     })
 }
 
+const addDefaultEmptyParameterValuesIfNoValuesPresent = (el: iParameter) => {
+    if (!el.parameterValue || (!el.parameterValue[0] && !el.multivalue)) el.parameterValue = [{ value: '', description: '' }]
+    if (el.parameterValue[0] && !el.parameterValue[0].description) el.parameterValue[0].description = el.parameterDescription ? el.parameterDescription[0] : ''
+}
+
 const formatDateDriver = (el: any) => {
-    if (!el.paramterValue || !el.paramterValue[0]) {
-        el.paramterValue = [{ value: null, description: '' }]
+    if (!el.parameterValue || !el.parameterValue[0]) {
+        el.parameterValue = [{ value: null, description: '' }]
         return
     }
 

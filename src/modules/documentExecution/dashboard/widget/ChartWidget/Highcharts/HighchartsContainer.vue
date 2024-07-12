@@ -6,12 +6,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { ISelection, IWidget, IWidgetColumn } from '../../../Dashboard'
+import { ISelection, IVariable, IWidget, IWidgetColumn } from '../../../Dashboard'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart } from './HighchartsModelFormattingHelpers'
-import { formatForCrossNavigation } from './HighchartsContainerHelpers'
+import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble } from './HighchartsModelFormattingHelpers'
+import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
 import Highcharts from 'highcharts'
@@ -34,6 +35,10 @@ import HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
 import HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinates'
 import Sonification from 'highcharts/modules/sonification'
 import HighchartsPictorial from 'highcharts/modules/pictorial'
+import HighchartsFunnel from 'highcharts/modules/funnel'
+import HighchartsDumbbell from 'highcharts/modules/dumbbell'
+import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
+import HighchartsAnnotations from 'highcharts/modules/annotations'
 
 HighchartsMore(Highcharts)
 HighchartsSolidGauge(Highcharts)
@@ -50,6 +55,10 @@ SeriesLabel(Highcharts)
 Highcharts3D(Highcharts)
 Drilldown(Highcharts)
 HighchartsPictorial(Highcharts)
+HighchartsFunnel(Highcharts)
+HighchartsDumbbell(Highcharts)
+HighchartsStreamgraph(Highcharts)
+HighchartsAnnotations(Highcharts)
 
 export default defineComponent({
     name: 'highcharts-container',
@@ -59,12 +68,11 @@ export default defineComponent({
         dataToShow: { type: Object as any, required: true },
         dashboardId: { type: String, required: true },
         editorMode: { type: Boolean },
-        propActiveSelections: {
-            type: Array as PropType<ISelection[]>,
-            required: true
-        },
-        datasets: { type: Array as any, required: true }
+        propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
+        datasets: { type: Array as any, required: true },
+        propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
+    emits: ['datasetInteractionPreview'],
     data() {
         return {
             chartID: cryptoRandomString({ length: 16, type: 'base64' }),
@@ -88,7 +96,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets']),
+        ...mapActions(store, ['setSelections', 'getDatasetLabel', 'getDashboardDatasets', 'getDashboardDrivers']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('refreshChart', this.onRefreshChart)
@@ -131,6 +139,8 @@ export default defineComponent({
                 checkboxClick: this.onCheckboxClicked
             }
             modelToRender.chart.backgroundColor = null
+            applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
+            formatChartAnnotations(modelToRender, this.propVariables, this.getDashboardDrivers(this.dashboardId))
 
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
@@ -155,7 +165,7 @@ export default defineComponent({
             }
         },
         updateAxisLabels() {
-            const axisLabels = this.chartModel.xAxis && this.chartModel.xAxis.labels ? this.chartModel.xAxis.labels : null
+            const axisLabels = this.chartModel.xAxis && this.chartModel.xAxis[0].labels ? this.chartModel.xAxis[0].labels : null
             if (axisLabels) {
                 this.error = this.widgetModel.settings.chartModel.updateFormatterSettings(axisLabels, 'format', 'formatter', 'formatterText', 'formatterError')
                 if (this.error) return
@@ -178,7 +188,6 @@ export default defineComponent({
                     click: this.executeInteractions,
                     checkboxClick: this.onCheckboxClicked
                 }
-
                 if (this.chartModel.chart.type === 'sunburst') this.chartModel.plotOptions.series.events.legendItemClick = this.onSunburstLegendItemClick
             }
         },
@@ -188,39 +197,53 @@ export default defineComponent({
             this.setSeriesEvents()
         },
         async executeInteractions(event: any) {
-            if (!['pie', 'heatmap', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'sunburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey'].includes(this.chartModel.chart.type) || this.editorMode) return
+            if (this.editorMode) return
             if (this.widgetModel.settings.interactions.drilldown?.enabled) {
-                if (!event.point) return
+                const tempDataLabelSettings = this.widgetModel.settings.chartModel?.model?.series[0] && this.widgetModel.settings.chartModel.model.series[0].data[0] ? this.widgetModel.settings.chartModel.model.series[0].data[0].dataLabels : null
+                const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
+                if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
                 const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
                 this.drillLevel++
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })
                 this.highchartsInstance.showLoading(this.$t('common.info.dataLoading'))
-                const tempData = await getChartDrilldownData(this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
+                const tempData = await getChartDrilldownData(this.dashboardId, this.widgetModel, dashboardDatasets, this.$http, false, this.propActiveSelections, this.likeSelections, this.drillLevel)
                 const newSeries = this.widgetModel.settings.chartModel.setData(tempData, this.widgetModel)
                 this.highchartsInstance.hideLoading()
                 newSeries.forEach((serie: any) => {
                     this.highchartsInstance.addSeriesAsDrilldown(event.point, {
                         data: serie.data,
-                        name: event.point.name
+                        name: event.point.name,
+                        dataLabels: tempDataLabelSettings
                     })
                 })
-
+                if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
                 this.setSeriesEvents()
             } else if (this.widgetModel.settings.interactions.crossNavigation.enabled) {
+                if (!event.point) return
                 const formattedOutputParameters = formatForCrossNavigation(event, this.widgetModel.settings.interactions.crossNavigation, this.dataToShow, this.chartModel.chart.type)
                 executeChartCrossNavigation(formattedOutputParameters, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
-            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey'].includes(this.chartModel.chart.type)) {
+            } else if (this.widgetModel.settings.interactions.preview.enabled) {
+                const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
+                this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview })
+            } else if (this.widgetModel.settings.interactions.link.enabled) {
+                const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
+                openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
+            } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
         },
+        getNumberOfAttributeColumnsFromWidgetModel() {
+            const attributeColumns = this.widgetModel.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')
+            return attributeColumns.length
+        },
         setSelection(event: any) {
             if (this.editorMode || !this.widgetModel.settings.interactions.selection || !this.widgetModel.settings.interactions.selection.enabled) return
-            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap'].includes(this.chartModel.chart.type)) {
+            if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'funnel', 'dumbbell', 'streamgraph', 'waterfall'].includes(this.chartModel.chart.type)) {
                 const serieClicked = event.point?.options
                 if (!serieClicked || !serieClicked.name) return
                 updateStoreSelections(this.createNewSelection([serieClicked.name]), this.propActiveSelections, this.dashboardId, this.setSelections, this.$http)
-            } else if (['pictorial', 'spline'].includes(this.chartModel.chart.type)) {
+            } else if (['pictorial', 'spline', 'packedbubble'].includes(this.chartModel.chart.type)) {
                 this.setPictorialSelection(event)
             } else {
                 this.setSankeySelection(event)
@@ -268,16 +291,34 @@ export default defineComponent({
                 formatSplineChart(formattedChartModel, this.widgetModel)
             } else if (formattedChartModel.chart.type === 'pictorial') {
                 formatPictorialChart(formattedChartModel, this.widgetModel)
+            } else if (formattedChartModel.chart.type === 'streamgraph') {
+                formatStreamgraphChart(formattedChartModel, this.widgetModel)
+            } else if (formattedChartModel.chart.type === 'packedbubble') {
+                formatPackedBubble(formattedChartModel)
             }
 
             return formattedChartModel
         },
         onCheckboxClicked(event: any) {
-            this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
-                const dataLabelOptions = point.options.dataLabels
-                dataLabelOptions.enabled = event.checked
-                point.update(dataLabelOptions)
-            }, false)
+            if (['area', 'bar', 'column'].includes(this.chartModel.chart.type)) {
+                this.highchartsInstance.series[event.target.index].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    dataLabelOptions.enabled = event.checked
+                    point.update(dataLabelOptions)
+                }, false)
+            } else if (this.chartModel.chart.type === 'pie') {
+                this.highchartsInstance.series[0].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    dataLabelOptions.enabled = point.name !== event.item.name || (event.checked && point.name === event.item.name)
+                    point.update(dataLabelOptions)
+                }, false)
+            } else {
+                this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {
+                    const dataLabelOptions = point.options.dataLabels
+                    dataLabelOptions.enabled = event.checked
+                    point.update(dataLabelOptions)
+                }, false)
+            }
             this.highchartsInstance.redraw()
         },
         onSunburstLegendItemClick(event: any) {

@@ -32,7 +32,7 @@
                     </span>
                 </div>
             </form>
-            <VCodeMirror ref="codeMirrorSparql" v-model:value="dataset.sparqlQuery" class="p-mt-2" :auto-height="true" :options="sparqlOptions" @keyup="$emit('touched')" />
+            <knMonaco ref="editor" v-model="dataset.sparqlQuery" style="height: 200px" language="sparql" @change="$emit('touched')"></knMonaco>
         </template>
     </Card>
 </template>
@@ -40,32 +40,21 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
-// eslint-disable-next-line
-import VCodeMirror, { CodeMirror } from 'codemirror-editor-vue3'
 import useValidate from '@vuelidate/core'
 import sparqlDescriptor from './DatasetManagementSparqlDataset.json'
 import Card from 'primevue/card'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 
 export default defineComponent({
-    components: { Card, VCodeMirror, KnValidationMessages },
+    components: { Card, knMonaco, KnValidationMessages },
     props: { selectedDataset: { type: Object as any } },
     emits: ['touched'],
     data() {
         return {
             sparqlDescriptor,
             dataset: {} as any,
-            v$: useValidate() as any,
-            codeMirrorSparql: {} as any,
-            sparqlOptions: {
-                mode: 'application/sparql-query',
-                lineWrapping: true,
-                indentWithTabs: true,
-                smartIndent: true,
-                matchBrackets: true,
-                theme: 'eclipse',
-                lineNumbers: true
-            }
+            v$: useValidate() as any
         }
     },
     watch: {
@@ -75,7 +64,6 @@ export default defineComponent({
     },
     created() {
         this.loadDataset()
-        this.setupCodeMirror()
     },
     validations() {
         const sparqlFieldsRequired = (value) => {
@@ -89,9 +77,6 @@ export default defineComponent({
         loadDataset() {
             this.dataset = this.selectedDataset
             this.dataset.sparqlQuery ? '' : (this.dataset.sparqlQuery = '')
-        },
-        setupCodeMirror() {
-            this.$refs.codeMirrorSparql ? (this.codeMirrorSparql = (this.$refs.codeMirrorSparql as any).editor as any) : ''
         }
     }
 })

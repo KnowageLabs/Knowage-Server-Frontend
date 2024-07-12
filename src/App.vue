@@ -3,10 +3,10 @@
     <ConfirmDialog></ConfirmDialog>
     <KnOverlaySpinnerPanel />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
-        <MainMenu v-if="showMenu && mainMenuVisibility" @menuItemSelected="setSelectedMenuItem"></MainMenu>
+        <MainMenu v-if="showMenu && mainMenuVisibility" @menuItemSelected="setSelectedMenuItem" :closeMenu="closedMenu" @openMenu="openMenu"></MainMenu>
 
-        <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }">
-            <router-view :selected-menu-item="selectedMenuItem" :menu-item-clicked-trigger="menuItemClickedTrigger" />
+        <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }" @click="closeMenu" @blur="closeMenu">
+            <router-view :selected-menu-item="selectedMenuItem" :menu-item-clicked-trigger="menuItemClickedTrigger" @click="closeMenu" />
         </div>
     </div>
     <KnRotate v-show="isMobileDevice"></KnRotate>
@@ -26,6 +26,8 @@ import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
+import { useCookies } from 'vue3-cookies'
+import { v4 as uuidv4 } from 'uuid'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -36,7 +38,11 @@ export default defineComponent({
             selectedMenuItem: null,
             isMobileDevice: false,
             menuItemClickedTrigger: false,
-            showMenu: false
+            showMenu: false,
+            closedMenu: false,
+            pollingInterval: null,
+            stopExecution: false,
+            cookies: null as any
         }
     },
     computed: {
@@ -87,8 +93,17 @@ export default defineComponent({
         }
     },
     async created() {
+        const { cookies } = useCookies()
+        this.cookies = cookies
+        const uuid = uuidv4()
+        cookies.set('X-CSRF-TOKEN', uuid, 0, null, null, null, 'Strict')
+        this.setCSRFToken(uuid)
+        const locationParams = new URL(location).searchParams
+
+        let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
+        if (locationParams.get('organization')) userEndpoint += `?organization=${locationParams.get('organization')}`
         await this.$http
-            .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/currentuser')
+            .get(import.meta.env.VITE_KNOWAGE_CONTEXT + userEndpoint)
             .then(async (response) => {
                 const currentUser = response.data
                 if (localStorage.getItem('sessionRole')) {
@@ -143,17 +158,18 @@ export default defineComponent({
 
                 this.setLoading(false)
             })
-            .catch(function (error) {
-                auth.logout()
-                if (error.response) {
-                    console.log(error.response.data)
-                    console.log(error.response.status)
-                    console.log(error.response.headers)
-                }
+            .catch((error) => {
+                if (error.response.status === 400) {
+                    this.$router.replace({ name: 'unauthorized', params: { message: 'unauthorized.invalidRequest' } })
+                    this.stopExecution = true
+                } else auth.logout()
             })
-        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response) => {
+        if (this.stopExecution) return
+
+        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response: any) => {
             this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
+            this.checkOIDCSession(response.data)
         })
         if (this.isEnterprise) {
             if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(await this.themeHelper.getDefaultKnowageTheme())
@@ -170,51 +186,68 @@ export default defineComponent({
                 this.themeHelper.setTheme(this.theme)
             }
         }
+
+        this.onLoad()
     },
 
     mounted() {
-        this.onLoad()
         if (/Android|iPhone/i.test(navigator.userAgent)) {
             this.isMobileDevice = true
         }
     },
 
+    beforeUnmounted() {
+        clearInterval(this.pollingInterval)
+    },
+
     methods: {
-        ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization']),
+        ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization', 'setCSRFToken']),
         closeDialog() {
             this.$emit('update:visibility', false)
         },
+        openMenu() {
+            this.closedMenu = false
+        },
+        closeMenu() {
+            this.closedMenu = true
+        },
         checkTopLevelIframe(configs) {
             if (configs?.['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
-                if (window.parent !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
-                    this.$router.push({ name: 'unauthorized', params: { message: this.$t('unauthorized.outsideIframe') } })
+                if (window.self !== window.top || window.parent.frameElement?.attributes['embedding-application'].value !== configs['KNOWAGE.EMBEDDING_APPLICATION_VALUE']) {
+                    this.$router.push({ name: 'unauthorized', params: { message: 'unauthorized.outsideIframe' } })
                 }
+            }
+        },
+        checkOIDCSession(configs) {
+            if (configs['oidc.session.polling.url']) {
+                this.pollingInterval = setInterval(async () => {
+                    let url = configs['oidc.session.polling.url']
+                    const parametersRegex = /\${(nonce|client_id|redirect_uri|session_state)}/gm
+                    url = url.replace(parametersRegex, (match, parameter) => encodeURIComponent(window.sessionStorage.getItem(parameter)))
+                    await this.$http.get(url).then((response) => {
+                        if (response.status === 302) {
+                            const headerLocation = new URL(response.headers.location)
+                            if (headerLocation.searchParams.get('error')) auth.logout()
+                        }
+                    })
+                }, configs['oidc.session.polling.interval'] || 15000)
             }
         },
         async onLoad() {
             this.showMenu = true
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset')
-                .then((response) => {
-                    const totalDownloads = response.data.length
-                    const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset').then((response) => {
+                const totalDownloads = response.data.length
+                const alreadyDownloaded = response.data.filter((x) => x.alreadyDownloaded).length
 
-                    const json = { downloads: { count: { total: 0, alreadyDownloaded: 0 } } }
-                    json.downloads.count.total = totalDownloads
-                    json.downloads.count.alreadyDownloaded = alreadyDownloaded
+                const json = { downloads: { count: { total: 0, alreadyDownloaded: 0 } } }
+                json.downloads.count.total = totalDownloads
+                json.downloads.count.alreadyDownloaded = alreadyDownloaded
 
-                    this.setDownloads(json.downloads)
+                this.setDownloads(json.downloads)
 
-                    this.newsDownloadHandler()
-                    this.loadInternationalization()
-                })
-                .catch(function (error) {
-                    if (error.response) {
-                        console.log(error.response.data)
-                        console.log(error.response.status)
-                        console.log(error.response.headers)
-                    }
-                })
+                this.newsDownloadHandler()
+                this.loadInternationalization()
+            })
         },
         async loadInternationalization() {
             let currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : this.locale
@@ -287,7 +320,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    min-height: 100vh;
+    min-height: 100%;
 }
 .layout-wrapper-content::after {
     content: '';
@@ -298,7 +331,9 @@ body {
     margin-left: var(--kn-mainmenu-width);
     &.hiddenMenu {
         margin-left: 0;
+        max-width: 100%;
     }
     flex: 1;
+    max-width: calc(100% - var(--kn-mainmenu-width));
 }
 </style>

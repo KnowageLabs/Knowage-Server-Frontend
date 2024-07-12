@@ -35,6 +35,12 @@
         "parameters": [],
         "type": ""
     },
+    "defaultIFrameInteraction": {
+        "column": "",
+        "enabled": false,
+        "json": "",
+        "type": ""
+    },
     "defaultLinks": {
         "enabled": false,
         "links": []
@@ -60,8 +66,8 @@
         "lg": true,
         "md": true,
         "sm": true,
-        "xl": true,
-        "xs": true
+        "xs": true,
+        "xxs": true
     },
     "defaultShadowsStyle": {
         "enabled": false,

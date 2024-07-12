@@ -66,7 +66,7 @@ export default defineComponent({
             this.setLoading(false)
         },
         async onEnvironmentSelected() {
-            if (this.widget?.settings.editor) this.widget.settings.editor = this.selectedEnvironment
+            if (this.widget?.settings.editor) this.widget.settings.editor.environment = this.selectedEnvironment
             this.setLoading(true)
             const envUrlType = this.widget?.type === 'r' ? 'RWidget' : 'python'
             await this.$http

@@ -22,6 +22,7 @@ export interface IREditorSettings {
 }
 
 export interface IRWidgetStyle {
+    themeName: string
     title: IWidgetTitle,
     padding: IWidgetPaddingStyle,
     borders: IWidgetBordersStyle,

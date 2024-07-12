@@ -142,7 +142,7 @@ export default defineComponent({
             this.newFileUploaded ? (this.dataset.fileUploaded = true) : ''
             this.$http({
                 method: 'POST',
-                url: import.meta.env.VITE_KNOWAGE_CONTEXT + 'selfservicedataset/testDataSet',
+                url: import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/selfservicedataset/testDataSet',
                 data: this.dataset,
                 params: params,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Disable-Errors': 'true' },
@@ -222,7 +222,7 @@ export default defineComponent({
 
             await this.$http({
                 method: 'POST',
-                url: import.meta.env.VITE_KNOWAGE_CONTEXT + 'selfservicedataset/save',
+                url: import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/selfservicedataset/save',
                 data: dsToSend,
                 params: params,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Disable-Errors': 'true' },

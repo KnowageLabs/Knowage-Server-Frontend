@@ -1,8 +1,8 @@
 <template>
     <Tree id="folders-tree" :value="nodes" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
         <template #default="slotProps">
-            <Checkbox v-model="selectedFolders" name="folders" :value="slotProps.node.id" @change="emitSelectedFolders" />
-            <i :class="slotProps.node.customIcon" class="p-mx-2"></i>
+            <Checkbox v-model="selectedFolders" name="folders" :disabled="slotProps.node.parentId == null" :value="slotProps.node.id" @change="emitSelectedFolders" />
+            <!-- <i :class="slotProps.node.customIcon" class="p-mx-2"></i> -->
             <b>{{ slotProps.node.label }}</b>
         </template>
     </Tree>
@@ -118,5 +118,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 #folders-tree {
     border: none;
+}
+
+.p-checkbox.p-component.p-checkbox-disabled {
+    cursor: default;
 }
 </style>

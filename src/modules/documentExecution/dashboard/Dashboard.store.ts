@@ -1,10 +1,11 @@
+import { IGalleryItem } from './Dashboard.d'
 import { defineStore } from 'pinia'
-import { deleteWidgetHelper, emitter, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
+import { SHEET_WIDGET_SIZES, addNewWidgetToSheets, cloneWidgetInSheet, deleteWidgetHelper, emitter, loadCustomChartGallery, loadHtmlGallery, loadPythonGallery, moveWidgetToSheet, updateWidgetHelper } from './DashboardHelpers'
 import { IDashboardDriver, IDashboardSheet, IDashboardView, IDataset, ISelection, IWidget, IWidgetSheetItem } from './Dashboard'
 import { selectionsUseDatasetWithAssociation } from './widget/interactionsHelpers/DatasetAssociationsHelper'
 import { loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
 import { recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
-import cryptoRandomString from 'crypto-random-string'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import deepcopy from 'deepcopy'
 
 const store = defineStore('dashboardStore', {
@@ -14,7 +15,9 @@ const store = defineStore('dashboardStore', {
             selectedSheetIndex: 0,
             allDatasets: [] as IDataset[],
             internationalization: {},
-            profileAttributes: [] as { name: string; value: string }[]
+            profileAttributes: [] as { name: string; value: string }[],
+            allThemes: [] as IDashboardTheme[],
+            dataProxyQueue: {}
         }
     },
     actions: {
@@ -36,17 +39,13 @@ const store = defineStore('dashboardStore', {
         setDashboardDocument(dashboardId: string, document: any) {
             this.dashboards[dashboardId].document = document
         },
-        createNewWidget(dashboardId: string, widget: IWidget) {
+        createNewWidget(dashboardId: string, widget: IWidget, originalWidget: IWidget | null = null) {
             recreateKnowageChartModel(widget)
             this.dashboards[dashboardId].widgets.push(widget)
-            if (this.dashboards[dashboardId].sheets[this.selectedSheetIndex]) {
-                this.dashboards[dashboardId].sheets[this.selectedSheetIndex].widgets.lg.push({ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false })
-            } else {
-                this.dashboards[dashboardId].sheets[this.selectedSheetIndex] = { widgets: { lg: [{ id: widget.id, h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 10, x: 0, y: 0, moved: false }] } }
-            }
+            addNewWidgetToSheets(this.dashboards[dashboardId], this.selectedSheetIndex, widget, originalWidget)
         },
         updateWidget(dashboardId: string, widget: IWidget) {
-            updateWidgetHelper(dashboardId, widget, this.dashboards)
+            updateWidgetHelper(dashboardId, widget, this.dashboards, this.selectedSheetIndex)
         },
         deleteWidget(dashboardId: string, widget: IWidget) {
             deleteWidgetHelper(dashboardId, widget, this.dashboards)
@@ -55,13 +54,17 @@ const store = defineStore('dashboardStore', {
             if (!this.dashboards[dashboardId]) return
             let widgetInSheet = null as IWidgetSheetItem | null
             if (currentSheet) {
-                const index = currentSheet.widgets.lg.findIndex((el: any) => el.id === widget.id)
-                widgetInSheet = deepcopy(currentSheet.widgets.lg[index])
-                if (index !== -1) {
-                    currentSheet.widgets.lg.splice(index, 1)
-                }
+                SHEET_WIDGET_SIZES.forEach((size: string) => {
+                    const index = currentSheet.widgets[size].findIndex((el: any) => el.id === widget.id)
+                    widgetInSheet = deepcopy(currentSheet.widgets[size][index])
+                    if (index !== -1) currentSheet.widgets[size].splice(index, 1)
+                })
             }
-            moveWidgetToSheet(widgetInSheet, this.dashboards[dashboardId], selectedSheet, widget)
+            moveWidgetToSheet(widgetInSheet, this.dashboards[dashboardId], selectedSheet)
+        },
+        cloneWidget(dashboardId: string, widget: IWidget, currentSheet: IDashboardSheet) {
+            if (!this.dashboards[dashboardId]) return
+            cloneWidgetInSheet(widget, this.dashboards[dashboardId], currentSheet)
         },
         setSelectedSheetIndex(index: number) {
             this.selectedSheetIndex = index
@@ -92,22 +95,25 @@ const store = defineStore('dashboardStore', {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].selections = selections
             if (!this.dashboards[dashboardId]) return
             if (selections.length > 0 && selectionsUseDatasetWithAssociation(selections, this.dashboards[dashboardId].configuration.associations)) {
-                loadAssociativeSelections(this.dashboards[dashboardId], this.allDatasets, selections, $http)
+                loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, selections, $http)
             } else {
                 emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
             }
         },
-        removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string) {
+        removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string, $http: any) {
             const index = this.dashboards[dashboardId].selections?.findIndex((selection: ISelection) => selection.datasetId === payload.datasetId && selection.columnName === payload.columnName)
             if (index !== -1) {
                 const tempSelection = deepcopy(this.dashboards[dashboardId].selections[index])
                 this.dashboards[dashboardId].selections.splice(index, 1)
-
+                if (selectionsUseDatasetWithAssociation([tempSelection], this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) {
+                    loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+                } else {
+                    emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
+                }
                 emitter.emit('selectionsDeleted', [tempSelection])
-                emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
             }
         },
-        removeSelections(selectionsToRemove: ISelection[], dashboardId: string) {
+        removeSelections(selectionsToRemove: ISelection[], dashboardId: string, $http: any) {
             const removedSelections = [] as ISelection[]
             selectionsToRemove?.forEach((selection: ISelection) => {
                 const index = this.dashboards[dashboardId].selections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === selection.datasetId && activeSelection.columnName === selection.columnName)
@@ -116,7 +122,11 @@ const store = defineStore('dashboardStore', {
                     removedSelections.push(selection)
                 }
             })
-            if (removedSelections.length > 0) emitter.emit('selectionsDeleted', removedSelections)
+            if (removedSelections.length > 0) {
+                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+                else if (this.dashboards[dashboardId].selections.length === 0) this.setAssociations(dashboardId, {})
+            }
+            emitter.emit('selectionsDeleted', removedSelections)
         },
         getDashboardDatasets(dashboardId: number) {
             return this.dashboards[dashboardId]?.configuration?.datasets
@@ -151,6 +161,45 @@ const store = defineStore('dashboardStore', {
         },
         setCurrentDashboardView(dashboardId: string, currentDashboardView: IDashboardView) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].currentView = currentDashboardView
+        },
+        setAllThemes(themes: IDashboardTheme[]) {
+            this.allThemes = themes
+        },
+        getAllThemes() {
+            return this.allThemes
+        },
+        setAssociations(dashboardId: string, associationsToSet: any) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].associations = associationsToSet
+        },
+        getAssociations(dashboardId: string) {
+            if (this.dashboards[dashboardId]) return this.dashboards[dashboardId].associations
+        },
+        async getHTMLGaleryItems(dashboardId: string, $http: any) {
+            if (!this.dashboards[dashboardId]) return []
+            if (!this.dashboards[dashboardId].htmlGallery) this.dashboards[dashboardId].htmlGallery = []
+            if (this.dashboards[dashboardId].htmlGallery.length === 0) this.dashboards[dashboardId].htmlGallery = await loadHtmlGallery($http)
+            return this.dashboards[dashboardId].htmlGallery
+        },
+        setHTMLGaleryItems(dashboardId: string, htmlGallery: IGalleryItem[]) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].htmlGallery = htmlGallery
+        },
+        async getPythonGaleryItems(dashboardId: string, $http: any) {
+            if (!this.dashboards[dashboardId]) return []
+            if (!this.dashboards[dashboardId].pythonGallery) this.dashboards[dashboardId].pythonGallery = []
+            if (this.dashboards[dashboardId].pythonGallery.length === 0) this.dashboards[dashboardId].pythonGallery = await loadPythonGallery($http)
+            return this.dashboards[dashboardId].pythonGallery
+        },
+        setPythonGaleryItems(dashboardId: string, pythonGallery: IGalleryItem[]) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].pythonGallery = pythonGallery
+        },
+        async getCustomChartGaleryItems(dashboardId: string, $http: any) {
+            if (!this.dashboards[dashboardId]) return []
+            if (!this.dashboards[dashboardId].customChartGallery) this.dashboards[dashboardId].customChartGallery = []
+            if (this.dashboards[dashboardId].customChartGallery.length === 0) this.dashboards[dashboardId].customChartGallery = await loadCustomChartGallery($http)
+            return this.dashboards[dashboardId].customChartGallery
+        },
+        setCustomChartGaleryItems(dashboardId: string, customChartGallery: IGalleryItem[]) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].customChartGallery = customChartGallery
         }
     }
 })

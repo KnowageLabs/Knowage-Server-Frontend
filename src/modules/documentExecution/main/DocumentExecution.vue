@@ -1,6 +1,6 @@
 <template>
-    <div class="kn-height-full detail-page-container">
-        <Toolbar v-if="!embed && !olapDesignerMode && !managementOpened && !dashboardGeneralSettingsOpened && $route.query.toolbar !== 'false'" class="kn-toolbar kn-toolbar--primary p-col-12">
+    <div ref="document" class="kn-height-full detail-page-container">
+        <Toolbar v-if="showToolbar" class="kn-toolbar kn-toolbar--primary p-col-12">
             <template #start>
                 <DocumentExecutionBreadcrumb v-if="breadcrumbs.length > 1" :breadcrumbs="breadcrumbs" @breadcrumbClicked="onBreadcrumbClick"></DocumentExecutionBreadcrumb>
                 <span v-else>{{ crossNavigationSourceDocumentName ? crossNavigationSourceDocumentName : document?.name }}</span>
@@ -25,7 +25,6 @@
                     ></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button v-if="mode !== 'dashboard'" v-tooltip.left="$t('common.onlineHelp')" icon="pi pi-book" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="openHelp"></Button>
                     <Button
                         v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'"
                         v-tooltip.left="$t('common.refresh')"
@@ -35,7 +34,7 @@
                         @click="refresh"
                     ></Button>
                     <Button
-                        v-if="isParameterSidebarVisible && !newDashboardMode"
+                        v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters"
                         v-tooltip.left="$t('common.parameters')"
                         icon="fa fa-filter"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
@@ -45,16 +44,17 @@
                     ></Button>
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
-                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions()" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
-                    <Button v-if="canSeeDashboardFunctions()" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
-                    <Button class="hidden-button" @click="hiddenExport('XLSX')"></Button>
+                    <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode != 'document-execution-cross-navigation-popup'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
+                    <Button v-if="isInDocBrowser" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
                 </div>
             </template>
         </Toolbar>
         <ProgressBar v-if="loading || loadingCrossNavigationDocument" class="kn-progress-bar" mode="indeterminate" />
         <div ref="document-execution-view" class="p-d-flex p-flex-row document-execution-view myDivToPrint">
+            <Button id="scheduledExcelExportButton" class="hidden-button" @click="hiddenExport('XLSX')"></Button>
             <div v-if="parameterSidebarVisible" :class="propMode === 'document-execution-cross-navigation-popup' ? 'document-execution-backdrop-popup-dialog' : 'document-execution-backdrop'" @click="parameterSidebarVisible = false"></div>
-            <div v-show="showExecutedDocument || newDashboardMode" class="kn-flex">
+            <div v-show="downloadMode" class="downloadingBox">{{ $t('dashboard.warning.downloading') }}</div>
+            <div v-show="!downloadMode && (showExecutedDocument || newDashboardMode)" class="kn-flex">
                 <Registry v-if="showExecutedDocument && mode === 'registry'" :id="urlData?.sbiExecutionId" :reload-trigger="reloadTrigger"></Registry>
                 <Dossier v-else-if="showExecutedDocument && mode === 'dossier'" :id="document.id" :reload-trigger="reloadTrigger" :filter-data="filtersData" :user-role="userRole"></Dossier>
                 <Olap
@@ -167,7 +167,9 @@ import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentEx
 import { getDocumentForCrossNavigation, getSelectedCrossNavigation, updateBreadcrumbForCrossNavigation } from './DocumentExecutionCrossNavigationHelper'
 import { loadFilters, formatDriversUsingDashboardView } from './DocumentExecutionDriverHelpers'
 import { IDashboardCrossNavigation, IDashboardView } from '../dashboard/Dashboard'
+import { clearIndexedDBCache } from '../dashboard/DashboardDataProxy'
 import { luxonFormatDate } from '@/helpers/commons/localeHelper'
+import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import DocumentExecutionBreadcrumb from './breadcrumbs/DocumentExecutionBreadcrumb.vue'
 import DocumentExecutionHelpDialog from './dialogs/documentExecutionHelpDialog/DocumentExecutionHelpDialog.vue'
 import DocumentExecutionRankDialog from './dialogs/documentExecutionRankDialog/DocumentExecutionRankDialog.vue'
@@ -184,6 +186,7 @@ import Olap from '../olap/Olap.vue'
 import DocumentExecutionSelectCrossNavigationDialog from './dialogs/documentExecutionSelectCrossNavigationDialog/DocumentExecutionSelectCrossNavigationDialog.vue'
 import DocumentExecutionCNContainerDialog from './dialogs/documentExecutionCNContainerDialog/DocumentExecutionCNContainerDialog.vue'
 import mainStore from '../../../App.store'
+import dashboardStore from '../dashboard/Dashboard.store'
 import deepcopy from 'deepcopy'
 import DashboardController from '../dashboard/DashboardController.vue'
 import Dialog from 'primevue/dialog'
@@ -194,6 +197,7 @@ import EnginesConstants from '@/EnginesConstants.json'
 import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 
+let seeAsFinalUserWarning
 // @ts-ignore
 // eslint-disable-next-line
 window.execExternalCrossNavigation = function (outputParameters, otherOutputParameters, crossNavigationLabel) {
@@ -311,13 +315,19 @@ export default defineComponent({
             savedViewsListDialogVisible: false,
             currentCockpitView: { label: '', name: '', description: '', drivers: {}, settings: { states: {} }, visibility: 'public', new: true } as IDashboardView,
             selectedCockpitView: null as IDashboardView | null,
-            cockpitViewForExecution: null as IDashboardView | null
+            cockpitViewForExecution: null as IDashboardView | null,
+            dataLoaded: false,
+            seeAsFinalUser: false,
+            downloadMode: false
         }
     },
     computed: {
         ...mapState(mainStore, {
             user: 'user',
             configurations: 'configurations'
+        }),
+        ...mapState(dashboardStore, {
+            dashboards: 'dashboards'
         }),
         canEditCockpit(): boolean {
             if (!this.user || !this.document) return false
@@ -348,6 +358,19 @@ export default defineComponent({
         },
         showExecutedDocument() {
             return this.filtersData && this.filtersData.isReadyForExecution && !this.loading && !this.schedulationsTableVisible
+        },
+        showToolbar() {
+            if (this.$route.query.toolbar !== 'false') {
+                return !this.embed && !this.olapDesignerMode && !this.managementOpened && !this.dashboardGeneralSettingsOpened
+            } else {
+                return this.propMode === 'document-execution-cross-navigation-popup'
+            }
+        },
+        isInDocBrowser() {
+            return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
+        },
+        isMobileDevice() {
+            return /Android|iPhone/i.test(navigator.userAgent)
         }
     },
     watch: {
@@ -404,6 +427,10 @@ export default defineComponent({
         if (this.$route.query.viewName) await this.loadView()
         if (this.$route.query.role) this.userRole = '' + this.$route.query.role
         else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
+        if (this.$route.query.finalUser) {
+            this.document.seeAsFinalUser = true
+            this.seeAsFinalUser = true
+        }
 
         let invalidRole = false
         getCorrectRolesForExecution(this.document).then(async (response: any) => {
@@ -427,7 +454,7 @@ export default defineComponent({
                     }
                 }
             }
-            if (!invalidRole) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
+            if (!invalidRole && !this.dataLoaded) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
         })
     },
     unmounted() {
@@ -435,11 +462,12 @@ export default defineComponent({
     },
     methods: {
         canSeeDashboardFunctions() {
+            if (this.seeAsFinalUser) return false
             if (!this.user || !this.document) return false
-            if (!this.document.dashboardId) return true
+            if (!this.document.dashboardId && this.document.crossType != 1) return true
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
-        ...mapActions(mainStore, ['setInfo', 'setError', 'setDocumentExecutionEmbed']),
+        ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
         iframeEventsListener(event) {
             if (event.data.type === 'crossNavigation') {
                 executeAngularCrossNavigation(this, event, this.$http)
@@ -465,6 +493,23 @@ export default defineComponent({
         },
         openHelp() {
             this.helpDialogVisible = true
+        },
+        async clearCache() {
+            clearIndexedDBCache()
+            if (this.document.dashboardId) {
+                const payload = {}
+                const datasets = this.dashboards[this.document.dashboardId].configuration.datasets
+                datasets.forEach((ds) => {
+                    payload[ds.dsLabel] = {}
+                    if (ds.parameters && ds.parameters.length > 0) {
+                        ds.parameters.forEach((par) => {
+                            payload[ds.dsLabel][par.name] = par.value
+                        })
+                    }
+                })
+                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/cache/clean-datasets`, payload).then(() => this.setInfo({ title: this.$t('documentExecution.main.clearCache'), msg: this.$t('documentExecution.main.cacheCleared') }))
+            }
+            this.document
         },
         async refresh() {
             this.parameterSidebarVisible = false
@@ -492,7 +537,11 @@ export default defineComponent({
                     copyLink: this.copyLink,
                     openDashboardGeneralSettings: this.openDashboardGeneralSettings,
                     openSaveCurrentViewDialog: this.openSaveCurrentViewDialog,
-                    openSavedViewsListDialog: this.openSavedViewsListDialog
+                    openSavedViewsListDialog: this.openSavedViewsListDialog,
+                    openHelp: this.openHelp,
+                    fullScreen: this.fullScreen,
+                    toggleFinalUser: this.toggleFinalUser,
+                    clearCache: this.clearCache
                 },
                 this.exporters,
                 this.user,
@@ -509,11 +558,19 @@ export default defineComponent({
         hiddenExport(type: string) {
             this.export(type)
         },
-        export(type: string) {
+        async export(type: string) {
             if (this.document.typeCode === 'OLAP') {
                 this.exportOlap(type)
             } else if (this.document.typeCode === 'REPORT') {
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
+            } else if (this.document.typeCode === 'DATAMART') {
+                await this.exportRegistry(type.toLowerCase())
+            } else if (type === 'PDF' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
+                await this.asyncExport('pdf')
+            } else if (type === 'XLSX' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
+                await this.asyncExport('xlsx')
+            } else if (type === 'PNG' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
+                await this.asyncExport('png')
             } else {
                 const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
@@ -535,6 +592,35 @@ export default defineComponent({
                     ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}`
                     : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
             window.open(url)
+        },
+        async exportRegistry(format) {
+            this.setLoading(true)
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}`, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
+        },
+        async asyncExport(format) {
+            this.setLoading(true)
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format.includes('xls') ? 'spreadsheet' : format}`, this.hiddenFormData, {
+                    responseType: 'blob',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                    }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
         },
         openMailDialog() {
             this.mailDialogVisible = true
@@ -590,6 +676,7 @@ export default defineComponent({
                 this.$router.push(this.$route.path.includes('workspace') ? '/workspace' : '/document-browser')
                 this.breadcrumbs = []
             }
+            if (this.newDashboardMode) emitter.emit('newDashboardClosed', this.document.dashboardId)
             this.$emit('close')
         },
         setMode() {
@@ -617,15 +704,22 @@ export default defineComponent({
             } else if (this.filtersData?.filterStatus) {
                 this.parameterSidebarVisible = true
             }
-            this.updateMode()
+            this.updateMode(true)
+            if (this.$route.query.outputType && ['png', 'xls', 'xlsx', 'pdf'].includes(this.$route.query.outputType.toLowerCase())) {
+                this.downloadMode = true
+                await this.asyncExport(this.$route.query.outputType.toLowerCase())
+                return
+            }
             this.loading = false
         },
-        updateMode() {
+        updateMode(refresh = false) {
             if (this.document.typeCode === 'DATAMART') this.mode = 'registry'
             else if (this.document.typeCode === 'DOSSIER') this.mode = 'dossier'
             else if (this.document.typeCode === 'OLAP') this.mode = 'olap'
-            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.path.includes('dashboard')) || this.document.typeCode === 'DASHBOARD') this.mode = 'dashboard'
-            else this.mode = 'iframe'
+            else if ((this.document.typeCode === 'DOCUMENT_COMPOSITE' && this.$route.path.includes('dashboard')) || this.document.typeCode === 'DASHBOARD') {
+                this.mode = 'dashboard'
+                if (refresh) this.reloadTrigger = !this.reloadTrigger
+            } else this.mode = 'iframe'
         },
         async loadDocument() {
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documents/${this.document?.label}`).then((response: AxiosResponse<any>) => (this.document = response.data))
@@ -683,7 +777,6 @@ export default defineComponent({
         },
         async loadExporters() {
             if (!this.urlData || !this.urlData.engineLabel) return
-            if (!this.urlData || !this.urlData.engineLabel) return
             const engineLabel = this.urlData.engineLabel
             if (engineLabel !== EnginesConstants.DOSSIER_ENGINE) {
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
@@ -712,7 +805,8 @@ export default defineComponent({
             postForm.action = import.meta.env.VITE_HOST_URL + postObject.url
             postForm.method = 'post'
             const iframeName = crossNavigationPopupMode ? 'documentFramePopup' : 'documentFrame'
-            postForm.target = tempIndex !== -1 ? iframeName + tempIndex : documentLabel
+            if (this.isMobileDevice && postObject.params.outputType?.toLowerCase() === 'pdf') postForm.target = '_blank'
+            else postForm.target = tempIndex !== -1 ? iframeName + tempIndex : documentLabel
             postForm.acceptCharset = 'UTF-8'
             document.body.appendChild(postForm)
 
@@ -744,7 +838,8 @@ export default defineComponent({
                 }
             }
             this.hiddenFormData.append('documentMode', this.documentMode)
-            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE', 'DASHBOARD'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
+            if (this.document.typeCode === 'DASHBOARD') return
+            this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
             const index = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
             if (index !== -1) this.breadcrumbs[index].hiddenFormData = this.hiddenFormData
         },
@@ -950,7 +1045,10 @@ export default defineComponent({
         },
         getFormattedDate(date: any, useDefaultFormat?: boolean) {
             const format = date instanceof Date ? undefined : 'dd/MM/yyyy'
-            return luxonFormatDate(date, format, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            const formattedDate = luxonFormatDate(date, format, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            if (formattedDate === 'Invalid DateTime') {
+                return luxonFormatDate(new Date(date), undefined, useDefaultFormat ? undefined : this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format'])
+            } else return formattedDate
         },
         async onBreadcrumbClick(item: any) {
             if (!item) return
@@ -970,6 +1068,7 @@ export default defineComponent({
             }
             this.urlData = null
             this.exporters = null
+            this.dataLoaded = true
             await this.loadPage()
         },
         setNavigationParametersFromCurrentFilters(formatedParams: any, navigationParams: any) {
@@ -1110,7 +1209,7 @@ export default defineComponent({
         },
         async onExecuteCrossNavigation(payload: { documentCrossNavigationOutputParameters: ICrossNavigationParameter[]; crossNavigationName: string | undefined; crossNavigations: IDashboardCrossNavigation[] }) {
             this.crossNavigationPayload = payload
-            if (payload.crossNavigations.length === 0) {
+            if (!payload.crossNavigations || payload.crossNavigations.length === 0) {
                 this.setError({
                     title: this.$t('common.error.generic'),
                     msg: this.$t('documentExecution.main.crossNavigationError')
@@ -1183,6 +1282,25 @@ export default defineComponent({
             this.savedViewsListDialogVisible = false
             this.selectedCockpitView = view
             this.saveViewDialogVisible = true
+        },
+        fullScreen() {
+            const widgetElement = this.$refs['document'] as any
+            widgetElement.requestFullscreen()
+        },
+        toggleFinalUser() {
+            if (this.seeAsFinalUser) {
+                delete this.document.seeAsFinalUser
+                seeAsFinalUserWarning()
+            } else {
+                this.document.seeAsFinalUser = true
+                seeAsFinalUserWarning = this.$q.notify({
+                    message: this.$t('documentExecution.main.seeAsFinalUserWarning'),
+                    type: 'warning',
+                    timeout: 0,
+                    position: 'top'
+                })
+            }
+            this.seeAsFinalUser = !this.seeAsFinalUser
         }
     }
 })
@@ -1193,6 +1311,7 @@ export default defineComponent({
     display: none;
 }
 .document-execution-view {
+    background: white;
     position: relative;
     height: 100%;
     width: 100%;
@@ -1287,5 +1406,16 @@ export default defineComponent({
 #add-widget-button {
     background-color: var(--kn-color-fab);
     min-width: 120px;
+}
+.downloadingBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--kn-message-warning-color);
+    background-color: var(--kn-message-warning-background-color);
+    color: 1px solid var(--kn-message-warning-color);
+    font-weight: bold;
+    padding: 16px 32px;
 }
 </style>

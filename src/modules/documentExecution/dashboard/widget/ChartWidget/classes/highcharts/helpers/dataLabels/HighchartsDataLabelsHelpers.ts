@@ -1,7 +1,7 @@
-import { IWidget } from "@/modules/documentExecution/dashboard/Dashboard"
-import { IHighchartsSeriesLabelsSetting } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import * as highchartsDefaultValues from '../../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
-import { KnowageHighcharts } from "../../KnowageHighcharts"
+import { KnowageHighcharts } from '../../KnowageHighcharts'
 
 export const updateSeriesLabelSettingsWhenAllOptionIsAvailable = (model: any, widgetModel: IWidget) => {
     if (!widgetModel || !widgetModel.settings.series || !widgetModel.settings.series.seriesSettings) return
@@ -12,15 +12,14 @@ export const updateSeriesLabelSettingsWhenAllOptionIsAvailable = (model: any, wi
 const setAllSeriesSettings = (model: any, widgetModel: IWidget) => {
     const allSeriesSettings = widgetModel.settings.series.seriesSettings[0]
     if (allSeriesSettings.label.enabled) {
-        model.series?.forEach((serie: any) =>
-            updateSeriesDataWithSerieSettings(model, serie, allSeriesSettings))
+        model.series?.forEach((serie: any) => updateSeriesDataWithSerieSettings(model, serie, allSeriesSettings))
     } else {
         resetSeriesSettings(model)
     }
 }
 
 const resetSeriesSettings = (model: any) => {
-    model.series?.forEach((serie: any) => serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' })
+    model.series?.forEach((serie: any) => (serie.dataLabels = { ...highchartsDefaultValues.getDefaultSerieLabelSettings(), position: '' }))
 }
 
 const setSpecificSeriesSettings = (model: any, widgetModel: IWidget) => {
@@ -47,7 +46,8 @@ const updateSeriesDataWithSerieSettings = (model: any, serie: any, seriesSetting
                     fontFamily: seriesSettings.label.style.fontFamily,
                     fontSize: seriesSettings.label.style.fontSize,
                     fontWeight: seriesSettings.label.style.fontWeight,
-                    color: seriesSettings.label.style.color ?? ''
+                    color: seriesSettings.label.style.color ?? '',
+                    textOutline: 'none'
                 },
                 formatter: function () {
                     return KnowageHighcharts.prototype.handleFormatter(this, seriesSettings.label, model.chart.type)
@@ -73,7 +73,8 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
                     fontFamily: seriesLabelSetting.label.style.fontFamily,
                     fontSize: seriesLabelSetting.label.style.fontSize,
                     fontWeight: seriesLabelSetting.label.style.fontWeight,
-                    color: seriesLabelSetting.label.style.color ?? ''
+                    color: seriesLabelSetting.label.style.color ?? '',
+                    textOutline: 'none'
                 },
                 formatter: function () {
                     return KnowageHighcharts.prototype.handleFormatter(this, seriesLabelSetting.label, model.chart.type)

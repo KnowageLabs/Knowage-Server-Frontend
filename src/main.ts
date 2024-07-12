@@ -4,29 +4,10 @@ import PrimeVue from 'primevue/config'
 import router from './App.routes.js'
 import store from './App.store.js'
 import { createPinia } from 'pinia'
-import { GlobalCmComponent } from 'codemirror-editor-vue3'
-import { Quasar } from 'quasar'
+import { Quasar, Notify } from 'quasar'
 
 import VueAxios from 'vue-axios'
 import interceptor from './axios.js'
-
-import '/node_modules/codemirror/lib/codemirror.css'
-import '/node_modules/codemirror/theme/monokai.css'
-import '/node_modules/codemirror/theme/eclipse.css'
-import '/node_modules/codemirror/addon/hint/show-hint.css'
-import '/node_modules/codemirror/addon/hint/show-hint.js'
-import '/node_modules/codemirror/addon/hint/sql-hint.js'
-import '/node_modules/codemirror/addon/lint/lint.js'
-import '/node_modules/codemirror/addon/selection/mark-selection.js'
-import '/node_modules/codemirror/mode/htmlmixed/htmlmixed.js'
-import '/node_modules/codemirror/mode/javascript/javascript.js'
-import '/node_modules/codemirror/mode/python/python.js'
-import '/node_modules/codemirror/mode/xml/xml.js'
-import '/node_modules/codemirror/mode/sql/sql.js'
-import '/node_modules/codemirror/mode/css/css.js'
-import '/node_modules/codemirror/mode/groovy/groovy.js'
-import '/node_modules/codemirror/mode/clike/clike.js'
-import '/node_modules/codemirror/mode/mathematica/mathematica.js'
 
 import 'primevue/resources/themes/mdc-light-indigo/theme.css'
 import 'primevue/resources/primevue.min.css'
@@ -60,6 +41,8 @@ import VueGridLayout from 'vue-grid-layout'
 
 import ResizeObserver from '@vue-toys/resize-observer'
 
+import { registerSW } from 'virtual:pwa-register'
+
 const pinia = createPinia()
 
 const app = createApp(App).use(pinia)
@@ -74,10 +57,13 @@ app.use(VueAxios, interceptor)
     .use(ToastService)
     .use(ConfirmationService)
     .use(internationalizationPlugin, mainStore.$state.internationalization)
-    .use(GlobalCmComponent)
     .use(VueGridLayout)
     .use(ResizeObserver)
-    .use(Quasar)
+    .use(Quasar, {
+        plugins: {
+            Notify
+        }
+    })
 
     .directive('badge', BadgeDirective)
     .directive('tooltip', Tooltip)
@@ -90,3 +76,24 @@ app.use(VueAxios, interceptor)
     .component('QBEOperator', QBEOperator)
 
     .mount('#app')
+
+const updateSW = registerSW({
+    onNeedRefresh() {
+        Notify.create({
+            message: 'Some new content is available',
+            timeout: 0,
+            actions: [
+                {
+                    label: 'Refresh',
+                    handler: () => {
+                        updateSW()
+                    }
+                },
+                {
+                    label: 'Cancel',
+                    handler: () => {}
+                }
+            ]
+        })
+    }
+})

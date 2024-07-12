@@ -129,7 +129,7 @@
             "value": "setLabel"
         }
     ],
-    "dateFormats": ["LLLL", "llll", "LLL", "lll", "DD/MM/YYYY HH:mm:SS", "DD/MM/YYYY HH:mm", "LL", "ll", "L", "l", "LT", "LTS"],
+    "dateFormats": ["D", "DD", "DDD", "DDDD", "T", "TT", "TTT", "TTTT", "f", "ff", "fff", "ffff"],
     "headersCompareValueType": [
         {
             "label": "common.static",
@@ -166,6 +166,14 @@
             }
         ],
         "Configuration": [
+            {
+                "title": "common.update",
+                "type": "SelectionConfiguration"
+            },
+            {
+                "title": "dashboard.widgetEditor.menuConfiguration",
+                "type": "MenuConfiguration"
+            },
             {
                 "title": "dashboard.widgetEditor.rows.title",
                 "type": "Rows"
@@ -207,6 +215,10 @@
             {
                 "title": "dashboard.widgetEditor.interactions.preview",
                 "type": "Preview"
+            },
+            {
+                "title": "common.iframe",
+                "type": "IFrameInteraction"
             }
         ],
         "Responsive": [

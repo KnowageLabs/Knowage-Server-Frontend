@@ -30,6 +30,7 @@
             selection-mode="single"
             class="p-datatable-sm kn-table"
             data-key="id"
+            :resizable-columns="true"
             :responsive-layout="documentBrowserTableDescriptor.responsiveLayout"
             :breakpoint="documentBrowserTableDescriptor.breakpoint"
             data-test="documents-datatable"
@@ -166,8 +167,16 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #documents-found-hint {
     flex: 0.5;
+}
+
+#documents-datatable {
+    :deep(.p-datatable-wrapper) {
+        flex: 1 0 0;
+        height: unset;
+        overflow: auto;
+    }
 }
 </style>

@@ -16,7 +16,6 @@
                                 'p-invalid': v$.dataset.scriptLanguage.$invalid && v$.dataset.scriptLanguage.$dirty
                             }"
                             @before-show="v$.dataset.scriptLanguage.$touch()"
-                            @change="onLanguageChanged($event.value)"
                         />
                         <label for="scope" class="kn-material-input-label"> {{ $t('managers.lovsManagement.language') }} * </label>
                     </span>
@@ -28,7 +27,7 @@
                     />
                 </div>
             </span>
-            <VCodeMirror ref="codeMirrorScriptType" v-model:value="dataset.script" class="p-mt-2" :auto-height="true" :options="scriptOptions" @keyup="$emit('touched')" />
+            <knMonaco v-model="dataset.script" style="height: 400px" language="javascript" @keyup="$emit('touched')"></knMonaco>
         </template>
     </Card>
 </template>
@@ -36,7 +35,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
-import VCodeMirror from 'codemirror-editor-vue3'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 import useValidate from '@vuelidate/core'
 import queryDescriptor from './DatasetManagementScriptDataset.json'
 import Dropdown from 'primevue/dropdown'
@@ -44,51 +43,23 @@ import Card from 'primevue/card'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 
 export default defineComponent({
-    components: { Card, Dropdown, VCodeMirror, KnValidationMessages },
+    components: { Card, Dropdown, knMonaco, KnValidationMessages },
     props: { selectedDataset: { type: Object as any }, scriptTypes: { type: Array as any }, activeTab: { type: Number as any } },
     emits: ['touched'],
     data() {
         return {
             queryDescriptor,
             dataset: {} as any,
-            v$: useValidate() as any,
-            codeMirrorScriptType: {} as any,
-            scriptOptions: {
-                mode: '',
-                indentWithTabs: true,
-                smartIndent: true,
-                lineWrapping: true,
-                matchBrackets: true,
-                autofocus: true,
-                theme: 'eclipse',
-                lineNumbers: true
-            }
+            v$: useValidate() as any
         }
     },
     watch: {
         selectedDataset() {
             this.loadDataset()
-            this.loadScriptMode()
-        },
-        activeTab() {
-            if (this.activeTab === 1 && this.codeMirrorScriptType) {
-                setTimeout(() => {
-                    this.codeMirrorScriptType.refresh()
-                }, 0)
-            }
         }
     },
     created() {
         this.loadDataset()
-        const interval = setInterval(() => {
-            if (!this.$refs.codeMirrorScriptType) return
-            this.codeMirrorScriptType = (this.$refs.codeMirrorScriptType as any).cminstance as any
-
-            this.loadDataset()
-            this.loadScriptMode()
-
-            clearInterval(interval)
-        }, 200)
     },
     validations() {
         const scriptFieldsRequired = (value) => {
@@ -103,17 +74,6 @@ export default defineComponent({
             this.dataset = this.selectedDataset
             this.dataset.script ? '' : (this.dataset.script = '')
             this.dataset.scriptLanguage ? '' : (this.dataset.scriptLanguage = 'ECMAScript')
-        },
-        loadScriptMode() {
-            if (this.dataset.scriptLanguage) {
-                this.scriptOptions.mode = this.dataset.scriptLanguage === 'ECMAScript' ? 'text/javascript' : 'text/x-groovy'
-                this.codeMirrorScriptType.setOption('mode', this.dataset.queryScriptLanguage === 'ECMAScript' ? 'text/javascript' : 'text/x-groovy')
-            }
-        },
-        onLanguageChanged(value: string) {
-            const mode = value === 'ECMAScript' ? 'text/javascript' : 'text/x-groovy'
-            this.codeMirrorScriptType.setOption('mode', mode)
-            this.$emit('touched')
         }
     }
 })

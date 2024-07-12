@@ -7,7 +7,7 @@
         <MasonryWall class="p-mx-4 p-my-2 kn-flex kn-overflow dashboard-scrollbar" :items="filteredChartTypes" :column-width="200" :gap="6">
             <template #default="{ chart, index }">
                 <div class="gallery-card kn-cursor-pointer" :class="{ 'gallery-card-disabled': filteredChartTypes[index].disabled }" :style="(galleryDescriptor.style.galleryCard as any)" @click="onChange(filteredChartTypes[index])">
-                    <label class="kn-material-input-label p-ml-2 p-mt-1">{{ $t(`${filteredChartTypes[index].label}`) }}</label>
+                    <label class="kn-material-input-label">{{ $t(`${filteredChartTypes[index].label}`) }}</label>
                     <img :src="getImageSource(filteredChartTypes[index].value)" />
                 </div>
             </template>
@@ -65,17 +65,27 @@ export default defineComponent({
             }, 250)
         },
         getImageSource(chartValue: string) {
-            return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/chartTypes/${chartValue}.png`
+            return `${import.meta.env.VITE_PUBLIC_PATH}images/dashboard/chartTypes/${chartValue}.svg`
         }
     }
 })
 </script>
 <style lang="scss" scoped>
 .gallery-card {
-    height: 200px;
-    width: 200px;
+    height: 180px;
+    width: 180px;
+    .kn-material-input-label {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+    img {
+        max-height: 160px;
+        filter: hue-rotate(196deg);
+    }
 }
 .gallery-card:hover {
     border-color: #43749e !important;
+    background-color: var(--kn-color-secondary);
+    opacity: 0.8;
 }
 </style>

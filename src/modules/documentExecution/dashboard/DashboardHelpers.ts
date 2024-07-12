@@ -1,3 +1,4 @@
+import { getDefaultDashboardThemeConfig } from './../../managers/dashboardThemeManagement/DashboardThemeHelper'
 import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetSheetItem } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
@@ -10,32 +11,131 @@ import { formatHighchartsWidget } from './widget/WidgetEditor/helpers/chartWidge
 import { AxiosResponse } from 'axios'
 import mainStore from '@/App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { formatVegaWidget } from './widget/WidgetEditor/helpers/chartWidget/vega/VegaHelpers'
+import descriptor from './DashboardDescriptor.json'
+import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
+import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 
 const store = mainStore()
 
+export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
+
 export const createNewDashboardModel = () => {
-    const dashboardModel = {
-        sheets: [],
-        widgets: [],
-        configuration: {
-            id: cryptoRandomString({ length: 16, type: 'base64' }),
-            name: '',
-            label: '',
-            description: '',
-            cssToRender: '',
-            associations: [],
-            datasets: [],
-            variables: [],
-            themes: {},
-            selections: []
-        },
-        version: '8.2.0'
-    } as IDashboard
+    const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
+    dashboardModel.configuration.theme = { config: getDefaultDashboardThemeConfig() }
+    dashboardModel.configuration.id = cryptoRandomString({ length: 16, type: 'base64' })
 
     return dashboardModel
 }
 
-export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
+export const addNewWidgetToSheets = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget, originalWidget: IWidget | null = null) => {
+    if (!widget.settings.responsive) return
+    const SHEET_WIDGET_SIZES = Object.keys(widget.settings.responsive)
+    if (!dashboardModel.sheets[selectedSheetIndex].widgets) dashboardModel.sheets[selectedSheetIndex].widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
+    if (SHEET_WIDGET_SIZES.includes('fullGrid')) addNewFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, selectedSheetIndex, widget)
+    else SHEET_WIDGET_SIZES.forEach((size: string) => addNewWidgetToSheetsWidgetSizeArray(dashboardModel, size, selectedSheetIndex, widget, originalWidget))
+}
+
+const addNewFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, selectedSheetIndex: number, widget: IWidget) => {
+    SHEET_WIDGET_SIZES.forEach((size: string) => dashboardModel.sheets[selectedSheetIndex].widgets[size].push(createDashboardSheetWidgetItem(widget)))
+    disableOtherWidgetFullGridInASheet(dashboardModel, widget)
+}
+
+const disableOtherWidgetFullGridInASheet = (dashboardModel: IDashboard, widget: IWidget) => {
+    dashboardModel.widgets.forEach((tempWidget: IWidget) => {
+        if (tempWidget.id !== widget.id && tempWidget.settings.responsive.fullGrid) tempWidget.settings.responsive.fullGrid = false
+    })
+}
+
+const addNewWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, size: string, selectedSheetIndex: number, widget: IWidget, originalWidget: IWidget | null = null) => {
+    const originalWidgetSheetItem = originalWidget ? findOriginalWidgetInSheet(originalWidget, dashboardModel.sheets[selectedSheetIndex]) : null
+    if (widget.settings.responsive[size]) {
+        const sheetWidgetItem = createDashboardSheetWidgetItem(widget)
+        if (originalWidgetSheetItem) updateClonedWidgetSheetItemWithOriginalDimensions(sheetWidgetItem, originalWidgetSheetItem)
+        if (!dashboardModel.sheets[selectedSheetIndex].widgets[size]) dashboardModel.sheets[selectedSheetIndex].widgets[size] = []
+        moveWidgetItemToSpecificSizeArray(sheetWidgetItem, size, dashboardModel.sheets[selectedSheetIndex].widgets)
+    }
+}
+
+export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboard: IDashboard, selectedSheet: IDashboardSheet) => {
+    const selectedSheetInDashboard = dashboard.sheets.find((sheet: IDashboardSheet) => sheet.id === selectedSheet.id)
+    const sheetWidgets = selectedSheetInDashboard?.widgets as { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }
+    if (!widgetToAdd || !sheetWidgets) return
+    SHEET_WIDGET_SIZES.forEach((size: string) => moveWidgetItemToSpecificSizeArray(widgetToAdd, size, sheetWidgets))
+}
+
+const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: string, sheetWidgets: { xxs: IWidgetSheetItem[]; xs: IWidgetSheetItem[]; sm: IWidgetSheetItem[]; md: IWidgetSheetItem[]; lg: IWidgetSheetItem[] }) => {
+    widgetToAdd.x = 0
+    widgetToAdd.y = 0
+    let overlap = false
+    let maxWidth = getMaxWidthForSpecificSize(size)
+
+    for (let i = 0; i < sheetWidgets[size].length; i++) {
+        const existingItem = sheetWidgets[size][i]
+        if (widgetToAdd.x < existingItem.x + existingItem.w && widgetToAdd.x + widgetToAdd.w > existingItem.x && widgetToAdd.y < existingItem.y + existingItem.h && widgetToAdd.y + widgetToAdd.h > existingItem.y) {
+            overlap = true
+            break
+        }
+        if (existingItem.x + existingItem.w > maxWidth) maxWidth = existingItem.x + existingItem.w
+    }
+
+    if (overlap) updateWidgetCoordinatesIfOverlaping(widgetToAdd, maxWidth, sheetWidgets[size])
+    if (sheetWidgets && widgetToAdd) sheetWidgets[size].push({ id: widgetToAdd.id ?? '', h: widgetToAdd.h, i: cryptoRandomString({ length: 16, type: 'base64' }), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
+}
+
+const getMaxWidthForSpecificSize = (size: string) => {
+    switch (size) {
+        case 'xxs':
+            return 10
+        case 'xs':
+            return 20
+        case 'md':
+            return 100
+        default:
+            return 100
+    }
+}
+
+const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxWidth: number, sheetWidgets: IWidgetSheetItem[]) => {
+    const newX = Math.max(maxWidth + 1, widgetToAdd.x)
+    const newY = Math.max(
+        widgetToAdd.y,
+        sheetWidgets.reduce((maxY, item) => (item.y + item.h > maxY ? item.y + item.h : maxY), 0)
+    )
+    widgetToAdd.x = newX
+    widgetToAdd.y = newY
+}
+
+export const cloneWidgetInSheet = (widget: IWidget, dashboard: IDashboard, selectedSheet: IDashboardSheet) => {
+    const clonedWidget = deepcopy(widget)
+    clonedWidget.id = cryptoRandomString({ length: 16, type: 'base64' })
+    recreateKnowageChartModel(clonedWidget)
+    const originalWidgetSheetItem = findOriginalWidgetInSheet(widget, selectedSheet)
+    const clonedWidgetSheetItem = createDashboardSheetWidgetItem(clonedWidget)
+    if (originalWidgetSheetItem) updateClonedWidgetSheetItemWithOriginalDimensions(clonedWidgetSheetItem, originalWidgetSheetItem)
+    dashboard.widgets.push(clonedWidget)
+    if (selectedSheet && clonedWidget.settings.responsive) {
+        Object.keys(clonedWidget.settings.responsive).forEach((size: string) => {
+            if (size !== 'fullGrid') moveWidgetItemToSpecificSizeArray(clonedWidgetSheetItem, size, selectedSheet.widgets)
+        })
+    }
+}
+
+const findOriginalWidgetInSheet = (widget: IWidget, selectedSheet: IDashboardSheet) => {
+    let originalWidgetActiveSize = Object.keys(widget.settings.responsive).find((size: string) => widget.settings.responsive[size])
+    originalWidgetActiveSize = originalWidgetActiveSize === 'fullGrid' ? 'lg' : originalWidgetActiveSize
+    if (!originalWidgetActiveSize) return null
+    const originalWidgetInSheet = selectedSheet.widgets[originalWidgetActiveSize].find((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
+    return originalWidgetInSheet
+}
+
+const updateClonedWidgetSheetItemWithOriginalDimensions = (clonedWidgetSheetItem: IWidgetSheetItem, originalWidgetSheetItem: IWidgetSheetItem) => {
+    clonedWidgetSheetItem.h = originalWidgetSheetItem.h
+    clonedWidgetSheetItem.w = originalWidgetSheetItem.w
+}
+
+export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any, selectedSheetIndex: number) => {
     for (let i = 0; i < dashboards[dashboardId].widgets.length; i++) {
         if (widget.id === dashboards[dashboardId].widgets[i].id) {
             const tempWidget = deepcopy(widget)
@@ -44,6 +144,36 @@ export const updateWidgetHelper = (dashboardId: string, widget: IWidget, dashboa
             emitter.emit('widgetUpdatedFromStore', widget)
         }
     }
+    const selectedSheet = dashboards[dashboardId].sheets[selectedSheetIndex]
+    updateWidgetInSheets(dashboards[dashboardId], widget, selectedSheet)
+}
+
+const updateWidgetInSheets = (dashboardModel: IDashboard, widget: IWidget, selectedSheet: IDashboardSheet) => {
+    if (!widget.settings.responsive) return
+    const SHEET_WIDGET_SIZES = Object.keys(widget.settings.responsive)
+    dashboardModel.sheets.forEach((sheet: IDashboardSheet) => {
+        if (SHEET_WIDGET_SIZES.includes('fullGrid')) updateFullGridWidgetToSheetsWidgetSizeArray(dashboardModel, sheet, widget, selectedSheet)
+        else SHEET_WIDGET_SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget, selectedSheet))
+    })
+}
+
+const updateFullGridWidgetToSheetsWidgetSizeArray = (dashboardModel: IDashboard, sheet: IDashboardSheet, widget: IWidget, selectedSheet: IDashboardSheet) => {
+    SHEET_WIDGET_SIZES.forEach((size: string) => updateSheetInWidgetSizeArray(sheet, size, widget, selectedSheet))
+    disableOtherWidgetFullGridInASheet(dashboardModel, widget)
+}
+
+const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widget: IWidget, selectedSheet: IDashboardSheet) => {
+    if (!sheet.widgets[size]) return
+    const index = sheet.widgets[size].findIndex((widgetInSheet: IWidgetSheetItem) => widgetInSheet.id === widget.id)
+    if (index === -1 && (widget.settings.responsive[size] || widget.settings.responsive.fullGrid) && selectedSheet?.id === sheet.id) {
+        sheet.widgets[size].push(createDashboardSheetWidgetItem(widget))
+    } else if (index !== -1 && !widget.settings.responsive[size] && !widget.settings.responsive.fullGrid) {
+        sheet.widgets[size].splice(index, 1)
+    }
+}
+
+const createDashboardSheetWidgetItem = (widget: IWidget) => {
+    return { id: widget.id ?? cryptoRandomString({ length: 16, type: 'base64' }), h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 25, x: 0, y: 0, moved: false }
 }
 
 export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
@@ -58,12 +188,14 @@ export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboa
 const deleteWidgetFromSheets = (dashboard: IDashboard, widgetId: string) => {
     const sheets = dashboard.sheets as any
     for (let i = sheets.length - 1; i >= 0; i--) {
-        const widgets = sheets[i].widgets.lg
-        for (let j = widgets.length - 1; j >= 0; j--) {
-            if (widgets[j].id === widgetId) {
-                widgets.splice(j, 1)
+        SHEET_WIDGET_SIZES.forEach((size: string) => {
+            const widgetsInSheet = sheets[i].widgets[size]
+            if (widgetsInSheet) {
+                for (let j = widgetsInSheet.length - 1; j >= 0; j--) {
+                    if (widgetsInSheet[j].id === widgetId) widgetsInSheet.splice(j, 1)
+                }
             }
-        }
+        })
     }
 }
 
@@ -72,7 +204,8 @@ export const formatDashboardForSave = (dashboard: IDashboard) => {
         dashboard.widgets[i] = formatWidgetForSave(dashboard.widgets[i]) as IWidget
     }
     formatVariablesForSave(dashboard.configuration)
-    delete dashboard.allDatasetsLoaded
+    const propertiesForDelete = ['allDatasetsLoaded', 'htmlGallery', 'pythonGallery', 'customChartGallery', 'currentView', 'associations', 'drivers', 'crossNavigations', 'document', 'outputParameters']
+    propertiesForDelete.forEach((property: string) => delete dashboard[property])
 }
 
 const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration) => {
@@ -80,30 +213,57 @@ const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration)
     dashboardConfiguration.variables.forEach((variable: IVariable) => delete variable.pivotedValues)
 }
 
-export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any) => {
+export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any, themes: IDashboardTheme[]) => {
     for (let i = 0; i < dashboard.configuration.variables.length; i++) {
         if (dashboard.configuration.variables[i].type === 'dataset') await setVariableValueFromDataset(dashboard.configuration.variables[i], datasets, $http)
     }
 
     for (let i = 0; i < dashboard.widgets.length; i++) {
         formatWidget(dashboard.widgets[i])
+        if (themes.length > 0) updateWidgetThemeAndApplyStyle(dashboard.widgets[i], themes)
+        if (dashboard.widgets[i].settings.configuration.updateFromSelections === undefined) dashboard.widgets[i].settings.configuration.updateFromSelections = true
     }
+
+    if (!dashboard.configuration.theme || !dashboard.configuration.theme.config) dashboard.configuration.theme = { config: getDefaultDashboardThemeConfig() }
+    addMissingMenuWidgetsConfiguration(dashboard)
     return dashboard
+}
+
+export const addMissingMenuWidgetsConfiguration = (dashboard: IDashboard) => {
+    if (!dashboard.configuration.menuWidgets) dashboard.configuration.menuWidgets = { showExcelExport: true, showScreenshot: true, showSelectionButton: true, enableWidgetMenu: true, enableChartChange: true, enableCaching: true, enableCustomHeader: false }
+    if (dashboard.configuration.menuWidgets.showSelectionButton === undefined) dashboard.configuration.menuWidgets.showSelectionButton = true
+    if (dashboard.configuration.menuWidgets.enableCaching === undefined) dashboard.configuration.menuWidgets.enableCaching = true
+    if (dashboard.configuration.menuWidgets.enableCustomHeader === undefined) dashboard.configuration.menuWidgets.enableCustomHeader = false
+    if (dashboard.configuration.menuWidgets.enableWidgetMenu === undefined) dashboard.configuration.menuWidgets.enableWidgetMenu = true
 }
 
 const formatWidget = (widget: IWidget) => {
     addColumnIdsToWidgetColumns(widget)
+    addWidgetMenuConfig(widget)
     switch (widget.type) {
+        case 'table':
+            formatDashboardTableWidgetAfterLoading(widget)
+            break
         case 'chartJS':
             formatChartJSWidget(widget)
             break
         case 'highcharts':
             formatHighchartsWidget(widget)
+            break
+        case 'vega':
+            formatVegaWidget(widget)
     }
 }
 
 const addColumnIdsToWidgetColumns = (widget: IWidget) => {
-    widget.columns.forEach((column: IWidgetColumn) => column.id = cryptoRandomString({ length: 16, type: 'base64' }))
+    widget.columns.forEach((column: IWidgetColumn) => {
+        if (!column.id) column.id = cryptoRandomString({ length: 16, type: 'base64' })
+    })
+}
+
+export const addWidgetMenuConfig = (widget: IWidget) => {
+    if (!widget.settings.configuration) widget.settings.configuration = { widgetMenu: { enabled: true } }
+    if (!widget.settings.configuration.widgetMenu) widget.settings.configuration.widgetMenu = { enabled: true }
 }
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {
@@ -136,6 +296,7 @@ const getDatasetIdsFromDashboardModel = (dashboardModel: IDashboard | any) => {
 
 export const canEditDashboard = (document): boolean => {
     if (!store.user || !document) return false
+    if (document.seeAsFinalUser) return false
     return store.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || document.creationUser === store.user.userId
 }
 
@@ -165,30 +326,35 @@ const setStatesForWidgets = (dashboardModel: IDashboard, states: any) => {
     })
 }
 
-export const moveWidgetToSheet = (widgetToAdd: IWidgetSheetItem | null, dashboard: IDashboard, selectedSheet: IDashboardSheet, widget: IWidget) => {
-    const selectedSheetInDashboard = dashboard.sheets.find((sheet: IDashboardSheet) => sheet.id === selectedSheet.id)
-    const sheetWidgets = selectedSheetInDashboard?.widgets
-    if (!widgetToAdd || !sheetWidgets) return
-    widgetToAdd.x = 0
-    widgetToAdd.y = 0
-    let overlap = false
-    let maxWidth = 50;
-    for (let i = 0; i < sheetWidgets.lg.length; i++) {
-        const existingItem = sheetWidgets.lg[i];
-        if (widgetToAdd.x < existingItem.x + existingItem.w && widgetToAdd.x + widgetToAdd.w > existingItem.x && widgetToAdd.y < existingItem.y + existingItem.h && widgetToAdd.y + widgetToAdd.h > existingItem.y) {
-            overlap = true;
-            break;
-        }
+export const loadHtmlGallery = async ($http: any) => {
+    store.setLoading(true)
+    let galleryItems = []
+    await $http
+        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
+        .then((response: AxiosResponse<any>) => (galleryItems = response.data))
+        .catch(() => { })
+    store.setLoading(false)
+    return galleryItems
+}
 
-        if (existingItem.x + existingItem.w > maxWidth) maxWidth = existingItem.x + existingItem.w;
+export const loadPythonGallery = async ($http: any) => {
+    store.setLoading(true)
+    let galleryItems = []
+    await $http
+        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
+        .then((response: AxiosResponse<any>) => (galleryItems = response.data))
+        .catch(() => { })
+    store.setLoading(false)
+    return galleryItems
+}
 
-    }
-    if (overlap) {
-        const newX = Math.max(maxWidth + 1, widgetToAdd.x);
-        const newY = Math.max(widgetToAdd.y, sheetWidgets.lg.reduce((maxY, item) => item.y + item.h > maxY ? item.y + item.h : maxY, 0));
-        widgetToAdd.x = newX;
-        widgetToAdd.y = newY;
-    }
-
-    if (sheetWidgets && widgetToAdd) sheetWidgets.lg.push({ id: widget.id ?? '', h: widgetToAdd.h, i: cryptoRandomString({ length: 16, type: 'base64' }), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
+export const loadCustomChartGallery = async ($http: any) => {
+    store.setLoading(true)
+    let galleryItems = []
+    await $http
+        .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
+        .then((response: AxiosResponse<any>) => (galleryItems = response.data))
+        .catch(() => { })
+    store.setLoading(false)
+    return galleryItems
 }

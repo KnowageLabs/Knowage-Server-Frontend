@@ -1,5 +1,5 @@
 <template>
-    <WidgetEditorDataList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" @datasetSelected="setSelectDataset"></WidgetEditorDataList>
+    <WidgetEditorDataList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" @datasetSelected="setSelectDataset"></WidgetEditorDataList>
     <ChartGallery v-if="chartPickerVisible" :widget-model="widget" @selectedChartTypeChanged="onChartTypeChanged" />
     <div v-else-if="widget" class="p-d-flex kn-flex kn-overflow">
         <WidgetEditorHint v-if="!selectedDataset"></WidgetEditorHint>
@@ -15,16 +15,13 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset } from '../../../Dashboard'
-import { createNewHighchartsModel, createNewHighchartsSettings } from '../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsHelpers'
-import { createChartJSModel, createNewChartJSSettings } from '../helpers/chartWidget/chartJS/ChartJSHelpers'
+import { IWidget, IDataset, IVariable } from '../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { mapState } from 'pinia'
 import { IHighchartsWidgetSettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { IChartJSWidgetSettings } from '../../../interfaces/chartJS/DashboardChartJSWidget'
-import { createVegaModel, createNewVegaSettings } from '../helpers/chartWidget/vega/VegaHelpers'
 import { IVegaChartsSettings } from '../../../interfaces/vega/VegaChartsWidget'
-import {changeChartType} from './WidgetEditorDataTabHelpers'
+import { changeChartType } from './WidgetEditorDataTabHelpers'
 import mainStore from '@/App.store'
 import WidgetEditorDataList from './WidgetEditorDataList/WidgetEditorDataList.vue'
 import WidgetEditorHint from '../WidgetEditorHint.vue'
@@ -39,7 +36,7 @@ import VegaDataContainer from './ChartWidget/vega/VegaDataContainer.vue'
 export default defineComponent({
     name: 'widget-editor-data-tab',
     components: { WidgetEditorDataList, WidgetEditorHint, SelectorWidgetDataContainer, HighchartsDataContainer, WidgetEditorCommonDataContainer, ChartJSDataContainer, ChartGallery, PivotTableDataContainer, VegaDataContainer },
-    props: { propWidget: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<IDataset[]> }, selectedDatasets: { type: Array as PropType<IDataset[]> } },
+    props: { propWidget: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<IDataset[]> }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected'],
     data() {
         return {
@@ -74,28 +71,6 @@ export default defineComponent({
         onChartTypeChanged(chartType: string) {
             if (!this.widget) return
             changeChartType(chartType, this.widget, this.isEnterprise)
-
-            delete this.widget.invalid
-
-            // TODO widgetChange
-            if (chartType === 'wordcloud') {
-                this.widget.type = 'vega'
-                this.widget.settings = createNewVegaSettings()
-                this.widget.settings.chartModel = createVegaModel(this.widget, chartType)
-            } else if (this.isEnterprise) {
-                const oldChartModel = this.widget.settings.chartModel?.model
-                const type = chartType.replace('Stacked', '')
-                this.widget.type = 'highcharts'
-                this.widget.settings = createNewHighchartsSettings()
-                this.widget.settings.chartModel = createNewHighchartsModel(this.widget, type, oldChartModel, chartType.endsWith('Stacked'), chartType.endsWith('Inverted'))
-            } else {
-                this.widget.type = 'chartJS'
-                this.widget.settings = createNewChartJSSettings()
-                this.widget.settings.chartModel = createChartJSModel(chartType)
-            }
-
-            emitter.emit('chartTypeChanged', this.widget.id)
-            emitter.emit('refreshWidgetWithData', this.widget.id)
         }
     }
 })

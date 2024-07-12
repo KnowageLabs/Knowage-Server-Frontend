@@ -9,33 +9,51 @@
         </Toolbar>
 
         <div class="datasetEditor-container kn-overflow">
-            <DashboardGeneralSettingsList @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
+            <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
             <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
-            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :dashboard-model-prop="dashboardModel" />
+            <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
+            <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
+            <WidgetEditor
+                v-if="selectedOption === 'Custom Header' && customHeaderWidgetEditorVisible && customHeaderWidget"
+                :dashboard-id="dashboardId"
+                :datasets="datasets"
+                :variables="variables"
+                :prop-widget="customHeaderWidget"
+                @widgetSaved="onCustomHeaderSaved"
+                @close="onCustomHeaderCancel"
+            ></WidgetEditor>
         </div>
     </div>
 </template>
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IVariable, IDataset } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IDataset, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { mapActions } from 'pinia'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import DashboardGeneralSettingsList from './DashboardGeneralSettingsList.vue'
 import DashboardInformation from './information/DashboardInformation.vue'
 import DashboardBackground from './background/DashboardBackground.vue'
 import CssEditor from './cssEditor/DashboardCssEditor.vue'
 import MenuWidgets from './menu&widgets/Menu&Widgets.vue'
 import DashboardVariables from './DashboardVariables.vue'
+import DashboardThemes from './themes/DashboardThemes.vue'
 import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
 import { setVariableValueFromDataset } from './VariablesHelper'
+import { applySelectedThemeToWidgets } from './themes/ThemesHelper'
+import WidgetEditor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditor.vue'
+import { createCustomHeaderWidget } from './DashboardGeneralSettingsHelper'
+import { IMenuAndWidgets } from '../Dashboard'
+import { addMissingMenuWidgetsConfiguration } from '../DashboardHelpers'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
@@ -49,7 +67,10 @@ export default defineComponent({
             dashboardModel: null as any,
             variables: [] as IVariable[],
             selectedDatasets: [] as IDataset[],
-            selectedDatasetColumnsMap: {}
+            selectedDatasetColumnsMap: {},
+            customHeaderWidget: null as IWidget | null,
+            customHeaderWidgetEditorVisible: false,
+            menuWidgetsConfig: {} as IMenuAndWidgets
         }
     },
     computed: {},
@@ -60,12 +81,14 @@ export default defineComponent({
         this.loadVariables()
         this.loadSelectedDatasets()
         this.loadSelectedDatasetColumnNames()
+        this.loadMenuAndWidgetConfiguration()
     },
     methods: {
-        ...mapActions(store, ['getDashboard']),
+        ...mapActions(store, ['getDashboard', 'getAllThemes']),
         ...mapActions(mainStore, ['getUser']),
         loadDashboardModel() {
             this.dashboardModel = this.getDashboard(this.dashboardId)
+            this.customHeaderWidget = deepcopy(this.dashboardModel.configuration.customHeader)
         },
         loadVariables() {
             if (this.dashboardModel && this.dashboardModel.configuration) this.variables = deepcopy(this.dashboardModel.configuration.variables)
@@ -99,15 +122,49 @@ export default defineComponent({
             }
         },
         setSelectedOption(option: string) {
+            if (option === 'Custom Header') {
+                if (!this.customHeaderWidget) this.customHeaderWidget = createCustomHeaderWidget()
+                this.customHeaderWidgetEditorVisible = true
+            }
             this.selectedOption = option
         },
+        loadMenuAndWidgetConfiguration() {
+            addMissingMenuWidgetsConfiguration(this.dashboardModel)
+            this.menuWidgetsConfig = deepcopy(this.dashboardModel.configuration.menuWidgets) as IMenuAndWidgets
+        },
         async saveGeneralSettings() {
+            let refreshWidgets = false
             for (let i = 0; i < this.variables.length; i++) {
-                if (this.variables[i].type === 'dataset') await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
+                if (this.variables[i].type === 'dataset') {
+                    await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
+                    refreshWidgets = true
+                }
             }
 
             this.dashboardModel.configuration.variables = this.variables
+            if (this.dashboardModel.configuration.theme?.themeName) {
+                const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.themeName)
+                if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
+                applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
+            }
+            this.updateWidgetMenuSettings()
+
+            if (refreshWidgets) emitter.emit('refreshAfterGeneralSettingsChange')
             this.$emit('closeGeneralSettings')
+        },
+        getSelectedTheme(themeName: string) {
+            const allThemes = this.getAllThemes()
+            return allThemes.find((theme: IDashboardTheme) => theme.themeName === themeName)
+        },
+        onCustomHeaderSaved(customHeader: IWidget) {
+            this.dashboardModel.configuration.customHeader = deepcopy(customHeader)
+            this.customHeaderWidgetEditorVisible = false
+        },
+        onCustomHeaderCancel() {
+            this.customHeaderWidgetEditorVisible = false
+        },
+        updateWidgetMenuSettings() {
+            this.dashboardModel.configuration.menuWidgets = this.menuWidgetsConfig
         }
     }
 })

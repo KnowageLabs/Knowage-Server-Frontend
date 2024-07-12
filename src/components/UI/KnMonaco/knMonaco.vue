@@ -11,6 +11,10 @@ import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
+import { registerGroovyLanguageForMonaco } from './MonacoGroovy'
+import { registerCFLanguageForMonaco } from './CfLang'
+import { registerKpiLanguageForMonaco } from './kpiLang'
+
 self.MonacoEnvironment = {
     getWorker(_, label) {
         if (label === 'json') {
@@ -38,6 +42,10 @@ const props = defineProps<{
     textToInsert: string
 }>()
 
+registerGroovyLanguageForMonaco()
+registerCFLanguageForMonaco()
+registerKpiLanguageForMonaco()
+
 watch(
     () => props.textToInsert,
     (cur, prev) => {
@@ -63,6 +71,7 @@ watch(
 
 const emit = defineEmits<{
     (e: 'change', payload: typeof editorValue.value): void
+    (e: 'editorSetup', payload: any): void
     (e: 'update:modelValue', payload: typeof editorValue.value): void
     (e: 'stringInserted'): void
 }>()
@@ -84,6 +93,8 @@ onMounted(() => {
         ...options.value,
         language: language.value
     })
+
+    emit('editorSetup', { editor: editor, monaco: monaco })
 
     editor.onDidChangeModelContent(
         useDebounceFn(() => {

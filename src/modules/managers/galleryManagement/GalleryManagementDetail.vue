@@ -77,11 +77,11 @@
         </div>
         <div v-if="template.type && windowWidth < windowWidthBreakPoint" class="p-grid p-m-2 flex">
             <TabView class="tabview-custom" style="width: 100%">
-                <TabPanel v-for="(allowedEditor, index) in galleryDescriptor.allowedEditors[template.type]" :key="allowedEditor">
+                <TabPanel v-for="allowedEditor in galleryDescriptor.allowedEditors[template.type]" :key="allowedEditor">
                     <template #header>
                         <i :class="['icon', galleryDescriptor.editor[allowedEditor].icon]"></i>&nbsp;<span style="text-transform: uppercase">{{ $t('common.codingLanguages.' + allowedEditor) }}</span>
                     </template>
-                    <knMonaco v-model="template.code[allowedEditor]" :options="{}" :language="allowedEditor" @change="setDirty"></knMonaco>
+                    <knMonaco v-model="template.code[allowedEditor]" :options="{}" :language="allowedEditor" style="height: 100%" @change="setDirty"></knMonaco>
                 </TabPanel>
             </TabView>
         </div>
@@ -91,7 +91,7 @@
                     <i :class="['icon', galleryDescriptor.editor[allowedEditor].icon]"></i>
                     {{ $t('common.codingLanguages.' + allowedEditor) }}
                 </h4>
-                <knMonaco v-model="template.code[allowedEditor]" :options="{ theme: 'vs-dark' }" :language="allowedEditor" @change="setDirty"></knMonaco>
+                <knMonaco v-model="template.code[allowedEditor]" :options="{ theme: 'vs-dark' }" style="height: 100%" :language="allowedEditor" @change="setDirty"></knMonaco>
             </div>
         </div>
     </div>
@@ -323,12 +323,6 @@ export default defineComponent({
         height: 100%;
         display: flex;
         flex-direction: column;
-        .Codemirror {
-            max-width: 450px;
-        }
-    }
-    &:deep(.CodeMirror) {
-        font-size: 0.8rem;
     }
     display: flex;
     height: 100%;
@@ -364,15 +358,8 @@ export default defineComponent({
             max-width: 100%;
         }
     }
-    .codemirrorContainer {
-        width: 100%;
-        display: inline-flex;
-        .editorContainer {
-            flex: 1;
-        }
-    }
     &:deep(.p-card-content) {
-        height: 220px;
+        max-height: 250px;
     }
 }
 </style>

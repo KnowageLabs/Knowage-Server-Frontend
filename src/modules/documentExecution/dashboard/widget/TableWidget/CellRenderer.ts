@@ -1,11 +1,12 @@
 import moment from 'moment'
 import { getCellConditionalStyles } from './TableWidgetHelper'
-import { getLocale } from '@/helpers/commons/localeHelper'
-import { ITableWidgetVisualizationTypes } from '../../Dashboard'
+import { formatNumberWithLocale, luxonFormatDate } from '@/helpers/commons/localeHelper'
+import { ITableWidgetLink, ITableWidgetVisualizationTypes, IWidgetInteractions } from '../../Dashboard'
 // import helpersDecriptor from '../WidgetEditor/helpers/tableWidget/TableWidgetHelpersDescriptor.json'
 
 export default class CellRenderer {
     eGui!: HTMLSpanElement
+    eButton!: any
     setStyle(style: any) {
         for (const property in style) {
             if (style[property]) this.eGui.style[property] = style[property]
@@ -19,8 +20,33 @@ export default class CellRenderer {
 
         let applyConditionalStyleToBar = false
 
+        const createIconColumnIcons = () => {
+            const interactions = params.propWidget.settings.interactions as IWidgetInteractions
+            for (const interactionName in interactions) {
+                const interaction = interactions[interactionName]
+
+                if (interaction.enabled === true && interaction.type === 'icon' && interactionName !== 'link') {
+                    const interactionButton = createInteractionIcons({ ...interaction, interactionType: interactionName }, null)
+                    this.eGui.appendChild(interactionButton)
+                } else if (interaction.enabled === true && interactionName === 'link' && interaction.links.length > 0) {
+                    interaction.links.forEach((link, index) => {
+                        const interactionButton = createInteractionIcons({ ...link, interactionType: 'link' }, index)
+                        this.eGui.appendChild(interactionButton)
+                    })
+                }
+            }
+
+            function createInteractionIcons(interaction, index) {
+                const interactionButton = document.createElement('icon')
+                interactionButton.setAttribute('class', `${interaction.icon} p-mr-1`)
+                interactionButton.setAttribute('style', 'cursor: pointer;')
+                interactionButton.addEventListener('click', () => invokeParentMethod(interaction, params, index))
+                return interactionButton
+            }
+        }
+
         const getMultiselectStyle = () => {
-            if (params.colDef.colId === 'indexColumn') return null
+            if (params.colDef.colId === 'indexColumn' || params.colDef.colId === 'iconColumn') return null
             const selection = params.propWidget.settings.interactions.selection
             const celectedCellValues = params.multiSelectedCells
             const selectedColumn = params.selectedColumnArray[0]
@@ -86,7 +112,9 @@ export default class CellRenderer {
         }
 
         const styleObject = getCellStyle()
-        this.setStyle(styleObject)
+        // HARDCODED ICON COLUMN STYLES, WE CAN ADD NEW OPTIONS IN EDITOR OR TWEAK THIS
+        if (params.colId === 'iconColumn') this.setStyle({ 'align-items': 'center', 'justify-content': 'center' })
+        else this.setStyle(styleObject)
 
         let visType = {} as any
         const visualizationTypeConfiguration = params.propWidget.settings.visualization.visualizationTypes as ITableWidgetVisualizationTypes
@@ -107,8 +135,8 @@ export default class CellRenderer {
 
         if (visType.type) {
             if (visType.type.toLowerCase() === 'text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
-            if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject.icon}" />${visType.suffix}`
-            if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject.icon} p-as-center" />${visType.suffix}`
+            if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject?.icon}" />${visType.suffix}`
+            if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject?.icon} p-as-center" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'bar') {
                 const percentage = getBarFillPercentage()
                 this.eGui.innerHTML = `<div class="barContainer" style="background-color:${applyConditionalStyleToBar ? styleObject['background-color'] : visType['background-color']};justify-content:${visType['alignment']}">
@@ -121,7 +149,13 @@ export default class CellRenderer {
                                         <div class="innerBar" style="color: black;width:${percentage}%;background-color:${applyConditionalStyleToBar ? styleObject.color : visType.color};text-align:${visType['alignment']}">${visType.prefix}${setCellContent()}${visType.suffix}</div>
                                       </div>`
             }
-        } else this.eGui.innerHTML = setCellContent()
+        } else if (params.colId === 'iconColumn') createIconColumnIcons()
+        else this.eGui.innerHTML = setCellContent()
+
+        function invokeParentMethod(interaction, params, index) {
+            const clickedInteraction = { type: interaction.interactionType, index: index, icon: interaction.icon, node: params }
+            params.context.componentParent.activateInteractionFromClickedIcon(clickedInteraction)
+        }
 
         function getBarFillPercentage() {
             const minValue = visType.min || 0
@@ -134,11 +168,23 @@ export default class CellRenderer {
         }
 
         function setCellContent() {
-            if (isColumnOfType('date')) return dateFormatter(params.value)
-            else if (isColumnOfType('timestamp')) return dateTimeFormatter(params.value)
-            else if (params.colId === 'iconColumn') return `ICON`
-            else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') return params.value
-            else return params.value
+            if (isColumnOfType('timestamp') || isColumnOfType('datetime')) return dateTimeFormatter(params.value)
+            else if (isColumnOfType('date')) return dateFormatter(params.value)
+            else if (params.colId === 'iconColumn') {
+                return `<i class="${getActiveIconFromWidget()}"></i>` ?? 'ICON ERROR'
+            } else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') {
+                if (typeof params.value === 'number') return numberFormatter(params.value)
+                else return params.value
+            } else return params.value
+        }
+
+        function getActiveIconFromWidget() {
+            if (params.propWidget.settings.interactions.crossNavigation.enabled) return params.propWidget.settings.interactions.crossNavigation.icon
+            else if (params.propWidget.settings.interactions.preview.enabled) return params.propWidget.settings.interactions.preview.icon
+            else if (params.propWidget.settings.interactions.link.enabled) {
+                const index = params.propWidget.settings.interactions.link.links.findIndex((link: ITableWidgetLink) => link.type === 'icon')
+                return index !== -1 ? params.propWidget.settings.interactions.link.links[index].icon : ''
+            } else if (params.propWidget.settings.interactions.iframe.enabled) return params.propWidget.settings.interactions.iframe.icon
         }
 
         function isColumnOfType(columnType: string) {
@@ -160,23 +206,17 @@ export default class CellRenderer {
         }
         function dateFormatter(cellValue) {
             const visType = getColumnVisualizationType(params.colId)
-
-            const isDateValid = moment(cellValue, 'DD/MM/YYYY').isValid()
-            return isDateValid
-                ? moment(cellValue, 'DD/MM/YYYY')
-                      .locale(getLocale(true))
-                      .format(visType?.dateFormat || 'LL')
-                : cellValue
+            return luxonFormatDate(cellValue, 'dd/MM/yyyy', visType?.dateFormat || 'D')
         }
         function dateTimeFormatter(cellValue) {
             const visType = getColumnVisualizationType(params.colId)
+            return luxonFormatDate(cellValue, 'dd/MM/yyyy HH:mm:ss.SSS', visType?.dateFormat || 'f')
+        }
+        function numberFormatter(cellValue) {
+            const visType = getColumnVisualizationType(params.colId)
 
-            const isDateValid = moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS').isValid()
-            return isDateValid
-                ? moment(cellValue, 'DD/MM/YYYY HH:mm:ss.SSS')
-                      .locale(getLocale(true))
-                      .format(visType?.dateFormat || 'LLL')
-                : cellValue
+            if (visType?.precision) return formatNumberWithLocale(cellValue, visType.precision)
+            else return formatNumberWithLocale(cellValue, 0)
         }
     }
 

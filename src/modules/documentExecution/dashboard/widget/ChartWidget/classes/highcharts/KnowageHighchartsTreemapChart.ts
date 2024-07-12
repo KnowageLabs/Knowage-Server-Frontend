@@ -1,9 +1,10 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget, } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateTreemapChartModel } from './updater/KnowageHighchartsTreemapChartUpdater'
 import deepcopy from 'deepcopy'
 import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -17,6 +18,10 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'treemap'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
@@ -29,7 +34,6 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
 
     setPlotOptions() {
         this.model.plotOptions.series.turboThreshold = 15000
-
     }
 
     setData(data: any, widgetModel: IWidget) {
@@ -42,7 +46,6 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         this.setTreeData(data, attributeColumns, measureColumns, interactionsEnabled)
         return this.model.series
     }
-
 
     setTreeData(data: any, attributeColumns: any[], measureColumns: any[], interactionsEnabled: boolean) {
         if (!data || !measureColumns[0] || attributeColumns.length < 2) return
@@ -63,28 +66,33 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
 
     createSerieElement(measureColumn: any, interactionsEnabled: boolean) {
         const serieElement = {
-            id: 0, name: measureColumn.column.columnName, data: [] as any[],
+            id: 0,
+            name: measureColumn.column.columnName,
+            data: [] as any[],
             type: 'treemap',
             layoutAlgorithm: 'squarified',
             allowDrillToNode: !interactionsEnabled,
             showInLegend: false,
             animationLimit: 1000,
             dataLabels: {
-                enabled: false,
+                enabled: false
             },
             levels: [
                 {
                     level: 1,
                     dataLabels: {
-                        enabled: true
+                        enabled: true,
+                        textOutline: 'none'
                     },
                     borderWidth: 3,
                     levelIsConstant: false
-                }, {
+                },
+                {
                     level: 1,
                     dataLabels: {
                         style: {
-                            fontSize: '14px'
+                            fontSize: '',
+                            textOutline: 'none'
                         }
                     }
                 },
@@ -95,14 +103,14 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
                 {
                     level: 3,
                     colorVariation: {
-                        key: "brightness",
+                        key: 'brightness',
                         to: 0.5
                     }
                 },
                 {
                     level: 4,
                     colorVariation: {
-                        key: "brightness",
+                        key: 'brightness',
                         to: 0.5
                     }
                 }
@@ -112,9 +120,7 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         return serieElement
     }
 
-
     updateSeriesLabelSettings(widgetModel: IWidget) {
         updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
     }
-
 }

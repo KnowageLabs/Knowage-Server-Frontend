@@ -104,3 +104,12 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.p-datatable-sm.kn-table {
+    :deep(.p-datatable-wrapper) {
+        flex: 1 0 0;
+        overflow: auto;
+    }
+}
+</style>

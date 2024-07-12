@@ -1,5 +1,5 @@
-import { hexToRgba } from "@/modules/documentExecution/dashboard/helpers/FormattingHelpers"
-import { IHighchartsChartModel, IHighchartsOptions3D } from "@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget"
+import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers'
+import { IHighchartsChartModel, IHighchartsOptions3D } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import * as highchartsDefaultValues from '../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export const createSerie = (serieName: string, groupingFunction: string, colorByPoint: boolean, serieType?: string) => {
@@ -12,13 +12,12 @@ export const createGaugeSerie = (serieName: string) => {
     return { name: serieName, data: [], colorByPoint: false, accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() }
 }
 
-
 export const createHeatMapSerie = (serieName: string) => {
     return { name: serieName, data: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings() }
 }
 
 export const createPolarSerie = (serieName: string, serieType: string) => {
-    return { name: serieName, data: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings(), pointPlacement: "on", serieType: serieType } as any
+    return { name: serieName, data: [], accessibility: highchartsDefaultValues.getDefaultSeriesAccessibilitySettings(), pointPlacement: 'on', serieType: serieType } as any
 }
 
 export const getFormattedNoDataConfiguration = (oldModel: any, newModel: IHighchartsChartModel) => {
@@ -49,7 +48,7 @@ export const getFormattedSeries = (oldModel: any, newModel: IHighchartsChartMode
                 case 'PIE':
                 case 'RADAR':
                     newModel.series.push(createSerie(serie.name, serie.groupingFunction, colorByPoint))
-                    break;
+                    break
                 case 'HEATMAP':
                     newModel.series.push(createHeatMapSerie(serie.name))
                     break
@@ -90,7 +89,8 @@ export const getFormattedLabels = (oldModel: any, newModel: IHighchartsChartMode
                 fontFamily: oldDataLabelsSettings.style.fontFamily,
                 fontSize: oldDataLabelsSettings.style.fontSize,
                 fontWeight: oldDataLabelsSettings.style.fontWeight,
-                color: oldDataLabelsSettings.style.color ? hexToRgba(oldDataLabelsSettings.style.color) : ''
+                color: oldDataLabelsSettings.style.color ? hexToRgba(oldDataLabelsSettings.style.color) : '',
+                textOutline: 'none'
             },
             position: '',
             backgroundColor: ''
@@ -113,7 +113,6 @@ export const getFormattedTooltipSettings = (oldModel: any, newModel: IHighcharts
         }
     }
 }
-
 
 export const setFormattedAxisLabels = (oldAxis: any, newModelAxis: any) => {
     if (oldAxis.position) newModelAxis.labels.align = oldAxis.position
@@ -171,11 +170,11 @@ export const setAxisGridSettings = (oldAxis: any, newModelAxis: any) => {
 const getFormattedGridLineStyle = (type: string) => {
     switch (type) {
         case 'solid':
-            return 'Solid';
-        case "dashed":
+            return 'Solid'
+        case 'dashed':
             return 'Dash'
-        case "dotted":
-            return 'Dot';
+        case 'dotted':
+            return 'Dot'
         default:
             return ''
     }

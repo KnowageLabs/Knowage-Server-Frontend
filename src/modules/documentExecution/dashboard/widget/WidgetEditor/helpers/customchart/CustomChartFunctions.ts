@@ -10,8 +10,10 @@ export const createNewCustomChartSettings = () => {
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
             preview: widgetCommonDefaultValues.getDefaultPreview(),
+            iframe: widgetCommonDefaultValues.getDefaultIFrameInteraction()
         },
         style: {
+            themeName: '',
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

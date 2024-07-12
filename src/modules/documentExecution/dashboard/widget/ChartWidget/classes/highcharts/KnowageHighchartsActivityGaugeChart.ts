@@ -20,6 +20,10 @@ export class KnowageHighchartsActivityGaugeChart extends KnowageHighchartsGaugeC
             }
         }
         this.model.chart.type = 'activitygauge'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
@@ -49,7 +53,7 @@ export class KnowageHighchartsActivityGaugeChart extends KnowageHighchartsGaugeC
     }
 
     setGaugeYAxis() {
-        this.model.yAxis = highchartsDefaultValues.getDefaultActivityGaugeYAxis()
+        this.model.yAxis = [highchartsDefaultValues.getDefaultActivityGaugeYAxis()]
     }
 
     setTooltipSettings() {

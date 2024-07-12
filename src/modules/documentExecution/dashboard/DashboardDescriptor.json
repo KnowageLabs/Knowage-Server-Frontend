@@ -1,6 +1,38 @@
 {
     "labelMaxLength": 100,
     "nameMaxLength": 200,
+    "newDashboardModel": {
+        "configuration": {
+            "associations": [],
+            "background": {
+                "imageBackgroundSize": "",
+                "imageBackgroundUrl": "",
+                "sheetsBackgroundColor": "",
+                "showGrid": true
+            },
+            "cssToRender": "",
+            "datasets": [],
+            "description": "",
+            "id": "",
+            "label": "",
+            "menuWidgets": {
+                "enableCaching": true,
+                "enableChartChange": true,
+                "enableCustomHeader": false,
+                "enableWidgetMenu": true,
+                "showExcelExport": true,
+                "showScreenshot": true,
+                "showSelectionButton": false
+            },
+            "name": "",
+            "selections": [],
+            "theme": {},
+            "variables": []
+        },
+        "sheets": [],
+        "version": "8.2.0",
+        "widgets": []
+    },
     "saveDialog": {
         "style": {
             "width": "50vw"

@@ -3,7 +3,7 @@
         <div class="dashboard-editor-list-card">
             <Listbox
                 class="kn-list kn-list-no-border-right dashboard-editor-list"
-                :options="descriptor.settingsList"
+                :options="settingsList"
                 :filter="true"
                 :filter-placeholder="$t('common.search')"
                 filter-match-mode="contains"
@@ -29,17 +29,41 @@
 import { defineComponent } from 'vue'
 import Listbox from 'primevue/listbox'
 import descriptor from './DashboardGeneralSettingsDescriptor.json'
+import mainStore from '@/App.store'
+import deepcopy from 'deepcopy'
+
 export default defineComponent({
     name: 'general-settings-list',
     components: { Listbox },
+    props: {
+        dashboardModelProp: {
+            type: Object as any,
+            default() {
+                return {}
+            }
+        }
+    },
     emits: ['selectedOption'],
-    setup() {},
+    setup() {
+        const store = new mainStore()
+        return { store }
+    },
     data() {
         return {
             descriptor
         }
     },
-    created() {},
+    computed: {
+        settingsList() {
+            const headerEnabled = this.dashboardModelProp.configuration?.menuWidgets?.enableCustomHeader
+            const optionsList = headerEnabled ? deepcopy(descriptor.settingsList) : deepcopy(descriptor.settingsList.filter((settings: { icon: string; label: string; value: string }) => settings.value !== 'Custom Header'))
+
+            return this.store.isEnterprise ? optionsList : optionsList.filter((settings: { icon: string; label: string; value: string }) => settings.value !== 'Themes')
+        },
+        dashboardHeaderEnabled() {
+            return this.dashboardModelProp.configuration.menuWidgets.enableCustomHeader
+        }
+    },
     methods: {
         selectOption(event: any) {
             if (event.value) this.$emit('selectedOption', event.value.value)

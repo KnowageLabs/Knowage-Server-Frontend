@@ -13,6 +13,7 @@ import { formatForCrossNavigation } from './CustomChartWidgetHelpers'
 import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import cryptoRandomString from 'crypto-random-string'
+import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 
 export default defineComponent({
     name: 'custom-chart-widget',
@@ -25,7 +26,7 @@ export default defineComponent({
         variables: { type: Array as PropType<IVariable[]>, required: true },
         editorMode: { type: Boolean }
     },
-    emits: ['loading'],
+    emits: ['loading', 'datasetInteractionPreview'],
     data() {
         return {
             id: cryptoRandomString({ length: 16, type: 'base64' }),
@@ -66,6 +67,7 @@ export default defineComponent({
         this.iframeDocument = null
         this.loadedScriptsCount = 0
     },
+
     methods: {
         ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes', 'getCurrentDashboardView']),
         ...mapActions(appStore, ['setError']),
@@ -114,7 +116,7 @@ export default defineComponent({
         renderCustomWidget() {
             this.loadedScriptsCount = 0
             const iframe = this.recreateIframeElement()
-            setTimeout(() => this.createIframeContent(iframe), 10)
+            setTimeout(() => this.createIframeContent(iframe), 300)
         },
         createIframeContent(iframe: any) {
             this.iframeDocument = iframe.contentWindow.document
@@ -160,6 +162,9 @@ export default defineComponent({
         },
         insertUsersHtmlContent() {
             const tempEl = this.iframeDocument.querySelector('.component-wrapper')
+            this.htmlContent = this.htmlContent.replace(/(?:\[kn-i18n='([a-zA-Z0-9_\-\s]*)'\])/gm, (match, g1) => {
+                return (this as any).$internationalization(g1) || g1
+            })
             if (tempEl) tempEl.innerHTML = this.htmlContent
             this.getUserImportScripts(tempEl)
         },
@@ -228,6 +233,10 @@ export default defineComponent({
             if (this.propWidget.settings.interactions.crossNavigation.enabled) {
                 const formattedOutputParameters = formatForCrossNavigation(columnValue, this.propWidget.settings.interactions.crossNavigation)
                 executeChartCrossNavigation(formattedOutputParameters, this.propWidget.settings.interactions.crossNavigation, this.dashboardId)
+            } else if (this.propWidget.settings.interactions.preview.enabled) {
+                this.$emit('datasetInteractionPreview', { columnValue: columnValue, previewSettings: this.propWidget.settings.interactions.preview })
+            } else if (this.propWidget.settings.interactions.iframe.enabled) {
+                startHTMLAndCustomChartIFrameInteractions(columnValue, this.propWidget.settings.interactions.iframe, this.dashboardId, this.variables, window)
             } else {
                 if (!columnName) return
                 updateStoreSelections(this.createNewSelection([columnValue], columnName), this.activeSelections, this.dashboardId, this.setSelections, this.$http)

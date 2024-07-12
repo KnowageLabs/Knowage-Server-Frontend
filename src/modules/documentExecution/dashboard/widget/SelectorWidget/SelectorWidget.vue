@@ -301,15 +301,27 @@ export default defineComponent({
                 this.selectedValues = []
                 return
             }
+
+            multivalue ? this.setDefaultStaticMultivalue(staticValue) : this.setDefaultStaticSinglevalue(staticValue)
+        },
+        setDefaultStaticSinglevalue(staticValue: string) {
             const index = this.options.rows.findIndex((option: any) => staticValue.trim() === option.column_1.trim())
             if (index !== -1) {
-                if (multivalue) {
-                    this.selectedValues = [this.options.rows[index].column_1]
-                } else {
-                    this.selectedValue = this.options.rows[index].column_1
-                }
+                this.selectedValue = this.options.rows[index].column_1
             } else {
                 this.selectedValue = null
+            }
+        },
+        setDefaultStaticMultivalue(staticValue: string) {
+            const tempStaticValues = staticValue.split(',')
+            if (tempStaticValues.length > 0) {
+                tempStaticValues.forEach((tempStaticValue: string) => {
+                    const index = this.options.rows.findIndex((option: any) => tempStaticValue.trim() === option.column_1.trim())
+                    if (index !== -1) {
+                        this.selectedValues = this.selectedValues.length === 0 ? [this.options.rows[index].column_1] : [...this.selectedValues, this.options.rows[index].column_1]
+                    }
+                })
+            } else {
                 this.selectedValues = []
             }
         },

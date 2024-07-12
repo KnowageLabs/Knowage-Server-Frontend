@@ -114,6 +114,7 @@ export default defineComponent({
 
     &:deep(li.p-listbox-item) {
         padding: 0rem 0rem;
+        min-height: 46px;
     }
 
     .countryItem {

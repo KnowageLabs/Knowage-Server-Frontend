@@ -3,6 +3,7 @@ const routes = [
         path: '/datasource-management',
         name: 'datasource-management',
         component: () => import('@/modules/managers/dataSourceManagement/DataSourceManagement.vue'),
+        meta: { functionality: 'DataSourceManagement' },
         children: [
             {
                 path: '',

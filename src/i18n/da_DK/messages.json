@@ -1225,7 +1225,6 @@
             "helpTitle": "Hjælp ",
             "hint": "Med datasætstyring kan du administrere og oprette datasæt, der skal bruges i Knolønnen.  Du kan vælge typen, forespørgslen og alle relaterede indstillinger.  Klik på et eksisterende element fra listen på siden, eller tryk på knappen \"+\" for at tilføje en. ",
             "isPersisted": "Persist ",
-            "isPersistedHDFS": "Eksportabel på HDFS ",
             "isScheduled": "Tidsplan ",
             "jsonPathAttributes": "JSON-stiattributter ",
             "jsonPathValue": "JSON-stiværdi ",
@@ -1300,12 +1299,12 @@
             "valueName": "Værdinavn "
         },
         "driversManagement": {
-            "partialSuccessMessage": "Ikke alle data er opdateret.  Kontrollér igen for ikke-gemte oplysninger. ",
             "add": "Tilføj ",
             "deleteError": "Fejl ",
             "functional": "Funktionel ",
             "hint": "Drivermodeller et koncept eller et stykke data, der ofte bruges som et kodenummer på den globale datakontekst. Klik på ét eksisterende element fra listen på siden, eller tryk på knappen \"+\" for at tilføje en. ",
             "options": "Optioner ",
+            "partialSuccessMessage": "Ikke alle data er opdateret.  Kontrollér igen for ikke-gemte oplysninger. ",
             "temporal": "Midlertidig ",
             "title": "Styrestyring ",
             "useModes": {

@@ -1,8 +1,9 @@
 <template>
     <WidgetEditorSettingsList v-if="descriptor" :widget-model="propWidget" :options="descriptor.settingsListOptions" :propSelectedItem="selectedSetting" @itemClicked="onItemClicked"></WidgetEditorSettingsList>
     <div v-if="propWidget" class="p-d-flex kn-flex kn-overflow">
+        <KnHint v-if="!selectedSetting" class="p-as-center" :title="'common.settings'" :hint="'dashboard.widgetEditor.settings.hint'"></KnHint>
         <TableWidgetSettingsContainer
-            v-if="propWidget.type === 'table'"
+            v-if="selectedSetting && propWidget.type === 'table'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -12,7 +13,7 @@
             :dashboard-id="dashboardId"
         ></TableWidgetSettingsContainer>
         <SelectorWidgetSettingsContainer
-            v-else-if="propWidget.type === 'selector'"
+            v-else-if="selectedSetting && propWidget.type === 'selector'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -21,7 +22,7 @@
             :variables="variables"
         ></SelectorWidgetSettingsContainer>
         <SelectionsWidgetSettingsContainer
-            v-else-if="propWidget.type === 'selection'"
+            v-else-if="selectedSetting && propWidget.type === 'selection'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -30,7 +31,7 @@
             :variables="variables"
         ></SelectionsWidgetSettingsContainer>
         <HTMLWidgetSettingsContainer
-            v-else-if="propWidget.type === 'html'"
+            v-else-if="selectedSetting && propWidget.type === 'html'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -38,11 +39,11 @@
             :selected-datasets="selectedDatasets"
             :variables="variables"
             :dashboard-id="dashboardId"
-            :html-gallery-prop="htmlGalleryProp"
+            :prop-gallery-items="galleryItems"
             @galleryItemSelected="onGalleryItemSelected"
         ></HTMLWidgetSettingsContainer>
         <TextWidgetSettingsContainer
-            v-else-if="propWidget.type === 'text'"
+            v-else-if="selectedSetting && propWidget.type === 'text'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -52,7 +53,7 @@
             :dashboard-id="dashboardId"
         ></TextWidgetSettingsContainer>
         <HighchartsWidgetSettingsContainer
-            v-else-if="propWidget.type === 'highcharts' && user.enterprise"
+            v-else-if="selectedSetting && propWidget.type === 'highcharts' && user.enterprise"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -64,7 +65,7 @@
         >
         </HighchartsWidgetSettingsContainer>
         <ChartJSWidgetSettingsContainer
-            v-else-if="propWidget.type === 'chartJS'"
+            v-else-if="selectedSetting && propWidget.type === 'chartJS'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -75,7 +76,7 @@
         >
         </ChartJSWidgetSettingsContainer>
         <ImageWidgetSettingsContainer
-            v-else-if="propWidget.type === 'image'"
+            v-else-if="selectedSetting && propWidget.type === 'image'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -87,7 +88,7 @@
         >
         </ImageWidgetSettingsContainer>
         <CustomChartWidgetSettingsContainer
-            v-else-if="propWidget.type === 'customchart'"
+            v-else-if="selectedSetting && propWidget.type === 'customchart'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -95,11 +96,11 @@
             :selected-datasets="selectedDatasets"
             :variables="variables"
             :dashboard-id="dashboardId"
-            :custom-chart-gallery-prop="customChartGalleryProp"
+            :custom-chart-gallery-prop="customChartGallery"
             @galleryItemSelected="onGalleryItemSelected"
         ></CustomChartWidgetSettingsContainer>
         <PivotTableWidgetSettingsContainer
-            v-else-if="propWidget.type === 'static-pivot-table'"
+            v-else-if="selectedSetting && propWidget.type === 'static-pivot-table'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -109,7 +110,7 @@
             :dashboard-id="dashboardId"
         ></PivotTableWidgetSettingsContainer>
         <DiscoveryWidgetSettingsContainer
-            v-else-if="propWidget.type === 'discovery'"
+            v-else-if="selectedSetting && propWidget.type === 'discovery'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widgetModel="propWidget"
             :selectedSetting="selectedSetting"
@@ -119,7 +120,7 @@
             :dashboardId="dashboardId"
         ></DiscoveryWidgetSettingsContainer>
         <MapWidgetSettingsContainer
-            v-else-if="propWidget.type === 'map'"
+            v-else-if="selectedSetting && propWidget.type === 'map'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -130,7 +131,7 @@
             :layers="layers"
         ></MapWidgetSettingsContainer>
         <VegaChartsSettingsContainer
-            v-else-if="propWidget.type === 'vega'"
+            v-else-if="selectedSetting && propWidget.type === 'vega'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -140,7 +141,7 @@
             :dashboard-id="dashboardId"
         ></VegaChartsSettingsContainer>
         <cePivotTableWidgetSettingsContainer
-            v-else-if="propWidget.type === 'ce-pivot-table'"
+            v-else-if="selectedSetting && propWidget.type === 'ce-pivot-table'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
@@ -150,17 +151,25 @@
             :dashboard-id="dashboardId"
         ></cePivotTableWidgetSettingsContainer>
         <PythonWidgetSettingsContainer
-            v-else-if="propWidget.type === 'python'"
+            v-else-if="selectedSetting && propWidget.type === 'python'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
             :widget-model="propWidget"
             :selected-setting="selectedSetting"
             :datasets="datasets"
             :selected-datasets="selectedDatasets"
             :dashboard-id="dashboardId"
-            :python-gallery-prop="pythonGalleryProp"
+            :prop-gallery-items="galleryItems"
             @galleryItemSelected="onGalleryItemSelected"
         ></PythonWidgetSettingsContainer>
-        <RWidgetSettingsContainer v-else-if="propWidget.type === 'r'" class="model-div kn-flex kn-overflow p-py-3 p-pr-3" :widget-model="propWidget" :selected-setting="selectedSetting" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></RWidgetSettingsContainer>
+        <RWidgetSettingsContainer
+            v-else-if="selectedSetting && propWidget.type === 'r'"
+            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
+            :widget-model="propWidget"
+            :selected-setting="selectedSetting"
+            :datasets="datasets"
+            :selected-datasets="selectedDatasets"
+            :dashboard-id="dashboardId"
+        ></RWidgetSettingsContainer>
     </div>
 </template>
 
@@ -189,6 +198,7 @@ import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescripto
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
 import WidgetEditorSettingsList from './WidgetEditorSettingsList.vue'
 import htmlDescriptor from './HTMLWidget/HTMLWidgetSettingsDescriptor.json'
+import customDashboardHeaderDescriptor from './HTMLWidget/CustomDashboardHeaderDescriptor.json'
 import textDescriptor from './TextWidget/TextWidgetSettingsDescriptor.json'
 import chartJSDescriptor from './ChartWidget/chartJS/ChartJSWidgetSettingsDescriptor.json'
 import HighchartsPieSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPieSettingsDescriptor.json'
@@ -207,6 +217,11 @@ import HighchartsChordSettingsDescriptor from './ChartWidget/highcharts/descript
 import HighchartsParallelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsParallelSettingsDescriptor.json'
 import HighchartsPictorialSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPictorialSettingsDescriptor.json'
 import HighchartsSankeySettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsSankeySettingsDescriptor.json'
+import HighchartsFunnelSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsFunnelSettingsDescriptor.json'
+import HighchartsDumbbellSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsDumbbellSettingsDescriptor.json'
+import HighchartsStreamgraphSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsStreamgraphSettingsDescriptor.json'
+import HighchartsPackedBubbleSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsPackedBubbleSettingsDescriptor.json'
+import HighchartsWaterfallSettingsDescriptor from './ChartWidget/highcharts/descriptors/HighchartsWaterfallSettingsDescriptor.json'
 import imageDescriptor from './ImageWidget/ImageWidgetSettingsDescriptor.json'
 import customChartDescriptor from './CustomChartWidget/CustomChartWidgetSettingsDescriptor.json'
 import pivotTableDescriptor from './PivotTableWidget/PivotTableSettingsDescriptor.json'
@@ -216,12 +231,16 @@ import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
 import vegaChartsDescriptor from './ChartWidget/vega/VegaChartsSettingsDescriptor.json'
 import pythonWidgetDescriptor from './PythonWidget/PythonWidgetSettingsDescriptor.json'
 import rWidgetDescriptor from './RWidget/RWidgetSettingsDescriptor.json'
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import KnHint from '@/components/UI/KnHint.vue'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'widget-editor-settings-tab',
     components: {
+        KnHint,
         TableWidgetSettingsContainer,
         WidgetEditorSettingsList,
         SelectorWidgetSettingsContainer,
@@ -245,9 +264,6 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
         variables: { type: Array as PropType<IVariable[]>, required: true },
-        htmlGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        pythonGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
-        customChartGalleryProp: { type: Array as PropType<IGalleryItem[]>, required: true },
         dashboardId: { type: String, required: true },
         layers: { type: Array as PropType<ILayer[]>, required: true }
     },
@@ -256,7 +272,9 @@ export default defineComponent({
         return {
             descriptor: null as any,
             selectedDescriptor: {},
-            selectedSetting: ''
+            selectedSetting: '',
+            galleryItems: [] as IGalleryItem[],
+            customChartGallery: [] as IGalleryItem[]
         }
     },
     computed: {
@@ -272,10 +290,13 @@ export default defineComponent({
             this.loadDescriptor()
         }
     },
-    created() {
+    async created() {
+        if (['html', 'python'].includes(this.propWidget?.type)) await this.loadGallery()
+        if (this.propWidget?.type === 'customchart') this.customChartGallery = await this.getCustomChartGaleryItems(this.dashboardId, this.$http)
         this.loadDescriptor()
     },
     methods: {
+        ...mapActions(dashboardStore, ['getHTMLGaleryItems', 'getPythonGaleryItems', 'getCustomChartGaleryItems']),
         loadDescriptor() {
             switch (this.propWidget.type) {
                 case 'table':
@@ -288,7 +309,7 @@ export default defineComponent({
                     this.descriptor = selectionsDescriptor
                     break
                 case 'html':
-                    this.descriptor = { ...htmlDescriptor }
+                    this.descriptor = this.propWidget.settings.isCustomDashboardHeader ? { ...customDashboardHeaderDescriptor } : { ...htmlDescriptor }
                     this.checkIfHtmlWidgetGalleryOptionIsDisabled()
                     break
                 case 'text':
@@ -349,7 +370,7 @@ export default defineComponent({
                 case 'bubble':
                     return HighchartsBubbleSettingsDescriptor
                 case 'scatter':
-                    return HighchartsScatterSettingsDescriptor
+                    return this.getScatterChartDescriptor()
                 case 'line':
                     return HighchartsLineSettingsDescriptor
                 case 'treemap':
@@ -364,17 +385,35 @@ export default defineComponent({
                     return HighchartsPictorialSettingsDescriptor
                 case 'sankey':
                     return HighchartsSankeySettingsDescriptor
+                case 'funnel':
+                    return HighchartsFunnelSettingsDescriptor
+                case 'dumbbell':
+                    return HighchartsDumbbellSettingsDescriptor
+                case 'streamgraph':
+                    return HighchartsStreamgraphSettingsDescriptor
+                case 'packedbubble':
+                    return HighchartsPackedBubbleSettingsDescriptor
+                case 'waterfall':
+                    return HighchartsWaterfallSettingsDescriptor
             }
+        },
+        getScatterChartDescriptor() {
+            const isJittered = this.propWidget?.settings.chartModel?.model?.plotOptions?.scatter?.jitter ?? false
+            const descriptor = deepcopy(HighchartsScatterSettingsDescriptor)
+            if (!isJittered) descriptor.settings.Configuration = descriptor.settings.Configuration.filter((item) => item.type !== 'JitterSettings')
+            return descriptor
         },
         onItemClicked(item: any) {
             this.selectedSetting = item.value
             this.$emit('settingChanged', item.value)
             this.selectedDescriptor = { table: item.descriptor }
         },
+        async loadGallery() {
+            this.galleryItems = this.propWidget.type === 'html' ? await this.getHTMLGaleryItems(this.dashboardId, this.$http) : await this.getPythonGaleryItems(this.dashboardId, this.$http)
+        },
         checkIfHtmlWidgetGalleryOptionIsDisabled() {
-            if (this.htmlGalleryProp.length > 0) return
             const index = this.descriptor.settingsListOptions.findIndex((option: any) => option.value === 'Gallery')
-            if (index !== -1) this.descriptor.settingsListOptions[index].disabled = true
+            if (index !== -1) this.descriptor.settingsListOptions[index].disabled = this.galleryItems.length === 0
         },
         onGalleryItemSelected() {
             this.selectedSetting = 'Editor'

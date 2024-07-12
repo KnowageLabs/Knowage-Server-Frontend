@@ -96,7 +96,7 @@ export default defineComponent({
         async deleteCustomView(customView: iOlapCustomView) {
             this.loading = true
             await this.$http
-                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services//1.0/olapsubobjects/removeOlapSubObject?idObj=${customView.id}`)
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/olapsubobjects/removeOlapSubObject?idObj=${customView.id}`)
                 .then(() => {
                     this.removeCustomView(customView)
                     this.store.setInfo({

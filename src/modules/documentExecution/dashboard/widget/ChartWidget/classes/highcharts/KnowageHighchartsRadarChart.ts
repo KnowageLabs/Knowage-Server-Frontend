@@ -18,6 +18,10 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'radar'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
@@ -25,8 +29,8 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     }
 
     setSpecificOptionsDefaultValues() {
-        if (!this.model.xAxis || !this.model.xAxis.title) this.setRadarXAxis()
-        if (!this.model.yAxis || !this.model.yAxis.title) this.setRadarYAxis()
+        if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setRadarXAxis()
+        if (!this.model.yAxis || !this.model.yAxis[0] || !this.model.yAxis[0].title) this.setRadarYAxis()
     }
 
     setData(data: any, widgetModel: IWidget) {

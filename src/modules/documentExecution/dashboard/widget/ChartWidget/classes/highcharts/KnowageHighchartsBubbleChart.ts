@@ -18,6 +18,10 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
             }
         }
         this.model.chart.type = 'bubble'
+        if (!this.model.annotations) this.model.annotations = highchartsDefaultValues.getDefaultAnnotations()
+        delete this.model.chart.inverted
+        delete this.model.sonification
+        if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
     updateModel(oldModel: any) {
@@ -26,8 +30,9 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
-        if (!this.model.xAxis || !this.model.xAxis.title) this.setBubbleXAxis()
-        if (!this.model.yAxis || !this.model.yAxis.title) this.setBubbleYAxis()
+        if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setBubbleXAxis()
+        if (!this.model.yAxis || !this.model.yAxis[0] || !this.model.yAxis[0].title) this.setBubbleYAxis()
+        if (this.model.yAxis[0]) delete this.model.yAxis[0].type
     }
 
     setPlotOptions() {

@@ -2,7 +2,7 @@
     <Card :style="tabViewDescriptor.style.cardinalityCard">
         <template #content>
             <div class="CodeMirrorMathematica">
-                <div class="CodeMirror-code formula"></div>
+                <knMonaco v-if="kpi?.definition" ref="editor" v-model="kpi.definition.formulaDecoded" language="kpiLang" style="height: 100px" :options="{ readOnly: true }"></knMonaco>
             </div>
         </template>
     </Card>
@@ -34,15 +34,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, readonly } from 'vue'
 import tabViewDescriptor from '../KpiDefinitionDetailDescriptor.json'
 import { AxiosResponse } from 'axios'
 import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import knMonaco from '@/components/UI/KnMonaco/knMonaco.vue'
 
 export default defineComponent({
-    components: { Card, DataTable, Column },
+    components: { Card, DataTable, knMonaco, Column },
     props: {
         selectedKpi: {
             type: Object as any

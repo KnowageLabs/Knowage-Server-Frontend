@@ -1,24 +1,26 @@
 <template>
     <div v-if="axisModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="['heatmap', 'area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
+        <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.min') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                 <InputNumber v-model="axisModel.min" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMinHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeValue('min')" />
             </div>
         </div>
-        <div v-if="['heatmap', 'area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
+        <div v-if="['area', 'bar', 'column', 'line'].includes(chartType)" class="p-col-12 p-md-3 p-d-flex p-flex-column">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.max') }}</label>
             <div class="p-d-flex p-flex-row p-ai-center p-fluid">
                 <InputNumber v-model="axisModel.max" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                 <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.heatmap.axisMaxHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                <Button icon="fa fa-eraser" class="p-button-text p-button-rounded p-button-plain" @click="removeValue('max')" />
             </div>
         </div>
-        <div class="p-col-12 p-d-flex p-flex-column" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter'].includes(chartType) }">
+        <div class="p-col-12 p-d-flex p-flex-column" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter', 'dumbbell', 'streamgraph', 'waterfall'].includes(chartType) }">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.heatmap.labelRotation') }}</label>
             <InputNumber v-model="axisModel.labels.rotation" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
         </div>
-        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter'].includes(chartType) }">
+        <div class="p-col-12 p-d-flex p-flex-column kn-flex p-p-2" :class="{ 'p-md-3': chartType === 'heatmap', 'p-md-6': ['radar', 'area', 'bar', 'column', 'line', 'scatter', 'dumbbell', 'streamgraph', 'waterfall'].includes(chartType) }">
             <label class="kn-material-input-label p-mr-2">{{ $t('common.align') }}</label>
             <Dropdown v-model="axisModel.labels.align" class="kn-material-input" :options="settingsDescriptor.alignmentOptions" option-value="value" @change="modelChanged">
                 <template #value="slotProps">
@@ -63,6 +65,13 @@
             </div>
             <Transition>
                 <div v-if="advancedVisible" class="p-d-flex p-flex-column">
+                    <div class="p-col-12 p-md-3 p-d-flex p-flex-column">
+                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.labels.xCoordinate') }}</label>
+                        <div class="p-d-flex p-flex-row p-ai-center p-fluid">
+                            <InputNumber v-model="axisModel.labels.x" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.labels.xAlignValueHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
+                        </div>
+                    </div>
                     <div class="p-col-12">
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.format') }}</label>
                         <div class="p-d-flex p-flex-row p-ai-center">
@@ -76,7 +85,7 @@
                             {{ axisModel.labels.formatterError }}
                         </Message>
                         <div class="p-d-flex p-flex-row p-ai-center">
-                            <HighchartsFormatterCodeMirror :prop-code="axisModel.labels.formatterText" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterCodeMirror>
+                            <HighchartsFormatterMonaco :prop-code="axisModel.labels.formatterText" @change="onFormatterChange" @blur="modelChanged"></HighchartsFormatterMonaco>
                             <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.labels.formatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                         </div>
                     </div>
@@ -96,14 +105,14 @@ import settingsDescriptor from '../HighchartsWidgetSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorStyleToolbar from '../../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
-import HighchartsFormatterCodeMirror from '../common/HighchartsFormatterCodeMirror.vue'
+import HighchartsFormatterMonaco from '../common/HighchartsFormatterMonaco.vue'
 import Textarea from 'primevue/textarea'
 import Message from 'primevue/message'
 import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'highcharts-axis-settings',
-    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, HighchartsFormatterCodeMirror, Textarea, Message, InputSwitch },
+    components: { Dropdown, InputNumber, WidgetEditorStyleToolbar, HighchartsFormatterMonaco, Textarea, Message, InputSwitch },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, axis: { type: String, required: true } },
     data() {
         return {
@@ -126,7 +135,7 @@ export default defineComponent({
     methods: {
         loadModel() {
             if (!this.widgetModel.settings.chartModel || !this.widgetModel.settings.chartModel.model) return
-            this.axisModel = this.axis === 'x' ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
+            this.axisModel = (this.axis === 'x' && this.chartType !== 'bar') || (this.chartType === 'bar' && this.axis === 'y') ? this.widgetModel.settings.chartModel.model.xAxis[0] : this.widgetModel.settings.chartModel.model.yAxis[0]
             this.loadToolbarModel()
         },
         loadToolbarModel() {
@@ -154,6 +163,9 @@ export default defineComponent({
         onFormatterChange(newValue: string) {
             if (!this.axisModel) return
             this.axisModel.labels.formatterText = newValue
+        },
+        removeValue(value: 'min' | 'max') {
+            this.axisModel[value] = null
         }
     }
 })

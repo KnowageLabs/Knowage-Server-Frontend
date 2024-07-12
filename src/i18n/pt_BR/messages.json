@@ -1225,7 +1225,6 @@
             "helpTitle": "Ajuda ",
             "hint": "O gerenciamento do Dataset permite gerenciar e criar conjuntos de dados para usar dentro do Knowage.  Você pode selecionar o tipo, a consulta e todas as configurações relacionadas.  Clique em um item existente da lista na lateral, ou pressione o botão \"+\" para adicionar um. ",
             "isPersisted": "Persistir ",
-            "isPersistedHDFS": "Exportável no HDFS ",
             "isScheduled": "Planejamento ",
             "jsonPathAttributes": "Atributos de Caminho JSON ",
             "jsonPathValue": "Valor do Caminho JSON ",
@@ -1300,12 +1299,12 @@
             "valueName": "Nome do valor "
         },
         "driversManagement": {
-            "partialSuccessMessage": "Nem todos os dados foram atualizados com sucesso.  Confira novamente as informações não salvas. ",
             "add": "Adicionar ",
             "deleteError": "Erro ",
             "functional": "Funcional ",
             "hint": "O driver modela um conceito ou um pedaço de dados frequentemente usado como critério diferenciador no contexto global de dados. Clique em um item existente da lista na lateral, ou pressione o botão \"+\" para adicionar um. ",
             "options": "Opções ",
+            "partialSuccessMessage": "Nem todos os dados foram atualizados com sucesso.  Confira novamente as informações não salvas. ",
             "temporal": "Temporal ",
             "title": "Gerenciamento de drivers ",
             "useModes": {
