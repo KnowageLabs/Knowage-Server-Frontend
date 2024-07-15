@@ -74,7 +74,6 @@
                     :visible="filtersData && filtersData.isReadyForExecution && !loading"
                     :document="document"
                     :reload-trigger="reloadTrigger"
-                    :hidden-form-data="document.hiddenFormData"
                     :mode="'dashboard-popup'"
                     :filters-data="filtersData"
                     :new-dashboard-mode="false"
@@ -782,6 +781,13 @@ export default defineComponent({
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
             }
         },
+        replaceOldFormat(formValue) {
+            return formValue
+                .replace(/{;{(.*)}STRING}/gm, (m, g1) => {
+                    return g1
+                })
+                .split(';')
+        },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
             const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name) as any
             const documentUrl = this.urlData?.url + '&timereloadurl=' + new Date().getTime()
@@ -813,30 +819,51 @@ export default defineComponent({
             this.hiddenFormData = new URLSearchParams()
 
             for (const k in postObject.params) {
-                const inputElement = document.getElementById('postForm_' + postObject.params.document + k) as any
+                const inputElement = document.getElementById(`postForm_${postObject.params.document}${k}`) as any
                 if (inputElement) {
                     inputElement.value = decodeURIComponent(postObject.params[k])
                     inputElement.value = inputElement.value.replace(/\+/g, ' ')
-                    this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
+                    if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
+                        var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
+                        tempValues.forEach((i, index) => {
+                            this.hiddenFormData.set(k + '[]', i.replace(/\+/g, ' '))
+                        })
+                    } else this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
                 } else {
-                    const element = document.createElement('input')
-                    element.type = 'hidden'
-                    element.id = 'postForm_' + postObject.params.document + k
-                    element.name = k
-                    element.value = decodeURIComponent(postObject.params[k])
-                    element.value = element.value.replace(/\+/g, ' ')
-                    postForm.appendChild(element)
-                    this.hiddenFormData.append(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
+                    if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
+                        var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
+                        tempValues.forEach((i, index) => {
+                            const element = document.createElement('input')
+                            element.type = 'hidden'
+                            element.id = 'postForm_' + postObject.params.document + k + index
+                            element.name = k + '[]'
+                            element.value = i.replace(/\+/g, ' ')
+                            postForm.appendChild(element)
+                            this.hiddenFormData.append(element.name, element.value)
+                        })
+                    } else {
+                        const element = document.createElement('input')
+                        element.type = 'hidden'
+                        element.id = 'postForm_' + postObject.params.document + k
+                        element.value = decodeURIComponent(postObject.params[k])
+                        element.name = k
+                        element.value = element.value.replace(/\+/g, ' ')
+                        postForm.appendChild(element)
+                        this.hiddenFormData.append(element.name, element.value)
+                    }
                 }
             }
 
-            for (let i = postForm.elements.length - 1; i >= 0; i--) {
-                const postFormElement = postForm.elements[i].id.replace('postForm_' + postObject.params.document, '')
-                if (!(postFormElement in postObject.params)) {
-                    postForm.removeChild(postForm.elements[i])
-                    this.hiddenFormData.delete(postFormElement)
+            if (this.document.typeCode != 'DASHBOARD') {
+                for (let i = postForm.elements.length - 1; i >= 0; i--) {
+                    const postFormElement = postForm.elements[i].id.replace('postForm_' + postObject.params.document, '')
+                    if (!(postFormElement in postObject.params)) {
+                        postForm.removeChild(postForm.elements[i])
+                        this.hiddenFormData.delete(postFormElement)
+                    }
                 }
             }
+
             this.hiddenFormData.append('documentMode', this.documentMode)
             if (this.document.typeCode === 'DASHBOARD') return
             this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()

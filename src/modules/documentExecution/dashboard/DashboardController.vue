@@ -124,7 +124,6 @@ export default defineComponent({
         visible: { type: Boolean },
         document: { type: Object },
         reloadTrigger: { type: Boolean },
-        hiddenFormData: { type: Object },
         filtersData: {
             type: Object as PropType<{
                 filterStatus: iParameter[]

@@ -39,6 +39,6 @@
         }
     },
     "extensions": {
-        "recommendations": ["octref.vetur", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "richie5um2.vscode-sort-json"]
+        "recommendations": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "richie5um2.vscode-sort-json"]
     }
 }
