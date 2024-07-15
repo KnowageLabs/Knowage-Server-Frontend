@@ -782,11 +782,13 @@ export default defineComponent({
             }
         },
         replaceOldFormat(formValue) {
-            return formValue
-                .replace(/{;{(.*)}STRING}/gm, (m, g1) => {
-                    return g1
-                })
-                .split(';')
+            return JSON.stringify(
+                formValue
+                    .replace(/{;{(.*)}STRING}/gm, (m, g1) => {
+                        return g1
+                    })
+                    .split(';')
+            )
         },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
             const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name) as any
@@ -824,33 +826,20 @@ export default defineComponent({
                     inputElement.value = decodeURIComponent(postObject.params[k])
                     inputElement.value = inputElement.value.replace(/\+/g, ' ')
                     if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
-                        var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
-                        tempValues.forEach((i, index) => {
-                            this.hiddenFormData.set(k + '[]', i.replace(/\+/g, ' '))
-                        })
+                        this.hiddenFormData.set(k, this.replaceOldFormat(decodeURIComponent(postObject.params[k])))
                     } else this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
                 } else {
+                    const element = document.createElement('input')
+                    element.type = 'hidden'
+                    element.id = 'postForm_' + postObject.params.document + k
+                    element.name = k
                     if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
-                        var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
-                        tempValues.forEach((i, index) => {
-                            const element = document.createElement('input')
-                            element.type = 'hidden'
-                            element.id = 'postForm_' + postObject.params.document + k + index
-                            element.name = k + '[]'
-                            element.value = i.replace(/\+/g, ' ')
-                            postForm.appendChild(element)
-                            this.hiddenFormData.append(element.name, element.value)
-                        })
+                        element.value = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
                     } else {
-                        const element = document.createElement('input')
-                        element.type = 'hidden'
-                        element.id = 'postForm_' + postObject.params.document + k
                         element.value = decodeURIComponent(postObject.params[k])
-                        element.name = k
-                        element.value = element.value.replace(/\+/g, ' ')
-                        postForm.appendChild(element)
-                        this.hiddenFormData.append(element.name, element.value)
                     }
+                    postForm.appendChild(element)
+                    this.hiddenFormData.append(element.name, element.value)
                 }
             }
 
