@@ -862,24 +862,46 @@ export default defineComponent({
             for (const k in postObject.params) {
                 const inputElement = document.getElementById(`postForm_${postObject.params.document}${k}`) as any
                 if (inputElement) {
-                    inputElement.value = decodeURIComponent(postObject.params[k])
-                    inputElement.value = inputElement.value.replace(/\+/g, ' ')
                     if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
-                        this.hiddenFormData.set(k, this.replaceOldFormat(decodeURIComponent(postObject.params[k])))
-                    } else this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
-                } else {
-                    const element = document.createElement('input')
-                    element.type = 'hidden'
-                    element.id = 'postForm_' + postObject.params.document + k
-                    element.name = k
-                    if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
+                        var multipleElements = document.getElementsByClassName(`multiple_${k}`)
+                        while (multipleElements.length > 0) {
+                            this.hiddenFormData.delete(k, multipleElements[0].value)
+                            multipleElements[0].parentNode.removeChild(multipleElements[0])
+                        }
                         var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
                         tempValues.forEach((i) => {
+                            const element = document.createElement('input')
+                            element.type = 'hidden'
+                            element.id = 'postForm_' + postObject.params.document + k
+                            element.name = k
                             element.value = i
+                            element.classList.add(`multiple_${k}`)
                             postForm.appendChild(element)
                             this.hiddenFormData.append(element.name, element.value)
                         })
                     } else {
+                        inputElement.value = decodeURIComponent(postObject.params[k])
+                        inputElement.value = inputElement.value.replace(/\+/g, ' ')
+                        this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
+                    }
+                } else {
+                    if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
+                        var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
+                        tempValues.forEach((i) => {
+                            const element = document.createElement('input')
+                            element.type = 'hidden'
+                            element.id = 'postForm_' + postObject.params.document + k
+                            element.name = k
+                            element.value = i
+                            element.classList.add(`multiple_${k}`)
+                            postForm.appendChild(element)
+                            this.hiddenFormData.append(element.name, element.value)
+                        })
+                    } else {
+                        const element = document.createElement('input')
+                        element.type = 'hidden'
+                        element.id = 'postForm_' + postObject.params.document + k
+                        element.name = k
                         element.value = decodeURIComponent(postObject.params[k])
                         postForm.appendChild(element)
                         this.hiddenFormData.append(element.name, element.value)
