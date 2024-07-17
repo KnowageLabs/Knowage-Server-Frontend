@@ -149,6 +149,7 @@
 
             <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedCockpitView" :document="document" @close="onSaveViewDialogClose"></DashboardSaveViewDialog>
             <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
+            <DatasetEditorPreview v-if="datasetPreviewShown" :prop-dataset="datasetToPreview" :dashboard-id="document.dashboardId" @close="datasetPreviewShown = false" />
         </div>
     </div>
 </template>
@@ -195,6 +196,7 @@ import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/W
 import EnginesConstants from '@/EnginesConstants.json'
 import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
+import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 
 let seeAsFinalUserWarning
 // @ts-ignore
@@ -209,7 +211,21 @@ window.execExternalCrossNavigation = function (outputParameters, otherOutputPara
             docLabel: null,
             otherOutputParameters: otherOutputParameters ? [otherOutputParameters] : []
         },
-        '*'
+        location.origin
+    )
+}
+
+// @ts-ignore
+// eslint-disable-next-line
+window.execPreviewDataset = function (dsLabel, parameters, directDownload) {
+    postMessage(
+        {
+            type: 'preview',
+            dsLabel: dsLabel,
+            parameters: parameters,
+            directDownload: directDownload
+        },
+        location.origin
     )
 }
 
@@ -317,7 +333,9 @@ export default defineComponent({
             cockpitViewForExecution: null as IDashboardView | null,
             dataLoaded: false,
             seeAsFinalUser: false,
-            downloadMode: false
+            downloadMode: false,
+            datasetPreviewShown: false as boolean,
+            datasetToPreview: {} as any
         }
     },
     computed: {
@@ -467,9 +485,25 @@ export default defineComponent({
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
         ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
-        iframeEventsListener(event) {
+        async directDownloadDataset(datasetId: number) {
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/csv`, {}, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
+                .catch(() => {})
+        },
+        async iframeEventsListener(event) {
             if (event.data.type === 'crossNavigation') {
                 executeAngularCrossNavigation(this, event, this.$http)
+            } else if (event.data.type === 'preview') {
+                await this.$http
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${event.data.dsLabel}`)
+                    .then((response: AxiosResponse<any>) => {
+                        this.datasetToPreview = response.data[0]
+                    })
+                    .catch(() => {})
+                this.datasetToPreview.pars = event.data.parameters
+                if (event.data.directDownload) this.directDownloadDataset(this.datasetToPreview.id)
+                else this.datasetPreviewShown = true
             } else if (event.data.type === 'cockpitExecuted') {
                 this.loading = false
             }
