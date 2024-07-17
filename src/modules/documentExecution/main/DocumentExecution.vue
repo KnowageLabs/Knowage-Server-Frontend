@@ -149,7 +149,7 @@
 
             <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedCockpitView" :document="document" @close="onSaveViewDialogClose"></DashboardSaveViewDialog>
             <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
-            <DatasetEditorPreview v-if="datasetPreviewShown" :prop-dataset="datasetToPreview" :dashboard-id="document.dashboardId" @close="datasetPreviewShown = false" />
+            <DatasetEditorPreview v-if="datasetPreviewShown" :visible="datasetPreviewShown" :prop-dataset="datasetToPreview" :dashboard-id="document.dashboardId" @close="datasetPreviewShown = false" />
         </div>
     </div>
 </template>
