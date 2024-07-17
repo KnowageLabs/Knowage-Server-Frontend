@@ -196,7 +196,7 @@ import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/W
 import EnginesConstants from '@/EnginesConstants.json'
 import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
-import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
+import DatasetEditorPreview from '../dashboard/dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 
 let seeAsFinalUserWarning
 // @ts-ignore
@@ -232,6 +232,7 @@ window.execPreviewDataset = function (dsLabel, parameters, directDownload) {
 export default defineComponent({
     name: 'document-execution',
     components: {
+        DatasetEditorPreview,
         DocumentExecutionBreadcrumb,
         DocumentExecutionHelpDialog,
         DocumentExecutionRankDialog,
