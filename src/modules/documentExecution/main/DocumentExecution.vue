@@ -500,6 +500,13 @@ export default defineComponent({
                     .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${event.data.dsLabel}`)
                     .then((response: AxiosResponse<any>) => {
                         this.datasetToPreview = response.data[0]
+                        if (event.data.parameters && event.data.parameters.length > 0) {
+                            this.datasetToPreview.pars.forEach((i) => {
+                                if (event.data.parameters.filter((par, key) => key === i.name)[0]) {
+                                    i.value = event.data.parameters.filter((par, key) => key === i.name)[0][i.name]
+                                }
+                            })
+                        }
                     })
                     .catch(() => {})
                 this.datasetToPreview.pars = event.data.parameters
