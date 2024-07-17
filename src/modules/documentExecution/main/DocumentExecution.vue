@@ -817,13 +817,11 @@ export default defineComponent({
             }
         },
         replaceOldFormat(formValue) {
-            return JSON.stringify(
-                formValue
-                    .replace(/{;{(.*)}STRING}/gm, (m, g1) => {
-                        return g1
-                    })
-                    .split(';')
-            )
+            return formValue
+                .replace(/{;{(.*)}STRING}/gm, (m, g1) => {
+                    return g1
+                })
+                .split(';')
         },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
             const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name) as any
@@ -869,12 +867,17 @@ export default defineComponent({
                     element.id = 'postForm_' + postObject.params.document + k
                     element.name = k
                     if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
-                        element.value = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
+                        var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
+                        tempValues.forEach((i) => {
+                            element.value = i
+                            postForm.appendChild(element)
+                            this.hiddenFormData.append(element.name, element.value)
+                        })
                     } else {
                         element.value = decodeURIComponent(postObject.params[k])
+                        postForm.appendChild(element)
+                        this.hiddenFormData.append(element.name, element.value)
                     }
-                    postForm.appendChild(element)
-                    this.hiddenFormData.append(element.name, element.value)
                 }
             }
 
