@@ -586,7 +586,7 @@ export default defineComponent({
             // launch avro export job
             this.$http
                 .post(
-                    import.meta.env.VITE_KNOWAGE_CONTEXT + `/1.0/data-preparation/prepare/${dsId}`,
+                    import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/data-preparation/prepare/${dsId}`,
                     {},
                     {
                         headers: {
