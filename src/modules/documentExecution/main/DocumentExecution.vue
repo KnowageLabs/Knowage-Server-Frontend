@@ -502,8 +502,8 @@ export default defineComponent({
                         this.datasetToPreview = response.data[0]
                         if (event.data.parameters && event.data.parameters.length > 0) {
                             this.datasetToPreview.pars.forEach((i) => {
-                                if (event.data.parameters.filter((par, key) => key === i.name)[0]) {
-                                    i.value = event.data.parameters.filter((par, key) => key === i.name)[0][i.name]
+                                if (Object.keys(event.data.parameters[0]).includes(i.name)) {
+                                    i.value = event.data.parameters[0][i.name]
                                 }
                             })
                         }
