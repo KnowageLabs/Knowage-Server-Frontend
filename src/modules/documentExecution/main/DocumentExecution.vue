@@ -509,7 +509,6 @@ export default defineComponent({
                         }
                     })
                     .catch(() => {})
-                this.datasetToPreview.pars = event.data.parameters
                 if (event.data.directDownload) this.directDownloadDataset(this.datasetToPreview.id)
                 else this.datasetPreviewShown = true
             } else if (event.data.type === 'cockpitExecuted') {
