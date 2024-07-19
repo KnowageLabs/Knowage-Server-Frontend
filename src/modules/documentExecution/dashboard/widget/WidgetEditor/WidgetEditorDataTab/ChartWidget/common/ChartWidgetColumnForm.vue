@@ -16,7 +16,7 @@
             <div class="p-d-flex p-flex-row p-ai-center kn-flex p-mt-2">
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                    <Dropdown v-model="column.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
+                    <Dropdown v-model="column.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" showClear @change="selectedColumnUpdated">
                         <template #value="slotProps">
                             <div>
                                 <span>{{ slotProps.value }}</span>
@@ -56,7 +56,7 @@
                 </div>
                 <div class="p-d-flex p-flex-column kn-flex p-m-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.drillSortingOrder') }}</label>
-                    <Dropdown v-model="column.drillOrder.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="selectedColumnUpdated">
+                    <Dropdown v-model="column.drillOrder.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" showClear @change="selectedColumnUpdated">
                         <template #value="slotProps">
                             <div>
                                 <span>{{ slotProps.value }}</span>

@@ -2,7 +2,7 @@
     <div v-if="widget">
         <div class="p-d-flex p-flex-column kn-flex p-m-2">
             <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-            <Dropdown v-model="sortingOrder" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" @change="sortingChanged">
+            <Dropdown v-model="sortingOrder" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" showClear @change="sortingChanged">
                 <template #value="slotProps">
                     <div>
                         <span>{{ slotProps.value }}</span>
