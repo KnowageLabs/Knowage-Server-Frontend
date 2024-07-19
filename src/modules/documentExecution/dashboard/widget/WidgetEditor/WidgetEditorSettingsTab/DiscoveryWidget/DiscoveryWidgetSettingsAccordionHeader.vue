@@ -66,6 +66,8 @@ export default defineComponent({
                     return this.widgetModel.settings.style.padding
                 case 'ShadowsStyle':
                     return this.widgetModel.settings.style.shadows
+                case 'Selection':
+                    return this.widgetModel.settings.interactions.selection
                 case 'CrossNavigation':
                     return this.widgetModel.settings.interactions.crossNavigation
                 case 'Link':

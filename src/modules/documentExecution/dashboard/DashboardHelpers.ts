@@ -16,6 +16,7 @@ import descriptor from './DashboardDescriptor.json'
 import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/helpers/tableWidget/TableWidgetFunctions'
 import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
+import { formatDashboardDiscoveryWidgetAfterLoading } from './widget/WidgetEditor/helpers/discoveryWidget/DiscoveryWidgetFunctions'
 
 const store = mainStore()
 
@@ -244,6 +245,9 @@ const formatWidget = (widget: IWidget) => {
         case 'table':
             formatDashboardTableWidgetAfterLoading(widget)
             break
+        case 'discovery':
+            formatDashboardDiscoveryWidgetAfterLoading(widget)
+            break
         case 'chartJS':
             formatChartJSWidget(widget)
             break
@@ -281,7 +285,7 @@ export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: a
     await $http
         .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url)
         .then((response: AxiosResponse<any>) => (datasets = response.data ? response.data.item : []))
-        .catch(() => { })
+        .catch(() => {})
     setAllDatasets(datasets)
     appStore.setLoading(false)
     return datasets
@@ -332,7 +336,7 @@ export const loadHtmlGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/html`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => { })
+        .catch(() => {})
     store.setLoading(false)
     return galleryItems
 }
@@ -343,7 +347,7 @@ export const loadPythonGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/python`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => { })
+        .catch(() => {})
     store.setLoading(false)
     return galleryItems
 }
@@ -354,7 +358,7 @@ export const loadCustomChartGallery = async ($http: any) => {
     await $http
         .get(import.meta.env.VITE_KNOWAGE_API_CONTEXT + `/api/1.0/widgetgallery/widgets/chart`)
         .then((response: AxiosResponse<any>) => (galleryItems = response.data))
-        .catch(() => { })
+        .catch(() => {})
     store.setLoading(false)
     return galleryItems
 }
