@@ -37,53 +37,6 @@ export const loadFilters = async (
     }
 
     filtersData = await getFilters(document, userRole, $http)
-    // TODO
-    filtersData = {
-        filterStatus: [
-            {
-                urlName: 'par_family',
-                visible: true,
-                data: [
-                    {
-                        _col0: 'Car'
-                    },
-                    {
-                        _col0: 'Drink'
-                    },
-                    {
-                        _col0: 'Food'
-                    },
-                    {
-                        _col0: 'Non-Consumable'
-                    }
-                ],
-                selectedLayerProp: null,
-                descriptionColumnNameMetadata: 'product_family',
-                valueSelection: 'lov',
-                showOnPanel: 'true',
-                driverUseLabel: 'ALL',
-                label: 'Family',
-                selectedLayer: null,
-                type: 'STRING',
-                driverLabel: 'Family',
-                mandatory: true,
-                allowInternalNodeSelection: false,
-                typeCode: 'QUERY',
-                multivalue: true,
-                dependencies: {
-                    data: [],
-                    visual: [],
-                    lov: []
-                },
-                selectionType: 'LIST',
-                valueColumnNameMetadata: 'product_family',
-                id: 584,
-                defaultValuesMeta: ['product_family']
-            }
-        ],
-        isReadyForExecution: false
-    }
-    console.log('----- FILTERS DATA: ', filtersData)
     formatDrivers(filtersData, dateFormat)
 
     if (document.navigationParams || document.formattedCrossNavigationParameters) {
