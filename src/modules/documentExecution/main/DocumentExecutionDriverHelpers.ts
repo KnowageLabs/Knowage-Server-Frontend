@@ -37,6 +37,53 @@ export const loadFilters = async (
     }
 
     filtersData = await getFilters(document, userRole, $http)
+    // TODO
+    filtersData = {
+        filterStatus: [
+            {
+                urlName: 'par_family',
+                visible: true,
+                data: [
+                    {
+                        _col0: 'Car'
+                    },
+                    {
+                        _col0: 'Drink'
+                    },
+                    {
+                        _col0: 'Food'
+                    },
+                    {
+                        _col0: 'Non-Consumable'
+                    }
+                ],
+                selectedLayerProp: null,
+                descriptionColumnNameMetadata: 'product_family',
+                valueSelection: 'lov',
+                showOnPanel: 'true',
+                driverUseLabel: 'ALL',
+                label: 'Family',
+                selectedLayer: null,
+                type: 'STRING',
+                driverLabel: 'Family',
+                mandatory: true,
+                allowInternalNodeSelection: false,
+                typeCode: 'QUERY',
+                multivalue: true,
+                dependencies: {
+                    data: [],
+                    visual: [],
+                    lov: []
+                },
+                selectionType: 'LIST',
+                valueColumnNameMetadata: 'product_family',
+                id: 584,
+                defaultValuesMeta: ['product_family']
+            }
+        ],
+        isReadyForExecution: false
+    }
+    console.log('----- FILTERS DATA: ', filtersData)
     formatDrivers(filtersData, dateFormat)
 
     if (document.navigationParams || document.formattedCrossNavigationParameters) {
@@ -187,7 +234,7 @@ const setFiltersForBreadcrumbItem = (breadcrumbs: any[], filtersData: { filterSt
 }
 
 const formatParameterDataOptions = (parameter: iParameter, data: any) => {
-    if (!parameter.metadata) return { value: data['_col0'] ? data['_col0'] : '', description: data['_col1'] ? data['_col1'] : '' }
+    if (!parameter.metadata) return { value: data['_col0'] ? data['_col0'] : '', description: data['_col1'] ? data['_col1'] : data['_col0'] }
     const valueColumn = parameter.metadata.valueColumn
     const descriptionColumn = parameter.metadata.descriptionColumn
     const valueIndex = Object.keys(parameter.metadata.colsMap).find((key: string) => parameter.metadata.colsMap[key] === valueColumn)
