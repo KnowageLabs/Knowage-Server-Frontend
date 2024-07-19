@@ -37,7 +37,7 @@ export const loadFilters = async (
     }
 
     filtersData = await getFilters(document, userRole, $http)
-    formatDrivers(filtersData)
+    formatDrivers(filtersData, dateFormat)
 
     if (document.navigationParams || document.formattedCrossNavigationParameters) {
         if (document.navigationFromDashboard) loadNavigationInitialValuesFromDashboard(document, filtersData, dateFormat)
@@ -124,9 +124,9 @@ const getFilters = async (document: any, userRole: string | null, $http: any) =>
     return filtersData
 }
 
-const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean } | null) => {
+const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean } | null, dateFormat: string) => {
     filtersData?.filterStatus?.forEach((el: iParameter) => {
-        if (el.type === 'DATE') formatDateDriver(el)
+        if (el.type === 'DATE') formatDateDriver(el, dateFormat)
         else el.parameterValue = !el.multivalue || (el.valueSelection === 'man_in' && !el.selectionType) ? [{ value: '', description: '' }] : []
 
         if (el.driverDefaultValue?.length > 0) {
@@ -144,7 +144,7 @@ const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExec
                 }
             })
 
-            formatDateDriver(el)
+            formatDateDriver(el, dateFormat)
         }
 
         if (el.data) {
@@ -170,14 +170,14 @@ const addDefaultEmptyParameterValuesIfNoValuesPresent = (el: iParameter) => {
     if (el.parameterValue[0] && !el.parameterValue[0].description) el.parameterValue[0].description = el.parameterDescription ? el.parameterDescription[0] : ''
 }
 
-const formatDateDriver = (el: any) => {
+const formatDateDriver = (el: any, dateFormat: string) => {
     if (!el.parameterValue || !el.parameterValue[0]) {
         el.parameterValue = [{ value: null, description: '' }]
         return
     }
 
     if (el.type === 'DATE' && !el.selectionType && el.valueSelection === 'man_in' && el.showOnPanel === 'true' && el.visible) {
-        el.parameterValue[0].value = getValidDate('' + el.parameterValue[0].value)
+        el.parameterValue[0].value = getValidDate('' + el.parameterValue[0].value, dateFormat)
     }
 }
 
