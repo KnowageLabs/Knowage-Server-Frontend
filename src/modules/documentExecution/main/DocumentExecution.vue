@@ -902,7 +902,7 @@ export default defineComponent({
                         element.type = 'hidden'
                         element.id = 'postForm_' + postObject.params.document + k
                         element.name = k
-                        element.value = decodeURIComponent(postObject.params[k])
+                        element.value = decodeURIComponent(postObject.params[k].replace(/\+/g, ' '))
                         postForm.appendChild(element)
                         this.hiddenFormData.append(element.name, element.value)
                     }
