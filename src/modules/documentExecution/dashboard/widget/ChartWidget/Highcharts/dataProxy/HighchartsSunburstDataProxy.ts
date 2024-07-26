@@ -67,6 +67,7 @@ const formatChartWidgetForGet = (dashboardId: any, dashboardConfig: IDashboardCo
     } as any
 
     dataToSend.aggregations.dataset = dataset.dsLabel
+    dataToSend.options = { solrFacetPivot: true }
 
     addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
