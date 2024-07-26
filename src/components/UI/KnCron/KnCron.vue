@@ -221,8 +221,14 @@ export default defineComponent({
         },
         validInterval(): boolean {
             const valid = this.repeatInterval ? true : false
-            this.$emit('cronValid', valid && this.validDates)
             return valid
+        },
+        combinedValidity() {
+            const validDates = this.validDates
+            const validInterval = this.validInterval
+            const combinedValid = validDates && validInterval
+            this.$emit('cronValid', combinedValid)
+            return combinedValid
         }
     },
     watch: {
