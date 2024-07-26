@@ -419,11 +419,14 @@ export default defineComponent({
             return columntooltipConfig
         },
         onCellClicked(node) {
-            if (!this.editorMode) {
+            if (this.editorMode) return
+            if (this.propWidget.settings.interactions?.selection?.enabled) {
                 if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
 
                 updateStoreSelections(createNewTableSelection([node.value], node.colDef.columnName, this.propWidget, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
                 this.gridApi?.refreshCells({ force: true })
+            } else {
+                this.executeInteractions(node)
             }
         },
         executeInteractions(node: any) {
