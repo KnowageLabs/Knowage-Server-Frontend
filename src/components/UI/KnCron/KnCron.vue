@@ -216,7 +216,6 @@ export default defineComponent({
                 valid = false
             }
 
-            this.$emit('cronValid', valid && this.validInterval)
             return valid
         },
         validInterval(): boolean {
