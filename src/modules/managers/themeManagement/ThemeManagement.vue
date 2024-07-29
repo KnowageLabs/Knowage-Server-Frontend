@@ -94,22 +94,23 @@ export default defineComponent({
             triggerInput: false,
             loading: false,
             themeHelper: new themeHelper(),
-            addMenuItems: [
-                { label: this.$t('managers.themeManagement.new'), icon: 'fas fa-plus', command: () => this.addTheme() },
-                {
-                    label: this.$t('managers.themeManagement.import'),
-                    icon: 'fas fa-file-import',
-                    command: () => {
-                        this.triggerInputFile(true)
-                    }
-                }
-            ]
+            addMenuItems: [] as any[]
         }
     },
     mounted() {
         this.loading = true
         this.currentTheme = this.themeHelper.getDefaultKnowageTheme()
         this.getAllThemes()
+        this.addMenuItems = [
+            { label: this.$t('managers.themeManagement.new'), icon: 'fas fa-plus', command: () => this.addTheme() },
+            {
+                label: this.$t('managers.themeManagement.import'),
+                icon: 'fas fa-file-import',
+                command: () => {
+                    this.triggerInputFile(true)
+                }
+            }
+        ]
     },
     computed: {
         ...mapState(mainStore, ['defaultTheme'])
@@ -216,6 +217,7 @@ export default defineComponent({
             this.importWidget(json)
         },
         importWidget(json: JSON) {
+            if (this.availableThemes.find((i) => i.themeName === json.themeName)) json.themeName = json.themeName + '_copy'
             this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/thememanagement', json).then(() => {
                 this.setInfo({ title: this.$t('managers.themeManagement.uploadTheme'), msg: this.$t('managers.themeManagement.themeSuccessfullyUploaded') })
 
