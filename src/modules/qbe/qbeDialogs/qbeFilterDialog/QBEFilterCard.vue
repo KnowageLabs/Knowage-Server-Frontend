@@ -8,7 +8,7 @@
                 </div>
             </div>
 
-            <div class="p-col-2 p-d-flex p-flex-row p-ai-center">
+            <div class="p-col p-d-flex p-flex-row p-ai-center">
                 <div class="kn-flex">
                     <label v-tooltip.top="$t('qbe.filters.conditionTooltip')" class="kn-material-input-label"> {{ $t('qbe.filters.condition') }} </label>
                     <Dropdown v-model="filter.operator" class="kn-material-input" :options="filterOperatorOptions" option-value="value" @change="onFilterOperatorChange">
@@ -45,7 +45,7 @@
                 </div>
             </div>
 
-            <div v-if="filter.operator !== 'IS NULL' && filter.operator !== 'NOT NULL'" class="p-col-4 p-d-flex p-flex-row p-ai-center">
+            <div v-if="filter.operator !== 'IS NULL' && filter.operator !== 'NOT NULL'" class="p-col p-d-flex p-flex-row p-ai-center">
                 <div class="kn-flex">
                     <label v-show="!(filter.rightType === 'manual' && ['BETWEEN', 'NOT BETWEEN', 'IN', 'NOT IN'].includes(filter.operator))" class="kn-material-input-label"> {{ $t('qbe.filters.target') }} </label>
                     <div class="p-d-flex p-flex-row p-ai-center">
@@ -98,11 +98,13 @@
                         <Dropdown v-if="filter.rightType === 'subquery'" v-model="filter.rightOperandDescription" class="kn-material-input kn-flex" :options="subqueries" option-value="name" option-label="name" @change="onSubqeryTargetChange" />
 
                         <Dropdown v-if="filter.rightType === 'parameter'" v-model="filter.rightOperandDescription" class="kn-material-input kn-flex" :options="parameters" option-value="name" option-label="name" @change="onParameterTargetChange" />
-
-                        <i v-if="filter.rightType === 'valueOfField'" class="fa fa-check kn-cursor-pointer p-ml-2" @click="loadFilterValues"></i>
-                        <i class="fa fa-eraser kn-cursor-pointer p-ml-2" @click="$emit('removeFilter', filter)"></i>
                     </div>
                 </div>
+            </div>
+
+            <div class="p-d-flex p-flex-row p-ai-center">
+                <i v-if="filter.rightType === 'valueOfField'" class="fa fa-check kn-cursor-pointer p-ml-2" @click="loadFilterValues"></i>
+                <i class="fa fa-eraser kn-cursor-pointer p-ml-2" @click="$emit('removeFilter', filter)"></i>
             </div>
         </div>
         <QBEFilterValuesTable v-show="filter.rightType === 'valueOfField'" class="p-m-2" :filter-values-data="filterValuesData" :loaded-selected-values="selectedValues" :loading="loading" :filter-operator="filter.operator" @selected="setSelectedValues"></QBEFilterValuesTable>
@@ -179,11 +181,11 @@ export default defineComponent({
         loadFilter() {
             this.filter = this.propFilter as iFilter
 
-            let isEncrypted = false;
+            let isEncrypted = false
             if (this.field.attributes) {
-                isEncrypted = this.field.attributes.decrypt;
+                isEncrypted = this.field.attributes.decrypt
             } else {
-                isEncrypted = this.field.decrypt;
+                isEncrypted = this.field.decrypt
             }
 
             if (this.subqueries?.length > 0) {
@@ -196,9 +198,9 @@ export default defineComponent({
             this.formatFilter()
 
             if (isEncrypted) {
-                this.filterOperatorOptions = this.QBEFilterDialogDescriptor.operatorValues.filter((operator) => operator.allowedWithDecrypt);
+                this.filterOperatorOptions = this.QBEFilterDialogDescriptor.operatorValues.filter((operator) => operator.allowedWithDecrypt)
             } else {
-                this.filterOperatorOptions = this.QBEFilterDialogDescriptor.operatorValues;
+                this.filterOperatorOptions = this.QBEFilterDialogDescriptor.operatorValues
             }
 
             const tempEntity = this.getEntity() as any
