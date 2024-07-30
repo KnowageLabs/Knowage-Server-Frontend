@@ -71,6 +71,7 @@ export default defineComponent({
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.titleStyleModel) return
             ;(this.titleStyleModel.properties = {
+                ...this.titleStyleModel.properties,
                 'background-color': model['background-color'] ?? 'rgb(137, 158, 175)',
                 color: model.color ?? 'rgb(255, 255, 255)',
                 'justify-content': model['justify-content'] ?? 'center',
