@@ -486,9 +486,31 @@ export default defineComponent({
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
         ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
-        async directDownloadDataset(datasetId: number) {
+
+        prepareDriversAndParameter(parameters: any) {
+            let tempObj = {} as any
+            if (parameters.length > 0) {
+                const tempParams = parameters.map((i) => {
+                    return {
+                        name: i.name,
+                        multiValue: i.multiValue,
+                        value: i.value
+                    }
+                })
+                tempObj.parameters = tempParams
+            }
+            if (this.filtersData?.filterStatus.length > 0) {
+                let tempDrivers = {} as any
+                this.filtersData.filterStatus.forEach((i) => {
+                    tempDrivers[i.urlName] = i.parameterValue.length > 1 ? i.parameterValue.map((p) => p.value) : i.parameterValue[0].value
+                })
+                tempObj.drivers = tempDrivers
+            }
+            return tempObj
+        },
+        async directDownloadDataset(dataset: any) {
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/csv`, {}, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${dataset.id}/csv`, this.prepareDriversAndParameter(dataset.pars), { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
                 .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
                 .catch(() => {})
         },
@@ -509,7 +531,7 @@ export default defineComponent({
                         }
                     })
                     .catch(() => {})
-                if (event.data.directDownload) this.directDownloadDataset(this.datasetToPreview.id)
+                if (event.data.directDownload) this.directDownloadDataset(this.datasetToPreview)
                 else this.datasetPreviewShown = true
             } else if (event.data.type === 'cockpitExecuted') {
                 this.loading = false
