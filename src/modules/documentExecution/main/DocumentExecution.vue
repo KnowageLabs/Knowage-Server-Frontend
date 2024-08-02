@@ -658,7 +658,7 @@ export default defineComponent({
         async exportRegistry(format) {
             this.setLoading(true)
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}`, {
+                .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}?SBI_EXECUTION_ID=${this.urlData?.sbiExecutionId}`, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
