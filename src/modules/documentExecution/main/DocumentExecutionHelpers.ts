@@ -126,11 +126,11 @@ const removeEmptyToolbarItems = (toolbarMenuItems: any[]) => {
 export const getValidDate = (value: string, serverDateFormat: string) => {
     const extractedDateValue = extractDatePart(value)
     let momentDate = moment(deepcopy(extractedDateValue))
-    const tempServerDateFormat = serverDateFormat.replaceAll('y', 'Y')
+    const tempServerDateFormat = convertToMomentFormat(serverDateFormat)
     const validFormats = [tempServerDateFormat, 'DD/MM/YYYY', 'DD/MM/YYYY HH:mm:ss.SSS']
     let tempDateFormatFromTheDateValue = extractDateFormatPart(value)
     if (tempDateFormatFromTheDateValue) {
-        tempDateFormatFromTheDateValue = tempDateFormatFromTheDateValue.replaceAll('y', 'Y')
+        tempDateFormatFromTheDateValue = convertToMomentFormat(tempDateFormatFromTheDateValue)
         validFormats.unshift(tempDateFormatFromTheDateValue)
     }
     for (let i = 0; i < validFormats.length; i++) {
@@ -138,6 +138,10 @@ export const getValidDate = (value: string, serverDateFormat: string) => {
         if (momentDate.isValid()) return momentDate.toDate()
     }
     return ''
+}
+
+const convertToMomentFormat = (format: string) => {
+    return format.replace(/yyyy/g, 'YYYY').replace(/dd/g, 'DD').replace(/mm/g, 'MM')
 }
 
 const extractDatePart = (dateString: string) => {
