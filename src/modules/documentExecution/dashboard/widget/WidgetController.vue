@@ -519,8 +519,18 @@ export default defineComponent({
             else return []
         },
         async directDownloadDataset(datasetId: number) {
+            let tempParams = {} as any
+            if (this.datasetToPreview.drivers.length > 0) tempParams.drivers = this.datasetToPreview.drivers
+            if (this.datasetToPreview.pars.length > 0)
+                tempParams.parameters = this.datasetToPreview.pars.map((i) => {
+                    return {
+                        name: i.name,
+                        multiValue: i.multiValue,
+                        value: i.value
+                    }
+                })
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/csv`, {}, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/csv`, tempParams, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
                 .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
                 .catch(() => {})
         }
