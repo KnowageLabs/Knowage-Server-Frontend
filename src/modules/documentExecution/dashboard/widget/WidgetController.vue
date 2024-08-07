@@ -519,9 +519,11 @@ export default defineComponent({
         },
         async directDownloadDataset(datasetId: number) {
             let tempParams = {} as any
-            if (this.datasetToPreview?.drivers?.length > 0) tempParams.drivers = this.datasetToPreview.drivers
-            if (this.datasetToPreview?.pars?.length > 0)
-                tempParams.parameters = this.datasetToPreview.pars.map((i) => {
+            const dsDrivers = this.getPreviewDrivers()
+            const dsParams = [...this.selectedDataset.parameters]
+            if (dsDrivers?.length > 0) tempParams.drivers = dsDrivers
+            if (dsParams?.length > 0)
+                tempParams.parameters = dsParams.map((i) => {
                     return {
                         name: i.name,
                         multiValue: i.multiValue,
