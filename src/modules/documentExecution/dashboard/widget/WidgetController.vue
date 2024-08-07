@@ -469,11 +469,6 @@ export default defineComponent({
         async previewInteractionDataset(event: any) {
             const previewSettings = event.previewSettings as IWidgetPreview
 
-            if (previewSettings.directDownload) {
-                this.directDownloadDataset(previewSettings.dataset)
-                return
-            }
-
             if (!previewSettings.dataset || previewSettings.dataset < 0) return
 
             this.selectedDataset = deepcopy(this.datasets.find((dataset) => dataset.id.dsId === previewSettings.dataset))
@@ -494,6 +489,10 @@ export default defineComponent({
 
             if (this.selectedDataset.drivers && this.selectedDataset.modelDrivers) {
                 this.selectedDataset.formattedDrivers = this.selectedDataset.modelDrivers
+            }
+            if (previewSettings.directDownload) {
+                this.directDownloadDataset(previewSettings.dataset)
+                return
             }
 
             await this.loadDatasetToPreview(this.selectedDataset.label)
@@ -520,8 +519,8 @@ export default defineComponent({
         },
         async directDownloadDataset(datasetId: number) {
             let tempParams = {} as any
-            if (this.datasetToPreview.drivers.length > 0) tempParams.drivers = this.datasetToPreview.drivers
-            if (this.datasetToPreview.pars.length > 0)
+            if (this.datasetToPreview?.drivers?.length > 0) tempParams.drivers = this.datasetToPreview.drivers
+            if (this.datasetToPreview?.pars?.length > 0)
                 tempParams.parameters = this.datasetToPreview.pars.map((i) => {
                     return {
                         name: i.name,
