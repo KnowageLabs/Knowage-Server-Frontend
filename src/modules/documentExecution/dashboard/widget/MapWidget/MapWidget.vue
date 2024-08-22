@@ -28,8 +28,11 @@
                                 <span class="col">{{ item.getAlias() }}</span>
                             </div>
                             <div class="row items-center" v-if="item.filter?.enabled">
-                                <q-select filled class="col-4 q-mr-xs" v-model="item.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" />
-                                <q-input filled class="col-auto" v-model="item.operator" dense options-dense stack-label :label="$t('common.value')" />
+                                <q-select filled class="col-4 q-mr-xs" v-model="item.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" />
+                                <q-input filled class="col" v-model="item.filter.value" dense options-dense stack-label :label="$t('common.value')" @change="mapManager.applyFilter(item)" />
+                                <q-btn v-if="item.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(item)">
+                                    <q-tooltip :delay="500">{{ $t('common.reset') }}</q-tooltip>
+                                </q-btn>
                             </div>
                         </div>
                     </q-expansion-item>
@@ -105,9 +108,15 @@ export default defineComponent({
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
         },
+        resetFilter(item){
+            item.filter.operator = ''
+            item.filter.value = null
+            this.mapManager.applyFilter(item)
+        },
         toggleFilter(item) {
             if (item.filter) item.filter.enabled = !item.filter.enabled
             else item.filter = { enabled: true }
+            this.mapManager.applyFilter(item)
         }
     }
 })

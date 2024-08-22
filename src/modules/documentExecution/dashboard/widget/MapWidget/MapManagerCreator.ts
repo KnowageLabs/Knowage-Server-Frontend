@@ -7,8 +7,11 @@ import { MapFeatureStyle } from './MapVisualizationManager'
 import { Wkt } from 'wicket'
 import { DatasetBasedLayer, LayerContainer } from './MapLayerContainer'
 import { LeafleatBaseFeatureGroup, LeafletPieFeatureGroup, MarkerFeatureGroup } from './LeafletExtension'
+import { offset } from 'highcharts'
 
 export interface MapManager {
+    applyFilter(layer: any)
+    centerOnMarkers():void
     changeShowedMeasure(layer: any, name: string): void
     init(): void
     invalidateSize(): void
@@ -51,6 +54,10 @@ class AbstractManager implements MapManager {
     }
 
     addProprietaryLayerToProprietaryMap(proprietaryLayer: any) {
+        throw new Error('Method not implemented.')
+    }
+
+    centerOnMarkers():void{
         throw new Error('Method not implemented.')
     }
 
@@ -113,7 +120,7 @@ class AbstractManager implements MapManager {
                     layerManager?.preShowData(datastore)
                     layerManager?.showData(datastore)
                     layerManager?.afterShowData(datastore)
-                    resolve({})
+                    resolve(layerManager?.getLayer())
                 } catch (e) {
                     reject({ error: e })
                 }
@@ -124,6 +131,11 @@ class AbstractManager implements MapManager {
 
         Promise.any(perLayerShowDataPromises).then((values) => {
             console.log(values)
+        })
+
+        Promise.all(perLayerShowDataPromises).then(()=>{
+            debugger;
+            this.centerOnMarkers()
         })
     }
 
@@ -168,6 +180,10 @@ class AbstractManager implements MapManager {
         return this.getDsMeasuresFromLayer(layer).filter((e) => {
             return e.properties.showMap == true
         })
+    }
+
+    protected getLayerContainerByLayerId(layerId: string): LayerContainer | undefined {
+        return this.layerContainerByLayerId.get(layerId)
     }
 
     private getLayerIdFromLayer(layer: any) {
@@ -263,6 +279,36 @@ class Leaflet extends AbstractManager {
         this.map.addLayer(proprietaryLayer)
     }
 
+    applyFilter(layer: any): void {
+        this.map.eachLayer((i) => {
+            if (i.knProperties?.layerId === layer.getLayerId()) {
+                if(layer.filter?.enabled){
+                    if(!layer.filter.value || this.isConditionValid(layer.filter.operator, i.knProperties.measureValue, layer.filter.value)) i.setOpacity(1)
+                    else i.setOpacity(0)
+                }else i.setOpacity(1)
+            }
+        })
+    }
+
+    isConditionValid(operator:string, measureValue:any, value:any):boolean{
+        if(operator === "=") return measureValue == value
+        if(operator === ">") return measureValue > value
+        if(operator === "<") return measureValue < value
+        return false
+    }
+
+    centerOnMarkers(){
+        let latLongBounds = [] as any
+        this.map.eachLayer((i) => {
+            if(i.knProperties?.layerId){
+                latLongBounds.push(i.getLatLng())
+            }
+                
+            
+        })
+        this.map.fitBounds(L.latLngBounds(latLongBounds))
+    }
+
     createProprietaryLayer(layerContainer: LayerContainer): void {
         const index = layerContainer.getLayerIndex()
         const layerId = layerContainer.getLayerId()
@@ -328,8 +374,8 @@ class Leaflet extends AbstractManager {
             icon = L.divIcon({
                 html: originaliIcon,
                 className: '',
-                iconSize: [24, 40],
-                iconAnchor: [12, 40]
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
             })
         }
 
@@ -340,6 +386,14 @@ class Leaflet extends AbstractManager {
             title: text,
             icon: icon,
             pane: paneName
+        })
+
+        ret.on('click',(e)=>{
+            properties
+            L.popup({offset:L.point(0, 7)})
+            .setLatLng(e.latlng)
+            .setContent('<p>Hello world!<br />This is a nice popup.</p>')
+            .openOn(this.map);
         })
 
         this.addCustomProperties(ret, properties)
