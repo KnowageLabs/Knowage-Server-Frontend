@@ -29,7 +29,7 @@ export async function lovDependencyCheck(loadedParameters: { filterStatus: iPara
     loading = true
 
     resetParameterValueToEmptyValues(parameter)
-    if (resetValue) return
+    if (resetValue || !parameter.parameterValue?.[0]?.value) return
 
     const postData = { label: document?.label, parameters: getFormattedParameters(loadedParameters, userDateFormat), paramId: parameter.urlName, role: sessionRole }
     let url = '/restful-services/2.0/documentExeParameters/admissibleValues'
@@ -45,7 +45,7 @@ export async function lovDependencyCheck(loadedParameters: { filterStatus: iPara
             parameter.metadata = response.data.result.metadata
             formatParameterAfterDataDependencyCheck(parameter)
         })
-        .catch(() => { })
+        .catch(() => {})
     loading = false
 }
 

@@ -31,7 +31,7 @@ export async function dataDependencyCheck(loadedParameters: { filterStatus: iPar
     loading = true
 
     resetParameterValueToEmptyValues(parameter)
-    if (resetValue) return
+    if (resetValue || !parameter.parameterValue?.[0]?.value) return;
 
     const postData = { label: document?.label, parameters: getFormattedParameters(loadedParameters, userDateFormat), paramId: parameter.urlName, role: sessionRole }
     let url = '/restful-services/2.0/documentExeParameters/admissibleValues'
