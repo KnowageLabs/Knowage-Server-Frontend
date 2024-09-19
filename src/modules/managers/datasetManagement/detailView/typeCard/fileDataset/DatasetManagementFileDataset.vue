@@ -253,6 +253,7 @@ export default defineComponent({
                     }
                 })
                 .then((response: AxiosResponse<any>) => {
+                    this.columns = []
                     const previewColumns = response.data.metaData.fields
                     previewColumns.forEach((el: any) => {
                         typeof el != 'object' ? '' : this.columns.push(el)
