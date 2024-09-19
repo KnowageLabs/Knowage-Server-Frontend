@@ -901,7 +901,7 @@ export default defineComponent({
                             element.type = 'hidden'
                             element.id = 'postForm_' + postObject.params.document + k
                             element.name = k
-                            element.value = replaceNullForDates(k,i)
+                            element.value = this.replaceNullForDates(k,i)
                             element.classList.add(`multiple_${k}`)
                             postForm.appendChild(element)
                             this.hiddenFormData.append(element.name, element.value)
@@ -909,7 +909,7 @@ export default defineComponent({
                     } else {
                         inputElement.value = decodeURIComponent(postObject.params[k])
                         inputElement.value = inputElement.value.replace(/\+/g, ' ')
-                        inputElement.value = replaceNullForDates(k,inputElement.value)
+                        inputElement.value = this.replaceNullForDates(k,inputElement.value)
                         this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
                     }
                 } else {
@@ -920,7 +920,7 @@ export default defineComponent({
                             element.type = 'hidden'
                             element.id = 'postForm_' + postObject.params.document + k
                             element.name = k
-                            element.value = replaceNullForDates(k,i)
+                            element.value = this.replaceNullForDates(k,i)
                             element.classList.add(`multiple_${k}`)
                             postForm.appendChild(element)
                             this.hiddenFormData.append(element.name, element.value)
@@ -931,7 +931,7 @@ export default defineComponent({
                         element.id = 'postForm_' + postObject.params.document + k
                         element.name = k
                         element.value = decodeURIComponent(postObject.params[k].replace(/\+/g, ' '))
-                        element.value = replaceNullForDates(k,element.value)
+                        element.value = this.replaceNullForDates(k,element.value)
                         postForm.appendChild(element)
                         this.hiddenFormData.append(element.name, element.value)
                     }
