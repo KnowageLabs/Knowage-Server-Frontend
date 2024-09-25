@@ -36,9 +36,8 @@ axios.interceptors.request.use(
         config.headers.common['Content-Type'] = 'application/json; charset=utf-8'
         config.headers.common['Access-Control-Allow-Origin'] = '*'
 
-        const store = mainStore()
-        if (store.$state.CSRFToken) {
-            config.headers.common['X-CSRF-TOKEN'] = store.$state.CSRFToken
+        if (localStorage.getItem('X-CSRF-TOKEN')) {
+            config.headers.common['X-CSRF-TOKEN'] = localStorage.getItem('X-CSRF-TOKEN')
         }
 
         if (localStorage.getItem('public')) {

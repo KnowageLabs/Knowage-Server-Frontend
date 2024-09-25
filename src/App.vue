@@ -97,7 +97,7 @@ export default defineComponent({
         this.cookies = cookies
         const uuid = uuidv4()
         cookies.set('X-CSRF-TOKEN', uuid, 0, null, null, null, 'Strict')
-        this.setCSRFToken(uuid)
+        localStorage.setItem('X-CSRF-TOKEN',uuid)
         const locationParams = new URL(location).searchParams
 
         let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
