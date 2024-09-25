@@ -1,11 +1,4 @@
 {
-    "defaultBaseLayerSettings": {
-        "autoCentering": false,
-        "backgroundLayerId": null,
-        "enabled": true,
-        "showScale": false,
-        "zoomFactor": null
-    },
     "defaultConditionalStyle": {
         "condition": {
             "operator": "",
@@ -23,12 +16,11 @@
         "dimension": ""
     },
     "defaultDialogSettings": {
-        "enabled": true,
-        "height": "200px",
-        "properties": [
+        "enabled": false,
+        "layers": [
             {
                 "columns": [],
-                "layer": ""
+                "name": ""
             }
         ],
         "style": {
@@ -39,8 +31,7 @@
             "font-style": "",
             "font-weight": "",
             "justify-content": "center"
-        },
-        "width": "200px"
+        }
     },
     "defaultLegendSettings": {
         "alignment": "center",
@@ -75,8 +66,14 @@
         },
         "visualizationType": "Linear Gradient"
     },
-    "defaultTooltips": {
+    "defaultMapLayerSettings": {
+        "autoCentering": true,
         "enabled": true,
+        "showScale": false,
+        "zoom": 10
+    },
+    "defaultTooltip": {
+        "enabled": false,
         "layers": [
             {
                 "columns": [],
@@ -118,8 +115,8 @@
         "radius": 8
     },
     "defaultVisualizationMarkerConfiguration": {
+        "size": 10,
         "style": {
-            "borderColor": "",
             "color": ""
         },
         "type": "default"

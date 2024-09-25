@@ -20,7 +20,7 @@
                         <div class="p-d-flex p-flex-row">
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
                                 <label class="kn-material-input-label"> {{ $t('common.layer') }}</label>
-                                <Dropdown v-model="conditionalStyle.targetLayer" class="kn-material-input" :options="widgetModel.layers" option-value="layerID" option-label="name" :disabled="conditionalStylesDisabled" @change="onLayerChange(conditionalStyle)"> </Dropdown>
+                                <Dropdown v-model="conditionalStyle.targetLayer" class="kn-material-input" :options="widgetModel.layers" option-value="layerId" option-label="name" :disabled="conditionalStylesDisabled" @change="onLayerChange(conditionalStyle)"> </Dropdown>
                             </div>
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
                                 <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
@@ -250,7 +250,7 @@ export default defineComponent({
             conditionalStyle.targetColumn = ''
         },
         getColumnOptionsFromLayer(conditionalStyle: IMapWidgetConditionalStyle) {
-            const index = this.widgetModel.layers.findIndex((layer: any) => layer.layerID === conditionalStyle.targetLayer)
+            const index = this.widgetModel.layers.findIndex((layer: any) => layer.layerId === conditionalStyle.targetLayer)
             return index !== -1 ? this.widgetModel.layers[index].content.columnSelectedOfDataset : []
         }
     }

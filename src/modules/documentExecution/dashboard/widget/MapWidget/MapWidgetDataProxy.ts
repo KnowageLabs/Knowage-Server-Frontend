@@ -5,8 +5,8 @@ import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefres
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {}
-
-    const datasetsInWidget = widget.layers.map((e) => e.dataset.label)
+    const datasetOnly = widget.layers.filter((e) => e.type === 'dataset')
+    const datasetsInWidget = datasetOnly.map((e) => e.name)
     const usedDatasets = datasets.filter((e) => datasetsInWidget.includes(e.dsLabel))
 
     for (const selectedDataset of usedDatasets) {

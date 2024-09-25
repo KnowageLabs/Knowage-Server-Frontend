@@ -1,39 +1,44 @@
 <template>
-    <div id="map" ref="map" class="mapContainer"></div>
-    <q-btn round push class="kn-parameter-sidebar-showLegend" color="white" text-color="black" size="sm" icon="settings" @click="showLegend = true">
+    <LeafletWrapper :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState"></LeafletWrapper>
+    <q-btn round push class="kn-parameter-sidebar-showLegend" color="white" text-color="black" size="sm" icon="settings" @click="showPanel = true">
         <q-tooltip :delay="500">{{ $t('common.open') }}</q-tooltip>
     </q-btn>
     <Transition>
-        <div v-if="mapManager && showLegend" class="kn-parameter-sidebar kn-map-sidebar q-pa-xs">
-            <div class="kn-map-sidebar-options row justify-end items-center">
-                <q-btn flat round class="q-mr-xs" color="black" size="sm" icon="start" @click="showLegend = false">
+        <div v-if="widgetModel.layers.length > 0 && showPanel" class="kn-parameter-sidebar kn-map-sidebar q-pa-xs" :style="{ width: widgetModel.settings.configuration.controlPanel.dimension || 'auto' }">
+            <div class="kn-map-sidebar-options row justify-end items-center" v-if="!widgetModel.settings.configuration.controlPanel.alwaysShow">
+                <q-btn flat round class="q-mr-xs" color="black" size="sm" icon="start" @click="showPanel = false">
                     <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
                 </q-btn>
             </div>
             <div class="kn-map-sidebar-scroller">
                 <q-list>
                     <q-expansion-item default-opened :label="$t('common.visibility')" icon="preview">
-                        <div v-for="item in mapManager.getControlPanel().getLayers()" :key="item.getLayerId()" class="kn-map-sidebar-layer q-mb-sm">
-                            <div class="row items-center">
-                                <q-btn flat round class="q-mr-xs option-button" color="black" size="xs" :icon="layerVisibilityState[item.getLayerId()] ? 'visibility' : 'visibility_off'" @click="mapManager.switchLayerVisibility(item.getLayerId())" />
-                                <q-select filled class="col" v-model="item.alias" :options="mapManager.getControlPanel().getLayers()" dense options-dense option-label="alias" option-value="alias" />
-                            </div></div
-                    ></q-expansion-item>
+                        <div v-for="item in widgetModel.layers" :key="item.layerId" class="kn-map-sidebar-layer q-mb-sm">
+                            <template v-if="isLayerSet(item)">
+                                <div class="row items-center">
+                                    <q-btn flat round class="q-mr-xs option-button" color="black" size="xs" :icon="layerVisibilityState[item.layerId] ? 'visibility' : 'visibility_off'" @click="switchLayerVisibility(item)" />
+                                    {{ item.name }}
+                                </div>
+                            </template>
+                        </div></q-expansion-item
+                    >
                     <q-expansion-item :label="$t('common.filters')" icon="filter_list">
-                        <div v-for="item in mapManager.getControlPanel().getLayers()" :key="item.getLayerId()" class="kn-map-sidebar-layer">
-                            <div class="row items-center">
-                                <q-btn flat round class="q-mr-xs" color="black" size="xs" :icon="item.filter?.enabled ? 'filter_alt_off' : 'filter_alt'" @click="toggleFilter(item)">
-                                    <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
-                                </q-btn>
-                                <span class="col">{{ item.getAlias() }}</span>
-                            </div>
-                            <div class="row items-center" v-if="item.filter?.enabled">
-                                <q-select filled class="col-4 q-mr-xs" v-model="item.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" />
-                                <q-input filled class="col" v-model="item.filter.value" dense options-dense stack-label :label="$t('common.value')" @change="mapManager.applyFilter(item)" />
-                                <q-btn v-if="item.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(item)">
-                                    <q-tooltip :delay="500">{{ $t('common.reset') }}</q-tooltip>
-                                </q-btn>
-                            </div>
+                        <div v-for="item in widgetModel.layers" :key="item.layerId" class="kn-map-sidebar-layer">
+                            <template v-if="isLayerSet(item)">
+                                <div class="row items-center">
+                                    <q-btn flat round class="q-mr-xs" color="black" size="xs" :icon="item.filter?.enabled ? 'filter_alt_off' : 'filter_alt'" @click="toggleFilter(item)">
+                                        <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
+                                    </q-btn>
+                                    <span class="col">{{ item.name }}</span>
+                                </div>
+                                <div class="row items-center" v-if="item.filter?.enabled">
+                                    <q-select filled class="col-4 q-mr-xs" v-model="item.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" />
+                                    <q-input filled class="col" v-model="item.filter.value" dense options-dense stack-label :label="$t('common.value')" />
+                                    <q-btn v-if="item.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(item)">
+                                        <q-tooltip :delay="500">{{ $t('common.reset') }}</q-tooltip>
+                                    </q-btn>
+                                </div>
+                            </template>
                         </div>
                     </q-expansion-item>
                 </q-list>
@@ -48,13 +53,13 @@ import { IDashboardDataset, ISelection, IWidget } from '@/modules/documentExecut
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import 'leaflet/dist/leaflet.css'
 import { MapLayerManager } from './MapLayerManagerCreator'
 import { MapManagerCreator } from './MapManagerCreator'
+import LeafletWrapper from './LeafletWrapper.vue'
 
 export default defineComponent({
     name: 'map-widget',
-    components: {},
+    components: { LeafletWrapper },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         editorMode: { type: Boolean, required: false },
@@ -68,22 +73,10 @@ export default defineComponent({
         return {
             widgetModel: {} as any,
             activeSelections: [] as ISelection[],
-            zoom: 2 as number,
             layerManagers: [] as MapLayerManager[],
             mapManager: null as any,
             layerVisibilityState: {},
-            showLegend: true as Boolean
-        }
-    },
-    watch: {
-        propWidget: {
-            handler() {
-                this.loadWidgetModel()
-            },
-            deep: true
-        },
-        propActiveSelections() {
-            this.loadActiveSelections()
+            showPanel: false as Boolean
         }
     },
     created() {
@@ -91,40 +84,51 @@ export default defineComponent({
         this.loadActiveSelections()
     },
     mounted() {
-        this.mapManager = MapManagerCreator.create(this.$refs.map, this.widgetModel, this.layerVisibilityState)
+        /*this.mapManager = MapManagerCreator.create(this.$refs.map, this.widgetModel, this.layerVisibilityState)
         this.mapManager.init()
-        this.mapManager.showData(this.dataToShow)
+        this.mapManager.showData(this.dataToShow)*/
     },
     updated() {
-        this.mapManager.invalidateSize()
+        //this.mapManager.invalidateSize()
     },
     unmounted() {},
     methods: {
         ...mapActions(mainStore, ['setSelections']),
         ...mapActions(dashboardStore, ['getDashboardDrivers']),
+        isLayerSet(layer) {
+            return this.widgetModel.settings.visualizations.filter((vis) => vis.target === layer.layerId)[0]
+        },
         loadWidgetModel() {
             this.widgetModel = this.propWidget
+            this.widgetModel.layers.forEach((i) => (this.layerVisibilityState[i.layerId] = true))
+            this.showPanel = this.widgetModel.settings.configuration.controlPanel.alwaysShow
         },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
         },
-        resetFilter(item){
+        resetFilter(item) {
             item.filter.operator = ''
             item.filter.value = null
-            this.mapManager.applyFilter(item)
+            //this.mapManager.applyFilter(item)
+        },
+        switchLayerVisibility(layer: any) {
+            this.layerVisibilityState[layer.layerId] = !this.layerVisibilityState[layer.layerId]
         },
         toggleFilter(item) {
             if (item.filter) item.filter.enabled = !item.filter.enabled
             else item.filter = { enabled: true }
-            this.mapManager.applyFilter(item)
+            //this.mapManager.applyFilter(item)
         }
     }
 })
 </script>
 <style lang="scss">
-.mapContainer {
-    width: 100%;
-    height: 100%;
+.customLeafletPopup {
+    list-style-type: none;
+    padding-left: 0;
+}
+.customLeafletIcon {
+    background-color: transparent;
 }
 .kn-parameter-sidebar-showLegend {
     position: absolute;

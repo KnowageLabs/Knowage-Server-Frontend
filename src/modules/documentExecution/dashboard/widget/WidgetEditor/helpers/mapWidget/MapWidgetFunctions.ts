@@ -1,4 +1,4 @@
-import { IMapWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget"
+import { IMapWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import * as mapWidgetDefaultValues from './MapWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 
@@ -7,11 +7,11 @@ export const createNewMapWidgetSettings = () => {
         updatable: true,
         clickable: true,
         configuration: {
-            baseLayer: mapWidgetDefaultValues.getDefaultBaseLayerSettings(),
+            map: mapWidgetDefaultValues.getDefaultMapLayerSettings(),
             controlPanel: mapWidgetDefaultValues.getDefaultControlPanelSettings(),
             exports: { showExcelExport: false, showScreenshot: false }
         },
-        visualization: mapWidgetDefaultValues.getDefaultVisualizationSettings(),
+        visualizations: mapWidgetDefaultValues.getDefaultVisualizationSettings(),
         conditionalStyles: { enabled: false, conditions: [] },
         legend: mapWidgetDefaultValues.getDefaultLegendSettings(),
         dialog: mapWidgetDefaultValues.getDefaultDialogSettings(),
@@ -27,7 +27,7 @@ export const createNewMapWidgetSettings = () => {
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
-            shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
+            shadows: widgetCommonDefaultValues.getDefaultShadowsStyle()
         },
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
         tooltips: mapWidgetDefaultValues.getDefaultMapTooltips()

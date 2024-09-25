@@ -10,6 +10,11 @@
             "field": "description",
             "header": "common.description",
             "style": {}
+        },
+        {
+            "field": "type",
+            "header": "common.type",
+            "style": {}
         }
     ],
     "datasetTypes": {

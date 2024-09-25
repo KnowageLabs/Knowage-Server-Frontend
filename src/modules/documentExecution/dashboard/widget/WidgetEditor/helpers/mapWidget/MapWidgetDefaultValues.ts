@@ -1,9 +1,23 @@
-import { IMapDialogSettings, IMapTooltipSettings, IMapWidgetBaseLayer, IMapWidgetConditionalStyle, IMapWidgetControlPanel, IMapWidgetLegend, IMapWidgetVisualizationSettings, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeChoropleth, IMapWidgetVisualizationTypeCluster, IMapWidgetVisualizationTypeHeatmap, IMapWidgetVisualizationTypeMarker, IMapWidgetVisualizationTypePie } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import {
+    IMapDialogSettings,
+    IMapTooltipSettings,
+    IMapWidgetConditionalStyle,
+    IMapWidgetControlPanel,
+    IMapWidgetLegend,
+    IMapWidgetMapSettings,
+    IMapWidgetVisualizationSettings,
+    IMapWidgetVisualizationTypeBalloons,
+    IMapWidgetVisualizationTypeChoropleth,
+    IMapWidgetVisualizationTypeCluster,
+    IMapWidgetVisualizationTypeHeatmap,
+    IMapWidgetVisualizationTypeMarker,
+    IMapWidgetVisualizationTypePie
+} from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import descriptor from './MapWidgetDefaultValuesDescriptor.json'
 import deepcopy from 'deepcopy'
 
 export const getDefaultMapTooltips = () => {
-    return deepcopy(descriptor.defaultTooltips) as IMapTooltipSettings
+    return deepcopy(descriptor.defaultTooltip) as IMapTooltipSettings
 }
 
 export const getDefaultDialogSettings = () => {
@@ -14,8 +28,8 @@ export const getDefaultLegendSettings = () => {
     return deepcopy(descriptor.defaultLegendSettings) as IMapWidgetLegend
 }
 
-export const getDefaultBaseLayerSettings = () => {
-    return deepcopy(descriptor.defaultBaseLayerSettings) as IMapWidgetBaseLayer
+export const getDefaultMapLayerSettings = () => {
+    return deepcopy(descriptor.defaultMapLayerSettings) as IMapWidgetMapSettings
 }
 
 export const getDefaultControlPanelSettings = () => {
@@ -27,8 +41,8 @@ export const getDefaultConditionalStyle = () => {
 }
 
 export const getDefaultVisualizationSettings = () => {
-    const visualizationSettings = {
-        types: [{
+    const visualizationSettings = [
+        {
             target: [],
             type: 'markers',
             markerConf: getDefaultVisualizationMarkerConfiguration(),
@@ -37,8 +51,8 @@ export const getDefaultVisualizationSettings = () => {
             clusterConf: getDefaultVisualizationClusterConfiguration(),
             heatmapConf: getDefaultVisualizationHeatmapConfiguration(),
             analysisConf: getDefaultVisualizationChoroplethConfiguration()
-        }]
-    } as IMapWidgetVisualizationSettings
+        }
+    ] as Array<IMapWidgetVisualizationSettings>
     return deepcopy(visualizationSettings)
 }
 

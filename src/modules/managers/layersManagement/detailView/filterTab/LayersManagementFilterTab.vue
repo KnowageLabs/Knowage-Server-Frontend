@@ -86,7 +86,7 @@ export default defineComponent({
             this.loadFilters()
         }
     },
-    created() {
+    mounted() {
         this.loadLayer()
         this.loadFilters()
     },

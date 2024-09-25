@@ -19,9 +19,11 @@
                     @click="$emit('layerSelected', slotProps.option)"
                 >
                     <i class="pi pi-bars" :style="dataListDescriptor.style.list.listIcon"></i>
-                    <i :style="dataListDescriptor.style.list.listIcon" :class="slotProps.option.fieldType === 'ATTRIBUTE' ? 'fas fa-font' : 'fas fa-hashtag'" class="p-ml-2"></i>
+                    <i :style="dataListDescriptor.style.list.listIcon" :class="slotProps.option.type.toLowerCase() === 'dataset' ? 'fas fa-database' : 'fas fa-map'" class="p-ml-2">
+                        <q-tooltip>{{ slotProps.option.type.toLowerCase() === 'dataset' ? $t('common.dataset') : $t('common.layer') }}</q-tooltip></i
+                    >
                     <div class="kn-list-item-text">
-                        <span v-tooltip.top="slotProps.option.alias" class="dashboard-editor-list-alias-container">{{ slotProps.option.alias }}</span>
+                        <span v-tooltip.top="slotProps.option.name" class="dashboard-editor-list-alias-container">{{ slotProps.option.name }}</span>
                     </div>
                     <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-ml-auto" @click.stop="deleteLayer(slotProps.index)" />
                 </div>
@@ -61,7 +63,6 @@ export default defineComponent({
         }
     },
     emits: ['layerSelected'],
-    setup() {},
     data() {
         return {
             dataListDescriptor,
@@ -93,17 +94,18 @@ export default defineComponent({
             this.layers.splice(eventData, 1)
             this.layers.splice(dropIndex, 0, temp)
         },
-        addDatasets(datasets: IDataset[]) {
+        addDatasets(datasets: any[]) {
             datasets.forEach((dataset) => {
-                const datasetToAdd = deepcopy(dataListDescriptor.defaultLayerConfig) as IMapWidgetLayer
-                datasetToAdd.alias = dataset.name
-                datasetToAdd.name = dataset.name
-                datasetToAdd.layerID = dataset.label
-                datasetToAdd.dataset = dataset
-                datasetToAdd.content.columnSelectedOfDataset = dataset.metadata.fieldsMeta
-                datasetToAdd.dsId = dataset.id.dsId
+                /*let datasetToAdd = deepcopy(dataListDescriptor.defaultLayerConfig) as IMapWidgetLayer
+                datasetToAdd = 
+                /*datasetToAdd.name = dataset.name
+                datasetToAdd.layerId = dataset.layerId
+                if (dataset.columns) datasetToAdd.columns = dataset.columns
+                if (dataset.)
+                datasetToAdd.id = dataset.id
+                datasetToAdd.type = dataset.type*/
 
-                this.layers.push(datasetToAdd)
+                this.layers.push(dataset)
             })
 
             this.closeLayersDialog()

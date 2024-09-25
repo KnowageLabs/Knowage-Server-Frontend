@@ -1,13 +1,11 @@
 import { defineConfig, loadEnv } from 'vite'
-const { resolve } = require('path')
 import vue from '@vitejs/plugin-vue'
 import builtins from 'rollup-plugin-node-builtins'
 import forwardToTrailingSlashPlugin from './forward-to-trailing-slash-plugin.js'
 import { VitePWA } from 'vite-plugin-pwa'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 import loadVersion from 'vite-plugin-package-version'
-
-const path = require('path')
+import path from 'path'
 
 const builtinsPlugin = { ...builtins({ crypto: true }), name: 'rollup-plugin-node-builtins' }
 
@@ -23,7 +21,7 @@ export default defineConfig((command, mode) => {
     const env = loadEnv(mode, process.cwd())
     return {
         plugins: [
-            loadVersion(),
+            loadVersion,
             vue({
                 template: { transformAssetUrls }
             }),

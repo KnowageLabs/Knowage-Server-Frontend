@@ -4,26 +4,24 @@ export interface IMapWidgetSettings {
     updatable: boolean
     clickable: boolean
     configuration: IMapWidgetConfiguration
-    visualization: IMapWidgetVisualizationSettings
+    visualizations: IMapWidgetVisualizationType[]
     conditionalStyles: IMapWidgetConditionalStyles
     legend: IMapWidgetLegend
     dialog: IMapDialogSettings
-    tooltips: IMapTooltipSettings
+    tooltip: IMapTooltipSettings
     interactions: IWidgetInteractions
     style: IMapWidgetStyle
     responsive: IWidgetResponsive
 }
 
 export interface IMapWidgetConfiguration {
-    baseLayer: IMapWidgetBaseLayer
+    map: IMapWidgetMapSettings
     controlPanel: IMapWidgetControlPanel
     exports: IWidgetExports
 }
 
-export interface IMapWidgetBaseLayer {
-    enabled: boolean
-    backgroundLayerId: number | null
-    zoomFactor: number | null
+export interface IMapWidgetMapSettings {
+    zoom: number | null
     showScale: boolean
     autoCentering: boolean
 }
@@ -33,12 +31,12 @@ export interface IMapWidgetControlPanel {
     dimension: string
 }
 
-export interface IMapWidgetVisualizationSettings {
-    types: IMapWidgetVisualizationType[]
-}
-
 export interface IMapWidgetVisualizationType {
-    target: string[]
+    target: string
+    targetType?: string
+    targetDataset?: string
+    targetMeasure?: any
+    targetProperty?: any
     type: string
     markerConf?: IMapWidgetVisualizationTypeMarker
     balloonConf?: IMapWidgetVisualizationTypeBalloons
@@ -52,7 +50,6 @@ export interface IMapWidgetVisualizationTypeMarker {
     type: string
     style: {
         color?: string
-        borderColor?: string
     }
     size?: number
     icon?: IIcon
@@ -172,8 +169,6 @@ export interface IMapWidgetLegendText {
 
 export interface IMapDialogSettings {
     enabled: boolean
-    width: string
-    height: string
     style: {
         'justify-content': string
         'font-family': string
@@ -183,11 +178,11 @@ export interface IMapDialogSettings {
         color: string
         'background-color': string
     }
-    properties: IMapDialogSettingsProperty[]
+    layers: IMapDialogSettingsProperty[]
 }
 
 export interface IMapDialogSettingsProperty {
-    layer: string
+    name: string
     columns: string[]
 }
 
@@ -230,32 +225,15 @@ export interface ILayer {
 
 export interface IMapWidgetLayer {
     type: string
-    dsId: number
-    alias: string
-    name: string
-    defaultVisible: boolean
-    dataset: IDataset | any
-    content: {
-        columnSelectedOfDataset: IWidgetMapLayerColumn[]
-    }
-    order: number
-    targetDefault: boolean
-    hasShownDetails: boolean
-    defaultIndicator: string
-    layerID: string
-    isStatic: boolean
-    showTooltip: boolean
-    tooltipColumn: string
-    visualizationType: string
-    markerConf: any
-    clusterConf: any
-    heatmapConf: any
-    analysisConf: any
-    modalSelectionColumn: string
+    id: number
+    name: String
+    columns?: IWidgetMapLayerColumn[]
+    order?: number
+    layerId: string
     datasetLink?: number
     datasetColumnLink?: number
-    catalogLayerLink?: number
-    catalogLayerColumnLink?: number
+    catalogLayerPropertyLink?: number
+    properties?: any[]
 }
 
 export interface IWidgetMapLayerColumn {

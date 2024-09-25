@@ -15,29 +15,29 @@
             </div>
             <div class="config-form p-mt-2">
                 <div v-if="markerConfig.type === 'default' || markerConfig.type === 'icon'" class="p-d-flex p-flex-row">
-                    <WidgetEditorColorPicker class="kn-flex" :initial-value="markerConfig.style.color" :label="$t('dashboard.widgetEditor.iconTooltips.backgroundColor')" :disabled="false" @change="updateMarkerColor" />
-                    <span class="p-float-label p-ml-2">
-                        <InputNumber v-model="markerConfig.size" class="kn-material-input" :max="500" />
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.markerTypes.scale%') }}</label>
-                    </span>
-                    <Button v-if="markerConfig.type === 'icon'" icon="fas fa-icons fa-2x" class="p-button-text p-button-plain p-p-0 p-ml-2" @click="toggleIconPicker" />
+                    <q-input dense :label="$t('dashboard.widgetEditor.iconTooltips.color')" filled v-model="markerConfig.style.color">
+                        <template v-slot:append>
+                            <div class="customColorPreview cursor-pointer" :style="{ 'background-color': markerConfig.style.color }">
+                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                    <q-color format-model="hexa" v-model="markerConfig.style.color" />
+                                </q-popup-proxy>
+                            </div>
+                        </template>
+                    </q-input>
+                    <q-input v-if="markerConfig.type === 'default'" dense class="q-ml-sm" :label="$t('common.size', { format: '(px)' })" filled v-model="markerConfig.size" :max="150"></q-input>
+                    <q-btn v-if="markerConfig.type === 'icon'" flat round class="q-px-md q-ml-sm" icon="fas fa-icons fa-2x" @click="toggleIconPicker">
+                        <q-tooltip>
+                            {{ $t('dashboard.widgetEditor.iconTooltips.iconPicker') }}
+                        </q-tooltip>
+                    </q-btn>
                 </div>
                 <div v-else-if="markerConfig.type === 'img'" class="p-d-flex p-flex-row">
-                    <span class="p-float-label kn-flex">
-                        <InputNumber v-model="markerConfig.scale" class="kn-material-input kn-width-full" :max="500" />
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.markerTypes.scale%') }}</label>
-                    </span>
+                    <q-input dense :label="$t('common.size', { format: '(px)' })" filled v-model="markerConfig.size" :max="150"></q-input>
                     <Button icon="fas fa-images fa-2x" class="p-button-text p-button-plain p-p-0 p-ml-2" @click="toggleImagePicker" />
                 </div>
                 <div v-else-if="markerConfig.type === 'url'" class="p-d-flex p-flex-row">
-                    <span class="p-float-label kn-flex">
-                        <InputText id="fileName" v-model="markerConfig.url" v-tooltip.bottom="markerConfig.url" class="kn-material-input kn-width-full" />
-                        <label for="fileName" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.map.markerTypes.iconUrl') }} </label>
-                    </span>
-                    <span class="p-float-label p-ml-2">
-                        <InputNumber v-model="markerConfig.scale" class="kn-material-input" :max="500" />
-                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.markerTypes.scale%') }}</label>
-                    </span>
+                    <q-input class="col" dense :label="$t('dashboard.widgetEditor.map.markerTypes.iconUrl')" filled v-model="markerConfig.url"></q-input>
+                    <q-input dense class="q-ml-sm" :label="$t('common.size', { format: '(px)' })" filled v-model="markerConfig.size" :max="150"></q-input>
                 </div>
             </div>
         </div>
@@ -95,12 +95,7 @@ export default defineComponent({
             this.markerConfig.style.color = event
         },
         getPreviewStyle() {
-            switch (this.markerConfig.type) {
-                case 'default':
-                    return `color:${this.markerConfig.style.color}; font-size: 1.5rem;`
-                case 'icon':
-                    return `color:${this.markerConfig.style.color}; font-size: ${this.markerConfig.size}%;`
-            }
+            return `color:${this.markerConfig.style.color}; font-size: 1.5rem;`
         },
         getIconClass() {
             switch (this.markerConfig.type) {
@@ -164,5 +159,12 @@ export default defineComponent({
     .i {
         overflow: clip;
     }
+}
+.customColorPreview {
+    width: 50px;
+    height: 30px;
+    display: block;
+    cursor: pointer;
+    border: 1px solid #ccc;
 }
 </style>

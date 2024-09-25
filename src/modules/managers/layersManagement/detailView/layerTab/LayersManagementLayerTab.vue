@@ -50,10 +50,13 @@
                         <label for="category" class="kn-material-input-label"> {{ $t('common.category') }}</label>
                     </span>
                 </div>
+                <div class="p-col-12">
+                    <q-select v-model="layer.roles" multiple :options="allRoles" :label="$t('common.roles')" option-label="name" use-chips />
+                </div>
             </form>
         </template>
     </Card>
-    <Card id="basic-layer-options-card" class="p-mt-3">
+    <!--Card id="basic-layer-options-card" class="p-mt-3">
         <template #content>
             <form class="p-fluid p-formgrid p-grid">
                 <div class="p-field p-col-12 p-lg-6">
@@ -135,38 +138,37 @@
                     <KnValidationMessages class="p-mt-1" :v-comp="v$.layer.layerOrder" :additional-translate-params="{ fieldName: $t('managers.layersManagement.layerOrder') }" />
                 </div>
                 <div class="p-col-12">
-                    <span class="p-float-label">
-                        <MultiSelect id="layerRoles" v-model="layer.roles" class="kn-material-input" :options="allRoles" option-label="name" display="chip" :filter="true" />
-                        <label for="layerRoles" class="kn-material-input-label"> {{ $t('common.roles') }} </label>
-                    </span>
+                    <q-select v-model="layer.roles" multiple :options="allRoles" :label="$t('common.roles')" option-label="name" use-chips />
                 </div>
             </form>
         </template>
-    </Card>
+    </Card-->
     <Card id="layer-type-card" class="p-mt-3">
         <template #content>
             <form class="p-fluid p-formgrid p-grid">
                 <div class="p-field p-col-12">
-                    <span class="p-float-label">
-                        <Dropdown
-                            id="layerType"
-                            v-model="v$.layer.type.$model"
-                            class="kn-material-input"
-                            :options="layerTypes"
-                            option-label="label"
+                    <div class="row">
+                        <q-select
+                            filled
+                            class="col"
+                            v-model="layer.type"
+                            :options="descriptor.layerTypes"
+                            emit-value
+                            map-options
                             option-value="value"
-                            :class="{
-                                'p-invalid': v$.layer.type.$invalid && v$.layer.type.$dirty
-                            }"
-                            :disabled="layer.layerId"
-                            @blur="v$.layer.type.$touch()"
+                            :option-label="(option) => (option.label ? $t(option.label) : '')"
+                            :label="$t('common.type')"
+                            :disable="layer.layerId != undefined"
+                            :error="!layer.type"
                             @change="$emit('touched')"
-                        />
-                        <label for="layerType" class="kn-material-input-label"> {{ $t('common.type') }} *</label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.layer.type" :additional-translate-params="{ fieldName: $t('common.type') }" />
+                        >
+                            <template #hint>
+                                <span v-if="!layer.type">{{ $t('common.required') }}</span>
+                            </template>
+                        </q-select>
+                    </div>
                 </div>
-                <div v-if="layer.type == 'File'" class="p-field p-col-12 p-d-flex">
+                <div v-if="['wkt', 'geojson', 'topojson'].includes(layer.type)" class="p-field p-col-12 p-d-flex">
                     <div class="kn-flex">
                         <span class="p-float-label">
                             <InputText id="fileName" v-model="layer.pathFile" class="kn-material-input" :disabled="true" />
@@ -226,50 +228,25 @@ import InputSwitch from 'primevue/inputswitch'
 export default defineComponent({
     components: { KnValidationMessages, Textarea, MultiSelect, Dropdown, KnInputFile, InputSwitch },
     props: { selectedLayer: { type: Object, required: true }, allRoles: { type: Array, required: true }, allCategories: { type: Array, required: true } },
-    emits: [],
+    emits: ['touched'],
     data() {
         return {
             v$: useValidate() as any,
             descriptor,
             layer: {} as any,
             triggerUpload: false,
-            uploading: false,
-            layerTypes: [
-                {
-                    label: this.$t('common.file'),
-                    value: 'File'
-                },
-                {
-                    label: this.$t('managers.layersManagement.layerTypes.wfs'),
-                    value: 'WFS'
-                },
-                {
-                    label: this.$t('managers.layersManagement.layerTypes.wms'),
-                    value: 'WMS'
-                },
-                {
-                    label: this.$t('managers.layersManagement.layerTypes.tms'),
-                    value: 'TMS'
-                },
-                {
-                    label: this.$t('managers.layersManagement.layerTypes.google'),
-                    value: 'Google'
-                },
-                {
-                    label: this.$t('managers.layersManagement.layerTypes.osm'),
-                    value: 'OSM'
-                }
-            ]
+            uploading: false
         }
     },
-    computed: {},
     watch: {
         selectedLayer() {
             this.layer = this.selectedLayer
+            if (this.layer.type === 'File') this.layer.type = 'geojson'
         }
     },
     async created() {
         this.layer = this.selectedLayer
+        if (this.layer.type === 'File') this.layer.type = 'geojson'
     },
     validations() {
         const urlRequried = (value) => {

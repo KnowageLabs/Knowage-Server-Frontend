@@ -46,17 +46,16 @@ const getFormattedLayers = (widget: any) => {
 
 const getFormattedConfiguration = (widget: any) => {
     return {
-        baseLayer: getFormattedBaseLayer(widget),
+        map: getFormattedMapLayer(widget),
         controlPanel: getFormattedControlPanel(widget),
         exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports
     }
 }
 
-const getFormattedBaseLayer = (widget: any) => {
-    const formattedBaseLayer = mapWidgetDefaultValues.getDefaultBaseLayerSettings()
+const getFormattedMapLayer = (widget: any) => {
+    const formattedBaseLayer = mapWidgetDefaultValues.getDefaultMapLayerSettings()
     if (!widget.content) return formattedBaseLayer
-    formattedBaseLayer.backgroundLayerId = widget.content.backgroundLayerId
-    formattedBaseLayer.zoomFactor = widget.content.zoomFactor
+    formattedBaseLayer.zoom = widget.content.zoom
     formattedBaseLayer.showScale = widget.content.showScale
     formattedBaseLayer.autoCentering = widget.content.autoCentering
     return formattedBaseLayer

@@ -146,6 +146,7 @@
         "login": "Login",
         "low": "Low",
         "max": "Max",
+        "measure": "measure",
         "medium": "Medium",
         "menu": "Menu",
         "message": "Message",
@@ -212,7 +213,7 @@
         "share": "Share",
         "shortcuts": "Shortcuts",
         "show": "Show",
-        "size": "Size",
+        "size": "Size {format}",
         "small": "Small",
         "snapshot": "Snapshot",
         "sort": "sort",
@@ -420,6 +421,7 @@
             "indexHint": "Indexes will be created on single selected columns.",
             "indexPresentMsg": "Index already exists!",
             "indexesTitle": "Indexes",
+            "noDatasetsFound": "No datasets found",
             "pendingChanges": "You have unsaved changes, are you sure you want to exit the editor?",
             "selectDatasets": "Select Datasets",
             "static": "Static",
@@ -981,6 +983,7 @@
                 "backgroundColor": "Background color",
                 "bold": "Bold",
                 "borderColor": "Border color",
+                "color": "Color",
                 "fontColor": "Font color",
                 "fontFamily": "Font family",
                 "fontSize": "Font size",
@@ -1051,8 +1054,8 @@
                     "autoCentering": "Auto centering",
                     "selectBackgroundLayer": "Select Background Layer",
                     "showScale": "Show scale",
-                    "title": "Enable Base Layer",
-                    "zoomFactor": "Zoom factor"
+                    "title": "Map",
+                    "zoom": "Zoom"
                 },
                 "categorizeBy": "Categorize By",
                 "categorizeByOptions": {
@@ -1077,13 +1080,15 @@
                 "fromColor": "From color",
                 "fromThreshold": "From (>=)",
                 "imagesGallery": "Images Gallery",
+                "layerHintText": "Layers are the map 'levels' and data connection definition. Layers can be common geo layers (like geoJSON) or dataset with geographical informations. Select one layer from the list or click on 'add layer' to add one.",
+                "layerHintTitle": "Layers Definition",
                 "layerInfo": {
                     "catalogLayer": "Catalog Layer",
-                    "catalogLayerColumn": "Catalog Layer Column",
+                    "catalogLayerColumn": "Layer Property",
                     "datasetColumn": "Dataset column",
                     "defaultVisible": "Default visible",
                     "defaultVisibleHint": "Default visible hint",
-                    "linkHint": "Catalog type layer will link a dataset Column value to a catalog Column one. Select them for the dataset join",
+                    "noProperties": "No properties available for the selected layer. Check the layer content or the layer filters visible.",
                     "staticHint": "Static hint",
                     "target": "Target",
                     "targetHint": "Target hint"
@@ -1114,6 +1119,7 @@
                     "spatialAttribute": "Spatial Attribute",
                     "wktFormat": "WKT Format"
                 },
+                "noLayerAvailable": "No Layer Available",
                 "north": "North",
                 "pieTypeOptions": {
                     "bars": "Bars",
@@ -2792,10 +2798,10 @@
                 "shp": "SHAPEFILE"
             },
             "fileLocation": "File Location",
-            "filterTitle": "Filter",
+            "filterTitle": "Properties",
             "hint": "Change the hint to your liking inside the messages.json.",
-            "layerFilter": "Layer Filter",
-            "layerFilterAdded": "Layer Filter Added",
+            "layerFilter": "Layer Properties",
+            "layerFilterAdded": "Layer Properties Added",
             "layerIdentify": "Layer ID",
             "layerLabel": "Layer label",
             "layerName": "Layer name",
@@ -2804,11 +2810,9 @@
             "layerParams": "Params",
             "layerTitle": "Layer",
             "layerTypes": {
-                "google": "Google",
-                "osm": "OSM",
-                "tms": "TMS",
-                "wfs": "WFS",
-                "wms": "WMS"
+                "geojson": "GeoJSON",
+                "topojson": "TopoJSON",
+                "wkt": "WKT"
             },
             "layerURL": "URL",
             "noFilterSelected": "No filter selected, click on an item from the left list to add them",

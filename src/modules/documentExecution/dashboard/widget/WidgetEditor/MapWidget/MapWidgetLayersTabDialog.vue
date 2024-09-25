@@ -4,7 +4,7 @@
             id="datasets-datatable"
             v-model:selection="selectedDatasets"
             class="p-datatable-sm kn-table kn-page-content"
-            data-key="id.dsId"
+            data-key="layerId"
             :value="filteredDatasets"
             :paginator="true"
             :rows="dataDialogDescriptor.rows"
@@ -17,7 +17,7 @@
             </template>
             <template #empty>
                 <div v-if="!loading" id="noDatasetsFound">
-                    {{ $t('managers.advancedData.noDatasetsFound') }}
+                    {{ $t('dashboard.widgetEditor.map.noLayerAvailable') }}
                 </div>
             </template>
             <template #header>
@@ -31,8 +31,7 @@
             <Column selection-mode="multiple" />
             <Column v-for="col of dataDialogDescriptor.columns" :key="col.field" class="kn-truncated" :style="col.style" :header="$t(col.header)" :sort-field="col.field" :sortable="true">
                 <template #body="slotProps">
-                    <span v-if="col.field == 'type'" v-tooltip.top="slotProps.data[col.field]"> {{ dataDialogDescriptor.datasetTypes[slotProps.data[col.field]] }} </span>
-                    <span v-else v-tooltip.top="slotProps.data[col.field]"> {{ slotProps.data[col.field] }}</span>
+                    <span v-tooltip.top="slotProps.data[col.field]"> {{ slotProps.data[col.field] }}</span>
                 </template>
             </Column>
         </DataTable>
@@ -49,7 +48,6 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
 import dataDialogDescriptor from './MapWidgetLayersTabDescriptor.json'
-import dashStore from '../../../Dashboard.store'
 import { IDataset } from '../../../Dashboard'
 
 export default defineComponent({
@@ -57,15 +55,12 @@ export default defineComponent({
     components: { Column, DataTable, Dialog },
     props: { visible: { required: true, type: Boolean }, availableDatasetsProp: { required: true, type: Array as PropType<IDataset[]> }, selectedDatasetsProp: { required: true, type: Array as any } },
     emits: ['close', 'addSelectedDatasets'],
-    setup() {
-        const dashboardStore = dashStore()
-        return { dashboardStore }
-    },
     data() {
         return {
+            allLayers: [] as any,
             dataDialogDescriptor,
             datasets: [] as any[],
-            filteredDatasets: [] as IDataset[],
+            filteredDatasets: [] as any,
             selectedDatasets: [] as any,
             searchWord: '',
             loading: false
@@ -79,13 +74,33 @@ export default defineComponent({
     async created() {
         await this.setDatasetList()
     },
-    updated() {
-        this.filteredDatasets = [...this.datasets]
-    },
     methods: {
         async setDatasetList() {
-            this.datasets = this.filterOutSelectedDatasets(this.selectedDatasetsProp, this.availableDatasetsProp)
-            this.filteredDatasets = [...this.datasets]
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers`).then((response: AxiosResponse<any>) => {
+                this.allLayers = response.data.root.map((i) => {
+                    return {
+                        layerId: 'l_' + i.layerId,
+                        name: i.name,
+                        description: i.descr,
+                        type: 'layer',
+                        id: i.layerId,
+                        layerType: i.type,
+                        properties: i.properties
+                    }
+                })
+            })
+            //await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/1/download/geojson`).then((response: AxiosResponse<any>) => {})
+            this.datasets = this.filterOutSelectedDatasets(this.selectedDatasetsProp, this.availableDatasetsProp).map((i) => {
+                return {
+                    layerId: 'ds_' + i.id.dsId,
+                    name: i.name,
+                    description: i.description,
+                    columns: i.metadata.fieldsMeta,
+                    type: 'dataset',
+                    id: i.id.dsId
+                }
+            })
+            this.filteredDatasets = [...this.datasets, ...this.allLayers]
         },
         filterOutSelectedDatasets(selectedDatasets, allDatasets) {
             return allDatasets.filter((responseDataset) => {

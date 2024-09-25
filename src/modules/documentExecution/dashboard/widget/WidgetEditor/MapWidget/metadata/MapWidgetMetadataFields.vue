@@ -24,38 +24,6 @@
                         <i class="pi pi-trash kn-cursor-pointer" @click="removeField(field)"></i>
                     </div>
                 </div>
-
-                <div class="p-col-12 p-d-flex p-flex-row p-jc-between">
-                    <span class="">
-                        <InputSwitch v-model="field.properties.aggregateBy" @change="onAggregateByChanged(field)" />
-                        <label class="kn-material-input-label p-ml-3">
-                            {{ $t('dashboard.widgetEditor.map.metadata.aggregateBy') }}
-                        </label>
-                        <i v-tooltip.top="$t('dashboard.widgetEditor.map.metadata.aggregateByHint')" class="pi pi-question-circle kn-cursor-pointer p-mx-3"></i>
-                    </span>
-
-                    <span v-if="field.fieldType === 'MEASURE'" class="">
-                        <InputSwitch v-model="field.properties.showMap" />
-                        <label class="kn-material-i47nput-label p-ml-3">
-                            {{ $t('dashboard.widgetEditor.map.metadata.showOnMap') }}
-                        </label>
-                    </span>
-
-                    <span v-if="field.fieldType === 'ATTRIBUTE'" class="">
-                        <InputSwitch v-model="field.properties.showFilter" :disabled="!field.properties.aggregateBy" />
-                        <label class="kn-material-input-label p-ml-3">
-                            {{ $t('dashboard.widgetEditor.map.metadata.showOnFilters') }}
-                        </label>
-                    </span>
-
-                    <span class="">
-                        <InputSwitch v-model="field.properties.modal" :disabled="!field.properties.aggregateBy" />
-                        <label class="kn-material-input-label p-ml-3">
-                            {{ $t('common.modal') }}
-                        </label>
-                        <i v-tooltip.top="$t('dashboard.widgetEditor.map.metadata.modalHint')" class="pi pi-question-circle kn-cursor-pointer p-mx-3"></i>
-                    </span>
-                </div>
             </div>
         </div>
 
@@ -103,12 +71,6 @@ export default defineComponent({
     methods: {
         loadFields() {
             this.fields = this.propFields
-        },
-        onAggregateByChanged(field: IWidgetMapLayerColumn) {
-            if (!field.properties.aggregateBy) {
-                field.properties.modal = false
-                field.properties.showFilter = false
-            }
         },
         addField() {
             this.addNewFieldDialogVisible = true

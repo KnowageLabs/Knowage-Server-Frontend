@@ -24,7 +24,7 @@
                 <MapTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></MapTooltips>
                 <MapDialogSettings v-else-if="accordion.type === 'DialogSettings'" :widget-model="widgetModel"></MapDialogSettings>
                 <MapLegendSettings v-else-if="accordion.type === 'Legend'" :widget-model="widgetModel"></MapLegendSettings>
-                <MapBaseLayerSettings v-else-if="accordion.type === 'BaseLayer'" :widget-model="widgetModel" :layers="layers"></MapBaseLayerSettings>
+                <MapBaseLayerSettings v-else-if="accordion.type === 'Map'" :widget-model="widgetModel"></MapBaseLayerSettings>
                 <MapControlPanelSettings v-else-if="accordion.type === 'ControlPanel'" :widget-model="widgetModel"></MapControlPanelSettings>
                 <MapConditionalStyles v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></MapConditionalStyles>
             </AccordionTab>
@@ -40,7 +40,6 @@ import { mapState } from 'pinia'
 import mainStore from '@/App.store'
 import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
-import descriptor from './MapSettingsDescriptor.json'
 import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
 import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
@@ -106,7 +105,6 @@ export default defineComponent({
 
     data() {
         return {
-            descriptor,
             settingsTabDescriptor,
             activeIndex: -1,
             styleChangedFlag: false,

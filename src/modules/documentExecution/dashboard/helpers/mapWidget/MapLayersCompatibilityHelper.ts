@@ -7,7 +7,7 @@ export const getFormattedSettingsFromLayers = (widget: any, formattedWidget: IWi
     layers?.forEach((layer: any) => {
         layer?.content?.columnSelectedOfDataset?.forEach((column: any) => {
             addLayerColumnTooltipOptions(column, formattedWidget, layer.name)
-            addLayerColumnConditionalStyleSettings(column, formattedWidget, layer.layerID, formattedDashboardModel, drivers)
+            addLayerColumnConditionalStyleSettings(column, formattedWidget, layer.layerId, formattedDashboardModel, drivers)
         })
         addLayerVisualizationTypeSettings(layer, formattedWidget)
     })
@@ -36,13 +36,13 @@ const addLayerVisualizationTypeSettings = (layer: any, formattedWidget: IWidget)
     if (!visualizationType.clusterConf) visualizationType.clusterConf = mapWidgetDefaultValues.getDefaultVisualizationClusterConfiguration()
     if (!visualizationType.heatmapConf) visualizationType.heatmapConf = mapWidgetDefaultValues.getDefaultVisualizationHeatmapConfiguration()
     if (!visualizationType.analysisConf) visualizationType.analysisConf = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
-    formattedWidget.settings.visualization.types.push(visualizationType)
+    formattedWidget.settings.visualizations.push(visualizationType)
 }
 
-const addLayerColumnConditionalStyleSettings = (oldColumn: any, formattedWidget: IWidget, layerID: string, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
+const addLayerColumnConditionalStyleSettings = (oldColumn: any, formattedWidget: IWidget, layerId: string, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
     if (oldColumn && oldColumn.fieldType === 'MEASURE' && oldColumn.ranges) {
         oldColumn.ranges.forEach((range: any) => {
-            const tempConditionalStyle = createConditionalStyleFromRange(oldColumn, range, layerID)
+            const tempConditionalStyle = createConditionalStyleFromRange(oldColumn, range, layerId)
             addNonstaticConditionalStyles(tempConditionalStyle, range, formattedDashboardModel, drivers)
             formattedWidget.settings.conditionalStyles.enabled = true
             formattedWidget.settings.conditionalStyles.conditions.push(tempConditionalStyle)
@@ -50,9 +50,9 @@ const addLayerColumnConditionalStyleSettings = (oldColumn: any, formattedWidget:
     }
 }
 
-const createConditionalStyleFromRange = (oldColumn: any, range: any, layerID: string) => {
+const createConditionalStyleFromRange = (oldColumn: any, range: any, layerId: string) => {
     return {
-        targetLayer: layerID,
+        targetLayer: layerId,
         targetColumn: oldColumn.name,
         condition: { type: 'static', operator: range.operator, value: range.value },
         properties: { 'background-color': range['background-color'] ?? '' }
