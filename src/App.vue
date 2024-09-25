@@ -97,6 +97,7 @@ export default defineComponent({
         this.cookies = cookies
         const uuid = uuidv4()
         cookies.set('X-CSRF-TOKEN', uuid, 0, null, null, null, 'Strict')
+        if(localStorage.getItem('X-CSRF-TOKEN')) uuid = localStorage.getItem('X-CSRF-TOKEN')
         localStorage.setItem('X-CSRF-TOKEN',uuid)
         const locationParams = new URL(location).searchParams
 
