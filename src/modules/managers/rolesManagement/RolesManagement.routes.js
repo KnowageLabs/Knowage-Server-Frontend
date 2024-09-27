@@ -2,9 +2,10 @@ const routes = [
     {
         path: '/roles-management',
         name: 'roles-management',
+        meta: { functionality: 'ProfileManagement' },
         component: () => import('@/modules/managers/rolesManagement/RolesManagement.vue'),
         children: [
-             {
+            {
                 path: '',
                 component: () => import('@/modules/managers/rolesManagement/RolesManagementHint.vue')
             },

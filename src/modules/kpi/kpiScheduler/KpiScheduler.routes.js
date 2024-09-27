@@ -2,6 +2,7 @@ const routes = [
     {
         path: '/kpi-scheduler',
         name: 'kpi-scheduler',
+        meta: { functionality: 'KpiSchedulation' },
         component: () => import('@/modules/kpi/kpiScheduler/KpiScheduler.vue'),
         children: [
             {

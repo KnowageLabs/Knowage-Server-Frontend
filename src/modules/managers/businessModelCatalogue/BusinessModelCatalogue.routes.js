@@ -2,6 +2,7 @@ const routes = [
     {
         path: '/business-model-catalogue',
         name: 'business-model-catalogue',
+        meta: { functionality: 'MetaModelsCatalogueManagement' },
         component: () => import('@/modules/managers/businessModelCatalogue/BusinessModelCatalogue.vue'),
         children: [
             {
