@@ -45,10 +45,10 @@ axios.interceptors.request.use(
         if (localStorage.getItem('X-CSRF-TOKEN')) CSRFToken = localStorage.getItem('X-CSRF-TOKEN')
         else {
             CSRFToken = uuid
-            localStorage.setItem('X-CSRF-TOKEN', uuid)
+            await localStorage.setItem('X-CSRF-TOKEN', uuid)
         }
-        await cookies.set('X-CSRF-TOKEN', uuid, 0, null, null, null, 'Strict')
-        config.headers.common['X-CSRF-TOKEN'] = localStorage.getItem('X-CSRF-TOKEN')
+        await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, null, 'Strict')
+        config.headers.common['X-CSRF-TOKEN'] = CSRFToken
 
         if (localStorage.getItem('public')) {
             if (new Date().getTime() - localStorage.getItem('lastResponseTimestamp') > import.meta.env.VITE_SESSION_TIMEOUT) {
