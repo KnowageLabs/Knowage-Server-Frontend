@@ -26,8 +26,6 @@ import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
-import { useCookies } from 'vue3-cookies'
-import { v4 as uuidv4 } from 'uuid'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -41,8 +39,7 @@ export default defineComponent({
             showMenu: false,
             closedMenu: false,
             pollingInterval: null,
-            stopExecution: false,
-            cookies: null as any
+            stopExecution: false
         }
     },
     computed: {
@@ -93,12 +90,6 @@ export default defineComponent({
         }
     },
     async created() {
-        const { cookies } = useCookies()
-        this.cookies = cookies
-        let uuid = uuidv4()
-        cookies.set('X-CSRF-TOKEN', uuid, 0, null, null, null, 'Strict')
-        if (localStorage.getItem('X-CSRF-TOKEN')) uuid = localStorage.getItem('X-CSRF-TOKEN')
-        localStorage.setItem('X-CSRF-TOKEN', uuid)
         const locationParams = new URL(location).searchParams
 
         let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'

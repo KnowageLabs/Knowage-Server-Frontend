@@ -2,6 +2,11 @@ import axios from 'axios'
 //import router from './App.routes.js'
 import mainStore from './App.store.js'
 import authHelper from '@/helpers/commons/authHelper'
+import { useCookies } from 'vue3-cookies'
+import { v4 as uuidv4 } from 'uuid'
+
+const { cookies } = useCookies()
+let uuid = uuidv4()
 
 async function refreshPublicInstance() {
     localStorage.setItem('sessionRefreshPending', true)
@@ -36,9 +41,14 @@ axios.interceptors.request.use(
         config.headers.common['Content-Type'] = 'application/json; charset=utf-8'
         config.headers.common['Access-Control-Allow-Origin'] = '*'
 
-        if (localStorage.getItem('X-CSRF-TOKEN')) {
-            config.headers.common['X-CSRF-TOKEN'] = localStorage.getItem('X-CSRF-TOKEN')
+        let CSRFToken = null
+        if (localStorage.getItem('X-CSRF-TOKEN')) CSRFToken = localStorage.getItem('X-CSRF-TOKEN')
+        else {
+            CSRFToken = uuid
+            localStorage.setItem('X-CSRF-TOKEN', uuid)
         }
+        await cookies.set('X-CSRF-TOKEN', uuid, 0, null, null, null, 'Strict')
+        config.headers.common['X-CSRF-TOKEN'] = localStorage.getItem('X-CSRF-TOKEN')
 
         if (localStorage.getItem('public')) {
             if (new Date().getTime() - localStorage.getItem('lastResponseTimestamp') > import.meta.env.VITE_SESSION_TIMEOUT) {
