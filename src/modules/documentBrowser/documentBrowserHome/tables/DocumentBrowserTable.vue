@@ -4,87 +4,65 @@
             {{ documents.length + ' ' + $t('documentBrowser.documentsFound') }}
         </Message>
     </div>
-    <div v-if="!searchMode" class="table-header p-d-flex">
-        <span class="p-input-icon-left p-mr-3 p-col-12">
-            <i class="pi pi-search" />
-            <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="filterInput" />
-        </span>
-    </div>
-    <div class="kn-overflow-y last-flex-container kn-flex">
-        <DataTable
-            id="documents-datatable"
-            v-model:first="first"
-            v-model:filters="filters"
-            :value="documents"
-            :paginator="documents.length > documentBrowserTableDescriptor.rows"
-            paginator-template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-            :current-page-report-template="
-                $t('common.table.footer.paginated', {
-                    first: '{first}',
-                    last: '{last}',
-                    totalRecords: '{totalRecords}'
-                })
-            "
-            :rows="documentBrowserTableDescriptor.rows"
-            filter-display="menu"
-            selection-mode="single"
-            class="p-datatable-sm kn-table"
-            data-key="id"
-            :resizable-columns="true"
-            :responsive-layout="documentBrowserTableDescriptor.responsiveLayout"
-            :breakpoint="documentBrowserTableDescriptor.breakpoint"
-            data-test="documents-datatable"
-            style="width: 100%"
-            :scrollable="true"
-            scroll-height="100%"
-            @rowClick="$emit('selected', $event.data)"
-        >
-            <template #empty>
-                <Message class="p-m-2" severity="info" :closable="false" :style="documentBrowserTableDescriptor.styles.message" data-test="no-documents-hint">
-                    {{ $t('documentBrowser.noDocumentsHint') }}
-                </Message>
+    <div v-if="!searchMode" class="table-header p-d-flex row">
+        <q-input class="q-ma-md col-6" dense filled v-model="filter" :label="$t('documentBrowser.selectedFolderSearch')">
+            <template v-slot:prepend>
+                <q-icon name="search" />
             </template>
-            <Column v-for="col of documentBrowserTableDescriptor.columns" :key="col.field" class="kn-truncated" :style="col.style" :header="$t(col.header)" :field="col.field" :sort-field="col.field" :sortable="true">
-                <template #filter="{ filterModel }">
-                    <InputText v-model="filterModel.value" type="text" class="p-column-filter"></InputText>
-                </template>
-                <template #body="slotProps">
-                    <span v-tooltip.top="slotProps.data[col.field]" class="kn-truncated">{{ getTranslatedValue(slotProps.data[col.field], col.field) }}</span>
-                </template>
-            </Column>
-            <Column v-if="isAdmin" :header="$t('common.status')" field="stateCodeStr" sort-field="stateCodeStr" :sortable="true" :style="documentBrowserTableDescriptor.table.smallmessage">
-                <template #filter="{ filterModel }">
-                    <InputText v-model="filterModel.value" type="text" class="p-column-filter"></InputText>
-                </template>
-                <template #body="slotProps" :style="documentBrowserTableDescriptor.table.iconColumn.smallmessage">
-                    <span data-test="document-status"> {{ slotProps.data['stateCodeStr'] }}</span>
-                </template></Column
-            >
-            <Column v-if="isAdmin" :header="$t('common.visible')" field="visible" sort-field="visible" :sortable="true" :style="documentBrowserTableDescriptor.table.iconColumn.style">
-                <template #body="slotProps">
-                    <span v-tooltip="slotProps.data['visible'] ? $t('common.visible') : $t('common.notVisible')" class="fa-stack">
-                        <i class="fa fa-eye fa-stack-1x"></i>
-                        <i v-if="!slotProps.data['visible']" class="fa fa-ban fa-stack-2x"></i>
-                    </span> </template
-            ></Column>
-            <Column :style="documentBrowserTableDescriptor.table.iconColumn.style">
-                <template #body="slotProps">
-                    <Button v-tooltip.left="$t('documentBrowser.executeDocument')" icon="fa fa-play-circle" class="p-button-link" @click.stop="executeDocument(slotProps.data)" />
-                </template>
-            </Column>
-        </DataTable>
+        </q-input>
+    </div>
+
+    <div class="kn-flex">
+        <q-table class="q-mb-lg" flat dense :pagination="{ rowsPerPage: 0, page: 1 }" :filter="filter" hide-pagination :visible-columns="visibleColumns" :rows="documents" :columns="documentBrowserTableDescriptor.quasarColumns" row-key="name" @row-click="(e, row) => $emit('selected', row)">
+            <template #no-data>
+                <div class="full-width row flex-center text-accent q-gutter-sm">
+                    <Message class="p-m-2" severity="info" :closable="false" :style="documentBrowserTableDescriptor.styles.message" data-test="no-documents-hint">
+                        {{ $t('documentBrowser.noDocumentsHint') }}
+                    </Message>
+                </div>
+            </template>
+            <template v-slot:header="props">
+                <q-tr :props="props">
+                    <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-capitalize">
+                        {{ $t(col.label) }}
+                    </q-th>
+                </q-tr>
+            </template>
+            <template #body-cell="props">
+                <q-td class="kn-truncated">
+                    <div class="row">
+                        <div class="kn-truncated text-weight-thin" style="max-width: 300px; font-size: 0.8rem">
+                            {{ props.value }}<q-tooltip>{{ props.value }}</q-tooltip>
+                        </div>
+                    </div>
+                </q-td>
+            </template>
+            <template #body-cell-visible="props">
+                <q-td class="text-center"
+                    ><q-icon :name="props.value ? 'visibility' : 'visibility_off'">
+                        <q-tooltip>{{ props.value ? $t('common.visible') : $t('common.notVisible') }}</q-tooltip>
+                    </q-icon></q-td
+                >
+            </template>
+            <template #body-cell-play="slotProps">
+                <q-td class="text-center">
+                    <q-btn flat round size="xs" color="primary" icon="fa fa-play-circle" @click.stop="executeDocument(slotProps.row)">
+                        <q-tooltip>{{ $t('documentBrowser.executeDocument') }}</q-tooltip>
+                    </q-btn>
+                </q-td>
+            </template>
+        </q-table>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { FilterOperator } from 'primevue/api'
-import { filterDefault } from '@/helpers/commons/filterHelper'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Message from 'primevue/message'
 import documentBrowserTableDescriptor from './DocumentBrowserTableDescriptor.json'
 import mainStore from '../../../../App.store'
+import { mapState } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../../helpers/commons/roleHelper'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
@@ -93,45 +71,17 @@ export default defineComponent({
     components: { Column, DataTable, Message },
     props: { propDocuments: { type: Array }, searchMode: { type: Boolean } },
     emits: ['itemSelected', 'selected'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             documentBrowserTableDescriptor,
             documents: [] as any[],
-            filters: {
-                global: [filterDefault],
-                typeCode: {
-                    operator: FilterOperator.AND,
-                    constraints: [filterDefault]
-                },
-                name: {
-                    operator: FilterOperator.AND,
-                    constraints: [filterDefault]
-                },
-                label: {
-                    operator: FilterOperator.AND,
-                    constraints: [filterDefault]
-                },
-                creationUser: {
-                    operator: FilterOperator.AND,
-                    constraints: [filterDefault]
-                },
-                stateCodeStr: {
-                    operator: FilterOperator.AND,
-                    constraints: [filterDefault]
-                }
-            } as any,
-            user: null as any,
-            first: 0
+            filter: '' as string,
+            first: 0,
+            visibleColumns: [] as string[]
         }
     },
     computed: {
-        isAdmin(): boolean {
-            return this.user?.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_MANAGEMENT) || this.user?.isSuperadmin
-        }
+        ...mapState(mainStore, ['user'])
     },
     watch: {
         propDocuments() {
@@ -142,7 +92,6 @@ export default defineComponent({
     created() {
         this.loadDocuments()
         this.first = 0
-        this.user = (this.store.$state as any).user
     },
     methods: {
         loadDocuments() {
@@ -150,6 +99,7 @@ export default defineComponent({
                 if (el.field === 'status') el.style = documentBrowserTableDescriptor.table.smallmessage
                 return { ...el, stateCodeStr: this.getTranslatedStatus(el.stateCodeStr) }
             }) as any[]
+            if (this.user?.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_MANAGEMENT) || this.user?.isSuperadmin) this.visibleColumns.push('stateCodeStr', 'visible')
         },
         getTranslatedStatus(status: string) {
             return status ? this.$t(documentBrowserTableDescriptor.status[status] ?? '') : ''

@@ -1,29 +1,57 @@
 {
-    "breakpoint": "960px",
-    "columns": [
+    "quasarColumns": [
         {
+            "align": "left",
             "field": "typeCode",
-            "header": "common.type",
-            "style": {}
+            "label": "common.type",
+            "name": "typeCode",
+            "required": true,
+            "sortable": true
         },
         {
+            "align": "left",
             "field": "name",
-            "header": "common.name",
-            "style": {}
+            "label": "common.name",
+            "name": "name",
+            "required": true,
+            "sortable": true
         },
         {
+            "align": "left",
             "field": "label",
-            "header": "common.label",
-            "style": {}
+            "label": "common.label",
+            "name": "label",
+            "required": true,
+            "sortable": true
         },
         {
+            "align": "left",
             "field": "creationUser",
-            "header": "common.author",
-            "style": {}
+            "label": "common.author",
+            "name": "creationUser",
+            "required": true,
+            "sortable": true
+        },
+        {
+            "align": "left",
+            "field": "stateCodeStr",
+            "label": "common.status",
+            "name": "stateCodeStr",
+            "sortable": true
+        },
+        {
+            "align": "center",
+            "field": "visible",
+            "label": "common.visible",
+            "name": "visible",
+            "sortable": true
+        },
+        {
+            "label": "",
+            "name": "play",
+            "required": true
         }
     ],
-    "responsiveLayout": "stack",
-    "rows": 15,
     "status": {
         "sbidomains.nm.dev": "common.development",
         "sbidomains.nm.rel": "common.released",

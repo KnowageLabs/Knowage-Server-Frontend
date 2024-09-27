@@ -11,6 +11,7 @@ export default class themeHelper {
         for (let key in variables) {
             document.documentElement.style.setProperty(key, variables[key])
         }
+        if (variables['--kn-button-primary-background-color']) this.setQuasarPreset(variables)
     }
 
     getDefaultKnowageTheme(): any {
@@ -18,12 +19,15 @@ export default class themeHelper {
 
         for (let k in this.descriptor) {
             for (let property of this.descriptor[k].properties) {
-                defaultTheme[property.key] = getComputedStyle(document.documentElement)
-                    .getPropertyValue(property.key)
-                    .trim()
+                defaultTheme[property.key] = getComputedStyle(document.documentElement).getPropertyValue(property.key).trim()
             }
         }
+        this.setQuasarPreset(defaultTheme)
 
         return defaultTheme
+    }
+
+    setQuasarPreset(variables): void {
+        document.documentElement.style.setProperty('--q-primary', variables['--kn-button-primary-background-color'])
     }
 }

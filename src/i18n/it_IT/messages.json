@@ -1259,7 +1259,9 @@
         "moveDownDocumentState": "abbassa lo stato del documento",
         "moveUpDocumentState": "alza lo stato del documento",
         "noDocumentsHint": "nessun documento da mostrare",
-        "title": "gestore documenti"
+        "selectedFolderSearch": "Cerca nella cartella attuale",
+        "title": "gestore documenti",
+        "wholeBrowserSearch": "Cerca in tutto il gestore documenti"
     },
     "documentExecution": {
         "documentDetails": {

@@ -1410,6 +1410,8 @@
         "development": "Development",
         "documentsFound": "Documents found",
         "documentsSearch": "Search for documents",
+        "wholeBrowserSearch": "Search in the whole document browser",
+        "selectedFolderSearch": "Search in selected folder",
         "editDocument": "Edit Document",
         "executeDocument": "Execute Document",
         "genericDocument": "Generic document",
