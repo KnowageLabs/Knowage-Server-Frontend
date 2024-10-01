@@ -704,6 +704,7 @@ export default defineComponent({
             this.loading = true
             this.parameterSidebarVisible = false
             this.schedulationsTableVisible = true
+            this.schedulations = []
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/getSnapshots?id=${this.document.id}`)
                 .then((response: AxiosResponse<any>) => response.data?.schedulers.forEach((el: any) => this.schedulations.push({ ...el, urlPath: response.data.urlPath })))
@@ -851,10 +852,10 @@ export default defineComponent({
                 })
                 .split(';')
         },
-        replaceNullForDates(par,value){
-            if(value == 'null' && this.filtersData.filterStatus.find((i)=>i.urlName === par && i.type === 'DATE')){
-                return '' 
-            }else return value
+        replaceNullForDates(par, value) {
+            if (value == 'null' && this.filtersData.filterStatus.find((i) => i.urlName === par && i.type === 'DATE')) {
+                return ''
+            } else return value
         },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
             const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name) as any
@@ -901,7 +902,7 @@ export default defineComponent({
                             element.type = 'hidden'
                             element.id = 'postForm_' + postObject.params.document + k
                             element.name = k
-                            element.value = this.replaceNullForDates(k,i)
+                            element.value = this.replaceNullForDates(k, i)
                             element.classList.add(`multiple_${k}`)
                             postForm.appendChild(element)
                             this.hiddenFormData.append(element.name, element.value)
@@ -909,7 +910,7 @@ export default defineComponent({
                     } else {
                         inputElement.value = decodeURIComponent(postObject.params[k])
                         inputElement.value = inputElement.value.replace(/\+/g, ' ')
-                        inputElement.value = this.replaceNullForDates(k,inputElement.value)
+                        inputElement.value = this.replaceNullForDates(k, inputElement.value)
                         this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
                     }
                 } else {
@@ -920,7 +921,7 @@ export default defineComponent({
                             element.type = 'hidden'
                             element.id = 'postForm_' + postObject.params.document + k
                             element.name = k
-                            element.value = this.replaceNullForDates(k,i)
+                            element.value = this.replaceNullForDates(k, i)
                             element.classList.add(`multiple_${k}`)
                             postForm.appendChild(element)
                             this.hiddenFormData.append(element.name, element.value)
@@ -931,7 +932,7 @@ export default defineComponent({
                         element.id = 'postForm_' + postObject.params.document + k
                         element.name = k
                         element.value = decodeURIComponent(postObject.params[k].replace(/\+/g, ' '))
-                        element.value = this.replaceNullForDates(k,element.value)
+                        element.value = this.replaceNullForDates(k, element.value)
                         postForm.appendChild(element)
                         this.hiddenFormData.append(element.name, element.value)
                     }
