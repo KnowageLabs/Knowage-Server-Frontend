@@ -139,7 +139,7 @@ export default defineComponent({
             if (!driver.defaultValue || driver.defaultValue.length == 0) driver.parameterValue = []
 
             driver.parameterValue = deepcopy(driver.defaultValue) as { value: string; description: string }[]
-            if (driver.type === 'DATE' && driver.parameterValue && driver.parameterValue[0]) {
+            if (driver.type === 'DATE' && driver.parameterValue && driver.parameterValue[0] && driver.parameterValue[0].value) {
                 driver.parameterValue[0].value = moment(driver.parameterValue[0].value).toDate()
                 this.setDateDisplayValue(driver)
             }
