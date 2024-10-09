@@ -414,6 +414,7 @@ export default defineComponent({
         window.removeEventListener('message', this.iframeEventsListener)
     },
     async created() {
+        this.setLoading(true)
         this.setEventListeners()
         window.addEventListener('message', this.iframeEventsListener)
 
@@ -429,11 +430,14 @@ export default defineComponent({
             this.isOlapDesignerMode()
             this.setMode()
             this.document = { label: this.id }
-            if (this.newDashboardMode)
+            if (this.newDashboardMode) {
                 this.breadcrumbs.push({
                     label: 'new-dashboard',
                     document: this.document
                 })
+            }
+
+            this.setLoading(false)
             if (!this.document.label) return
             if (this.document.label === 'new-dashboard') {
                 this.newDashboardMode = true
