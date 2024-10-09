@@ -155,8 +155,6 @@ export default defineComponent({
                 } else {
                     this.showMenu = true
                 }
-
-                this.setLoading(false)
             })
             .catch((error) => {
                 if (error.response.status === 400) {
@@ -166,28 +164,28 @@ export default defineComponent({
             })
         if (this.stopExecution) return
 
-        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response: any) => {
+        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then(async (response: any) => {
             this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
             this.checkOIDCSession(response.data)
-        })
-        if (this.isEnterprise) {
-            if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(await this.themeHelper.getDefaultKnowageTheme())
+            if (this.isEnterprise) {
+                if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
 
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
-                this.setLicenses(response.data)
-            })
-            if (Object.keys(this.theme).length === 0) {
-                this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((response) => {
-                    this.setTheme(response.data.config)
-                    this.themeHelper.setTheme(response.data.config)
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
+                    this.setLicenses(response.data)
                 })
-            } else {
-                this.themeHelper.setTheme(this.theme)
+                if (Object.keys(this.theme).length === 0) {
+                    this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((themes: any) => {
+                        this.setTheme(themes.data.config)
+                        this.themeHelper.setTheme(themes.data.config)
+                    })
+                } else {
+                    this.themeHelper.setTheme(this.theme)
+                }
             }
-        }
 
-        this.onLoad()
+            this.onLoad()
+        })
     },
 
     mounted() {
@@ -247,6 +245,7 @@ export default defineComponent({
 
                 this.newsDownloadHandler()
                 this.loadInternationalization()
+                this.setLoading(false)
             })
         },
         async loadInternationalization() {
