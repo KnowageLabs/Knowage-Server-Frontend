@@ -1,53 +1,42 @@
 <template>
-    <div class="p-grid p-m-0">
-        <Toolbar class="kn-toolbar kn-toolbar--primary p-col-12">
+    <div class="grid">
+        <Toolbar class="kn-toolbar kn-toolbar--secondary p-col-12">
             <template #start>{{ $t('documentExecution.main.scheduledExecutions') }} </template>
 
             <template #end>
-                <Button id="document-execution-schedulations-close-button" class="kn-button kn-button--primary" @click="closeTable"> {{ $t('common.close') }}</Button>
+                <q-btn flat :label="$t('common.close')" @click="closeTable" />
             </template>
         </Toolbar>
 
-        <DataTable
-            id="old-chedulations-table"
-            v-model:filters="filters"
-            :value="schedulations"
-            class="p-datatable-sm kn-table p-col-12"
-            data-key="id"
-            :global-filter-fields="documentExecutionSchedulationsTableDescriptor.globalFilterFields"
-            :paginator="schedulations.length > 20"
-            :rows="20"
-            responsive-layout="stack"
-            breakpoint="600px"
-        >
-            <template #empty>
-                <Message class="p-m-2" severity="info" :closable="false" :style="documentExecutionSchedulationsTableDescriptor.styles.message">
-                    {{ $t('common.info.noDataFound') }}
-                </Message>
-            </template>
-            <template #header>
-                <div class="table-header p-d-flex p-ai-center">
-                    <span id="search-container" class="p-input-icon-left p-mr-3">
-                        <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" />
-                    </span>
-                </div>
-            </template>
+        <div class="row">
+            <q-input class="q-ma-md col-sm-6 col-md-3 col-xs-12" dense filled v-model="filter" :label="$t('common.search')">
+                <template v-slot:prepend>
+                    <q-icon name="search" />
+                </template>
+            </q-input>
+        </div>
 
-            <Column key="name" class="kn-truncated" field="name" :header="$t('common.name')" :sortable="true"></Column>
-            <Column key="description" class="kn-truncated" field="description" :header="$t('common.description')" :sortable="true"></Column>
-            <Column key="dateCreation" class="kn-truncated" field="dateCreation" :header="$t('common.creationDate')" :sortable="true">
-                <template #body="slotProps">
-                    {{ getFormattedDate(slotProps.data.dateCreation, 'DD/MM/YYYY hh:mm') }}
+        <div class="row">
+            <q-table class="col" flat dense :filter="filter" :rows="schedulations" :columns="columns" :visible-columns="['name', 'description', 'dateCreation', 'buttons']" row-key="name">
+                <template #no-data
+                    ><div class="full-width row flex-center text-accent q-gutter-sm">
+                        <Message class="p-m-2" severity="info" :closable="false" data-test="no-documents-hint">
+                            {{ $t('common.info.noDataFound') }}
+                        </Message>
+                    </div>
                 </template>
-            </Column>
-            <Column :style="documentExecutionSchedulationsTableDescriptor.iconColumn.style">
-                <template #body="slotProps">
-                    <Button v-tooltip.top="$t('common.download')" icon="pi pi-download" class="p-button-link" @click="downloadSnapshot(slotProps.data)" />
-                    <Button icon="pi pi-trash" class="p-button-link" @click="deleteSchedulationConfirm(slotProps.data)" />
+                <template #body-cell-buttons="slotProps">
+                    <q-td class="text-right">
+                        <q-btn flat round size="xs" color="primary" icon="fa fa-download" @click.stop="downloadSnapshot(slotProps.row)">
+                            <q-tooltip>{{ $t('common.download') }}</q-tooltip>
+                        </q-btn>
+                        <q-btn flat round size="xs" color="primary" icon="fa fa-trash" @click.stop="deleteSchedulationConfirm(slotProps.row)">
+                            <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                        </q-btn>
+                    </q-td>
                 </template>
-            </Column>
-        </DataTable>
+            </q-table>
+        </div>
 
         <DocumentExecutionSnapshotDialog :visible="snapshotDialogVisible" :prop-url="url" @close="snapshotDialogVisible = false"></DocumentExecutionSnapshotDialog>
     </div>
@@ -55,7 +44,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { filterDefault } from '@/helpers/commons/filterHelper'
 import { formatDate } from '@/helpers/commons/localeHelper'
 import { iSchedulation } from '../../DocumentExecution'
 import Column from 'primevue/column'
@@ -78,10 +66,44 @@ export default defineComponent({
         return {
             documentExecutionSchedulationsTableDescriptor,
             schedulations: [] as iSchedulation[],
-            filters: { global: [filterDefault] } as Object,
+            filter: '' as string,
             url: '' as string,
             snapshotDialogVisible: false,
-            user: null as any
+            user: null as any,
+            columns: [
+                {
+                    align: 'left',
+                    field: 'name',
+                    headerClasses: 'text-capitalize',
+                    label: this.$t('common.name'),
+                    name: 'name',
+                    sortable: true
+                },
+                {
+                    align: 'left',
+                    field: 'description',
+                    headerClasses: 'text-capitalize',
+                    label: this.$t('common.description'),
+                    name: 'description',
+                    sortable: true
+                },
+                {
+                    align: 'left',
+                    field: 'dateCreation',
+                    headerClasses: 'text-capitalize',
+                    format: (val) => this.getFormattedDate(val, 'DD/MM/YYYY hh:mm'),
+                    label: this.$t('common.creationDate'),
+                    name: 'dateCreation',
+                    sortable: true
+                },
+                {
+                    align: 'right',
+                    field: 'buttons',
+                    name: 'buttons',
+                    label: '',
+                    sortable: false
+                }
+            ]
         }
     },
     watch: {
