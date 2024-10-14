@@ -162,6 +162,7 @@ export default defineComponent({
                     this.stopExecution = true
                 } else auth.logout()
             })
+            .finally(() => this.setLoading(false))
         if (this.stopExecution) return
 
         await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then(async (response: any) => {
