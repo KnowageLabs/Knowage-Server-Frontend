@@ -4,7 +4,7 @@ import PrimeVue from 'primevue/config'
 import router from './App.routes.js'
 import store from './App.store.js'
 import { createPinia } from 'pinia'
-import { Quasar, Notify } from 'quasar'
+import { Quasar, Notify, Loading } from 'quasar'
 
 import VueAxios from 'vue-axios'
 import interceptor from './axios.js'
@@ -61,7 +61,8 @@ app.use(VueAxios, interceptor)
     .use(ResizeObserver)
     .use(Quasar, {
         plugins: {
-            Notify
+            Notify,
+            Loading
         }
     })
 
