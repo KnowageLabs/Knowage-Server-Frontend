@@ -414,7 +414,7 @@ export default defineComponent({
         window.removeEventListener('message', this.iframeEventsListener)
     },
     async created() {
-        this.setLoading(true)
+        this.$q.loading.show()
         this.setEventListeners()
         window.addEventListener('message', this.iframeEventsListener)
 
@@ -423,7 +423,10 @@ export default defineComponent({
             await this.loadUserConfig()
             this.setMode()
         } else {
-            if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') return
+            if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') {
+                this.$q.loading.hide()
+                return
+            }
             if (this.$route.name === 'new-dashboard') this.newDashboardMode = true
 
             await this.loadUserConfig()
@@ -436,8 +439,6 @@ export default defineComponent({
                     document: this.document
                 })
             }
-
-            this.setLoading(false)
             if (!this.document.label) return
             if (this.document.label === 'new-dashboard') {
                 this.newDashboardMode = true
@@ -754,6 +755,7 @@ export default defineComponent({
             else if (this.$route.path.includes('olap')) this.mode = 'olap'
             else if (this.$route.path.includes('dashboard')) this.mode = 'dashboard'
             else this.mode = 'iframe'
+            this.$q.loading.hide()
         },
         async loadPage(initialLoading = false, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             this.loading = crossNavigationPopupMode ? false : true
