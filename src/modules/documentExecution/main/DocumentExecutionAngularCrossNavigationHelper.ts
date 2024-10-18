@@ -179,8 +179,9 @@ const checkIfParameterHasFixedValue = (navigationParams: any, crossNavigationDoc
 const openCrossNavigationInNewWindow = (vueComponent: any, popupOptions: any, crossNavigationDocument: any, navigationParams: any) => {
     if (!crossNavigationDocument || !crossNavigationDocument.document) return
     const parameters = encodeURI(JSON.stringify(navigationParams))
-    const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${crossNavigationDocument.document.id}&OBJECT_LABEL=${crossNavigationDocument.document.label}&SELECTED_ROLE=${vueComponent.sessionRole
-        }&SBI_EXECUTION_ID=null&OBJECT_NAME=${crossNavigationDocument.document.name}&CROSS_PARAMETER=${parameters}`
+    const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${crossNavigationDocument.document.id}&OBJECT_LABEL=${crossNavigationDocument.document.label}&SELECTED_ROLE=${
+        vueComponent.sessionRole
+    }&SBI_EXECUTION_ID=null&OBJECT_NAME=${crossNavigationDocument.document.name}&CROSS_PARAMETER=${parameters}`
     window.open(url, '_blank', `toolbar=0,status=0,menubar=0,width=${popupOptions.width || '800'},height=${popupOptions.height || '600'}`)
 }
 
@@ -212,7 +213,11 @@ export function loadNavigationParamsInitialValue(vueComponent: any) {
                     }
                 }
                 if (tempParam.selectionType === 'COMBOBOX') formatCrossNavigationComboParameterDescription(tempParam)
-                else if (['TREE', 'LOOKUP'].includes(tempParam.selectionType) && tempParam.parameterValue[0]) tempParam.parameterValue[0].description = tempParam.parameterValue[0].value
+                else if (['TREE', 'LOOKUP'].includes(tempParam.selectionType) && Array.isArray(tempParam.parameterValue)) {
+                    tempParam.parameterValue.forEach((tempValue, index) => {
+                        tempValue.description = tempParam.parameterDescription?.[index] || tempValue.value
+                    })
+                }
             }
         }
     })
