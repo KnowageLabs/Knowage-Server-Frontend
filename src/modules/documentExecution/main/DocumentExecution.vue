@@ -456,10 +456,7 @@ export default defineComponent({
         }
 
         let invalidRole = false
-        debugger
-        if(this.user?.attributes?.user_id === "scheduler"){
-
-        } else await getCorrectRolesForExecution(this.document).then(async (response: any) => {
+        await getCorrectRolesForExecution(this.document).then(async (response: any) => {
             const correctRolesForExecution = response
 
             if (!this.userRole) {
