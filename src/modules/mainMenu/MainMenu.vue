@@ -6,6 +6,7 @@
         <DownloadsDialog v-model:visibility="downloadsDisplay"></DownloadsDialog>
         <NewsDialog v-model:visibility="newsDisplay"></NewsDialog>
         <LicenseDialog v-if="user && user.isSuperadmin && isEnterprise" v-model:visibility="licenseDisplay"></LicenseDialog>
+        <AccountDialog :visible="accountDisplay" @closed="accountManagement"></AccountDialog>
         <MainMenuAdmin v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" :opened-panel-event="adminMenuOpened" :model="technicalUserFunctionalities" @click="itemClick"></MainMenuAdmin>
         <q-menu ref="menu" :target="menuTargetElem" anchor="top right" self="top left">
             <MainMenuTieredMenu :items="selectedCustomMenu" @link="itemClick"></MainMenuTieredMenu>
@@ -51,6 +52,7 @@ import { defineComponent } from 'vue'
 import InfoDialog from '@/modules/mainMenu/dialogs/InfoDialog.vue'
 import MainMenuItem from '@/modules/mainMenu/MainMenuItem.vue'
 import MainMenuAdmin from '@/modules/mainMenu/MainMenuAdmin.vue'
+import AccountDialog from '@/modules/mainMenu/dialogs/AccountDialog.vue'
 import LanguageDialog from '@/modules/mainMenu/dialogs/LanguageDialog/LanguageDialog.vue'
 import LicenseDialog from '@/modules/mainMenu/dialogs/LicenseDialog/LicenseDialog.vue'
 import NewsDialog from '@/modules/mainMenu/dialogs/NewsDialog/NewsDialog.vue'
@@ -67,6 +69,7 @@ import mainStore from '../../App.store'
 export default defineComponent({
     name: 'knmenu',
     components: {
+        AccountDialog,
         InfoDialog,
         MainMenuAdmin,
         MainMenuItem,
@@ -99,6 +102,7 @@ export default defineComponent({
             selectedCustomMenu: {},
             hoverTimer: false as any,
             menuTargetElem: '' as any,
+            accountDisplay: false,
             publicPath: import.meta.env.VITE_PUBLIC_PATH
         }
     },
@@ -131,6 +135,9 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(mainStore, ['setHomePage', 'setLoading', 'getConfigurations']),
+        accountManagement() {
+            this.accountDisplay = !this.accountDisplay
+        },
         mandatoryRole() {
             if (this.getConfigurations('KNOWAGE.MANDATORY-ROLE') && this.user.roles.length > 1 && !this.user.defaultRole) {
                 this.roleDisplay = true

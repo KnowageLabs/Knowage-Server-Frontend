@@ -1,4 +1,23 @@
 {
+    "account": {
+        "error": {
+            "notUpdated": "Account not updated: {msg}",
+            "samePassword": "Passwords must be the same"
+        },
+        "info": {
+            "updated": "Account correctly updated"
+        },
+        "passwordHint": {
+            "header": "The password must contain:",
+            "length": "At least 8 characters",
+            "lowercase": "At least 1 lowercase character",
+            "number": "At least 1 number",
+            "special": "At least 1 special character (_{'|'}-#$)",
+            "uppercase": "At least 1 uppercase character"
+        },
+        "subtitle": "Here you can change your personal informations",
+        "title": "Account Management"
+    },
     "common": {
         "active": "Active",
         "add": "Add",
@@ -41,6 +60,7 @@
         "columns": "Columns",
         "comment": "Comment",
         "condition": "Condition",
+        "confirmPassword": "Confirm Password",
         "continue": "Continue",
         "copyOf": "Copy of",
         "create": "Create",
@@ -67,6 +87,7 @@
         "dragAndDropFileHere": "Drag and drop file here.",
         "driver": "Driver",
         "edit": "edit",
+        "email": "Email",
         "enable": "Enable",
         "enabled": "Enabled",
         "end": "End",
@@ -272,6 +293,7 @@
         "uploading": "Uploading",
         "uppercaseDelete": "Delete",
         "url": "URL",
+        "user": "User",
         "validation": {
             "maxLength": "This field must have less then {max} characters",
             "maximumCharacters": "The maximum length allowed is {max}",
@@ -1410,8 +1432,6 @@
         "development": "Development",
         "documentsFound": "Documents found",
         "documentsSearch": "Search for documents",
-        "wholeBrowserSearch": "Search in the whole document browser",
-        "selectedFolderSearch": "Search in selected folder",
         "editDocument": "Edit Document",
         "executeDocument": "Execute Document",
         "genericDocument": "Generic document",
@@ -1419,7 +1439,9 @@
         "moveDownDocumentState": "Move Down State Document",
         "moveUpDocumentState": "Move Up State Document",
         "noDocumentsHint": "No documents to display",
-        "title": "Document browser"
+        "selectedFolderSearch": "Search in selected folder",
+        "title": "Document browser",
+        "wholeBrowserSearch": "Search in the whole document browser"
     },
     "documentExecution": {
         "documentDetails": {

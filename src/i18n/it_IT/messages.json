@@ -1,4 +1,23 @@
 {
+    "account": {
+        "error": {
+            "notUpdated": "Account non modificato: {msg}",
+            "samePassword": "Le password devono essere identiche"
+        },
+        "info": {
+            "updated": "Account modificato correttamente"
+        },
+        "passwordHint": {
+            "header": "La password deve contenere:",
+            "length": "Almeno 8 caratteri",
+            "lowercase": "Almeno 1 carattere minuscolo",
+            "number": "Almeno un numero",
+            "special": "Almeno un carattere speciale (_{'|'}-#$)",
+            "uppercase": "Almeno un carattere maiuscolo"
+        },
+        "subtitle": "In questa schermata è possibile cambiare le informazioni personali",
+        "title": "Gestione account"
+    },
     "common": {
         "active": "Attivo",
         "add": "aggiungi",
@@ -30,6 +49,7 @@
         },
         "collapse": "collassa",
         "comment": "commento",
+        "confirmPassword": "Conferma Password",
         "continue": "continua",
         "copyOf": "copia di",
         "create": "crea",
@@ -50,6 +70,7 @@
         "dragAndDropFileHere": "trascina i file qui",
         "driver": "driver",
         "edit": "modifica",
+        "email": "Email",
         "environment": "ambiente",
         "error": {
             "allowedFileTypes": "i file permessi sono {types}",
@@ -211,6 +232,7 @@
         "uploadFileSuccess": "file caricato",
         "uploading": "caricamento",
         "uppercaseDelete": "elimina",
+        "user": "Utente",
         "validation": {
             "maxLength": "questo campo deve avere meno di {max} caratteri",
             "maximumCharacters": "la lunghezza massima consentita è {max}",
