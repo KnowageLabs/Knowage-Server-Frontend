@@ -1,4 +1,5 @@
 {
+    "bannedConfigurations": ["changepwdmodule.len_min", "changepwdmodule.special_char", "changepwdmodule.upper_char", "changepwdmodule.lower_char", "changepwdmodule.number", "changepwdmodule.alphabetical"],
     "category": [
         {
             "name": "SECURITY",
