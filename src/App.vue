@@ -38,7 +38,7 @@ export default defineComponent({
             menuItemClickedTrigger: false,
             showMenu: false,
             closedMenu: false,
-            pollingInterval: null,
+            pollingInterval: null as any,
             stopExecution: false
         }
     },
@@ -214,13 +214,21 @@ export default defineComponent({
                 this.pollingInterval = setInterval(async () => {
                     let url = configs['oidc.session.polling.url']
                     const parametersRegex = /\${(nonce|client_id|redirect_uri|session_state)}/gm
-                    url = url.replace(parametersRegex, (match, parameter) => encodeURIComponent(window.sessionStorage.getItem(parameter)))
-                    await this.$http.get(url).then((response) => {
-                        if (response.status === 302) {
-                            const headerLocation = new URL(response.headers.location)
-                            if (headerLocation.searchParams.get('error')) auth.logout()
-                        }
-                    })
+                    url = url.replace(parametersRegex, (match, parameter) => encodeURIComponent(window.sessionStorage.getItem(parameter) || ''))
+                    await this.$http
+                        .get(url, { withCredentials: true })
+                        .then((response) => {
+                            if (response.status === 200) {
+                                const responseURL = new URL(response.request.responseURL)
+                                if (responseURL.searchParams.get('error')) auth.logout()
+                            }
+                        })
+                        .catch((error) => {
+                            if (error.response.request.responseURL) {
+                                const responseURL = new URL(error.response.request.responseURL)
+                                if (responseURL.searchParams.get('error')) auth.logout()
+                            }
+                        })
                 }, configs['oidc.session.polling.interval'] || 15000)
             }
         },
