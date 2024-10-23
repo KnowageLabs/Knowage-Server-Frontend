@@ -15,7 +15,7 @@ const strength = computed(() => {
     if (props.password) {
         if (props.password.length >= 8) count++
         if (props.password.match(/(?=.*[0-9])/)) count++
-        if (props.password.match(/(?=.*[_,|,-,,#,$])/)) count++
+        if (props.password.match(/(?=.*[_,|,\-,,#,$])/)) count++
         if (props.password.match(/(?=.*[a-z])/)) count++
         if (props.password.match(/(?=.*[A-Z])/)) count++
     }
@@ -38,13 +38,13 @@ const strength = computed(() => {
             background-color: red;
         }
         &.strength-2 {
-            background-color: red;
+            background-color: orange;
         }
         &.strength-3 {
-            background-color: red;
+            background-color: yellow;
         }
         &.strength-4 {
-            background-color: red;
+            background-color: lightgreen;
         }
 
         &.strength-5 {

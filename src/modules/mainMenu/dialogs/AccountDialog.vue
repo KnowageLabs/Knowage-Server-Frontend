@@ -22,7 +22,7 @@
                             <li :class="{ wrongRegex: account?.password?.length < 8 }">{{ $t('account.passwordHint.length') }}</li>
                             <li :class="{ wrongRegex: account?.password && !account?.password?.match(/(?=.*[a-z])/) }">{{ $t('account.passwordHint.lowercase') }}</li>
                             <li :class="{ wrongRegex: account?.password && !account?.password?.match(/(?=.*[A-Z])/) }">{{ $t('account.passwordHint.uppercase') }}</li>
-                            <li :class="{ wrongRegex: account?.password && !account?.password?.match(/(?=.*[_,|,-,,#,$])/) }">{{ $t('account.passwordHint.special') }}</li>
+                            <li :class="{ wrongRegex: account?.password && !account?.password?.match(/(?=.*[_,|,\-,,#,$])/) }">{{ $t('account.passwordHint.special') }}</li>
                             <li :class="{ wrongRegex: account?.password && !account?.password?.match(/(?=.*[0-9])/) }">{{ $t('account.passwordHint.number') }}</li>
                         </ul>
                     </template>
