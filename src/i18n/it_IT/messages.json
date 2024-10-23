@@ -239,6 +239,7 @@
             "maxLength": "questo campo deve avere meno di {max} caratteri",
             "maximumCharacters": "la lunghezza massima consentita è {max}",
             "minLength": "il campo deve avere almeno {min} caratteri",
+            "passwordFormat": "La password deve contenere almeno i seguenti caratteri: 1 minuscola, 1 maiuscola, 1 numero, 1 carattere speciale ({'|'}_-#$)",
             "regex": "formato non valido",
             "required": "{fieldName} è richiesto",
             "validating": "validazione"
