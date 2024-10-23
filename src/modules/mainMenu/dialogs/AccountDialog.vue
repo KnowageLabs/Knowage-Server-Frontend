@@ -38,6 +38,8 @@
             <q-separator dark />
 
             <q-card-actions class="row justify-end">
+                <q-btn unelevated color="negative" @click="deleteAccount">{{ $t('common.delete') }}</q-btn>
+                <div class="kn-flex"></div>
                 <q-btn unelevated @click="closeDialog">{{ $t('common.close') }}</q-btn>
                 <q-btn unelevated color="primary" :disable="!canModify" @click="saveChanges">{{ $t('common.modify') }}</q-btn>
             </q-card-actions>
@@ -51,6 +53,7 @@ import axios from 'axios'
 import i18n from '@/App.i18n'
 import KnPasswordMeter from '@/components/UI/KnPasswordMeter/KnPasswordMeter.vue'
 import { useQuasar } from 'quasar'
+import auth from '@/helpers/commons/authHelper'
 
 const $q = useQuasar()
 const { t } = i18n.global
@@ -80,6 +83,33 @@ const canModify = computed(() => {
 
 function closeDialog() {
     emits('closed')
+}
+
+function deleteAccount() {
+    $q.dialog({
+        title: 'Confirm',
+        message: t('account.confirmDelete'),
+        cancel: true,
+        ok: t('common.yes'),
+        persistent: true
+    }).onOk(() => {
+        axios.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/signup/delete?SBI_EXECUTION_ID=-1', account).then((response: any) => {
+            if (response.data.errors) {
+                $q.notify({
+                    position: 'top',
+                    type: 'negative',
+                    message: t('account.error.notUpdated', { msg: response.data.errors[0].message })
+                })
+            } else {
+                $q.notify({
+                    position: 'top',
+                    type: 'info',
+                    message: t('account.info.deleted')
+                })
+                setTimeout(() => auth.logout(), 3000)
+            }
+        })
+    })
 }
 
 function saveChanges(): void {

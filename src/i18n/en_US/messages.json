@@ -1,10 +1,12 @@
 {
     "account": {
+        "confirmDelete": "Are you sure you want to delete this account? You will lose all your informations and will be logout",
         "error": {
             "notUpdated": "Account not updated: {msg}",
             "samePassword": "Passwords must be the same"
         },
         "info": {
+            "deleted": "Account correctly deleted, you will be logout soon",
             "updated": "Account correctly updated"
         },
         "passwordHint": {

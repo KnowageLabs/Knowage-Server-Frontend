@@ -1,10 +1,12 @@
 {
     "account": {
+        "confirmDelete": "Sei sicuro di voler eliminare questo account? Perderai tutti i tuoi permessi ed uscirai dall'applicazione",
         "error": {
             "notUpdated": "Account non modificato: {msg}",
             "samePassword": "Le password devono essere identiche"
         },
         "info": {
+            "deleted": "Account eliminato correttamente, verrai presto sloggato",
             "updated": "Account modificato correttamente"
         },
         "passwordHint": {
