@@ -34,6 +34,8 @@ export interface iParameter {
     lovDependsOnParameters?: iParameter[]
     lovDependentParameters?: iParameter[]
     driverMaxValue?: Date
+    valueColumnNameMetadata?: string
+    descriptionColumnNameMetadata: string
 }
 
 export interface iDocument {

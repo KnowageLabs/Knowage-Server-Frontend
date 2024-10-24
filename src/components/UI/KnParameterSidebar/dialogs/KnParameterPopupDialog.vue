@@ -109,25 +109,46 @@ export default defineComponent({
             }
         },
         setSelectedRow() {
+            if (!this.parameter) return
+            if (this.parameter.metadata) {
+                this.setSelectedRowUsingMetadata()
+            } else {
+                this.setSelectedRowUsingCalueColumnNameMetadata()
+            }
+        },
+        setSelectedRowUsingMetadata() {
             const valueColumn = this.popupData?.result.metadata.valueColumn
             const descriptionColumn = this.popupData?.result.metadata.descriptionColumn
 
             if (this.parameter?.metadata.colsMap) {
                 const valueIndex = Object.keys(this.parameter?.metadata.colsMap).find((key: string) => this.parameter?.metadata.colsMap[key] === valueColumn)
                 const descriptionIndex = Object.keys(this.parameter?.metadata.colsMap).find((key: string) => this.parameter?.metadata.colsMap[key] === descriptionColumn)
+                this.setSelectedRowUsingValueAndDescriptionIndex(valueIndex, descriptionIndex)
+            }
+        },
+        setSelectedRowUsingCalueColumnNameMetadata() {
+            if (!this.popupData || !this.parameter) return
+            const valueColumn = this.parameter.valueColumnNameMetadata
+            const descriptionColumn = this.parameter.descriptionColumnNameMetadata
 
-                if (valueIndex && descriptionIndex) {
-                    const selectedIndex = this.parameterPopUpData?.result.data.findIndex((el: any) => {
-                        return el[valueIndex] === this.parameter?.parameterValue[0].value && el[descriptionIndex] === this.parameter?.parameterValue[0].description
-                    }) as any
-                    if (selectedIndex !== -1 && this.popupData) {
-                        this.multipleSelectedRows = [this.popupData?.result.data[selectedIndex]]
-                        this.popupData.result.data = this.popupData?.result.data.filter((el: any) => {
-                            return el[valueIndex] !== this.multipleSelectedRows[0][valueIndex] || el[descriptionIndex] !== this.multipleSelectedRows[0][descriptionIndex]
-                        })
-                        this.popupData?.result.data.unshift(this.multipleSelectedRows[0])
-                        this.selectedRow = this.multipleSelectedRows[0]
-                    }
+            if (this.popupData.result?.metadata?.colsMap) {
+                const valueIndex = Object.keys(this.popupData.result.metadata.colsMap).find((key: string) => this.popupData?.result.metadata.colsMap[key] === valueColumn)
+                const descriptionIndex = Object.keys(this.popupData.result.metadata.colsMap).find((key: string) => this.popupData?.result.metadata.colsMap[key] === descriptionColumn)
+                this.setSelectedRowUsingValueAndDescriptionIndex(valueIndex, descriptionIndex)
+            }
+        },
+        setSelectedRowUsingValueAndDescriptionIndex(valueIndex: string | undefined, descriptionIndex: string | undefined) {
+            if (valueIndex && descriptionIndex) {
+                const selectedIndex = this.parameterPopUpData?.result.data.findIndex((el: any) => {
+                    return el[valueIndex] === this.parameter?.parameterValue[0].value && el[descriptionIndex] === this.parameter?.parameterValue[0].description
+                }) as any
+                if (selectedIndex !== -1 && this.popupData) {
+                    this.multipleSelectedRows = [this.popupData?.result.data[selectedIndex]]
+                    this.popupData.result.data = this.popupData?.result.data.filter((el: any) => {
+                        return el[valueIndex] !== this.multipleSelectedRows[0][valueIndex] || el[descriptionIndex] !== this.multipleSelectedRows[0][descriptionIndex]
+                    })
+                    this.popupData?.result.data.unshift(this.multipleSelectedRows[0])
+                    this.selectedRow = this.multipleSelectedRows[0]
                 }
             }
         },
@@ -154,12 +175,39 @@ export default defineComponent({
         save() {
             if (!this.parameter) return
 
+            if (this.parameter.metadata) {
+                this.saveUsingParameterMetadata()
+            } else {
+                this.saveUsingColumnNameMetadata()
+            }
+
+            this.popupData = null
+            this.$emit('save', this.parameter)
+        },
+        saveUsingParameterMetadata() {
+            if (!this.parameter) return
+
             const valueColumn = this.popupData?.result.metadata.valueColumn
             const descriptionColumn = this.popupData?.result.metadata.descriptionColumn
 
             const valueIndex = Object.keys(this.parameter.metadata.colsMap).find((key: string) => this.parameter?.metadata.colsMap[key] === valueColumn)
             const descriptionIndex = Object.keys(this.parameter.metadata.colsMap).find((key: string) => this.parameter?.metadata.colsMap[key] === descriptionColumn)
 
+            this.prepareForSave(valueIndex, descriptionIndex)
+        },
+        saveUsingColumnNameMetadata() {
+            if (!this.popupData || !this.parameter) return
+
+            const valueColumn = this.parameter.valueColumnNameMetadata
+            const descriptionColumn = this.parameter.descriptionColumnNameMetadata
+
+            const valueIndex = Object.keys(this.popupData.result.metadata.colsMap).find((key: string) => this.popupData?.result.metadata.colsMap[key] === valueColumn)
+            const descriptionIndex = Object.keys(this.popupData.result.metadata.colsMap).find((key: string) => this.popupData?.result.metadata.colsMap[key] === descriptionColumn)
+
+            this.prepareForSave(valueIndex, descriptionIndex)
+        },
+        prepareForSave(valueIndex: string | undefined, descriptionIndex: string | undefined) {
+            if (!this.parameter) return
             if (!this.multivalue) {
                 this.parameter.parameterValue = this.selectedRow ? [{ value: valueIndex ? this.selectedRow[valueIndex] : '', description: descriptionIndex ? this.selectedRow[descriptionIndex] : '' }] : []
 
@@ -168,9 +216,6 @@ export default defineComponent({
                 this.parameter.parameterValue = []
                 this.multipleSelectedRows?.forEach((el: any) => this.parameter?.parameterValue.push({ value: valueIndex ? el[valueIndex] : '', description: descriptionIndex ? el[descriptionIndex] : '' }))
             }
-
-            this.popupData = null
-            this.$emit('save', this.parameter)
         }
     }
 })
