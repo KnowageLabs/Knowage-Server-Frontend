@@ -54,8 +54,8 @@
                             'p-invalid': parameter.mandatory && parameter.parameterValue && !parameter.parameterValue[0]?.value
                         }"
                         :data-test="'parameter-input-' + parameter.id"
-                        @blur="onInputTextChanged(parameter, $event)"
-                        @keypress.enter="onInputTextChanged(parameter, $event)"
+                        @blur="onInputTextChanged(parameter)"
+                        @keypress.enter="onInputTextChanged(parameter)"
                     />
                 </div>
                 <div v-if="parameter.type === 'DATE' && !parameter.selectionType && parameter.valueSelection === 'man_in' && parameter.showOnPanel === 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
@@ -641,7 +641,7 @@ export default defineComponent({
             const index = parameter.data?.findIndex((el: { value: string; description: string }) => el.value === parameter.parameterValue[0].value)
             if (index !== -1) parameter.parameterValue[0].description = parameter.data[index].description
         },
-        onInputTextChanged(parameter: any, event: any) {
+        onInputTextChanged(parameter: any) {
             if (parameter.parameterValue[0] && parameter.initialValue === parameter.parameterValue[0]?.value) return
             this.updateDependency(parameter)
         }
