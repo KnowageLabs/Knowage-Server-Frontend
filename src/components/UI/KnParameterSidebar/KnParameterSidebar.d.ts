@@ -36,6 +36,7 @@ export interface iParameter {
     driverMaxValue?: Date
     valueColumnNameMetadata?: string
     descriptionColumnNameMetadata: string
+    initialValue?: string | number | Date | null
 }
 
 export interface iDocument {

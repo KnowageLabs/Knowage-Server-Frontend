@@ -54,8 +54,8 @@
                             'p-invalid': parameter.mandatory && parameter.parameterValue && !parameter.parameterValue[0]?.value
                         }"
                         :data-test="'parameter-input-' + parameter.id"
-                        @blur="updateDependency(parameter)"
-                        @keypress.enter="updateDependency(parameter)"
+                        @blur="onInputTextChanged(parameter, $event)"
+                        @keypress.enter="onInputTextChanged(parameter, $event)"
                     />
                 </div>
                 <div v-if="parameter.type === 'DATE' && !parameter.selectionType && parameter.valueSelection === 'man_in' && parameter.showOnPanel === 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
@@ -344,6 +344,8 @@ export default defineComponent({
             this.filtersData?.filterStatus?.forEach((el: iParameter) => {
                 if (el.selectionType == 'LIST' && el.showOnPanel == 'true' && el.multivalue) {
                     this.selectedParameterCheckbox[el.id] = el.parameterValue?.map((parameterValue: any) => parameterValue.value)
+                } else if (el.type === 'STRING' && el.valueSelection == 'man_in' && el.showOnPanel == 'true') {
+                    el.initialValue = el.parameterValue && el.parameterValue[0] ? el.parameterValue[0].value : ''
                 }
                 this.parameters.filterStatus.push(el)
             })
@@ -638,6 +640,10 @@ export default defineComponent({
             if (!parameter.parameterValue[0]) return
             const index = parameter.data?.findIndex((el: { value: string; description: string }) => el.value === parameter.parameterValue[0].value)
             if (index !== -1) parameter.parameterValue[0].description = parameter.data[index].description
+        },
+        onInputTextChanged(parameter: any, event: any) {
+            if (parameter.parameterValue[0] && parameter.initialValue === parameter.parameterValue[0]?.value) return
+            this.updateDependency(parameter)
         }
     }
 })
