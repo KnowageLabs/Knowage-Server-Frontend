@@ -1,0 +1,32 @@
+{
+    "categories": [
+        {
+            "label": "managers.rolesManagement.usageCategories.metaModel",
+            "name": "roleMetaModelCategories"
+        },
+        {
+            "label": "managers.rolesManagement.usageCategories.functionalities",
+            "name": "roleFunctionalities"
+        },
+        {
+            "label": "managers.rolesManagement.usageCategories.drivers",
+            "name": "roleAnaliticalDrivers"
+        },
+        {
+            "label": "managers.rolesManagement.usageCategories.news",
+            "name": "roleNews"
+        },
+        {
+            "label": "managers.rolesManagement.usageCategories.layers",
+            "name": "roleLayers"
+        },
+        {
+            "label": "managers.rolesManagement.usageCategories.users",
+            "name": "roleUsers"
+        },
+        {
+            "label": "managers.rolesManagement.usageCategories.menu",
+            "name": "roleMenu"
+        }
+    ]
+}

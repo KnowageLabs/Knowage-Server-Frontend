@@ -1,5 +1,5 @@
 <template>
-    <Card class="domainCard" style="height: calc(100vh - 75px)">
+    <Card class="domainCard" style="height: calc(100vh - 85px)">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--secondary">
                 <template #start>

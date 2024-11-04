@@ -2839,9 +2839,13 @@
                 "roleTypeID": "Role Type",
                 "title": "Detail"
             },
+            "errors": {
+                "delete": "Non è possibile cancellare il ruolo. Potrebbe essere utilizzato da qualche funzionalità, controllare il tab \"utilizzo\""
+            },
             "hint": "Roles allows you to specify different users properties and authorizations. It's possible to change the role name, the roles authorizations and dataset visibility. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "kpiCategories": "KPI Categories",
             "noResults": "No roles available for the selected filter",
+            "noUsages": "Questo ruolo non è utilizzato",
             "publicRoleWarning1": "If you continue saving the public role will be removed from ",
             "publicRoleWarning2": " to the selected one. Are you sure?",
             "rolesDropdown": {
@@ -2851,7 +2855,15 @@
                 "TEST_ROLE": "Test User",
                 "USER": "User"
             },
-            "title": "Roles Management"
+            "title": "Roles Management",
+            "usageCategories": {
+                "drivers": "Driver",
+                "functionalities": "Funzionalità",
+                "layers": "Layer",
+                "menu": "Menu",
+                "metaModel": "Meta Modelli",
+                "news": "News"
+            }
         },
         "schedulationAgendaManagement": {
             "detail": {

@@ -47,6 +47,12 @@
 
             <DomainCategoryTab :title="$t('managers.rolesManagement.kpiCategories')" :category-list="kpiCategoriesList" :selected="selectedKPICategories" @changed="setSelectedKPICategories($event)"></DomainCategoryTab>
         </TabPanel>
+
+        <TabPanel>
+            <template #header> Usage </template>
+
+            <RolesManagementUsageTab :id="id" />
+        </TabPanel>
     </TabView>
 </template>
 <script lang="ts">
@@ -60,6 +66,7 @@ import useValidate from '@vuelidate/core'
 import DomainCategoryTab from './tabs/DomainCategoryTab/DomainCategoryTab.vue'
 import RoleDetailTab from './tabs/RoleDetailTab/RoleDetailTab.vue'
 import RoleAuthorizationsTab from './tabs/RoleAuthorizationsTab/RoleAuthorizationsTab.vue'
+import RolesManagementUsageTab from './tabs/RolesManagementUsageTab/RolesManagementUsageTab.vue'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
@@ -68,7 +75,8 @@ export default defineComponent({
         RoleDetailTab,
         TabView,
         TabPanel,
-        RoleAuthorizationsTab
+        RoleAuthorizationsTab,
+        RolesManagementUsageTab
     },
     props: { id: { type: String, required: false }, publicRole: { type: Object, required: false } },
     emits: ['touched', 'closed', 'inserted'],
@@ -298,7 +306,13 @@ export default defineComponent({
     position: absolute;
 }
 
-.roles-tabview,
+.roles-tabview {
+    overflow: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 .roles-tabview .p-tabview-panels,
 .roles-tabview .p-tabview-panel {
     display: flex;
