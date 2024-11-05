@@ -47,7 +47,7 @@ onUpdated(async () => {
 const noUsage = computed(() => {
     let count = 0
     descriptor.categories.forEach((cat) => {
-        if (elements[cat.name] && elements[cat.name].length > 0) count++
+        if (elements.value[cat.name] && elements.value[cat.name].length > 0) count++
     })
     return count === 0
 })
