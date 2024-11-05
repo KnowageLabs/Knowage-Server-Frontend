@@ -2862,7 +2862,8 @@
                 "layers": "Layer",
                 "menu": "Menu",
                 "metaModel": "Meta Modelli",
-                "news": "News"
+                "news": "News",
+                "users": "Utenti"
             }
         },
         "schedulationAgendaManagement": {

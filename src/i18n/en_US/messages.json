@@ -3142,12 +3142,13 @@
             },
             "title": "Roles Management",
             "usageCategories": {
-                "metaModel": "Meta Model Categories",
-                "functionalities": "Functionalities",
                 "drivers": "Drivers",
-                "news": "News",
+                "functionalities": "Functionalities",
                 "layers": "Layers",
-                "menu": "Menu"
+                "menu": "Menu",
+                "metaModel": "Meta Model Categories",
+                "news": "News",
+                "users": "Users"
             }
         },
         "schedulationAgendaManagement": {
