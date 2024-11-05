@@ -54,7 +54,7 @@ const noUsage = computed(() => {
 
 async function loadElements(id) {
     tempId.value = id
-    await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/knowage/restful-services/2.0/roles/${props.id}/allElement`).then((response) => {
+    await axios.get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/roles/${props.id}/allElement`).then((response) => {
         elements.value = response.data
     })
 }
