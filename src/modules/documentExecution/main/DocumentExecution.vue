@@ -336,7 +336,8 @@ export default defineComponent({
             seeAsFinalUser: false,
             downloadMode: false,
             datasetPreviewShown: false as boolean,
-            datasetToPreview: {} as any
+            datasetToPreview: {} as any,
+            initializePolling: null as any
         }
     },
     computed: {
@@ -415,75 +416,83 @@ export default defineComponent({
     },
     async mounted() {
         this.$q.loading.show()
-        this.setEventListeners()
-        window.addEventListener('message', this.iframeEventsListener)
-
-        if (this.propCrossNavigationPopupDialogDocument) {
-            this.document = this.propCrossNavigationPopupDialogDocument
-            await this.loadUserConfig()
-            this.setMode()
-        } else {
-            if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') {
-                this.$q.loading.hide()
-                return
+        this.initializePolling = setInterval(() => {
+            if (this.configurations && this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format']) {
+                clearInterval(this.initializePolling)
+                this.initialize()
             }
-            if (this.$route.name === 'new-dashboard') this.newDashboardMode = true
-
-            await this.loadUserConfig()
-            this.isOlapDesignerMode()
-            this.setMode()
-            this.document = { label: this.id }
-            if (this.newDashboardMode) {
-                this.breadcrumbs.push({
-                    label: 'new-dashboard',
-                    document: this.document
-                })
-            }
-            if (!this.document.label) return
-            if (this.document.label === 'new-dashboard') {
-                this.newDashboardMode = true
-                return
-            }
-            await this.loadDocument()
-        }
-
-        if (this.$route.query.viewName) await this.loadView()
-        if (this.$route.query.role) this.userRole = '' + this.$route.query.role
-        else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
-        if (this.$route.query.finalUser) {
-            this.document.seeAsFinalUser = true
-            this.seeAsFinalUser = true
-        }
-
-        let invalidRole = false
-        getCorrectRolesForExecution(this.document).then(async (response: any) => {
-            const correctRolesForExecution = response
-
-            if (!this.userRole) {
-                if (correctRolesForExecution.length == 1) {
-                    this.userRole = correctRolesForExecution[0]
-                } else {
-                    this.parameterSidebarVisible = true
-                }
-            } else if (this.userRole) {
-                if (correctRolesForExecution.length == 1) {
-                    const correctRole = correctRolesForExecution[0]
-                    if (this.userRole !== correctRole) {
-                        this.setError({
-                            title: this.$t('common.error.generic'),
-                            msg: this.$t('documentExecution.main.userRoleError')
-                        })
-                        invalidRole = true
-                    }
-                }
-            }
-            if (!invalidRole && !this.dataLoaded) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
-        })
+        },200)
     },
     unmounted() {
         this.removeEventListeners()
     },
     methods: {
+        async initialize() {
+            this.setEventListeners()
+            window.addEventListener('message', this.iframeEventsListener)
+
+            if (this.propCrossNavigationPopupDialogDocument) {
+                this.document = this.propCrossNavigationPopupDialogDocument
+                await this.loadUserConfig()
+                this.setMode()
+            } else {
+                if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') {
+                    this.$q.loading.hide()
+                    return
+                }
+                if (this.$route.name === 'new-dashboard') this.newDashboardMode = true
+
+                await this.loadUserConfig()
+                this.isOlapDesignerMode()
+                this.setMode()
+                this.document = { label: this.id }
+                if (this.newDashboardMode) {
+                    this.breadcrumbs.push({
+                        label: 'new-dashboard',
+                        document: this.document
+                    })
+                }
+                if (!this.document.label) return
+                if (this.document.label === 'new-dashboard') {
+                    this.newDashboardMode = true
+                    return
+                }
+                await this.loadDocument()
+            }
+
+            if (this.$route.query.viewName) await this.loadView()
+            if (this.$route.query.role) this.userRole = '' + this.$route.query.role
+            else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
+            if (this.$route.query.finalUser) {
+                this.document.seeAsFinalUser = true
+                this.seeAsFinalUser = true
+            }
+
+            let invalidRole = false
+            getCorrectRolesForExecution(this.document).then(async (response: any) => {
+                const correctRolesForExecution = response
+
+                if (!this.userRole) {
+                    if (correctRolesForExecution.length == 1) {
+                        this.userRole = correctRolesForExecution[0]
+                    } else {
+                        this.parameterSidebarVisible = true
+                    }
+                } else if (this.userRole) {
+                    if (correctRolesForExecution.length == 1) {
+                        const correctRole = correctRolesForExecution[0]
+                        if (this.userRole !== correctRole) {
+                            this.setError({
+                                title: this.$t('common.error.generic'),
+                                msg: this.$t('documentExecution.main.userRoleError')
+                            })
+                            invalidRole = true
+                        }
+                    }
+                }
+                if (!invalidRole && !this.dataLoaded) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
+            })
+        },
         canSeeDashboardFunctions() {
             if (this.seeAsFinalUser) return false
             if (!this.user || !this.document) return false
@@ -857,10 +866,10 @@ export default defineComponent({
                 })
                 .split(';')
         },
-        replaceNullForDates(par,value){
-            if(value == 'null' && this.filtersData.filterStatus.find((i)=>i.urlName === par && i.type === 'DATE')){
-                return '' 
-            }else return value
+        replaceNullForDates(par, value) {
+            if (value == 'null' && this.filtersData.filterStatus.find((i) => i.urlName === par && i.type === 'DATE')) {
+                return ''
+            } else return value
         },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
             const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name) as any
@@ -907,7 +916,7 @@ export default defineComponent({
                             element.type = 'hidden'
                             element.id = 'postForm_' + postObject.params.document + k
                             element.name = k
-                            element.value = this.replaceNullForDates(k,i)
+                            element.value = this.replaceNullForDates(k, i)
                             element.classList.add(`multiple_${k}`)
                             postForm.appendChild(element)
                             this.hiddenFormData.append(element.name, element.value)
@@ -915,7 +924,7 @@ export default defineComponent({
                     } else {
                         inputElement.value = decodeURIComponent(postObject.params[k])
                         inputElement.value = inputElement.value.replace(/\+/g, ' ')
-                        inputElement.value = this.replaceNullForDates(k,inputElement.value)
+                        inputElement.value = this.replaceNullForDates(k, inputElement.value)
                         this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
                     }
                 } else {
@@ -926,7 +935,7 @@ export default defineComponent({
                             element.type = 'hidden'
                             element.id = 'postForm_' + postObject.params.document + k
                             element.name = k
-                            element.value = this.replaceNullForDates(k,i)
+                            element.value = this.replaceNullForDates(k, i)
                             element.classList.add(`multiple_${k}`)
                             postForm.appendChild(element)
                             this.hiddenFormData.append(element.name, element.value)
@@ -937,7 +946,7 @@ export default defineComponent({
                         element.id = 'postForm_' + postObject.params.document + k
                         element.name = k
                         element.value = decodeURIComponent(postObject.params[k].replace(/\+/g, ' '))
-                        element.value = this.replaceNullForDates(k,element.value)
+                        element.value = this.replaceNullForDates(k, element.value)
                         postForm.appendChild(element)
                         this.hiddenFormData.append(element.name, element.value)
                     }
