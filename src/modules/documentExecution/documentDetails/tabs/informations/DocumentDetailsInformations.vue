@@ -295,8 +295,6 @@ import KnInputFile from '@/components/UI/KnInputFile.vue'
 import DocumentDetailsTree from './DocumentDetailsTree.vue'
 import mainStore from '../../../../../App.store'
 
-import cryptoRandomString from 'crypto-random-string'
-
 export default defineComponent({
     name: 'document-details-informations',
     components: { DatasetDialog, Card, Textarea, Dropdown, InputSwitch, KnValidationMessages, KnInputFile, DocumentDetailsTree },
@@ -500,7 +498,7 @@ export default defineComponent({
                 this.$emit('openDesignerDialog')
             } else {
                 const activeTemplate = this.findActiveTemplate()
-                const sbiExecutionId = cryptoRandomString({ length: 16, type: 'base64' })
+                const sbiExecutionId = crypto.randomUUID()
                 await startOlap(this.$http, this.user, sbiExecutionId, this.document, activeTemplate, this.$router)
             }
         },

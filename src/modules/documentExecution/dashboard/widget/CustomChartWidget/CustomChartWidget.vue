@@ -12,7 +12,6 @@ import { CustomChartDatastore } from '../WidgetEditor/WidgetEditorSettingsTab/Cu
 import { formatForCrossNavigation } from './CustomChartWidgetHelpers'
 import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
-import cryptoRandomString from 'crypto-random-string'
 import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 
 export default defineComponent({
@@ -29,7 +28,7 @@ export default defineComponent({
     emits: ['loading', 'datasetInteractionPreview'],
     data() {
         return {
-            id: cryptoRandomString({ length: 16, type: 'base64' }),
+            id: crypto.randomUUID(),
             dataToShow: {} as any,
             activeSelections: [] as ISelection[],
             htmlContent: '' as string,

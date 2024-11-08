@@ -66,7 +66,6 @@ import RegistryFiltersCard from './RegistryFiltersCard.vue'
 import { formatDate } from '@/helpers/commons/localeHelper'
 import { mapActions } from 'pinia'
 import store from '../../../App.store'
-import cryptoRandomString from 'crypto-random-string'
 import { emitter } from './tables/RegistryDatatableHelper'
 
 export default defineComponent({
@@ -206,7 +205,7 @@ export default defineComponent({
                 Object.keys(this.registry.rows[i]).forEach((key: string) => {
                     tempRow[this.columnMap[key]] = this.registry.rows[i][key]
                 })
-                tempRow.uniqueId = cryptoRandomString({ length: 16, type: 'base64' })
+                tempRow.uniqueId = crypto.randomUUID()
                 this.rows.push(tempRow)
             }
 

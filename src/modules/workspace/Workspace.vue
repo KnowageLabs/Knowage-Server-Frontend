@@ -125,7 +125,6 @@ import Dialog from 'primevue/dialog'
 import KnParameterSidebar from '@/components/UI/KnParameterSidebar/KnParameterSidebar.vue'
 import moment from 'moment'
 import { mapState } from 'pinia'
-import cryptoRandomString from 'crypto-random-string'
 import mainStore from '../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import { IDashboardView } from '../documentExecution/dashboard/Dashboard'
@@ -177,7 +176,7 @@ export default defineComponent({
         }
     },
     created() {
-        this.uniqueID = cryptoRandomString({ length: 16, type: 'base64' })
+        this.uniqueID = crypto.randomUUID()
     },
     mounted() {
         this.createMenuItems()

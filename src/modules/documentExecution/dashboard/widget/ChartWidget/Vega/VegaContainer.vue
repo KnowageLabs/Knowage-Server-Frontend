@@ -12,7 +12,6 @@ import { IVegaChartsModel, IVegaChartsTextConfiguration, IVegaChartsTooltipSetti
 import { executeChartCrossNavigation, updateStoreSelections } from '../../interactionsHelpers/InteractionHelper'
 import { formatForCrossNavigation, getFormattedChartValues } from './VegaContainerHelpers'
 import VegaContainerNoData from './VegaContainerNoData.vue'
-import cryptoRandomString from 'crypto-random-string'
 import vegaEmbed from 'vega-embed'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -31,7 +30,7 @@ export default defineComponent({
     },
     data() {
         return {
-            chartID: cryptoRandomString({ length: 16, type: 'alphanumeric' }),
+            chartID: crypto.randomUUID(),
             chartModel: {} as IVegaChartsModel,
             chartHeight: 0 as number
         }

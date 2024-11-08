@@ -15,7 +15,6 @@ import { formatChartJSForSave } from './chartWidget/chartJS/ChartJSBackendSaveHe
 import { createNewImageWidgetSettings } from './imageWidget/ImageWidgetFunctions'
 import { createNewCustomChartSettings } from './customchart/CustomChartFunctions'
 import { createNewPivotTableWidgetSettings } from './pivotTableWidget/PivotTableFunctions'
-import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import useStore from '@/App.store'
 import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
@@ -28,7 +27,7 @@ const store = useStore()
 
 export function createNewWidget(type: string, dashboardModel: any) {
     const widget = {
-        id: cryptoRandomString({ length: 16, type: 'base64' }),
+        id: crypto.randomUUID(),
         new: true,
         type: type,
         dataset: null,
@@ -46,7 +45,7 @@ export function createNewWidget(type: string, dashboardModel: any) {
 
 export const createNewWidgetColumn = (eventData: any, widgetType: string) => {
     const tempColumn = {
-        id: cryptoRandomString({ length: 16, type: 'base64' }),
+        id: crypto.randomUUID(),
         columnName: eventData.name,
         alias: eventData.alias,
         type: eventData.type,

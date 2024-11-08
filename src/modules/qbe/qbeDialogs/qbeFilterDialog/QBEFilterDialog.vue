@@ -45,7 +45,6 @@ import QBEFilterDialogDescriptor from './QBEFilterDialogDescriptor.json'
 import QBETemporalFilterDialog from './QBETemporalFilterDialog.vue'
 import QBEFilterParameters from './QBEFilterParameters.vue'
 import mainStore from '../../../../App.store'
-import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import moment from 'moment'
@@ -101,7 +100,7 @@ export default defineComponent({
                     this.filters.push({ ...filter })
                 }
             })
-            this.nextFilterIndex = cryptoRandomString({ length: 16, type: 'base64' })
+            this.nextFilterIndex = crypto.randomUUID()
             if (this.filterDialogData.field.type === 'inline.calculated.field') {
                 this.setCalculatedFieldLongDescription(this.filterDialogData.field, this.filterDialogData.field.originalId as string)
             } else if (this.filterDialogData.field.attributes?.type === 'inLineCalculatedField') {
@@ -160,7 +159,7 @@ export default defineComponent({
             }
             if (field) {
                 this.filters.push(filter)
-                this.nextFilterIndex = cryptoRandomString({ length: 16, type: 'base64' })
+                this.nextFilterIndex = crypto.randomUUID()
             }
             this.push(filter)
         },
@@ -239,7 +238,7 @@ export default defineComponent({
                     } as any
                     this.filters.push(tempFilter)
                     this.push(tempFilter)
-                    this.nextFilterIndex = cryptoRandomString({ length: 16, type: 'base64' })
+                    this.nextFilterIndex = crypto.randomUUID()
                 }
             }
             this.temporalFilterDialogVisible = false
@@ -252,7 +251,7 @@ export default defineComponent({
         },
         closeDialog() {
             this.$emit('close')
-            this.nextFilterIndex = cryptoRandomString({ length: 16, type: 'base64' })
+            this.nextFilterIndex = crypto.randomUUID()
             this.updatedParameters = []
             this.parameterTableVisible = false
             this.removeFiltersOnCancel()

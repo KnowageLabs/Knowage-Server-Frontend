@@ -96,7 +96,6 @@ import mainStore from '../../../App.store'
 import DatasetEditor from './dataset/DatasetEditor.vue'
 import WidgetEditor from './widget/WidgetEditor/WidgetEditor.vue'
 import descriptor from './DashboardDescriptor.json'
-import cryptoRandomString from 'crypto-random-string'
 import DashboardControllerSaveDialog from './DashboardControllerSaveDialog.vue'
 import SelectionsListDialog from './widget/SelectorWidget/SelectionsListDialog.vue'
 import DashboardGeneralSettings from './generalSettings/DashboardGeneralSettings.vue'
@@ -271,7 +270,7 @@ export default defineComponent({
         },
         async getData() {
             this.loading = true
-            if (!this.dashboardId) this.dashboardId = cryptoRandomString({ length: 16, type: 'base64' })
+            if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
             this.$emit('dashboardIdSet', this.dashboardId)
             if (this.filtersData) {
                 this.drivers = loadDrivers(this.filtersData, this.model)

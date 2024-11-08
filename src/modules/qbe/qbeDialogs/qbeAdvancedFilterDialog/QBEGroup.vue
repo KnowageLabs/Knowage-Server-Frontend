@@ -17,9 +17,7 @@ import { defineComponent } from 'vue'
 import { addOrRemove, contains, isSelectable, isMovable } from './selectedOperandService'
 import { swap, move } from './advancedFilterService'
 import { getFilterTree } from './treeService'
-
-import cryptoRandomString from 'crypto-random-string';
-import deepEqual  from 'deep-equal'
+import deepEqual from 'deep-equal'
 
 export default defineComponent({
     name: 'qbe-group',
@@ -32,7 +30,7 @@ export default defineComponent({
             selected: false,
             dropzoneTopVisible: false,
             dropzoneBottomVisible: false,
-            groupId: cryptoRandomString({length: 16, type: 'base64'})
+            groupId: crypto.randomUUID()
         }
     },
     watch: {

@@ -31,7 +31,6 @@ import CellEditor from './registryCellRenderers/RegistryCellEditor.vue'
 import HeaderRenderer from './registryCellRenderers/RegistryHeaderRenderer.vue'
 import TooltipRenderer from './registryCellRenderers/RegistryTooltipRenderer.vue'
 import store from '../../../../App.store'
-import cryptoRandomString from 'crypto-random-string'
 export default defineComponent({
     name: 'registry-datatable',
     components: {
@@ -384,7 +383,7 @@ export default defineComponent({
             return formatDateWithLocale(date, format, keepNull)
         },
         addNewRow() {
-            const newRow = { uniqueId: cryptoRandomString({ length: 16, type: 'base64' }), id: this.rows.length + 1, isNew: true }
+            const newRow = { uniqueId: crypto.randomUUID(), id: this.rows.length + 1, isNew: true }
             this.columns.forEach((el: any) => {
                 if (el.isVisible && el.field && el.field !== 'id') {
                     if (el.defaultValue) newRow[el.field] = el.defaultValue
@@ -400,7 +399,7 @@ export default defineComponent({
         cloneRows() {
             this.selectedRows.forEach((row) => {
                 const tempRow = { ...row }
-                tempRow.uniqueId = cryptoRandomString({ length: 16, type: 'base64' })
+                tempRow.uniqueId = crypto.randomUUID()
                 tempRow.isNew = true
                 delete tempRow.id
                 if (this.keyColumnName) tempRow[this.keyColumnName] = ''

@@ -56,7 +56,6 @@ import { IBackground, IDashboardSheet, IDataset, IVariable } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { emitter } from './DashboardHelpers'
-import cryptoRandomString from 'crypto-random-string'
 import WidgetController from './widget/WidgetController.vue'
 import KnDashboardTabsPanel from '@/components/UI/KnDashboardTabs/KnDashboardTabsPanel.vue'
 import dashboardStore from './Dashboard.store'
@@ -150,7 +149,7 @@ export default defineComponent({
                             y: 0,
                             x: 0,
                             h: 20,
-                            i: cryptoRandomString({ length: 16, type: 'base64' })
+                            i: crypto.randomUUID()
                         })
                     }
                 })

@@ -203,7 +203,6 @@ import calcFieldDescriptor from './QBECalcFieldDescriptor.json'
 import KnCalculatedField from '@/components/functionalities/KnCalculatedField/KnCalculatedField.vue'
 import Dropdown from 'primevue/dropdown'
 import mainStore from '../../App.store'
-import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import { getCorrectRolesForExecution } from '@/helpers/commons/roleHelper'
 
@@ -311,7 +310,7 @@ export default defineComponent({
         }
     },
     async created() {
-        this.uniqueID = cryptoRandomString({ length: 16, type: 'base64' })
+        this.uniqueID = crypto.randomUUID()
         this.user = (this.store.$state as any).user
         this.userRole = this.user.sessionRole && this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
 
@@ -465,7 +464,7 @@ export default defineComponent({
         },
         generateFieldsAndMetadataId() {
             this.selectedQuery.fields.forEach((field) => {
-                field.uniqueID = cryptoRandomString({ length: 4, type: 'base64' })
+                field.uniqueID = crypto.randomUUID()
                 this.qbeMetadata.find((metadata) => {
                     field.alias === metadata.column ? (metadata.uniqueID = field.uniqueID) : ''
                 })
@@ -746,7 +745,7 @@ export default defineComponent({
                 this.updateExistingCalculatedField(this.selectedCalcField)
             } else {
                 calculatedField = buildCalculatedField(this.selectedCalcField, this.selectedQuery.fields)
-                calculatedField.uniqueID = cryptoRandomString({ length: 4, type: 'base64' })
+                calculatedField.uniqueID = crypto.randomUUID()
                 this.selectedQuery.fields.push(calculatedField)
                 this.addEntityToMainQuery(calculatedField, true)
                 this.addCalculatedFieldMetadata(calculatedField)

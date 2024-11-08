@@ -64,8 +64,6 @@ import KnInputFile from '@/components/UI/KnInputFile.vue'
 import InlineMessage from 'primevue/inlinemessage'
 import mainStore from '../../../../../App.store'
 
-import cryptoRandomString from 'crypto-random-string'
-
 export default defineComponent({
     name: 'document-drivers',
     components: { KnListBox, KnInputFile, knMonaco, InlineMessage },
@@ -275,7 +273,7 @@ export default defineComponent({
                 this.$emit('openDesignerDialog')
             } else {
                 const activeTemplate = this.findActiveTemplate()
-                const sbiExecutionId = cryptoRandomString({ length: 16, type: 'base64' })
+                const sbiExecutionId = crypto.randomUUID()
                 await startOlap(this.$http, this.user, sbiExecutionId, this.selectedDocument, activeTemplate, this.$router)
             }
         },

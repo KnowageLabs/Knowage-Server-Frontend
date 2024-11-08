@@ -413,7 +413,7 @@ export default defineComponent({
         this.parameterSidebarVisible = false
         window.removeEventListener('message', this.iframeEventsListener)
     },
-    async created() {
+    async mounted() {
         this.$q.loading.show()
         this.setEventListeners()
         window.addEventListener('message', this.iframeEventsListener)

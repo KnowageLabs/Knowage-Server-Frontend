@@ -4,7 +4,6 @@ import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetE
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
 import mitt from 'mitt'
 export const emitter = mitt()
-import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import { formatChartJSWidget } from './widget/WidgetEditor/helpers/chartWidget/chartJS/ChartJSHelpers'
 import { formatHighchartsWidget } from './widget/WidgetEditor/helpers/chartWidget/highcharts/HighchartsHelpers'
@@ -25,7 +24,7 @@ export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
     dashboardModel.configuration.theme = { config: getDefaultDashboardThemeConfig() }
-    dashboardModel.configuration.id = cryptoRandomString({ length: 16, type: 'base64' })
+    dashboardModel.configuration.id = crypto.randomUUID()
 
     return dashboardModel
 }
@@ -82,7 +81,7 @@ const moveWidgetItemToSpecificSizeArray = (widgetToAdd: IWidgetSheetItem, size: 
     }
 
     if (overlap) updateWidgetCoordinatesIfOverlaping(widgetToAdd, maxWidth, sheetWidgets[size])
-    if (sheetWidgets && widgetToAdd) sheetWidgets[size].push({ id: widgetToAdd.id ?? '', h: widgetToAdd.h, i: cryptoRandomString({ length: 16, type: 'base64' }), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
+    if (sheetWidgets && widgetToAdd) sheetWidgets[size].push({ id: widgetToAdd.id ?? '', h: widgetToAdd.h, i: crypto.randomUUID(), w: widgetToAdd.w, x: widgetToAdd.x, y: widgetToAdd.y, moved: false })
 }
 
 const getMaxWidthForSpecificSize = (size: string) => {
@@ -174,7 +173,7 @@ const updateSheetInWidgetSizeArray = (sheet: IDashboardSheet, size: string, widg
 }
 
 const createDashboardSheetWidgetItem = (widget: IWidget) => {
-    return { id: widget.id ?? cryptoRandomString({ length: 16, type: 'base64' }), h: 10, i: cryptoRandomString({ length: 16, type: 'base64' }), w: 25, x: 0, y: 0, moved: false }
+    return { id: widget.id ?? crypto.randomUUID(), h: 10, i: crypto.randomUUID(), w: 25, x: 0, y: 0, moved: false }
 }
 
 export const deleteWidgetHelper = (dashboardId: string, widget: IWidget, dashboards: any) => {
@@ -261,7 +260,7 @@ const formatWidget = (widget: IWidget) => {
 
 const addColumnIdsToWidgetColumns = (widget: IWidget) => {
     widget.columns.forEach((column: IWidgetColumn) => {
-        if (!column.id) column.id = cryptoRandomString({ length: 16, type: 'base64' })
+        if (!column.id) column.id = crypto.randomUUID()
     })
 }
 

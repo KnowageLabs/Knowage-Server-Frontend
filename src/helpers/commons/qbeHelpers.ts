@@ -1,5 +1,3 @@
-import cryptoRandomString from 'crypto-random-string'
-
 export function createNewField(editQueryObj, field) {
     var newField = {
         id: field.attributes.type === 'inLineCalculatedField' ? field.attributes.formState : field.id,
@@ -27,7 +25,7 @@ export function createNewField(editQueryObj, field) {
         leaf: field.leaf,
         originalId: field.id,
         isSpatial: field.isSpatial,
-        uniqueID: cryptoRandomString({ length: 4, type: 'base64' })
+        uniqueID: crypto.randomUUID()
     } as any
 
     // eslint-disable-next-line no-prototype-builtins

@@ -24,7 +24,6 @@ import NoDataToDisplay from 'highcharts/modules/no-data-to-display'
 import SeriesLabel from 'highcharts/modules/series-label'
 import HighchartsHeatmap from 'highcharts/modules/heatmap'
 import Drilldown from 'highcharts/modules/drilldown'
-import cryptoRandomString from 'crypto-random-string'
 import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
@@ -75,7 +74,7 @@ export default defineComponent({
     emits: ['datasetInteractionPreview'],
     data() {
         return {
-            chartID: cryptoRandomString({ length: 16, type: 'base64' }),
+            chartID: crypto.randomUUID(),
             chartModel: {} as IHighchartsChartModel,
             error: false,
             highchartsInstance: {} as any,

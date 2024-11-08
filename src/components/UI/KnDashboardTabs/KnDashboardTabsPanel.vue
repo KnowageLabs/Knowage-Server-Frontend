@@ -74,7 +74,6 @@
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import type { ISheet } from '@/modules/documentExecution/dashboard/Dashboard'
-import cryptoRandomString from 'crypto-random-string'
 import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
 
 export default defineComponent({
@@ -126,7 +125,7 @@ export default defineComponent({
     },
     methods: {
         addSheet(): void {
-            this.$emit('update:sheets', [...this.sheets, { label: this.$t('dashboard.sheets.newSheet'), widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] }, id: cryptoRandomString({ length: 16, type: 'base64' }) }])
+            this.$emit('update:sheets', [...this.sheets, { label: this.$t('dashboard.sheets.newSheet'), widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] }, id: crypto.randomUUID() }])
         },
         renameSheet(index): void {
             if (this.edit) {
