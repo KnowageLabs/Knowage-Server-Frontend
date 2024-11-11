@@ -417,7 +417,7 @@ export default defineComponent({
     async mounted() {
         this.$q.loading.show()
         this.initializePolling = setInterval(() => {
-            if (this.configurations && this.configurations['SPAGOBI.DATE-FORMAT-SERVER.format']) {
+            if (this.configurations && Object.keys(this.configurations).length > 0) {
                 clearInterval(this.initializePolling)
                 this.initialize()
             }
