@@ -174,6 +174,7 @@ export default defineConfig((command, mode) => {
             port: 3000,
             host: '127.0.0.1',
             https: env.VITE_HOST_HTTPS === 'true',
+            cors: false,
             proxy: {
                 '^/knowagedossierengine/api/': {
                     target: env.VITE_HOST_URL,
