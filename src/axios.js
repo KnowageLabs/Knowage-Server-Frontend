@@ -47,7 +47,7 @@ axios.interceptors.request.use(
             CSRFToken = uuid
             await localStorage.setItem('X-CSRF-TOKEN', uuid)
         }
-        await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, null, 'Strict')
+        await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, true, 'Strict')
         config.headers.common['X-CSRF-TOKEN'] = CSRFToken
 
         if (localStorage.getItem('public')) {
