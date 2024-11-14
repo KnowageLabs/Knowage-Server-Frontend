@@ -2,12 +2,13 @@
     <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('downloadsDialog.title')" :closable="false" modal>
         <q-table class="downloadTable" flat dense :pagination="{ rowsPerPage: 10, sortBy: 'startDate', descending: true }" :rows="downloadsList" :columns="columnDefs" row-key="startDate">
             <template #body-cell-download="props">
-                <q-td :props="props"
-                    ><q-btn flat round color="primary" size="sm" icon="download" />
+                <q-td :props="props">
+                    <q-btn flat round color="primary" size="sm" icon="download" @click="downloadContent(props.row)" />
                     <q-tooltip>{{ $t('common.download') }}</q-tooltip>
                 </q-td>
             </template>
         </q-table>
+
         <template #footer>
             <Button class="kn-button p-button-danger" :disabled="downloadsList.length == 0" @click="deleteAllDownloads">{{ $t('common.deleteAll') }}</Button>
             <Button class="kn-button--primary" @click="closeDialog">{{ $t('common.close') }}</Button>
