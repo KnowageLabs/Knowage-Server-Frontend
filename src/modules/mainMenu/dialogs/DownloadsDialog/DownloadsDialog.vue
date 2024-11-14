@@ -1,19 +1,13 @@
 <template>
     <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('downloadsDialog.title')" :closable="false" modal>
-        <DataTable :value="downloadsList" style="width: 800px" :resizable-columns="true" column-resize-mode="fit | expand">
-            <Column v-for="(column, index) in columnDefs" :key="index" :field="column.field" :header="$t(column.headerName)" :body-style="column.bodyStyle">
-                <template v-if="column.template" #body="slotProps">
-                    <Button icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" @click="downloadContent(slotProps.data)" />
-                </template>
-                <template v-else #body="slotProps">
-                    <template v-if="column.type && column.type == 'date'">{{ getDate(slotProps.data[column.field]) }}</template
-                    ><template v-else>{{ slotProps.data[column.field] }} </template>
-                </template>
-            </Column>
-            <template #empty>
-                {{ $t('common.info.noDataFound') }}
+        <q-table class="downloadTable" flat dense :pagination="{ rowsPerPage: 10, sortBy: 'startDate', descending: true }" :rows="downloadsList" :columns="columnDefs" row-key="startDate">
+            <template #body-cell-download="props">
+                <q-td :props="props"
+                    ><q-btn flat round color="primary" size="sm" icon="download" />
+                    <q-tooltip>{{ $t('common.download') }}</q-tooltip>
+                </q-td>
             </template>
-        </DataTable>
+        </q-table>
         <template #footer>
             <Button class="kn-button p-button-danger" :disabled="downloadsList.length == 0" @click="deleteAllDownloads">{{ $t('common.deleteAll') }}</Button>
             <Button class="kn-button--primary" @click="closeDialog">{{ $t('common.close') }}</Button>
@@ -23,14 +17,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { formatDate } from '@/helpers/commons/localeHelper'
+import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import { AxiosResponse } from 'axios'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
-import descriptor from './DownloadsDialogDescriptor.json'
 import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
-import mainStore from '../../../../App.store'
+import { mapActions } from 'pinia'
+import mainStore from '@/App.store'
 
 interface Download {
     filename: string
@@ -48,10 +42,6 @@ export default defineComponent({
         visibility: Boolean
     },
     emits: ['update:visibility'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             columnDefs: {},
@@ -66,17 +56,41 @@ export default defineComponent({
     },
     beforeMount() {
         this.gridOptions = { headerHeight: 30 }
-        this.columnDefs = descriptor.columnDefs
+        this.columnDefs = [
+            {
+                align: 'left',
+                field: 'filename',
+                headerStyle: 'text-transform:capitalize',
+                label: this.$t('downloadsDialog.columns.fileName'),
+                name: 'filename',
+                sortable: true
+            },
+            {
+                field: 'startDate',
+                headerStyle: 'text-transform:capitalize',
+                label: this.$t('downloadsDialog.columns.creationDate'),
+                name: 'startDate',
+                sortable: true,
+                format: (val) => this.getDate(val)
+            },
+            {
+                name: 'download'
+            }
+        ]
     },
-    created() {
+    mounted() {
         this.getDownloads()
     },
     methods: {
+        ...mapActions(mainStore, ['updateAlreadyDownloadedFiles', 'setDownloads']),
         closeDialog() {
             this.$emit('update:visibility', false)
         },
         getDate(date) {
-            return formatDate(date, 'LLL')
+            return formatDateWithLocale(date, {
+                dateStyle: 'long',
+                timeStyle: 'short'
+            })
         },
         getDownloads() {
             this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset?showAll=true').then(
@@ -100,7 +114,7 @@ export default defineComponent({
                 .then(
                     (response: AxiosResponse<any>) => {
                         if (!data.alreadyDownloaded) {
-                            this.store.updateAlreadyDownloadedFiles()
+                            this.updateAlreadyDownloadedFiles()
                         }
                         downloadDirectFromResponse(response)
                     },
@@ -112,7 +126,7 @@ export default defineComponent({
             this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export').then(
                 () => {
                     this.downloadsList = []
-                    this.store.setDownloads({ count: { total: 0, unRead: 0 } })
+                    this.setDownloads({ count: { total: 0, unRead: 0 } })
                     this.closeDialog()
                 },
                 (error) => console.error(error)
@@ -121,3 +135,9 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss" scoped>
+.downloadTable {
+    min-width: 500px;
+    max-width: 80%;
+}
+</style>
