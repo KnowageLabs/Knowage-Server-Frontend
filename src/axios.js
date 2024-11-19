@@ -39,6 +39,7 @@ axios.interceptors.request.use(
     async (config) => {
         config.headers.common['Accept'] = 'application/json; charset=utf-8'
         config.headers.common['Content-Type'] = 'application/json; charset=utf-8'
+        config.headers.common['Access-Control-Allow-Origin'] = '*'
         if (!config.headers['x-session-polling']) {
             let CSRFToken = null
             if (localStorage.getItem('X-CSRF-TOKEN')) CSRFToken = localStorage.getItem('X-CSRF-TOKEN')
