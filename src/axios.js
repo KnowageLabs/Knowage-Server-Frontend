@@ -46,8 +46,8 @@ axios.interceptors.request.use(
                 CSRFToken = uuid
                 await localStorage.setItem('X-CSRF-TOKEN', uuid)
             }
-            await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, true, 'Strict')
-            config.headers.common['X-CSRF-TOKEN'] = CSRFToken
+        //    await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, true, 'Strict')
+        //    config.headers.common['X-CSRF-TOKEN'] = CSRFToken
         } else delete config.headers['x-session-polling']
 
         if (localStorage.getItem('public')) {
