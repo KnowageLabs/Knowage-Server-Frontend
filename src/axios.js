@@ -47,9 +47,9 @@ axios.interceptors.request.use(
                 CSRFToken = uuid
                 await localStorage.setItem('X-CSRF-TOKEN', uuid)
             }
-        //    await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, true, 'Strict')
-        //    config.headers.common['X-CSRF-TOKEN'] = CSRFToken
-        } else delete config.headers['x-session-polling']
+            await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, true, 'Strict')
+            config.headers.common['X-CSRF-TOKEN'] = CSRFToken
+        }
 
         if (localStorage.getItem('public')) {
             if (new Date().getTime() - localStorage.getItem('lastResponseTimestamp') > import.meta.env.VITE_SESSION_TIMEOUT) {
@@ -58,7 +58,8 @@ axios.interceptors.request.use(
             }
         }
 
-        if (localStorage.getItem('token')) config.headers.common[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
+        if (localStorage.getItem('token') && !config.headers['x-session-polling']) config.headers.common[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
+        if (config.headers['x-session-polling']) delete config.headers['x-session-polling']
         return config
     },
     (error) => {
