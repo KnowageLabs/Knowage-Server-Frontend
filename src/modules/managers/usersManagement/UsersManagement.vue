@@ -163,7 +163,6 @@ export default defineComponent({
             this.dirty = true
         },
         async showForm() {
-            debugger;
             this.tempAttributes = {}
             this.attributesForm = {}
             this.disableUsername = false
