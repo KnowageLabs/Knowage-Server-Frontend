@@ -114,7 +114,7 @@ export default defineComponent({
     },
     computed: {
         passwordValidation() {
-            return !this.userDetailsForm.password || (this.userDetailsForm.password && !this.v$.userDetailsForm.$invalid)
+            return (this.disableUsername && !this.userDetailsForm.password) || (this.userDetailsForm.password && !this.v$.userDetailsForm.$invalid)
         }
     },
     async created() {
@@ -160,6 +160,7 @@ export default defineComponent({
             this.dirty = true
         },
         async showForm() {
+            debugger;
             this.tempAttributes = {}
             this.attributesForm = {}
             this.disableUsername = false
@@ -294,7 +295,7 @@ export default defineComponent({
             this.dirty = false
             this.attributesForm = {}
             this.hiddenForm = false
-            this.disableUsername = true
+            this.disableUsername = userObj.id ? true : false
             this.defaultRole = userObj.defaultRoleId
             this.selectedRoles = this.getSelectedUserRoles(userObj.sbiExtUserRoleses)
             this.userDetailsForm = { ...userObj }
