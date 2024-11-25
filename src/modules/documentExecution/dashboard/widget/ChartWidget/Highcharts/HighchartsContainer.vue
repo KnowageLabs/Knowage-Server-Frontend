@@ -134,7 +134,7 @@ export default defineComponent({
 
             const modelToRender = this.getModelForRender()
 
-            if (modelToRender.plotOptions?.series?.showCheckbox) {
+            if (modelToRender.chart.type === 'pie' && modelToRender.plotOptions?.series?.showCheckbox) {
                 modelToRender.series.forEach((series) => {
                     const isSelected = modelToRender.plotOptions?.series?.showCheckbox
                     series.selected = isSelected
