@@ -150,6 +150,7 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
     const secondAttributeColumn = attributeColumns[1]
     const categoryValueMap = {}
     const uniqueCategoryValues = [] as string[]
+
     data.rows.forEach((row: any) => {
         const firstAttributeValue = row[firstAttributeColumn.metadata.dataIndex]
         if (!uniqueCategoryValues.includes(firstAttributeValue)) uniqueCategoryValues.push(firstAttributeValue)
@@ -163,7 +164,6 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
 
     const measureSerieElementValueMap = {} as any
     createSeriesForGroupedByCategoriesData(model, categoryValueMap, measureSerieElementValueMap)
-    createMeasureSerieForGroupedByCategoriesData(model, measureForGrouping, measureSerieElementValueMap)
 }
 
 const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: string[], categoryValueMap: any) => {
