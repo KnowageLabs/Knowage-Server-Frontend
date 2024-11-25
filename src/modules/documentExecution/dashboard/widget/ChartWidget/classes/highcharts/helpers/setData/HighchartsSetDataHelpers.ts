@@ -145,11 +145,16 @@ const addSeriesFromCategoryValuesMapForGroupedBySeriesData = (model: any, catego
 
 export const setGroupedByCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], serieForGroupingName: string) => {
     const measureForGrouping = measureColumns.find((measureColumn: any) => measureColumn.column.columnName === serieForGroupingName)
+    console.log('---------- DATA: ', data)
+    console.log('---------- attributeColumns: ', attributeColumns)
+    console.log('---------- measureColumns: ', measureColumns)
+    console.log('---------- measureForGrouping: ', measureForGrouping)
     if (!data || attributeColumns.length < 2 || !measureForGrouping) return
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
     const categoryValueMap = {}
     const uniqueCategoryValues = [] as string[]
+
     data.rows.forEach((row: any) => {
         const firstAttributeValue = row[firstAttributeColumn.metadata.dataIndex]
         if (!uniqueCategoryValues.includes(firstAttributeValue)) uniqueCategoryValues.push(firstAttributeValue)
@@ -163,10 +168,12 @@ export const setGroupedByCategoriesData = (model: any, data: any, attributeColum
 
     const measureSerieElementValueMap = {} as any
     createSeriesForGroupedByCategoriesData(model, categoryValueMap, measureSerieElementValueMap)
-    createMeasureSerieForGroupedByCategoriesData(model, measureForGrouping, measureSerieElementValueMap)
+    // createMeasureSerieForGroupedByCategoriesData(model, measureForGrouping, measureSerieElementValueMap)
+    console.log('------- uniqueCatmeasureSerieElementValueMapegoryValues: ', measureSerieElementValueMap)
 }
 
 const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: string[], categoryValueMap: any) => {
+    console.log('------- uniqueCategoryValues: ', uniqueCategoryValues)
     uniqueCategoryValues.forEach((categoryValue: string) => {
         Object.keys(categoryValueMap).forEach((key: string) => {
             if (!categoryValueMap[key][categoryValue]) categoryValueMap[key][categoryValue] = null
@@ -175,6 +182,7 @@ const setUniqueCategoriesValuesFromCategoryValueMap = (uniqueCategoryValues: str
 }
 
 const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: any, measureSerieElementValueMap: any) => {
+    console.log('------- categoryValueMap: ', categoryValueMap)
     Object.keys(categoryValueMap).forEach((key: string, index: number) => {
         const serieElement = { id: index, name: key, data: [] as any[], connectNulls: true }
         Object.keys(categoryValueMap[key]).forEach((tempKey: string) => {
