@@ -30,7 +30,6 @@
                     <span class="kn-list-item-text-secondary">{{ $t('licenseDialog.licenseId') }}:</span>
                     <span>{{ slotProps.option.licenseId }}</span>
                 </div>
-                <Button v-tooltip.top="$t('licenseDialog.downloadLicense')" icon="pi pi-download" class="p-button-link" data-test="download-button" @click="downloadLicence(slotProps.option.product)" />
                 <Button v-tooltip.top="$t('licenseDialog.changeLicense')" icon="pi pi-pencil" class="p-button-link" data-test="edit-button" @click="setUploadType(slotProps.option.product, true)" />
                 <Button v-tooltip.top="$t('licenseDialog.deleteLicense')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="showDeleteDialog(slotProps.option.product)" />
             </div>
@@ -47,7 +46,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { iLicense, iHost } from './License'
-import { downloadDirect } from '@/helpers/commons/fileHelper'
 import licenseDialogDescriptor from './LicenseDialogDescriptor.json'
 import { AxiosResponse } from 'axios'
 import Avatar from 'primevue/avatar'
@@ -127,40 +125,6 @@ export default defineComponent({
         },
         licenseText(status: string) {
             return status === 'LICENSE_VALID' ? this.$t('licenseDialog.validLicense') : this.$t('licenseDialog.invalidLicense')
-        },
-        async downloadLicence(productName) {
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/download` + `/${this.selectedHost.hostName}/` + `${productName}`, {
-                    headers: {
-                        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
-                    }
-                })
-                .then(
-                    (response: AxiosResponse<any>) => {
-                        if (response.data.errors) {
-                            this.setError({
-                                title: this.$t('common.error.downloading'),
-                                msg: this.$t('common.error.errorCreatingPackage')
-                            })
-                        } else {
-                            this.setInfo({ title: this.$t('common.toast.success') })
-                            if (response.headers) {
-                                const contentDisposition = response.headers['content-disposition']
-                                const contentDispositionMatcher = contentDisposition.match(/filename[^;\n=]*=((['"]).*?\2|[^;\n]*)/i)
-                                if (contentDispositionMatcher && contentDispositionMatcher.length > 1) {
-                                    const fileAndExtension = contentDispositionMatcher[1]
-                                    const completeFileName = fileAndExtension.replaceAll('"', '')
-                                    downloadDirect(response.data, completeFileName, 'application/zip; charset=utf-8')
-                                }
-                            }
-                        }
-                    },
-                    (error) =>
-                        this.setError({
-                            title: this.$t('common.error.downloading'),
-                            msg: this.$t(error)
-                        })
-                )
         },
 
         setUploadType(productName, value) {
