@@ -114,6 +114,11 @@
             "disabled": false,
             "name": "java.time.ZonedDateTime",
             "value": "Zoned Date Time"
+        },
+        {
+            "disabled": false,
+            "name": "java.sql.TIME",
+            "value": "Time"
         }
     ]
 }
