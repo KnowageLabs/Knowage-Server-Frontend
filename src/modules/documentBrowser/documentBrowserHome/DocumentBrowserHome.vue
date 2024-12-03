@@ -263,10 +263,6 @@ export default defineComponent({
         },
         openSearchBar() {
             this.searchMode = true
-            setTimeout(() => {
-                // @ts-ignore
-                this.$refs.searchBar.$el.focus()
-            }, 0)
         },
         onCloseDetails() {
             this.showDocumentDetails = false

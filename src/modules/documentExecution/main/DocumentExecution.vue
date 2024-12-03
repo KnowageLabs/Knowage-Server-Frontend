@@ -926,7 +926,7 @@ export default defineComponent({
                         inputElement.value = decodeURIComponent(postObject.params[k])
                         inputElement.value = inputElement.value.replace(/\+/g, ' ')
                         inputElement.value = this.replaceNullForDates(k, inputElement.value)
-                        this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
+                        this.hiddenFormData.set(k, inputElement.value)
                     }
                 } else {
                     if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
@@ -946,7 +946,8 @@ export default defineComponent({
                         element.type = 'hidden'
                         element.id = 'postForm_' + postObject.params.document + k
                         element.name = k
-                        element.value = decodeURIComponent(postObject.params[k].replace(/\+/g, ' '))
+                        element.value = decodeURIComponent(postObject.params[k])
+                        element.value = element.value.replace(/\+/g, ' ')
                         element.value = this.replaceNullForDates(k, element.value)
                         postForm.appendChild(element)
                         this.hiddenFormData.append(element.name, element.value)
