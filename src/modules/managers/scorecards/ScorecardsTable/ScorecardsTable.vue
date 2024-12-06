@@ -22,7 +22,6 @@ import { iScorecard, iScorecardCriterion, iPerspective, iKpi } from '../Scorecar
 import { getDefaultCriterion } from '../ScorecardsHelpers'
 import ScorecardsPerspectiveItem from './ScorecardsPerspectiveItem.vue'
 import ScorecardsTableHint from './ScorecardsTableHint.vue'
-import cryptoRandomString from 'crypto-random-string'
 
 export default defineComponent({
     name: 'scorecards-table',
@@ -48,7 +47,7 @@ export default defineComponent({
         },
         addPerspective() {
             if (this.scorecard) {
-                this.scorecard.perspectives.push({ id: cryptoRandomString({ length: 16, type: 'base64' }), name: 'New Perspective', status: 'GRAY', criterion: getDefaultCriterion(this.criterias), options: { criterionPriority: [] }, targets: [], groupedKpis: [], new: true })
+                this.scorecard.perspectives.push({ id: crypto.randomUUID(), name: 'New Perspective', status: 'GRAY', criterion: getDefaultCriterion(this.criterias), options: { criterionPriority: [] }, targets: [], groupedKpis: [], new: true })
                 this.$emit('touched')
             }
         },

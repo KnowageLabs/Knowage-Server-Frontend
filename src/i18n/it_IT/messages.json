@@ -1,4 +1,25 @@
 {
+    "account": {
+        "confirmDelete": "Sei sicuro di voler eliminare questo account? Perderai tutti i tuoi permessi ed uscirai dall'applicazione",
+        "error": {
+            "notUpdated": "Account non modificato: {msg}",
+            "samePassword": "Le password devono essere identiche"
+        },
+        "info": {
+            "deleted": "Account eliminato correttamente, verrai presto sloggato",
+            "updated": "Account modificato correttamente"
+        },
+        "passwordHint": {
+            "header": "La password deve contenere:",
+            "length": "Almeno 8 caratteri",
+            "lowercase": "Almeno 1 carattere minuscolo",
+            "number": "Almeno un numero",
+            "special": "Almeno un carattere speciale (_{'|'}-#$)",
+            "uppercase": "Almeno un carattere maiuscolo"
+        },
+        "subtitle": "In questa schermata è possibile cambiare le informazioni personali",
+        "title": "Gestione account"
+    },
     "common": {
         "active": "Attivo",
         "add": "aggiungi",
@@ -30,6 +51,7 @@
         },
         "collapse": "collassa",
         "comment": "commento",
+        "confirmPassword": "Conferma Password",
         "continue": "continua",
         "copyOf": "copia di",
         "create": "crea",
@@ -50,6 +72,7 @@
         "dragAndDropFileHere": "trascina i file qui",
         "driver": "driver",
         "edit": "modifica",
+        "email": "Email",
         "environment": "ambiente",
         "error": {
             "allowedFileTypes": "i file permessi sono {types}",
@@ -76,6 +99,7 @@
         "fileName": "nome file",
         "filterBy": "Filter by",
         "filters": "filtri",
+        "finish": "Termina",
         "from": "da",
         "general": "generale",
         "generate": "genera",
@@ -211,10 +235,12 @@
         "uploadFileSuccess": "file caricato",
         "uploading": "caricamento",
         "uppercaseDelete": "elimina",
+        "user": "Utente",
         "validation": {
             "maxLength": "questo campo deve avere meno di {max} caratteri",
             "maximumCharacters": "la lunghezza massima consentita è {max}",
             "minLength": "il campo deve avere almeno {min} caratteri",
+            "passwordFormat": "La password deve contenere almeno i seguenti caratteri: 1 minuscola, 1 maiuscola, 1 numero, 1 carattere speciale ({'|'}_-#$)",
             "regex": "formato non valido",
             "required": "{fieldName} è richiesto",
             "validating": "validazione"
@@ -1264,7 +1290,9 @@
         "moveDownDocumentState": "abbassa lo stato del documento",
         "moveUpDocumentState": "alza lo stato del documento",
         "noDocumentsHint": "nessun documento da mostrare",
-        "title": "gestore documenti"
+        "selectedFolderSearch": "Cerca nella cartella attuale",
+        "title": "gestore documenti",
+        "wholeBrowserSearch": "Cerca in tutto il gestore documenti"
     },
     "documentExecution": {
         "documentDetails": {
@@ -2815,9 +2843,13 @@
                 "roleTypeID": "Role Type",
                 "title": "Detail"
             },
+            "errors": {
+                "delete": "Non è possibile cancellare il ruolo. Potrebbe essere utilizzato da qualche funzionalità, controllare il tab \"utilizzo\""
+            },
             "hint": "Roles allows you to specify different users properties and authorizations. It's possible to change the role name, the roles authorizations and dataset visibility. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "kpiCategories": "KPI Categories",
             "noResults": "No roles available for the selected filter",
+            "noUsages": "Questo ruolo non è utilizzato",
             "publicRoleWarning1": "If you continue saving the public role will be removed from ",
             "publicRoleWarning2": " to the selected one. Are you sure?",
             "rolesDropdown": {
@@ -2827,7 +2859,16 @@
                 "TEST_ROLE": "Test User",
                 "USER": "User"
             },
-            "title": "Roles Management"
+            "title": "Roles Management",
+            "usageCategories": {
+                "drivers": "Driver",
+                "functionalities": "Funzionalità",
+                "layers": "Layer",
+                "menu": "Menu",
+                "metaModel": "Meta Modelli",
+                "news": "News",
+                "users": "Utenti"
+            }
         },
         "schedulationAgendaManagement": {
             "detail": {

@@ -4,6 +4,7 @@ const routes = [
         name: 'theme-management',
         component: () => import('@/modules/managers/themeManagement/ThemeManagement.vue'),
         meta: {
+            functionality: 'ThemeManagement',
             enterprise: true,
             licenses: ['SI']
         }

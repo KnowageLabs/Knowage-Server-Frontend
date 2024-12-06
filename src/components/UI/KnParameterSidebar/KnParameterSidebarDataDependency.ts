@@ -20,6 +20,8 @@ export function setDataDependency(loadedParameters: { filterStatus: iParameter[]
 }
 
 export async function updateDataDependency(loadedParameters: { filterStatus: iParameter[]; isReadyForExecution: boolean }, parameter: iParameter, loading: boolean, document: any, sessionRole: string | null, $http: any, mode: string, resetValue: boolean, userDateFormat: string) {
+    if (parameter && parameter.dataDependsOnParameters && resetValue) await dataDependencyCheck(loadedParameters, parameter, loading, document, sessionRole, $http, mode, false, userDateFormat)
+
     if (parameter && parameter.dataDependentParameters) {
         for (let i = 0; i < parameter.dataDependentParameters.length; i++) {
             await dataDependencyCheck(loadedParameters, parameter.dataDependentParameters[i], loading, document, sessionRole, $http, mode, resetValue, userDateFormat)

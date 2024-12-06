@@ -2,6 +2,7 @@ const routes = [
     {
         path: '/kpi-definition',
         name: 'kpi-definition',
+        meta: { functionality: 'KpiManagement' },
         component: () => import('@/modules/kpi/kpiDefinition/KpiDefinition.vue'),
         children: [
             {

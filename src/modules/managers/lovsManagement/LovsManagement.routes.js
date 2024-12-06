@@ -2,6 +2,7 @@ const routes = [
     {
         path: '/lovs-management',
         name: 'lovs-management',
+        meta: { functionality: 'LovsManagement' },
         component: () => import('@/modules/managers/lovsManagement/LovsManagement.vue'),
         children: [
             {

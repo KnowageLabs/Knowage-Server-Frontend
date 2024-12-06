@@ -1,10 +1,9 @@
-import { IWidget, IWidgetColumn, IWidgetExports } from "@/modules/documentExecution/dashboard/Dashboard"
-import { ISelectorWidgetDefaultValues, ISelectorWidgetSelectorType, ISelectorWidgetSettings, ISelectorWidgetValuesManagement, ISelectorWidgetConfiguration } from "@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget"
+import { IWidget, IWidgetColumn, IWidgetExports } from '@/modules/documentExecution/dashboard/Dashboard'
+import { ISelectorWidgetDefaultValues, ISelectorWidgetSelectorType, ISelectorWidgetSettings, ISelectorWidgetValuesManagement, ISelectorWidgetConfiguration } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import { getFormattedStyle } from './SelectorWidgetStyleHelper'
-import cryptoRandomString from 'crypto-random-string'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import * as selectorWidgetDefaultValues from '../../widget/WidgetEditor/helpers/selectorWidget/SelectorWidgetDefaultValues'
-import { getFiltersForColumns } from "../DashboardBackwardCompatibilityHelper"
+import { getFiltersForColumns } from '../DashboardBackwardCompatibilityHelper'
 
 export const formatSelectorWidget = (widget: any) => {
     const formattedWidget = {
@@ -23,11 +22,18 @@ export const formatSelectorWidget = (widget: any) => {
 const getFormattedSelectionColumn = (widget: any) => {
     const formattedColumns = [] as IWidgetColumn[]
     if (widget.content && widget.content.selectedColumn) {
-        const formattedColumn = { id: cryptoRandomString({ length: 16, type: 'base64' }), columnName: widget.content.selectedColumn.name, alias: widget.content.selectedColumn.alias, type: widget.content.selectedColumn.type, fieldType: widget.content.selectedColumn.fieldType, multiValue: widget.content.selectedColumn.multiValue, filter: {} } as IWidgetColumn
+        const formattedColumn = {
+            id: crypto.randomUUID(),
+            columnName: widget.content.selectedColumn.name,
+            alias: widget.content.selectedColumn.alias,
+            type: widget.content.selectedColumn.type,
+            fieldType: widget.content.selectedColumn.fieldType,
+            multiValue: widget.content.selectedColumn.multiValue,
+            filter: {}
+        } as IWidgetColumn
         formattedColumns.push(formattedColumn)
     }
     return formattedColumns
-
 }
 
 const getFormattedWidgetSettings = (widget: any) => {
@@ -70,7 +76,7 @@ const getFormattedSelectorType = (widget: any) => {
 const getFormattedDefaultValues = (widget: any) => {
     if (!widget.settings) return selectorWidgetDefaultValues.getDefaultValues()
     const formattedDefaultValues = {
-        enabled: false,
+        enabled: false
     } as ISelectorWidgetDefaultValues
     if (widget.settings.defaultValue) formattedDefaultValues.valueType = widget.settings.defaultValue
     if (widget.settings.staticValues) formattedDefaultValues.value = widget.settings.staticValues
@@ -80,10 +86,10 @@ const getFormattedDefaultValues = (widget: any) => {
     return formattedDefaultValues
 }
 
-
 const getFormattedWidgetValuesManagement = (widget: any) => {
     if (!widget.settings) return selectorWidgetDefaultValues.getDefaultValuesManagement()
     return {
-        hideDisabled: widget.settings.hideDisabled ?? false, enableAll: widget.settings.enableAll ?? false,
+        hideDisabled: widget.settings.hideDisabled ?? false,
+        enableAll: widget.settings.enableAll ?? false
     } as ISelectorWidgetValuesManagement
 }

@@ -1,4 +1,25 @@
 {
+    "account": {
+        "confirmDelete": "Are you sure you want to delete this account? You will lose all your informations and will be logout",
+        "error": {
+            "notUpdated": "Account not updated: {msg}",
+            "samePassword": "Passwords must be the same"
+        },
+        "info": {
+            "deleted": "Account correctly deleted, you will be logout soon",
+            "updated": "Account correctly updated"
+        },
+        "passwordHint": {
+            "header": "The password must contain:",
+            "length": "At least 8 characters",
+            "lowercase": "At least 1 lowercase character",
+            "number": "At least 1 number",
+            "special": "At least 1 special character (_{'|'}-#$)",
+            "uppercase": "At least 1 uppercase character"
+        },
+        "subtitle": "Here you can change your personal informations",
+        "title": "Account Management"
+    },
     "common": {
         "active": "Active",
         "add": "Add",
@@ -41,6 +62,7 @@
         "columns": "Columns",
         "comment": "Comment",
         "condition": "Condition",
+        "confirmPassword": "Confirm Password",
         "continue": "Continue",
         "copyOf": "Copy of",
         "create": "Create",
@@ -67,6 +89,7 @@
         "dragAndDropFileHere": "Drag and drop file here.",
         "driver": "Driver",
         "edit": "edit",
+        "email": "Email",
         "enable": "Enable",
         "enabled": "Enabled",
         "end": "End",
@@ -99,6 +122,7 @@
         "fileName": "File Name",
         "filterBy": "Filter by",
         "filters": "Filters",
+        "finish": "Finish",
         "formula": "Formula",
         "from": "From",
         "general": "General",
@@ -272,11 +296,13 @@
         "uploading": "Uploading",
         "uppercaseDelete": "Delete",
         "url": "URL",
+        "user": "User",
         "validation": {
             "maxLength": "This field must have less then {max} characters",
             "maximumCharacters": "The maximum length allowed is {max}",
             "minLength": "This field should have at least {min} characters",
             "noQuestionMark": "The value of the field must not contain the question mark (?)",
+            "passwordFormat": "The password must contain at least the following characters: 1 uppercase, 1 lowercase, 1 number, 1 special character ({'|'}_-#$)",
             "regex": "Invalid format",
             "required": "{fieldName} is required",
             "validating": "validating"
@@ -1422,7 +1448,9 @@
         "moveDownDocumentState": "Move Down State Document",
         "moveUpDocumentState": "Move Up State Document",
         "noDocumentsHint": "No documents to display",
-        "title": "Document browser"
+        "selectedFolderSearch": "Search in selected folder",
+        "title": "Document browser",
+        "wholeBrowserSearch": "Search in the whole document browser"
     },
     "documentExecution": {
         "documentDetails": {
@@ -3100,9 +3128,13 @@
                 "roleTypeID": "Role Type",
                 "title": "Detail"
             },
+            "errors": {
+                "delete": "Impossible to delete the role. It may be used by some element, please check the usage tab"
+            },
             "hint": "Roles allows you to specify different users properties and authorizations. It's possible to change the role name, the roles authorizations and dataset visibility. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "kpiCategories": "KPI Categories",
             "noResults": "No roles available for the selected filter",
+            "noUsages": "The current role is not in use",
             "publicRoleWarning1": "If you continue saving the public role will be removed from ",
             "publicRoleWarning2": " to the selected one. Are you sure?",
             "rolesDropdown": {
@@ -3112,7 +3144,16 @@
                 "TEST_ROLE": "Test User",
                 "USER": "User"
             },
-            "title": "Roles Management"
+            "title": "Roles Management",
+            "usageCategories": {
+                "drivers": "Drivers",
+                "functionalities": "Functionalities",
+                "layers": "Layers",
+                "menu": "Menu",
+                "metaModel": "Meta Model Categories",
+                "news": "News",
+                "users": "Users"
+            }
         },
         "schedulationAgendaManagement": {
             "detail": {

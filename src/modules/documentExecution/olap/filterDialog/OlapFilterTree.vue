@@ -32,8 +32,6 @@ import Message from 'primevue/message'
 import olapFilterDialogDescriptor from './OlapFilterDialogDescriptor.json'
 import Tree from 'primevue/tree'
 
-import cryptoRandomString from 'crypto-random-string'
-
 export default defineComponent({
     name: 'olap-filter-tree',
     components: { Checkbox, Message, Tree },
@@ -125,7 +123,7 @@ export default defineComponent({
         },
         createNode(el: iFilterNode) {
             const tempNode = {
-                key: cryptoRandomString({ length: 16, type: 'base64' }) as string,
+                key: crypto.randomUUID() as string,
                 id: '' + el.id,
                 label: el.name,
                 children: [] as iNode[],

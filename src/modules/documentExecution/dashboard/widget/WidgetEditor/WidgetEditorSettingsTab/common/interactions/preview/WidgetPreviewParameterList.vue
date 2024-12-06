@@ -125,6 +125,7 @@ export default defineComponent({
         }
     },
     created() {
+        this.loadDrivers()
         this.loadParameters()
         this.loadSelectedDatasetNames()
     },

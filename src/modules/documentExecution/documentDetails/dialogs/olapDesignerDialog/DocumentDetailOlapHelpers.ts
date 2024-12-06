@@ -15,7 +15,7 @@ export async function startOlap($http: any, user: any, sbiExecutionId: string, d
     const params = createUrlParameters(uniqueID, language, country, sbiExecutionId, document, selectedTemplateContent, schema)
 
     $http.get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/olap/startolap`, { headers: { Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }, params: params }).then(() => {
-        router.push(`/olap-designer/${sbiExecutionId}?olapId=${document.id}&olapName=${document.name}&olapLabel=${document.label}&artifactId=${schema.currentContentId}`)
+        router.push(`/olap-designer/${sbiExecutionId}?olapId=${document.id}&olapName=${document.name}&olapLabel=${document.label}&artifactId=${schema.currentContentId}&reference=${schemaName}`)
     })
 }
 

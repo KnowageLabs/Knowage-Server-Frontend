@@ -1,20 +1,22 @@
 <template>
     <Toolbar class="kn-toolbar kn-toolbar--primary">
         <template #start>
-            <i id="sidebar-button" class="fa fa-ellipsis-v p-mr-3" @click="toggleSidebarView" />
-            <span>{{ searchMode ? $t('documentBrowser.documentsSearch') : $t('documentBrowser.title') }}</span>
-            <span v-show="searchMode" class="p-mx-4">
-                <i class="fa fa-arrow-left search-pointer p-mx-4" @click="exitSearchMode" />
-                <InputText id="document-search" ref="searchBar" v-model="searchWord" class="kn-material-input p-inputtext-sm p-mx-2 searchInput" :placeholder="$t('common.search')" autofocus @keyup.enter="loadDocuments" />
-                <i class="fa fa-times search-pointer p-mx-4" @click="searchWord = ''" />
-                <i class="pi pi-search search-pointer p-mx-4" @click="loadDocuments" />
-            </span>
+            <div class="row items-center" style="min-width: 600px">
+                <i id="sidebar-button" class="fa fa-ellipsis-v p-mr-3" @click="toggleSidebarView" />
+                <span>{{ searchMode ? $t('documentBrowser.documentsSearch') : $t('documentBrowser.title') }}</span>
+                <i v-if="searchMode" class="fa fa-arrow-left search-pointer p-mx-4" @click="exitSearchMode" />
+                <q-input v-if="searchMode" dense class="col" dark standout clearable autofocus v-model="searchWord" @keydown.enter.prevent="loadDocuments">
+                    <template v-slot:after>
+                        <q-btn round size="sm" dense flat icon="search" @click="loadDocuments" />
+                    </template>
+                </q-input>
+            </div>
         </template>
 
         <template #end>
-            <span v-if="!searchMode" class="p-mx-4">
-                <i class="pi pi-search search-pointer" @click="openSearchBar()" />
-            </span>
+            <q-btn v-if="!searchMode" class="q-mr-xl" size="sm" flat round icon="search" @click="openSearchBar()">
+                <q-tooltip>{{ $t('documentBrowser.wholeBrowserSearch') }}</q-tooltip>
+            </q-btn>
             <q-btn v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" round class="customFabButton" icon="fas fa-plus">
                 <q-menu>
                     <q-list dense style="min-width: 200px">
@@ -261,10 +263,6 @@ export default defineComponent({
         },
         openSearchBar() {
             this.searchMode = true
-            setTimeout(() => {
-                // @ts-ignore
-                this.$refs.searchBar.$el.focus()
-            }, 0)
         },
         onCloseDetails() {
             this.showDocumentDetails = false
@@ -276,6 +274,8 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .customFabButton {
+    position: absolute;
+    right: 10px;
     &:deep(.q-icon) {
         font-size: 1rem;
     }

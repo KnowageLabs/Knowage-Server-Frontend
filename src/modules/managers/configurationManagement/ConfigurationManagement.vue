@@ -140,7 +140,7 @@ export default defineComponent({
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/configs')
                 .then((response: AxiosResponse<any>) => {
-                    this.configurations = response.data
+                    this.configurations = response.data.filter((item) => !configurationManagementDescriptor.bannedConfigurations.includes(item.label))
                 })
                 .finally(() => (this.loading = false))
         },

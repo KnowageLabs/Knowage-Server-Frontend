@@ -6,7 +6,6 @@ import { IAssociation, IDashboard, IDashboardConfiguration, IDataset, IDatasetPa
 import { formatSelectionWidget } from './selectionWidget/SelectionsWidgetCompatibilityHelper'
 import { setVariableValueFromDataset } from '../generalSettings/VariablesHelper'
 import deepcopy from 'deepcopy'
-import cryptoRandomString from 'crypto-random-string'
 import { formatHTMLWidget } from './htmlWidget/HTMLWidgetCompatibilityHelper'
 import { formatTextWidget } from './textWidget/TextWidgetCompatibilityHelper'
 import { getFormattedDatasetDrivers } from '../dataset/DatasetEditorDataTab/DatasetEditorDataDetail/DatasetEditorDriverDialog/DatasetEditorDatasetDriverFormatterHelper'
@@ -28,7 +27,7 @@ export const formatModel = async (model: any, document: any, datasets: IDataset[
 
     loadDatasetIdNameMap(datasets)
     const formattedModel = {
-        id: cryptoRandomString({ length: 16, type: 'base64' }),
+        id: crypto.randomUUID(),
         widgets: [],
         version: model.knowageVersion,
         configuration: await getFormattedModelConfiguration(model, document, drivers, profileAttributes, datasets, $http),
@@ -199,13 +198,13 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
     if (!sheet.widgets) return
 
     const formattedSheet = deepcopy(sheet)
-    formattedSheet.id = cryptoRandomString({ length: 16, type: 'base64' })
+    formattedSheet.id = crypto.randomUUID()
     formattedSheet.widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
 
     for (let i = 0; i < sheet.widgets.length; i++) {
         const tempWidget = sheet.widgets[i]
         const sizes = ['lg', 'md', 'sm', 'xs', 'xxs']
-        sizes.forEach((size: string) => formattedSheet.widgets[size].push({ id: tempWidget.id, h: tempWidget.sizeY, w: tempWidget.sizeX, x: tempWidget.col, y: tempWidget.row, i: cryptoRandomString({ length: 16, type: 'base64' }), moved: false }))
+        sizes.forEach((size: string) => formattedSheet.widgets[size].push({ id: tempWidget.id, h: tempWidget.sizeY, w: tempWidget.sizeX, x: tempWidget.col, y: tempWidget.row, i: crypto.randomUUID(), moved: false }))
         addWidgetToModel(tempWidget, formattedModel, user, drivers)
     }
 

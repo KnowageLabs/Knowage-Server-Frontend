@@ -149,7 +149,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(store, ['dashboards']),
-        ...mapState(mainStore, ['user']),
+        ...mapState(mainStore, ['user', 'setInfo']),
         playSelectionButtonVisible(): boolean {
             if (!this.widget || !this.widget.settings.configuration || !this.widget.settings.configuration.selectorType) return false
             return this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
@@ -468,6 +468,7 @@ export default defineComponent({
 
         async previewInteractionDataset(event: any) {
             const previewSettings = event.previewSettings as IWidgetPreview
+
             if (!previewSettings.dataset || previewSettings.dataset < 0) return
 
             this.selectedDataset = deepcopy(this.datasets.find((dataset) => dataset.id.dsId === previewSettings.dataset))
@@ -488,6 +489,10 @@ export default defineComponent({
 
             if (this.selectedDataset.drivers && this.selectedDataset.modelDrivers) {
                 this.selectedDataset.formattedDrivers = this.selectedDataset.modelDrivers
+            }
+            if (previewSettings.directDownload) {
+                this.directDownloadDataset(previewSettings.dataset)
+                return
             }
 
             await this.loadDatasetToPreview(this.selectedDataset.label)
@@ -511,6 +516,24 @@ export default defineComponent({
             if (this.selectedDataset.modelDrivers) return [...this.selectedDataset.modelDrivers]
             else if (this.selectedDataset.formattedDrivers) return [...this.selectedDataset.formattedDrivers]
             else return []
+        },
+        async directDownloadDataset(datasetId: number) {
+            let tempParams = {} as any
+            const dsDrivers = this.getPreviewDrivers()
+            const dsParams = [...this.selectedDataset.parameters]
+            if (dsDrivers?.length > 0) tempParams.drivers = dsDrivers
+            if (dsParams?.length > 0)
+                tempParams.parameters = dsParams.map((i) => {
+                    return {
+                        name: i.name,
+                        multiValue: i.multiValue,
+                        value: i.value
+                    }
+                })
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${datasetId}/csv`, tempParams, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
+                .catch(() => {})
         }
     }
 })

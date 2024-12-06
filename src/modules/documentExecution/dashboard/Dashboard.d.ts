@@ -661,6 +661,8 @@ export interface IWidgetStyleToolbarModel {
     'justify-content'?: string
     'text-align'?: string
     'border-color'?: string
+    'padding-left'?: string
+    'padding-right'?: string
     color?: string
     'background-color'?: string
     icon?: string

@@ -54,8 +54,8 @@
                             'p-invalid': parameter.mandatory && parameter.parameterValue && !parameter.parameterValue[0]?.value
                         }"
                         :data-test="'parameter-input-' + parameter.id"
-                        @blur="updateDependency(parameter)"
-                        @keypress.enter="updateDependency(parameter)"
+                        @blur="onInputTextChanged(parameter)"
+                        @keypress.enter="onInputTextChanged(parameter)"
                     />
                 </div>
                 <div v-if="parameter.type === 'DATE' && !parameter.selectionType && parameter.valueSelection === 'man_in' && parameter.showOnPanel === 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
@@ -80,6 +80,7 @@
                         :class="{
                             'p-invalid': parameter.mandatory && parameter.parameterValue && !parameter.parameterValue[0]?.value
                         }"
+                        :maxDate="parameter.driverMaxValue ?? undefined"
                         :data-test="'parameter-date-input-' + parameter.id"
                         @change="updateDependency(parameter)"
                         @date-select="updateDependency(parameter)"
@@ -175,7 +176,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
-import { formatDate } from '@/helpers/commons/localeHelper'
+import { formatDate, luxonFormatDate } from '@/helpers/commons/localeHelper'
 import { iDocument, iParameter, iAdmissibleValues } from './KnParameterSidebar'
 import { setVisualDependency, updateVisualDependency } from './KnParameterSidebarVisualDependency'
 import { setDataDependency, updateDataDependency } from './KnParameterSidebarDataDependency'
@@ -343,6 +344,8 @@ export default defineComponent({
             this.filtersData?.filterStatus?.forEach((el: iParameter) => {
                 if (el.selectionType == 'LIST' && el.showOnPanel == 'true' && el.multivalue) {
                     this.selectedParameterCheckbox[el.id] = el.parameterValue?.map((parameterValue: any) => parameterValue.value)
+                } else if (el.type === 'STRING' && el.valueSelection == 'man_in' && el.showOnPanel == 'true') {
+                    el.initialValue = el.parameterValue && el.parameterValue[0] ? el.parameterValue[0].value : ''
                 }
                 this.parameters.filterStatus.push(el)
             })
@@ -397,7 +400,7 @@ export default defineComponent({
                 })
             } else if (parameter.type === 'DATE' && parameter.showOnPanel === 'true') {
                 if (parameter.driverDefaultValue[0].desc?.split('#')[0]) {
-                    parameter.parameterValue[0].value = this.getFormattedDate(parameter.driverDefaultValue[0].desc?.split('#')[0], undefined)
+                    parameter.parameterValue[0].value = luxonFormatDate(parameter.driverDefaultValue[0].desc?.split('#')[0], parameter.driverDefaultValue[0].desc?.split('#')[1])
                 }
             } else {
                 if (!parameter.parameterValue[0]) {
@@ -637,6 +640,10 @@ export default defineComponent({
             if (!parameter.parameterValue[0]) return
             const index = parameter.data?.findIndex((el: { value: string; description: string }) => el.value === parameter.parameterValue[0].value)
             if (index !== -1) parameter.parameterValue[0].description = parameter.data[index].description
+        },
+        onInputTextChanged(parameter: any) {
+            if (parameter.parameterValue[0] && parameter.initialValue === parameter.parameterValue[0]?.value) return
+            this.updateDependency(parameter)
         }
     }
 })

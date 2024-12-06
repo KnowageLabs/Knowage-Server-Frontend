@@ -21,7 +21,7 @@
                         {{ userDetailsForm.userId }}
                     </template>
                     <template #end>
-                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="v$.userDetailsForm.$invalid" @click="saveUser" />
+                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!dirty || !passwordValidation" @click="saveUser" />
                         <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" @click="closeForm" />
                     </template>
                 </Toolbar>
@@ -104,6 +104,9 @@ export default defineComponent({
             'custom-required': (value) => {
                 return !this.formInsert || value
             },
+            'password-format': (value) => {
+                return value.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\-_|#$])[A-Za-z\d\-_|#$]{8,}/)
+            },
             'custom-sameAs': sameAs(this.userDetailsForm.password)
         }
         const validationObject = {
@@ -111,6 +114,11 @@ export default defineComponent({
         }
 
         return validationObject
+    },
+    computed: {
+        passwordValidation() {
+            return (this.disableUsername && !this.userDetailsForm.password) || (this.userDetailsForm.password && !this.v$.userDetailsForm.$invalid)
+        }
     },
     async created() {
         await this.loadAllUsers()
@@ -289,7 +297,7 @@ export default defineComponent({
             this.dirty = false
             this.attributesForm = {}
             this.hiddenForm = false
-            this.disableUsername = true
+            this.disableUsername = userObj.id ? true : false
             this.defaultRole = userObj.defaultRoleId
             this.selectedRoles = this.getSelectedUserRoles(userObj.sbiExtUserRoleses)
             this.userDetailsForm = { ...userObj }

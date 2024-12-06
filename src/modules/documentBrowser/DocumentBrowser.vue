@@ -39,8 +39,6 @@ import Menu from 'primevue/menu'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 
-import cryptoRandomString from 'crypto-random-string'
-
 export default defineComponent({
     name: 'document-browser',
     components: { DocumentBrowserHome, DocumentBrowserTab, Menu, TabView, TabPanel },
@@ -93,7 +91,7 @@ export default defineComponent({
                         name: tempDocument.name,
                         label: id,
                         mode: this.$router.currentRoute.value.params.mode,
-                        routerId: cryptoRandomString({ length: 16, type: 'base64' }),
+                        routerId: crypto.randomUUID(),
                         id: id,
                         showMode: this.$router.currentRoute.value.name === 'document-browser-document-execution' ? 'execute' : 'documentDetail'
                     },
@@ -132,7 +130,7 @@ export default defineComponent({
         },
         onItemSelect(payload: any) {
             if (payload.item) {
-                payload.item.routerId = cryptoRandomString({ length: 16, type: 'base64' })
+                payload.item.routerId = crypto.randomUUID()
             }
 
             const tempItem = { ...payload, item: { ...payload.item } }
@@ -153,7 +151,7 @@ export default defineComponent({
                     this.selectedItem.item.showMode = 'execute'
                     this.$router.push(`/document-browser/${routeDocumentType}/` + id)
                 } else {
-                    this.selectedItem.item = { routerId: cryptoRandomString({ length: 16, type: 'base64' }) }
+                    this.selectedItem.item = { routerId: crypto.randomUUID() }
                     this.selectedItem.item.showMode = payload.mode
                     const link = payload.mode === 'createCockpit' ? '/document-browser/new-cockpit' : `/document-browser/new-dashboard?folderId=${payload.functionalityId}`
                     this.$router.push(link)
@@ -232,7 +230,7 @@ export default defineComponent({
             this.closeIframe()
             await this.$router.push(`/document-browser/document-composite/${cockpit.DOCUMENT_LABEL}?documentMode=edit`)
             setTimeout(() => {}, 2000)
-            this.selectedItem = { item: { ...cockpit, routerId: cryptoRandomString({ length: 16, type: 'base64' }), name: cockpit.DOCUMENT_NAME, label: cockpit.DOCUMENT_LABEL, showMode: 'execute' }, mode: 'execute' }
+            this.selectedItem = { item: { ...cockpit, routerId: crypto.randomUUID(), name: cockpit.DOCUMENT_NAME, label: cockpit.DOCUMENT_LABEL, showMode: 'execute' }, mode: 'execute' }
             this.tabs[this.activeIndex - 1] = this.selectedItem
         },
         getTabName(tab: any) {
@@ -246,7 +244,7 @@ export default defineComponent({
             this.documentSaved = document
             this.documentSavedTrigger = !this.documentSavedTrigger
             this.selectedItem.functionalityId = null
-            this.selectedItem.item = { name: document.name, label: document.id, routerId: cryptoRandomString({ length: 16, type: 'base64' }), id: document.id, showMode: 'documentDetail' }
+            this.selectedItem.item = { name: document.name, label: document.id, routerId: crypto.randomUUID(), id: document.id, showMode: 'documentDetail' }
             this.$router.push(`/document-browser/document-details/${document.id}`)
         }
     }

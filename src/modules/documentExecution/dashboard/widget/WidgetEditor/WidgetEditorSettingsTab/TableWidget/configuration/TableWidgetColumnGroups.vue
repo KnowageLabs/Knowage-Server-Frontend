@@ -22,7 +22,6 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, ITableWidgetColumnGroups, IWidgetColumn, ITableWidgetColumnGroup } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../DashboardHelpers'
 import { removeColumnGroupFromModel } from '../../../helpers/tableWidget/TableWidgetFunctions'
-import cryptoRandomString from 'crypto-random-string'
 import descriptor from '../TableWidgetSettingsDescriptor.json'
 import WidgetEditorColumnsMultiselect from '../../common/WidgetEditorColumnsMultiselect.vue'
 
@@ -110,7 +109,7 @@ export default defineComponent({
             if (!this.columnGroupsModel) return
             if (this.columnGroupsModel.enabled && this.columnGroupsModel.groups.length === 0) {
                 this.columnGroupsModel.groups.push({
-                    id: cryptoRandomString({ length: 16, type: 'base64' }),
+                    id: crypto.randomUUID(),
                     label: '',
                     columns: []
                 })
@@ -140,7 +139,7 @@ export default defineComponent({
         addColumnGroup() {
             if (!this.columnGroupsModel) return
             this.columnGroupsModel.groups.push({
-                id: cryptoRandomString({ length: 16, type: 'base64' }),
+                id: crypto.randomUUID(),
                 label: '',
                 columns: []
             })

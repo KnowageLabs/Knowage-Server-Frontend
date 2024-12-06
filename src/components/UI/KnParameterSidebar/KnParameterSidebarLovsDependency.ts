@@ -45,7 +45,7 @@ export async function lovDependencyCheck(loadedParameters: { filterStatus: iPara
             parameter.metadata = response.data.result.metadata
             formatParameterAfterDataDependencyCheck(parameter)
         })
-        .catch(() => { })
+        .catch(() => {})
     loading = false
 }
 

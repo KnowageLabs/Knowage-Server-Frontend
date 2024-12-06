@@ -311,34 +311,10 @@ export default defineComponent({
                 .then(async (response: AxiosResponse<any>) => {
                     this.olap = response.data
                     if (this.noTemplate === 'true') {
-                        this.olapDesigner = {
-                            ENGINE: this.olapEngine,
-                            template: {
-                                wrappedObject: {
-                                    olap: {
-                                        cube: {
-                                            reference: this.reference
-                                        },
-                                        MDXMondrianQuery: {
-                                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF
-                                        },
-                                        MDXQUERY: {
-                                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF,
-                                            parameter: []
-                                        },
-                                        JSONTEMPLATE: {
-                                            XML_TAG_TEXT_CONTENT: ''
-                                        },
-                                        calculated_fields: {
-                                            calculated_field: []
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        this.olapDesigner.template.wrappedObject.olap.JSONTEMPLATE.XML_TAG_TEXT_CONTENT = JSON.stringify(this.olapDesigner.template.wrappedObject)
+                        this.createOlapDesginerFromOLAP()
                     } else {
                         await this.loadOlapDesigner()
+                        if (!this.olapDesigner.template) this.olapDesigner.template = this.createOlapDesginerTemplateFromOLAP()
                     }
 
                     if (this.olapDesigner) {
@@ -352,6 +328,37 @@ export default defineComponent({
                 })
                 .catch(() => {})
             this.loading = false
+        },
+        createOlapDesginerFromOLAP() {
+            this.olapDesigner = {
+                ENGINE: this.olapEngine,
+                template: this.createOlapDesginerTemplateFromOLAP()
+            }
+            this.olapDesigner.template.wrappedObject.olap.JSONTEMPLATE.XML_TAG_TEXT_CONTENT = JSON.stringify(this.olapDesigner.template.wrappedObject)
+        },
+        createOlapDesginerTemplateFromOLAP() {
+            return {
+                wrappedObject: {
+                    olap: {
+                        cube: {
+                            reference: this.reference
+                        },
+                        MDXMondrianQuery: {
+                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF
+                        },
+                        MDXQUERY: {
+                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF,
+                            parameter: []
+                        },
+                        JSONTEMPLATE: {
+                            XML_TAG_TEXT_CONTENT: ''
+                        },
+                        calculated_fields: {
+                            calculated_field: []
+                        }
+                    }
+                }
+            }
         },
         setClickedButtons() {
             if (this.olapDesigner && this.olapDesigner.template?.wrappedObject?.olap?.TOOLBAR) {
@@ -560,10 +567,7 @@ export default defineComponent({
                 .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/moveDimensionToOtherAxis?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
                 .then((response: AxiosResponse<any>) => {
                     this.olap = response.data
-                    if (this.olapDesigner && this.olapDesigner.template) {
-                        this.olapDesigner.template.wrappedObject.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
-                        this.olapDesigner.template.wrappedObject.olap.MDXQUERY.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
-                    }
+                    if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
                 })
                 .catch(() => this.store.setError({ title: this.$t('common.toast.error'), msg: this.$t('documentExecution.olap.filterToolbar.putFilterOnAxisError') }))
             this.formatOlapTable()
@@ -573,7 +577,10 @@ export default defineComponent({
             this.loading = true
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/swap?SBI_EXECUTION_ID=${this.id}`, null, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
-                .then((response: AxiosResponse<any>) => (this.olap = response.data))
+                .then((response: AxiosResponse<any>) => {
+                    this.olap = response.data
+                    if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
+                })
                 .catch(() => this.store.setError({ title: this.$t('common.toast.error'), msg: this.$t('documentExecution.olap.filterToolbar.swapAxisError') }))
             this.formatOlapTable()
             this.loading = false
@@ -585,6 +592,7 @@ export default defineComponent({
                 .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/moveHierarchy?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
                 .then((response: AxiosResponse<any>) => {
                     this.olap = response.data
+                    if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
                 })
                 .catch(() => this.store.setError({ title: this.$t('common.toast.error'), msg: this.$t('documentExecution.olap.filterToolbar.hierarchyMoveError') }))
             this.formatOlapTable()
@@ -606,7 +614,10 @@ export default defineComponent({
                 this.loading = true
                 await this.$http
                     .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/updateHierarchyOnDimension?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
-                    .then((response: AxiosResponse<any>) => (this.olap = response.data))
+                    .then((response: AxiosResponse<any>) => {
+                        this.olap = response.data
+                        if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
+                    })
                     .catch(() => this.store.setError({ title: this.$t('common.toast.error'), msg: this.$t('documentExecution.olap.filterToolbar.hierarchyUpdateError') }))
                     .finally(() => {
                         this.formatOlapTable()
@@ -635,7 +646,10 @@ export default defineComponent({
             this.olap.modelConfig.crossNavigation.buttonClicked = crossNavigation
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/crossnavigation/initialize/?SBI_EXECUTION_ID=${this.id}`, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
-                .then((response: AxiosResponse<any>) => (this.olap = response.data))
+                .then((response: AxiosResponse<any>) => {
+                    this.olap = response.data
+                    if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
+                })
                 .catch(() => {})
             this.formatOlapTable()
             this.loading = false
@@ -707,6 +721,7 @@ export default defineComponent({
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.updateSuccess') })
                     await this.loadOlapDesigner()
+                    if (!this.olapDesigner.template) this.olapDesigner.template = this.createOlapDesginerTemplateFromOLAP()
                 })
                 .catch(() => {})
             this.loading = false
@@ -884,6 +899,7 @@ export default defineComponent({
                         await this.drillThrough(event)
                         break
                 }
+                if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
             }
         },
         openFilterDialog(filter: any) {
@@ -1156,6 +1172,10 @@ export default defineComponent({
             this.formatOlapTable()
             this.loadVersions()
             this.saveVersionDialogVisible = false
+        },
+        updateOlapDesignerWithMDXFromOlap() {
+            this.olapDesigner.template.wrappedObject.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
+            this.olapDesigner.template.wrappedObject.olap.MDXQUERY.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
         }
     }
 })

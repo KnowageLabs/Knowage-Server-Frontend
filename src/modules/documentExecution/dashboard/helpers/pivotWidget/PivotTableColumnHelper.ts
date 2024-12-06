@@ -1,6 +1,5 @@
 import { IWidgetColumn } from '../../Dashboard'
 import { IPivotFields } from '../../interfaces/pivotTable/DashboardPivotTableWidget'
-import cryptoRandomString from 'crypto-random-string'
 
 export const getFormattedPivotFields = (widget: any, columnNameIdMap: any) => {
     if (!widget.content || !widget.content.crosstabDefinition) return []
@@ -19,7 +18,7 @@ export const getFormattedFields = (widgetColumns: any, columnNameIdMap: any) => 
     const formattedColumns = [] as IWidgetColumn[]
 
     widgetColumns.forEach((widgetColumn) => {
-        const formattedColumn = { id: cryptoRandomString({ length: 16, type: 'base64' }), columnName: widgetColumn.id, alias: widgetColumn.alias, type: '', fieldType: widgetColumn.nature.toUpperCase(), filter: {} } as IWidgetColumn
+        const formattedColumn = { id: crypto.randomUUID(), columnName: widgetColumn.id, alias: widgetColumn.alias, type: '', fieldType: widgetColumn.nature.toUpperCase(), filter: {} } as IWidgetColumn
 
         if (widgetColumn.isCalculated) {
             formattedColumn.formula = widgetColumn.formula

@@ -136,9 +136,10 @@ export default defineComponent({
             this.driversDialogVisible = true
         },
         resetDefaultValue(driver: IDashboardDatasetDriver) {
-            if (!driver.defaultValue) return
-            driver.parameterValue = deepcopy(driver.defaultValue)
-            if (driver.type === 'DATE' && driver.parameterValue && driver.parameterValue[0]) {
+            if (!driver.defaultValue || driver.defaultValue.length == 0) driver.parameterValue = []
+
+            driver.parameterValue = deepcopy(driver.defaultValue) as { value: string; description: string }[]
+            if (driver.type === 'DATE' && driver.parameterValue && driver.parameterValue[0] && driver.parameterValue[0].value) {
                 driver.parameterValue[0].value = moment(driver.parameterValue[0].value).toDate()
                 this.setDateDisplayValue(driver)
             }

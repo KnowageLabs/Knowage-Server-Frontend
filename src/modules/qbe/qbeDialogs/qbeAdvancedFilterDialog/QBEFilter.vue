@@ -18,9 +18,7 @@ import { addOrRemove, contains, isSelectable, isMovable } from './selectedOperan
 import { swap, move } from './advancedFilterService'
 import { getFilterTree } from './treeService'
 import QBEFilterDetail from './QBEFilterDetail.vue'
-
-import cryptoRandomString from 'crypto-random-string';
-import deepEqual  from 'deep-equal'
+import deepEqual from 'deep-equal'
 
 export default defineComponent({
     name: 'qbe-filter',
@@ -33,7 +31,7 @@ export default defineComponent({
             selected: false,
             dropzoneLeftVisible: false,
             dropzoneRightVisible: false,
-            filterId: cryptoRandomString({length: 16, type: 'base64'})
+            filterId: crypto.randomUUID()
         }
     },
     watch: {

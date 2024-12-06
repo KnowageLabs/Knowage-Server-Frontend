@@ -53,7 +53,6 @@ import discoveryWidgetMock from './mocks/DiscoveryWidgetMock.json'
 import selectorWidgetMock from './mocks/SelectorWidgetMock.json'
 import WidgetRenderer from '@/modules/documentExecution/dashboard/widget/WidgetRenderer.vue'
 import deepcopy from 'deepcopy'
-import cryptoRandomString from 'crypto-random-string'
 import appStore from '@/App.store'
 import ActiveSelectionsExample from './examples/ActiveSelectionsExample.vue'
 import WidgetPictureExamples from './examples/WidgetPictureExamples.vue'
@@ -72,7 +71,7 @@ export default defineComponent({
             discoveryModel: {} as any,
             selectorModel: {} as any,
             selectedTheme: {} as IDashboardTheme,
-            chartID: cryptoRandomString({ length: 16, type: 'base64' }),
+            chartID: crypto.randomUUID(),
             chartJSData: { labels: [], datasets: [] } as IChartJSData,
             chartJSOptions: {} as IChartJSOptions
         }

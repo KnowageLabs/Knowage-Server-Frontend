@@ -23,6 +23,7 @@
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <TableWidgetTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></TableWidgetTooltips>
+                <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
@@ -49,6 +50,7 @@ import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
 import TableWidgetTooltips from '../TableWidget/tooltips/TableWidgetTooltips.vue'
+import WidgetSelection from '../common/interactions/selection/WidgetSelection.vue'
 import WidgetCrossNavigation from '../common/interactions/crossNavigation/WidgetCrossNavigation.vue'
 import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import TableWidgetHeaders from '../TableWidget/style/TableWidgetHeaders.vue'
@@ -80,6 +82,7 @@ export default defineComponent({
         WidgetPaddingStyle,
         WidgetBackgroundColorStyle,
         TableWidgetTooltips,
+        WidgetSelection,
         WidgetCrossNavigation,
         WidgetPreview,
         DiscoveryWidgetSettingsAccordionHeader,

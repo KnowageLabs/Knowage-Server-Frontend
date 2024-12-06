@@ -2,6 +2,7 @@ const routes = [
     {
         path: '/mondrian-schemas-management',
         name: 'mondrian-schemas-management',
+        meta: { functionality: 'MondrianSchemaManagement' },
         component: () => import('@/modules/managers/mondrianSchemasManagement/MondrianSchemasManagement.vue'),
         children: [
             {

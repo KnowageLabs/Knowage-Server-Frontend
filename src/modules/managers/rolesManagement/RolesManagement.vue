@@ -111,7 +111,7 @@ export default defineComponent({
                     if (error) {
                         this.store.setError({
                             title: this.$t('common.toast.deleteTitle'),
-                            msg: this.$t('common.error.deleting')
+                            msg: this.$t('managers.rolesManagement.errors.delete')
                         })
                     }
                 })

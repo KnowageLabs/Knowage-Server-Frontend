@@ -26,8 +26,6 @@ import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
-import { useCookies } from 'vue3-cookies'
-import { v4 as uuidv4 } from 'uuid'
 
 export default defineComponent({
     components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
@@ -40,9 +38,8 @@ export default defineComponent({
             menuItemClickedTrigger: false,
             showMenu: false,
             closedMenu: false,
-            pollingInterval: null,
-            stopExecution: false,
-            cookies: null as any
+            pollingInterval: null as any,
+            stopExecution: false
         }
     },
     computed: {
@@ -93,11 +90,6 @@ export default defineComponent({
         }
     },
     async created() {
-        const { cookies } = useCookies()
-        this.cookies = cookies
-        const uuid = uuidv4()
-        cookies.set('X-CSRF-TOKEN', uuid, 0, null, null, null, 'Strict')
-        this.setCSRFToken(uuid)
         const locationParams = new URL(location).searchParams
 
         let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
@@ -155,8 +147,6 @@ export default defineComponent({
                 } else {
                     this.showMenu = true
                 }
-
-                this.setLoading(false)
             })
             .catch((error) => {
                 if (error.response.status === 400) {
@@ -164,30 +154,31 @@ export default defineComponent({
                     this.stopExecution = true
                 } else auth.logout()
             })
+            .finally(() => this.setLoading(false))
         if (this.stopExecution) return
 
-        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then((response: any) => {
+        await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/user-configs').then(async (response: any) => {
             this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
             this.checkOIDCSession(response.data)
-        })
-        if (this.isEnterprise) {
-            if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(await this.themeHelper.getDefaultKnowageTheme())
+            if (this.isEnterprise) {
+                if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
 
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
-                this.setLicenses(response.data)
-            })
-            if (Object.keys(this.theme).length === 0) {
-                this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((response) => {
-                    this.setTheme(response.data.config)
-                    this.themeHelper.setTheme(response.data.config)
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
+                    this.setLicenses(response.data)
                 })
-            } else {
-                this.themeHelper.setTheme(this.theme)
+                if (Object.keys(this.theme).length === 0) {
+                    this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((themes: any) => {
+                        this.setTheme(themes.data.config)
+                        this.themeHelper.setTheme(themes.data.config)
+                    })
+                } else {
+                    this.themeHelper.setTheme(this.theme)
+                }
             }
-        }
 
-        this.onLoad()
+            this.onLoad()
+        })
     },
 
     mounted() {
@@ -223,13 +214,26 @@ export default defineComponent({
                 this.pollingInterval = setInterval(async () => {
                     let url = configs['oidc.session.polling.url']
                     const parametersRegex = /\${(nonce|client_id|redirect_uri|session_state)}/gm
-                    url = url.replace(parametersRegex, (match, parameter) => encodeURIComponent(window.sessionStorage.getItem(parameter)))
-                    await this.$http.get(url).then((response) => {
-                        if (response.status === 302) {
-                            const headerLocation = new URL(response.headers.location)
-                            if (headerLocation.searchParams.get('error')) auth.logout()
-                        }
-                    })
+                    url = url.replace(parametersRegex, (match, parameter) => encodeURIComponent(window.sessionStorage.getItem(parameter) || ''))
+                    await this.$http
+                        .get(url, {
+                            withCredentials: true,
+                            headers: {
+                                'x-session-polling': 'true'
+                            }
+                        })
+                        .then((response) => {
+                            if (response.status === 200) {
+                                const responseURL = new URL(response.request.responseURL)
+                                if (responseURL.searchParams.get('error')) auth.logout()
+                            }
+                        })
+                        .catch((error) => {
+                            if (error.response.request.responseURL) {
+                                const responseURL = new URL(error.response.request.responseURL)
+                                if (responseURL.searchParams.get('error')) auth.logout()
+                            }
+                        })
                 }, configs['oidc.session.polling.interval'] || 15000)
             }
         },
@@ -247,6 +251,7 @@ export default defineComponent({
 
                 this.newsDownloadHandler()
                 this.loadInternationalization()
+                this.setLoading(false)
             })
         },
         async loadInternationalization() {

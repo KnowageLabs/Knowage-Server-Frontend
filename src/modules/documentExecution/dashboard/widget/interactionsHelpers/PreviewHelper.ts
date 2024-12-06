@@ -1,8 +1,8 @@
-import { getChartDynamicParameterValue } from './InteractionLinkHelper';
-import { IDashboardDriver, IWidgetInteractionParameter } from "../../Dashboard";
-import { IChartInteractionValues } from "../../interfaces/chartJS/DashboardChartJSWidget";
+import { getChartDynamicParameterValue } from './InteractionLinkHelper'
+import { IDashboardDriver, IWidgetInteractionParameter } from '../../Dashboard'
+import { IChartInteractionValues } from '../../interfaces/chartJS/DashboardChartJSWidget'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
+import { getActiveSelectionByDatasetAndColumn } from './InteractionHelper'
 
 export const formatParameterForPreview = (event: any, parameter: any, widgetType: string, dashboardId: string) => {
     parameter.value = parameter.defaultValue ?? ''
@@ -18,7 +18,7 @@ export const formatParameterForPreview = (event: any, parameter: any, widgetType
             break
         case 'html':
             formatHTMLWidgetParameterValue(parameter, parameterSettings, event.datasetLabel, dashboardId)
-            break;
+            break
         case 'customchart':
             formatCustomChartParameterValue(parameter, parameterSettings, event.columnValue, dashboardId)
     }
@@ -27,7 +27,6 @@ export const formatParameterForPreview = (event: any, parameter: any, widgetType
 const formatChartParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedChartValues: IChartInteractionValues, dashboardId: string) => {
     updateParameterValue(parameter, parameterSettings, null, formattedChartValues, dashboardId)
 }
-
 
 const formatTableParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedRow: any, dashboardId: string) => {
     updateParameterValue(parameter, parameterSettings, formattedRow, null, dashboardId)
@@ -40,7 +39,6 @@ const formatHTMLWidgetParameterValue = (parameter: any, parameterSettings: IWidg
 const formatCustomChartParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, columnValue: string | number, dashboardId: string) => {
     updateParameterValue(parameter, parameterSettings, null, null, dashboardId)
 }
-
 
 const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteractionParameter, formattedColumnRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string) => {
     const dashStore = dashboardStore()
@@ -61,7 +59,6 @@ const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteract
             break
         case 'selection':
             updateParameterValueFromSelections(parameter, dashboardId)
-
     }
 }
 
@@ -82,10 +79,9 @@ const getFormattedChartDynamicParameterUrl = (parameter: IWidgetInteractionParam
 }
 
 const updateParameterValueFromDriver = (parameter: any, parameterSettings: IWidgetInteractionParameter, driversValuesMap: any) => {
-    if (!parameterSettings.driver || !driversValuesMap[parameterSettings.driver]) return
-    else parameter.value = driversValuesMap[parameter.driver].value
+    if (!parameterSettings.driver || !driversValuesMap[parameterSettings.name]) return
+    else parameter.value = driversValuesMap[parameter.name].value
 }
-
 
 const updateParameterValueFromSelections = (parameter: any, dashboardId: string) => {
     const dashStore = dashboardStore()
@@ -97,6 +93,6 @@ const updateParameterValueFromSelections = (parameter: any, dashboardId: string)
 const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
     if (!drivers) return {}
     const driversValuesMap = {}
-    drivers.forEach((driver: IDashboardDriver) => driversValuesMap[driver.urlName] = { value: driver.value, multivalue: driver.multivalue })
+    drivers.forEach((driver: IDashboardDriver) => (driversValuesMap[driver.urlName] = { value: driver.value, multivalue: driver.multivalue }))
     return driversValuesMap
 }

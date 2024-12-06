@@ -2,6 +2,7 @@ const routes = [
     {
         path: '/alert',
         name: 'alert',
+        meta: { functionality: 'AlertManagement' },
         component: () => import('@/modules/kpi/alertDefinition/AlertDefinition.vue'),
         children: [
             {

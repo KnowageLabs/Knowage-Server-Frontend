@@ -11,7 +11,20 @@ import i18n from '@/App.i18n'
 const { t } = i18n.global
 const mainStore = store()
 
-export const loadFilters = async (initialLoading: boolean, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, document: any, breadcrumbs: any[], userRole: string | null, parameterValuesMap: any, tabKey: string, sessionEnabled: boolean, $http: any, dateFormat: string, route: any, vueComponenet: any) => {
+export const loadFilters = async (
+    initialLoading: boolean,
+    filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean },
+    document: any,
+    breadcrumbs: any[],
+    userRole: string | null,
+    parameterValuesMap: any,
+    tabKey: string,
+    sessionEnabled: boolean,
+    $http: any,
+    dateFormat: string,
+    route: any,
+    vueComponenet: any
+) => {
     if (parameterValuesMap && parameterValuesMap[document.label + '-' + tabKey] && initialLoading) return loadFiltersFromParametersMap(parameterValuesMap, document, tabKey, filtersData, breadcrumbs)
     if (sessionEnabled && !document.navigationParams) {
         const filtersFromSession = loadFiltersFromSession(document, filtersData, breadcrumbs)
@@ -24,7 +37,7 @@ export const loadFilters = async (initialLoading: boolean, filtersData: { filter
     }
 
     filtersData = await getFilters(document, userRole, $http)
-    formatDrivers(filtersData)
+    formatDrivers(filtersData, dateFormat)
 
     if (document.navigationParams || document.formattedCrossNavigationParameters) {
         if (document.navigationFromDashboard) loadNavigationInitialValuesFromDashboard(document, filtersData, dateFormat)
@@ -111,9 +124,9 @@ const getFilters = async (document: any, userRole: string | null, $http: any) =>
     return filtersData
 }
 
-const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean } | null) => {
+const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean } | null, dateFormat: string) => {
     filtersData?.filterStatus?.forEach((el: iParameter) => {
-        if (el.type === 'DATE') formatDateDriver(el)
+        if (el.type === 'DATE') formatDateDriver(el, dateFormat)
         else el.parameterValue = !el.multivalue || (el.valueSelection === 'man_in' && !el.selectionType) ? [{ value: '', description: '' }] : []
 
         if (el.driverDefaultValue?.length > 0) {
@@ -131,7 +144,7 @@ const formatDrivers = (filtersData: { filterStatus: iParameter[]; isReadyForExec
                 }
             })
 
-            formatDateDriver(el)
+            formatDateDriver(el, dateFormat)
         }
 
         if (el.data) {
@@ -157,14 +170,15 @@ const addDefaultEmptyParameterValuesIfNoValuesPresent = (el: iParameter) => {
     if (el.parameterValue[0] && !el.parameterValue[0].description) el.parameterValue[0].description = el.parameterDescription ? el.parameterDescription[0] : ''
 }
 
-const formatDateDriver = (el: any) => {
+const formatDateDriver = (el: any, dateFormat: string) => {
     if (!el.parameterValue || !el.parameterValue[0]) {
         el.parameterValue = [{ value: null, description: '' }]
         return
     }
 
     if (el.type === 'DATE' && !el.selectionType && el.valueSelection === 'man_in' && el.showOnPanel === 'true' && el.visible) {
-        el.parameterValue[0].value = getValidDate('' + el.parameterValue[0].value)
+        el.parameterValue[0].value = getValidDate('' + el.parameterValue[0].value, dateFormat)
+        if (el.driverMaxValue) el.driverMaxValue = getValidDate('' + el.driverMaxValue, dateFormat)
     }
 }
 
@@ -174,7 +188,7 @@ const setFiltersForBreadcrumbItem = (breadcrumbs: any[], filtersData: { filterSt
 }
 
 const formatParameterDataOptions = (parameter: iParameter, data: any) => {
-    if (!parameter.metadata) return { value: data['_col0'] ? data['_col0'] : '', description: data['_col1'] ? data['_col1'] : '' }
+    if (!parameter.metadata) return { value: data['_col0'] ? data['_col0'] : '', description: data['_col1'] ? data['_col1'] : data['_col0'] }
     const valueColumn = parameter.metadata.valueColumn
     const descriptionColumn = parameter.metadata.descriptionColumn
     const valueIndex = Object.keys(parameter.metadata.colsMap).find((key: string) => parameter.metadata.colsMap[key] === valueColumn)
@@ -191,9 +205,17 @@ export const formatDriversUsingDashboardView = (filtersData: { filterStatus: iPa
     filtersData.filterStatus.forEach((driver: iParameter) => {
         const driverFromView = dashboardView.drivers.filterStatus.find((tempDriver: iParameter) => tempDriver.urlName === driver.urlName)
         if (driverFromView) {
-            driver.parameterValue = driverFromView.parameterValue
+            driver.parameterValue = driverFromView.type === 'DATE' ? formatDateDriverFromView(driverFromView.parameterValue) : driverFromView.parameterValue
             if (driverFromView.data) driver.data = driverFromView.data
         }
     })
     updateFiltersDataIsReadyForExecution(filtersData)
+}
+
+const formatDateDriverFromView = (parameterValue: any) => {
+    if (!Array.isArray(parameterValue) || !parameterValue[0]) return []
+    const date = new Date(parameterValue[0].value)
+    if (isNaN(date.getTime())) return []
+    parameterValue[0].value = date
+    return parameterValue
 }

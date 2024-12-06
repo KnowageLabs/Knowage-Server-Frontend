@@ -19,7 +19,6 @@ import KnHint from '@/components/UI/KnHint.vue'
 import AssociationsList from './DatasetEditorAssociationsList/DatasetEditorAssociationsList.vue'
 import AssociationsDetail from './DatasetEditorAssociationsDetail/DatasetEditorAssociationsDetail.vue'
 import mainStore from '../../../../../App.store'
-import cryptoRandomString from 'crypto-random-string'
 
 export default defineComponent({
     name: 'dataset-editor-data-tab',
@@ -63,7 +62,7 @@ export default defineComponent({
             this.selectedDatasets = this.selectedDatasetsProp
         },
         createNewAssociation() {
-            this.selectedAssociation = { fields: [], id: cryptoRandomString({ length: 16, type: 'base64' }) } as IAssociation
+            this.selectedAssociation = { fields: [], id: crypto.randomUUID() } as IAssociation
             this.dashboardAssociations.push(this.selectedAssociation)
             this.$emit('associationSelected', this.selectedAssociation)
         },

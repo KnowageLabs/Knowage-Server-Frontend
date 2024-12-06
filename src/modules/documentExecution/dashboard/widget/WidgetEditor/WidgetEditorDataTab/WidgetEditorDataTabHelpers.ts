@@ -1,11 +1,11 @@
-import { IWidget } from "../../../Dashboard"
-import { createChartJSModel, createNewChartJSSettings } from "../helpers/chartWidget/chartJS/ChartJSHelpers"
-import { createNewHighchartsModel, createNewHighchartsSettings } from "../helpers/chartWidget/highcharts/HighchartsHelpers"
-import { createNewVegaSettings, createVegaModel } from "../helpers/chartWidget/vega/VegaHelpers"
+import { IWidget } from '../../../Dashboard'
+import { createChartJSModel, createNewChartJSSettings } from '../helpers/chartWidget/chartJS/ChartJSHelpers'
+import { createNewHighchartsModel, createNewHighchartsSettings } from '../helpers/chartWidget/highcharts/HighchartsHelpers'
+import { createNewVegaSettings, createVegaModel } from '../helpers/chartWidget/vega/VegaHelpers'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { applyStylesToWidget } from "../../../generalSettings/themes/ThemesHelper"
+import { applyStylesToWidget } from '../../../generalSettings/themes/ThemesHelper'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import { IDashboardTheme } from "@/modules/managers/dashboardThemeManagement/DashboardThememanagement"
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import descriptor from '../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
 
 const dashStore = dashboardStore()
@@ -40,7 +40,7 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
     widget.settings.style = originalChartStyle
     reapplyThemeToChartWidget(widget, selectedThemeName)
 
-    emitter.emit('chartTypeChanged', widget.id)
+    emitter.emit('chartTypeChanged', widget)
     emitter.emit('refreshWidgetWithData', widget.id)
 }
 

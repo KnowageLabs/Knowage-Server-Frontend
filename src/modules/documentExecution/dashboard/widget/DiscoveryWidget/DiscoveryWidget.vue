@@ -25,7 +25,7 @@
                             @click="selectFacet(facetName, row)"
                         >
                             <span class="kn-truncated">
-                                {{ row.column_1 }}
+                                {{ formatFacetValue(row.column_1) }}
                             </span>
                             <div class="facet-chip p-ml-auto kn-truncated">
                                 {{ row.column_2 }}
@@ -54,6 +54,7 @@ import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { createNewTableSelection, formatRowDataForCrossNavigation, getActiveInteractions, getFormattedClickedValueForCrossNavigation } from '../TableWidget/TableWidgetHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
+import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
 import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
 import mainStore from '../../../../../App.store'
@@ -275,6 +276,11 @@ export default defineComponent({
                 this.$emit('facetsChanged')
             }
         },
+        formatFacetValue(value) {
+            const facetPrecision = this.propWidget.settings?.facets?.precision
+            if (!isNaN(Number(value)) && facetPrecision) return formatNumberWithLocale(value, facetPrecision)
+            else return value
+        },
         //#endregion ================================================================================================
 
         //#region ===================== Ag Grid Logic ====================================================
@@ -413,11 +419,14 @@ export default defineComponent({
             return columntooltipConfig
         },
         onCellClicked(node) {
-            if (!this.editorMode) {
+            if (this.editorMode) return
+            if (this.propWidget.settings.interactions?.selection?.enabled) {
                 if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
 
                 updateStoreSelections(createNewTableSelection([node.value], node.colDef.columnName, this.propWidget, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
                 this.gridApi?.refreshCells({ force: true })
+            } else {
+                this.executeInteractions(node)
             }
         },
         executeInteractions(node: any) {

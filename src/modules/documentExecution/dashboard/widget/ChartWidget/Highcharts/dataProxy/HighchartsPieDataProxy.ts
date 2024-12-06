@@ -27,7 +27,6 @@ export const getHighchartsPieData = async (dashboardId, dashboardConfig: IDashbo
         if (itemsLimit && itemsLimit?.enabled) postDataForHash.itemsLimit = itemsLimit // adding pagination in case its being used so we save data for each page
         const dataHash = md5(JSON.stringify(postDataForHash))
         const cachedData = await indexedDB.widgetData.get(dataHash)
-
         if (dashStore.dataProxyQueue[dataHash]) {
             const response = await dashStore.dataProxyQueue[dataHash]
             return response.data
@@ -69,6 +68,7 @@ const formatChartWidgetForGet = (dashboardId: any, dashboardConfig: IDashboardCo
     } as any
 
     dataToSend.aggregations.dataset = dataset.dsLabel
+    dataToSend.options = { solrFacetPivot: true }
 
     addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)

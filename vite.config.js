@@ -1,13 +1,10 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import builtins from 'rollup-plugin-node-builtins'
 import forwardToTrailingSlashPlugin from './forward-to-trailing-slash-plugin.js'
 import { VitePWA } from 'vite-plugin-pwa'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 import loadVersion from 'vite-plugin-package-version'
 import path from 'path'
-
-const builtinsPlugin = { ...builtins({ crypto: true }), name: 'rollup-plugin-node-builtins' }
 
 const build = {
     rollupOptions: {
@@ -25,7 +22,6 @@ export default defineConfig((command, mode) => {
             vue({
                 template: { transformAssetUrls }
             }),
-            builtinsPlugin,
             forwardToTrailingSlashPlugin(Object.keys(build.rollupOptions.input)),
             VitePWA({
                 registerType: 'autoUpdate',
@@ -176,6 +172,7 @@ export default defineConfig((command, mode) => {
             port: 3000,
             host: '127.0.0.1',
             https: env.VITE_HOST_HTTPS === 'true',
+            cors: false,
             proxy: {
                 '^/knowagedossierengine/api/': {
                     target: env.VITE_HOST_URL,

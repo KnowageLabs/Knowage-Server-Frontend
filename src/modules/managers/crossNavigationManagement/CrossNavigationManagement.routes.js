@@ -2,6 +2,7 @@ const routes = [
     {
         path: '/cross-navigation-management',
         name: 'cross-navigation',
+        meta: { functionality: 'ManageCrossNavigation' },
         component: () => import('@/modules/managers/crossNavigationManagement/CrossNavigationManagement.vue'),
         children: [
             {

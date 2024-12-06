@@ -70,7 +70,7 @@
         </template>
         <knMonaco v-model="qbeQuery" style="height: 100%" :options="{ readOnly: true }" language="sql"></knMonaco>
     </Dialog>
-    <QBE v-if="qbeVisible" :visible="qbeVisible" :dataset="qbeDataset" :return-query-mode="true" :get-query-from-dataset-prop="getQueryFromDataset" @querySaved="onQbeDialogSave" @close="onQbeDialogClose" />
+    <QBE v-if="qbeVisible" :visible="qbeVisible" :dataset="qbeDataset" :return-query-mode="true" :from-ds-management="true" :get-query-from-dataset-prop="getQueryFromDataset" @querySaved="onQbeDialogSave" @close="onQbeDialogClose" />
 </template>
 
 <script lang="ts">

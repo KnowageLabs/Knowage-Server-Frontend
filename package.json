@@ -1,6 +1,6 @@
 {
     "name": "knowage-vue",
-    "version": "8.2.0-SNAPSHOT",
+    "version": "9.0.0-SNAPSHOT",
     "description": "Knowage is the professional open source suite for modern business analytics over traditional sources and big data systems.",
     "author": "knowage labs <knowage@eng.it>",
     "type": "module",
@@ -30,9 +30,6 @@
         "caniuse-lite": "^1.0.30001618",
         "chart.js": "^3.7.0",
         "cronstrue": "^2.1.0",
-        "crypto-browserify": "^3.12.0",
-        "crypto-js": "^4.1.1",
-        "crypto-random-string": "^5.0.0",
         "deasync": "^0.1.21",
         "deepcopy": "^2.1.0",
         "dexie": "^3.2.4",

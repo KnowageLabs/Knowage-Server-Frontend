@@ -1,7 +1,7 @@
-import { IWidget, IWidgetColumn } from "@/modules/documentExecution/dashboard/Dashboard"
-import { IDiscoveryWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/DashboardDiscoveryWidget"
-import * as  tableWidgetDefaultValues from '../tableWidget/TableWidgetDefaultValues'
-import * as  discoveryWidgetDefaultValues from './DiscoveryWidgetDefaultValues'
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDiscoveryWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardDiscoveryWidget'
+import * as tableWidgetDefaultValues from '../tableWidget/TableWidgetDefaultValues'
+import * as discoveryWidgetDefaultValues from './DiscoveryWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 
 export const createNewDiscoveryWidgetSettings = () => {
@@ -18,6 +18,7 @@ export const createNewDiscoveryWidgetSettings = () => {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
             link: widgetCommonDefaultValues.getDefaultLinks(),
             preview: widgetCommonDefaultValues.getDefaultPreview(),
+            selection: { enabled: true }
         },
         style: {
             themeName: '',
@@ -48,4 +49,10 @@ export const removeColumnFromDiscoveryWidgetModel = (widgetModel: IWidget, colum
 export const removeColumnNameFromStringArray = (array: string[], columnName: string) => {
     const index = array.findIndex((element: string) => element === columnName)
     if (index !== -1) array.splice(index, 1)
+}
+
+export const formatDashboardDiscoveryWidgetAfterLoading = (widget: IWidget) => {
+    if (!widget || !widget.settings) return
+
+    if (!widget.settings.interactions.selection) widget.settings.interactions.selection = { enabled: true }
 }

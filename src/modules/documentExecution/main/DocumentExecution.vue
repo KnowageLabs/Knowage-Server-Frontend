@@ -74,7 +74,6 @@
                     :visible="filtersData && filtersData.isReadyForExecution && !loading"
                     :document="document"
                     :reload-trigger="reloadTrigger"
-                    :hidden-form-data="document.hiddenFormData"
                     :mode="'dashboard-popup'"
                     :filters-data="filtersData"
                     :new-dashboard-mode="false"
@@ -150,6 +149,7 @@
 
             <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedCockpitView" :document="document" @close="onSaveViewDialogClose"></DashboardSaveViewDialog>
             <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @moveView="moveView" @executeView="executeView"></DashboardSavedViewsDialog>
+            <DatasetEditorPreview v-if="datasetPreviewShown" :visible="datasetPreviewShown" :prop-dataset="datasetToPreview" :dashboard-id="document.dashboardId" @close="datasetPreviewShown = false" />
         </div>
     </div>
 </template>
@@ -196,6 +196,7 @@ import WorkspaceFolderPickerDialog from './dialogs/workspaceFolderPickerDialog/W
 import EnginesConstants from '@/EnginesConstants.json'
 import DashboardSaveViewDialog from '../dashboard/DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 import DashboardSavedViewsDialog from '../dashboard/DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
+import DatasetEditorPreview from '../dashboard/dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 
 let seeAsFinalUserWarning
 // @ts-ignore
@@ -210,13 +211,28 @@ window.execExternalCrossNavigation = function (outputParameters, otherOutputPara
             docLabel: null,
             otherOutputParameters: otherOutputParameters ? [otherOutputParameters] : []
         },
-        '*'
+        location.origin
+    )
+}
+
+// @ts-ignore
+// eslint-disable-next-line
+window.execPreviewDataset = function (dsLabel, parameters, directDownload) {
+    postMessage(
+        {
+            type: 'preview',
+            dsLabel: dsLabel,
+            parameters: parameters,
+            directDownload: directDownload
+        },
+        location.origin
     )
 }
 
 export default defineComponent({
     name: 'document-execution',
     components: {
+        DatasetEditorPreview,
         DocumentExecutionBreadcrumb,
         DocumentExecutionHelpDialog,
         DocumentExecutionRankDialog,
@@ -318,7 +334,10 @@ export default defineComponent({
             cockpitViewForExecution: null as IDashboardView | null,
             dataLoaded: false,
             seeAsFinalUser: false,
-            downloadMode: false
+            downloadMode: false,
+            datasetPreviewShown: false as boolean,
+            datasetToPreview: {} as any,
+            initializePolling: null as any
         }
     },
     computed: {
@@ -395,72 +414,85 @@ export default defineComponent({
         this.parameterSidebarVisible = false
         window.removeEventListener('message', this.iframeEventsListener)
     },
-    async created() {
-        this.setEventListeners()
-        window.addEventListener('message', this.iframeEventsListener)
-
-        if (this.propCrossNavigationPopupDialogDocument) {
-            this.document = this.propCrossNavigationPopupDialogDocument
-            await this.loadUserConfig()
-            this.setMode()
-        } else {
-            if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') return
-            if (this.$route.name === 'new-dashboard') this.newDashboardMode = true
-
-            await this.loadUserConfig()
-            this.isOlapDesignerMode()
-            this.setMode()
-            this.document = { label: this.id }
-            if (this.newDashboardMode)
-                this.breadcrumbs.push({
-                    label: 'new-dashboard',
-                    document: this.document
-                })
-            if (!this.document.label) return
-            if (this.document.label === 'new-dashboard') {
-                this.newDashboardMode = true
-                return
+    async mounted() {
+        this.$q.loading.show()
+        this.initializePolling = setInterval(() => {
+            if (this.configurations && Object.keys(this.configurations).length > 0) {
+                clearInterval(this.initializePolling)
+                this.initialize()
             }
-            await this.loadDocument()
-        }
-
-        if (this.$route.query.viewName) await this.loadView()
-        if (this.$route.query.role) this.userRole = '' + this.$route.query.role
-        else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
-        if (this.$route.query.finalUser) {
-            this.document.seeAsFinalUser = true
-            this.seeAsFinalUser = true
-        }
-
-        let invalidRole = false
-        getCorrectRolesForExecution(this.document).then(async (response: any) => {
-            const correctRolesForExecution = response
-
-            if (!this.userRole) {
-                if (correctRolesForExecution.length == 1) {
-                    this.userRole = correctRolesForExecution[0]
-                } else {
-                    this.parameterSidebarVisible = true
-                }
-            } else if (this.userRole) {
-                if (correctRolesForExecution.length == 1) {
-                    const correctRole = correctRolesForExecution[0]
-                    if (this.userRole !== correctRole) {
-                        this.setError({
-                            title: this.$t('common.error.generic'),
-                            msg: this.$t('documentExecution.main.userRoleError')
-                        })
-                        invalidRole = true
-                    }
-                }
-            }
-            if (!invalidRole && !this.dataLoaded) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
-        })
+        }, 200)
     },
     unmounted() {
         this.removeEventListeners()
     },
     methods: {
+        async initialize() {
+            this.setEventListeners()
+            window.addEventListener('message', this.iframeEventsListener)
+
+            if (this.propCrossNavigationPopupDialogDocument) {
+                this.document = this.propCrossNavigationPopupDialogDocument
+                await this.loadUserConfig()
+                this.setMode()
+            } else {
+                if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') {
+                    this.$q.loading.hide()
+                    return
+                }
+                if (this.$route.name === 'new-dashboard') this.newDashboardMode = true
+
+                await this.loadUserConfig()
+                this.isOlapDesignerMode()
+                this.setMode()
+                this.document = { label: this.id }
+                if (this.newDashboardMode) {
+                    this.breadcrumbs.push({
+                        label: 'new-dashboard',
+                        document: this.document
+                    })
+                }
+                if (!this.document.label) return
+                if (this.document.label === 'new-dashboard') {
+                    this.newDashboardMode = true
+                    return
+                }
+                await this.loadDocument()
+            }
+
+            if (this.$route.query.viewName) await this.loadView()
+            if (this.$route.query.role) this.userRole = '' + this.$route.query.role
+            else this.userRole = this.user?.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user?.sessionRole : null
+            if (this.$route.query.finalUser) {
+                this.document.seeAsFinalUser = true
+                this.seeAsFinalUser = true
+            }
+
+            let invalidRole = false
+            getCorrectRolesForExecution(this.document).then(async (response: any) => {
+                const correctRolesForExecution = response
+
+                if (!this.userRole) {
+                    if (correctRolesForExecution.length == 1) {
+                        this.userRole = correctRolesForExecution[0]
+                    } else {
+                        this.parameterSidebarVisible = true
+                    }
+                } else if (this.userRole) {
+                    if (correctRolesForExecution.length == 1) {
+                        const correctRole = correctRolesForExecution[0]
+                        if (this.userRole !== correctRole) {
+                            this.setError({
+                                title: this.$t('common.error.generic'),
+                                msg: this.$t('documentExecution.main.userRoleError')
+                            })
+                            invalidRole = true
+                        }
+                    }
+                }
+                if (!invalidRole && !this.dataLoaded) this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
+            })
+        },
         canSeeDashboardFunctions() {
             if (this.seeAsFinalUser) return false
             if (!this.user || !this.document) return false
@@ -468,9 +500,53 @@ export default defineComponent({
             else return this.user.functionalities?.includes(UserFunctionalitiesConstants.DOCUMENT_ADMIN_MANAGEMENT) || this.document.creationUser === this.user.userId
         },
         ...mapActions(mainStore, ['setInfo', 'setLoading', 'setError', 'setDocumentExecutionEmbed']),
-        iframeEventsListener(event) {
+
+        prepareDriversAndParameter(parameters: any) {
+            let tempObj = {} as any
+            if (parameters.length > 0) {
+                const tempParams = parameters.map((i) => {
+                    return {
+                        name: i.name,
+                        multiValue: i.multiValue,
+                        value: i.value
+                    }
+                })
+                tempObj.parameters = tempParams
+            }
+            if (this.filtersData?.filterStatus.length > 0) {
+                let tempDrivers = {} as any
+                this.filtersData.filterStatus.forEach((i) => {
+                    tempDrivers[i.urlName] = i.parameterValue.length > 1 ? i.parameterValue.map((p) => p.value) : i.parameterValue[0].value
+                })
+                tempObj.drivers = tempDrivers
+            }
+            return tempObj
+        },
+        async directDownloadDataset(dataset: any) {
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${dataset.id}/csv`, this.prepareDriversAndParameter(dataset.pars), { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
+                .catch(() => {})
+        },
+        async iframeEventsListener(event) {
             if (event.data.type === 'crossNavigation') {
                 executeAngularCrossNavigation(this, event, this.$http)
+            } else if (event.data.type === 'preview') {
+                await this.$http
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/${event.data.dsLabel}`)
+                    .then((response: AxiosResponse<any>) => {
+                        this.datasetToPreview = response.data[0]
+                        if (event.data.parameters && event.data.parameters.length > 0) {
+                            this.datasetToPreview.pars.forEach((i) => {
+                                if (Object.keys(event.data.parameters[0]).includes(i.name)) {
+                                    i.value = event.data.parameters[0][i.name]
+                                }
+                            })
+                        }
+                    })
+                    .catch(() => {})
+                if (event.data.directDownload) this.directDownloadDataset(this.datasetToPreview)
+                else this.datasetPreviewShown = true
             } else if (event.data.type === 'cockpitExecuted') {
                 this.loading = false
             }
@@ -569,6 +645,8 @@ export default defineComponent({
                 await this.asyncExport('pdf')
             } else if (type === 'XLSX' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
                 await this.asyncExport('xlsx')
+            } else if (type === 'PNG' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
+                await this.asyncExport('png')
             } else {
                 const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
@@ -594,7 +672,7 @@ export default defineComponent({
         async exportRegistry(format) {
             this.setLoading(true)
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}`, {
+                .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/1.0/export/registry/${format.includes('xls') ? 'spreadsheet' : format}?SBI_EXECUTION_ID=${this.urlData?.sbiExecutionId}`, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
@@ -640,6 +718,7 @@ export default defineComponent({
             this.loading = true
             this.parameterSidebarVisible = false
             this.schedulationsTableVisible = true
+            this.schedulations = []
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/getSnapshots?id=${this.document.id}`)
                 .then((response: AxiosResponse<any>) => response.data?.schedulers.forEach((el: any) => this.schedulations.push({ ...el, urlPath: response.data.urlPath })))
@@ -685,6 +764,7 @@ export default defineComponent({
             else if (this.$route.path.includes('olap')) this.mode = 'olap'
             else if (this.$route.path.includes('dashboard')) this.mode = 'dashboard'
             else this.mode = 'iframe'
+            this.$q.loading.hide()
         },
         async loadPage(initialLoading = false, documentLabel: string | null = null, crossNavigationPopupMode = false) {
             this.loading = crossNavigationPopupMode ? false : true
@@ -703,9 +783,10 @@ export default defineComponent({
                 this.parameterSidebarVisible = true
             }
             this.updateMode(true)
-            if (this.$route.query.outputType) {
+            if (this.$route.query.outputType && ['png', 'xls', 'xlsx', 'pdf'].includes(this.$route.query.outputType.toLowerCase())) {
                 this.downloadMode = true
-                await this.asyncExport(this.$route.query.outputType)
+                await this.asyncExport(this.$route.query.outputType.toLowerCase())
+                return
             }
             this.loading = false
         },
@@ -779,6 +860,18 @@ export default defineComponent({
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/exporters/${engineLabel}`).then((response: AxiosResponse<any>) => (this.exporters = response.data.exporters))
             }
         },
+        replaceOldFormat(formValue) {
+            return formValue
+                .replace(/{;{(.*)}STRING}/gm, (m, g1) => {
+                    return g1
+                })
+                .split(';')
+        },
+        replaceNullForDates(par, value) {
+            if (value == 'null' && this.filtersData.filterStatus.find((i) => i.urlName === par && i.type === 'DATE')) {
+                return ''
+            } else return value
+        },
         async sendForm(documentLabel: string | null = null, crossNavigationPopupMode = false) {
             const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name) as any
             const documentUrl = this.urlData?.url + '&timereloadurl=' + new Date().getTime()
@@ -810,30 +903,68 @@ export default defineComponent({
             this.hiddenFormData = new URLSearchParams()
 
             for (const k in postObject.params) {
-                const inputElement = document.getElementById('postForm_' + postObject.params.document + k) as any
+                const inputElement = document.getElementById(`postForm_${postObject.params.document}${k}`) as any
                 if (inputElement) {
-                    inputElement.value = decodeURIComponent(postObject.params[k])
-                    inputElement.value = inputElement.value.replace(/\+/g, ' ')
-                    this.hiddenFormData.set(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
+                    if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
+                        var multipleElements = document.getElementsByClassName(`multiple_${k}`)
+                        while (multipleElements.length > 0) {
+                            this.hiddenFormData.delete(k, multipleElements[0].value)
+                            multipleElements[0].parentNode.removeChild(multipleElements[0])
+                        }
+                        var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
+                        tempValues.forEach((i) => {
+                            const element = document.createElement('input')
+                            element.type = 'hidden'
+                            element.id = 'postForm_' + postObject.params.document + k
+                            element.name = k
+                            element.value = this.replaceNullForDates(k, i)
+                            element.classList.add(`multiple_${k}`)
+                            postForm.appendChild(element)
+                            this.hiddenFormData.append(element.name, element.value)
+                        })
+                    } else {
+                        inputElement.value = decodeURIComponent(postObject.params[k])
+                        inputElement.value = inputElement.value.replace(/\+/g, ' ')
+                        inputElement.value = this.replaceNullForDates(k, inputElement.value)
+                        this.hiddenFormData.set(k, inputElement.value)
+                    }
                 } else {
-                    const element = document.createElement('input')
-                    element.type = 'hidden'
-                    element.id = 'postForm_' + postObject.params.document + k
-                    element.name = k
-                    element.value = decodeURIComponent(postObject.params[k])
-                    element.value = element.value.replace(/\+/g, ' ')
-                    postForm.appendChild(element)
-                    this.hiddenFormData.append(k, decodeURIComponent(postObject.params[k]).replace(/\+/g, ' '))
+                    if (this.document.typeCode === 'DASHBOARD' && decodeURIComponent(postObject.params[k]).match(/^{;{/gm)) {
+                        var tempValues = this.replaceOldFormat(decodeURIComponent(postObject.params[k]))
+                        tempValues.forEach((i) => {
+                            const element = document.createElement('input')
+                            element.type = 'hidden'
+                            element.id = 'postForm_' + postObject.params.document + k
+                            element.name = k
+                            element.value = this.replaceNullForDates(k, i)
+                            element.classList.add(`multiple_${k}`)
+                            postForm.appendChild(element)
+                            this.hiddenFormData.append(element.name, element.value)
+                        })
+                    } else {
+                        const element = document.createElement('input')
+                        element.type = 'hidden'
+                        element.id = 'postForm_' + postObject.params.document + k
+                        element.name = k
+                        element.value = decodeURIComponent(postObject.params[k])
+                        element.value = element.value.replace(/\+/g, ' ')
+                        element.value = this.replaceNullForDates(k, element.value)
+                        postForm.appendChild(element)
+                        this.hiddenFormData.append(element.name, element.value)
+                    }
                 }
             }
 
-            for (let i = postForm.elements.length - 1; i >= 0; i--) {
-                const postFormElement = postForm.elements[i].id.replace('postForm_' + postObject.params.document, '')
-                if (!(postFormElement in postObject.params)) {
-                    postForm.removeChild(postForm.elements[i])
-                    this.hiddenFormData.delete(postFormElement)
+            if (this.document.typeCode != 'DASHBOARD') {
+                for (let i = postForm.elements.length - 1; i >= 0; i--) {
+                    const postFormElement = postForm.elements[i].id.replace('postForm_' + postObject.params.document, '')
+                    if (!(postFormElement in postObject.params)) {
+                        postForm.removeChild(postForm.elements[i])
+                        this.hiddenFormData.delete(postFormElement)
+                    }
                 }
             }
+
             this.hiddenFormData.append('documentMode', this.documentMode)
             if (this.document.typeCode === 'DASHBOARD') return
             this.document.typeCode === 'DATAMART' || this.document.typeCode === 'DOSSIER' || this.document.typeCode === 'OLAP' || (['DOCUMENT_COMPOSITE'].includes(this.document.typeCode) && this.mode === 'dashboard') ? await this.sendHiddenFormData() : postForm.submit()
@@ -909,7 +1040,10 @@ export default defineComponent({
                         parameters[parameter.urlName] = parameter.type === 'NUM' && parameter.parameterValue[0].value ? +parameter.parameterValue[0].value : parameter.parameterValue[0].value
                         parameters[parameter.urlName + '_field_visible_description'] = parameter.type === 'NUM' && parameter.parameterValue[0].description ? +parameter.parameterValue[0].description : parameter.parameterValue[0].description
                     } else if (parameter.selectionType === 'TREE' || parameter.selectionType === 'LOOKUP' || parameter.multivalue) {
-                        parameters[parameter.urlName] = parameter.parameterValue.map((el: any) => el.value)
+                        parameters[parameter.urlName] = parameter.parameterValue.map((el: any) => {
+                            if (typeof el.value === 'object') return el.value[0]
+                            else return el.value
+                        })
                         let tempString = ''
                         for (let i = 0; i < parameter.parameterValue.length; i++) {
                             tempString += parameter.parameterValue[i].description
@@ -1206,7 +1340,7 @@ export default defineComponent({
         },
         async onExecuteCrossNavigation(payload: { documentCrossNavigationOutputParameters: ICrossNavigationParameter[]; crossNavigationName: string | undefined; crossNavigations: IDashboardCrossNavigation[] }) {
             this.crossNavigationPayload = payload
-            if (payload.crossNavigations.length === 0) {
+            if (!payload.crossNavigations || payload.crossNavigations.length === 0) {
                 this.setError({
                     title: this.$t('common.error.generic'),
                     msg: this.$t('documentExecution.main.crossNavigationError')

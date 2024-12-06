@@ -54,7 +54,6 @@ import Listbox from 'primevue/listbox'
 import dataListDescriptor from '../../../../dataset/DatasetEditorDataTab/DatasetEditorDataList/DatasetEditorDataListDescriptor.json'
 import KnCalculatedField from '@/components/functionalities/KnCalculatedField/KnCalculatedField.vue'
 import calcFieldDescriptor from './WidgetEditorCalcFieldDescriptor.json'
-import cryptoRandomString from 'crypto-random-string'
 import { AxiosResponse } from 'axios'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
 
@@ -244,7 +243,7 @@ export default defineComponent({
                 this.selectedCalcField.formula = calcFieldOutput.formula
             } else {
                 emitter.emit('addNewCalculatedField', {
-                    id: cryptoRandomString({ length: 16, type: 'base64' }),
+                    id: crypto.randomUUID(),
                     columnName: calcFieldOutput.colName,
                     alias: calcFieldOutput.colName,
                     type: 'java.lang.Double',

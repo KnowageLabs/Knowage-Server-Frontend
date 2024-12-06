@@ -24,7 +24,6 @@ import NoDataToDisplay from 'highcharts/modules/no-data-to-display'
 import SeriesLabel from 'highcharts/modules/series-label'
 import HighchartsHeatmap from 'highcharts/modules/heatmap'
 import Drilldown from 'highcharts/modules/drilldown'
-import cryptoRandomString from 'crypto-random-string'
 import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
@@ -75,7 +74,7 @@ export default defineComponent({
     emits: ['datasetInteractionPreview'],
     data() {
         return {
-            chartID: cryptoRandomString({ length: 16, type: 'base64' }),
+            chartID: crypto.randomUUID(),
             chartModel: {} as IHighchartsChartModel,
             error: false,
             highchartsInstance: {} as any,
@@ -133,6 +132,15 @@ export default defineComponent({
             this.setSeriesEvents()
 
             const modelToRender = this.getModelForRender()
+
+            if (modelToRender.chart.type === 'pie' && modelToRender.plotOptions?.series?.showCheckbox) {
+                modelToRender.series.forEach((series) => {
+                    const isSelected = modelToRender.plotOptions?.series?.showCheckbox
+                    series.selected = isSelected
+                    modelToRender.series[0].data.forEach((point) => (point.selected = isSelected))
+                })
+            }
+
             modelToRender.chart.events = {
                 drillup: this.onDrillUp,
                 click: this.executeInteractions,
@@ -307,10 +315,10 @@ export default defineComponent({
                     point.update(dataLabelOptions)
                 }, false)
             } else if (this.chartModel.chart.type === 'pie') {
-                this.highchartsInstance.series[0].data.forEach((point: any) => {
-                    const dataLabelOptions = point.options.dataLabels
-                    dataLabelOptions.enabled = point.name !== event.item.name || (event.checked && point.name === event.item.name)
-                    point.update(dataLabelOptions)
+                if (!event.item) return
+                this.highchartsInstance.series[0].data.forEach((point: any, index: number) => {
+                    const checkboxValue = event.item.name
+                    if (point.name === checkboxValue) this.highchartsInstance.series[0].data[index].setVisible(event.checked)
                 }, false)
             } else {
                 this.highchartsInstance.series[event.item.columnIndex].data.forEach((point: any) => {

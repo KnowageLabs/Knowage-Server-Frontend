@@ -52,7 +52,6 @@ import HierarchyManagementHierarchiesTargetDialog from './HierarchyManagementHie
 import Tree from 'primevue/tree'
 import deepEqual from 'deep-equal'
 import deepcopy from 'deepcopy'
-import cryptoRandomString from 'crypto-random-string'
 import mainStore from '../../../../../../App.store'
 
 export default defineComponent({
@@ -120,7 +119,7 @@ export default defineComponent({
         formatNodes(tree: any, parent: any) {
             return tree.map((node: any) => {
                 node = {
-                    key: cryptoRandomString({ length: 16, type: 'base64' }),
+                    key: crypto.randomUUID(),
                     id: node.id,
                     label: node.name,
                     children: node.children ?? [],
@@ -232,7 +231,7 @@ export default defineComponent({
 
             if (tempNode) {
                 tempNode.data = node
-                tempNode.key = cryptoRandomString({ length: 16, type: 'base64' })
+                tempNode.key = crypto.randomUUID()
                 tempNode.label = node.name
             }
             this.$emit('treeUpdated', this.nodes)
@@ -242,7 +241,7 @@ export default defineComponent({
 
             const tempNode = this.findNodeInTree(node.parent.key) as any
             node.LEVEL = tempNode.data.LEVEL + 1
-            if (tempNode) tempNode.children.push({ key: cryptoRandomString({ length: 16, type: 'base64' }), id: node.name, label: node.name, children: node.children, data: node, style: this.hierarchyManagementHierarchiesTreeDescriptor.node.style, leaf: node.leaf, parent: tempNode })
+            if (tempNode) tempNode.children.push({ key: crypto.randomUUID(), id: node.name, label: node.name, children: node.children, data: node, style: this.hierarchyManagementHierarchiesTreeDescriptor.node.style, leaf: node.leaf, parent: tempNode })
             this.$emit('treeUpdated', this.nodes)
         },
         copyNode(node: any) {
@@ -390,7 +389,7 @@ export default defineComponent({
                 this.relationsMasterTree.push(newElement)
             }
 
-            parentNode.children.push({ key: cryptoRandomString({ length: 16, type: 'base64' }), id: node.name, label: node.name, children: [], data: node, style: this.hierarchyManagementHierarchiesTreeDescriptor.node.style, leaf: true, parent: parentNode })
+            parentNode.children.push({ key: crypto.randomUUID(), id: node.name, label: node.name, children: [], data: node, style: this.hierarchyManagementHierarchiesTreeDescriptor.node.style, leaf: true, parent: parentNode })
             this.nodeToMove = null
             this.targetForMove = null
             this.$emit('treeUpdated', this.nodes)
@@ -447,7 +446,7 @@ export default defineComponent({
             node.parent = parent
 
             const parentToAdd = this.findNodeInTree(parent.key)
-            parentToAdd.children ? parentToAdd.children.push({ ...node, parentKey: parentToAdd.key, key: cryptoRandomString({ length: 4, type: 'base64' }) }) : (parentToAdd.children = [{ ...node, parentKey: parentToAdd.key, key: cryptoRandomString({ length: 16, type: 'base64' }) }])
+            parentToAdd.children ? parentToAdd.children.push({ ...node, parentKey: parentToAdd.key, key: crypto.randomUUID() }) : (parentToAdd.children = [{ ...node, parentKey: parentToAdd.key, key: crypto.randomUUID() }])
             this.$emit('treeUpdated', this.nodes)
         }
     }

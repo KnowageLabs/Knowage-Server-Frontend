@@ -1,31 +1,5 @@
 <template>
-    <Card>
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start>
-                    {{ $t('kpi.kpiScheduler.executionType') }}
-                </template>
-            </Toolbar>
-        </template>
-        <template #content>
-            <div class="p-field-radiobutton">
-                <RadioButton id="delta-with-update" v-model="schedule.delta" name="delta" :value="true" @click="$emit('touched')" />
-                <label for="delta-with-update">{{ $t('kpi.kpiScheduler.insertAndUpdate') }}</label>
-            </div>
-            <div class="p-field-radiobutton">
-                <RadioButton id="delta-with-delete" v-model="schedule.delta" name="delta" :value="false" @click="$emit('touched')" />
-                <label for="delta-with-delete">{{ $t('kpi.kpiScheduler.deleteAndInsert') }}</label>
-            </div>
-        </template>
-    </Card>
     <Card class="p-mt-2">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start>
-                    {{ $t('kpi.kpiScheduler.logExecution') }}
-                </template>
-            </Toolbar>
-        </template>
         <template #content>
             <DataTable :value="executionList" :paginator="true" :rows-per-page-options="[10, 20, 50]" :rows="10" :loading="loading" class="p-datatable-sm kn-table p-m-1" data-key="id" responsive-layout="stack" breakpoint="960px" data-test="executions-table" @rowClick="showForm($event.data, false)">
                 <template #loading>
@@ -33,11 +7,24 @@
                 </template>
                 <template #header>
                     <div class="table-header">
-                        <div class="p-d-flex p-ai-center">
-                            <span class="p-d-flex p-flex-column p-mr-2">
-                                <label for="numberOfLogs" class="kn-material-input-label"> {{ $t('kpi.kpiScheduler.numberOfExecutions') }}</label>
-                                <InputNumber id="numberOfLogs" v-model="numberOfLogs" input-class="kn-material-input" />
-                            </span>
+                        <div class="row items-center">
+                            <q-select
+                                filled
+                                class="col-md-2 p-mr-2"
+                                v-model="schedule.delta"
+                                emit-value
+                                map-options
+                                :option-label="(option) => (option.label ? $t(option.label) : '')"
+                                option-value="value"
+                                :options="[
+                                    { label: 'kpi.kpiScheduler.insertAndUpdate', value: true },
+                                    { label: 'kpi.kpiScheduler.deleteAndInsert', value: false }
+                                ]"
+                                :label="$t('kpi.kpiScheduler.executionType')"
+                                stack-label
+                                :dense="true"
+                            />
+                            <q-input class="col-md-2 p-mr-2" filled type="number" v-model="numberOfLogs" :label="$t('kpi.kpiScheduler.numberOfExecutions')" stack-label :dense="true" />
                             <Button id="load-button" class="kn-button kn-button--primary" :label="$t('common.load')" @click="loadLogExecutionList"></Button>
                         </div>
                     </div>

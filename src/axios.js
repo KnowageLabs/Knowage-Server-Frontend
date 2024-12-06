@@ -2,6 +2,11 @@ import axios from 'axios'
 //import router from './App.routes.js'
 import mainStore from './App.store.js'
 import authHelper from '@/helpers/commons/authHelper'
+import { useCookies } from 'vue3-cookies'
+import { v4 as uuidv4 } from 'uuid'
+
+const { cookies } = useCookies()
+let uuid = uuidv4()
 
 async function refreshPublicInstance() {
     localStorage.setItem('sessionRefreshPending', true)
@@ -34,11 +39,16 @@ axios.interceptors.request.use(
     async (config) => {
         config.headers.common['Accept'] = 'application/json; charset=utf-8'
         config.headers.common['Content-Type'] = 'application/json; charset=utf-8'
-        config.headers.common['Access-Control-Allow-Origin'] = '*'
-
-        const store = mainStore()
-        if (store.$state.CSRFToken) {
-            config.headers.common['X-CSRF-TOKEN'] = store.$state.CSRFToken
+       // config.headers.common['Access-Control-Allow-Origin'] = '*'
+        if (!config.headers['x-session-polling']) {
+            let CSRFToken = null
+            if (localStorage.getItem('X-CSRF-TOKEN')) CSRFToken = localStorage.getItem('X-CSRF-TOKEN')
+            else {
+                CSRFToken = uuid
+                await localStorage.setItem('X-CSRF-TOKEN', uuid)
+            }
+            await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, true, 'Strict')
+            config.headers.common['X-CSRF-TOKEN'] = CSRFToken
         }
 
         if (localStorage.getItem('public')) {
@@ -48,7 +58,8 @@ axios.interceptors.request.use(
             }
         }
 
-        if (localStorage.getItem('token')) config.headers.common[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
+        if (localStorage.getItem('token') && !config.headers['x-session-polling']) config.headers.common[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
+        if (config.headers['x-session-polling']) delete config.headers['x-session-polling']
         return config
     },
     (error) => {

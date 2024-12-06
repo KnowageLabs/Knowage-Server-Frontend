@@ -70,8 +70,8 @@
                         </span>
                         <InputSwitch v-model="smartView" class="p-mr-2" @change="updateSmartView" :disabled="showWarning" />
                         <span>{{ $t('qbe.viewToolbar.smartView') }}</span>
-                        <i v-show="!smartView" class="fas fa-play p-m-2 kn-cursor-pointer" @click="openPreviewDialog" :disabled="showWarning"></i>
-                        <Button icon="fas fa-ellipsis-v kn-cursor-pointer" class="p-button-text p-button-rounded p-button-plain" @click="showMenu" />
+                        <Button v-show="!smartView" icon="fas fa-play" class="p-button-text p-button-rounded p-button-plain kn-cursor-pointer" v-tooltip.top="$t('common.preview')" @click="openPreviewDialog" :disabled="showWarning" />
+                        <Button icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain kn-cursor-pointer" @click="showMenu" />
                     </template>
                 </Toolbar>
                 <div class="kn-relative kn-flex p-mt-2">
@@ -203,7 +203,6 @@ import calcFieldDescriptor from './QBECalcFieldDescriptor.json'
 import KnCalculatedField from '@/components/functionalities/KnCalculatedField/KnCalculatedField.vue'
 import Dropdown from 'primevue/dropdown'
 import mainStore from '../../App.store'
-import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import { getCorrectRolesForExecution } from '@/helpers/commons/roleHelper'
 
@@ -233,7 +232,7 @@ export default defineComponent({
         KnCalculatedField,
         Dropdown
     },
-    props: { visible: { type: Boolean }, dataset: { type: Object }, returnQueryMode: { type: Boolean }, getQueryFromDatasetProp: { type: Boolean }, sourceDataset: { type: Object } },
+    props: { visible: { type: Boolean }, dataset: { type: Object }, returnQueryMode: { type: Boolean }, getQueryFromDatasetProp: { type: Boolean }, sourceDataset: { type: Object }, fromDsManagement: { type: Boolean, default: false } },
     emits: ['close', 'querySaved'],
     setup() {
         const store = mainStore()
@@ -311,43 +310,45 @@ export default defineComponent({
         }
     },
     async created() {
-        this.uniqueID = cryptoRandomString({ length: 16, type: 'base64' })
+        this.uniqueID = crypto.randomUUID()
         this.user = (this.store.$state as any).user
         this.userRole = this.user.sessionRole && this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
 
         let invalidRole = false
         const dataset = this.dataset ?? this.sourceDataset
-        getCorrectRolesForExecution(null, dataset)
-            .then(async (response: any) => {
-                const correctRolesForExecution = response
+        if (!this.fromDsManagement) {
+            getCorrectRolesForExecution(null, dataset)
+                .then(async (response: any) => {
+                    const correctRolesForExecution = response
 
-                if (!this.userRole) {
-                    if (correctRolesForExecution.length == 1) {
-                        this.userRole = correctRolesForExecution[0]
-                    } else {
-                        this.parameterSidebarVisible = true
-                    }
-                } else if (this.userRole) {
-                    if (correctRolesForExecution.length == 1) {
-                        const correctRole = correctRolesForExecution[0]
-                        if (this.userRole !== correctRole) {
-                            this.$store.commit('setError', {
-                                title: this.$t('common.error.generic'),
-                                msg: this.$t('documentExecution.main.userRoleError')
-                            })
-                            invalidRole = true
+                    if (!this.userRole) {
+                        if (correctRolesForExecution.length == 1) {
+                            this.userRole = correctRolesForExecution[0]
+                        } else {
+                            this.parameterSidebarVisible = true
+                        }
+                    } else if (this.userRole) {
+                        if (correctRolesForExecution.length == 1) {
+                            const correctRole = correctRolesForExecution[0]
+                            if (this.userRole !== correctRole) {
+                                this.$store.commit('setError', {
+                                    title: this.$t('common.error.generic'),
+                                    msg: this.$t('documentExecution.main.userRoleError')
+                                })
+                                invalidRole = true
+                            }
                         }
                     }
-                }
-                if (!invalidRole) {
-                    if (this.userRole) {
-                        await this.loadPage()
-                    } else {
-                        this.parameterSidebarVisible = true
+                    if (!invalidRole) {
+                        if (this.userRole) {
+                            await this.loadPage()
+                        } else {
+                            this.parameterSidebarVisible = true
+                        }
                     }
-                }
-            })
-            .catch(() => this.$emit('close'))
+                })
+                .catch(() => this.$emit('close'))
+        } else await this.loadPage()
     },
     methods: {
         //#region ===================== Load QBE and format data ====================================================
@@ -463,7 +464,7 @@ export default defineComponent({
         },
         generateFieldsAndMetadataId() {
             this.selectedQuery.fields.forEach((field) => {
-                field.uniqueID = cryptoRandomString({ length: 4, type: 'base64' })
+                field.uniqueID = crypto.randomUUID()
                 this.qbeMetadata.find((metadata) => {
                     field.alias === metadata.column ? (metadata.uniqueID = field.uniqueID) : ''
                 })
@@ -744,7 +745,7 @@ export default defineComponent({
                 this.updateExistingCalculatedField(this.selectedCalcField)
             } else {
                 calculatedField = buildCalculatedField(this.selectedCalcField, this.selectedQuery.fields)
-                calculatedField.uniqueID = cryptoRandomString({ length: 4, type: 'base64' })
+                calculatedField.uniqueID = crypto.randomUUID()
                 this.selectedQuery.fields.push(calculatedField)
                 this.addEntityToMainQuery(calculatedField, true)
                 this.addCalculatedFieldMetadata(calculatedField)

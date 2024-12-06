@@ -36,6 +36,7 @@ import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iField, iQuery, iFilter } from '../../QBE'
 import { removeInPlace } from '../qbeAdvancedFilterDialog/treeService'
+import { localeDate } from '@/helpers/commons/localeHelper'
 import Dialog from 'primevue/dialog'
 import KnFabButton from '@/components/UI/KnFabButton.vue'
 import Message from 'primevue/message'
@@ -44,9 +45,9 @@ import QBEFilterDialogDescriptor from './QBEFilterDialogDescriptor.json'
 import QBETemporalFilterDialog from './QBETemporalFilterDialog.vue'
 import QBEFilterParameters from './QBEFilterParameters.vue'
 import mainStore from '../../../../App.store'
-import cryptoRandomString from 'crypto-random-string'
 import deepcopy from 'deepcopy'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import moment from 'moment'
 
 export default defineComponent({
     name: 'qbe-filter-dialog',
@@ -99,7 +100,7 @@ export default defineComponent({
                     this.filters.push({ ...filter })
                 }
             })
-            this.nextFilterIndex = cryptoRandomString({ length: 16, type: 'base64' })
+            this.nextFilterIndex = crypto.randomUUID()
             if (this.filterDialogData.field.type === 'inline.calculated.field') {
                 this.setCalculatedFieldLongDescription(this.filterDialogData.field, this.filterDialogData.field.originalId as string)
             } else if (this.filterDialogData.field.attributes?.type === 'inLineCalculatedField') {
@@ -158,7 +159,7 @@ export default defineComponent({
             }
             if (field) {
                 this.filters.push(filter)
-                this.nextFilterIndex = cryptoRandomString({ length: 16, type: 'base64' })
+                this.nextFilterIndex = crypto.randomUUID()
             }
             this.push(filter)
         },
@@ -237,7 +238,7 @@ export default defineComponent({
                     } as any
                     this.filters.push(tempFilter)
                     this.push(tempFilter)
-                    this.nextFilterIndex = cryptoRandomString({ length: 16, type: 'base64' })
+                    this.nextFilterIndex = crypto.randomUUID()
                 }
             }
             this.temporalFilterDialogVisible = false
@@ -250,7 +251,7 @@ export default defineComponent({
         },
         closeDialog() {
             this.$emit('close')
-            this.nextFilterIndex = cryptoRandomString({ length: 16, type: 'base64' })
+            this.nextFilterIndex = crypto.randomUUID()
             this.updatedParameters = []
             this.parameterTableVisible = false
             this.removeFiltersOnCancel()
@@ -262,11 +263,29 @@ export default defineComponent({
             })
         },
         save() {
+            this.formatManualDatesFiltersForSave()
             if (this.propParameters.length > 0 && !this.parameterTableVisible && this.filterUsesParameters()) {
                 this.parameterTableVisible = true
             } else {
                 this.$emit('save', this.filters, this.filterDialogData?.field, this.updatedParameters, this.expression)
                 this.parameterTableVisible = false
+            }
+        },
+        formatManualDatesFiltersForSave() {
+            this.filters?.forEach((filter: iFilter) => {
+                const field = this.filterDialogData?.field as any
+                const isDateOrTimestamp = ['DATE', 'TIMESTAMP'].includes(field?.id?.type)
+                if (isDateOrTimestamp) this.formatManualDate(filter)
+            })
+        },
+        formatManualDate(filter: iFilter) {
+            const serverFormat = 'DD/MM/YYYY hh:mm'
+            const format = localeDate().replace(/yyyy/g, 'YYYY').replace(/dd/g, 'DD').replace(/d/g, 'D').replace(/MM/g, 'MM').replace(/M/g, 'M').replace(/hh/g, 'HH').replace(/mm/g, 'mm').replace(/ss/g, 'ss').replace(/SSS/g, 'SSS')
+            const momentDate = moment(filter.rightOperandDescription, format, true)
+
+            if (momentDate.isValid()) {
+                const formattedDate = momentDate.format(serverFormat)
+                filter.rightOperandDescription = formattedDate
             }
         },
         onParametersUpdated(updatedParameters: any[]) {
