@@ -52,6 +52,7 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
 
     setPiePlotOptions() {
         this.model.plotOptions.pie = highchartsDefaultValues.getDafaultPieChartPlotOptions()
+        this.model.plotOptions.series.showCheckbox = this.model.plotOptions.series.showCheckbox ?? true
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
