@@ -263,6 +263,7 @@ export default defineComponent({
             })
         },
         save() {
+            this.formatManualDatesFiltersForSave()
             if (this.propParameters.length > 0 && !this.parameterTableVisible && this.filterUsesParameters()) {
                 this.parameterTableVisible = true
             } else {
