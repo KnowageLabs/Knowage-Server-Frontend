@@ -46,11 +46,6 @@ const baseRoutes = [
         props: (route) => ({ url: route.fullPath })
     },
     {
-        path: `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/2.0/installconfig`,
-        component: IframeRenderer,
-        props: (route) => ({ url: route.fullPath })
-    },
-    {
         path: `${import.meta.env.VITE_KNOWAGE_CONTEXT}/themes:catchAll(.*)`,
         component: IframeRenderer,
         props: (route) => ({ url: route.fullPath })
