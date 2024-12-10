@@ -111,6 +111,8 @@ export default defineComponent({
             this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export/dataset?showAll=true').then(
                 (response: AxiosResponse<any>) => {
                     this.downloadsList = response.data
+                    let unRead = response.data.filter((i) => i.alreadyDownloaded)
+                    this.setDownloads({ count: { total: response.data.length, alreadyDownloaded: unRead.length } })
                 },
                 (error) => console.error(error)
             )
@@ -141,7 +143,7 @@ export default defineComponent({
             this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/export').then(
                 () => {
                     this.downloadsList = []
-                    this.setDownloads({ count: { total: 0, unRead: 0 } })
+                    this.setDownloads({ count: { total: 0, alreadyDownloaded: 0 } })
                     this.closeDialog()
                 },
                 (error) => console.error(error)

@@ -230,7 +230,7 @@ export default defineComponent({
                             }
                         })
                         .catch((error) => {
-                            if (error.response.request.responseURL) {
+                            if (error.response?.request?.responseURL) {
                                 const responseURL = new URL(error.response.request.responseURL)
                                 if (responseURL.searchParams.get('error')) auth.logout()
                             }
