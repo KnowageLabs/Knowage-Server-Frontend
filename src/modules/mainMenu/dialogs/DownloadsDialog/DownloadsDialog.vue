@@ -1,5 +1,11 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary RoleDialog" :visible="visibility" footer="footer" :header="$t('downloadsDialog.title')" :closable="false" modal>
+    <Dialog class="kn-dialog--toolbar--primary downloadsDialog" :visible="visibility" footer="footer" :closable="false" modal>
+        <template #header>
+            <span>{{ $t('downloadsDialog.title') }}</span>
+            <q-btn v-if="showRefresh" flat size="sm" round icon="refresh" @click="getDownloads">
+                <q-tooltip>{{ $t('common.refresh') }}</q-tooltip>
+            </q-btn>
+        </template>
         <q-table class="downloadTable" flat dense :pagination="{ rowsPerPage: 10, sortBy: 'startDate', descending: true }" :rows="downloadsList" :columns="columnDefs" row-key="startDate">
             <template #body-cell-download="props">
                 <q-td :props="props">
@@ -24,7 +30,7 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
 import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
-import { mapActions } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
 
 interface Download {
@@ -82,6 +88,14 @@ export default defineComponent({
     mounted() {
         this.getDownloads()
     },
+    computed: {
+        ...mapState(mainStore, {
+            configurations: 'configurations'
+        }),
+        showRefresh() {
+            return this.configurations['KNOWAGE.DOWNLOAD.MANUAL_REFRESH']
+        }
+    },
     methods: {
         ...mapActions(mainStore, ['updateAlreadyDownloadedFiles', 'setDownloads']),
         closeDialog() {
@@ -136,9 +150,14 @@ export default defineComponent({
     }
 })
 </script>
-<style lang="scss" scoped>
-.downloadTable {
-    min-width: 500px;
-    max-width: 80%;
+<style lang="scss">
+.downloadsDialog {
+    .p-dialog-header-icons {
+        display: none !important;
+    }
+    .downloadTable {
+        min-width: 500px;
+        max-width: 80%;
+    }
 }
 </style>
