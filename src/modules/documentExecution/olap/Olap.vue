@@ -1,5 +1,5 @@
 <template>
-    <div class="p-d-flex p-flex-column kn-flex kn-height-full">
+    <div class="p-d-flex p-flex-column kn-flex kn-height-full olap">
         <ProgressSpinner v-if="loading" class="kn-progress-spinner" />
 
         <OlapCustomViewTable v-if="customViewVisible" class="olap-overlay-dialog" :olap-custom-views="olapCustomViews" @close="$emit('closeOlapCustomView')" @applyCustomView="$emit('applyCustomView', $event)" />
@@ -1170,6 +1170,78 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+.olap {
+    .drill-up {
+        background-image: url('/images/olap/minus.gif');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.8rem;
+        width: 0.8rem;
+        float: left;
+    }
+
+    .drill-down {
+        background-image: url('/images/olap/plus.gif');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.8rem;
+        width: 0.8rem;
+        float: left;
+    }
+
+    .drill-up-replace {
+        background-image: url('/images/olap/arrow-up.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.8rem;
+        width: 0.8rem;
+        float: left;
+    }
+
+    .sort-basic {
+        background-image: url('/images/olap/noSortRows.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.8rem;
+        width: 0.8rem;
+        float: left;
+    }
+
+    .sort-asc {
+        background-image: url('/images/olap/ASC-rows.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.8rem;
+        width: 0.8rem;
+        float: left;
+    }
+
+    .sort-desc {
+        background-image: url('/images/olap/DESC-rows.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.8rem;
+        width: 0.8rem;
+        float: left;
+    }
+    .cell-cross-navigation {
+        background-image: url('/images/olap/cross-navigation.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.8rem;
+        width: 0.8rem;
+        float: left;
+    }
+
+    .drillthrough {
+        background-image: url('/images/olap/ico_search.gif');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.8rem;
+        width: 0.8rem;
+        float: left;
+    }
+}
 .olap-overlay-dialog {
     position: absolute;
     z-index: 300;
@@ -1205,78 +1277,6 @@ export default defineComponent({
 
 .olap-sidebar {
     margin-left: auto;
-}
-
-.drill-up {
-    background-image: url('/images/olap/minus.gif');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 0.8rem;
-    width: 0.8rem;
-    float: left;
-}
-
-.drill-down {
-    background-image: url('/images/olap/plus.gif');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 0.8rem;
-    width: 0.8rem;
-    float: left;
-}
-
-.drill-up-replace {
-    background-image: url('/images/olap/arrow-up.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 0.8rem;
-    width: 0.8rem;
-    float: left;
-}
-
-.sort-basic {
-    background-image: url('/images/olap/noSortRows.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 0.8rem;
-    width: 0.8rem;
-    float: left;
-}
-
-.sort-asc {
-    background-image: url('/images/olap/ASC-rows.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 0.8rem;
-    width: 0.8rem;
-    float: left;
-}
-
-.sort-desc {
-    background-image: url('/images/olap/DESC-rows.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 0.8rem;
-    width: 0.8rem;
-    float: left;
-}
-
-.cell-cross-navigation {
-    background-image: url('/images/olap/cross-navigation.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 0.8rem;
-    width: 0.8rem;
-    float: left;
-}
-
-.drillthrough {
-    background-image: url('/images/olap/ico_search.gif');
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 0.8rem;
-    width: 0.8rem;
-    float: left;
 }
 
 .kn-olap-table {
