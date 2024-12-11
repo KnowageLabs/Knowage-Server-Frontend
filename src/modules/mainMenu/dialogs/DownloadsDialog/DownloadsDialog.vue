@@ -158,7 +158,7 @@ export default defineComponent({
         display: none !important;
     }
     .downloadTable {
-        min-width: 500px;
+        min-width: 600px;
         max-width: 80%;
     }
 }
