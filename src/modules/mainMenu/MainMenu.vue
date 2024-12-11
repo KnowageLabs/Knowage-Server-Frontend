@@ -104,6 +104,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(mainStore, {
+            configurations: 'configurations',
             user: 'user',
             downloads: 'downloads',
             locale: 'locale',
@@ -152,7 +153,7 @@ export default defineComponent({
         },
         isItemToDisplay(item) {
             if (item.conditionedView) {
-                if (item.conditionedView === 'downloads' && this.downloads && this.downloads.count.total > 0) return true
+                if (this.configurations['KNOWAGE.DOWNLOAD.MANUAL_REFRESH'] || (item.conditionedView === 'downloads' && this.downloads && this.downloads.count.total > 0)) return true
                 if (item.conditionedView === 'news' && this.news && this.news.count.total > 0) return true
                 if (item.conditionedView === 'roleSelection' && this.user && this.user.roles && this.user.roles.length > 1) return true
                 return false

@@ -47,6 +47,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(mainStore, {
+            configurations: 'configurations',
             error: 'error',
             info: 'info',
             warning: 'warning',
@@ -244,7 +245,7 @@ export default defineComponent({
 
                 this.setDownloads(json.downloads)
 
-                this.newsDownloadHandler()
+                if (!this.configurations['KNOWAGE.WEBSOCKET.DISABLE']) this.newsDownloadHandler()
                 this.loadInternationalization()
                 this.setLoading(false)
             })
