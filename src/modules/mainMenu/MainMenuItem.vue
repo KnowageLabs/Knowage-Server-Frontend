@@ -1,5 +1,5 @@
 <template>
-    <li role="menu" :style="[item.style, getVisibilityClass(item)]" :title="getInternationalizedValue()">
+    <li role="menu" :style="item.style" :title="getInternationalizedValue()" v-if="!item.conditionedView || item.visible">
         <router-link v-if="item.to && !item.disabled" v-slot="{ navigate, isActive }" :to="cleanTo" custom exact>
             <a role="menuitem" :class="isActive && 'router-link-active'" @click="onClick($event, navigate)">
                 <Badge v-if="badge > 0" :value="badge" severity="danger"></Badge>
@@ -55,11 +55,6 @@ export default defineComponent({
             this.openedLi = !this.openedLi
         },
 
-        getVisibilityClass(item) {
-            if (!item.conditionedView) return true
-
-            return !item.visible ? 'display:none' : ''
-        },
         getInternationalizedValue(): string {
             const value = this.item.descr ? this.item.descr : this.item.label
             if (this.internationalize) {

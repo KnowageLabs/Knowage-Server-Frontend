@@ -160,7 +160,7 @@ export default defineComponent({
         },
         isItemToDisplay(item) {
             if (item.conditionedView) {
-                if (this.configurations['KNOWAGE.DOWNLOAD.MANUAL_REFRESH'] || (item.conditionedView === 'downloads' && this.downloads && this.downloads.count.total > 0)) return true
+                if ((item.conditionedView === 'downloads' && this.configurations['KNOWAGE.DOWNLOAD.MANUAL_REFRESH']) || (item.conditionedView === 'downloads' && this.downloads && this.downloads.count.total > 0)) return true
                 if (item.conditionedView === 'news' && this.news && this.news.count.total > 0) return true
                 if (item.conditionedView === 'roleSelection' && this.user && this.user.roles && this.user.roles.length > 1) return true
                 return false
@@ -224,14 +224,8 @@ export default defineComponent({
         updateNewsAndDownload() {
             for (const idx in this.allowedUserFunctionalities) {
                 const menu = this.allowedUserFunctionalities[idx] as any
-                if (menu.conditionedView) {
-                    if (menu.conditionedView === 'downloads') {
-                        menu.visible = this.downloads.count.total > 0
-                    } else if (menu.conditionedView === 'news') {
-                        menu.visible = this.news.count.total > 0
-                    }
-                    menu.badge = this.getBadgeValue(menu)
-                }
+                menu.visible = this.isItemToDisplay(menu)
+                menu.badge = this.getBadgeValue(menu)
             }
         },
         getBadgeValue(item) {
