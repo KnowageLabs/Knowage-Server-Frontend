@@ -21,7 +21,6 @@ import Toast from 'primevue/toast'
 import { defineComponent } from 'vue'
 import mainStore from '@/App.store'
 import { mapState, mapActions } from 'pinia'
-import WEB_SOCKET from '@/services/webSocket.js'
 import themeHelper from '@/helpers/themeHelper/themeHelper'
 import { primeVueDate, getLocale } from '@/helpers/commons/localeHelper'
 import { loadLanguageAsync } from '@/App.i18n.js'
@@ -245,7 +244,6 @@ export default defineComponent({
 
                 this.setDownloads(json.downloads)
 
-                if (!this.configurations['KNOWAGE.WEBSOCKET.DISABLE']) this.newsDownloadHandler()
                 this.loadInternationalization()
                 this.setLoading(false)
             })
@@ -262,43 +260,6 @@ export default defineComponent({
             currLanguage += splittedLanguage[1].toUpperCase()
 
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/i18nMessages/internationalization?currLanguage=' + currLanguage).then((response) => this.setInternationalization(response.data))
-        },
-        newsDownloadHandler() {
-            console.log('Starting connection to WebSocket Server')
-
-            WEB_SOCKET.update = (event) => {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        this.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        this.setDownloads(json.downloads)
-                    }
-                }
-            }
-            WEB_SOCKET.onopen = (event) => {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        this.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        this.setDownloads(json.downloads)
-                    }
-                }
-            }
-            WEB_SOCKET.onmessage = (event) => {
-                if (event.data) {
-                    const json = JSON.parse(event.data)
-                    if (json.news) {
-                        this.setNews(json.news)
-                    }
-                    if (json.downloads) {
-                        this.setDownloads(json.downloads)
-                    }
-                }
-            }
         },
         setSelectedMenuItem(menuItem) {
             this.selectedMenuItem = menuItem

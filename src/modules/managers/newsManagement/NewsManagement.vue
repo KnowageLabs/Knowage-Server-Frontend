@@ -54,7 +54,6 @@ import { AxiosResponse } from 'axios'
 import FabButton from '@/components/UI/KnFabButton.vue'
 import Listbox from 'primevue/listbox'
 import newsManagementDescriptor from './NewsManagementDescriptor.json'
-import WEB_SOCKET from '@/services/webSocket.js'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
@@ -136,9 +135,7 @@ export default defineComponent({
             })
             return responseOk
         },
-        deleteNewsWebSocket(news) {
-            WEB_SOCKET.send(JSON.stringify(news))
-        },
+        deleteNewsWebSocket(news) {},
         pageReload() {
             this.touched = false
             this.loadAllNews()

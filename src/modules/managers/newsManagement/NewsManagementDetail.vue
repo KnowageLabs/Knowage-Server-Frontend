@@ -22,7 +22,6 @@ import { AxiosResponse } from 'axios'
 import NewsDetailCard from './cards/NewsDetailCard/NewsDetailCard.vue'
 import newsManagementDetailDescriptor from './NewsManagementDetailDescriptor.json'
 import RolesCard from './cards/RolesCard/RolesCard.vue'
-import WEB_SOCKET from '@/services/webSocket.js'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
@@ -107,7 +106,6 @@ export default defineComponent({
                         msg: this.$t(this.newsManagementDetailDescriptor.operation.success)
                     })
                     this.$emit('inserted')
-                    WEB_SOCKET.send(JSON.stringify(this.selectedNews))
                     this.$router.replace('/news-management')
                 })
                 .catch(() => {})
