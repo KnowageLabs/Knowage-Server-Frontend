@@ -554,7 +554,7 @@ export default defineComponent({
         getExportedDatasources() {
             const exportingDatasources = [] as any
             for (const key in this.importData.datasources.associatedDatasources) {
-                if (this.importData.datasources.associatedDatasources[key]) exportingDatasources.push({ datasourceAssociateId: this.importData.datasources.associatedDatasources[key].id, expDatasourceId: key })
+                if (this.importData.datasources.associatedDatasources[key]) exportingDatasources.push({ datasourceAssociateId: this.importData.datasources.associatedDatasources[key].id || this.importData.datasources.associatedDatasources[key].dsId, expDatasourceId: key })
             }
 
             return exportingDatasources
