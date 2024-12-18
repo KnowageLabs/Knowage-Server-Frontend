@@ -155,5 +155,5 @@ const extractDateFormatPart = (dateString: string) => {
     if (dateString.includes('#')) {
         return dateString.split('#')[1]
     }
-    return dateString
+    return null
 }
