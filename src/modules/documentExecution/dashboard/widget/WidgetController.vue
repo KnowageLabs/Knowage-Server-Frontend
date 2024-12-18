@@ -355,7 +355,13 @@ export default defineComponent({
         },
         async reloadWidgetData(associativeResponseSelections: any) {
             this.widgetLoading = true
-            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeResponseSelections)
+            let associativeSelectionsFromStore = null
+            if (!associativeResponseSelections) {
+                this.getSelectionsFromStore()
+                if (this.widgetModel.type === 'selection') return
+                associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
+            }
+            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeResponseSelections ?? associativeSelectionsFromStore)
             this.widgetLoading = false
         },
         widgetUsesSelections(selections: ISelection[]) {
