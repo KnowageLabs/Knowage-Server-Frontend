@@ -1,36 +1,22 @@
 <template>
     <Card :style="tabViewDescriptor.card.style">
         <template #content>
-            <form class="p-fluid p-m-5">
-                <div class="p-field" :style="tabViewDescriptor.pField.style">
-                    <span class="p-float-label">
-                        <InputText
-                            id="TENANT_NAME"
-                            v-model.trim="v$.tenant.TENANT_NAME.$model"
-                            class="kn-material-input"
-                            type="text"
-                            :disabled="disableField"
-                            :class="{
-                                'p-invalid': v$.tenant.TENANT_NAME.$invalid && v$.tenant.TENANT_NAME.$dirty
-                            }"
-                            max-length="20"
-                            data-test="name-input"
-                            @blur="v$.tenant.TENANT_NAME.$touch()"
-                            @input="onFieldChange('TENANT_NAME', $event.target.value)"
-                        />
-                        <label for="TENANT_NAME" class="kn-material-input-label"> {{ $t('common.name') }} * </label>
-                    </span>
-                    <KnValidationMessages
-                        :v-comp="v$.tenant.TENANT_NAME"
-                        :additional-translate-params="{
-                            fieldName: $t('common.name')
-                        }"
-                    />
-                </div>
+            <form class="p-fluid q-ma-md">
+                <q-input
+                    filled
+                    class="q-mb-md"
+                    v-model="tenant.TENANT_NAME"
+                    :label="$t('managers.tenantManagement.detail.name')"
+                    :disable="disableField"
+                    reactive-rules
+                    ref="tenantName"
+                    :rules="[(val) => val.match(/^[a-zA-Z0-9_]+$/) || $t('common.validation.regex'), (val) => !!val || $t('common.validation.required', { fieldName: $t('managers.tenantManagement.detail.name') })]"
+                    @update:model-value="(value) => onFieldChange('TENANT_NAME', value)"
+                />
                 <div class="p-col-12 kn-height-full">
-                    <label class="kn-material-input-label">Tenant Logo</label>
+                    <label class="kn-material-input-label">{{ $t('managers.tenantManagement.detail.logo') }}</label>
                     <div>
-                        <small>The company/product logo, visible on the menu bar. If not present the default Knowage "K" will be shown.</small>
+                        <small>{{ $t('managers.tenantManagement.detail.logoHint') }}</small>
                     </div>
 
                     <div class="imageContainer p-d-flex p-jc-center p-ai-center">
@@ -43,9 +29,9 @@
                     </div>
                 </div>
                 <div class="p-col-12 kn-height-full">
-                    <label class="kn-material-input-label">Tenant Logo Wide</label>
+                    <label class="kn-material-input-label">{{ $t('managers.tenantManagement.detail.logoWide') }}</label>
                     <div>
-                        <small>This logo will be used within dashboards XLSX exports. If no image is provided it will not be visible in those instances. The images should be below 200KB and in jpg or png format.</small>
+                        <small>{{ $t('managers.tenantManagement.detail.logoWideHint') }}</small>
                     </div>
 
                     <div class="imageContainerExtended p-d-flex p-jc-center p-ai-center">
@@ -64,13 +50,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { createValidations } from '@/helpers/commons/validationHelper'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
-import useValidate from '@vuelidate/core'
 import tabViewDescriptor from '../TenantManagementTabViewDescriptor.json'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-import tenantDetailValidationDescriptor from './TenantDetailValidationDescriptor.json'
 import { iTenant } from '../../TenantManagement'
 import { AxiosResponse } from 'axios'
 import mainStore from '../../../../../App.store'
@@ -94,8 +77,6 @@ export default defineComponent({
     data() {
         return {
             tabViewDescriptor,
-            tenantDetailValidationDescriptor,
-            v$: useValidate() as any,
             tenant: {} as iTenant,
             themes: [] as any
         }
@@ -106,14 +87,8 @@ export default defineComponent({
             return false
         }
     },
-    validations() {
-        return {
-            tenant: createValidations('tenant', tenantDetailValidationDescriptor.validations.tenant)
-        }
-    },
     watch: {
         async selectedTenant() {
-            this.v$.$reset()
             this.tenant = { ...this.selectedTenant } as iTenant
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant/${this.tenant.TENANT_NAME}/logo`).then((response: AxiosResponse<any>) => {
                 this.tenant.TENANT_IMAGE = response.data
@@ -126,7 +101,7 @@ export default defineComponent({
             this.themes = [...(this.listOfThemes as any[])]
         }
     },
-    created() {
+    updated() {
         if (this.selectedTenant && Object.keys(this.selectedTenant).length > 0) {
             this.tenant = { ...this.selectedTenant } as iTenant
         } else {
@@ -134,6 +109,7 @@ export default defineComponent({
             this.tenant.TENANT_THEME = 'sbi_default'
         }
         if (this.listOfThemes) this.themes = [...this.listOfThemes] as any
+        this.$refs.tenantName?.resetValidation()
     },
     methods: {
         ...mapActions(mainStore, ['setError']),
@@ -152,7 +128,6 @@ export default defineComponent({
             )
             if (event.srcElement.files[0] && event.srcElement.files[0].size < import.meta.env.VITE_MAX_UPLOAD_IMAGE_SIZE) {
                 reader.readAsDataURL(event.srcElement.files[0])
-                this.v$.$touch()
             } else this.setError({ title: this.$t('common.error.uploading'), msg: this.$t('common.error.exceededSize', { size: '(200KB)' }) })
         },
 
@@ -168,7 +143,6 @@ export default defineComponent({
             )
             if (event.srcElement.files[0] && event.srcElement.files[0].size < import.meta.env.VITE_MAX_UPLOAD_IMAGE_SIZE) {
                 reader.readAsDataURL(event.srcElement.files[0])
-                this.v$.$touch()
             } else this.setError({ title: this.$t('common.error.uploading'), msg: this.$t('common.error.exceededSize', { size: '(200KB)' }) })
         }
     }

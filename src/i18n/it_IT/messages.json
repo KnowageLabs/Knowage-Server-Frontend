@@ -2999,6 +2999,7 @@
                 "title": "Data Source"
             },
             "detail": {
+                "name": "Nome del tenant",
                 "theme": "Theme",
                 "title": "Detail"
             },

@@ -66,6 +66,26 @@
         .p-paginator-bottom {
             flex: 1;
         }
+        .p-selection-column,
+        .p-column-header-content {
+            .p-checkbox {
+                .p-checkbox-box.p-highlight .p-checkbox-icon.pi-check:before {
+                    top: 8px;
+                    left: 2px;
+                }
+                &:not(.p-checkbox-disabled) {
+                    box-shadow: none !important;
+                    &:hover {
+                        .p-checkbox-box {
+                            background-color: #ccc;
+                        }
+                    }
+                }
+            }
+        }
+        .p-selection-column {
+            margin-left: 3px;
+        }
     }
 
     .p-button {
