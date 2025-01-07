@@ -109,7 +109,7 @@ const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxW
 
 export const cloneWidgetInSheet = (widget: IWidget, dashboard: IDashboard, selectedSheet: IDashboardSheet) => {
     const clonedWidget = deepcopy(widget)
-    clonedWidget.id = cryptoRandomString({ length: 16, type: 'base64' })
+    clonedWidget.id = crypto.randomUUID()
     recreateKnowageChartModel(clonedWidget)
     const originalWidgetSheetItem = findOriginalWidgetInSheet(widget, selectedSheet)
     const clonedWidgetSheetItem = createDashboardSheetWidgetItem(clonedWidget)
