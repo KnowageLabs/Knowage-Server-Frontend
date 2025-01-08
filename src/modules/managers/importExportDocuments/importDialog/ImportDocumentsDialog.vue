@@ -332,9 +332,6 @@
             </q-step>
             <template #navigation>
                 <q-stepper-navigation class="p-d-flex p-flex-row">
-                    <!-- <q-btn @click="$refs.stepper.next()" color="primary" :label="step === 4 ? 'Finish' : 'Continue'" />
-                    <q-btn v-if="step > 1" flat color="primary" @click="$refs.stepper.previous()" label="Back" class="q-ml-sm" /> -->
-
                     <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
                     <span class="p-ml-auto">
                         <Button v-if="step > 1" class="kn-button kn-button--secondary" :label="$t('common.back')" @click=";($refs.stepper as any).previous()" />
@@ -445,7 +442,6 @@ export default defineComponent({
                 })
                 .finally(() => {
                     this.store.setLoading(false)
-                    // this.toggleExportDialog()
                 })
         },
         //Step 2
@@ -516,7 +512,6 @@ export default defineComponent({
                 })
                 .finally(() => {
                     this.store.setLoading(false)
-                    // this.toggleExportDialog()
                 })
         },
         getExportedEngines() {
@@ -548,7 +543,6 @@ export default defineComponent({
                 })
                 .finally(() => {
                     this.store.setLoading(false)
-                    // this.toggleExportDialog()
                 })
         },
         getExportedDatasources() {
@@ -573,6 +567,12 @@ export default defineComponent({
                         this.importData.logFileName = response.data.logFileName
                         this.importData.folderName = response.data.folderName
 
+                        if(response.data?.WARNING?.length > 0){
+                            response.data.WARNING.forEach((i)=>{
+                                this.store.setWarning({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.$tc(i.MESSAGE,i.PARAMETERS.length,{category:i.PARAMETERS.toString()})}` })
+                            })
+                        }
+
                         this.store.setInfo({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.importData.logFileName}` })
                         this.closeDialog()
                     }
@@ -583,7 +583,6 @@ export default defineComponent({
                 })
                 .finally(() => {
                     this.store.setLoading(false)
-                    // this.toggleExportDialog()
                 })
         }
     }
