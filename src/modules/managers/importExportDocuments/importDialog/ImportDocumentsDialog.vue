@@ -567,8 +567,8 @@ export default defineComponent({
                         this.importData.logFileName = response.data.logFileName
                         this.importData.folderName = response.data.folderName
 
-                        if(response.data?.WARNING?.length > 0){
-                            response.data.WARNING.forEach((i)=>{
+                        if(response.data?.warnings?.length > 0){
+                            response.data.warnings.forEach((i)=>{
                                 this.store.setWarning({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.$tc(i.MESSAGE,i.PARAMETERS.length,{category:i.PARAMETERS.toString()})}` })
                             })
                         }
