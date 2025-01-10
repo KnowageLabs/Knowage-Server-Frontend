@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { formatDate } from '@/helpers/commons/localeHelper'
+import { formatDateLuxon } from '@/helpers/commons/localeHelper'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import QBEPreviewDialogDescriptor from './QBEPreviewDialogDescriptor.json'
@@ -89,10 +89,10 @@ export default defineComponent({
             for (let i = 1; i < data.metaData?.fields?.length; i++) {
                 const tempColumn = data.metaData?.fields[i]
                 if (['timestamp', 'date'].includes(tempColumn.type)) {
-                    const field = this.findField(tempColumn) as any
-                    if (field) tempColumn.metawebDateFormat = field.format
+                    this.setCalculatedFieldDateFormat(tempColumn, i - 1)
                     if (!tempColumn.metawebDateFormat) {
-                        this.setCalculatedFieldDateFormat(tempColumn, i - 1)
+                        const field = this.findField(tempColumn) as any
+                        if (field) tempColumn.metawebDateFormat = field.format
                     }
                 }
                 this.columns.push(data.metaData?.fields[i])
@@ -103,9 +103,9 @@ export default defineComponent({
             if (this.selectedQuery.fields[index]) tempColumn.metawebDateFormat = this.selectedQuery.fields[index].id.format ?? 'L'
         },
         findField(column: any) {
-            if (!this.entities) return
-
             let field = null
+
+            if (!this.entities) return field
 
             for (let i = 0; i < this.entities.length; i++) {
                 const tempEntity = this.entities[i] as any
@@ -133,13 +133,13 @@ export default defineComponent({
             this.lazyParams = {}
         },
         getFormattedDate(date: any, column: any) {
-            if (!date) return null;
-            const inputFormat = column.type === 'timestamp' ? 'DD/MM/YYYY HH:mm:ss.SSS' : 'DD/MM/YYYY'
+            if (!date) return null
+            const inputFormat = column.type === 'timestamp' ? 'dd/MM/yyyy HH:mm:ss.SSS' : 'dd/MM/yyyy'
             let format = undefined as string | undefined
             if (QBEDescriptor.admissibleDateFormats.includes(column.metawebDateFormat)) {
                 format = column.metawebDateFormat
             }
-            return formatDate(date, format, inputFormat)
+            return formatDateLuxon(date, format ?? '', inputFormat)
         }
     }
 })
