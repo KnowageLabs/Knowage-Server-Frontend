@@ -1701,7 +1701,7 @@
         },
         "title": "Import/Export",
         "warning": {
-            "newCategoryCreated": "Una nuova categoria è stata aggiunta: {category}. Controllare i rouli utente per abilitarla. | Le seguenti categorie sono state aggiunte: {category}. Controllare i rouli utente per abilitarla."
+            "newCategoryCreated": "Una nuova categoria è stata aggiunta: {category}. Controllare i rouli utente per abilitarla. | Le seguenti categorie sono state aggiunte: {category}. Controllare i ruoli utente per abilitarla."
         }
     },
     "infoDialog": {
