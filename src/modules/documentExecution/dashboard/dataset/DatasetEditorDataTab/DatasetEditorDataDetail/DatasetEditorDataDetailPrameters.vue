@@ -114,6 +114,7 @@ export default defineComponent({
                 this.selectedDataset.formattedDrivers = this.selectedDataset && this.selectedDataset.drivers ? (getFormattedDatasetDrivers(this.selectedDataset) as IDashboardDatasetDriver[]) : []
             }
             this.selectedDataset.formattedDrivers.forEach((driver: IDashboardDatasetDriver) => {
+                if (driver.multivalue && !driver.parameterValue[0]?.value) driver.parameterValue = []
                 if (driver.type === 'DATE') this.setDateDisplayValue(driver)
             })
         },
@@ -136,7 +137,9 @@ export default defineComponent({
             this.driversDialogVisible = true
         },
         resetDefaultValue(driver: IDashboardDatasetDriver) {
-            if (!driver.defaultValue || driver.defaultValue.length == 0) driver.parameterValue = []
+            if (!driver.defaultValue || driver.defaultValue.length == 0) {
+                driver.multivalue ? (driver.parameterValue = []) : (driver.parameterValue = [{ value: '', description: '' }])
+            }
 
             driver.parameterValue = deepcopy(driver.defaultValue) as { value: string; description: string }[]
             if (driver.type === 'DATE' && driver.parameterValue && driver.parameterValue[0]) {
