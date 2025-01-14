@@ -372,7 +372,8 @@ export default defineComponent({
     },
     computed: {
         disableStep1() {
-            return this.uploadedFiles.length == 0
+            if (this.step === 1) return this.uploadedFiles.length == 0
+            if (this.step === 4) return this.hasEmptyDatasource(this.importData.datasources.associatedDatasources)
         }
     },
     created() {},
@@ -567,9 +568,9 @@ export default defineComponent({
                         this.importData.logFileName = response.data.logFileName
                         this.importData.folderName = response.data.folderName
 
-                        if(response.data?.warnings?.length > 0){
-                            response.data.warnings.forEach((i)=>{
-                                this.store.setWarning({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.$tc(i.MESSAGE,i.PARAMETERS.length,{category:i.PARAMETERS.toString()})}` })
+                        if (response.data?.warnings?.length > 0) {
+                            response.data.warnings.forEach((i) => {
+                                this.store.setWarning({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.$tc(i.MESSAGE, i.PARAMETERS.length, { category: i.PARAMETERS.toString() })}` })
                             })
                         }
 
@@ -584,6 +585,15 @@ export default defineComponent({
                 .finally(() => {
                     this.store.setLoading(false)
                 })
+        },
+        hasEmptyDatasource(associatedDatasources) {
+            for (const key in associatedDatasources) {
+                if (associatedDatasources.hasOwnProperty(key)) {
+                    const datasource = associatedDatasources[key]
+                    if (datasource === null || datasource === '') return true
+                }
+            }
+            return false
         }
     }
 })
