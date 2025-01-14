@@ -285,6 +285,7 @@ export default defineComponent({
 
             if (momentDate.isValid()) {
                 const formattedDate = momentDate.format(serverFormat)
+                filter.rightOperandValue = [formattedDate]
                 filter.rightOperandDescription = formattedDate
             }
         },
