@@ -145,7 +145,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapActions(dashboardStore, ['setSelections']),
+        ...mapActions(dashboardStore, ['setSelections', 'getDashboardDrivers']),
         setEventListeners() {
             if (this.editorMode) emitter.on('refreshTable', this.reloadWidgetWithoutData)
             // emitter.on('selectionsDeleted', this.onSelectionsDeleted)
@@ -180,7 +180,9 @@ export default defineComponent({
             this.setFacetData()
         },
         loadSearchValue() {
-            this.searchWord = this.propWidget.settings.search.defaultValue ?? ''
+            const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
+            const searchDriver = dashboardDrivers.find((driver) => driver.driverLabel === this.propWidget.settings.search.driverLabel)
+            searchDriver ? (this.searchWord = searchDriver.value) : (this.searchWord = this.propWidget.settings.search.defaultValue)
         },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
