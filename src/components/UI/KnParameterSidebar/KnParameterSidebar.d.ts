@@ -5,7 +5,7 @@ export interface iParameter {
         valueColumn: string
         descriptionColumn: string
     }
-    typeCode?: string,
+    typeCode?: string
     data: any
     visible: boolean
     valueSelection: string
@@ -33,6 +33,8 @@ export interface iParameter {
     dataDependsOnParameters?: iParameter[]
     lovDependsOnParameters?: iParameter[]
     lovDependentParameters?: iParameter[]
+    driverMaxValue?: string | null
+    driverMaxDateValue?: Date | null
 }
 
 export interface iDocument {
