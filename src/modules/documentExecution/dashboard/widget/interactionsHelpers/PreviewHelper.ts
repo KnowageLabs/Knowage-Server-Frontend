@@ -60,7 +60,7 @@ const updateParameterValue = (parameter: any, parameterSettings: IWidgetInteract
             updateParameterValueFromDriver(parameter, parameterSettings, driversValuesMap)
             break
         case 'selection':
-            updateParameterValueFromSelections(parameter, dashboardId)
+            updateParameterValueFromSelections(parameter, parameterSettings, dashboardId)
 
     }
 }
@@ -87,11 +87,15 @@ const updateParameterValueFromDriver = (parameter: any, parameterSettings: IWidg
 }
 
 
-const updateParameterValueFromSelections = (parameter: any, dashboardId: string) => {
+const updateParameterValueFromSelections = (parameter: any, parameterSettings: IWidgetInteractionParameter, dashboardId: string) => {
     const dashStore = dashboardStore()
     const activeSelections = dashStore.getSelections(dashboardId)
-    const activeSelection = getActiveSelectionByDatasetAndColumn(parameter.dataset, parameter.column, activeSelections)
-    parameter.value = activeSelection ? activeSelection.value : ''
+    const activeSelection = getActiveSelectionByDatasetAndColumn(parameterSettings.dataset, parameterSettings.column, activeSelections)
+    if (activeSelection) {
+        parameter.value = parameter.multiValue ? activeSelection.value : activeSelection.value[0] || ''
+    } else {
+        parameter.value = ''
+    }
 }
 
 const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
