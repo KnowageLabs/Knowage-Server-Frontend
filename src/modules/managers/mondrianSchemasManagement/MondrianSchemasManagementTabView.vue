@@ -213,7 +213,7 @@ export default defineComponent({
             this.touched = false
         },
         async updateWorkflow(schemaId) {
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/workflow/update`
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/workflow/update`
             await this.$http.put(url, { modelId: schemaId, workflowArr: this.availableUsersList[1] }, { headers: { Accept: 'application/json, text/plain, */*' } }).then(() => {
                 this.store.setInfo({
                     title: this.$t('managers.mondrianSchemasManagement.toast.workflow.updated'),
