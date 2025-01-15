@@ -132,6 +132,7 @@ export default defineComponent({
                 .finally(() => {
                     this.loading = false
                     this.createNodeTree()
+                    this.removeEmptyFolders()
                 })
         },
         createNodeTree() {
@@ -277,6 +278,27 @@ export default defineComponent({
         },
         toggleImportDialog() {
             this.displayImportDialog = !this.displayImportDialog
+        },
+        filterDocuments(folder: iNode, parentFolder: any) {
+            if (folder.children && folder.children.length > 0) {
+                for (let i = folder.children.length - 1; i >= 0; i--) {
+                    this.filterDocuments(folder.children[i], folder)
+                }
+            }
+
+            if (folder.children?.length == 0 && parentFolder && parentFolder.children) {
+                const array = parentFolder.children
+                const index = array.findIndex((node: iNode) => node.id === folder.id)
+                array.splice(index, 1)
+            }
+        },
+        removeEmptyFolders() {
+            for (let i = 0; i < this.nodes.length; i++) {
+                this.filterDocuments(this.nodes[i], null as any)
+                if (this.nodes[i].children?.length === 0) {
+                    this.nodes[i].selectable = false
+                }
+            }
         }
     }
 })
