@@ -285,9 +285,16 @@ export default defineComponent({
 
             if (momentDate.isValid()) {
                 const formattedDate = momentDate.format(serverFormat)
-                filter.rightOperandValue = [formattedDate]
-                filter.rightOperandDescription = formattedDate
+                const properDateForAPI = this.truncateDateTimeForAPI(formattedDate)
+                filter.rightOperandValue = [properDateForAPI]
+                filter.rightOperandDescription = properDateForAPI
             }
+        },
+        truncateDateTimeForAPI(dateTime: string | null | undefined) {
+            if (!dateTime || dateTime.trim() === '') {
+                return ''
+            }
+            return dateTime.split(' ')[0]
         },
         onParametersUpdated(updatedParameters: any[]) {
             this.updatedParameters = updatedParameters
