@@ -205,6 +205,7 @@ import Dropdown from 'primevue/dropdown'
 import mainStore from '../../App.store'
 import deepcopy from 'deepcopy'
 import { getCorrectRolesForExecution } from '@/helpers/commons/roleHelper'
+import { getFormattedQBECatalogueForAPI } from './QBEHelper'
 
 export default defineComponent({
     name: 'qbe',
@@ -601,12 +602,12 @@ export default defineComponent({
                 }
             })
         },
-        async executeQBEQuery(showPreview: boolean) {
+        async executeQBEQuery(showPreview: boolean, filters?: iFilter[]) {
             if (!this.qbe) return
             if (this.qbe.qbeJSONQuery && this.qbe.qbeJSONQuery.catalogue.queries[0].fields.length == 0) return
 
             this.loading = true
-            const postData = { catalogue: this.qbe?.qbeJSONQuery?.catalogue.queries, meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
+            const postData = { catalogue: getFormattedQBECatalogueForAPI(this.qbe?.qbeJSONQuery?.catalogue.queries, filters), meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/qbequery/executeQuery/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&start=${this.pagination.start}&limit=${this.pagination.limit}`, postData)
                 .then((response: AxiosResponse<any>) => {
