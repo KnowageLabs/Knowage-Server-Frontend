@@ -1,4 +1,18 @@
-import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
+import {
+    ITableWidgetColumnGroups,
+    ITableWidgetConditionalStyles,
+    ITableWidgetConfiguration,
+    IWidgetCrossNavigation,
+    ITableWidgetHeaders,
+    IWidgetInteractions,
+    IWidgetSelection,
+    ITableWidgetSettings,
+    ITableWidgetVisualization,
+    IWidget,
+    IWidgetColumn,
+    ITableWidgetTooltipStyle,
+    ITableWidgetColumnStyles
+} from '../../../../Dashboard'
 
 const columnIdNameMap = {}
 
@@ -10,14 +24,14 @@ export function formatTableWidgetForSave(widget: IWidget) {
     formatTableSettings(widget.settings)
 }
 
-function formatTableSelectedColumns(columns: IWidgetColumn[]) {
+export function formatTableSelectedColumns(columns: IWidgetColumn[]) {
     if (!columns) return
     columns.forEach((column: IWidgetColumn) => {
         delete column.id
     })
 }
 
-const loadColumnIdNameMap = (widget: IWidget) => {
+export const loadColumnIdNameMap = (widget: IWidget) => {
     widget.columns?.forEach((column: IWidgetColumn) => {
         if (column.id) columnIdNameMap[column.id] = column.columnName
     })
@@ -83,12 +97,12 @@ const formatColumnGroups = (widgetConfiguration: ITableWidgetConfiguration) => {
     formatColumnGroupsColumnIdToName(widgetConfiguration.columnGroups)
 }
 
-const formatTableWidgetVisualisation = (widgetVisualization: ITableWidgetVisualization) => {
+export const formatTableWidgetVisualisation = (widgetVisualization: ITableWidgetVisualization) => {
     formatVisualizationTypes(widgetVisualization)
     formatVisibilityConditions(widgetVisualization)
 }
 
-const formatVisualizationTypes = (widgetVisualization: ITableWidgetVisualization) => {
+export const formatVisualizationTypes = (widgetVisualization: ITableWidgetVisualization) => {
     for (let i = 1; i < widgetVisualization.visualizationTypes.types.length; i++) {
         const tempVisualization = widgetVisualization.visualizationTypes.types[i]
         const formattedRuleColumns = [] as string[]
@@ -98,7 +112,7 @@ const formatVisualizationTypes = (widgetVisualization: ITableWidgetVisualization
         tempVisualization.target = formattedRuleColumns
     }
 }
-const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisualization) => {
+export const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisualization) => {
     for (let i = 0; i < widgetVisualization.visibilityConditions.conditions.length; i++) {
         const tempCondition = widgetVisualization.visibilityConditions.conditions[i]
         const formattedRuleColumns = [] as string[]
@@ -110,7 +124,7 @@ const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisualizati
     }
 }
 
-const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidgetConditionalStyles) => {
+export const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidgetConditionalStyles) => {
     for (let i = 0; i < widgetConditionalStyles.conditions.length; i++) {
         const tempCondition = widgetConditionalStyles.conditions[i]
         tempCondition.target = getColumnName(tempCondition.target)
@@ -129,7 +143,7 @@ const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidge
     }
 }
 
-const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
+export const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
     for (let i = 1; i < tableTooltips.length; i++) {
         const tempTooltip = tableTooltips[i]
         const formattedTooltipColumns = [] as string[]
@@ -140,7 +154,7 @@ const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) =>
     }
 }
 
-const formatTableInteractions = (widgetInteractions: IWidgetInteractions) => {
+export const formatTableInteractions = (widgetInteractions: IWidgetInteractions) => {
     formatSelection(widgetInteractions.selection as IWidgetSelection)
     formatCrossNavigation(widgetInteractions.crossNavigation)
 }

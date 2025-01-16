@@ -1,8 +1,10 @@
 import {
     ITableWidgetColumnStyles,
+    ITableWidgetConditionalStyles,
     ITableWidgetCustomMessages,
     ITableWidgetHeadersStyle,
     ITableWidgetTooltipStyle,
+    ITableWidgetVisualization,
     IWidgetBackgroundStyle,
     IWidgetBordersStyle,
     IWidgetExports,
@@ -17,12 +19,14 @@ import {
 export interface IDiscoveryWidgetSettings {
     updatable: boolean
     clickable: boolean
+    conditionalStyles: ITableWidgetConditionalStyles
     configuration: IDiscoveryWidgetConfiguration
     facets: IDiscoveryWidgetFacetsSettings
     search: IDiscoveryWidgetSearchSettings
     interactions: IWidgetInteractions
     style: IDiscoveryWidgetStyle
     tooltips: ITableWidgetTooltipStyle[]
+    visualization: ITableWidgetVisualization
     responsive: IWidgetResponsive
 }
 
