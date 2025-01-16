@@ -60,4 +60,6 @@ export const formatDashboardDiscoveryWidgetAfterLoading = (widget: IWidget) => {
     if (!widget || !widget.settings) return
 
     if (!widget.settings.interactions.selection) widget.settings.interactions.selection = { enabled: true }
+    if (!widget.settings.conditionalStyles) widget.settings.conditionalStyles = tableWidgetDefaultValues.getDefaultConditionalStyles()
+    if (!widget.settings.visualization) widget.settings.visualization = tableWidgetDefaultValues.getDefaultVisualizations()
 }
