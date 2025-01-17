@@ -2,7 +2,7 @@
     <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
         <template #start>{{ datasource.label }}</template>
         <template #end>
-            <Button class="p-button-text p-button-rounded p-button-plain p-jc-center" :disabled="readOnly" @click="testDataSource">{{ $t('common.test') }}</Button>
+            <Button class="p-button-text p-button-rounded p-button-plain p-jc-center" :disabled="readOnly || buttonDisabled" @click="testDataSource">{{ $t('common.test') }}</Button>
             <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="readOnly || buttonDisabled" @click="handleSubmit" />
             <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplateConfirm" />
         </template>
@@ -330,7 +330,10 @@ export default defineComponent({
         }
         const customValidators: ICustomValidatorMap = {
             'jndi-name-required': jndiTypeRequired('JNDI'),
-            'jdbc-data-required': jndiTypeRequired('JDBC')
+            'jdbc-data-required': jndiTypeRequired('JDBC'),
+            'jndi-format': (value) => {
+                return value.match(/java:comp\/env\/jdbc\/[A-Za-z\d\-_|#$]+/g)
+            },
         }
         const validationObject = {
             datasource: createValidations('datasource', dataSourceDetailValidationDescriptor.validations.datasource, customValidators)
@@ -420,7 +423,7 @@ export default defineComponent({
                 }
             } else {
                 this.readOnly = false
-            }
+                }
         },
 
         async testDataSource() {
