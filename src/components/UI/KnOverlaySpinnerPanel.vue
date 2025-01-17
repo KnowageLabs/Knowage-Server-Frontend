@@ -1,30 +1,22 @@
-<template>
-    <div :class="getVisibility()">
-        <ProgressSpinner :base-z-index="9999" />
-    </div>
-</template>
+<script setup lang="ts">
+    import mainStore from '@/App.store'
+    import { useQuasar } from 'quasar'
 
-<script lang="ts">
-    import { defineComponent } from 'vue'
-    import { mapState } from 'pinia'
-    import store from '../../App.store.js'
-    import ProgressSpinner from 'primevue/progressspinner'
+    const $q = useQuasar()
 
-    export default defineComponent({
-        name: 'kn-spinner-panel',
-        components: { ProgressSpinner },
-        props: { visibility: Boolean },
-        computed: {
-            ...mapState(store, {
-                loading: 'loading'
-            })
-        },
-        methods: {
-            getVisibility(): string {
-                return this.loading == 0 ? 'kn-hide' : 'overlappingPanel'
+
+    const store = mainStore()
+    store.$subscribe(
+        (mutation,state) => {
+            debugger;
+            if(mutation.events.key === 'loading'){
+                if (state.loading && state.loading > 0) $q.loading.show()
+                else $q.loading.hide()
             }
+            
         }
-    })
+    )
+
+   
 </script>
 
-<style lang="scss"></style>
