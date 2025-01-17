@@ -246,8 +246,8 @@ export default defineComponent({
 
             this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/document/export', exportPayload)
-                .then(() => {
-                    this.downloadExportedDocuments(exportPayload)
+                .then((response: AxiosResponse<any>) => {
+                    this.downloadExportedDocuments(response.data.FILE_NAME_EXPORT)
                 })
                 .catch((error) => console.error(error))
                 .finally(() => {
@@ -255,8 +255,8 @@ export default defineComponent({
                     this.toggleExportDialog()
                 })
         },
-        downloadExportedDocuments(exportPayload) {
-            const postData = { FILE_NAME: exportPayload.EXPORT_FILE_NAME }
+        downloadExportedDocuments(fileName) {
+            const postData = { FILE_NAME: fileName }
             this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/document/downloadExportFile', postData, {
                     responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
