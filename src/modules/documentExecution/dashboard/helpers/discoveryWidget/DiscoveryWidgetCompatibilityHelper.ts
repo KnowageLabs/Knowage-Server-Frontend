@@ -32,12 +32,14 @@ const getFormattedWidgetSettings = (widget: any, drivers: IDashboardDriver[]) =>
     const formattedSettings = {
         updatable: widget.updateble,
         clickable: widget.cliccable,
+        conditionalStyles: tableWidgetDefaultValues.getDefaultConditionalStyles(),
         facets: getFormattedFacetsSettings(widget) as IDiscoveryWidgetFacetsSettings,
         search: getFormattedSearchSettings(widget, drivers) as IDiscoveryWidgetSearchSettings,
         configuration: getFormattedDiscoveryConfiguration(widget) as IDiscoveryWidgetConfiguration,
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget) as ITableWidgetStyle,
         tooltips: tableWidgetDefaultValues.getDefaultTooltips() as ITableWidgetTooltipStyle[],
+        visualization: tableWidgetDefaultValues.getDefaultVisualizations(),
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive
     } as IDiscoveryWidgetSettings
     return formattedSettings
