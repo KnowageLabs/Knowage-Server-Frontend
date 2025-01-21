@@ -162,9 +162,7 @@ export default defineComponent({
         formatFolderChildren(folderChildren: any[], filePath: string) {
             const formattedChildren = [] as iNode[]
             folderChildren.forEach((document: any) => {
-                if (document.visible) {
-                    formattedChildren.push({ key: document.id, icon: 'pi pi-file', id: document.id, label: document.name, data: document, selectable: true, path: filePath })
-                }
+                formattedChildren.push({ key: document.id, icon: 'pi pi-file', id: document.id, label: document.name, data: document, selectable: true, path: filePath })
             })
 
             return formattedChildren
