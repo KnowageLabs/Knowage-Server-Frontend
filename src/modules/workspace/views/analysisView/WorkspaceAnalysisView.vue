@@ -435,9 +435,12 @@ export default defineComponent({
         },
         async loadDocumentBrowserFolders() {
             this.setLoading(true)
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/folders?includeDocs=false`).then((response: AxiosResponse<any>) => {
-                this.documentBrowserFolders = response.data
-            })
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/folders?includeDocs=false`)
+                .then((response: AxiosResponse<any>) => {
+                    this.documentBrowserFolders = response.data
+                })
+                .catch(() => {})
 
             this.setLoading(false)
         }
