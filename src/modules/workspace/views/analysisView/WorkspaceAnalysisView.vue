@@ -7,7 +7,21 @@
         <template #end>
             <Button v-if="toggleCardDisplay" icon="fas fa-list" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" />
             <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" /> -->
-            <KnFabButton v-if="addButtonIsVisible" icon="fas fa-plus" data-test="new-folder-button" @click="showCreationMenu" />
+
+            <q-btn v-if="addButtonIsVisible" round class="customFabButton" icon="fas fa-plus">
+                <q-menu>
+                    <q-list dense style="min-width: 200px">
+                        <q-item v-for="item in creationMenuButtons" :key="item" v-close-popup clickable @click="item.command">
+                            <q-item-section
+                                ><div>
+                                    {{ item.label }}
+                                    <q-badge v-if="item.beta" rounded color="red" text-color="white" label="Beta" />
+                                </div>
+                            </q-item-section>
+                        </q-item>
+                    </q-list>
+                </q-menu>
+            </q-btn>
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
@@ -102,9 +116,11 @@ import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import WorkspaceCockpitDialog from './dialogs/WorkspaceCockpitDialog.vue'
 import mainStore from '../../../../App.store'
 import { getCorrectRolesForExecution } from '../../../../helpers/commons/roleHelper'
-import { mapState } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import DocumentDetailDossierDesignerDialog from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialog.vue'
+import appStore from '@/App.store'
+import { iFolder } from '@/modules/documentBrowser/DocumentBrowser'
 
 export default defineComponent({
     name: 'workspace-analysis-view',
@@ -135,7 +151,8 @@ export default defineComponent({
             creationMenuButtons: [] as any,
             cockpitDialogVisible: false,
             dossierDesignerDialogVisible: false,
-            selectedDocument: null
+            selectedDocument: null,
+            documentBrowserFolders: [] as iFolder[]
         }
     },
     computed: {
@@ -158,9 +175,11 @@ export default defineComponent({
 
     created() {
         this.getAnalysisDocs()
+        this.createCreationMenuButtons()
     },
 
     methods: {
+        ...mapActions(appStore, ['setLoading', 'getUser']),
         getAnalysisDocs() {
             this.loading = true
             return this.$http
@@ -210,7 +229,6 @@ export default defineComponent({
             this.selectedAnalysis = analysis
             this.editDialogVisible = true
         },
-
         async handleEditAnalysis(analysis: any) {
             const formatedAnalysis = {
                 document: {
@@ -370,12 +388,6 @@ export default defineComponent({
                 }
             }, 250)
         },
-        showCreationMenu(event) {
-            this.createCreationMenuButtons()
-            // eslint-disable-next-line
-            // @ts-ignore
-            this.$refs.creationMenu.toggle(event)
-        },
         createCreationMenuButtons() {
             this.creationMenuButtons = []
 
@@ -383,6 +395,7 @@ export default defineComponent({
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT)) this.creationMenuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.geoRef'), command: () => this.openGeoRefCreation(), visible: true })
             if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)) this.creationMenuButtons.push({ key: '2', label: this.$t('common.kpi'), command: () => this.openKpiDocumentDesigner(), visible: true })
             if (this.isEnterprise && this.user.functionalities.includes(UserFunctionalitiesConstants.DOSSIER_CREATION)) this.creationMenuButtons.push({ key: '3', label: this.$t('common.dossier'), command: () => this.openDossierDesigner(), visible: true })
+            if (this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_COCKPIT_FUNCTIONALITY)) this.creationMenuButtons.push({ key: '4', label: this.$t('dashboard.dashboard'), command: () => this.createNewDashboard(), visible: true, beta: true })
         },
         openCockpitDialog() {
             this.cockpitDialogVisible = true
@@ -410,7 +423,33 @@ export default defineComponent({
             this.dossierDesignerDialogVisible = false
 
             if (refreshObj.refreshHistory) this.getAnalysisDocs()
+        },
+        async createNewDashboard() {
+            if (this.documentBrowserFolders.length === 0) await this.loadDocumentBrowserFolders()
+            const personalFolders = this.documentBrowserFolders.filter((folder: iFolder) => folder.codType === 'USER_FUNCT')
+            const user = this.getUser()
+            const userFolder = personalFolders.find((folder: iFolder) => folder.name === user?.userId)
+
+            const link = `/dashboard/new-dashboard?folderId=${userFolder?.id ?? ''}&fromWorkspace=true`
+            this.$router.push(link)
+        },
+        async loadDocumentBrowserFolders() {
+            this.setLoading(true)
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/folders?includeDocs=false`)
+                .then((response: AxiosResponse<any>) => {
+                    this.documentBrowserFolders = response.data
+                })
+                .catch(() => {})
+
+            this.setLoading(false)
         }
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.customFabButton {
+    top: 5px;
+}
+</style>

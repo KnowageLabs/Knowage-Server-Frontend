@@ -45,7 +45,7 @@
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
                     <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode != 'document-execution-cross-navigation-popup'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
-                    <Button v-if="isInDocBrowser" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
+                    <Button v-if="isInDocBrowser || isInWorkspace" v-tooltip.left="$t('common.close')" icon="fa fa-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="closeDocumentConfirm"></Button>
                 </div>
             </template>
         </Toolbar>
@@ -388,6 +388,9 @@ export default defineComponent({
         isInDocBrowser() {
             return this.propMode === 'document-execution-cross-navigation-popup' || this.$route.matched.some((i) => i.name === 'document-browser' || i.name === 'document-execution-workspace')
         },
+        isInWorkspace() {
+            return this.$route.query?.fromWorkspace
+        },
         isMobileDevice() {
             return /Android|iPhone/i.test(navigator.userAgent)
         }
@@ -440,7 +443,9 @@ export default defineComponent({
                     this.$q.loading.hide()
                     return
                 }
-                if (this.$route.name === 'new-dashboard') this.newDashboardMode = true
+
+                const creatingDashboardFromWorkspace = this.$route.params?.id === 'new-dashboard' && this.$route.query?.fromWorkspace
+                if (this.$route.name === 'new-dashboard' || creatingDashboardFromWorkspace) this.newDashboardMode = true
 
                 await this.loadUserConfig()
                 this.isOlapDesignerMode()
@@ -452,6 +457,7 @@ export default defineComponent({
                         document: this.document
                     })
                 }
+
                 if (!this.document.label) return
                 if (this.document.label === 'new-dashboard') {
                     this.newDashboardMode = true
@@ -750,11 +756,16 @@ export default defineComponent({
         },
         closeDocument() {
             if (this.propMode !== 'document-execution-cross-navigation-popup') {
-                this.$router.push(this.$route.path.includes('workspace') ? '/workspace' : '/document-browser')
+                this.$router.push(this.getRouteForCloseDocument())
                 this.breadcrumbs = []
             }
             if (this.newDashboardMode) emitter.emit('newDashboardClosed', this.document.dashboardId)
             this.$emit('close')
+        },
+        getRouteForCloseDocument() {
+            if (this.isInWorkspace) return '/workspace/analysis'
+            else if (this.$route.path.includes('workspace')) return '/workspace'
+            else return '/document-browser'
         },
         setMode() {
             this.embed = this.$route.path.includes('embed')
