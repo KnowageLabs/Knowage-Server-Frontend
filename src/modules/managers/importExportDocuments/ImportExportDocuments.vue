@@ -142,7 +142,7 @@ export default defineComponent({
             this.folders.forEach((file: iFile) => {
                 if (file.codType != 'USER_FUNCT') {
                     const node = {
-                        key: file.id,
+                        key: crypto.randomUUID(),
                         id: file.id,
                         parentId: file.parentId,
                         label: file.name,
@@ -163,7 +163,7 @@ export default defineComponent({
         formatFolderChildren(folderChildren: any[], filePath: string) {
             const formattedChildren = [] as iNode[]
             folderChildren.forEach((document: any) => {
-                formattedChildren.push({ key: document.id, icon: 'pi pi-file', id: document.id, label: document.name, data: document, selectable: true, path: filePath })
+                formattedChildren.push({ key: crypto.randomUUID(), icon: 'pi pi-file', id: document.id, label: document.name, data: document, selectable: true, path: filePath })
             })
 
             return formattedChildren
