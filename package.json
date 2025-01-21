@@ -32,7 +32,6 @@
         "crypto-browserify": "^3.12.0",
         "crypto-js": "^4.1.1",
         "crypto-random-string": "^5.0.0",
-        "deasync": "^0.1.21",
         "deepcopy": "^2.1.0",
         "dexie": "^3.2.4",
         "dom-to-image-more": "^3.1.6",
