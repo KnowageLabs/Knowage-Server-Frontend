@@ -42,3 +42,18 @@
         color: inherit;
     }
 }
+
+.customFabButton {
+    position: absolute;
+    right: 10px;
+    &:deep(.q-icon) {
+        font-size: 1rem;
+        color: white;
+    }
+
+    background-color: var(--kn-button-fab-background-color);
+    z-index: 100;
+    &:hover {
+        background-color: var(--kn-button-fab-hover-background-color);
+    }
+}
