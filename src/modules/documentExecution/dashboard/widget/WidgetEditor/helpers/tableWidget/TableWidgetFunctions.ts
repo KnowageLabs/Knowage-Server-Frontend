@@ -1,6 +1,22 @@
-import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from "../../../../Dashboard"
+import {
+    IWidget,
+    IWidgetColumn,
+    ITableWidgetColumnGroup,
+    IWidgetInteractionParameter,
+    ITableWidgetSettings,
+    ITableWidgetConfiguration,
+    ITableWidgetHeaders,
+    ITableWidgetVisualization,
+    ITableWidgetConditionalStyles,
+    IWidgetInteractions,
+    IWidgetSelection,
+    ITableWidgetColumnGroups,
+    IWidgetCrossNavigation,
+    ITableWidgetTooltipStyle,
+    ITableWidgetColumnStyles
+} from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
-import * as  tableWidgetDefaultValues from './TableWidgetDefaultValues'
+import * as tableWidgetDefaultValues from './TableWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 
 export const createNewTableWidgetSettings = () => {
@@ -57,6 +73,7 @@ export const removeColumnFromTableWidgetModel = (widgetModel: IWidget, column: I
     removeColumnFromSubmodel(column, widgetModel.settings.conditionalStyles.conditions, 'target', 'columnRemovedFromConditionalStyles', false)
     removeColumnFromSubmodel(column, widgetModel.settings.tooltips, 'target', 'columnRemovedFromTooltips', true)
     removeColumnFromCrossNavigation(widgetModel, column)
+    removeColumnFromSummaryRows(widgetModel, column)
 }
 
 const removeColumnFromRows = (widgetModel: IWidget, column: IWidgetColumn) => {
@@ -72,7 +89,7 @@ export const removeColumnFromSubmodel = (column: IWidgetColumn, array: any[], su
         for (let j = (array[i][subProperty] as string[]).length; j >= 0; j--) {
             const tempTarget = array[i][subProperty][j]
             if (column.id === tempTarget) {
-                (array[i][subProperty] as string[]).splice(j, 1)
+                ;(array[i][subProperty] as string[]).splice(j, 1)
                 removed = true
             }
         }
@@ -84,12 +101,22 @@ export const removeColumnFromSubmodel = (column: IWidgetColumn, array: any[], su
 const removeColumnFromCrossNavigation = (widgetModel: IWidget, column: IWidgetColumn) => {
     const crossNavigation = widgetModel.settings.interactions.crossNavigation
     if (crossNavigation.column === column.id) {
-        crossNavigation.enabled = false;
+        crossNavigation.enabled = false
         crossNavigation.parameters.forEach((parameter: IWidgetInteractionParameter) => {
             parameter.enabled = false
             if (parameter.column === column.columnName) parameter.column = ''
         })
         emitter.emit('columnRemovedFromCrossNavigation')
+    }
+}
+
+const removeColumnFromSummaryRows = (widgetModel: IWidget, column: IWidgetColumn) => {
+    const summaryRowsSettings = widgetModel.settings.configuration.summaryRows
+    for (let i = summaryRowsSettings.columns.length - 1; i >= 0; i--) {
+        if (summaryRowsSettings.columns[i] === column.id) {
+            summaryRowsSettings.columns.splice(i, 1)
+            emitter.emit('columnRemovedFromSummaryRows')
+        }
     }
 }
 
@@ -99,7 +126,7 @@ export const removeColumnGroupFromModel = (widgetModel: IWidget, columnGroup: IT
         for (let j = widgetModel.settings.style.columnGroups[i].target.length; j >= 0; j--) {
             const tempTarget = widgetModel.settings.style.columnGroups[i].target[j]
             if (columnGroup.id === tempTarget) {
-                (widgetModel.settings.style.columnGroups[i].target as string[]).splice(j, 1)
+                ;(widgetModel.settings.style.columnGroups[i].target as string[]).splice(j, 1)
                 removed = true
             }
         }
@@ -118,7 +145,6 @@ export function formatDashboardTableWidgetAfterLoading(widget: IWidget) {
     loadColumnNameIdMap(widget)
     formatTableSettings(widget.settings)
 }
-
 
 const loadColumnNameIdMap = (widget: IWidget) => {
     widget.columns?.forEach((column: IWidgetColumn) => {
@@ -144,6 +170,7 @@ const formatTableWidgetConfiguration = (widgetConfiguration: ITableWidgetConfigu
     formatRowsConfiguration(widgetConfiguration)
     formatHeadersConfiguration(widgetConfiguration)
     formatColumnGroups(widgetConfiguration)
+    formatSummaryRows(widgetConfiguration)
 }
 
 const formatTableWidgetColumnStyles = (columnStyles: ITableWidgetColumnStyles) => {
@@ -186,6 +213,12 @@ const formatColumnGroups = (widgetConfiguration: ITableWidgetConfiguration) => {
     formatColumnGroupsColumnIdToName(widgetConfiguration.columnGroups)
 }
 
+const formatSummaryRows = (widgetConfiguration: ITableWidgetConfiguration) => {
+    if (!widgetConfiguration.summaryRows) return
+    if (!widgetConfiguration.summaryRows.columns) widgetConfiguration.summaryRows.columns = []
+    widgetConfiguration.summaryRows.columns = widgetConfiguration.summaryRows.columns.map(getColumnId)
+}
+
 const formatTableWidgetVisualisation = (widgetVisualization: ITableWidgetVisualization) => {
     formatVisualizationTypes(widgetVisualization)
     formatVisibilityConditions(widgetVisualization)
@@ -220,7 +253,6 @@ const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidget
     }
 }
 
-
 const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidgetColumnGroups) => {
     for (let i = 0; i < columnGroupsConfiguration.groups.length; i++) {
         const tempColumnGroup = columnGroupsConfiguration.groups[i]
@@ -231,7 +263,6 @@ const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidge
         tempColumnGroup.columns = formattedColumnGroupColumns
     }
 }
-
 
 const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
     for (let i = 1; i < tableTooltips.length; i++) {

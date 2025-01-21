@@ -123,6 +123,7 @@
         }
     },
     "defaultSummaryRowsConfiguration": {
+        "columns": [],
         "enabled": false,
         "list": [],
         "style": {

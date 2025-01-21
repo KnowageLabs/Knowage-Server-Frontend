@@ -179,6 +179,7 @@ export interface ITableWidgetRows {
 
 export interface ITableWidgetSummaryRows {
     enabled: boolean
+    columns: string[]
     list: ITableWidgetSummaryRow[]
     style: { pinnedOnly: boolean }
 }

@@ -1,4 +1,19 @@
-import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
+import {
+    ITableWidgetColumnGroups,
+    ITableWidgetConditionalStyles,
+    ITableWidgetConfiguration,
+    IWidgetCrossNavigation,
+    ITableWidgetHeaders,
+    IWidgetInteractions,
+    IWidgetSelection,
+    ITableWidgetSettings,
+    ITableWidgetVisualization,
+    IWidget,
+    IWidgetColumn,
+    ITableWidgetTooltipStyle,
+    ITableWidgetColumnStyles,
+    ITableWidgetSummaryRows
+} from '../../../../Dashboard'
 
 const columnIdNameMap = {}
 
@@ -41,6 +56,7 @@ const formatTableWidgetConfiguration = (widgetConfiguration: ITableWidgetConfigu
     formatRowsConfiguration(widgetConfiguration)
     formatHeadersConfiguration(widgetConfiguration)
     formatColumnGroups(widgetConfiguration)
+    formatTableWidgetSummaryRows(widgetConfiguration)
 }
 
 const formatTableWidgetColumnStyles = (columnStyles: ITableWidgetColumnStyles) => {
@@ -81,6 +97,15 @@ const formatHeaderConfigurationRules = (configurationHeaders: ITableWidgetHeader
 const formatColumnGroups = (widgetConfiguration: ITableWidgetConfiguration) => {
     if (!widgetConfiguration.columnGroups) return
     formatColumnGroupsColumnIdToName(widgetConfiguration.columnGroups)
+}
+
+const formatTableWidgetSummaryRows = (widgetConfiguration: ITableWidgetConfiguration) => {
+    if (!widgetConfiguration.summaryRows) return
+    formatSummaryRowsColumnIdToName(widgetConfiguration.summaryRows)
+}
+
+const formatSummaryRowsColumnIdToName = (summaryRowsSettings: ITableWidgetSummaryRows) => {
+    summaryRowsSettings.columns = summaryRowsSettings.columns.map(getColumnName)
 }
 
 const formatTableWidgetVisualisation = (widgetVisualization: ITableWidgetVisualization) => {
