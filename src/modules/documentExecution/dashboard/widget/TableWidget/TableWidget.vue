@@ -15,7 +15,7 @@
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetSummaryRows, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
@@ -307,17 +307,18 @@ export default defineComponent({
                         }
 
                         // SUMMARY ROW  -----------------------------------------------------------------
-                        if (this.widgetModel.settings.configuration.summaryRows.enabled) {
+                        const summaryConfig = this.widgetModel.settings.configuration.summaryRows as ITableWidgetSummaryRows
+                        if (summaryConfig.enabled) {
                             tempCol.cellRendererSelector = (params) => {
-                                if (params.node.rowPinned && this.widgetModel.settings.configuration.summaryRows.enabled) {
+                                if (summaryConfig.enabled && params.node.rowPinned) {
                                     return {
                                         component: SummaryRowRenderer,
                                         params: {
-                                            summaryRows: this.widgetModel.settings.configuration.summaryRows.list.map((row) => {
+                                            summaryRows: summaryConfig.list.map((row) => {
                                                 return row.label
                                             }),
                                             propWidget: this.widgetModel,
-                                            hideSummary: this.getColumnVisibilityCondition(this.widgetModel.columns[datasetColumn].id, 'hideFromSummary')
+                                            hideSummary: this.getColumnVisibilityCondition(this.widgetModel.columns[datasetColumn].id, 'hideFromSummary') || this.getColumnSummaryVisibilityCondition(this.widgetModel.columns[datasetColumn].id)
                                         }
                                     }
                                 } else {
@@ -498,6 +499,15 @@ export default defineComponent({
             }
 
             return columnHidden
+        },
+        getColumnSummaryVisibilityCondition(colId) {
+            const summaryConfig = this.widgetModel.settings.configuration.summaryRows as ITableWidgetSummaryRows
+
+            if (!summaryConfig.style.pinnedOnly) {
+                const colConditions = summaryConfig.columns.find((column) => column === colId)
+                if (colConditions) return false
+                else return true
+            }
         },
         getColumnVisualizationType(colId) {
             const visTypes = this.widgetModel.settings.visualization.visualizationTypes as ITableWidgetVisualizationTypes
