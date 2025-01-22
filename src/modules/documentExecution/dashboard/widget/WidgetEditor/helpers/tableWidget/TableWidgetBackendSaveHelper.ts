@@ -1,4 +1,18 @@
-import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
+import {
+    ITableWidgetColumnGroups,
+    ITableWidgetConditionalStyles,
+    ITableWidgetConfiguration,
+    IWidgetCrossNavigation,
+    ITableWidgetHeaders,
+    IWidgetInteractions,
+    IWidgetSelection,
+    ITableWidgetSettings,
+    ITableWidgetVisualization,
+    IWidget,
+    IWidgetColumn,
+    ITableWidgetTooltipStyle,
+    ITableWidgetColumnStyles
+} from '../../../../Dashboard'
 
 const columnIdNameMap = {}
 
@@ -28,7 +42,6 @@ const getColumnName = (columnId: string) => {
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
-    if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnName(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
     formatTableWidgetColumnStyles(widgetSettings.style.columns)
     formatTableWidgetVisualisation(widgetSettings.visualization)
