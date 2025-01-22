@@ -240,7 +240,7 @@ export default defineComponent({
             })
         },
         getVisualizationTypeOptions(visualizationType: ITableWidgetVisualizationType) {
-            return this.optionsContainMeasureColumn(visualizationType) ? descriptor.visualizationTypes : descriptor.visualizationTypes.slice(0, 3)
+            return this.optionsContainMeasureColumn(visualizationType) ? descriptor.visualizationTypes : descriptor.visualizationTypes.slice(0, 4)
         },
         optionsContainMeasureColumn(visualizationType: ITableWidgetVisualizationType) {
             let found = false
