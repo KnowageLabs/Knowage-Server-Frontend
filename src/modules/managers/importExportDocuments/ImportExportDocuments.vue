@@ -56,7 +56,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { mapState } from 'pinia'
 import { iNode, iFile } from './ImportExportDocuments'
-import { findObjectById } from './ImportExportDocumentsHelpers'
+import { findObjectById, findObjectByKey } from './ImportExportDocumentsHelpers'
 import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import { primeVueDate } from '@/helpers/commons/localeHelper'
 import deepcopy from 'deepcopy'
@@ -232,10 +232,10 @@ export default defineComponent({
 
             exportPayload.DOCUMENT_ID_LIST = []
             for (const fileId in this.selectedDocumentsKeys) {
-                const file = findObjectById(this.nodes, fileId)
+                const file = findObjectByKey(this.nodes, fileId)
                 if (file && !file.isFolder) {
                     if (exportPayload.EXPORT_SELECTED_FUNCTIONALITY) exportPayload.DOCUMENT_ID_LIST.push({ id: file.id, folder: file.path })
-                    else exportPayload.DOCUMENT_ID_LIST.push(fileId)
+                    else exportPayload.DOCUMENT_ID_LIST.push(file.id.toString())
                 }
             }
 
