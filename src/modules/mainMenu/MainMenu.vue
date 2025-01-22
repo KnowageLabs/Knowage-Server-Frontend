@@ -140,7 +140,7 @@ export default defineComponent({
             this.accountDisplay = !this.accountDisplay
         },
         mandatoryRole() {
-            if (this.getConfigurations('KNOWAGE.MANDATORY-ROLE') && this.user.roles.length > 1 && !this.user.defaultRole) {
+            if (this.getConfigurations('KNOWAGE.MANDATORY-ROLE') && this.getConfigurations('KNOWAGE.MANDATORY-ROLE').toLowerCase() === 'true' && this.user.roles.length > 1 && !this.user.defaultRole) {
                 this.roleDisplay = true
                 return true
             }
