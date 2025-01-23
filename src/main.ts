@@ -35,9 +35,9 @@ import i18n from '@/App.i18n'
 
 import QBEOperator from './modules/qbe/qbeDialogs/qbeAdvancedFilterDialog/QBEOperator.vue'
 
-if (import.meta.env.DEV) document.domain = 'localhost'
+if (import.meta.env.DEV) document.domain = '127.0.0.1'
 
-import VueGridLayout from 'vue-grid-layout'
+import { GridLayout, GridItem } from 'grid-layout-plus'
 
 import ResizeObserver from '@vue-toys/resize-observer'
 
@@ -57,7 +57,6 @@ app.use(VueAxios, interceptor)
     .use(ToastService)
     .use(ConfirmationService)
     .use(internationalizationPlugin, mainStore.$state.internationalization)
-    .use(VueGridLayout)
     .use(ResizeObserver)
     .use(Quasar, {
         plugins: {
@@ -76,6 +75,8 @@ app.use(VueAxios, interceptor)
     .component('ProgressBar', ProgressBar)
     .component('Toolbar', Toolbar)
     .component('QBEOperator', QBEOperator)
+    .component('GridLayout', GridLayout)
+    .component('GridItem', GridItem)
 
     .mount('#app')
 
