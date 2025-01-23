@@ -8,7 +8,7 @@
     const store = mainStore()
     store.$subscribe(
         (mutation,state) => {
-            if(mutation.events.key === 'loading'){
+            if(mutation.events?.key === 'loading'){
                 if (state.loading && state.loading > 0) $q.loading.show()
                 else $q.loading.hide()
             }
