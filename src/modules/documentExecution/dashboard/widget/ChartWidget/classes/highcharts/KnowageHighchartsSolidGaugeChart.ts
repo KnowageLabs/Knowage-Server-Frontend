@@ -1,4 +1,4 @@
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateSolidGaugeChartModel } from './updater/KnowageHighchartsSolidGaugeChartUpdater'
 import { KnowageHighchartsGaugeChart } from './KnowageHighchartsGaugeChart'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -27,7 +27,7 @@ export class KnowageHighchartsSolidGaugeChart extends KnowageHighchartsGaugeChar
         updateSolidGaugeChartModel(oldModel, this.model)
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.setGaugeData(data, widgetModel, 1)
     }
 

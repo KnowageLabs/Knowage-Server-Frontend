@@ -1,6 +1,7 @@
-import { IWidget } from "../../../Dashboard"
-import { hexToRgba } from "../../../helpers/FormattingHelpers"
-import { IHighchartsChartModel } from "../../../interfaces/highcharts/DashboardHighchartsWidget"
+import { IVariable, IWidget } from '../../../Dashboard'
+import { hexToRgba } from '../../../helpers/FormattingHelpers'
+import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
+import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 import { getRGBColorFromString } from '../../WidgetEditor/helpers/WidgetEditorHelpers'
 import Highcharts from 'highcharts'
 
@@ -21,7 +22,6 @@ export const formatActivityGauge = (formattedChartModel: IHighchartsChartModel, 
         temp.backgroundColor = reduceOpacityFromColorString(temp.backgroundColor, 0.3)
         formattedChartModel.pane.background.push(temp)
     }
-
 }
 
 const reduceOpacityFromColorString = (colorString: string | null, newOpacity: number) => {
@@ -42,7 +42,7 @@ const formatHeatmapTooltip = (formattedChartModel: IHighchartsChartModel) => {
     const prefix = tooltip.valuePrefix ?? ''
     const suffix = tooltip.valueSuffix ?? ''
     tooltip.formatter = function (this: Highcharts.TooltipFormatterContextObject) {
-        return this.point.options.value ? this.series.name + '<br/><b>' + this.point.options.id + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.value, tooltip.valueDecimals) + suffix : this.series.name;
+        return this.point.options.value ? this.series.name + '<br/><b>' + this.point.options.id + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.value, tooltip.valueDecimals) + suffix : this.series.name
     }
 }
 
@@ -70,7 +70,7 @@ const formatBubbleTooltips = (formattedChartModel: IHighchartsChartModel) => {
     const prefix = tooltip.valuePrefix ?? ''
     const suffix = tooltip.valueSuffix ?? ''
     tooltip.formatter = function (this: Highcharts.TooltipFormatterContextObject) {
-        return this.point.options.y ? this.point.options.name + '<br/><b>' + this.series.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.y, tooltip.valueDecimals) + suffix : this.series.name;
+        return this.point.options.y ? this.point.options.name + '<br/><b>' + this.series.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.y, tooltip.valueDecimals) + suffix : this.series.name
     }
 }
 
@@ -83,7 +83,7 @@ const formatPackedBubbleTooltips = (formattedChartModel: IHighchartsChartModel) 
     const prefix = tooltip.valuePrefix ?? ''
     const suffix = tooltip.valueSuffix ?? ''
     tooltip.formatter = function (this: Highcharts.TooltipFormatterContextObject) {
-        return this.point.options.value ? this.series.name + '<br/><b>' + this.point.options.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.value, tooltip.valueDecimals) + suffix : this.series.name;
+        return this.point.options.value ? this.series.name + '<br/><b>' + this.point.options.name + ': </b>' + prefix + Highcharts.numberFormat(this.point.options.value, tooltip.valueDecimals) + suffix : this.series.name
     }
 }
 
@@ -116,7 +116,7 @@ export const formatPictorialChart = (formattedChartModel: IHighchartsChartModel,
 
 const formatPictorialPlotOptions = (formattedChartModel: IHighchartsChartModel) => {
     formattedChartModel.plotOptions.series.stacking = 'percent'
-    formattedChartModel.plotOptions.series.dataLabels = { enabled: true, align: 'center', }
+    formattedChartModel.plotOptions.series.dataLabels = { enabled: true, align: 'center' }
 }
 
 const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
@@ -126,4 +126,50 @@ const formatPictorialSVGPath = (formattedChartModel: IHighchartsChartModel, widg
 
 export const formatStreamgraphChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
     formatxAxisCrosshairSettings(formattedChartModel, widgetModel.settings.configuration?.axisLines)
+}
+
+export const formatVariables = (formattedChartModel: IHighchartsChartModel, variables: IVariable[]) => {
+    console.log('--------- formatVariables - models: ', formattedChartModel)
+    console.log('--------- formatVariables - variables: ', variables)
+    formatVariablesForAxis(formattedChartModel, variables, 'xAxis')
+    formatVariablesForAxis(formattedChartModel, variables, 'yAxis')
+}
+
+const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, variables: IVariable[], axis: 'xAxis' | 'yAxis') => {
+    if (!formattedChartModel[axis]) return
+    formattedChartModel[axis].forEach((axisElement: any) => {
+        axisElement.title.text = replaceVariablesPlaceholdersByVariableName(formattedChartModel[axis][0].title.text, variables)
+
+        formatVariablesForPlotBands(axisElement, variables)
+        formatVariablesForPlotLines(axisElement, variables)
+    })
+}
+
+const formatVariablesForPlotBands = (axis: any, variables: IVariable[]) => {
+    if (!axis || !axis.plotBands) return
+    axis.plotBands.forEach((plotBand: any) => {
+        plotBand.from = replaceVariablesPlaceholdersByVariableName(plotBand.from, variables)
+        plotBand.from = isNumberAndConvert(plotBand.from)
+
+        plotBand.to = replaceVariablesPlaceholdersByVariableName(plotBand.to, variables)
+        plotBand.to = isNumberAndConvert(plotBand.to)
+    })
+}
+
+const formatVariablesForPlotLines = (axis: any, variables: IVariable[]) => {
+    if (!axis || !axis.plotLines) return
+    axis.plotLines.forEach((plotLine: any) => {
+        plotLine.value = replaceVariablesPlaceholdersByVariableName(plotLine.value, variables)
+        plotLine.value = isNumberAndConvert(plotLine.value)
+    })
+}
+
+const isNumberAndConvert = (value: string) => {
+    const trimmedValue = value.trim()
+
+    if (!isNaN(parseFloat(trimmedValue)) && isFinite(+trimmedValue)) {
+        return parseFloat(trimmedValue)
+    }
+
+    return trimmedValue
 }

@@ -11,7 +11,7 @@ import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardH
 import { mapActions } from 'pinia'
 import { updateStoreSelections, executeChartCrossNavigation } from '../../interactionsHelpers/InteractionHelper'
 import { openNewLinkChartWidget } from '../../interactionsHelpers/InteractionLinkHelper'
-import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble } from './HighchartsModelFormattingHelpers'
+import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSplineChart, formatPictorialChart, formatStreamgraphChart, formatPackedBubble, formatVariables } from './HighchartsModelFormattingHelpers'
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
@@ -79,7 +79,8 @@ export default defineComponent({
             error: false,
             highchartsInstance: {} as any,
             drillLevel: 0,
-            likeSelections: [] as any[]
+            likeSelections: [] as any[],
+            variables: [] as IVariable[]
         }
     },
     watch: {
@@ -89,6 +90,7 @@ export default defineComponent({
     },
     mounted() {
         this.setEventListeners()
+        this.loadVariables()
         this.onRefreshChart()
     },
     unmounted() {
@@ -107,10 +109,14 @@ export default defineComponent({
             emitter.off('widgetResized', this.resizeChart)
             emitter.off('chartTypeChanged', this.onRefreshChart)
         },
+        loadVariables() {
+            this.variables = this.propVariables
+        },
         onRefreshChart(widget: any | null = null) {
             if (widget && widget.id !== this.widgetModel.id) return
             this.chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
             if (this.chartModel?.chart.type === 'wordcloud') return
+            this.loadVariables()
             this.updateChartModel()
         },
         updateChartModel() {
@@ -118,7 +124,7 @@ export default defineComponent({
             Highcharts.setOptions({ lang: { noData: this.chartModel.lang.noData } })
             this.widgetModel.settings.chartModel.updateChartColorSettings(this.widgetModel)
 
-            this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel)
+            this.widgetModel.settings.chartModel.setData(this.dataToShow, this.widgetModel, this.variables)
 
             this.widgetModel.settings.chartModel.updateSeriesAccessibilitySettings(this.widgetModel)
             if (!['heatmap', 'dependencywheel', 'sankey', 'spline'].includes(this.chartModel.chart.type)) this.widgetModel.settings.chartModel.updateSeriesLabelSettings(this.widgetModel)
@@ -148,7 +154,9 @@ export default defineComponent({
             }
             modelToRender.chart.backgroundColor = null
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
-            formatChartAnnotations(modelToRender, this.propVariables, this.getDashboardDrivers(this.dashboardId))
+            formatChartAnnotations(modelToRender, this.variables, this.getDashboardDrivers(this.dashboardId))
+
+            console.log('---- MODEL TO RENDER: ', modelToRender)
 
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
@@ -163,26 +171,26 @@ export default defineComponent({
         updateLegendSettings() {
             if (this.chartModel.plotOptions.pie) this.chartModel.plotOptions.pie.showInLegend = true
             if (this.chartModel.plotOptions.gauge) this.chartModel.plotOptions.gauge.showInLegend = true
-            return this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.legend, 'labelFormat', 'labelFormatter', 'labelFormatterText', 'labelFormatterError')
+            return this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.legend, 'labelFormat', 'labelFormatter', 'labelFormatterText', 'labelFormatterError', this.variables)
         },
         updateDataLabels() {
             const dataLabels = this.chartModel.plotOptions && this.chartModel.plotOptions[this.chartModel.chart.type] ? this.chartModel.plotOptions[this.chartModel.chart.type].dataLabels : null
             if (dataLabels) {
-                this.error = this.widgetModel.settings.chartModel.updateFormatterSettings(dataLabels, 'format', 'formatter', 'formatterText', 'formatterError')
+                this.error = this.widgetModel.settings.chartModel.updateFormatterSettings(dataLabels, 'format', 'formatter', 'formatterText', 'formatterError', this.variables)
                 if (this.error) return
             }
         },
         updateAxisLabels() {
             const axisLabels = this.chartModel.xAxis && this.chartModel.xAxis[0].labels ? this.chartModel.xAxis[0].labels : null
             if (axisLabels) {
-                this.error = this.widgetModel.settings.chartModel.updateFormatterSettings(axisLabels, 'format', 'formatter', 'formatterText', 'formatterError')
+                this.error = this.widgetModel.settings.chartModel.updateFormatterSettings(axisLabels, 'format', 'formatter', 'formatterText', 'formatterError', this.variables)
                 if (this.error) return
             }
         },
         updateTooltipSettings() {
-            let hasError = this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.tooltip, null, 'formatter', 'formatterText', 'formatterError')
+            let hasError = this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.tooltip, null, 'formatter', 'formatterText', 'formatterError', this.variables)
             if (hasError) return hasError
-            hasError = this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.tooltip, null, 'pointFormatter', 'pointFormatterText', 'pointFormatterError')
+            hasError = this.widgetModel.settings.chartModel.updateFormatterSettings(this.chartModel.tooltip, null, 'pointFormatter', 'pointFormatterText', 'pointFormatterError', this.variables)
             return hasError
         },
         setSeriesEvents() {
@@ -236,7 +244,7 @@ export default defineComponent({
                 this.$emit('datasetInteractionPreview', { formattedChartValues: formattedChartValues, previewSettings: this.widgetModel.settings.interactions.preview })
             } else if (this.widgetModel.settings.interactions.link.enabled) {
                 const formattedChartValues = getFormattedChartValues(event, this.dataToShow, this.chartModel.chart.type)
-                openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.propVariables)
+                openNewLinkChartWidget(formattedChartValues, this.widgetModel.settings.interactions.link, this.dashboardId, this.variables)
             } else if (['pie', 'radar', 'area', 'bar', 'column', 'line', 'scatter', 'bubble', 'suburst', 'treemap', 'dependencywheel', 'spline', 'pictorial', 'sankey', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall'].includes(this.chartModel.chart.type)) {
                 this.setSelection(event)
             }
@@ -287,6 +295,9 @@ export default defineComponent({
         },
         getModelForRender() {
             const formattedChartModel = deepcopy(this.chartModel)
+
+            formatVariables(formattedChartModel, this.variables)
+
             if (formattedChartModel.chart.type === 'activitygauge') {
                 formatActivityGauge(formattedChartModel, this.widgetModel)
             } else if (formattedChartModel.chart.type === 'heatmap') {

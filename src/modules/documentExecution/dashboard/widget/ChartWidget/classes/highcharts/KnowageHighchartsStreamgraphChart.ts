@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -20,30 +20,29 @@ export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
         if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
-
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
         if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setStreamgraphXAxis()
         this.setStreamgraphYAxis()
     }
 
-    setPlotOptions() {
-
-    }
+    setPlotOptions() {}
 
     setStreamgraphXAxis() {
         this.model.xAxis = [highchartsDefaultValues.getDefaultBarXAxis()]
     }
 
     setStreamgraphYAxis() {
-        this.model.yAxis = [{
-            visible: false,
-            startOnTick: false,
-            endOnTick: false
-        }]
+        this.model.yAxis = [
+            {
+                visible: false,
+                startOnTick: false,
+                endOnTick: false
+            }
+        ]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
@@ -54,39 +53,38 @@ export class KnowageHighchartsStreamgraphChart extends KnowageHighcharts {
     }
 
     setStreamgraphChartData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
-
         const firstAttributeColumn = attributeColumns[0]
         const secondAttributeColumn = attributeColumns[1]
         const measureColumn = measureColumns[0]
 
         if (!data || !firstAttributeColumn || !secondAttributeColumn || !measureColumn) return
 
-        const result: Record<string, Record<string, number[]>> = {};
-        data.rows.forEach((row: any,) => {
-            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex];
-            const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex];
-            const measureValue = row[measureColumn.metadata.dataIndex];
+        const result: Record<string, Record<string, number[]>> = {}
+        data.rows.forEach((row: any) => {
+            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
+            const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
+            const measureValue = row[measureColumn.metadata.dataIndex]
 
-            if (!result[firstAttributeValue]) result[firstAttributeValue] = {};
-            if (!result[firstAttributeValue][secondAttributeValue]) result[firstAttributeValue][secondAttributeValue] = [];
-            result[firstAttributeValue][secondAttributeValue].push(measureValue);
+            if (!result[firstAttributeValue]) result[firstAttributeValue] = {}
+            if (!result[firstAttributeValue][secondAttributeValue]) result[firstAttributeValue][secondAttributeValue] = []
+            result[firstAttributeValue][secondAttributeValue].push(measureValue)
         })
 
-        const categories: string[] = Object.keys(result);
-        const allKeys: Set<string> = new Set();
+        const categories: string[] = Object.keys(result)
+        const allKeys: Set<string> = new Set()
 
-        categories.forEach(category => {
-            const keys = Object.keys(result[category]);
-            keys.forEach(key => allKeys.add(key));
-        });
+        categories.forEach((category) => {
+            const keys = Object.keys(result[category])
+            keys.forEach((key) => allKeys.add(key))
+        })
 
-        allKeys.forEach(key => {
-            const data: { name: string, y: number }[] = categories.map(category => {
-                const values = result[category][key];
-                return values ? { name: category, y: values.reduce((sum, value) => sum + value, 0) } : { name: category, y: 0 };
-            });
+        allKeys.forEach((key) => {
+            const data: { name: string; y: number }[] = categories.map((category) => {
+                const values = result[category][key]
+                return values ? { name: category, y: values.reduce((sum, value) => sum + value, 0) } : { name: category, y: 0 }
+            })
             this.model.series.push({ name: key, data })
-        });
+        })
         this.model.xAxis[0].categories = []
         this.model.xAxis[0].categories = [...categories]
     }

@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getAllColumnsOfSpecificTypeFromDataResponse, setRegularData } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -20,12 +20,10 @@ export class KnowageHighchartsWaterfallChart extends KnowageHighcharts {
         if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
-
     setSpecificOptionsDefaultValues() {
         if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setWaterfallXAxis()
         if (!this.model.yAxis || !this.model.yAxis[0] || !this.model.yAxis[0].title) this.setWaterfallYAxis()
     }
-
 
     setWaterfallXAxis() {
         this.model.xAxis = [highchartsDefaultValues.getDefaultBarXAxis()]
@@ -35,15 +33,14 @@ export class KnowageHighchartsWaterfallChart extends KnowageHighcharts {
         this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, false, dateFormat)
+        setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, false, dateFormat, variables)
         return this.model.series
     }
-
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
         updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable(this.model, widgetModel)
