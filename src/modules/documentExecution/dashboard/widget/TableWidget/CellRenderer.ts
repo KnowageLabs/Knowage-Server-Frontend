@@ -152,6 +152,8 @@ export default class CellRenderer {
         } else if (params.colId === 'iconColumn') createIconColumnIcons()
         else this.eGui.innerHTML = setCellContent()
 
+        truncateCellContent(this.eGui)
+
         function invokeParentMethod(interaction, params, index) {
             const clickedInteraction = { type: interaction.interactionType, index: index, icon: interaction.icon, node: params }
             params.context.componentParent.activateInteractionFromClickedIcon(clickedInteraction)
@@ -171,7 +173,7 @@ export default class CellRenderer {
             if (isColumnOfType('timestamp') || isColumnOfType('datetime')) return dateTimeFormatter(params.value)
             else if (isColumnOfType('date')) return dateFormatter(params.value)
             else if (params.colId === 'iconColumn') {
-                return `<i class="${getActiveIconFromWidget()}"></i>` ?? 'ICON ERROR'
+                return `<i class="${getActiveIconFromWidget()}"></i>`
             } else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') {
                 if (typeof params.value === 'number') return numberFormatter(params.value)
                 else return params.value
@@ -217,6 +219,27 @@ export default class CellRenderer {
 
             if (visType?.precision) return formatNumberWithLocale(cellValue, visType.precision)
             else return formatNumberWithLocale(cellValue, 0)
+        }
+        function truncateCellContent(eGui) {
+            const visType = getColumnVisualizationType(params.colId)
+            const isDateColumn = isColumnOfType('timestamp') || isColumnOfType('datetime') || isColumnOfType('date')
+            if (visType?.maximumCharacters && (visType.type === 'Text' || visType.type === 'Text & Icon') && eGui.innerHTML.length > visType?.maximumCharacters && !isDateColumn) {
+                eGui.innerHTML = eGui.innerHTML.slice(0, visType?.maximumCharacters)
+
+                const interactionButton = createTruncationIcon()
+                eGui.appendChild(interactionButton)
+            }
+
+            function createTruncationIcon() {
+                const interactionButton = document.createElement('icon')
+                interactionButton.setAttribute('class', `fas fa-search p-mr-1 p-ml-auto`)
+                interactionButton.setAttribute('style', 'cursor: pointer;')
+                interactionButton.addEventListener('click', (event) => {
+                    event.stopPropagation()
+                    params.context.componentParent.toggleTruncatedDialog(params.value)
+                })
+                return interactionButton
+            }
         }
     }
 

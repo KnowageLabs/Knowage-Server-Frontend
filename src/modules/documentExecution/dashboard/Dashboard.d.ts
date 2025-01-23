@@ -414,6 +414,7 @@ export interface ITableWidgetVisualizationType {
     prefix?: string
     suffix?: string
     pinned?: string
+    maximumCharacters?: number
     min?: number
     max?: number
     alignment?: string
