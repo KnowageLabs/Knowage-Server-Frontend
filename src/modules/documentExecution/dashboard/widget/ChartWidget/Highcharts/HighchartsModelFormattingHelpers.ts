@@ -129,8 +129,6 @@ export const formatStreamgraphChart = (formattedChartModel: IHighchartsChartMode
 }
 
 export const formatVariables = (formattedChartModel: IHighchartsChartModel, variables: IVariable[]) => {
-    console.log('--------- formatVariables - models: ', formattedChartModel)
-    console.log('--------- formatVariables - variables: ', variables)
     formatVariablesForAxis(formattedChartModel, variables, 'xAxis')
     formatVariablesForAxis(formattedChartModel, variables, 'yAxis')
 }
