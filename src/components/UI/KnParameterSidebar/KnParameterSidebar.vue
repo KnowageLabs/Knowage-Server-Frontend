@@ -328,7 +328,7 @@ export default defineComponent({
                     id = this.document.federation_id
                 }
 
-                if (id || this.document.label) {
+                if (id || (this.document.label && this.document.label !== 'new-dashboard')) {
                     getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
                         this.availableRolesForExecution = response
                         if (!this.role && this.availableRolesForExecution.length == 1) {

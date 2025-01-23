@@ -21,18 +21,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { iNode } from '../DocumentBrowser'
+import { defineComponent, PropType } from 'vue'
+import { iFolder, iNode } from '../DocumentBrowser'
 import Tree from 'primevue/tree'
 
 export default defineComponent({
     name: 'document-browser-tree',
     components: { Tree },
-    props: { propFolders: { type: Array }, selectedBreadcrumb: { type: Object }, selectedFolderProp: { type: Object } },
+    props: { propFolders: { type: Array as PropType<Array<iFolder>> }, selectedBreadcrumb: { type: Object }, selectedFolderProp: { type: Object } },
     emits: ['folderSelected'],
     data() {
         return {
-            folders: [] as any[],
+            folders: [] as iFolder[],
             nodes: [] as iNode[],
             selectedFolderKey: {},
             expandedKeys: {},
@@ -74,7 +74,7 @@ export default defineComponent({
     },
     methods: {
         loadFolders() {
-            this.folders = this.propFolders as any[]
+            this.folders = this.propFolders as iFolder[]
             this.loadSelectedFolderFromLocalStorage()
         },
         createNodeTree() {
@@ -100,7 +100,7 @@ export default defineComponent({
             }
             this.nodes = [personalFolder]
             const foldersWithMissingParent = [] as iNode[]
-            this.folders.forEach((folder: any) => {
+            this.folders.forEach((folder: iFolder) => {
                 const node = { key: folder.name, icon: 'pi pi-folder', id: folder.id, prog: folder.prog, parentId: folder.parentId, label: folder.name, children: [] as iNode[], data: folder }
                 node.children = foldersWithMissingParent.filter((folder: iNode) => node.id === folder.parentId && folder.data.codType !== 'LOW_FUNCT')
                 this.attachFolderToTree(node, foldersWithMissingParent, personalFolder)
@@ -187,7 +187,7 @@ export default defineComponent({
         loadSelectedFolderFromLocalStorage() {
             const folderId = localStorage.getItem('documentSelectedFolderId')
             if (folderId) {
-                const index = this.folders.findIndex((el: any) => el.id === JSON.parse(folderId))
+                const index = this.folders.findIndex((el: iFolder) => el.id === JSON.parse(folderId))
                 if (index !== -1) {
                     this.selectedFolder = this.folders[index]
                     this.selectedFolderKey[this.folders[index].name] = true

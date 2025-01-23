@@ -36,6 +36,13 @@
                         "validator": {
                             "type": "jndi-name-required"
                         }
+                    },
+                    {
+                        "key": "jndiformat",
+                        "translateBaseKey": "usersManagement.validation",
+                        "validator": {
+                            "type": "jndi-format"
+                        }
                     }
                 ]
             },
