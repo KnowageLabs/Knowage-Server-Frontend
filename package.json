@@ -42,8 +42,7 @@
         "mitt": "^3.0.0",
         "moment": "2.29.4",
         "monaco-editor": "0.52.0",
-        "parchment": "^2.0.1",
-        "pinia": "2.1.7",
+        "pinia": "2.3.1",
         "primeflex": "^2.0.0",
         "primeicons": "^5.0.0",
         "primevue": "3.17.0",
@@ -57,14 +56,14 @@
         "vega-embed": "^6.22.1",
         "vega-lite": "^5.7.1",
         "vite-plugin-package-version": "^1.0.2",
-        "vue": "3.4.27",
-        "vue-axios": "^3.2.4",
+        "vue": "3.5.13",
+        "vue-axios": "3.5.2",
         "vue-chartjs": "^4.1.2",
         "vue-class-component": "^8.0.0-0",
         "vue-color-kit": "^1.0.5",
         "vue-i18n": "9.13.1",
-        "vue-router": "4.3.2",
-        "vue3-cookies": "^1.0.6",
+        "vue-router": "4.5.0",
+        "vue3-cookies": "1.0.6",
         "x2js": "^3.4.1"
     },
     "devDependencies": {
@@ -81,11 +80,10 @@
         "flush-promises": "^1.0.2",
         "material-icons": "^1.10.0",
         "rollup-plugin-node-builtins": "^2.0.0",
-        "sass": "^1.42.1",
+        "sass": "1.83.4",
         "typescript": "^4.4.4",
         "vite": "4.5.3",
-        "vite-plugin-pwa": "0.16.4",
-        "vitest": "^0.15.2"
+        "vite-plugin-pwa": "0.16.4"
     },
     "eslintConfig": {
         "root": true,
