@@ -413,6 +413,7 @@
         "yearly": "Yearly"
     },
     "dashboard": {
+        "truncateDialog": "Cell Content",
         "activeSelections": {
             "noActiveSelections": "No Active Selections"
         },

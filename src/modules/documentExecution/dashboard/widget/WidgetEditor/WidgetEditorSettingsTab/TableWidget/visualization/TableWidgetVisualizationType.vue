@@ -65,7 +65,7 @@
                         </template>
                     </Dropdown>
                 </div>
-                <div v-if="visualizationType.type === 'Text'" class="p-col-6 p-md-3 p-d-flex p-flex-column">
+                <div v-if="visualizationType.type === 'Text' || visualizationType.type === 'Text & Icon'" class="p-col-6 p-md-3 p-d-flex p-flex-column">
                     <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.visualizationType.maximumCharacters') }}</label>
                     <InputNumber v-model="visualizationType.maximumCharacters" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
                 </div>

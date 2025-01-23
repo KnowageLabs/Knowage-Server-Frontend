@@ -8,6 +8,7 @@
         <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
 
         <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @page-changed="$emit('pageChanged')" />
+        <TruncationDialog v-if="truncateDialogVisible" :cellContent="truncateDialogCellContent" :visible="truncateDialogVisible" :dashboard-id="dashboardId" @close="truncateDialogVisible = false" />
     </div>
 </template>
 
@@ -34,6 +35,7 @@ import HeaderGroupRenderer from './HeaderGroupRenderer.vue'
 import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
 import ContextMenu from 'primevue/contextmenu'
+import TruncationDialog from './TruncationDialog.vue'
 
 export default defineComponent({
     name: 'table-widget',
@@ -48,7 +50,8 @@ export default defineComponent({
         // eslint-disable-next-line vue/no-unused-components
         TooltipRenderer,
         PaginatorRenderer,
-        ContextMenu
+        ContextMenu,
+        TruncationDialog
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -83,7 +86,9 @@ export default defineComponent({
             selectedColumn: false as any,
             selectedColumnArray: [] as any,
             context: null as any,
-            interactionsMenuItems: [] as any
+            interactionsMenuItems: [] as any,
+            truncateDialogVisible: false,
+            truncateDialogCellContent: ''
         }
     },
     watch: {
@@ -677,6 +682,10 @@ export default defineComponent({
             if (pagination.enabled) {
                 this.widgetModel.settings.pagination.properties.totalItems = this.dataToShow?.results
             }
+        },
+        toggleTruncatedDialog(cellContent) {
+            this.truncateDialogCellContent = cellContent
+            this.truncateDialogVisible = true
         }
     }
 })
