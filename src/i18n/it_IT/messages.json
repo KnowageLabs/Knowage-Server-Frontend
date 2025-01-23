@@ -236,6 +236,7 @@
         "uppercaseDelete": "elimina",
         "user": "Utente",
         "validation": {
+            "jndiformat": "La stringa JNDI deve iniziare con: \"java:comp/env/jdbc/\"",
             "maxLength": "questo campo deve avere meno di {max} caratteri",
             "maximumCharacters": "la lunghezza massima consentita è {max}",
             "minLength": "il campo deve avere almeno {min} caratteri",

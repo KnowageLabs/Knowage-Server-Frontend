@@ -48,11 +48,11 @@
 <script lang="ts">
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, IVariable, IWidget } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
-import { createNewTableSelection, formatRowDataForCrossNavigation, getActiveInteractions, getFormattedClickedValueForCrossNavigation } from '../TableWidget/TableWidgetHelper'
+import { createNewTableSelection, formatRowDataForCrossNavigation, getActiveInteractions, getFormattedClickedValueForCrossNavigation, isConditionMet } from '../TableWidget/TableWidgetHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
@@ -64,6 +64,7 @@ import HeaderRenderer from '../TableWidget/HeaderRenderer.vue'
 import TooltipRenderer from '../TableWidget/TooltipRenderer.vue'
 import ProgressSpinner from 'primevue/progressspinner'
 import ContextMenu from 'primevue/contextmenu'
+import CellRenderer from '../TableWidget/CellRenderer'
 
 export default defineComponent({
     name: 'table-widget',
@@ -344,6 +345,7 @@ export default defineComponent({
             const columns = [] as any
             const dataset = { type: 'SbiFileDataSet' }
             const responseFields = this.tableData?.metaData?.fields
+            const columnDataMap = Object.fromEntries(this.propWidget.columns.map((column, index) => [column.id, `column_${index + 1}`]))
 
             for (const datasetColumn in this.propWidget.columns) {
                 for (const responseField in responseFields) {
@@ -351,7 +353,7 @@ export default defineComponent({
 
                     if (typeof responseFields[responseField] == 'object' && ((dataset.type == 'SbiSolrDataSet' && modelColumn.alias.toLowerCase() === responseFields[responseField].header) || modelColumn.alias.toLowerCase() === responseFields[responseField].header.toLowerCase())) {
                         const tempCol = {
-                            hide: false,
+                            hide: this.getColumnVisibilityCondition(this.propWidget.columns[datasetColumn].id, 'hide'),
                             colId: modelColumn.id,
                             headerName: modelColumn.alias,
                             columnName: modelColumn.columnName,
@@ -360,7 +362,17 @@ export default defineComponent({
                             headerComponent: HeaderRenderer,
                             headerComponentParams: { colId: modelColumn.id, propWidget: this.propWidget },
                             suppressMovable: true,
-                            resizable: true
+                            resizable: true,
+                            cellRenderer: CellRenderer,
+                            cellRendererParams: {
+                                colId: modelColumn.id,
+                                propWidget: this.propWidget,
+                                multiSelectedCells: [],
+                                selectedColumnArray: [],
+                                dashboardDrivers: [],
+                                dashboardVariables: [],
+                                columnDataMap
+                            }
                         } as any
 
                         // COLUMN STYLE ---------------------------------------------------------------------------
@@ -402,6 +414,13 @@ export default defineComponent({
                         tempCol.wrapText = responseFields[responseField].type === 'text'
                         // tempCol.cellStyle = { 'white-space': 'normal' }
 
+                        // VISUALIZATION TYPE CONFIGURATION  -----------------------------------------------------------------
+                        const visTypes = this.propWidget.settings.visualization.visualizationTypes as ITableWidgetVisualizationTypes
+                        if (visTypes.enabled) {
+                            const colVisType = this.getColumnVisualizationType(tempCol.colId)
+                            tempCol.pinned = colVisType.pinned
+                        }
+
                         columns.push(tempCol)
                     }
                 }
@@ -409,6 +428,13 @@ export default defineComponent({
             this.gridColumns = columns
 
             this.gridLoading = false
+        },
+        getColumnVisualizationType(colId) {
+            const visTypes = this.propWidget.settings.visualization.visualizationTypes as ITableWidgetVisualizationTypes
+
+            const colVisType = visTypes.types.find((visType) => visType.target.includes(colId))
+            if (colVisType) return colVisType
+            else return visTypes.types[0]
         },
         getColumnTooltipConfig(colId) {
             const tooltipConfig = this.propWidget.settings.tooltips
@@ -487,6 +513,24 @@ export default defineComponent({
 
             if (colStyle) return colStyle.properties.width
             else return colStyles.styles[0].properties.width
+        },
+        getColumnVisibilityCondition(colId, propertyToReturn) {
+            const visCond = this.propWidget.settings.visualization.visibilityConditions
+            let columnHidden = false as boolean
+
+            if (visCond.enabled) {
+                const colConditions = visCond.conditions.filter((condition) => condition.target.includes(colId))
+                //We always take the 1st condition as a priority for the column and use that one.
+                if (colConditions[0]) {
+                    if (colConditions[0].condition.type === 'always') {
+                        columnHidden = colConditions[0][propertyToReturn]
+                    } else {
+                        isConditionMet(colConditions[0].condition, colConditions[0].condition.variableValue) ? (columnHidden = colConditions[0][propertyToReturn]) : ''
+                    }
+                }
+            }
+
+            return columnHidden
         }
         //#endregion ================================================================================================
     }

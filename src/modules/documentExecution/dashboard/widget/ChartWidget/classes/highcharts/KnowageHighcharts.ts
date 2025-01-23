@@ -1,9 +1,10 @@
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartModel, IHighchartsChartSerie, IHighchartsSerieAccessibility, IHighchartsSerieLabelSettings, ISerieAccessibilitySetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { createSerie, createGaugeSerie, createPolarSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import Highcharts from 'highcharts'
 import chartColorSettingsDescriptor from '@/modules/documentExecution/dashboard/widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
+import { replaceVariablesPlaceholdersByVariableName } from '../../../interactionsHelpers/InteractionsParserHelper'
 
 export class KnowageHighcharts {
     model: IHighchartsChartModel
@@ -33,7 +34,7 @@ export class KnowageHighcharts {
                 categories: []
             },
             plotOptions: {
-                series: { events: {}, cursor: "pointer" }
+                series: { events: {}, cursor: 'pointer' }
             },
             legend: highchartsDefaultValues.getDefaultLegendSettings(),
             tooltip: highchartsDefaultValues.getDefaultTooltipSettings(),
@@ -94,8 +95,10 @@ export class KnowageHighcharts {
         if (index !== -1) this.model.series[index].accessibility = { ...accessibility }
     }
 
-    updateFormatterSettings(object: any, formatProperty: string | null, formatterProperty: string, formatterTextProperty: string, formatterErrorProperty: string) {
+    updateFormatterSettings(object: any, formatProperty: string | null, formatterProperty: string, formatterTextProperty: string, formatterErrorProperty: string, variables: IVariable[]) {
         let hasError = false
+
+        const formattedTextValue = object[formatterTextProperty] ? replaceVariablesPlaceholdersByVariableName(object[formatterTextProperty], variables) : ''
         if (formatProperty && object[formatProperty]?.trim() === '') delete object[formatProperty]
         if (!object[formatterTextProperty] || !object[formatterTextProperty].trim()) {
             delete object[formatterProperty]
@@ -103,7 +106,7 @@ export class KnowageHighcharts {
             return hasError
         } else {
             try {
-                const fn = eval(`(${object[formatterTextProperty]})`)
+                const fn = eval(`(${formattedTextValue})`)
                 if (typeof fn === 'function') object[formatterProperty] = fn
                 object[formatterErrorProperty] = ''
             } catch (error) {
@@ -112,18 +115,6 @@ export class KnowageHighcharts {
             }
         }
 
-        return hasError
-    }
-
-    updateLegendSettings() {
-        if (this.model.plotOptions.pie) this.model.plotOptions.pie.showInLegend = true
-        return this.updateFormatterSettings(this.model.legend, 'labelFormat', 'labelFormatter', 'labelFormatterText', 'labelFormatterError')
-    }
-
-    updateTooltipSettings() {
-        let hasError = this.updateFormatterSettings(this.model.tooltip, null, 'formatter', 'formatterText', 'formatterError')
-        if (hasError) return hasError
-        hasError = this.updateFormatterSettings(this.model.tooltip, null, 'pointFormatter', 'pointFormatterText', 'pointFormatterError')
         return hasError
     }
 

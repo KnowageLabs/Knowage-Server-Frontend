@@ -13,6 +13,8 @@
                 <WidgetExport v-else-if="accordion.type === 'Export'" :widget-model="widgetModel"></WidgetExport>
                 <WidgetMenuConfiguration v-else-if="accordion.type === 'MenuConfiguration'" :widget-model="widgetModel"></WidgetMenuConfiguration>
                 <TableWidgetCustomMessages v-else-if="accordion.type === 'CustomMessages'" :widget-model="widgetModel"></TableWidgetCustomMessages>
+                <TableWidgetVisualizationType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel"></TableWidgetVisualizationType>
+                <TableWidgetVisibilityConditions v-else-if="accordion.type === 'VisibilityConditions'" :widget-model="widgetModel" :variables="variables"></TableWidgetVisibilityConditions>
                 <TableWidgetHeaders v-else-if="accordion.type === 'Headers'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetHeaders>
                 <WidgetTitleStyle v-else-if="accordion.type === 'Title'" :widget-model="widgetModel" :theme-style="null" :toolbar-style-settings="settingsTabDescriptor.defaultToolbarStyleOptions" @styleChanged="onStyleChanged"> </WidgetTitleStyle>
                 <TableWidgetColumnStyle v-else-if="accordion.type === 'ColumnStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetColumnStyle>
@@ -44,6 +46,8 @@ import settingsTabDescriptor from '../WidgetEditorSettingsTabDescriptor.json'
 import WidgetExport from '../common/configuration/WidgetExport.vue'
 import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import TableWidgetCustomMessages from '../TableWidget/configuration/TableWidgetCustomMessages.vue'
+import TableWidgetVisualizationType from '../TableWidget/visualization/TableWidgetVisualizationType.vue'
+import TableWidgetVisibilityConditions from '../TableWidget/visualization/TableWidgetVisibilityConditions.vue'
 import TableWidgetColumnStyle from '../TableWidget/style/TableWidgetColumnStyle.vue'
 import WidgetRowsStyle from '../common/style/WidgetRowsStyle.vue'
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
@@ -72,6 +76,8 @@ export default defineComponent({
         AccordionTab,
         WidgetExport,
         TableWidgetCustomMessages,
+        TableWidgetVisualizationType,
+        TableWidgetVisibilityConditions,
         TableWidgetHeaders,
         WidgetTitleStyle,
         TableWidgetColumnStyle,

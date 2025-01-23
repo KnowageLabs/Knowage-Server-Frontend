@@ -51,7 +51,7 @@ export default class CellRenderer {
             const celectedCellValues = params.multiSelectedCells
             const selectedColumn = params.selectedColumnArray[0]
 
-            if (selection.enabled && selection.multiselection.enabled) {
+            if (selection?.enabled && selection?.multiselection?.enabled) {
                 if (selection.modalColumn && selection.modalColumn == params.colDef.colId && celectedCellValues.includes(params.value)) return selection.multiselection.properties
                 else if (!selection.modalColumn && selectedColumn == params.colDef.field && celectedCellValues.includes(params.value)) return selection.multiselection.properties
             } else return null

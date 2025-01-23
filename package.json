@@ -29,7 +29,6 @@
         "caniuse-lite": "^1.0.30001618",
         "chart.js": "^3.7.0",
         "cronstrue": "^2.1.0",
-        "deasync": "^0.1.21",
         "deepcopy": "^2.1.0",
         "dexie": "^3.2.4",
         "dom-to-image-more": "^3.1.6",

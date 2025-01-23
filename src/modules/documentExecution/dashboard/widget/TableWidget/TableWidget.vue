@@ -16,7 +16,7 @@
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions, ITableWidgetConditionalStyles, ITableWidgetConditionalStyle } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
@@ -36,6 +36,7 @@ import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
 import ContextMenu from 'primevue/contextmenu'
 import TruncationDialog from './TruncationDialog.vue'
+import { replaceVariablesPlaceholdersByVariableName } from '../interactionsHelpers/InteractionsParserHelper'
 
 export default defineComponent({
     name: 'table-widget',
@@ -88,7 +89,8 @@ export default defineComponent({
             context: null as any,
             interactionsMenuItems: [] as any,
             truncateDialogVisible: false,
-            truncateDialogCellContent: ''
+            truncateDialogCellContent: '',
+            variables: [] as IVariable[]
         }
     },
     watch: {
@@ -106,6 +108,9 @@ export default defineComponent({
         },
         propActiveSelections() {
             this.loadActiveSelections()
+        },
+        propVariables() {
+            this.loadVariables()
         }
     },
     beforeMount() {
@@ -113,6 +118,7 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadVariables()
         this.loadWidgetModel()
         this.loadActiveSelections()
         this.setupDatatableOptions()
@@ -151,6 +157,9 @@ export default defineComponent({
                     this.multiSelectedCells = selection.value
                 }
             }
+        },
+        loadVariables() {
+            this.variables = this.propVariables
         },
         setSelectedCellForMultiselected(columnName: string) {
             if (!columnName || !this.tableData || !this.tableData.metaData) this.selectedColumn = ''
@@ -221,10 +230,10 @@ export default defineComponent({
             this.columnsNameArray = []
 
             const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
-            const dashboardVariables = this.propVariables
+            const dashboardVariables = this.variables
             const dataset = { type: 'SbiFileDataSet' }
 
-            const conditionalStyles = this.propWidget.settings.conditionalStyles
+            const conditionalStyles = this.getFormattedConditionalStyles(this.propWidget.settings.conditionalStyles)
             const columnDataMap = Object.fromEntries(this.propWidget.columns.map((column, index) => [column.id, `column_${index + 1}`]))
             // const selectedColumnsIds = this.propWidget.columns.map((currElement) => {
             //     return currElement.id
@@ -438,6 +447,13 @@ export default defineComponent({
 
             return columns
         },
+        getFormattedConditionalStyles(conditionalStyle: ITableWidgetConditionalStyles) {
+            conditionalStyle.conditions?.forEach((tempCondition: ITableWidgetConditionalStyle) => {
+                if (tempCondition.condition?.formula) tempCondition.condition.formula = replaceVariablesPlaceholdersByVariableName(tempCondition.condition.formula, this.variables)
+            })
+
+            return conditionalStyle
+        },
         activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
             switch (cell.type) {
                 case 'crossNavigation':
@@ -466,11 +482,15 @@ export default defineComponent({
         },
         getColumnTooltipConfig(colId) {
             const tooltipConfig = this.widgetModel.settings.tooltips
+
             let columntooltipConfig = null as any
             tooltipConfig[0].enabled ? (columntooltipConfig = tooltipConfig[0]) : ''
             tooltipConfig.forEach((config) => {
                 config.target.includes(colId) ? (columntooltipConfig = config) : ''
             })
+
+            if (columntooltipConfig.prefix) columntooltipConfig.prefix = replaceVariablesPlaceholdersByVariableName(columntooltipConfig.prefix, this.variables)
+            if (columntooltipConfig.suffix) columntooltipConfig.suffix = replaceVariablesPlaceholdersByVariableName(columntooltipConfig.suffix, this.variables)
 
             return columntooltipConfig
         },
@@ -620,11 +640,11 @@ export default defineComponent({
         startLinkInteraction(node: any, activeInteraction: any) {
             if (!activeInteraction) return
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, activeInteraction)
+            openNewLinkTableWidget(formattedRow, this.dashboardId, this.variables, activeInteraction)
         },
         startIframeInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
+            startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.variables, window)
         },
         applyMultiSelection() {
             const modalSelection = this.widgetModel.settings.interactions.selection

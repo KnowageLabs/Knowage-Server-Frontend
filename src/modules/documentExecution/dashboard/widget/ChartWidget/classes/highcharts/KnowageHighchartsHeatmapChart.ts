@@ -1,10 +1,10 @@
-import { updateHeatmapChartModel } from './updater/KnowageHighchartsHeatmapChartUpdater';
+import { updateHeatmapChartModel } from './updater/KnowageHighchartsHeatmapChartUpdater'
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { createHeatMapSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
-import moment from 'moment';
+import moment from 'moment'
 
 export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
     constructor(model: any) {
@@ -45,7 +45,7 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
         this.model.legend = highchartsDefaultValues.getDefaultHeatmapLegendSettings()
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         if (!data || !data.rows) return
         if (this.model.series.length === 0) this.getSeriesFromWidgetModel(widgetModel)
 
@@ -95,7 +95,7 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
 
     sortCategories(categories: string[], dateFormat: string, sortType: string) {
         if (dateFormat) {
-            categories.sort((a: string, b: string) => sortType === 'DESC' ? moment(a, dateFormat).diff(moment(b, dateFormat)) : moment(b, dateFormat).diff(moment(a, dateFormat)))
+            categories.sort((a: string, b: string) => (sortType === 'DESC' ? moment(a, dateFormat).diff(moment(b, dateFormat)) : moment(b, dateFormat).diff(moment(a, dateFormat))))
         } else {
             sortType === 'DESC' ? categories.sort() : categories.sort().reverse()
         }
@@ -123,12 +123,11 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
                         x: i,
                         y: j,
                         name: xAxisCategories[i],
-                        groupingValue: yAxisCategories[j],
+                        groupingValue: yAxisCategories[j]
                     })
                 }
             }
         }
-
     }
 
     getSeriesColumnKey(data: any, widgetModel: IWidget) {
@@ -155,7 +154,9 @@ export class KnowageHighchartsHeatmapChart extends KnowageHighcharts {
     }
 
     formatSeriesFromOtherChartTypeSeries() {
-        this.model.series = this.model.series?.map((serie: any) => { return this.getFormattedSerieFromOtherChartTypeSerie(serie) })
+        this.model.series = this.model.series?.map((serie: any) => {
+            return this.getFormattedSerieFromOtherChartTypeSerie(serie)
+        })
     }
 
     getFormattedSerieFromOtherChartTypeSerie(otherChartSerie: any) {

@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -20,7 +20,6 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
         if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
-
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
         if (!this.model.xAxis || !this.model.xAxis[0] || !this.model.xAxis[0].title) this.setPackedBubbleXAxis()
@@ -39,7 +38,7 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
         this.model.yAxis = [highchartsDefaultValues.getDefaultScatterYAxis()]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
@@ -56,32 +55,32 @@ export class KnowageHighchartsPackedBubbleChart extends KnowageHighcharts {
 
         if (!data || !firstAttributeColumn || !secondAttributeColumn || !measureColumn) return
 
-        const result: Record<string, Record<string, number[]>> = {};
-        data.rows.forEach((row: any,) => {
-            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex];
-            const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex];
-            const measureValue = row[measureColumn.metadata.dataIndex];
+        const result: Record<string, Record<string, number[]>> = {}
+        data.rows.forEach((row: any) => {
+            const firstAttributeValue = dateFormat && ['date', 'timestamp'].includes(firstAttributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
+            const secondAttributeValue = row[secondAttributeColumn.metadata.dataIndex]
+            const measureValue = row[measureColumn.metadata.dataIndex]
 
-            if (!result[secondAttributeValue]) result[secondAttributeValue] = {};
-            if (!result[secondAttributeValue][firstAttributeValue]) result[secondAttributeValue][firstAttributeValue] = [];
-            result[secondAttributeValue][firstAttributeValue].push(measureValue);
+            if (!result[secondAttributeValue]) result[secondAttributeValue] = {}
+            if (!result[secondAttributeValue][firstAttributeValue]) result[secondAttributeValue][firstAttributeValue] = []
+            result[secondAttributeValue][firstAttributeValue].push(measureValue)
         })
 
-        const categories: string[] = Object.keys(result);
-        const allKeys: Set<string> = new Set();
+        const categories: string[] = Object.keys(result)
+        const allKeys: Set<string> = new Set()
 
-        categories.forEach(category => {
-            const keys = Object.keys(result[category]);
-            keys.forEach(key => allKeys.add(key));
-        });
+        categories.forEach((category) => {
+            const keys = Object.keys(result[category])
+            keys.forEach((key) => allKeys.add(key))
+        })
 
-        allKeys.forEach(key => {
-            const data: { name: string, value: number }[] = categories.map(category => {
-                const values = result[category][key];
-                return values ? { name: category, value: values.reduce((sum, value) => sum + value, 0) } : { name: category, value: 0 };
-            });
+        allKeys.forEach((key) => {
+            const data: { name: string; value: number }[] = categories.map((category) => {
+                const values = result[category][key]
+                return values ? { name: category, value: values.reduce((sum, value) => sum + value, 0) } : { name: category, value: 0 }
+            })
             this.model.series.push({ name: key, data })
-        });
+        })
         this.model.xAxis[0].categories = []
         this.model.xAxis[0].categories = [...categories]
     }

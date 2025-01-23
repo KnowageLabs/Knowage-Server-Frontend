@@ -56,9 +56,11 @@ export default defineComponent({
     },
     computed: {
         widgetButtonBarVisible() {
-            if (canEditDashboard(this.document)) return true
             const dashboardModel = this.getDashboard(this.dashboardId)
-            return dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu && this.widget?.settings?.configuration?.widgetMenu?.enabled
+            const widgetMenuEnabled = dashboardModel?.configuration?.menuWidgets?.enableWidgetMenu && this.widget?.settings?.configuration?.widgetMenu?.enabled
+            if (this.document.seeAsFinalUser && widgetMenuEnabled) return true
+            if (canEditDashboard(this.document)) return true
+            return widgetMenuEnabled
         }
     },
     methods: {
