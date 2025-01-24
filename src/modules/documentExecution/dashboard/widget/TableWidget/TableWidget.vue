@@ -18,7 +18,7 @@ import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions, ITableWidgetConditionalStyles, ITableWidgetConditionalStyle } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions, replaceTooltipConfigurationVariablesAndParametersPlaceholders } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import { startTableWidgetIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
@@ -489,8 +489,8 @@ export default defineComponent({
                 config.target.includes(colId) ? (columntooltipConfig = config) : ''
             })
 
-            if (columntooltipConfig.prefix) columntooltipConfig.prefix = replaceVariablesPlaceholdersByVariableName(columntooltipConfig.prefix, this.variables)
-            if (columntooltipConfig.suffix) columntooltipConfig.suffix = replaceVariablesPlaceholdersByVariableName(columntooltipConfig.suffix, this.variables)
+            const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
+            replaceTooltipConfigurationVariablesAndParametersPlaceholders(columntooltipConfig, this.variables, dashboardDrivers)
 
             return columntooltipConfig
         },
