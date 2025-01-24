@@ -39,6 +39,10 @@ if (import.meta.env.DEV) document.domain = 'localhost'
 
 import { GridLayout, GridItem } from 'grid-layout-plus'
 
+import { AgGridVue } from 'ag-grid-vue3'
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
+ModuleRegistry.registerModules([AllCommunityModule])
+
 import ResizeObserver from '@vue-toys/resize-observer'
 
 import { registerSW } from 'virtual:pwa-register'
@@ -77,6 +81,7 @@ app.use(VueAxios, interceptor)
     .component('QBEOperator', QBEOperator)
     .component('GridLayout', GridLayout)
     .component('GridItem', GridItem)
+    .component('AgGridVue', AgGridVue)
 
     .mount('#app')
 

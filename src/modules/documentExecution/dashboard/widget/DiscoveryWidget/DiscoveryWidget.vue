@@ -50,13 +50,10 @@ import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { createNewTableSelection, formatRowDataForCrossNavigation, getActiveInteractions, getFormattedClickedValueForCrossNavigation, isConditionMet } from '../TableWidget/TableWidgetHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
-import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
-import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
 import mainStore from '../../../../../App.store'
 import dashboardStore from '../../Dashboard.store'
 import PaginationRenderer from '../TableWidget/PaginatorRenderer.vue'
@@ -68,7 +65,7 @@ import CellRenderer from '../TableWidget/CellRenderer'
 
 export default defineComponent({
     name: 'table-widget',
-    components: { AgGridVue, PaginationRenderer, ProgressSpinner, ContextMenu },
+    components: { PaginationRenderer, ProgressSpinner, ContextMenu },
     props: {
         widgetLoading: { type: Boolean, required: true },
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -172,7 +169,7 @@ export default defineComponent({
         reloadWidgetWithoutData() {
             this.createColumnDefinitions()
             this.setFacetData()
-            this.gridApi.setColumnDefs(this.gridColumns)
+            this.gridApi.setGridOption('columnDefs', this.gridColumns)
             this.setHeaderHeight()
             this.gridApi.redrawRows()
         },
@@ -337,8 +334,8 @@ export default defineComponent({
             }
         },
         async setGridData() {
-            this.gridApi.setRowData(this.tableData.rows)
-            this.gridApi.setColumnDefs(this.gridColumns)
+            this.gridApi.setGridOption('rowData', this.tableData.rows)
+            this.gridApi.setGridOption('columnDefs', this.gridColumns)
         },
         async createColumnDefinitions() {
             this.gridLoading = true

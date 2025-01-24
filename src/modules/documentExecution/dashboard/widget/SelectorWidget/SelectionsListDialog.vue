@@ -11,9 +11,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Dialog from 'primevue/dialog'
-import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
-import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
 import buttonRenderer from './SelectionsListDialogCellRenderer.vue'
 import { mapState, mapActions } from 'pinia'
 import store from '../../Dashboard.store'
@@ -22,7 +19,7 @@ import { ISelection } from '../../Dashboard'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { Dialog, AgGridVue },
+    components: { Dialog },
     props: {
         visible: { type: Boolean },
         dashboardId: { type: String, required: true }
@@ -90,7 +87,7 @@ export default defineComponent({
                 })
             })
 
-            const updateData = (data) => params.api.setRowData(data)
+            const updateData = (data) => params.api.setGridOption('rowData', data)
 
             updateData(this.activeSelections)
         },
@@ -99,7 +96,7 @@ export default defineComponent({
             if (index !== -1) {
                 this.selectionsToRemove.push(this.activeSelections[index])
                 this.activeSelections.splice(index, 1)
-                this.gridApi.setRowData(this.activeSelections)
+                this.gridApi.setGridOption('rowData', this.activeSelections)
             }
         },
         closeDialog() {

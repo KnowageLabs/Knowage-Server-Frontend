@@ -141,7 +141,7 @@ export const getValidDate = (value: string, serverDateFormat: string) => {
 }
 
 const convertToMomentFormat = (format: string) => {
-    return format.replace(/yyyy/g, 'YYYY').replace(/dd/g, 'DD').replace(/mm/g, 'MM')
+    return format.replace(/yyyy/g, 'YYYY').replace(/dd/g, 'DD').replace(/mm/g, 'MM');
 }
 
 const extractDatePart = (dateString: string) => {

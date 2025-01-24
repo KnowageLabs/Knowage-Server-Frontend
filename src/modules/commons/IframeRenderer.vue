@@ -2,7 +2,7 @@
     <iframe :src="`${completeUrl}`"></iframe>
 </template>
 
-<script>
+<script lang="ts">
 import authHelper from '@/helpers/commons/authHelper'
 export default {
     name: 'iframe-renderer',

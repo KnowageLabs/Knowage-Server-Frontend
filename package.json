@@ -22,8 +22,8 @@
         "@vuelidate/validators": "^2.0.0-alpha.15",
         "@vueuse/core": "^10.1.2",
         "@yeger/vue-masonry-wall": "^3.0.42",
-        "ag-grid-community": "30.0.3",
-        "ag-grid-vue3": "30.0.3",
+        "ag-grid-community": "33.0.4",
+        "ag-grid-vue3": "33.0.4",
         "axios": "0.23.0",
         "caniuse-lite": "^1.0.30001618",
         "chart.js": "^3.7.0",
@@ -68,6 +68,8 @@
     },
     "devDependencies": {
         "@babel/plugin-transform-runtime": "^7.13.10",
+        "@eslint/eslintrc": "^3.2.0",
+        "@eslint/js": "^9.18.0",
         "@pinia/testing": "0.0.12",
         "@quasar/vite-plugin": "1.9.0",
         "@types/jest": "^24.0.19",
@@ -78,38 +80,13 @@
         "@vue/compiler-sfc": "^3.0.7",
         "@vue/test-utils": "^2.0.0-rc.4",
         "flush-promises": "^1.0.2",
+        "globals": "^15.14.0",
         "material-icons": "^1.10.0",
         "rollup-plugin-node-builtins": "^2.0.0",
         "sass": "1.83.4",
         "typescript": "^4.4.4",
         "vite": "4.5.3",
         "vite-plugin-pwa": "0.16.4"
-    },
-    "eslintConfig": {
-        "root": true,
-        "env": {
-            "node": true
-        },
-        "extends": [
-            "plugin:vue/vue3-essential",
-            "eslint:recommended",
-            "@vue/typescript"
-        ],
-        "parserOptions": {
-            "parser": "@typescript-eslint/parser"
-        },
-        "rules": {},
-        "overrides": [
-            {
-                "files": [
-                    "**/__tests__/*.{j,t}s?(x)",
-                    "**/tests/unit/**/*.spec.{j,t}s?(x)"
-                ],
-                "env": {
-                    "jest": true
-                }
-            }
-        ]
     },
     "browserslist": [
         "> 1%",
