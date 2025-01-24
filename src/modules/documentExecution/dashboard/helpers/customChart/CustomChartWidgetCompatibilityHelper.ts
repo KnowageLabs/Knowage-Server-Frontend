@@ -1,10 +1,10 @@
-import { IWidget, IWidgetExports, IWidgetInteractions, IWidgetResponsive } from "../../Dashboard"
-import { ICustomChartStyle, ICustomChartWidgetConfiguration, ICustomChartWidgetEditor, ICustomChartWidgetSettings } from "../../interfaces/customChart/DashboardCustomChartWidget"
-import { getFormattedWidgetColumns } from "../common/WidgetColumnHelper"
-import { getFormattedInteractions } from "../common/WidgetInteractionsHelper"
-import { getFormattedStyle } from "./CustomChartWidgetStyleHelper"
+import { IWidget, IWidgetExports, IWidgetHelpSettings, IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
+import { ICustomChartStyle, ICustomChartWidgetConfiguration, ICustomChartWidgetEditor, ICustomChartWidgetSettings } from '../../interfaces/customChart/DashboardCustomChartWidget'
+import { getFormattedWidgetColumns } from '../common/WidgetColumnHelper'
+import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
+import { getFormattedStyle } from './CustomChartWidgetStyleHelper'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
-import { getFiltersForColumns } from "../DashboardBackwardCompatibilityHelper"
+import { getFiltersForColumns } from '../DashboardBackwardCompatibilityHelper'
 
 const columnNameIdMap = {}
 
@@ -30,7 +30,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         configuration: getFormattedConfiguration(widget) as ICustomChartWidgetConfiguration,
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget) as ICustomChartStyle,
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ICustomChartWidgetSettings
     return formattedSettings
 }

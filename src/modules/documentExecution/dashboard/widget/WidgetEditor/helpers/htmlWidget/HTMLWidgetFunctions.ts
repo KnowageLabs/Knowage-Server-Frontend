@@ -1,5 +1,6 @@
-import { IHTMLWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/DashboardHTMLWidget"
+import { IHTMLWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardHTMLWidget'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewHtmlWidgetSettings = () => {
     return {
@@ -24,6 +25,7 @@ export const createNewHtmlWidgetSettings = () => {
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IHTMLWidgetSettings
 }

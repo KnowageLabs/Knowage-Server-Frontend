@@ -78,6 +78,8 @@ export default defineComponent({
                     return this.widgetModel.settings.style.crossTabHeaders
                 case 'VisualizationType':
                     return this.widgetModel.settings.visualization.visualizationTypes
+                case 'HelpSettings':
+                    return this.widgetModel.settings.help
                 default:
                     return null
             }

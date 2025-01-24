@@ -1,4 +1,19 @@
-import { IWidget, ITableWidgetSettings, ITableWidgetPagination, ITableWidgetConditionalStyle, ITableWidgetTooltipStyle, ITableWidgetStyle, IWidgetInteractions, ITableWidgetConfiguration, IWidgetResponsive, ITableWidgetConditionalStyles, IDashboard, IVariable, IDashboardDriver } from '../../Dashboard'
+import {
+    IWidget,
+    ITableWidgetSettings,
+    ITableWidgetPagination,
+    ITableWidgetConditionalStyle,
+    ITableWidgetTooltipStyle,
+    ITableWidgetStyle,
+    IWidgetInteractions,
+    ITableWidgetConfiguration,
+    IWidgetResponsive,
+    ITableWidgetConditionalStyles,
+    IDashboard,
+    IVariable,
+    IDashboardDriver,
+    IWidgetHelpSettings
+} from '../../Dashboard'
 import { getFormattedConfiguration } from './TableWidgetConfigurationHelper'
 import { getFormattedStyle } from './TableWidgetStyleHelper'
 import { getSettingsFromWidgetColumns } from './TableWidgetColumnSettingsHelper'
@@ -39,7 +54,8 @@ const getFormattedWidgetSettings = (widget: any, formattedDashboardModel: IDashb
         style: getFormattedStyle(widget) as ITableWidgetStyle,
         tooltips: tableWidgetDefaultValues.getDefaultTooltips() as ITableWidgetTooltipStyle[],
         visualization: tableWidgetDefaultValues.getDefaultVisualizations(),
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ITableWidgetSettings
     return formattedSettings
 }

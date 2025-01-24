@@ -1,4 +1,4 @@
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IChartJSWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/chartJS/DashboardChartJSWidget'
 import { KnowageChartJSPieChart } from '../../../../ChartWidget/classes/chartJS/KnowageChartJSPieChart'
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
@@ -28,7 +28,8 @@ export const createNewChartJSSettings = () => {
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IChartJSWidgetSettings
     settings.chartModel = null
     return settings

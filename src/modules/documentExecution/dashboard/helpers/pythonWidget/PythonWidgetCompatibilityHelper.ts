@@ -1,12 +1,12 @@
-import { IWidget, IWidgetInteractions } from "../../Dashboard"
-import { IPythonWidgetConfiguration, IPythonWidgetSettings } from "../../interfaces/DashboardPythonWidget"
-import { IWidgetExports } from "../../Dashboard"
-import { getFormattedStyle } from "./PythonWidgetStyleHelper"
-import { getFormattedInteractions } from "../common/WidgetInteractionsHelper"
+import { IWidget, IWidgetHelpSettings, IWidgetInteractions } from '../../Dashboard'
+import { IPythonWidgetConfiguration, IPythonWidgetSettings } from '../../interfaces/DashboardPythonWidget'
+import { IWidgetExports } from '../../Dashboard'
+import { getFormattedStyle } from './PythonWidgetStyleHelper'
+import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
-import * as  pythonWidgetDefaultValues from '../../widget/WidgetEditor/helpers/pythonWidget/PythonWidgetDefaultValues'
-import { getFormattedWidgetColumns } from "../common/WidgetColumnHelper"
-import { getFiltersForColumns } from "../DashboardBackwardCompatibilityHelper"
+import * as pythonWidgetDefaultValues from '../../widget/WidgetEditor/helpers/pythonWidget/PythonWidgetDefaultValues'
+import { getFormattedWidgetColumns } from '../common/WidgetColumnHelper'
+import { getFiltersForColumns } from '../DashboardBackwardCompatibilityHelper'
 
 const columnNameIdMap = {}
 
@@ -24,7 +24,6 @@ export const formatPythonWidget = (widget: any) => {
     return formattedWidget
 }
 
-
 const getFormattedWidgetSettings = (widget: any) => {
     const formattedSettings = {
         updatable: widget.updateble,
@@ -33,7 +32,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         editor: getFormattedEditorSettings(widget),
         style: getFormattedStyle(widget),
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IPythonWidgetSettings
     return formattedSettings
 }

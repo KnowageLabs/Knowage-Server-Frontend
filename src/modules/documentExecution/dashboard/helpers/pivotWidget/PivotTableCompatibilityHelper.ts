@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn, IWidgetColumnFilter, IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetColumnFilter, IWidgetHelpSettings, IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
 import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
 import { getFormattedPivotFields } from './PivotTableColumnHelper'
 import { IPivotTableConfiguration, IPivotTableSettings, IPivotTableStyle, IPivotTableWidgetConditionalStyles, IPivotTableWidgetVisualization, IPivotTooltips } from '../../interfaces/pivotTable/DashboardPivotTableWidget'
@@ -41,7 +41,6 @@ const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {
                 if (tempFilter.filterVal2 && fieldArray[index].filter) (fieldArray[index].filter as IWidgetColumnFilter).value2 = tempFilter.filterVal2
                 break
             }
-
         }
     }
 }
@@ -56,7 +55,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget) as IPivotTableStyle,
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
-        tooltips: pivotTableDefaultValues.getDefaultTooltips() as IPivotTooltips[]
+        tooltips: pivotTableDefaultValues.getDefaultTooltips() as IPivotTooltips[],
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IPivotTableSettings
     return formattedSettings
 }
@@ -64,4 +64,3 @@ const getFormattedWidgetSettings = (widget: any) => {
 export const getColumnId = (widgetColumnName: string) => {
     return columnNameIdMap[widgetColumnName]
 }
-

@@ -56,6 +56,12 @@
                 "type": "NoDataMessageConfiguration"
             }
         ],
+        "Help": [
+            {
+                "title": "dashboard.widgetEditor.help.title",
+                "type": "HelpSettings"
+            }
+        ],
         "Interactions": [
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
@@ -213,6 +219,11 @@
             "icon": "fa-solid fa-ellipsis",
             "label": "common.advanced",
             "value": "Advanced"
+        },
+        {
+            "icon": "pi pi-info-circle",
+            "label": "dashboard.widgetEditor.help.title",
+            "value": "Help"
         }
     ]
 }

@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IDiscoveryWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardDiscoveryWidget'
 import * as tableWidgetDefaultValues from '../tableWidget/TableWidgetDefaultValues'
 import * as discoveryWidgetDefaultValues from './DiscoveryWidgetDefaultValues'
@@ -35,7 +35,8 @@ export const createNewDiscoveryWidgetSettings = () => {
         },
         tooltips: tableWidgetDefaultValues.getDefaultTooltips(),
         visualization: tableWidgetDefaultValues.getDefaultVisualizations(),
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IDiscoveryWidgetSettings
 }
 

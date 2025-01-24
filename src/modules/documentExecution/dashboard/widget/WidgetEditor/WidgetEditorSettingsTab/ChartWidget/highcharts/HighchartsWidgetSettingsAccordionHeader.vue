@@ -94,6 +94,8 @@ export default defineComponent({
                     return this.widgetModel.settings.chartModel.model?.sonification
                 case 'LimitSettings':
                     return this.widgetModel.settings.configuration.limit
+                case 'HelpSettings':
+                    return this.widgetModel.settings.help
                 default:
                     return null
             }

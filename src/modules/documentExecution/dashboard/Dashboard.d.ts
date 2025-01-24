@@ -830,3 +830,15 @@ export interface IHighchartsCommonConditionalStyle {
         color: string
     }
 }
+
+export interface IWidgetHelpSettings {
+    enabled: boolean
+    type: 'default' | 'free-text' | 'link'
+    text: string
+    url: string
+    visualizationType: 'popup' | 'tooltip'
+    icon: string
+    iconPosition: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+    popupWidth: number
+    popupHeight: number
+}
