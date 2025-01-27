@@ -37,6 +37,7 @@ import store from '../../Dashboard.store'
 import ContextMenu from 'primevue/contextmenu'
 import TruncationDialog from './TruncationDialog.vue'
 import { replaceVariablesPlaceholdersByVariableName } from '../interactionsHelpers/InteractionsParserHelper'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'table-widget',
@@ -453,11 +454,12 @@ export default defineComponent({
             return columns
         },
         getFormattedConditionalStyles(conditionalStyle: ITableWidgetConditionalStyles) {
-            conditionalStyle.conditions?.forEach((tempCondition: ITableWidgetConditionalStyle) => {
+            const formattedContidionalStyle = deepcopy(conditionalStyle)
+            formattedContidionalStyle.conditions?.forEach((tempCondition: ITableWidgetConditionalStyle) => {
                 if (tempCondition.condition?.formula) tempCondition.condition.formula = replaceVariablesPlaceholdersByVariableName(tempCondition.condition.formula, this.variables)
             })
 
-            return conditionalStyle
+            return formattedContidionalStyle
         },
         activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
             switch (cell.type) {
@@ -495,7 +497,7 @@ export default defineComponent({
             })
 
             const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
-            replaceTooltipConfigurationVariablesAndParametersPlaceholders(columntooltipConfig, this.variables, dashboardDrivers)
+            columntooltipConfig = replaceTooltipConfigurationVariablesAndParametersPlaceholders(columntooltipConfig, this.variables, dashboardDrivers)
 
             return columntooltipConfig
         },
