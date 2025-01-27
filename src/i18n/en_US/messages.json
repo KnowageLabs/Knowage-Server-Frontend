@@ -1355,6 +1355,7 @@
                 "pinned": "Pinned",
                 "sparkline": "Sparkline",
                 "textAndIcon": "Text & Icon",
+                "multilineText": "Multiline Text",
                 "title": "Visualization Type"
             },
             "widgetTheme": "Widget Theme",

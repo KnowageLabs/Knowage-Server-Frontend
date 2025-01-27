@@ -191,8 +191,8 @@ export default defineComponent({
 
                 // CALLBACKS
                 onGridReady: this.onGridReady,
-                getRowStyle: this.getRowStyle,
-                getRowHeight: this.getRowHeight
+                getRowStyle: this.getRowStyle
+                // getRowHeight: this.getRowHeight
             }
         },
         onGridReady(params) {
@@ -381,6 +381,11 @@ export default defineComponent({
                         if (visTypes.enabled) {
                             const colVisType = this.getColumnVisualizationType(tempCol.colId)
                             tempCol.pinned = colVisType.pinned
+                            if (colVisType.type.toLowerCase() === 'multiline text') {
+                                tempCol.autoHeight = true
+                                tempCol.wrapText = responseFields[responseField].type === 'text'
+                                tempCol.cellStyle = { 'white-space': 'normal' }
+                            }
                         }
 
                         // CUSTOM MESSAGE CONFIGURATION  -----------------------------------------------------------------
