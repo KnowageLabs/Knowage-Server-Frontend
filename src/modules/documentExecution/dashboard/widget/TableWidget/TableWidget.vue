@@ -8,6 +8,7 @@
         <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
 
         <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @page-changed="$emit('pageChanged')" />
+        <TruncationDialog v-if="truncateDialogVisible" :cellContent="truncateDialogCellContent" :visible="truncateDialogVisible" :dashboard-id="dashboardId" @close="truncateDialogVisible = false" />
     </div>
 </template>
 
@@ -15,9 +16,9 @@
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
 import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions, ITableWidgetConditionalStyles, ITableWidgetConditionalStyle } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions, replaceTooltipConfigurationVariablesAndParametersPlaceholders } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import { startTableWidgetIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
@@ -34,6 +35,8 @@ import HeaderGroupRenderer from './HeaderGroupRenderer.vue'
 import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
 import ContextMenu from 'primevue/contextmenu'
+import TruncationDialog from './TruncationDialog.vue'
+import { replaceVariablesPlaceholdersByVariableName } from '../interactionsHelpers/InteractionsParserHelper'
 
 export default defineComponent({
     name: 'table-widget',
@@ -48,7 +51,8 @@ export default defineComponent({
         // eslint-disable-next-line vue/no-unused-components
         TooltipRenderer,
         PaginatorRenderer,
-        ContextMenu
+        ContextMenu,
+        TruncationDialog
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -83,7 +87,10 @@ export default defineComponent({
             selectedColumn: false as any,
             selectedColumnArray: [] as any,
             context: null as any,
-            interactionsMenuItems: [] as any
+            interactionsMenuItems: [] as any,
+            truncateDialogVisible: false,
+            truncateDialogCellContent: '',
+            variables: [] as IVariable[]
         }
     },
     watch: {
@@ -101,6 +108,9 @@ export default defineComponent({
         },
         propActiveSelections() {
             this.loadActiveSelections()
+        },
+        propVariables() {
+            this.loadVariables()
         }
     },
     beforeMount() {
@@ -108,6 +118,7 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadVariables()
         this.loadWidgetModel()
         this.loadActiveSelections()
         this.setupDatatableOptions()
@@ -146,6 +157,9 @@ export default defineComponent({
                     this.multiSelectedCells = selection.value
                 }
             }
+        },
+        loadVariables() {
+            this.variables = this.propVariables
         },
         setSelectedCellForMultiselected(columnName: string) {
             if (!columnName || !this.tableData || !this.tableData.metaData) this.selectedColumn = ''
@@ -216,10 +230,10 @@ export default defineComponent({
             this.columnsNameArray = []
 
             const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
-            const dashboardVariables = this.propVariables
+            const dashboardVariables = this.variables
             const dataset = { type: 'SbiFileDataSet' }
 
-            const conditionalStyles = this.propWidget.settings.conditionalStyles
+            const conditionalStyles = this.getFormattedConditionalStyles(this.propWidget.settings.conditionalStyles)
             const columnDataMap = Object.fromEntries(this.propWidget.columns.map((column, index) => [column.id, `column_${index + 1}`]))
             // const selectedColumnsIds = this.propWidget.columns.map((currElement) => {
             //     return currElement.id
@@ -433,6 +447,13 @@ export default defineComponent({
 
             return columns
         },
+        getFormattedConditionalStyles(conditionalStyle: ITableWidgetConditionalStyles) {
+            conditionalStyle.conditions?.forEach((tempCondition: ITableWidgetConditionalStyle) => {
+                if (tempCondition.condition?.formula) tempCondition.condition.formula = replaceVariablesPlaceholdersByVariableName(tempCondition.condition.formula, this.variables)
+            })
+
+            return conditionalStyle
+        },
         activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
             switch (cell.type) {
                 case 'crossNavigation':
@@ -461,11 +482,15 @@ export default defineComponent({
         },
         getColumnTooltipConfig(colId) {
             const tooltipConfig = this.widgetModel.settings.tooltips
+
             let columntooltipConfig = null as any
             tooltipConfig[0].enabled ? (columntooltipConfig = tooltipConfig[0]) : ''
             tooltipConfig.forEach((config) => {
                 config.target.includes(colId) ? (columntooltipConfig = config) : ''
             })
+
+            const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
+            replaceTooltipConfigurationVariablesAndParametersPlaceholders(columntooltipConfig, this.variables, dashboardDrivers)
 
             return columntooltipConfig
         },
@@ -615,11 +640,11 @@ export default defineComponent({
         startLinkInteraction(node: any, activeInteraction: any) {
             if (!activeInteraction) return
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, activeInteraction)
+            openNewLinkTableWidget(formattedRow, this.dashboardId, this.variables, activeInteraction)
         },
         startIframeInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
+            startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.variables, window)
         },
         applyMultiSelection() {
             const modalSelection = this.widgetModel.settings.interactions.selection
@@ -677,6 +702,10 @@ export default defineComponent({
             if (pagination.enabled) {
                 this.widgetModel.settings.pagination.properties.totalItems = this.dataToShow?.results
             }
+        },
+        toggleTruncatedDialog(cellContent) {
+            this.truncateDialogCellContent = cellContent
+            this.truncateDialogVisible = true
         }
     }
 })

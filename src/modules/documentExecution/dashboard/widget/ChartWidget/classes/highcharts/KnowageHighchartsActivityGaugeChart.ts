@@ -1,5 +1,5 @@
 import { KnowageHighchartsGaugeChart } from './KnowageHighchartsGaugeChart'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartModel, IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { updateActivityGaugeChartModel } from './updater/KnowageHighchartsActivityGaugeChartUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -40,7 +40,7 @@ export class KnowageHighchartsActivityGaugeChart extends KnowageHighchartsGaugeC
         this.setGaugeYAxis()
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.setGaugeData(data, widgetModel, 4)
     }
 

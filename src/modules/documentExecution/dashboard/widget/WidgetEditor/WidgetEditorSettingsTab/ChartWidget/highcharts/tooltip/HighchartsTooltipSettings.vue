@@ -25,22 +25,26 @@
                 <div v-if="advancedVisible" class="p-d-flex p-flex-column">
                     <div class="p-col-12">
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.formatter') }}</label>
+                        <span class="pi pi-question-circle kn-cursor-pointer p-ml-2">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tooltip.formatterHint') }}</q-tooltip>
+                        </span>
                         <Message v-if="model.tooltip.formatterError" class="p-m-2" severity="warn" :closable="false" :style="descriptor.warningMessageStyle">
                             {{ model.tooltip.formatterError }}
                         </Message>
                         <div class="p-d-flex p-flex-row p-ai-center">
                             <HighchartsFormatterMonaco :prop-code="model.tooltip.formatterText" @change="onFormatterChange($event, 'formatter')" @blur="modelChanged"></HighchartsFormatterMonaco>
-                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.tooltip.formatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                         </div>
                     </div>
                     <div class="p-col-12">
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.highcharts.tooltip.pointFormatter') }}</label>
+                        <span class="pi pi-question-circle kn-cursor-pointer p-ml-2">
+                            <q-tooltip>{{ $t('dashboard.widgetEditor.highcharts.tooltip.pointFormatterHint') }}</q-tooltip>
+                        </span>
                         <Message v-if="model.tooltip.pointFormatterError" class="p-m-2" severity="warn" :closable="false" :style="descriptor.warningMessageStyle">
                             {{ model.tooltip.pointFormatterError }}
                         </Message>
                         <div class="p-d-flex p-flex-row p-ai-center">
                             <HighchartsFormatterMonaco :prop-code="model.tooltip.pointFormatterText" @change="onFormatterChange($event, 'pointFormatter')" @blur="modelChanged"></HighchartsFormatterMonaco>
-                            <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.tooltip.pointFormatterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                         </div>
                     </div>
                 </div>

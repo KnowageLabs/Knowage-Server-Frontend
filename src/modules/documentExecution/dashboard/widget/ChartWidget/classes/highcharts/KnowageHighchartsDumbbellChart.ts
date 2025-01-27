@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -20,7 +20,6 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         delete this.model.sonification
         if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
-
 
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
@@ -53,30 +52,30 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.setDumbbellData(data, widgetModel, attributeColumns, measureColumns, dateFormat)
+        this.setDumbbellData(data, widgetModel, attributeColumns, measureColumns, dateFormat, variables)
         return this.model.series
     }
 
-    setDumbbellData(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
+    setDumbbellData(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string, variables: IVariable[]) {
         const attibuteColumn = attributeColumns[0]
         const startMeasureColumn = measureColumns[0]
         const endMeasureColumn = measureColumns[1]
 
         if (!data || !attibuteColumn || !startMeasureColumn || !endMeasureColumn) return
         const serieElement = { id: 0, name: startMeasureColumn.column.columnName + ' | ' + endMeasureColumn.column.columnName, data: [] as any[], showInLegend: true }
-        data.rows.forEach((row: any,) => {
-            const firstMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, startMeasureColumn.column.id, row[startMeasureColumn.metadata.dataIndex])?.color
-            const secondMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, endMeasureColumn.column.id, row[endMeasureColumn.metadata.dataIndex])?.color
+        data.rows.forEach((row: any) => {
+            const firstMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, startMeasureColumn.column.id, row[startMeasureColumn.metadata.dataIndex], variables)?.color
+            const secondMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, endMeasureColumn.column.id, row[endMeasureColumn.metadata.dataIndex], variables)?.color
             serieElement.data.push({
                 name: dateFormat && ['date', 'timestamp'].includes(attibuteColumn.metadata.type) ? getFormattedDateCategoryValue(row[attibuteColumn.metadata.dataIndex], dateFormat, attibuteColumn.metadata.type) : row[attibuteColumn.metadata.dataIndex],
                 low: row[startMeasureColumn.metadata.dataIndex],
                 high: row[endMeasureColumn.metadata.dataIndex],
-                color: firstMeasureConditionalStyle ?? secondMeasureConditionalStyle,
+                color: firstMeasureConditionalStyle ?? secondMeasureConditionalStyle
             })
         })
         this.model.series.push(serieElement)

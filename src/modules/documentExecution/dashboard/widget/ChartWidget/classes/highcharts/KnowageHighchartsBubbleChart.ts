@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateBubbleChartModel } from './updater/KnowageHighchartsBubbleChartUpdater'
 import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificAxisTypeFromDataResponse, getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles } from './helpers/setData/HighchartsSetDataHelpers'
@@ -52,7 +52,7 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         this.model.yAxis = [highchartsDefaultValues.getDefaultScatterYAxis()]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
@@ -62,15 +62,15 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
 
         if (widgetModel.settings.configuration?.grouping?.secondDimension.enabled) {
             const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
-            this.setSplittedData(data, widgetModel, serieName, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
+            this.setSplittedData(data, widgetModel, serieName, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns, variables)
         } else {
-            this.setRegularData(data, widgetModel, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns)
+            this.setRegularData(data, widgetModel, attributeColumns, XAxisColumns, YAxisColumns, ZAxisColumns, variables)
         }
 
         return this.model.series
     }
 
-    setSplittedData(data: any, widgetModel: IWidget, serieName: string, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
+    setSplittedData(data: any, widgetModel: IWidget, serieName: string, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[], variables: IVariable[]) {
         const measureForGrouping = YAxisColumns.find((measureColumn: any) => measureColumn.column.columnName === serieName)
         if (!data || attributeColumns.length < 2 || !measureForGrouping) return
         const firstAttributeColumn = attributeColumns[0]
@@ -90,7 +90,7 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
                 x: row[XColumn.metadata.dataIndex],
                 y: row[measureForGrouping.metadata.dataIndex],
                 z: row[ZColumn.metadata.dataIndex],
-                color: getColumnConditionalStyles(widgetModel, measureForGrouping.column.id, row[measureForGrouping.metadata.dataIndex])?.color
+                color: getColumnConditionalStyles(widgetModel, measureForGrouping.column.id, row[measureForGrouping.metadata.dataIndex], variables)?.color
             }
         })
         const measureSerieElementValueMap = {}
@@ -127,7 +127,7 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         this.model.series.push(measureSerieElement)
     }
 
-    setRegularData(data: any, widgetModel, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[]) {
+    setRegularData(data: any, widgetModel, attributeColumns: any[], XAxisColumns: any[], YAxisColumns: any[], ZAxisColumns: any[], variables: IVariable[]) {
         if (!data || !attributeColumns[0] || !XAxisColumns[0] || !YAxisColumns[0] || !ZAxisColumns[0]) return
         const attributeColumn = attributeColumns[0]
         const XColumn = XAxisColumns[0]
@@ -143,7 +143,7 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
                     z: row[ZColumn.metadata.dataIndex],
                     name: row[attributeColumn.metadata.dataIndex],
                     dataLabels: { enabled: true, format: '{point.name}' },
-                    color: getColumnConditionalStyles(widgetModel, yAxisColumn.column.id, row[yAxisColumn.metadata.dataIndex])?.color
+                    color: getColumnConditionalStyles(widgetModel, yAxisColumn.column.id, row[yAxisColumn.metadata.dataIndex], variables)?.color
                 })
             })
             series.push(tempSerie)
