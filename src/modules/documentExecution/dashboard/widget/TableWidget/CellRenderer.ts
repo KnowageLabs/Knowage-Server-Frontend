@@ -134,7 +134,7 @@ export default class CellRenderer {
         }
 
         if (visType.type) {
-            if (visType.type.toLowerCase() === 'text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
+            if (visType.type.toLowerCase() === 'text' || visType.type.toLowerCase() === 'multiline text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
             if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject?.icon}" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject?.icon} p-as-center" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'bar') {
