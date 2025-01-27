@@ -18,6 +18,7 @@ import '@/assets/css/dialects-icons.css'
 import 'material-icons/iconfont/material-icons.css'
 import '@quasar/extras/material-icons/material-icons.css'
 import 'quasar/dist/quasar.css'
+import '@quasar/extras/roboto-font/roboto-font.css'
 
 import ToastService from 'primevue/toastservice'
 import Button from 'primevue/button'

@@ -42,7 +42,7 @@
         "popupHeight": 400,
         "popupWidth": 400,
         "text": "",
-        "type": "default",
+        "type": "free-text",
         "url": "",
         "visualizationType": "tooltip"
     },

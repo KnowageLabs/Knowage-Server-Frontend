@@ -834,12 +834,12 @@ export interface IHighchartsCommonConditionalStyle {
 
 export interface IWidgetHelpSettings {
     enabled: boolean
-    type: 'default' | 'free-text' | 'link'
+    type: 'free-text' | 'link'
     text: string
     url: string
-    visualizationType: 'popup' | 'tooltip'
+    visualizationType: 'pop-up' | 'tooltip'
     icon: string
     iconPosition: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-    popupWidth: number
-    popupHeight: number
+    popupWidth: string
+    popupHeight: string
 }

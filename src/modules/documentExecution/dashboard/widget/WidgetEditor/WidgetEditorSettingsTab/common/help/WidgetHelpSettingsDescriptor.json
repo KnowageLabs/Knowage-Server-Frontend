@@ -24,10 +24,6 @@
     ],
     "types": [
         {
-            "label": "common.default",
-            "value": "default"
-        },
-        {
             "label": "dashboard.widgetEditor.help.freeText",
             "value": "free-text"
         },
@@ -39,7 +35,7 @@
     "visualizationTypes": [
         {
             "label": "common.popup",
-            "value": "popup"
+            "value": "pop-up"
         },
         {
             "label": "dashboard.widgetEditor.settingsListOptions.tooltip",

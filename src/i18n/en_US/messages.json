@@ -740,6 +740,8 @@
                 "bottomRight": "Bottom Right",
                 "freeText": "Free Text",
                 "iconPosition": "Icon Position",
+                "popupHeight": "Pop-up Height",
+                "popupWidth": "Pop-up Width",
                 "title": "Help",
                 "topLeft": "Top Left",
                 "topRight": "Top Right",
