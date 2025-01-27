@@ -1,3 +1,4 @@
+import deepcopy from 'deepcopy'
 import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink, IWidgetPreview, IWidgetInteractions, ITableWidgetTooltipStyle } from '../../Dashboard'
 import { IPivotTooltips } from '../../interfaces/pivotTable/DashboardPivotTableWidget'
 import { replaceDriversPlaceholdersByDriverName, replaceVariablesPlaceholdersByVariableName } from '../interactionsHelpers/InteractionsParserHelper'
@@ -205,11 +206,13 @@ const addActiveIFrameInteractions = (tableNode: any, activeInteractions: any[], 
     if (iFrameInteractionSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...iFrameInteractionSettings, interactionType: 'iframe' })
 }
 
-export const replaceTooltipConfigurationVariablesAndParametersPlaceholders = (columntooltipConfig: ITableWidgetTooltipStyle | IPivotTooltips, variables: IVariable[], dashboardDrivers: IDashboardDriver[]) => {
-    if (columntooltipConfig.prefix) columntooltipConfig.prefix = replaceVariablesPlaceholdersByVariableName(columntooltipConfig.prefix, variables)
-    if (columntooltipConfig.suffix) columntooltipConfig.suffix = replaceVariablesPlaceholdersByVariableName(columntooltipConfig.suffix, variables)
-    if (columntooltipConfig.header?.text) {
-        columntooltipConfig.header.text = replaceVariablesPlaceholdersByVariableName(columntooltipConfig.header.text, variables)
-        columntooltipConfig.header.text = replaceDriversPlaceholdersByDriverName(columntooltipConfig.header.text, dashboardDrivers)
+export const replaceTooltipConfigurationVariablesAndParametersPlaceholders = (columnTooltipConfiguration: ITableWidgetTooltipStyle | IPivotTooltips, variables: IVariable[], dashboardDrivers: IDashboardDriver[]) => {
+    const tooltipConfiguration = deepcopy(columnTooltipConfiguration)
+    if (tooltipConfiguration.prefix) tooltipConfiguration.prefix = replaceVariablesPlaceholdersByVariableName(tooltipConfiguration.prefix, variables)
+    if (tooltipConfiguration.suffix) tooltipConfiguration.suffix = replaceVariablesPlaceholdersByVariableName(tooltipConfiguration.suffix, variables)
+    if (tooltipConfiguration.header?.text) {
+        tooltipConfiguration.header.text = replaceVariablesPlaceholdersByVariableName(tooltipConfiguration.header.text, variables)
+        tooltipConfiguration.header.text = replaceDriversPlaceholdersByDriverName(tooltipConfiguration.header.text, dashboardDrivers)
     }
+    return tooltipConfiguration
 }
