@@ -96,7 +96,7 @@ export default defineComponent({
                 width: 32px;
             }
             &:hover {
-                background-color: darken(#eceff1, 10%);
+                background-color: color.adjust(#eceff1, $lightness: -10%);
             }
             i {
                 cursor: help;
@@ -122,7 +122,7 @@ export default defineComponent({
         outline: none;
         cursor: grab;
         &:hover {
-            background-color: darken(#ffffff, 15%);
+            background-color: color.adjust(#ffffff, $lightness: -15%);
         }
         button {
             cursor: pointer;
