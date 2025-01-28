@@ -33,7 +33,7 @@
                         </div>
                     </div>
 
-                    <div class="kn-flex p-ml-2 p-mb-3">
+                    <div class="kn-flex p-ml-2">
                         <span>
                             <label class="kn-material-input-label">{{ $t('managers.widgetGallery.outputType') }}</label>
                             <Dropdown v-model="document.outputType" class="kn-material-input" :options="descriptor.documentOutputTypes" option-value="value" option-label="label" />
