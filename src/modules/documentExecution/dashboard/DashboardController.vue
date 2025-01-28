@@ -83,7 +83,7 @@
 import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
-import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView } from './Dashboard'
+import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView, IVariable } from './Dashboard'
 import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters, applyDashboardViewToModel } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { formatModel } from './helpers/DashboardBackwardCompatibilityHelper'
@@ -104,6 +104,7 @@ import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/Da
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
+import { setVariableValueFromDriver } from './generalSettings/VariablesHelper'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -310,9 +311,21 @@ export default defineComponent({
                 this.setDashboardDrivers(this.dashboardId, this.drivers)
                 emitter.emit('loadPivotStates', this.selectedViewForExecution)
             }
+
+            this.updateVariableValuesWithDriverValuesAfterExecution()
+
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
+        },
+        updateVariableValuesWithDriverValuesAfterExecution() {
+            if (!this.model?.configuration) return
+            this.model.configuration.variables = this.model.configuration.variables.map((variable: IVariable) => {
+                if (variable.type === 'driver') {
+                    setVariableValueFromDriver(variable, this.drivers)
+                }
+                return variable
+            })
         },
         async loadCrossNavigations() {
             if (this.newDashboardMode) return
