@@ -112,6 +112,9 @@ export default defineComponent({
     methods: {
         loadDocument() {
             this.document = this.propDocument
+
+            if (!this.document.outputType) this.document.outputType = 'HTML'
+
             this.document.invalid.invalidFile = false
             this.validateDocument()
         },
