@@ -206,7 +206,8 @@ const addActiveIFrameInteractions = (tableNode: any, activeInteractions: any[], 
     if (iFrameInteractionSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...iFrameInteractionSettings, interactionType: 'iframe' })
 }
 
-export const replaceTooltipConfigurationVariablesAndParametersPlaceholders = (columnTooltipConfiguration: ITableWidgetTooltipStyle | IPivotTooltips, variables: IVariable[], dashboardDrivers: IDashboardDriver[]) => {
+export const replaceTooltipConfigurationVariablesAndParametersPlaceholders = (columnTooltipConfiguration: ITableWidgetTooltipStyle | IPivotTooltips | null, variables: IVariable[], dashboardDrivers: IDashboardDriver[]) => {
+    if (!columnTooltipConfiguration) return columnTooltipConfiguration
     const tooltipConfiguration = deepcopy(columnTooltipConfiguration)
     if (tooltipConfiguration.prefix) tooltipConfiguration.prefix = replaceVariablesPlaceholdersByVariableName(tooltipConfiguration.prefix, variables)
     if (tooltipConfiguration.suffix) tooltipConfiguration.suffix = replaceVariablesPlaceholdersByVariableName(tooltipConfiguration.suffix, variables)
