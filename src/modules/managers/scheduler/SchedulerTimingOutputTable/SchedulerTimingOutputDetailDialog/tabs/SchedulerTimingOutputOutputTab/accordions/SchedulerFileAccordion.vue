@@ -8,34 +8,43 @@
             </template>
 
             <div v-if="document">
-                <div class="p-m-2">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('common.fileName') }} *</label>
-                        <InputText
-                            v-model="document.fileName"
-                            class="kn-material-input  p-inputtext-sm"
-                            :class="{
-                                'p-invalid': fileNameDirty && (!document.fileName || document.fileName.length === 0)
-                            }"
-                            :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.file.nameMaxLength"
-                            @input="setFileNameValidation"
-                            @blur="setFileNameValidation"
-                        />
-                    </span>
-                    <div class="p-d-flex p-flex-row p-jc-between">
-                        <div>
-                            <div v-show="fileNameDirty && (!document.fileName || document.fileName.length === 0)" class="p-error p-grid p-m-2">
-                                {{ $t('common.validation.required', { fieldName: $t('common.fileName') }) }}
+                <div class="p-d-flex p-m-2">
+                    <div class="kn-flex p-mr-2">
+                        <span>
+                            <label class="kn-material-input-label">{{ $t('common.fileName') }} *</label>
+                            <InputText
+                                v-model="document.fileName"
+                                class="kn-material-input p-inputtext-sm"
+                                :class="{
+                                    'p-invalid': fileNameDirty && (!document.fileName || document.fileName.length === 0)
+                                }"
+                                :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.file.nameMaxLength"
+                                @input="setFileNameValidation"
+                                @blur="setFileNameValidation"
+                            />
+                        </span>
+                        <div class="p-d-flex p-flex-row p-jc-between">
+                            <div>
+                                <div v-show="fileNameDirty && (!document.fileName || document.fileName.length === 0)" class="p-error p-grid p-m-2">
+                                    {{ $t('common.validation.required', { fieldName: $t('common.fileName') }) }}
+                                </div>
                             </div>
+                            <p class="name-help p-m-0">{{ fileNameHelp }}</p>
                         </div>
-                        <p class="name-help p-m-0">{{ fileNameHelp }}</p>
+                    </div>
+
+                    <div class="kn-flex p-ml-2">
+                        <span>
+                            <label class="kn-material-input-label">{{ $t('managers.widgetGallery.outputType') }}</label>
+                            <Dropdown v-model="document.outputType" class="kn-material-input" :options="descriptor.documentOutputTypes" option-value="value" option-label="label" />
+                        </span>
                     </div>
                 </div>
 
                 <div class="p-m-2">
                     <span>
                         <label class="kn-material-input-label">{{ $t('managers.scheduler.destinationFolder') }}</label>
-                        <InputText v-model="document.destinationfolder" class="kn-material-input  p-inputtext-sm" :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.file.destinationFolderMaxLength" />
+                        <InputText v-model="document.destinationfolder" class="kn-material-input p-inputtext-sm" :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.file.destinationFolderMaxLength" />
                     </span>
                     <div class="p-d-flex p-jc-end">
                         <small>{{ destinationFolderHelp }}</small>
@@ -66,13 +75,16 @@ import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import Checkbox from 'primevue/checkbox'
 import schedulerTimingOutputOutputTabDescriptor from '../SchedulerTimingOutputOutputTabDescriptor.json'
+import descriptor from '../SchedulerTimingOutputOutputTabDescriptor.json'
+import Dropdown from 'primevue/dropdown'
 
 export default defineComponent({
     name: 'scheduler-file-accordion',
-    components: { Accordion, AccordionTab, Checkbox },
+    components: { Accordion, AccordionTab, Checkbox, Dropdown },
     props: { propDocument: { type: Object }, functionalities: { type: Array }, datasets: { type: Array }, jobInfo: { type: Object } },
     data() {
         return {
+            descriptor,
             schedulerTimingOutputOutputTabDescriptor,
             document: null as any,
             fileNameDirty: false
