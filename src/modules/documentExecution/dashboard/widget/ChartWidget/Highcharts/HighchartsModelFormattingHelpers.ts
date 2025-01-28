@@ -200,7 +200,7 @@ export const formatVariables = (formattedChartModel: IHighchartsChartModel, vari
 const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, variables: IVariable[], axis: 'xAxis' | 'yAxis') => {
     if (!formattedChartModel[axis]) return
     formattedChartModel[axis].forEach((axisElement: any) => {
-        axisElement.title.text = replaceVariablesPlaceholdersByVariableName(formattedChartModel[axis][0].title.text, variables)
+        if (axisElement.title?.text) axisElement.title.text = replaceVariablesPlaceholdersByVariableName(formattedChartModel[axis][0].title.text, variables)
 
         formatVariablesForPlotBands(axisElement, variables)
         formatVariablesForPlotLines(axisElement, variables)
