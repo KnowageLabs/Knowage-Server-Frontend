@@ -35,7 +35,7 @@
 
                     <div class="kn-flex p-ml-2 p-mb-3">
                         <span>
-                            <label class="kn-material-input-label">{{ $t('common.type') }}</label>
+                            <label class="kn-material-input-label">{{ $t('managers.widgetGallery.outputType') }}</label>
                             <Dropdown v-model="document.outputType" class="kn-material-input" :options="descriptor.documentOutputTypes" option-value="value" option-label="label" />
                         </span>
                     </div>
