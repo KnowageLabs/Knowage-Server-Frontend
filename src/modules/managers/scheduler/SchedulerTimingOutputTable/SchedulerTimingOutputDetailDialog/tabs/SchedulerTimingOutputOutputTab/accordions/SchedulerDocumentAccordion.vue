@@ -8,27 +8,36 @@
             </template>
 
             <div v-if="document">
-                <div class="p-m-2">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('common.name') }} *</label>
-                        <InputText
-                            v-model="document.documentname"
-                            class="kn-material-input"
-                            :class="{
-                                'p-invalid': documentNameDirty && (!document.documentname || document.documentname.length === 0)
-                            }"
-                            :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.document.nameMaxLength"
-                            @input="validateDocument('documentNameDirty')"
-                            @blur="validateDocument('documentNameDirty')"
-                        />
-                    </span>
-                    <div class="p-d-flex p-flex-row p-jc-between">
-                        <div>
-                            <div v-show="documentNameDirty && (!document.documentname || document.documentname.length === 0)" class="p-error p-grid p-m-2">
-                                {{ $t('common.validation.required', { fieldName: $t('common.name') }) }}
+                <div class="p-d-flex p-m-2">
+                    <div class="kn-flex p-mr-2">
+                        <span>
+                            <label class="kn-material-input-label">{{ $t('common.name') }} *</label>
+                            <InputText
+                                v-model="document.documentname"
+                                class="kn-material-input"
+                                :class="{
+                                    'p-invalid': documentNameDirty && (!document.documentname || document.documentname.length === 0)
+                                }"
+                                :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.document.nameMaxLength"
+                                @input="validateDocument('documentNameDirty')"
+                                @blur="validateDocument('documentNameDirty')"
+                            />
+                        </span>
+                        <div class="p-d-flex p-flex-row p-jc-between">
+                            <div>
+                                <div v-show="documentNameDirty && (!document.documentname || document.documentname.length === 0)" class="p-error p-grid p-m-2">
+                                    {{ $t('common.validation.required', { fieldName: $t('common.name') }) }}
+                                </div>
                             </div>
+                            <p class="name-help p-m-0">{{ nameHelp }}</p>
                         </div>
-                        <p class="name-help p-m-0">{{ nameHelp }}</p>
+                    </div>
+
+                    <div class="kn-flex p-ml-2 p-mb-3">
+                        <span>
+                            <label class="kn-material-input-label">{{ $t('common.type') }}</label>
+                            <Dropdown v-model="document.outputType" class="kn-material-input" :options="descriptor.documentOutputTypes" option-value="value" option-label="label" />
+                        </span>
                     </div>
                 </div>
 
@@ -121,6 +130,7 @@ import Checkbox from 'primevue/checkbox'
 import Dropdown from 'primevue/dropdown'
 import SchedulerDocumentAccordionTree from './SchedulerDocumentAccordionTree.vue'
 import schedulerTimingOutputOutputTabDescriptor from '../SchedulerTimingOutputOutputTabDescriptor.json'
+import descriptor from '../SchedulerTimingOutputOutputTabDescriptor.json'
 
 export default defineComponent({
     name: 'scheduler-document-accordion',
@@ -128,6 +138,7 @@ export default defineComponent({
     props: { propDocument: { type: Object }, functionalities: { type: Array }, datasets: { type: Array }, jobInfo: { type: Object } },
     data() {
         return {
+            descriptor,
             schedulerTimingOutputOutputTabDescriptor,
             document: null as any,
             drivers: [],
@@ -157,6 +168,8 @@ export default defineComponent({
     methods: {
         loadDocument() {
             this.document = this.propDocument
+
+            if (!this.document.outputType) this.document.outputType = 'HTML'
 
             this.document.invalid.invalidDocument = false
 
