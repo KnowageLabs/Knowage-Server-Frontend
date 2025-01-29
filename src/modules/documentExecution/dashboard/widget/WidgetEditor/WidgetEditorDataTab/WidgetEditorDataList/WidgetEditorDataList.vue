@@ -61,7 +61,7 @@ export default defineComponent({
     name: 'widget-editor-data-list',
     components: { Dropdown, Listbox, KnCalculatedField },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
-    emits: ['datasetSelected', 'selectedDatasetColumnsChanged'],
+    emits: ['datasetSelected'],
     setup() {
         const store = mainStore()
         return { store }
@@ -201,7 +201,6 @@ export default defineComponent({
 
             const index = this.selectedDatasets.findIndex((dataset: any) => dataset.id?.dsId === this.selectedDataset?.id)
             if (index !== -1) this.addSelectedDatasetColumnsFromMetadata(this.selectedDatasets[index].metadata.fieldsMeta)
-            this.$emit('selectedDatasetColumnsChanged', this.selectedDatasetColumns)
         },
         addSelectedDatasetColumnsFromMetadata(fieldsMeta: any[]) {
             for (let i = 0; i < fieldsMeta.length; i++) {

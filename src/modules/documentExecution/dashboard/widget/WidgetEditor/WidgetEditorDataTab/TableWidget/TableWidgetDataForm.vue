@@ -15,7 +15,7 @@
         <div class="p-d-flex p-flex-row p-ai-center p-mt-2">
             <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
-                <Dropdown v-model="sortingColumn" class="kn-material-input" :options="selectedDatasetColumns" option-value="name" option-label="alias" show-clear @change="sortingChanged"> </Dropdown>
+                <Dropdown v-model="sortingColumn" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" show-clear @change="sortingChanged"> </Dropdown>
             </div>
             <div class="p-d-flex p-flex-column kn-flex p-m-2">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDatasetColumn, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import Dropdown from 'primevue/dropdown'
 import descriptor from '../TableWidget/TableWidgetDataDescriptor.json'
@@ -48,7 +48,7 @@ import InputSwitch from 'primevue/inputswitch'
 export default defineComponent({
     name: 'table-widget-data-form',
     components: { Dropdown, InputSwitch },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, sortingColumnOptions: { type: Array as PropType<IWidgetColumn[]>, required: true } },
     data() {
         return {
             descriptor,

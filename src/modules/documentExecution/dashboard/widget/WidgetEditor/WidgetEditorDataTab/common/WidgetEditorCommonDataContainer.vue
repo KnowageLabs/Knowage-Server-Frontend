@@ -1,6 +1,6 @@
 <template>
     <div v-if="widgetModel">
-        <TableWidgetDataForm v-if="widgetType !== 'discovery'" class="p-m-2" :widget-model="widgetModel" :selected-dataset-columns="selectedDatasetColumns"></TableWidgetDataForm>
+        <TableWidgetDataForm v-if="widgetType !== 'discovery'" class="p-m-2" :widget-model="widgetModel" :sorting-column-options="columnTableItems"></TableWidgetDataForm>
         <WidgetEditorColumnTable
             class="p-m-2"
             :widget-model="widgetModel"
@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IWidgetColumn, IDatasetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IDataset, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { removeColumnFromTableWidgetModel } from '../../helpers/tableWidget/TableWidgetFunctions'
 import { addColumnToDiscoveryWidgetModel, removeColumnFromDiscoveryWidgetModel } from '../../helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import { emitter } from '../../../../DashboardHelpers'
@@ -30,7 +30,7 @@ import WidgetEditorColumnTable from './WidgetEditorColumnTable.vue'
 export default defineComponent({
     name: 'widget-editor-common-data-container',
     components: { TableWidgetDataForm, TableWidgetColumnForm, WidgetEditorColumnTable },
-    props: { propWidgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> }, selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true } },
+    props: { propWidgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null> } },
     data() {
         return {
             descriptor,
