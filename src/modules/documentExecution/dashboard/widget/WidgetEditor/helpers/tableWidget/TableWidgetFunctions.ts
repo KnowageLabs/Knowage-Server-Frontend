@@ -1,6 +1,22 @@
-import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from "../../../../Dashboard"
+import {
+    IWidget,
+    IWidgetColumn,
+    ITableWidgetColumnGroup,
+    IWidgetInteractionParameter,
+    ITableWidgetSettings,
+    ITableWidgetConfiguration,
+    ITableWidgetHeaders,
+    ITableWidgetVisualization,
+    ITableWidgetConditionalStyles,
+    IWidgetInteractions,
+    IWidgetSelection,
+    ITableWidgetColumnGroups,
+    IWidgetCrossNavigation,
+    ITableWidgetTooltipStyle,
+    ITableWidgetColumnStyles
+} from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
-import * as  tableWidgetDefaultValues from './TableWidgetDefaultValues'
+import * as tableWidgetDefaultValues from './TableWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 
 export const createNewTableWidgetSettings = () => {
@@ -72,7 +88,7 @@ export const removeColumnFromSubmodel = (column: IWidgetColumn, array: any[], su
         for (let j = (array[i][subProperty] as string[]).length; j >= 0; j--) {
             const tempTarget = array[i][subProperty][j]
             if (column.id === tempTarget) {
-                (array[i][subProperty] as string[]).splice(j, 1)
+                ;(array[i][subProperty] as string[]).splice(j, 1)
                 removed = true
             }
         }
@@ -84,7 +100,7 @@ export const removeColumnFromSubmodel = (column: IWidgetColumn, array: any[], su
 const removeColumnFromCrossNavigation = (widgetModel: IWidget, column: IWidgetColumn) => {
     const crossNavigation = widgetModel.settings.interactions.crossNavigation
     if (crossNavigation.column === column.id) {
-        crossNavigation.enabled = false;
+        crossNavigation.enabled = false
         crossNavigation.parameters.forEach((parameter: IWidgetInteractionParameter) => {
             parameter.enabled = false
             if (parameter.column === column.columnName) parameter.column = ''
@@ -99,7 +115,7 @@ export const removeColumnGroupFromModel = (widgetModel: IWidget, columnGroup: IT
         for (let j = widgetModel.settings.style.columnGroups[i].target.length; j >= 0; j--) {
             const tempTarget = widgetModel.settings.style.columnGroups[i].target[j]
             if (columnGroup.id === tempTarget) {
-                (widgetModel.settings.style.columnGroups[i].target as string[]).splice(j, 1)
+                ;(widgetModel.settings.style.columnGroups[i].target as string[]).splice(j, 1)
                 removed = true
             }
         }
@@ -117,8 +133,8 @@ export function formatDashboardTableWidgetAfterLoading(widget: IWidget) {
 
     loadColumnNameIdMap(widget)
     formatTableSettings(widget.settings)
+    formatTableSortingColumn(widget)
 }
-
 
 const loadColumnNameIdMap = (widget: IWidget) => {
     widget.columns?.forEach((column: IWidgetColumn) => {
@@ -131,7 +147,6 @@ const getColumnId = (columnName: string) => {
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
-    if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnId(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
     formatTableWidgetColumnStyles(widgetSettings.style.columns)
     formatTableWidgetVisualisation(widgetSettings.visualization)
@@ -220,7 +235,6 @@ const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidget
     }
 }
 
-
 const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidgetColumnGroups) => {
     for (let i = 0; i < columnGroupsConfiguration.groups.length; i++) {
         const tempColumnGroup = columnGroupsConfiguration.groups[i]
@@ -231,7 +245,6 @@ const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidge
         tempColumnGroup.columns = formattedColumnGroupColumns
     }
 }
-
 
 const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
     for (let i = 1; i < tableTooltips.length; i++) {
@@ -255,4 +268,10 @@ const formatSelection = (selection: IWidgetSelection) => {
 
 const formatCrossNavigation = (crossNavigation: IWidgetCrossNavigation) => {
     if (crossNavigation.column) crossNavigation.column = getColumnId(crossNavigation.column)
+}
+
+const formatTableSortingColumn = (widget: IWidget) => {
+    if (!widget.settings.sortingColumn) return
+    const sortingColumn = widget.columns.find((column: IWidgetColumn) => column.columnName === widget.settings.sortingColumn || column.id === widget.settings.sortingColumn)
+    widget.settings.sortingColumn = sortingColumn ? sortingColumn.columnName : widget.settings.sortingColumn
 }

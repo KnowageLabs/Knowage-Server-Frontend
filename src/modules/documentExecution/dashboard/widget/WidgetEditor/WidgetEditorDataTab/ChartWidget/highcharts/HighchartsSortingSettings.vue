@@ -1,17 +1,5 @@
 <template>
     <div v-if="widget" class="widget-editor-card p-p-2">
-        <div v-if="widget.type === 'table'" class="p-d-flex p-flex-row p-ai-center p-my-1">
-            <div class="kn-flex p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.pagination') }}</label>
-                <InputSwitch v-model="paginationEnabled" @change="paginationChanged"></InputSwitch>
-            </div>
-
-            <div class="p-d-flex p-flex-column kn-flex p-ml-auto p-mr-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.itemsPerPage') }}</label>
-                <InputText v-model="itemsNumber" class="kn-material-input p-inputtext-sm" type="number" :disabled="!paginationEnabled" @change="paginationChanged" />
-            </div>
-        </div>
-
         <div class="p-d-flex p-flex-row p-ai-center p-mt-2">
             <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
                 <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
@@ -39,23 +27,20 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDatasetColumn, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import { emitter } from '../../../../DashboardHelpers'
+import { emitter } from '../../../../../DashboardHelpers'
 import Dropdown from 'primevue/dropdown'
-import descriptor from '../TableWidget/TableWidgetDataDescriptor.json'
-import commonDescriptor from '../common/WidgetCommonDescriptor.json'
-import InputSwitch from 'primevue/inputswitch'
+import descriptor from '../../TableWidget/TableWidgetDataDescriptor.json'
+import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 
 export default defineComponent({
-    name: 'table-widget-data-form',
-    components: { Dropdown, InputSwitch },
+    name: 'highcharts-sorting-settings',
+    components: { Dropdown },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, selectedDatasetColumns: { type: Array as PropType<IDatasetColumn[]>, required: true } },
     data() {
         return {
             descriptor,
             commonDescriptor,
             widget: {} as IWidget,
-            paginationEnabled: false,
-            itemsNumber: '0',
             sortingColumn: '',
             sortingOrder: ''
         }
@@ -63,7 +48,6 @@ export default defineComponent({
     created() {
         this.loadWidget()
         this.setEventListeners()
-        this.loadPagination()
         this.loadSortingSettings()
     },
     unmounted() {
@@ -82,22 +66,9 @@ export default defineComponent({
         onColumnRemoved(column: any) {
             this.updateSortingColumn(column)
         },
-        loadPagination() {
-            if (this.widget?.settings?.pagination) {
-                this.paginationEnabled = this.widget.settings.pagination.enabled
-                this.itemsNumber = '' + this.widget.settings.pagination.properties.itemsNumber
-            }
-        },
         loadSortingSettings() {
             if (this.widget?.settings?.sortingColumn) this.sortingColumn = this.widget.settings.sortingColumn
             if (this.widget?.settings?.sortingOrder) this.sortingOrder = this.widget.settings.sortingOrder
-        },
-        paginationChanged() {
-            if (!this.widget.settings) return
-            this.widget.settings.pagination.enabled = this.paginationEnabled
-            this.widget.settings.pagination.properties.itemsNumber = +this.itemsNumber
-            emitter.emit('paginationChanged', this.widget.settings.pagination)
-            emitter.emit('refreshWidgetWithData', this.widget.id)
         },
         sortingChanged() {
             if (!this.widget.settings) return
@@ -110,11 +81,8 @@ export default defineComponent({
             if (column.columnName === this.sortingColumn) {
                 this.sortingColumn = ''
                 this.sortingOrder = ''
-                this.paginationChanged()
             }
         }
     }
 })
 </script>
-
-<style lang="scss"></style>

@@ -42,7 +42,6 @@ const getColumnName = (columnId: string) => {
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
-    if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnName(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
     formatTableWidgetColumnStyles(widgetSettings.style.columns)
     formatTableWidgetVisualisation(widgetSettings.visualization)
