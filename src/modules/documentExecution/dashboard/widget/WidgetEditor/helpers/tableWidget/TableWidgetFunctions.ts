@@ -133,7 +133,6 @@ export function formatDashboardTableWidgetAfterLoading(widget: IWidget) {
 
     loadColumnNameIdMap(widget)
     formatTableSettings(widget.settings)
-    formatTableSortingColumn(widget)
 }
 
 const loadColumnNameIdMap = (widget: IWidget) => {
@@ -147,6 +146,7 @@ const getColumnId = (columnName: string) => {
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
+    if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnId(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
     formatTableWidgetColumnStyles(widgetSettings.style.columns)
     formatTableWidgetVisualisation(widgetSettings.visualization)
@@ -268,10 +268,4 @@ const formatSelection = (selection: IWidgetSelection) => {
 
 const formatCrossNavigation = (crossNavigation: IWidgetCrossNavigation) => {
     if (crossNavigation.column) crossNavigation.column = getColumnId(crossNavigation.column)
-}
-
-const formatTableSortingColumn = (widget: IWidget) => {
-    if (!widget.settings.sortingColumn) return
-    const sortingColumn = widget.columns.find((column: IWidgetColumn) => column.columnName === widget.settings.sortingColumn || column.id === widget.settings.sortingColumn)
-    widget.settings.sortingColumn = sortingColumn ? sortingColumn.columnName : widget.settings.sortingColumn
 }

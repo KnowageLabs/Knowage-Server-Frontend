@@ -24,14 +24,14 @@ export function formatTableWidgetForSave(widget: IWidget) {
     formatTableSettings(widget.settings)
 }
 
-export function formatTableSelectedColumns(columns: IWidgetColumn[]) {
+function formatTableSelectedColumns(columns: IWidgetColumn[]) {
     if (!columns) return
     columns.forEach((column: IWidgetColumn) => {
         delete column.id
     })
 }
 
-export const loadColumnIdNameMap = (widget: IWidget) => {
+const loadColumnIdNameMap = (widget: IWidget) => {
     widget.columns?.forEach((column: IWidgetColumn) => {
         if (column.id) columnIdNameMap[column.id] = column.columnName
     })
@@ -42,6 +42,7 @@ const getColumnName = (columnId: string) => {
 }
 
 const formatTableSettings = (widgetSettings: ITableWidgetSettings) => {
+    if (widgetSettings.sortingColumn) widgetSettings.sortingColumn = getColumnName(widgetSettings.sortingColumn)
     formatTableWidgetConfiguration(widgetSettings.configuration)
     formatTableWidgetColumnStyles(widgetSettings.style.columns)
     formatTableWidgetVisualisation(widgetSettings.visualization)
@@ -96,12 +97,12 @@ const formatColumnGroups = (widgetConfiguration: ITableWidgetConfiguration) => {
     formatColumnGroupsColumnIdToName(widgetConfiguration.columnGroups)
 }
 
-export const formatTableWidgetVisualisation = (widgetVisualization: ITableWidgetVisualization) => {
+const formatTableWidgetVisualisation = (widgetVisualization: ITableWidgetVisualization) => {
     formatVisualizationTypes(widgetVisualization)
     formatVisibilityConditions(widgetVisualization)
 }
 
-export const formatVisualizationTypes = (widgetVisualization: ITableWidgetVisualization) => {
+const formatVisualizationTypes = (widgetVisualization: ITableWidgetVisualization) => {
     for (let i = 1; i < widgetVisualization.visualizationTypes.types.length; i++) {
         const tempVisualization = widgetVisualization.visualizationTypes.types[i]
         const formattedRuleColumns = [] as string[]
@@ -111,7 +112,7 @@ export const formatVisualizationTypes = (widgetVisualization: ITableWidgetVisual
         tempVisualization.target = formattedRuleColumns
     }
 }
-export const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisualization) => {
+const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisualization) => {
     for (let i = 0; i < widgetVisualization.visibilityConditions.conditions.length; i++) {
         const tempCondition = widgetVisualization.visibilityConditions.conditions[i]
         const formattedRuleColumns = [] as string[]
@@ -123,7 +124,7 @@ export const formatVisibilityConditions = (widgetVisualization: ITableWidgetVisu
     }
 }
 
-export const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidgetConditionalStyles) => {
+const formatTableWidgetConditionalStyle = (widgetConditionalStyles: ITableWidgetConditionalStyles) => {
     for (let i = 0; i < widgetConditionalStyles.conditions.length; i++) {
         const tempCondition = widgetConditionalStyles.conditions[i]
         tempCondition.target = getColumnName(tempCondition.target)
@@ -142,7 +143,7 @@ const formatColumnGroupsColumnIdToName = (columnGroupsConfiguration: ITableWidge
     }
 }
 
-export const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
+const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyle[]) => {
     for (let i = 1; i < tableTooltips.length; i++) {
         const tempTooltip = tableTooltips[i]
         const formattedTooltipColumns = [] as string[]
@@ -153,7 +154,7 @@ export const formatTableWidgetTooltips = (tableTooltips: ITableWidgetTooltipStyl
     }
 }
 
-export const formatTableInteractions = (widgetInteractions: IWidgetInteractions) => {
+const formatTableInteractions = (widgetInteractions: IWidgetInteractions) => {
     formatSelection(widgetInteractions.selection as IWidgetSelection)
     formatCrossNavigation(widgetInteractions.crossNavigation)
 }

@@ -1,24 +1,11 @@
 <template>
-    <WidgetEditorDataList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" @datasetSelected="setSelectDataset" @selectedDatasetColumnsChanged="onSelectedDatasetColumnsChanged"></WidgetEditorDataList>
+    <WidgetEditorDataList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" @datasetSelected="setSelectDataset"></WidgetEditorDataList>
     <ChartGallery v-if="chartPickerVisible" :widget-model="widget" @selectedChartTypeChanged="onChartTypeChanged" />
     <div v-else-if="widget" class="p-d-flex kn-flex kn-overflow">
         <WidgetEditorHint v-if="!selectedDataset"></WidgetEditorHint>
-        <WidgetEditorCommonDataContainer
-            v-else-if="['table', 'html', 'text', 'discovery', 'customchart', 'python', 'r'].includes(widget.type)"
-            class="kn-flex model-div kn-overflow p-mx-2 p-my-3"
-            :prop-widget-model="widget"
-            :selected-dataset="selectedDataset"
-            :selected-dataset-columns="selectedDatasetColumns"
-        ></WidgetEditorCommonDataContainer>
+        <WidgetEditorCommonDataContainer v-else-if="['table', 'html', 'text', 'discovery', 'customchart', 'python', 'r'].includes(widget.type)" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :prop-widget-model="widget" :selected-dataset="selectedDataset"></WidgetEditorCommonDataContainer>
         <SelectorWidgetDataContainer v-else-if="widget.type === 'selector'" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :widget-model="propWidget" :selected-dataset="selectedDataset"></SelectorWidgetDataContainer>
-        <HighchartsDataContainer
-            v-else-if="widget.type === 'highcharts' && isEnterprise"
-            class="kn-flex model-div kn-overflow p-mx-2 p-my-3"
-            :widget-model="propWidget"
-            :selected-dataset="selectedDataset"
-            :selected-dataset-columns="selectedDatasetColumns"
-            @selectedChartTypeChanged="onChartTypeChanged"
-        ></HighchartsDataContainer>
+        <HighchartsDataContainer v-else-if="widget.type === 'highcharts' && isEnterprise" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :widget-model="propWidget" :selected-dataset="selectedDataset" @selectedChartTypeChanged="onChartTypeChanged"></HighchartsDataContainer>
         <ChartJSDataContainer v-else-if="widget.type === 'chartJS'" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :widget-model="propWidget" :selected-dataset="selectedDataset" @selectedChartTypeChanged="onChartTypeChanged"></ChartJSDataContainer>
         <VegaDataContainer v-else-if="widget.type === 'vega'" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :widget-model="propWidget" :selected-dataset="selectedDataset" @selectedChartTypeChanged="onChartTypeChanged"></VegaDataContainer>
         <PivotTableDataContainer v-else-if="widget.type === 'static-pivot-table'" class="kn-flex model-div kn-overflow p-mx-2 p-my-3" :prop-widget-model="propWidget" :selected-dataset="selectedDataset"></PivotTableDataContainer>
@@ -28,7 +15,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IVariable, IDatasetColumn } from '../../../Dashboard'
+import { IWidget, IDataset, IVariable } from '../../../Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { mapState } from 'pinia'
 import { IHighchartsWidgetSettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
@@ -54,8 +41,7 @@ export default defineComponent({
     data() {
         return {
             selectedDataset: null as IDataset | null,
-            widget: {} as IWidget,
-            selectedDatasetColumns: [] as IDatasetColumn[]
+            widget: {} as IWidget
         }
     },
     computed: {
@@ -80,15 +66,11 @@ export default defineComponent({
         },
         setSelectDataset(dataset: IDataset) {
             this.$emit('datasetSelected', dataset)
-            if (this.selectedDataset && dataset.id !== this.selectedDataset.id && this.widget?.settings?.sortingColumn) this.widget.settings.sortingColumn = ''
             this.selectedDataset = dataset as IDataset
         },
         onChartTypeChanged(chartType: string) {
             if (!this.widget) return
             changeChartType(chartType, this.widget, this.isEnterprise)
-        },
-        onSelectedDatasetColumnsChanged(datasetColumns: IDatasetColumn[]) {
-            this.selectedDatasetColumns = datasetColumns
         }
     }
 })
