@@ -15,8 +15,8 @@
         @resized="resizedEvent"
     >
         <div v-if="initialized" class="drag-handle"></div>
-        <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
-        <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
+        <q-spinner-grid v-if="loading || customChartLoading || widgetLoading" color="primary" size="3rem" class="widgetSpinner" />
+        <q-skeleton v-if="!initialized" height="100%" width="100%" square />
         <WidgetRenderer
             v-if="!loading && widget"
             :widget="widget"
@@ -79,8 +79,6 @@ import store from '../Dashboard.store'
 import mainStore from '@/App.store'
 import WidgetRenderer from './WidgetRenderer.vue'
 import WidgetButtonBar from './WidgetButtonBar.vue'
-import Skeleton from 'primevue/skeleton'
-import ProgressSpinner from 'primevue/progressspinner'
 import deepcopy from 'deepcopy'
 import { ISelectorWidgetSettings } from '../interfaces/DashboardSelectorWidget'
 import { datasetIsUsedInAssociations } from './interactionsHelpers/DatasetAssociationsHelper'
@@ -98,7 +96,7 @@ import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog, DatasetEditorPreview },
+    components: { ContextMenu, WidgetButtonBar, WidgetRenderer, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog, DatasetEditorPreview },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -586,5 +584,12 @@ export default defineComponent({
 
 .vue-resizable-handle {
     z-index: 9999;
+}
+
+.widgetSpinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 </style>
