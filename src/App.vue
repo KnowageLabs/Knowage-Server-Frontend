@@ -326,7 +326,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    min-height: 100%;
+    height: 100%;
 }
 .layout-wrapper-content::after {
     content: '';

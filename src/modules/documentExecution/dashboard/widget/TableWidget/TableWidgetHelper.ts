@@ -1,4 +1,7 @@
-import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink, IWidgetPreview, IWidgetInteractions } from '../../Dashboard'
+import deepcopy from 'deepcopy'
+import { IWidget, ITableWidgetColumnGroup, IDataset, IWidgetCrossNavigation, IVariable, IDashboardDriver, ITableWidgetConditionalStyle, IWidgetLinks, IFrameInteractionSettings, ITableWidgetLink, IWidgetPreview, IWidgetInteractions, ITableWidgetTooltipStyle } from '../../Dashboard'
+import { IPivotTooltips } from '../../interfaces/pivotTable/DashboardPivotTableWidget'
+import { replaceDriversPlaceholdersByDriverName, replaceVariablesPlaceholdersByVariableName } from '../interactionsHelpers/InteractionsParserHelper'
 
 export const getColumnGroup = (propWidget: IWidget, col: ITableWidgetColumnGroup) => {
     const modelGroups = propWidget.settings.configuration.columnGroups.groups
@@ -162,7 +165,6 @@ const getColumnType = (columnField: string, dataToShow: any) => {
     return index !== -1 ? dataToShow.metaData.fields[index].type : ''
 }
 
-
 export const getActiveInteractions = (tableNode: any, widgetInteracitonsConfiguration: IWidgetInteractions) => {
     const activeInteractions = []
     addActiveCrossNavigationInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.crossNavigation)
@@ -202,4 +204,16 @@ const addActiveIFrameInteractions = (tableNode: any, activeInteractions: any[], 
     if (!iFrameInteractionSettings || !iFrameInteractionSettings.enabled) return
     const isSingleColumnNavigationActiveForSelectedColumn = iFrameInteractionSettings.type === 'singleColumn' && iFrameInteractionSettings.column && tableNode.colDef?.colId === iFrameInteractionSettings.column
     if (iFrameInteractionSettings.type === 'allRow' || isSingleColumnNavigationActiveForSelectedColumn) activeInteractions.push({ ...iFrameInteractionSettings, interactionType: 'iframe' })
+}
+
+export const replaceTooltipConfigurationVariablesAndParametersPlaceholders = (columnTooltipConfiguration: ITableWidgetTooltipStyle | IPivotTooltips | null, variables: IVariable[], dashboardDrivers: IDashboardDriver[]) => {
+    if (!columnTooltipConfiguration) return columnTooltipConfiguration
+    const tooltipConfiguration = deepcopy(columnTooltipConfiguration)
+    if (tooltipConfiguration.prefix) tooltipConfiguration.prefix = replaceVariablesPlaceholdersByVariableName(tooltipConfiguration.prefix, variables)
+    if (tooltipConfiguration.suffix) tooltipConfiguration.suffix = replaceVariablesPlaceholdersByVariableName(tooltipConfiguration.suffix, variables)
+    if (tooltipConfiguration.header?.text) {
+        tooltipConfiguration.header.text = replaceVariablesPlaceholdersByVariableName(tooltipConfiguration.header.text, variables)
+        tooltipConfiguration.header.text = replaceDriversPlaceholdersByDriverName(tooltipConfiguration.header.text, dashboardDrivers)
+    }
+    return tooltipConfiguration
 }

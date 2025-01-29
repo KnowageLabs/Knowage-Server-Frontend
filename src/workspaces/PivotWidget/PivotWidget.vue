@@ -4,11 +4,11 @@
 
 <script lang="ts">
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { IDataset, ISelection, IWidget, ITableWidgetColumnStyles, ITableWidgetConditionalStyles, ITableWidgetVisualizationTypes } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDataset, ISelection, IWidget, ITableWidgetColumnStyles, ITableWidgetConditionalStyles, ITableWidgetVisualizationTypes, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import { getWidgetStyleByType, stringifyStyleProperties } from '@/modules/documentExecution/dashboard/widget/TableWidget/TableWidgetHelper'
+import { getWidgetStyleByType, replaceTooltipConfigurationVariablesAndParametersPlaceholders, stringifyStyleProperties } from '@/modules/documentExecution/dashboard/widget/TableWidget/TableWidgetHelper'
 import { IPivotTooltips } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget.d'
 import { getFormattedClickedValueForCrossNavigation, createPivotTableSelection } from './PivotWidgetHelpers'
 import { updateAllStoreSelections, executePivotTableWidgetCrossNavigation } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/InteractionHelper'
@@ -25,7 +25,8 @@ export default defineComponent({
         datasets: { type: Array as PropType<IDataset[]>, required: true },
         dataToShow: { type: Object as any, required: true },
         propActiveSelections: { type: Array as PropType<ISelection[]>, required: true },
-        dashboardId: { type: String, required: true }
+        dashboardId: { type: String, required: true },
+        propVariables: { type: Array as PropType<IVariable[]>, required: true }
     },
     emits: ['pageChanged', 'sortingChanged', 'launchSelection'],
     setup() {
@@ -40,7 +41,8 @@ export default defineComponent({
             fieldPickerConfig: {} as any,
             fieldPanelConfig: {} as any,
             gridInstance: null as any,
-            activeSelections: [] as ISelection[]
+            activeSelections: [] as ISelection[],
+            variables: [] as IVariable[]
         }
     },
     computed: {
@@ -54,10 +56,14 @@ export default defineComponent({
     watch: {
         propActiveSelections() {
             this.loadActiveSelections()
+        },
+        propVariables() {
+            this.loadVariables()
         }
     },
     beforeMount() {},
     created() {
+        this.loadVariables()
         this.setPivotConfiguration()
         this.setFieldPickerConfiguration()
         this.setFieldPanelConfiguration()
@@ -72,7 +78,6 @@ export default defineComponent({
 
     methods: {
         ...mapActions(dashboardStore, ['setSelections']),
-
         setEventListeners() {
             emitter.on('widgetResized', this.resizePivot)
             emitter.on('savePivotStates', this.saveState)
@@ -83,11 +88,13 @@ export default defineComponent({
             emitter.on('savePivotStates', this.saveState)
             emitter.on('loadPivotStates', this.loadState)
         },
+        loadVariables() {
+            this.variables = this.propVariables
+        },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
         },
         resizePivot() {},
-
         setPivotConfiguration() {
             const widgetConfig = this.propWidget.settings.configuration
             this.pivotConfig = {
@@ -224,6 +231,9 @@ export default defineComponent({
             let cellTooltipConfig = null as unknown as IPivotTooltips
             if (parentField?.id && tooltipsConfig.length > 1) cellTooltipConfig = tooltipsConfig.find((tooltipConfig) => tooltipConfig.target.includes(parentField.id)) as IPivotTooltips
             else if (tooltipsConfig[0].enabled) cellTooltipConfig = tooltipsConfig[0] as IPivotTooltips
+
+            const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
+            cellTooltipConfig = replaceTooltipConfigurationVariablesAndParametersPlaceholders(cellTooltipConfig, this.variables, dashboardDrivers)
 
             if (cellTooltipConfig) this.createFieldTooltips(cellEvent, cellTooltipConfig)
         },

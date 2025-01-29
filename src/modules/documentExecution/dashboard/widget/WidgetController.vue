@@ -151,8 +151,10 @@ export default defineComponent({
         ...mapState(store, ['dashboards']),
         ...mapState(mainStore, ['user', 'setInfo']),
         playSelectionButtonVisible(): boolean {
+            const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
+            if (this.document.seeAsFinalUser && isSelectorWidget) return true
             if (!this.widget || !this.widget.settings.configuration || !this.widget.settings.configuration.selectorType) return false
-            return this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
+            return isSelectorWidget
         },
         dashboardSheets() {
             return this.dashboards[this.dashboardId]?.sheets ?? []
@@ -241,9 +243,9 @@ export default defineComponent({
         loadMenuItems() {
             this.items = [
                 { label: this.$t('dashboard.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
-                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: canEditDashboard(this.document) && ['highcharts', 'vega'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: this.document.seeAsFinalUser || canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: (this.document.seeAsFinalUser || canEditDashboard(this.document)) && ['highcharts', 'vega'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
                 { label: this.$t('dashboard.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
                 {

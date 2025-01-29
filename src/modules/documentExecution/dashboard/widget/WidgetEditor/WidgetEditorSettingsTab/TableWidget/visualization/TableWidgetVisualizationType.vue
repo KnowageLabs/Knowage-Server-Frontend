@@ -65,6 +65,10 @@
                         </template>
                     </Dropdown>
                 </div>
+                <div v-if="visualizationType.type === 'Text' || visualizationType.type === 'Text & Icon'" class="p-col-6 p-md-3 p-d-flex p-flex-column">
+                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.visualizationType.maximumCharacters') }}</label>
+                    <InputNumber v-model="visualizationType.maximumCharacters" class="kn-material-input p-inputtext-sm" :disabled="visualizationTypeDisabled" @blur="visualizationTypeChanged" />
+                </div>
                 <div v-if="optionsContainTimestampColumn(visualizationType)" class="p-col-11 p-md-5 p-d-flex p-flex-column p-p-2">
                     <label class="kn-material-input-label p-mr-2">{{ $t('managers.datasetManagement.ckanDateFormat') }}</label>
                     <Dropdown v-model="visualizationType.dateFormat" class="kn-material-input" :options="descriptor.dateFormats" :disabled="visualizationTypeDisabled" @change="visualizationTypeChanged">
@@ -240,7 +244,7 @@ export default defineComponent({
             })
         },
         getVisualizationTypeOptions(visualizationType: ITableWidgetVisualizationType) {
-            return this.optionsContainMeasureColumn(visualizationType) ? descriptor.visualizationTypes : descriptor.visualizationTypes.slice(0, 3)
+            return this.optionsContainMeasureColumn(visualizationType) ? descriptor.visualizationTypes : descriptor.visualizationTypes.slice(0, 4)
         },
         optionsContainMeasureColumn(visualizationType: ITableWidgetVisualizationType) {
             let found = false

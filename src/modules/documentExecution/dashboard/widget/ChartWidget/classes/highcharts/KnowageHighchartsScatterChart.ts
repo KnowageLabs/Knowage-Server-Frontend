@@ -1,11 +1,10 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateScatterChartModel } from './updater/KnowageHighchartsScatterChartUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
-
 
 export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     constructor(model: any, isJittered = false) {
@@ -42,7 +41,7 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
                 states: {
                     hover: {
                         enabled: true,
-                        lineColor: "rgb(100,100,100)"
+                        lineColor: 'rgb(100,100,100)'
                     }
                 }
             },
@@ -72,7 +71,7 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
         this.model.yAxis = [highchartsDefaultValues.getDefaultScatterYAxis()]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
@@ -92,7 +91,7 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
             data?.rows?.forEach((row: any) => {
                 serieElement.data.push({
                     x: row[attributeColumn.metadata.dataIndex],
-                    name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : "" + row[attributeColumn.metadata.dataIndex],
+                    name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : '' + row[attributeColumn.metadata.dataIndex],
                     y: row[metadata.dataIndex],
                     drilldown: false
                 })
@@ -102,36 +101,33 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     }
 
     setJitteredChartData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
-        const attributeColumn = attributeColumns[0];
-        const measureColumn = measureColumns[0];
-        if (!attributeColumn || !measureColumn || !data.rows) return;
+        const attributeColumn = attributeColumns[0]
+        const measureColumn = measureColumns[0]
+        if (!attributeColumn || !measureColumn || !data.rows) return
 
-        const seriesMapByAttributeValueIndex: { [key: string]: { id: number; name: string; data: any[]; connectNulls: boolean } } = {};
-        const uniqueValues: string[] = [];
+        const seriesMapByAttributeValueIndex: { [key: string]: { id: number; name: string; data: any[]; connectNulls: boolean } } = {}
+        const uniqueValues: string[] = []
 
         data.rows.forEach((row: any) => {
-            const attributeValue = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type)
-                ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type)
-                : "" + row[attributeColumn.metadata.dataIndex];
+            const attributeValue = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : '' + row[attributeColumn.metadata.dataIndex]
 
             if (!seriesMapByAttributeValueIndex[attributeValue]) {
-                const index = uniqueValues.length;
-                uniqueValues.push(attributeValue);
-                seriesMapByAttributeValueIndex[attributeValue] = { id: index, name: attributeValue, data: [], connectNulls: true };
+                const index = uniqueValues.length
+                uniqueValues.push(attributeValue)
+                seriesMapByAttributeValueIndex[attributeValue] = { id: index, name: attributeValue, data: [], connectNulls: true }
             }
 
             seriesMapByAttributeValueIndex[attributeValue].data.push({
                 x: seriesMapByAttributeValueIndex[attributeValue].id,
                 name: attributeValue,
-                y: row[measureColumn.metadata.dataIndex],
-            });
-        });
+                y: row[measureColumn.metadata.dataIndex]
+            })
+        })
 
-        this.model.series = uniqueValues.map((value) => seriesMapByAttributeValueIndex[value]);
+        this.model.series = uniqueValues.map((value) => seriesMapByAttributeValueIndex[value])
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {
         updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
     }
-
 }
