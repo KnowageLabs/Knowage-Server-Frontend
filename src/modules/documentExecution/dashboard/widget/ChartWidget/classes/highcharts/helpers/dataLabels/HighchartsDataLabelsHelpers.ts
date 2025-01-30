@@ -80,6 +80,10 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
                     return KnowageHighcharts.prototype.handleFormatter(this, seriesLabelSetting.label, model.chart.type)
                 }
             }
+            if (model?.chart?.type === 'pictorial') {
+                delete data.dataLabels.alignTo
+                data.dataLabels.align = 'center'
+            }
         })
     })
 }
