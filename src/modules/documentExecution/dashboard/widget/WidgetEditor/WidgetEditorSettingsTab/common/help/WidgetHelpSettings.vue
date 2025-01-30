@@ -1,9 +1,5 @@
 <template>
     <div v-if="widgetHelpSettingsModel" class="p-ai-center kn-flex p-p-4">
-        <div class="p-col-12 p-mb-3">
-            {{ widgetHelpSettingsModel }}
-        </div>
-
         <form class="p-fluid p-formgrid p-grid">
             <div class="p-field p-col-12">
                 <span class="p-float-label">
@@ -146,7 +142,7 @@ export default defineComponent({
             if (this.widgetHelpSettingsModel?.icon) this.toolbarModel.icon = this.widgetHelpSettingsModel.icon
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
-            if (!this.widgetHelpSettingsModel || !this.widgetHelpSettingsModel.icon) return
+            if (!this.widgetHelpSettingsModel) return
             this.toolbarModel.icon = model.icon ?? ''
             this.widgetHelpSettingsModel.icon = model.icon ?? ''
         }
