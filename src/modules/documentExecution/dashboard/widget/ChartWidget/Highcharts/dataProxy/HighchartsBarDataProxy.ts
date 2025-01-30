@@ -5,11 +5,10 @@ import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import deepcopy from 'deepcopy'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import { ISortingColumn } from '../HighchartsDataProxy'
 
 const dashStore = dashboardStore()
 
-export const getHighchartsBarData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], sortingColumn: ISortingColumn | null, associativeResponseSelections?: any) => {
+export const getHighchartsBarData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 
@@ -17,7 +16,7 @@ export const getHighchartsBarData = async (dashboardId, dashboardConfig: IDashbo
         const itemsLimit = widget.settings.configuration.limit
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=${itemsLimit && itemsLimit.enabled && itemsLimit.itemsNumber ? itemsLimit.itemsNumber : '-1'}&nearRealtime=true`
 
-        const postData = formatChartWidgetForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, sortingColumn, associativeResponseSelections)
+        const postData = formatChartWidgetForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
@@ -54,7 +53,7 @@ export const getHighchartsBarData = async (dashboardId, dashboardConfig: IDashbo
     }
 }
 
-const formatChartWidgetForGet = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], sortingColumn: ISortingColumn | null, associativeResponseSelections?: any) => {
+const formatChartWidgetForGet = (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const dataToSend = {
         aggregations: {
             dataset: '',
@@ -75,19 +74,19 @@ const formatChartWidgetForGet = (dashboardId: any, dashboardConfig: IDashboardCo
     addParametersToData(dataset, dashboardId, dataToSend)
 
     if (widget.settings.configuration?.grouping?.enabled) {
-        addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 2, -1, false, sortingColumn)
+        addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 2, -1, false)
     } else if (widget.settings.configuration?.grouping?.secondSeries.enabled) {
-        addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 1, 2, false, sortingColumn)
+        addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 1, 2, false)
     } else if (widget.settings.configuration?.grouping?.secondDimension.enabled) {
-        addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 2, -1, true, sortingColumn)
+        addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 2, -1, true)
     } else {
-        addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 1, -1, false, sortingColumn)
+        addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 1, -1, false)
     }
 
     return dataToSend
 }
 
-const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDashboardConfiguration, dataToSend: any, noOfCategories: number, noOfMeasures: number, specificMeasure: boolean, sortingColumn: ISortingColumn | null) => {
+const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDashboardConfiguration, dataToSend: any, noOfCategories: number, noOfMeasures: number, specificMeasure: boolean) => {
     const measures = widget.columns.filter((column) => column.fieldType === 'MEASURE')
     const measureLength = noOfMeasures == -1 ? measures.length : noOfMeasures
 
@@ -116,7 +115,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     if (categories.length >= categoryLength) {
         for (let index = 0; index < categoryLength; index++) {
             const category = categories[index]
-            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: sortingColumn ? sortingColumn.columnName : category.alias, orderType: sortingColumn ? sortingColumn.sortingOrder : category.orderType, funct: 'NONE' } as any
+            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: category.alias, orderType: category.orderType, funct: 'NONE' } as any
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }

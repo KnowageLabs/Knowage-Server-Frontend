@@ -4,8 +4,6 @@ import { IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
 export interface IHighchartsWidgetSettings {
     updatable: boolean
     clickable: boolean
-    sortingColumn?: string
-    sortingOrder?: string
     chartModel: IHighchartsChartModel | null
     configuration: IHighchartsWidgetConfiguration
     accesssibility: IHighchartsWidgetAccessibility
