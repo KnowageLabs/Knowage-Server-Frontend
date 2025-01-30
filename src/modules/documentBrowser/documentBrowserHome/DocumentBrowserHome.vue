@@ -70,6 +70,7 @@ import KnFabButton from '@/components/UI/KnFabButton.vue'
 import Menu from 'primevue/menu'
 import mainStore from '../../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { iFolder } from '../DocumentBrowser'
 
 export default defineComponent({
     name: 'document-browser-home',
@@ -82,7 +83,7 @@ export default defineComponent({
     },
     data() {
         return {
-            folders: [] as any[],
+            folders: [] as iFolder[],
             selectedFolder: null as any,
             documents: [] as any[],
             searchedDocuments: [] as any[],
@@ -165,14 +166,14 @@ export default defineComponent({
         },
         findSelectedFolder() {
             const id = this.$route.params.pathMatch[this.$route.params.pathMatch.length - 1]
-            const index = this.folders.findIndex((folder: any) => folder.id == id)
+            const index = this.folders.findIndex((folder: iFolder) => folder.id == id)
             return index !== -1 ? this.folders[index] : null
         },
         async loadFolders() {
             this.loading = true
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/folders/`).then((response: AxiosResponse<any>) => {
                 this.folders = response.data
-                this.folders?.sort((a: any, b: any) => {
+                this.folders?.sort((a: iFolder, b: iFolder) => {
                     return a.id - b.id
                 })
             })
@@ -200,7 +201,7 @@ export default defineComponent({
             if (!tempPath) return
             let temp = ''
             for (let i = 0; i < tempPath.length; i++) {
-                const index = this.folders.findIndex((folder: any) => folder.code == tempPath[i])
+                const index = this.folders.findIndex((folder: iFolder) => folder.code == tempPath[i])
                 if (index !== -1) {
                     temp += `/${this.folders[index].id}`
                 }
@@ -273,19 +274,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.customFabButton {
-    position: absolute;
-    right: 10px;
-    &:deep(.q-icon) {
-        font-size: 1rem;
-    }
-
-    background-color: var(--kn-button-fab-background-color);
-    z-index: 100;
-    &:hover {
-        background-color: var(--kn-button-fab-hover-background-color);
-    }
-}
 #sidebar-button {
     display: none;
     cursor: pointer;

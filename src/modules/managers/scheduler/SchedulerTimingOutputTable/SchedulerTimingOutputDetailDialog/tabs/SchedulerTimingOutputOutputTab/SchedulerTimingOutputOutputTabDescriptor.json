@@ -25,6 +25,20 @@
             "nameMaxLength": 100
         }
     },
+    "documentOutputTypes": [
+        {
+            "label": "HTML",
+            "value": "HTML"
+        },
+        {
+            "label": "PDF",
+            "value": "PDF"
+        },
+        {
+            "label": "XLS",
+            "value": "XLS"
+        }
+    ],
     "styles": {
         "message": {
             "align-items": "center",

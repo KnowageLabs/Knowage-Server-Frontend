@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updatePictorialChartModel } from './updater/KnowageHighchartsPictorialChartUpdater'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
@@ -53,7 +53,7 @@ export class KnowageHighchartsPictorialChart extends KnowageHighcharts {
         else this.model.yAxis = [{ visible: false, ...highchartsDefaultValues.getDefaultBarYAxis() }]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')

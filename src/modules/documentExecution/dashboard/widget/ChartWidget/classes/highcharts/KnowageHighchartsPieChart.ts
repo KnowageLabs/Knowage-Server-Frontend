@@ -1,6 +1,6 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { updatePieChartModel } from './updater/KnowageHighchartsPieChartUpdater'
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsChartSerie } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { createSerie } from './updater/KnowageHighchartsCommonUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
@@ -34,12 +34,12 @@ export class KnowageHighchartsPieChart extends KnowageHighcharts {
         this.setPiePlotOptions()
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const drilldownEnabled = widgetModel.settings.interactions.drilldown ? widgetModel.settings.interactions.drilldown.enabled : false
-        setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, '')
+        setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, '', variables)
 
         return this.model.series
     }

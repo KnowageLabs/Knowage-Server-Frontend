@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateSankeyChartModel } from './updater/KnowageHighchartsSankeyChartUpdater'
 import { getAllColumnsOfSpecificTypeFromDataResponse, setSankeyData } from './helpers/setData/HighchartsSetDataHelpers'
 import deepcopy from 'deepcopy'
@@ -55,7 +55,7 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
         else this.model.yAxis = [highchartsDefaultValues.getDefaultBarYAxis()]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')

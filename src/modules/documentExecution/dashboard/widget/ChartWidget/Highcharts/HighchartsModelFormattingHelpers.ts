@@ -1,6 +1,7 @@
-import { IWidget } from '../../../Dashboard'
+import { IVariable, IWidget } from '../../../Dashboard'
 import { hexToRgba } from '../../../helpers/FormattingHelpers'
 import { IHighchartsChartModel } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
+import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 import { getRGBColorFromString } from '../../WidgetEditor/helpers/WidgetEditorHelpers'
 import Highcharts from 'highcharts'
 
@@ -189,4 +190,48 @@ const translatePathData = (pathData: string, translateX: number, translateY: num
 
 export const formatStreamgraphChart = (formattedChartModel: IHighchartsChartModel, widgetModel: IWidget) => {
     formatxAxisCrosshairSettings(formattedChartModel, widgetModel.settings.configuration?.axisLines)
+}
+
+export const formatVariables = (formattedChartModel: IHighchartsChartModel, variables: IVariable[]) => {
+    formatVariablesForAxis(formattedChartModel, variables, 'xAxis')
+    formatVariablesForAxis(formattedChartModel, variables, 'yAxis')
+}
+
+const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, variables: IVariable[], axis: 'xAxis' | 'yAxis') => {
+    if (!formattedChartModel[axis]) return
+    formattedChartModel[axis].forEach((axisElement: any) => {
+        if (axisElement.title?.text) axisElement.title.text = replaceVariablesPlaceholdersByVariableName(formattedChartModel[axis][0].title.text, variables)
+
+        formatVariablesForPlotBands(axisElement, variables)
+        formatVariablesForPlotLines(axisElement, variables)
+    })
+}
+
+const formatVariablesForPlotBands = (axis: any, variables: IVariable[]) => {
+    if (!axis || !axis.plotBands) return
+    axis.plotBands.forEach((plotBand: any) => {
+        plotBand.from = replaceVariablesPlaceholdersByVariableName(plotBand.from, variables)
+        plotBand.from = isNumberAndConvert(plotBand.from)
+
+        plotBand.to = replaceVariablesPlaceholdersByVariableName(plotBand.to, variables)
+        plotBand.to = isNumberAndConvert(plotBand.to)
+    })
+}
+
+const formatVariablesForPlotLines = (axis: any, variables: IVariable[]) => {
+    if (!axis || !axis.plotLines) return
+    axis.plotLines.forEach((plotLine: any) => {
+        plotLine.value = replaceVariablesPlaceholdersByVariableName(plotLine.value, variables)
+        plotLine.value = isNumberAndConvert(plotLine.value)
+    })
+}
+
+const isNumberAndConvert = (value: string) => {
+    const trimmedValue = value.trim()
+
+    if (!isNaN(parseFloat(trimmedValue)) && isFinite(+trimmedValue)) {
+        return parseFloat(trimmedValue)
+    }
+
+    return trimmedValue
 }

@@ -12,7 +12,7 @@
                 <div class="p-col-12 p-md-3 p-lg-2 p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
                     <div class="p-d-flex p-flex-row p-ai-center">
-                        <InputNumber v-model="plotLine.value" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                        <InputText v-model="plotLine.value" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                         <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.lines.valueHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                     </div>
                 </div>

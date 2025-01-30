@@ -12,14 +12,14 @@
                 <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.from') }}</label>
                     <div class="p-d-flex p-flex-row p-ai-center">
-                        <InputNumber v-model="plotBand.from" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                        <InputText v-model="plotBand.from" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                         <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.bands.fromHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                     </div>
                 </div>
                 <div class="p-col-12 p-md-6 p-lg-6 p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.to') }}</label>
                     <div class="p-d-flex p-flex-row p-ai-center">
-                        <InputNumber v-model="plotBand.to" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
+                        <InputText v-model="plotBand.to" class="kn-material-input p-inputtext-sm" @blur="onInputNumberChanged" />
                         <i v-tooltip.top="$t('dashboard.widgetEditor.highcharts.bands.toHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-2"></i>
                     </div>
                 </div>

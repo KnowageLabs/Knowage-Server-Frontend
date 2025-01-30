@@ -51,7 +51,7 @@ export default class CellRenderer {
             const celectedCellValues = params.multiSelectedCells
             const selectedColumn = params.selectedColumnArray[0]
 
-            if (selection.enabled && selection.multiselection.enabled) {
+            if (selection?.enabled && selection?.multiselection?.enabled) {
                 if (selection.modalColumn && selection.modalColumn == params.colDef.colId && celectedCellValues.includes(params.value)) return selection.multiselection.properties
                 else if (!selection.modalColumn && selectedColumn == params.colDef.field && celectedCellValues.includes(params.value)) return selection.multiselection.properties
             } else return null
@@ -134,7 +134,7 @@ export default class CellRenderer {
         }
 
         if (visType.type) {
-            if (visType.type.toLowerCase() === 'text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
+            if (visType.type.toLowerCase() === 'text' || visType.type.toLowerCase() === 'multiline text') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}${visType.suffix}`
             if (visType.type.toLowerCase() === 'icon') this.eGui.innerHTML = `${visType.prefix}<i class="${styleObject?.icon}" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'text & icon') this.eGui.innerHTML = `${visType.prefix}${setCellContent()}<i class="${styleObject?.icon} p-as-center" />${visType.suffix}`
             if (visType.type.toLowerCase() === 'bar') {
@@ -151,6 +151,8 @@ export default class CellRenderer {
             }
         } else if (params.colId === 'iconColumn') createIconColumnIcons()
         else this.eGui.innerHTML = setCellContent()
+
+        truncateCellContent(this.eGui)
 
         function invokeParentMethod(interaction, params, index) {
             const clickedInteraction = { type: interaction.interactionType, index: index, icon: interaction.icon, node: params }
@@ -171,7 +173,7 @@ export default class CellRenderer {
             if (isColumnOfType('timestamp') || isColumnOfType('datetime')) return dateTimeFormatter(params.value)
             else if (isColumnOfType('date')) return dateFormatter(params.value)
             else if (params.colId === 'iconColumn') {
-                return `<i class="${getActiveIconFromWidget()}"></i>` ?? 'ICON ERROR'
+                return `<i class="${getActiveIconFromWidget()}"></i>`
             } else if (params.colId !== 'indexColumn' && params.node.rowPinned !== 'bottom') {
                 if (typeof params.value === 'number') return numberFormatter(params.value)
                 else return params.value
@@ -217,6 +219,27 @@ export default class CellRenderer {
 
             if (visType?.precision) return formatNumberWithLocale(cellValue, visType.precision)
             else return formatNumberWithLocale(cellValue, 0)
+        }
+        function truncateCellContent(eGui) {
+            const visType = getColumnVisualizationType(params.colId)
+            const isDateColumn = isColumnOfType('timestamp') || isColumnOfType('datetime') || isColumnOfType('date')
+            if (visType?.maximumCharacters && (visType.type === 'Text' || visType.type === 'Text & Icon') && eGui.innerHTML.length > visType?.maximumCharacters && !isDateColumn) {
+                eGui.innerHTML = eGui.innerHTML.slice(0, visType?.maximumCharacters)
+
+                const interactionButton = createTruncationIcon()
+                eGui.appendChild(interactionButton)
+            }
+
+            function createTruncationIcon() {
+                const interactionButton = document.createElement('icon')
+                interactionButton.setAttribute('class', `fas fa-search p-mr-1 p-ml-auto`)
+                interactionButton.setAttribute('style', 'cursor: pointer;')
+                interactionButton.addEventListener('click', (event) => {
+                    event.stopPropagation()
+                    params.context.componentParent.toggleTruncatedDialog(params.value)
+                })
+                return interactionButton
+            }
         }
     }
 

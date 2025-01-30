@@ -68,7 +68,7 @@ export default defineComponent({
             this.loading = false
         },
         showJobDetail(event: any, clone: boolean) {
-            this.selectedJob = event && event.item ? { ...event.item, edit: true } : { jobName: '', jobDescription: '', documents: [], triggers: [] }
+            this.selectedJob = event && event.item ? { ...this.findSelectedJob(event.item), edit: true } : { jobName: '', jobDescription: '', documents: [], triggers: [] }
 
             if (clone && this.selectedJob) {
                 this.selectedJob.jobName = this.$t('common.copyOf') + ' ' + this.selectedJob.jobName
@@ -77,6 +77,11 @@ export default defineComponent({
 
             const path = event && event.item ? `/scheduler/edit-package-schedule?id=${event.item.jobName}&clone=${clone}` : '/scheduler/new-package-schedule'
             this.$router.push(path)
+        },
+        findSelectedJob(selectedJob: any) {
+            if (!selectedJob) return null
+            const job = this.jobs.find((tempJob: any) => tempJob.jobName === selectedJob.jobName)
+            return job ?? selectedJob
         },
         async deleteJobConfirm(event: any) {
             this.$confirm.require({
@@ -116,7 +121,6 @@ export default defineComponent({
         },
         async loadSelectJob(name: string) {
             await this.loadJobs()
-
             this.selectedJob = this.jobs.find((el: iPackage) => {
                 return el.jobName === name
             }) as iPackage

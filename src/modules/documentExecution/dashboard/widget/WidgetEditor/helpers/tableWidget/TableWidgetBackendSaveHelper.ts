@@ -1,4 +1,18 @@
-import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
+import {
+    ITableWidgetColumnGroups,
+    ITableWidgetConditionalStyles,
+    ITableWidgetConfiguration,
+    IWidgetCrossNavigation,
+    ITableWidgetHeaders,
+    IWidgetInteractions,
+    IWidgetSelection,
+    ITableWidgetSettings,
+    ITableWidgetVisualization,
+    IWidget,
+    IWidgetColumn,
+    ITableWidgetTooltipStyle,
+    ITableWidgetColumnStyles
+} from '../../../../Dashboard'
 
 const columnIdNameMap = {}
 
