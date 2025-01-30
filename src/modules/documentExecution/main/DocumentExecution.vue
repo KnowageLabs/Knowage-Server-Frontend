@@ -1386,7 +1386,7 @@ export default defineComponent({
         },
         openCrossNavigationInNewWindow(tempDocument: any, crossNavigation: IDashboardCrossNavigation) {
             const parameters = encodeURI(JSON.stringify(tempDocument.formattedCrossNavigationParameters))
-            const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/document-browser/dashboard/${this.document.label}?role=${this.userRole}&crossNavigationParameters=${parameters}`
+            let url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/document-browser/dashboard/${crossNavigation?.document?.name}?role=${this.userRole}&crossNavigationParameters=${parameters}`
             const popupOptions = crossNavigation.popupOptions ?? {
                 width: '800',
                 height: '600'
