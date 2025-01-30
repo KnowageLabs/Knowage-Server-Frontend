@@ -15,7 +15,7 @@
 
         <template #footer>
             <Button class="p-button-text kn-button thirdButton" :label="$t('common.cancel')" @click="resetAndClose" />
-            <Button v-if="!readOnly" v-t="'common.apply'" class="kn-button kn-button--primary" @click="handleTransformation" />
+            <Button v-if="!readOnly" :label="$t('common.apply')" class="kn-button kn-button--primary" @click="handleTransformation" />
         </template>
     </Dialog>
 </template>
@@ -54,7 +54,7 @@ export default defineComponent({
     watch: {
         transformation: {
             handler(newValue) {
-                    this.localCopy = JSON.parse(JSON.stringify(newValue))
+                this.localCopy = JSON.parse(JSON.stringify(newValue))
             },
             deep: true
         }

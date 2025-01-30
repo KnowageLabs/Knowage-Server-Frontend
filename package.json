@@ -61,7 +61,7 @@
         "vue-chartjs": "^4.1.2",
         "vue-class-component": "^8.0.0-0",
         "vue-color-kit": "^1.0.5",
-        "vue-i18n": "9.13.1",
+        "vue-i18n": "11.0.1",
         "vue-router": "4.5.0",
         "vue3-cookies": "1.0.6",
         "x2js": "^3.4.1"
@@ -80,7 +80,6 @@
         "flush-promises": "^1.0.2",
         "globals": "^15.14.0",
         "material-icons": "^1.10.0",
-        "rollup-plugin-node-builtins": "^2.0.0",
         "sass": "1.83.4",
         "typescript": "5.7.3",
         "vite": "5.4.14",

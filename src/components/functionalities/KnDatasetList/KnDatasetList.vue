@@ -41,7 +41,7 @@
         </DataTable>
         <template #footer>
             <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" @click="cancel" />
-            <Button v-t="'common.open'" class="kn-button kn-button--primary" :disabled="!isDatasetSelected" @click="apply" />
+            <Button class="kn-button kn-button--primary" :disabled="!isDatasetSelected" @click="apply">{{ $t('common.open') }}</Button>
         </template>
     </Dialog>
 </template>

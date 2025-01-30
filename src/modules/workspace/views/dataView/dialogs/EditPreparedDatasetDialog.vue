@@ -8,7 +8,7 @@
             </Toolbar>
         </template>
         <div class="p-grid p-m-0">
-            <div class="p-col-12 ">
+            <div class="p-col-12">
                 <div class="p-d-flex">
                     <span class="p-float-label kn-flex p-mr-2">
                         <InputText
@@ -52,7 +52,7 @@
         </div>
         <template #footer>
             <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" @click="cancel" />
-            <Button v-t="'common.apply'" class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="apply" />
+            <Button :label="$t('common.apply')" class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="apply" />
         </template>
     </Dialog>
 </template>

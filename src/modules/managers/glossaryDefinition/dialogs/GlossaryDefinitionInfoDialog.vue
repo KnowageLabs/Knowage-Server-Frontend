@@ -28,7 +28,7 @@
             <div v-else-if="contentInfo?.WORD_ID">
                 <ul>
                     <li>
-                        <span>{{ $tc('managers.glossary.common.word', 1) }}:</span>
+                        <span>{{ $t('managers.glossary.common.word', 1) }}:</span>
                         <span>{{ contentInfo.WORD }}</span>
                     </li>
                     <li>

@@ -62,7 +62,7 @@
                 <div v-if="selectedGlossary && showTree">
                     <Toolbar class="kn-toolbar kn-toolbar--default">
                         <template #start>
-                            {{ $tc('managers.glossary.common.word', 2) }}
+                            {{ $t('managers.glossary.common.word', 2) }}
                         </template>
                         <template #end>
                             <Button v-if="selectedGlossary && selectedGlossaryId && selectedGlossaryId != -1" class="kn-button p-button-text" @click="showNodeDialog(null, 'new')">{{ $t('managers.glossary.glossaryDefinition.addNode') }}</Button>

@@ -3,7 +3,7 @@
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine selectionGrid p-m-2" :grid-options="gridOptions" :context="context"></ag-grid-vue>
         <template #footer>
             <Button class="kn-button kn-button--secondary p-mb-2" :label="$t('common.close')" @click="closeDialog" />
-            <Button v-t="'common.save'" class="kn-button kn-button p-mb-2" @click="onSave" />
+            <Button class="kn-button kn-button p-mb-2" :label="$t('common.save')" @click="onSave" />
         </template>
     </Dialog>
 </template>
