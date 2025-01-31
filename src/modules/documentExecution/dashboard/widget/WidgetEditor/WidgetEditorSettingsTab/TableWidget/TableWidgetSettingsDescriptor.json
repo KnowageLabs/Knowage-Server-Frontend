@@ -406,6 +406,10 @@
             "value": "Text"
         },
         {
+            "label": "dashboard.widgetEditor.visualizationType.multilineText",
+            "value": "Multiline Text"
+        },
+        {
             "label": "common.icon",
             "value": "Icon"
         },

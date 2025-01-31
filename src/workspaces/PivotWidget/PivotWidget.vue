@@ -233,7 +233,7 @@ export default defineComponent({
             else if (tooltipsConfig[0].enabled) cellTooltipConfig = tooltipsConfig[0] as IPivotTooltips
 
             const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
-            replaceTooltipConfigurationVariablesAndParametersPlaceholders(cellTooltipConfig, this.variables, dashboardDrivers)
+            cellTooltipConfig = replaceTooltipConfigurationVariablesAndParametersPlaceholders(cellTooltipConfig, this.variables, dashboardDrivers)
 
             if (cellTooltipConfig) this.createFieldTooltips(cellEvent, cellTooltipConfig)
         },
