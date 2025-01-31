@@ -44,6 +44,12 @@
                 "type": "Export"
             }
         ],
+        "Help": [
+            {
+                "title": "dashboard.widgetEditor.help.title",
+                "type": "HelpSettings"
+            }
+        ],
         "Legend": [
             {
                 "title": "dashboard.widgetEditor.legend.title",
@@ -159,6 +165,11 @@
             "icon": "fa-solid fa-ellipsis",
             "label": "common.advanced",
             "value": "Advanced"
+        },
+        {
+            "icon": "pi pi-info-circle",
+            "label": "dashboard.widgetEditor.help.title",
+            "value": "Help"
         }
     ]
 }

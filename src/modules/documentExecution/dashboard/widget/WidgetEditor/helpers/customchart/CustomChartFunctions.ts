@@ -1,5 +1,6 @@
-import { ICustomChartWidgetEditor, ICustomChartWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/customChart/DashboardCustomChartWidget"
+import { ICustomChartWidgetEditor, ICustomChartWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/customChart/DashboardCustomChartWidget'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewCustomChartSettings = () => {
     return {
@@ -20,6 +21,7 @@ export const createNewCustomChartSettings = () => {
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ICustomChartWidgetSettings
 }

@@ -1,4 +1,4 @@
-import { ITableWidgetStyle, IWidget, IDashboardDriver, IWidgetInteractions, IWidgetResponsive, ITableWidgetTooltipStyle } from '../../Dashboard'
+import { ITableWidgetStyle, IWidget, IDashboardDriver, IWidgetInteractions, IWidgetResponsive, ITableWidgetTooltipStyle, IWidgetHelpSettings } from '../../Dashboard'
 import { IDiscoveryWidgetSettings, IDiscoveryWidgetConfiguration, IDiscoveryWidgetFacetsSettings, IDiscoveryWidgetSearchSettings } from '../../interfaces/DashboardDiscoveryWidget'
 import { getFormattedWidgetColumns } from '../common/WidgetColumnHelper'
 import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
@@ -40,7 +40,8 @@ const getFormattedWidgetSettings = (widget: any, drivers: IDashboardDriver[]) =>
         style: getFormattedStyle(widget) as ITableWidgetStyle,
         tooltips: tableWidgetDefaultValues.getDefaultTooltips() as ITableWidgetTooltipStyle[],
         visualization: tableWidgetDefaultValues.getDefaultVisualizations(),
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IDiscoveryWidgetSettings
     return formattedSettings
 }

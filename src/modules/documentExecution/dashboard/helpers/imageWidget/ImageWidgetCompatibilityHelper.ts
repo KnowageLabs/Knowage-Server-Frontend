@@ -1,9 +1,9 @@
-import { IWidget, IWidgetExports, IWidgetInteractions } from "../../Dashboard"
-import { IImageWidgetImageSettings, IImageWidgetSettings, IImageWidgetConfiguration } from "../../interfaces/DashboardImageWidget"
-import { getFormattedInteractions } from "../common/WidgetInteractionsHelper"
-import { getFormattedStyle } from "./ImageWidgetStyleHelper"
+import { IWidget, IWidgetExports, IWidgetHelpSettings, IWidgetInteractions } from '../../Dashboard'
+import { IImageWidgetImageSettings, IImageWidgetSettings, IImageWidgetConfiguration } from '../../interfaces/DashboardImageWidget'
+import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
+import { getFormattedStyle } from './ImageWidgetStyleHelper'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
-import * as  imageWidgetDefaultValues from '../../widget/WidgetEditor/helpers/imageWidget/ImageWidgetDefaultValues'
+import * as imageWidgetDefaultValues from '../../widget/WidgetEditor/helpers/imageWidget/ImageWidgetDefaultValues'
 
 export const formatImageWidget = (widget: any) => {
     const formattedWidget = {
@@ -18,7 +18,6 @@ export const formatImageWidget = (widget: any) => {
     return formattedWidget
 }
 
-
 const getFormattedWidgetSettings = (widget: any) => {
     const formattedSettings = {
         updatable: widget.updateble,
@@ -26,7 +25,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         configuration: getFormattedConfiguration(widget),
         style: getFormattedStyle(widget),
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IImageWidgetSettings
     return formattedSettings
 }
@@ -34,7 +34,6 @@ const getFormattedWidgetSettings = (widget: any) => {
 const getFormattedConfiguration = (widget: any) => {
     return { image: getFormattedImageSettings(widget), exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports } as IImageWidgetConfiguration
 }
-
 
 const getFormattedImageSettings = (widget: any) => {
     const formattedImageSettings = {
@@ -46,8 +45,8 @@ const getFormattedImageSettings = (widget: any) => {
         formattedImageSettings.style = {
             height: widget.style.heightPerc ?? '',
             width: widget.style.widthPerc ?? '',
-            "background-position-x": widget.style.hAlign ?? 'center',
-            "background-position-y": widget.style.vAlign ?? 'center',
+            'background-position-x': widget.style.hAlign ?? 'center',
+            'background-position-y': widget.style.vAlign ?? 'center'
         }
     }
     return formattedImageSettings

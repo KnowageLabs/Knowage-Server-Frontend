@@ -1,6 +1,7 @@
-import { ISelectorWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget"
+import { ISelectorWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import * as selectorWidgetDefaultValues from './SelectorWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewSelectorWidgetSettings = () => {
     return {
@@ -23,6 +24,7 @@ export const createNewSelectorWidgetSettings = () => {
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ISelectorWidgetSettings
 }

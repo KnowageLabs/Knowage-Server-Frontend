@@ -1,13 +1,14 @@
-import { ISelectionsWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget"
+import { ISelectionsWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectionsWidget'
 import * as selectionsWidgetDefaultValues from './SelectionsWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewSelectionsWidgetSettings = () => {
     return {
         updatable: true,
         clickable: true,
         configuration: {
-            type: "list",
+            type: 'list',
             valuesManagement: selectionsWidgetDefaultValues.getDefaultValuesManagement(),
             noSelections: selectionsWidgetDefaultValues.getDefaultNoSelectionsConfiguration(),
             exports: { showExcelExport: true }
@@ -22,6 +23,7 @@ export const createNewSelectionsWidgetSettings = () => {
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ISelectionsWidgetSettings
 }

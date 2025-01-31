@@ -1,4 +1,4 @@
-import { IWidget, IWidgetExports, IWidgetInteractions } from '../../../Dashboard'
+import { IWidget, IWidgetExports, IWidgetHelpSettings, IWidgetInteractions } from '../../../Dashboard'
 import { IHighchartsWidgetConfiguration, IHighchartsWidgetSettings } from '../../../interfaces/highcharts/DashboardHighchartsWidget'
 import { KnowageHighchartsPieChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsPieChart'
 import { getFormattedInteractions } from '../../common/WidgetInteractionsHelper'
@@ -10,8 +10,8 @@ import { KnowageHighchartsGaugeSeriesChart } from '../../../widget/ChartWidget/c
 import { KnowageHighchartsSolidGaugeChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsSolidGaugeChart'
 import { KnowageHighchartsActivityGaugeChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsActivityGaugeChart'
 import { getFormattedSerieLabelsSettings } from './HighchartsSeriesSettingsCompatibilityHelper'
-import { KnowageHighchartsHeatmapChart } from './../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart';
-import { KnowageHighchartsRadarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsRadarChart';
+import { KnowageHighchartsHeatmapChart } from './../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsHeatmapChart'
+import { KnowageHighchartsRadarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsRadarChart'
 import { KnowageHighchartsBarChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsBarChart'
 import { KnowageHighchartsBubbleChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsBubbleChart'
 import { KnowageHighchartsLineChart } from '../../../widget/ChartWidget/classes/highcharts/KnowageHighchartsLineChart'
@@ -53,16 +53,17 @@ const getFormattedWidgetSettings = (widget: any, chartType: string) => {
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget),
         chart: { colors: getFormattedColorSettings(widget) as any },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IHighchartsWidgetSettings
-    if (['BAR', "LINE", 'RADAR', 'BUBBLE', 'PIE'].includes(chartType)) formattedSettings.series.conditionalStyles = { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } as any
+    if (['BAR', 'LINE', 'RADAR', 'BUBBLE', 'PIE'].includes(chartType)) formattedSettings.series.conditionalStyles = { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } as any
     return formattedSettings
 }
 
 const getFormattedConfiguration = (widget: any, chartType: string) => {
     const formattedConfiguration = { exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports } as IHighchartsWidgetConfiguration
-    if (['HEATMAP', 'RADAR', 'BAR', 'LINE', 'BUBBLE', "SCATTER", "TREEMAP", "SUNBURST", "CHORD", "PARALLEL"].includes(chartType)) formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
-    if (['BAR', "LINE", 'RADAR', 'BUBBLE'].includes(chartType)) formattedConfiguration.grouping = getFormmatedGroupingSettings(widget)
+    if (['HEATMAP', 'RADAR', 'BAR', 'LINE', 'BUBBLE', 'SCATTER', 'TREEMAP', 'SUNBURST', 'CHORD', 'PARALLEL'].includes(chartType)) formattedConfiguration.datetypeSettings = getFormmatedDatetypeSettings(widget)
+    if (['BAR', 'LINE', 'RADAR', 'BUBBLE'].includes(chartType)) formattedConfiguration.grouping = getFormmatedGroupingSettings(widget)
     if (['SUNBURST', 'TREEMAP'].includes(chartType)) formattedConfiguration.centerText = getFormattedCenterTextSettings(widget)
     formattedConfiguration.limit = getFormmatedLimitSettings(widget)
     if (['PARALLEL'].includes(chartType)) formattedConfiguration.axisLines = getFormmatedAxisLinesSettings(widget)
@@ -123,28 +124,26 @@ const getFormmatedAxisLinesSettings = (widget: any) => {
     return formattedAxisLinesSettings
 }
 
-
-
 const getProperDateTimeFormat = (oldDateFormat: string) => {
     switch (oldDateFormat) {
         case 'minus':
-            return 'DD-MM-YYYY';
+            return 'DD-MM-YYYY'
         case 'slash':
-            return 'DD/MM/YYYY';
+            return 'DD/MM/YYYY'
         case 'year':
-            return 'YYYY';
+            return 'YYYY'
         case 'month':
-            return 'MMMM YYYY';
+            return 'MMMM YYYY'
         case 'day':
-            return 'dddd, MMM D, YYYY';
+            return 'dddd, MMM D, YYYY'
         case 'hour':
-            return 'dddd, MMM D, YYYY hh';
+            return 'dddd, MMM D, YYYY hh'
         case 'minute':
-            return 'dddd, MMM D, YYYY hh:mm';
+            return 'dddd, MMM D, YYYY hh:mm'
         case 'second':
-            return 'dddd, MMM D, YYYY hh:mm:ss';
+            return 'dddd, MMM D, YYYY hh:mm:ss'
         case 'millisecond':
-            return 'dddd, MMM D, YYYY hh:mm:ss sss';
+            return 'dddd, MMM D, YYYY hh:mm:ss sss'
         default:
             return ''
     }
@@ -167,27 +166,27 @@ const createChartModel = (widget: any, chartType: string, isStacking: boolean) =
             return createGaugeChartInstance(widgetContentChartTemplate)
         case 'HEATMAP':
             return new KnowageHighchartsHeatmapChart(widgetContentChartTemplate)
-        case "RADAR":
+        case 'RADAR':
             return new KnowageHighchartsRadarChart(widgetContentChartTemplate)
-        case "AREA":
+        case 'AREA':
             return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'area', isStacking)
-        case "BAR":
+        case 'BAR':
             return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'bar', isStacking)
-        case "COLUMN":
+        case 'COLUMN':
             return new KnowageHighchartsBarChart(widgetContentChartTemplate, 'column', isStacking)
-        case "BUBBLE":
+        case 'BUBBLE':
             return new KnowageHighchartsBubbleChart(widgetContentChartTemplate)
-        case "SCATTER":
+        case 'SCATTER':
             return new KnowageHighchartsScatterChart(widgetContentChartTemplate, false)
-        case "LINE":
+        case 'LINE':
             return new KnowageHighchartsLineChart(widgetContentChartTemplate)
-        case "TREEMAP":
+        case 'TREEMAP':
             return new KnowageHighchartsTreemapChart(widgetContentChartTemplate)
-        case "SUNBURST":
+        case 'SUNBURST':
             return new KnowageHighchartsSunburstChart(widgetContentChartTemplate)
-        case "CHORD":
+        case 'CHORD':
             return new KnowageHighchartsChordChart(widgetContentChartTemplate)
-        case "PARALLEL":
+        case 'PARALLEL':
             return new KnowageHighchartsParallelChart(widgetContentChartTemplate)
         default:
             return null
@@ -203,6 +202,5 @@ const createGaugeChartInstance = (widgetContentChartTemplate: any) => {
         case 'simple':
         default:
             return new KnowageHighchartsGaugeSeriesChart(widgetContentChartTemplate)
-
     }
 }

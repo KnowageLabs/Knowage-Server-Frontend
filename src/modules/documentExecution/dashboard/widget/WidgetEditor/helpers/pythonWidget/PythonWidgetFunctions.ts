@@ -1,7 +1,7 @@
-
-import { IPythonWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/DashboardPythonWidget"
+import { IPythonWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardPythonWidget'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
-import * as  pythonWidgetDefaultValues from './PythonWidgetDefaultValues'
+import * as pythonWidgetDefaultValues from './PythonWidgetDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewPythonWidgetSettings = () => {
     return {
@@ -21,8 +21,9 @@ export const createNewPythonWidgetSettings = () => {
         },
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
-            preview: widgetCommonDefaultValues.getDefaultPreview(),
+            preview: widgetCommonDefaultValues.getDefaultPreview()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IPythonWidgetSettings
 }

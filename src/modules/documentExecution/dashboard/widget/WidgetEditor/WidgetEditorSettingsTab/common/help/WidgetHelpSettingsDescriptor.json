@@ -1,0 +1,45 @@
+{
+    "iconPositions": [
+        {
+            "label": "dashboard.widgetEditor.help.topLeft",
+            "value": "top-left"
+        },
+        {
+            "label": "dashboard.widgetEditor.help.topRight",
+            "value": "top-right"
+        },
+        {
+            "label": "dashboard.widgetEditor.help.bottomLeft",
+            "value": "bottom-left"
+        },
+        {
+            "label": "dashboard.widgetEditor.help.bottomRight",
+            "value": "bottom-right"
+        }
+    ],
+    "styleToolbarSettings": [
+        {
+            "type": "icon"
+        }
+    ],
+    "types": [
+        {
+            "label": "dashboard.widgetEditor.help.freeText",
+            "value": "free-text"
+        },
+        {
+            "label": "managers.glossary.common.link",
+            "value": "link"
+        }
+    ],
+    "visualizationTypes": [
+        {
+            "label": "common.popup",
+            "value": "pop-up"
+        },
+        {
+            "label": "dashboard.widgetEditor.settingsListOptions.tooltip",
+            "value": "tooltip"
+        }
+    ]
+}

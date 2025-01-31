@@ -204,6 +204,7 @@
         "password": "Password",
         "path": "Path",
         "paused": "Paused",
+        "popup": "Pop-up",
         "preview": "Preview",
         "print": "Print",
         "private": "Private",
@@ -734,6 +735,18 @@
                 "hideHeader": "Hide header",
                 "setLabel": "Set label",
                 "title": "Headers"
+            },
+            "help": {
+                "bottomLeft": "Bottom Left",
+                "bottomRight": "Bottom Right",
+                "freeText": "Free Text",
+                "iconPosition": "Icon Position",
+                "popupHeight": "Pop-up Height",
+                "popupWidth": "Pop-up Width",
+                "title": "Help",
+                "topLeft": "Top Left",
+                "topRight": "Top Right",
+                "visualization": "Visualization"
             },
             "hidden": "Hidden",
             "highcharts": {

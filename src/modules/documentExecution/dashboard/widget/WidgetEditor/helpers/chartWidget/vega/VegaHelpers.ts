@@ -1,6 +1,6 @@
-import { IVegaChartsSettings } from './../../../../../interfaces/vega/VegaChartsWidget.d';
-import { IWidget } from './../../../../../Dashboard.d';
-import { KnowageVegaChartWordcloud } from './../../../../ChartWidget/classes/vega/KnowageVegaChartWordcloud';
+import { IVegaChartsSettings } from './../../../../../interfaces/vega/VegaChartsWidget.d'
+import { IWidget, IWidgetHelpSettings } from './../../../../../Dashboard.d'
+import { KnowageVegaChartWordcloud } from './../../../../ChartWidget/classes/vega/KnowageVegaChartWordcloud'
 import * as widgetCommonDefaultValues from '../../common/WidgetCommonDefaultValues'
 import * as vegaChartsDefaultValues from '../vega/VegaDefaultValues'
 import descriptor from '../../../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
@@ -30,7 +30,8 @@ export const createNewVegaSettings = () => {
         },
         tooltip: vegaChartsDefaultValues.getDefaultTooltipSettings(),
         chart: { colors: descriptor.defaultColors },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IVegaChartsSettings
     settings.chartModel = null
     return settings
@@ -39,7 +40,6 @@ export const createNewVegaSettings = () => {
 export const formatVegaWidget = (widget: IWidget) => {
     widget.settings.chartModel = new KnowageVegaChartWordcloud(widget.settings.chartModel.model ?? widget.settings.chartModel)
 }
-
 
 export const createVegaModel = (widget: IWidget, chartType: string) => {
     widget.type = 'vega'

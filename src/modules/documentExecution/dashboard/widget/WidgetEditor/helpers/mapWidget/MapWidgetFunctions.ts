@@ -1,6 +1,7 @@
-import { IMapWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget"
+import { IMapWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import * as mapWidgetDefaultValues from './MapWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewMapWidgetSettings = () => {
     return {
@@ -27,9 +28,10 @@ export const createNewMapWidgetSettings = () => {
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
-            shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
+            shadows: widgetCommonDefaultValues.getDefaultShadowsStyle()
         },
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
-        tooltips: mapWidgetDefaultValues.getDefaultMapTooltips()
+        tooltips: mapWidgetDefaultValues.getDefaultMapTooltips(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IMapWidgetSettings
 }

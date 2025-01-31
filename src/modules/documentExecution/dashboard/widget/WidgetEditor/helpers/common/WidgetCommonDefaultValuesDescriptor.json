@@ -35,6 +35,17 @@
         "parameters": [],
         "type": ""
     },
+    "defaultHelpSettings": {
+        "enabled": false,
+        "icon": "",
+        "iconPosition": "top-right",
+        "popupHeight": 400,
+        "popupWidth": 400,
+        "text": "",
+        "type": "free-text",
+        "url": "",
+        "visualizationType": "tooltip"
+    },
     "defaultIFrameInteraction": {
         "column": "",
         "enabled": false,

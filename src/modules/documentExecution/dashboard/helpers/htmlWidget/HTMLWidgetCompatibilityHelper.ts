@@ -1,9 +1,9 @@
-import { IWidget, IWidgetExports, IWidgetInteractions } from "../../Dashboard"
-import { IHTMLWidgetConfiguration, IHTMLWidgetEditor, IHTMLWidgetSettings } from "../../interfaces/DashboardHTMLWidget"
-import { getFormattedStyle } from "./HTMLWidgetStyleHelper"
+import { IWidget, IWidgetExports, IWidgetHelpSettings, IWidgetInteractions } from '../../Dashboard'
+import { IHTMLWidgetConfiguration, IHTMLWidgetEditor, IHTMLWidgetSettings } from '../../interfaces/DashboardHTMLWidget'
+import { getFormattedStyle } from './HTMLWidgetStyleHelper'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
-import { getFormattedInteractions } from "../common/WidgetInteractionsHelper"
-import { getFormattedWidgetColumns } from "../common/WidgetColumnHelper"
+import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
+import { getFormattedWidgetColumns } from '../common/WidgetColumnHelper'
 
 const columnNameIdMap = {}
 
@@ -20,7 +20,6 @@ export const formatHTMLWidget = (widget: any) => {
     return formattedWidget
 }
 
-
 const getFormattedWidgetSettings = (widget: any) => {
     const formattedSettings = {
         sortingColumn: getColumnId(widget.settings?.sortingColumn) ?? '',
@@ -31,7 +30,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         editor: getFormattedEditor(widget),
         style: getFormattedStyle(widget),
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IHTMLWidgetSettings
     return formattedSettings
 }
@@ -45,7 +45,7 @@ const getFormattedConfiguration = (widget: any) => {
 const getFormattedEditor = (widget: any) => {
     return {
         css: widget.cssToRender,
-        html: widget.htmlToRender,
+        html: widget.htmlToRender
     } as IHTMLWidgetEditor
 }
 

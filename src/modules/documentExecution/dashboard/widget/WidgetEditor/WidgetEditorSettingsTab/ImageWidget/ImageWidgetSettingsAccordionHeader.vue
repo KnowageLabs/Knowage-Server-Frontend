@@ -60,6 +60,8 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.crossNavigation
                 case 'Link':
                     return this.widgetModel.settings.interactions.link
+                case 'HelpSettings':
+                    return this.widgetModel.settings.help
                 default:
                     return null
             }

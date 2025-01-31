@@ -62,6 +62,8 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.preview
                 case 'IFrameInteraction':
                     return this.widgetModel.settings.interactions.iframe
+                case 'HelpSettings':
+                    return this.widgetModel.settings.help
                 default:
                     return null
             }

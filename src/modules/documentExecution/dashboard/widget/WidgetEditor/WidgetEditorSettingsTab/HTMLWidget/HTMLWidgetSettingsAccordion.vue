@@ -23,6 +23,7 @@
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
                 <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
                 <CustomDashboardHeaderConfiguration v-else-if="accordion.type === 'CustomDashboardHeaderConfiguration'" :widget-model="widgetModel"></CustomDashboardHeaderConfiguration>
+                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -56,6 +57,7 @@ import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue
 import Message from 'primevue/message'
 import CustomDashboardHeaderConfiguration from './configuration/CustomDashboardHeaderConfiguration.vue'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
+import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 
 export default defineComponent({
     name: 'html-widget-settings-container',
@@ -80,7 +82,8 @@ export default defineComponent({
         Message,
         CustomDashboardHeaderConfiguration,
         WidgetMenuConfiguration,
-        WidgetSelectionConfiguration
+        WidgetSelectionConfiguration,
+        WidgetHelpSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

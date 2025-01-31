@@ -26,6 +26,12 @@
                 "type": "Environment"
             }
         ],
+        "Help": [
+            {
+                "title": "dashboard.widgetEditor.help.title",
+                "type": "HelpSettings"
+            }
+        ],
         "Responsive": [
             {
                 "title": "dashboard.widgetEditor.responsive.title",
@@ -80,6 +86,11 @@
             "icon": "pi pi-tablet",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
+        },
+        {
+            "icon": "pi pi-info-circle",
+            "label": "dashboard.widgetEditor.help.title",
+            "value": "Help"
         }
     ]
 }
