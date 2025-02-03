@@ -1,6 +1,7 @@
 import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { replaceVariablesPlaceholdersByVariableName } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/InteractionsParserHelper'
 import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
+import deepcopy from 'deepcopy'
 import moment from 'moment'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
@@ -374,16 +375,18 @@ export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCo
 
     if (columnConditionalStyles.length > 0) {
         for (let i = 0; i < columnConditionalStyles.length; i++) {
-            if (columnConditionalStyles[i].condition.value) columnConditionalStyles[i].condition.value = replaceVariablesPlaceholdersByVariableName(columnConditionalStyles[i].condition.value, variables)
-            if (isConditionMet(columnConditionalStyles[i].condition, valueToCompare)) {
-                if (columnConditionalStyles[i].applyToWholeRow && !returnString) {
-                    styleString = columnConditionalStyles[i].properties
+            const conditionalStyle = deepcopy(columnConditionalStyles[i])
+            if (conditionalStyle.condition.value) conditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(conditionalStyle.condition.value, variables)
+
+            if (isConditionMet(conditionalStyle.condition, valueToCompare)) {
+                if (conditionalStyle.applyToWholeRow && !returnString) {
+                    styleString = conditionalStyle.properties
                 } else if (returnString) {
-                    styleString = Object.entries(columnConditionalStyles[i].properties)
+                    styleString = Object.entries(conditionalStyle.properties)
                         .map(([k, v]) => `${k}:${v}`)
                         .join(';')
                 } else if (!returnString) {
-                    styleString = columnConditionalStyles[i].properties
+                    styleString = conditionalStyle.properties
                 }
                 break
             }
