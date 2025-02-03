@@ -88,7 +88,7 @@ export default defineComponent({
             interactionsMenuItems: [] as any,
             truncateDialogVisible: false,
             truncateDialogCellContent: '',
-            variables: [] as IVariable[]
+            variables: [] as IVariable[],
             themeBalham: themeBalham
         }
     },
