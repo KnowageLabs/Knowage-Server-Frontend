@@ -1,5 +1,5 @@
 <template>
-    <grid-item
+    <GridItem
         :id="`widget${item.id}`"
         :ref="`widget${item.id}`"
         :key="item.id"
@@ -50,7 +50,7 @@
             @change-focus="changeFocus"
         ></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
-    </grid-item>
+    </GridItem>
 
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" @chartTypeSelected="onChartSelectedForQuickWidgetChange" />
     <ChangeWidgetDialog v-if="showChangeDialog" :widget-model="widgetModel" :widget-data="widgetData" @close="toggleChangeDialog" />

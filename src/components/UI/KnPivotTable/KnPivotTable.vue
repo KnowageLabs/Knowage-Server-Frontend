@@ -1,11 +1,13 @@
 <template>
     <table class="pivot-table" :style="descriptor.pivotStyles.table">
         <thead>
-            <th v-for="(column, index) of columns.slice(1)" :key="index" class="pivot-header" :style="descriptor.pivotStyles.header">
-                {{ column.field }}
-                <i v-if="column.isEditable && column.type !== 'merge' && column.columnInfo.type !== 'boolean'" class="pi pi-pencil edit-icon p-ml-2" />
-            </th>
-            <th class="pivot-header" :style="descriptor.pivotStyles.iconColumn" />
+            <tr>
+                <th v-for="(column, index) of columns.slice(1)" :key="index" class="pivot-header" :style="descriptor.pivotStyles.header">
+                    {{ column.field }}
+                    <i v-if="column.isEditable && column.type !== 'merge' && column.columnInfo.type !== 'boolean'" class="pi pi-pencil edit-icon p-ml-2" />
+                </th>
+                <th class="pivot-header" :style="descriptor.pivotStyles.iconColumn" />
+            </tr>
         </thead>
 
         <tr v-for="(row, index) of mappedRows" :key="index">

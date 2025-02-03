@@ -38,7 +38,11 @@ import QBEOperator from './modules/qbe/qbeDialogs/qbeAdvancedFilterDialog/QBEOpe
 
 if (import.meta.env.DEV) document.domain = 'localhost'
 
-import VueGridLayout from 'vue-grid-layout'
+import { GridLayout, GridItem } from 'grid-layout-plus'
+
+import { AgGridVue } from 'ag-grid-vue3'
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
+ModuleRegistry.registerModules([AllCommunityModule])
 
 import ResizeObserver from '@vue-toys/resize-observer'
 
@@ -58,7 +62,6 @@ app.use(VueAxios, interceptor)
     .use(ToastService)
     .use(ConfirmationService)
     .use(internationalizationPlugin, mainStore.$state.internationalization)
-    .use(VueGridLayout)
     .use(ResizeObserver)
     .use(Quasar, {
         plugins: {
@@ -77,6 +80,9 @@ app.use(VueAxios, interceptor)
     .component('ProgressBar', ProgressBar)
     .component('Toolbar', Toolbar)
     .component('QBEOperator', QBEOperator)
+    .component('GridLayout', GridLayout)
+    .component('GridItem', GridItem)
+    .component('AgGridVue', AgGridVue)
 
     .mount('#app')
 

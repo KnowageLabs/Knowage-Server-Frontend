@@ -1,66 +1,106 @@
 <template>
     <div class="p-grid">
         <div class="p-col-12">
-            <div class="htmlMirrorContainer" style="height: 600px; width: 100%">
-                <Editor v-model="model.settings.editor.text" class="p-col-12" editor-style="height: 320px">
-                    <template #toolbar>
-                        <span class="ql-formats">
-                            <select class="ql-font">
-                                <option selected value="arial">Arial</option>
-                                <option value="aref-ruqua">Aref Ruqua</option>
-                                <option value="mirza">Mirza</option>
-                                <option value="roboto">Roboto</option>
-                                <option value="inconsolata">Inconsolata</option>
-                                <option value="sans-serif">Sans Serif</option>
-                                <option value="serif">Serif</option>
-                                <option value="monospace">Monospace</option>
-                            </select>
+            <q-editor
+                ref="editor"
+                class="q-ma-sm"
+                v-model="model.settings.editor.text"
+                :toolbar="[
+                    [
+                        {
+                            label: $q.lang.editor.align,
+                            icon: $q.iconSet.editor.align,
+                            fixedLabel: true,
+                            list: 'only-icons',
+                            options: ['left', 'center', 'right', 'justify']
+                        }
+                    ],
+                    ['bold', 'italic', 'underline'],
+                    [
+                        {
+                            label: $q.lang.editor.fontSize,
+                            icon: $q.iconSet.editor.fontSize,
+                            fixedLabel: true,
+                            fixedIcon: true,
+                            list: 'no-icons',
+                            options: ['size-1', 'size-2', 'size-3', 'size-4', 'size-5', 'size-6', 'size-7']
+                        },
+                        'font-family',
+                        'color',
+                        'removeFormat'
+                    ],
+                    ['unordered', 'ordered'],
 
-                            <select class="ql-size">
-                                <option value="small"></option>
-                                <option selected></option>
-                                <option value="large"></option>
-                                <option value="huge"></option>
-                            </select>
-                        </span>
-
-                        <span class="ql-formats">
-                            <button class="ql-bold"></button>
-                            <button class="ql-italic"></button>
-                            <button class="ql-underline"></button>
-                            <button class="ql-strike"></button>
-                        </span>
-
-                        <span class="ql-formats">
-                            <button class="ql-color"></button>
-                            <button class="ql-background"></button>
-                        </span>
-
-                        <span class="ql-formats">
-                            <button class="ql-script" value="sub"></button>
-                            <button class="ql-script" value="super"></button>
-                        </span>
-
-                        <span class="ql-formats">
-                            <button class="ql-list" value="ordered"></button>
-                            <button class="ql-list" value="bullet"></button>
-                        </span>
-
-                        <span class="ql-formats">
-                            <button class="ql-direction"></button>
-                            <button class="ql-align"></button>
-                        </span>
-
-                        <span class="ql-formats">
-                            <button class="ql-clean"></button>
-                        </span>
-
-                        <span id="menu-icon-container" class="ql-formats">
-                            <Button v-tooltip.left="$t('common.menu')" icon="fas fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain" @click="toggle"></Button>
-                        </span>
-                    </template>
-                </Editor>
-            </div>
+                    ['undo', 'redo'],
+                    ['test']
+                ]"
+                min-height="200px"
+            >
+                <template #test>
+                    <q-btn dense no-caps icon="data_array" unelevated label="placeholders" size="sm" @click="toggle" />
+                </template>
+                <template #font-family>
+                    <q-btn-dropdown dense no-caps ref="familytoken" no-wrap unelevated icon="font_download" label="Font Family" size="sm">
+                        <q-list dense>
+                            <q-item v-for="font in TextWidgetEditorDescriptor.fontFamilies" clickable @click="setFontFamily(font)"
+                                ><q-item-section
+                                    ><span :style="{ 'font-family': font }">{{ font }}</span></q-item-section
+                                ></q-item
+                            >
+                        </q-list>
+                    </q-btn-dropdown>
+                </template>
+                <template #color>
+                    <q-btn-dropdown dense no-caps ref="token" no-wrap unelevated icon="format_color_text" label="Text Color" size="sm">
+                        <q-list dense>
+                            <q-item tag="label" clickable @click="color('backColor', highlight)">
+                                <q-item-section side>
+                                    <q-icon name="format_color_fill" />
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-color
+                                        v-model="highlight"
+                                        default-view="palette"
+                                        no-header
+                                        no-footer
+                                        :palette="[
+                                            '#ffccccaa',
+                                            '#ffe6ccaa',
+                                            '#ffffccaa',
+                                            '#ccffccaa',
+                                            '#ccffe6aa',
+                                            '#ccffffaa',
+                                            '#cce6ffaa',
+                                            '#ccccffaa',
+                                            '#e6ccffaa',
+                                            '#ffccffaa',
+                                            '#ff0000aa',
+                                            '#ff8000aa',
+                                            '#ffff00aa',
+                                            '##00ff00aa',
+                                            '#00ff80aa',
+                                            '#00ffffaa',
+                                            '#0080ffaa',
+                                            '#0000ffaa',
+                                            '#8000ffaa',
+                                            '#ff00ffaa'
+                                        ]"
+                                        class="my-picker"
+                                    />
+                                </q-item-section>
+                            </q-item>
+                            <q-item tag="label" clickable @click="color('foreColor', foreColor)">
+                                <q-item-section side>
+                                    <q-icon name="format_color_text" />
+                                </q-item-section>
+                                <q-item-section>
+                                    <q-color v-model="foreColor" no-header no-footer default-view="palette" :palette="['#ff0000', '#ff8000', '#ffff00', '##00ff00', '#00ff80', '#00ffff', '#0080ff', '#0000ff', '#8000ff', '#ff00ff']" class="my-picker" />
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-btn-dropdown>
+                </template>
+            </q-editor>
         </div>
     </div>
 
@@ -71,24 +111,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IVariable, IWidget, IDataset } from '@/modules/documentExecution/Dashboard/Dashboard'
+import TextWidgetEditorDescriptor from './TextWidgetEditorDescriptor.json'
 import TieredMenu from 'primevue/tieredmenu'
 import TagsDialog from '../../common/editor/WidgetTagsDialog.vue'
-import { Quill } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import Editor from 'primevue/editor'
-import { CrossNavBlot, PreviewBlot, SelectionBlot } from './TextWidgetEditorQuillHelpers'
-
-Quill.register(CrossNavBlot, true)
-Quill.register(PreviewBlot, true)
-Quill.register(SelectionBlot, true)
-
-const Font = Quill.import('formats/font')
-Font.whitelist = ['mirza', 'roboto', 'arial', 'aref-ruqua', 'roboto', 'inconsolata', 'sans-serif', 'serif', 'monospace']
-Quill.register(Font, true)
 
 export default defineComponent({
     name: 'text-widget-editor',
-    components: { TieredMenu, TagsDialog, Editor },
+    components: { TieredMenu, TagsDialog },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         activeIndex: { type: Number, required: true },
@@ -102,8 +131,9 @@ export default defineComponent({
             toolbarMenuItems: [] as any[],
             tagsDialogMode: '' as string,
             tagsDialogVisible: false,
-            cursorPosition: null,
-            quill: {} as any
+            foreColor: '#000000',
+            highlight: '#ffff00aa',
+            TextWidgetEditorDescriptor: TextWidgetEditorDescriptor
         }
     },
     watch: {
@@ -115,6 +145,20 @@ export default defineComponent({
         this.loadModel()
     },
     methods: {
+        color(cmd, name) {
+            const edit = this.$refs.editor
+            this.$refs.token.hide()
+            edit.caret.restore()
+            edit.runCmd(cmd, name)
+            edit.focus()
+        },
+        setFontFamily(name) {
+            const edit = this.$refs.editor
+            this.$refs.familytoken.hide()
+            edit.caret.restore()
+            edit.runCmd('fontName', name)
+            edit.focus()
+        },
         loadModel() {
             this.model = this.widgetModel
         },

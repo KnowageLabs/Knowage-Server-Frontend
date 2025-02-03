@@ -124,7 +124,7 @@ $knowageBlueColor: #042d5f;
                 margin-bottom: 20px;
                 transition: all 0.3s ease-in;
                 &:hover {
-                    background-color: lighten($knowageBlueColor, 5%);
+                    background-color: color.adjust($knowageBlueColor, $lightness: 5%);
                 }
                 &:active {
                     box-shadow: 0px 0px 2px #686868;
@@ -139,7 +139,7 @@ $knowageBlueColor: #042d5f;
             }
             p {
                 font-size: 1.5rem;
-                color: lighten(black, 40%);
+                color: color.adjust(black, $lightness: 40%);
             }
         }
     }

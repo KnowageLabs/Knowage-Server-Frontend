@@ -40,7 +40,7 @@
 
             <div class="p-field p-col-12">
                 <label class="kn-material-input-label">{{ $t('common.message') }}</label>
-                <Editor v-model="mail.MESSAGE" class="p-m-2" :editor-style="documentExecutionMailDialogDescriptor.editor.style"></Editor>
+                <q-editor ref="editor" class="q-ma-sm" v-model="mail.MESSAGE" min-height="260px" />
             </div>
 
             <Accordion class="p-col-12">
@@ -89,13 +89,12 @@ import { iMail } from '../../DocumentExecution'
 import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import Dialog from 'primevue/dialog'
-import Editor from 'primevue/editor'
 import documentExecutionMailDialogDescriptor from './DocumentExecutionMailDialogDescriptor.json'
 import Message from 'primevue/message'
 
 export default defineComponent({
     name: 'document-execution-help-dialog',
-    components: { Accordion, AccordionTab, Dialog, Editor, Message },
+    components: { Accordion, AccordionTab, Dialog, Message },
     props: { visible: { type: Boolean } },
     emits: ['close', 'sendMail'],
     data() {

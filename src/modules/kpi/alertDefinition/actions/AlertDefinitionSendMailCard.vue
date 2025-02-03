@@ -9,20 +9,16 @@
         <label for="mailSubject" class="kn-material-input-label"> {{ $t('kpi.alert.mailSubject') }}</label>
     </span>
     <div class="p-field">
-        <span>
-            <Editor id="html" v-model="selectedAction.jsonActionParameters.body" :editor-style="sendMailCardDescriptor.editor.style" />
-        </span>
+        <q-editor ref="editor" id="html" class="q-ma-sm" v-model="selectedAction.jsonActionParameters.body" min-height="260px" />
     </div>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AutoComplete from 'primevue/autocomplete'
-import Editor from 'primevue/editor'
-import sendMailCardDescriptor from './AlertDefinitionSendMailCardDescriptor.json'
 
 export default defineComponent({
     name: 'send-mail-card',
-    components: { AutoComplete, Editor },
+    components: { AutoComplete },
     props: {
         action: {
             type: Object
@@ -33,7 +29,6 @@ export default defineComponent({
     },
     data() {
         return {
-            sendMailCardDescriptor,
             selectedAction: {} as any,
             userList: [] as any[],
             selectedUsers: [] as any[],

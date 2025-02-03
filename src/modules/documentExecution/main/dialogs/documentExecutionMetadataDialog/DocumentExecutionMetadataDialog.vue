@@ -1,5 +1,5 @@
 <template>
-    <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="documentExecutionMetadataDialogDescriptor.dialog.style" :visible="visible" :modal="true" :closable="false">
+    <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="{ width: '80vh' }" :visible="visible" :modal="true" :closable="false">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
                 <template #start>
@@ -40,7 +40,7 @@
                         <span class="p-text-uppercase kn-truncated">{{ meta.name }}</span>
                     </template>
 
-                    <Editor v-model="meta.value" :readonly="!canModify" :editor-style="documentExecutionMetadataDialogDescriptor.editor.style"></Editor>
+                    <q-editor ref="editor" :readonly="!canModify" class="q-ma-sm" v-model="meta.value" min-height="260px" />
                 </TabPanel>
             </TabView>
 
@@ -83,8 +83,6 @@ import { iMetadata } from '../../DocumentExecution'
 import { AxiosResponse } from 'axios'
 import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import Dialog from 'primevue/dialog'
-import Editor from 'primevue/editor'
-import documentExecutionMetadataDialogDescriptor from './DocumentExecutionMetadataDialogDescriptor.json'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -94,7 +92,7 @@ import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
 export default defineComponent({
     name: 'document-execution-metadata-dialog',
-    components: { Dialog, Editor, KnInputFile, TabView, TabPanel, Textarea },
+    components: { Dialog, KnInputFile, TabView, TabPanel, Textarea },
     props: {
         visible: { type: Boolean },
         propDocument: { type: Object },
@@ -108,7 +106,6 @@ export default defineComponent({
     },
     data() {
         return {
-            documentExecutionMetadataDialogDescriptor,
             document: null as any,
             metadata: null as iMetadata | null,
             uploadedFiles: {} as any,

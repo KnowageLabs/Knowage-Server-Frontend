@@ -145,7 +145,9 @@ export default defineConfig((command, mode) => {
         css: {
             preprocessorOptions: {
                 scss: {
-                    additionalData: '@import "@/assets/scss/main.scss";'
+                    additionalData: '@use "sass:color"; @import "@/assets/scss/main.scss";',
+                    api: 'modern',
+                    silenceDeprecations: ['legacy-js-api']
                 }
             }
         },

@@ -5,11 +5,6 @@
             "width": "60vw"
         }
     },
-    "editor": {
-        "style": {
-            "height": "260px"
-        }
-    },
     "objectMaxLength": 160,
     "styles": {
         "message": {

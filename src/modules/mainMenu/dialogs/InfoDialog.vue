@@ -19,7 +19,7 @@
             </div>
         </div>
         <template #footer>
-            <Button v-t="'common.close'" class="kn-button kn-button--primary" @click="closeDialog" />
+            <Button :label="$t('common.close')" class="kn-button kn-button--primary" @click="closeDialog" />
         </template>
     </Dialog>
 </template>
