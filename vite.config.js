@@ -5,6 +5,7 @@ import forwardToTrailingSlashPlugin from './forward-to-trailing-slash-plugin.js'
 import { VitePWA } from 'vite-plugin-pwa'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 import loadVersion from 'vite-plugin-package-version'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
 
 const path = require('path')
 
@@ -20,6 +21,7 @@ export default defineConfig((command, mode) => {
     const env = loadEnv(mode, process.cwd())
     return {
         plugins: [
+            nodeResolve(),
             loadVersion(),
             vue({
                 template: { transformAssetUrls }

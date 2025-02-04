@@ -16,6 +16,7 @@
         "@guolao/vue-monaco-editor": "1.5.4",
         "@noction/vue-draggable-grid": "^1.11.0",
         "@quasar/extras": "^1.16.3",
+        "@rollup/plugin-node-resolve": "^16.0.0",
         "@stomp/stompjs": "^6.1.2",
         "@vue-toys/resize-observer": "^1.0.4",
         "@vuelidate/core": "^2.0.0-alpha.18",
