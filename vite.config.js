@@ -25,7 +25,12 @@ export default defineConfig((command, mode) => {
             nodeResolve({
                 preferBuiltins: true
             }),
-            commonjs(),
+            commonjs({
+                include: 'node_modules/**',
+                namedExports: {
+                    dexie: ['default']
+                }
+            }),
             loadVersion(),
             vue({
                 template: { transformAssetUrls }
