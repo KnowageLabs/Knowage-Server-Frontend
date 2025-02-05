@@ -242,6 +242,7 @@ const formatWidget = (widget: IWidget) => {
     addColumnIdsToWidgetColumns(widget)
     addWidgetMenuConfig(widget)
     addWidgetHelpConfig(widget)
+    addWidgetSortingColumn(widget)
     switch (widget.type) {
         case 'table':
             formatDashboardTableWidgetAfterLoading(widget)
@@ -273,6 +274,11 @@ export const addWidgetMenuConfig = (widget: IWidget) => {
 
 export const addWidgetHelpConfig = (widget: IWidget) => {
     if (!widget.settings.help) widget.settings.help = widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
+}
+
+export const addWidgetSortingColumn = (widget: IWidget) => {
+    if (!widget || widget.type !== 'selector') return
+    if (!widget.settings.sortingColumn) widget.settings.sortingColumn = ''
 }
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {

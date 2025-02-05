@@ -40,6 +40,7 @@ const getFormattedWidgetSettings = (widget: any) => {
     const formattedSettings = {
         isDateType: widget.content.selectedColumn && (widget.content.selectedColumn.type.toLowerCase().includes('date') || widget.content.selectedColumn.type.toLowerCase().includes('timestamp')),
         sortingOrder: widget.settings?.sortingOrder ?? '',
+        sortingColumn: '',
         updatable: widget.updateble,
         clickable: widget.cliccable,
         configuration: getFormattedConfiguration(widget),
