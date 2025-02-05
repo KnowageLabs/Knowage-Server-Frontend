@@ -1,5 +1,6 @@
-import { ITextWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/DashboardTextWidget"
+import { ITextWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardTextWidget'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewTextWidgetSettings = () => {
     return {
@@ -13,7 +14,7 @@ export const createNewTextWidgetSettings = () => {
         },
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
-            preview: widgetCommonDefaultValues.getDefaultPreview(),
+            preview: widgetCommonDefaultValues.getDefaultPreview()
         },
         style: {
             themeName: '',
@@ -23,6 +24,7 @@ export const createNewTextWidgetSettings = () => {
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ITextWidgetSettings
 }

@@ -204,6 +204,7 @@
         "password": "Password",
         "path": "Path",
         "paused": "Paused",
+        "popup": "Pop-up",
         "preview": "Preview",
         "print": "Print",
         "private": "Private",
@@ -297,7 +298,7 @@
         "url": "URL",
         "user": "User",
         "validation": {
-            "jndiformat":"The JNDI string is required to start with \"java:comp/env/jdbc\/\"",
+            "jndiformat": "The JNDI string is required to start with \"java:comp/env/jdbc/\"",
             "maxLength": "This field must have less then {max} characters",
             "maximumCharacters": "The maximum length allowed is {max}",
             "minLength": "This field should have at least {min} characters",
@@ -414,7 +415,6 @@
         "yearly": "Yearly"
     },
     "dashboard": {
-        "truncateDialog": "Cell Content",
         "activeSelections": {
             "noActiveSelections": "No Active Selections"
         },
@@ -502,6 +502,7 @@
             "screenshot": "Capture Screenshot",
             "search": "Search on Widget",
             "unlock": "Unlock widget position",
+            "xlsExport": "Excel Export",
             "xor": "View One Layer"
         },
         "rWidgetError": "Error loading R widget.",
@@ -522,6 +523,7 @@
         "tableWidget": {
             "launchSelection": "LAUNCH SELECTION"
         },
+        "truncateDialog": "Cell Content",
         "warning": {
             "downloading": "The document has been requested in a specific output type and will be available soon"
         },
@@ -733,6 +735,18 @@
                 "hideHeader": "Hide header",
                 "setLabel": "Set label",
                 "title": "Headers"
+            },
+            "help": {
+                "bottomLeft": "Bottom Left",
+                "bottomRight": "Bottom Right",
+                "freeText": "Free Text",
+                "iconPosition": "Icon Position",
+                "popupHeight": "Pop-up Height",
+                "popupWidth": "Pop-up Width",
+                "title": "Help",
+                "topLeft": "Top Left",
+                "topRight": "Top Right",
+                "visualization": "Visualization"
             },
             "hidden": "Hidden",
             "highcharts": {
@@ -1352,10 +1366,10 @@
                 "bar": "Bar",
                 "barAndText": "Bar & Text",
                 "maximumCharacters": "Maximum Characters",
+                "multilineText": "Multiline Text",
                 "pinned": "Pinned",
                 "sparkline": "Sparkline",
                 "textAndIcon": "Text & Icon",
-                "multilineText": "Multiline Text",
                 "title": "Visualization Type"
             },
             "widgetTheme": "Widget Theme",

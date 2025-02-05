@@ -126,9 +126,41 @@
                 </div>
 
                 <div class="p-field">
-                    <span>
-                        <Editor id="html" v-model="news.html" :editor-style="newsDetailCardDescriptor.editor.style" @text-change="onFieldChange('html', $event.htmlValue)" />
-                    </span>
+                    <q-editor
+                        ref="editor"
+                        class="q-ma-sm"
+                        v-model="news.html"
+                        @update:model-value="(value) => onFieldChange('html', value)"
+                        :toolbar="[
+                            [
+                                {
+                                    label: $q.lang.editor.align,
+                                    icon: $q.iconSet.editor.align,
+                                    fixedLabel: true,
+                                    list: 'only-icons',
+                                    options: ['left', 'center', 'right', 'justify']
+                                }
+                            ],
+                            ['bold', 'italic', 'underline'],
+                            [
+                                {
+                                    label: $q.lang.editor.fontSize,
+                                    icon: $q.iconSet.editor.fontSize,
+                                    fixedLabel: true,
+                                    fixedIcon: true,
+                                    list: 'no-icons',
+                                    options: ['size-1', 'size-2', 'size-3', 'size-4', 'size-5', 'size-6', 'size-7']
+                                },
+                                'removeFormat'
+                            ],
+                            ['unordered', 'ordered'],
+
+                            ['undo', 'redo'],
+                            ['test']
+                        ]"
+                        min-height="260px"
+                    >
+                    </q-editor>
                 </div>
             </form>
         </template>
@@ -136,89 +168,87 @@
 </template>
 
 <script lang="ts">
-    import { defineComponent } from 'vue'
-    import { createValidations } from '@/helpers/commons/validationHelper'
-    import { iNews } from '../../NewsManagement'
-    import moment from 'moment'
-    import Calendar from 'primevue/calendar'
-    import Card from 'primevue/card'
-    import Dropdown from 'primevue/dropdown'
-    import Editor from 'primevue/editor'
-    import InputSwitch from 'primevue/inputswitch'
-    import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-    import newsDetailCardDescriptor from './NewsDetailCardDescriptor.json'
-    import newsDetailCardValidationDescriptor from './NewsDetailValidationDescriptor.json'
-    import Textarea from 'primevue/textarea'
-    import useValidate from '@vuelidate/core'
+import { defineComponent } from 'vue'
+import { createValidations } from '@/helpers/commons/validationHelper'
+import { iNews } from '../../NewsManagement'
+import moment from 'moment'
+import Calendar from 'primevue/calendar'
+import Card from 'primevue/card'
+import Dropdown from 'primevue/dropdown'
+import InputSwitch from 'primevue/inputswitch'
+import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
+import newsDetailCardDescriptor from './NewsDetailCardDescriptor.json'
+import newsDetailCardValidationDescriptor from './NewsDetailValidationDescriptor.json'
+import Textarea from 'primevue/textarea'
+import useValidate from '@vuelidate/core'
 
-    export default defineComponent({
-        name: 'news-detail-card',
-        components: {
-            Calendar,
-            Card,
-            Dropdown,
-            Editor,
-            InputSwitch,
-            KnValidationMessages,
-            Textarea
-        },
-        props: {
-            selectedNews: {
-                type: Object,
-                requried: false
-            }
-        },
-        emits: ['fieldChanged'],
-        data() {
-            return {
-                moment,
-                newsDetailCardDescriptor,
-                newsDetailCardValidationDescriptor,
-                news: {} as iNews,
-                v$: useValidate() as any
-            }
-        },
-        validations() {
-            return {
-                news: createValidations('news', newsDetailCardValidationDescriptor.validations.news)
-            }
-        },
-        computed: {
-            descriptionHelp(): any {
-                return (this.news.description?.length ?? '0') + ' / 140'
-            }
-        },
-        watch: {
-            selectedNews() {
-                this.v$.$reset()
-                this.loadNews()
-            }
-        },
-        async created() {
-            this.loadNews()
-        },
-        methods: {
-            onFieldChange(fieldName: string, value: any) {
-                this.$emit('fieldChanged', { fieldName, value })
-            },
-            onActiveChange() {
-                this.$emit('fieldChanged', { fieldName: 'active', value: this.news.active })
-            },
-            loadNews() {
-                this.news = { ...this.selectedNews } as iNews
-                if (!this.news?.type) {
-                    this.news.type = 1
-                }
-            },
-            onManualDateChange() {
-                setTimeout(() => this.$emit('fieldChanged', { fieldName: 'expirationDate', value: this.news.expirationDate }), 250)
-            }
+export default defineComponent({
+    name: 'news-detail-card',
+    components: {
+        Calendar,
+        Card,
+        Dropdown,
+        InputSwitch,
+        KnValidationMessages,
+        Textarea
+    },
+    props: {
+        selectedNews: {
+            type: Object,
+            requried: false
         }
-    })
+    },
+    emits: ['fieldChanged'],
+    data() {
+        return {
+            moment,
+            newsDetailCardDescriptor,
+            newsDetailCardValidationDescriptor,
+            news: {} as iNews,
+            v$: useValidate() as any
+        }
+    },
+    validations() {
+        return {
+            news: createValidations('news', newsDetailCardValidationDescriptor.validations.news)
+        }
+    },
+    computed: {
+        descriptionHelp(): any {
+            return (this.news.description?.length ?? '0') + ' / 140'
+        }
+    },
+    watch: {
+        selectedNews() {
+            this.v$.$reset()
+            this.loadNews()
+        }
+    },
+    async created() {
+        this.loadNews()
+    },
+    methods: {
+        onFieldChange(fieldName: string, value: any) {
+            this.$emit('fieldChanged', { fieldName, value })
+        },
+        onActiveChange() {
+            this.$emit('fieldChanged', { fieldName: 'active', value: this.news.active })
+        },
+        loadNews() {
+            this.news = { ...this.selectedNews } as iNews
+            if (!this.news?.type) {
+                this.news.type = 1
+            }
+        },
+        onManualDateChange() {
+            setTimeout(() => this.$emit('fieldChanged', { fieldName: 'expirationDate', value: this.news.expirationDate }), 250)
+        }
+    }
+})
 </script>
 
 <style lang="scss" scoped>
-    #calendar-label {
-        color: var(--kn-color-primary);
-    }
+#calendar-label {
+    color: var(--kn-color-primary);
+}
 </style>

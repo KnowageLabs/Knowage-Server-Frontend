@@ -29,7 +29,7 @@
         </span>
         <template #footer>
             <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
-            <Button v-t="'common.import'" class="kn-button kn-button--primary" :disabled="uploadedFiles && uploadedFiles.length == 0" @click="startImportFile" />
+            <Button :label="$t('common.import')" class="kn-button kn-button--primary" :disabled="uploadedFiles && uploadedFiles.length == 0" @click="startImportFile" />
         </template>
     </Dialog>
 </template>

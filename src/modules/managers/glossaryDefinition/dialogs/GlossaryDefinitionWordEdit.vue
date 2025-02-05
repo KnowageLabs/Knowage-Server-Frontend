@@ -1,5 +1,5 @@
 <template>
-    <Dialog :header="$tc('managers.glossary.common.word', 1)" :breakpoints="glossaryDefinitionDialogDescriptor.dialog.breakpoints" :style="glossaryDefinitionDialogDescriptor.dialog.style" :visible="visible" :modal="true" :closable="false" class="p-fluid kn-dialog--toolbar--primary">
+    <Dialog :header="$t('managers.glossary.common.word', 1)" :breakpoints="glossaryDefinitionDialogDescriptor.dialog.breakpoints" :style="glossaryDefinitionDialogDescriptor.dialog.style" :visible="visible" :modal="true" :closable="false" class="p-fluid kn-dialog--toolbar--primary">
         <div class="p-mt-3">
             <form class="p-fluid p-formgrid p-grid">
                 <div class="p-field p-col-4 p-mb-3">
@@ -17,7 +17,7 @@
                         />
                         <label for="word" class="kn-material-input-label">{{ $t('managers.glossary.common.word', 1) }} * </label>
                     </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.word.WORD" :additional-translate-params="{ fieldName: $tc('managers.glossary.common.word', 1) }"></KnValidationMessages>
+                    <KnValidationMessages class="p-mt-1" :v-comp="v$.word.WORD" :additional-translate-params="{ fieldName: $t('managers.glossary.common.word', 1) }"></KnValidationMessages>
                 </div>
                 <div class="p-field p-col-4">
                     <span class="p-float-label">

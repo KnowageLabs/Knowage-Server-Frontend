@@ -37,9 +37,9 @@ axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
 
 axios.interceptors.request.use(
     async (config) => {
-        config.headers.common['Accept'] = 'application/json; charset=utf-8'
-        config.headers.common['Content-Type'] = 'application/json; charset=utf-8'
-       // config.headers.common['Access-Control-Allow-Origin'] = '*'
+        config.headers['Accept'] = 'application/json; charset=utf-8'
+        config.headers['Content-Type'] = 'application/json; charset=utf-8'
+        // config.headers.common['Access-Control-Allow-Origin'] = '*'
         if (!config.headers['x-session-polling']) {
             let CSRFToken = null
             if (localStorage.getItem('X-CSRF-TOKEN')) CSRFToken = localStorage.getItem('X-CSRF-TOKEN')
@@ -48,7 +48,7 @@ axios.interceptors.request.use(
                 await localStorage.setItem('X-CSRF-TOKEN', uuid)
             }
             await cookies.set('X-CSRF-TOKEN', CSRFToken, 0, null, null, true, 'Strict')
-            config.headers.common['X-CSRF-TOKEN'] = CSRFToken
+            config.headers['X-CSRF-TOKEN'] = CSRFToken
         }
 
         if (localStorage.getItem('public')) {
@@ -58,7 +58,7 @@ axios.interceptors.request.use(
             }
         }
 
-        if (localStorage.getItem('token') && !config.headers['x-session-polling']) config.headers.common[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
+        if (localStorage.getItem('token') && !config.headers['x-session-polling']) config.headers[import.meta.env.VITE_DEFAULT_AUTH_HEADER] = 'Bearer ' + localStorage.getItem('token')
         if (config.headers['x-session-polling']) delete config.headers['x-session-polling']
         return config
     },

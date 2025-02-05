@@ -4,6 +4,12 @@
         <i v-if="playSelectionButtonVisible" class="fas fa-play kn-cursor-pointer" @click="$emit('launchSelection')" />
     </div>
 
+    <div v-if="helpConfig.enabled" class="infoButtonContainer" :class="[helpConfig.iconPosition]" @mouseover="$emit('changeFocus', true)" @mouseleave="$emit('changeFocus', false)">
+        <i :class="helpConfig.icon" @click="handleHelpClick()" />
+        <q-tooltip v-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'free-text'"> {{ helpConfig.text }} </q-tooltip>
+        <q-tooltip v-else-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'link'"> {{ helpConfig.url }} </q-tooltip>
+    </div>
+
     <div class="widgetButtonBarContainer">
         <i class="fa-solid fa-grip-vertical drag-handle drag-widget-icon"></i>
         <Button v-if="widgetButtonBarVisible" type="button" icon="fa-solid fa-ellipsis-h" class="p-button-outlined p-button-rounded widgetMenuButton" @click="qMenuShown = true" />
@@ -23,6 +29,15 @@
             </q-list>
         </q-menu>
     </div>
+
+    <q-dialog v-model="helpDialogVisible">
+        <q-card style="overflow: hidden" :style="{ width: `${helpConfig.popupWidth}px`, height: `${helpConfig.popupHeight}px`, 'max-width': 'none' }">
+            <q-card-section class="q-pt-none kn-height-full p-m-0 p-px-0 p-py-0">
+                <p v-if="helpConfig.type === 'free-text'" style="word-wrap: break-word">{{ helpConfig.text }}</p>
+                <iframe v-else-if="helpConfig.type === 'link'" class="kn-width-full kn-height-full" ref="iframe" :src="helpConfig.url"></iframe>
+            </q-card-section>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
@@ -30,7 +45,7 @@
  * ! this component will be in charge of managing the widget buttons and visibility.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDashboard, IMenuItem, IWidget } from '../Dashboard'
+import { IDashboard, IMenuItem, IWidget, IWidgetHelpSettings } from '../Dashboard'
 import { mapActions } from 'pinia'
 import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { canEditDashboard } from '../DashboardHelpers'
@@ -51,7 +66,8 @@ export default defineComponent({
     data() {
         return {
             qMenuShown: false,
-            dashboardModel: null as IDashboard | null
+            dashboardModel: null as IDashboard | null,
+            helpDialogVisible: false
         }
     },
     computed: {
@@ -61,6 +77,9 @@ export default defineComponent({
             if (this.document.seeAsFinalUser && widgetMenuEnabled) return true
             if (canEditDashboard(this.document)) return true
             return widgetMenuEnabled
+        },
+        helpConfig(): IWidgetHelpSettings {
+            return this.widget?.settings?.help
         }
     },
     methods: {
@@ -75,6 +94,10 @@ export default defineComponent({
         closeMenu(command) {
             this.qMenuShown = false
             command()
+        },
+        handleHelpClick() {
+            if (this.helpConfig.visualizationType === 'tooltip' && this.helpConfig.type === 'link') window.open(this.helpConfig.url, '_blank')
+            else if (this.helpConfig.visualizationType === 'pop-up') this.helpDialogVisible = true
         }
     }
 })
@@ -95,6 +118,34 @@ export default defineComponent({
     align-items: center;
     align-content: center;
 }
+
+.infoButtonContainer {
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    align-content: center;
+    text-align: center;
+    position: absolute;
+    z-index: 99999999 !important;
+    &.top-right {
+        right: 0px;
+        top: 0px;
+    }
+    &.top-left {
+        left: 0px;
+        top: 0px;
+    }
+    &.bottom-right {
+        right: 3px;
+        bottom: 3px;
+    }
+    &.bottom-left {
+        left: 0px;
+        bottom: 25px;
+    }
+}
+
 .widgetButtonBarContainer {
     display: none;
     z-index: 1001;

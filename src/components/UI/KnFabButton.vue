@@ -50,7 +50,7 @@ export default defineComponent({
             background-color: black;
             color: white;
             &:hover {
-                background-color: lighten(black, 10%);
+                background-color: color.adjust(black, $lightness: 10%);
             }
         }
     }

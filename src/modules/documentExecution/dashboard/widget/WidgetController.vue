@@ -1,5 +1,5 @@
 <template>
-    <grid-item
+    <GridItem
         :id="`widget${item.id}`"
         :ref="`widget${item.id}`"
         :key="item.id"
@@ -15,8 +15,8 @@
         @resized="resizedEvent"
     >
         <div v-if="initialized" class="drag-handle"></div>
-        <ProgressSpinner v-if="loading || customChartLoading || widgetLoading" class="kn-progress-spinner" />
-        <Skeleton v-if="!initialized" shape="rectangle" height="100%" border-radius="0" />
+        <q-spinner-grid v-if="loading || customChartLoading || widgetLoading" color="primary" size="3rem" class="widgetSpinner" />
+        <q-skeleton v-if="!initialized" height="100%" width="100%" square />
         <WidgetRenderer
             v-if="!loading && widget"
             :widget="widget"
@@ -50,7 +50,7 @@
             @change-focus="changeFocus"
         ></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
-    </grid-item>
+    </GridItem>
 
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" @chartTypeSelected="onChartSelectedForQuickWidgetChange" />
     <ChangeWidgetDialog v-if="showChangeDialog" :widget-model="widgetModel" :widget-data="widgetData" @close="toggleChangeDialog" />
@@ -79,8 +79,6 @@ import store from '../Dashboard.store'
 import mainStore from '@/App.store'
 import WidgetRenderer from './WidgetRenderer.vue'
 import WidgetButtonBar from './WidgetButtonBar.vue'
-import Skeleton from 'primevue/skeleton'
-import ProgressSpinner from 'primevue/progressspinner'
 import deepcopy from 'deepcopy'
 import { ISelectorWidgetSettings } from '../interfaces/DashboardSelectorWidget'
 import { datasetIsUsedInAssociations } from './interactionsHelpers/DatasetAssociationsHelper'
@@ -92,13 +90,14 @@ import WidgetSearchDialog from './WidgetSearchDialog/WidgetSearchDialog.vue'
 import SheetPickerDialog from './SheetPickerDialog/SheetPickerDialog.vue'
 import domtoimage from 'dom-to-image-more'
 import { AxiosResponse } from 'axios'
+import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import DatasetEditorPreview from '../dataset/DatasetEditorDataTab/DatasetEditorPreview.vue'
 import { formatParameterForPreview } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/PreviewHelper'
 import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from './WidgetControllerHelpers'
 
 export default defineComponent({
     name: 'widget-manager',
-    components: { ContextMenu, Skeleton, WidgetButtonBar, WidgetRenderer, ProgressSpinner, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog, DatasetEditorPreview },
+    components: { ContextMenu, WidgetButtonBar, WidgetRenderer, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog, DatasetEditorPreview },
     inject: ['dHash'],
     props: {
         model: { type: Object },
@@ -149,7 +148,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(store, ['dashboards']),
-        ...mapState(mainStore, ['user', 'setInfo']),
+        ...mapState(mainStore, ['user', 'setInfo', 'setLoading']),
         playSelectionButtonVisible(): boolean {
             const isSelectorWidget = this.widget.type === 'selector' && ['multiValue', 'multiDropdown', 'dateRange'].includes(this.widget.settings.configuration.selectorType.modality) && !this.selectionIsLocked
             if (this.document.seeAsFinalUser && isSelectorWidget) return true
@@ -189,7 +188,7 @@ export default defineComponent({
         this.setEventListeners()
         this.loadWidget(this.widget)
 
-        this.widget?.type !== 'selection' ? await this.loadInitalData() : await this.loadActiveSelections()
+        this.widget?.type !== 'selection' ? await this.loadInitialData() : await this.loadActiveSelections()
 
         this.setWidgetLoading(false)
     },
@@ -207,7 +206,7 @@ export default defineComponent({
             emitter.on('datasetRefreshed', this.onDatasetRefresh)
             emitter.on('setWidgetLoading', this.setWidgetLoading)
             emitter.on('chartTypeChanged', this.onWidgetUpdated)
-            emitter.on('refreshAfterGeneralSettingsChange', this.loadInitalData)
+            emitter.on('refreshAfterGeneralSettingsChange', this.loadInitialData)
         },
         removeEventListeners() {
             emitter.off('selectionsChanged', this.loadActiveSelections)
@@ -217,7 +216,7 @@ export default defineComponent({
             emitter.off('datasetRefreshed', this.onDatasetRefresh)
             emitter.off('setWidgetLoading', this.setWidgetLoading)
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
-            emitter.off('refreshAfterGeneralSettingsChange', this.loadInitalData)
+            emitter.off('refreshAfterGeneralSettingsChange', this.loadInitialData)
         },
         captureScreenshot(widget) {
             let targetElement = document.getElementById(`widget${widget.id}`)
@@ -257,6 +256,7 @@ export default defineComponent({
                 { label: this.$t('dashboard.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
                 { label: this.$t('dashboard.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: this.quickWidgetChangeEnabled() },
+                { label: this.$t('dashboard.qMenu.xlsExport'), icon: 'fa-solid fa-file-excel', command: () => this.widgetExportExcel(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidgetConfirm(), visible: canEditDashboard(this.document) }
             ]
         },
@@ -307,9 +307,9 @@ export default defineComponent({
         onWidgetUpdated(widget: any) {
             if (this.widget.id !== widget.id) return
             this.loadWidget(widget)
-            this.loadInitalData()
+            this.loadInitialData()
         },
-        async loadInitalData() {
+        async loadInitialData() {
             if (!this.widgetModel || this.widgetModel.type === 'selection') return
 
             this.setWidgetLoading(true)
@@ -329,6 +329,18 @@ export default defineComponent({
         },
         toggleWidgetLock() {
             this.widgetModel.settings.locked = !this.widgetModel.settings.locked
+        },
+        async widgetExportExcel() {
+            this.setLoading(true)
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/spreadsheet`, this.widgetModel, {
+                    responseType: 'blob',
+                    headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
         },
         getSelectionsFromStore() {
             if (!this.updateFromSelections) {
@@ -586,5 +598,12 @@ export default defineComponent({
 
 .vue-resizable-handle {
     z-index: 9999;
+}
+
+.widgetSpinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 </style>

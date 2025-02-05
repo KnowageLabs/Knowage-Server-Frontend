@@ -1,6 +1,6 @@
-import { IWidget, IWidgetColumn } from "@/modules/documentExecution/dashboard/Dashboard"
-import { IPivotTableSettings } from "@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget"
-import { removeColumnFromSubmodel } from "../tableWidget/TableWidgetFunctions"
+import { IWidget, IWidgetColumn, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IPivotTableSettings } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
+import { removeColumnFromSubmodel } from '../tableWidget/TableWidgetFunctions'
 import * as pivotTableDefaultValues from './PivotTableDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 
@@ -15,7 +15,7 @@ export const createNewPivotTableWidgetSettings = () => {
             rows: pivotTableDefaultValues.getDefaultTotalValues(),
             fieldPicker: pivotTableDefaultValues.getDefaultFieldPicker(),
             fieldPanel: pivotTableDefaultValues.getDefaultFieldPanel(),
-            exports: { showExcelExport: true, showScreenshot: true },
+            exports: { showExcelExport: true, showScreenshot: true }
         },
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
@@ -33,7 +33,8 @@ export const createNewPivotTableWidgetSettings = () => {
             subTotals: pivotTableDefaultValues.getDefaultTotals()
         },
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
-        tooltips: pivotTableDefaultValues.getDefaultTooltips()
+        tooltips: pivotTableDefaultValues.getDefaultTooltips(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IPivotTableSettings
 }
 

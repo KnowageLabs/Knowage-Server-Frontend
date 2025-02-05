@@ -3,7 +3,7 @@
         <h4 class="entity-item-container" :style="{ 'border-left': `10px solid ${entity.color}` }" draggable="true" :data-test="'entity-container-' + entity.id" @dragstart="onDragStart($event, entity)">
             <i v-tooltip.top="$t(`qbe.entities.types.${entity.attributes.iconCls}`)" :class="getIconCls(entity.attributes.iconCls)" class="p-mx-2" />
             <span class="kn-flex" :data-test="'expand-' + entity.id" @click="expandEntity(entity)">{{ entity.text }}</span>
-            <Button v-tooltip.top="$t('qbe.entities.relations')" icon="fas fa-info" class="p-button-text p-button-rounded p-button-plain " @click="$emit('showRelationDialog', entity)" />
+            <Button v-tooltip.top="$t('qbe.entities.relations')" icon="fas fa-info" class="p-button-text p-button-rounded p-button-plain" @click="$emit('showRelationDialog', entity)" />
             <Button v-if="entity.expanded" icon="pi pi-chevron-up" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = false" />
             <Button v-else icon="pi pi-chevron-down" class="p-button-text p-button-rounded p-button-plain" @click="entity.expanded = true" />
         </h4>
@@ -127,7 +127,7 @@ export default defineComponent({
                 width: 32px;
             }
             &:hover {
-                background-color: darken(#eceff1, 10%);
+                background-color: color.adjust(#eceff1, $lightness: -10%);
             }
             i {
                 cursor: help;
@@ -153,7 +153,7 @@ export default defineComponent({
         outline: none;
         cursor: grab;
         &:hover {
-            background-color: darken(#ffffff, 15%);
+            background-color: color.adjust(#ffffff, $lightness: -15%);
         }
         button {
             cursor: pointer;

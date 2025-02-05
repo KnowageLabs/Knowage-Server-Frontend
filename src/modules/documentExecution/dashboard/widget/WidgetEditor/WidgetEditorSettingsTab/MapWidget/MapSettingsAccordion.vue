@@ -27,6 +27,7 @@
                 <MapBaseLayerSettings v-else-if="accordion.type === 'BaseLayer'" :widget-model="widgetModel" :layers="layers"></MapBaseLayerSettings>
                 <MapControlPanelSettings v-else-if="accordion.type === 'ControlPanel'" :widget-model="widgetModel"></MapControlPanelSettings>
                 <MapConditionalStyles v-else-if="accordion.type === 'Conditions'" :widget-model="widgetModel" :variables="variables" :dashboard-id="dashboardId"></MapConditionalStyles>
+                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -65,6 +66,7 @@ import MapConditionalStyles from './conditionalStyle/MapConditionalStyles.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
+import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 
 export default defineComponent({
     components: {
@@ -92,7 +94,8 @@ export default defineComponent({
         WidgetEditorThemePicker,
         Message,
         WidgetMenuConfiguration,
-        WidgetSelectionConfiguration
+        WidgetSelectionConfiguration,
+        WidgetHelpSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

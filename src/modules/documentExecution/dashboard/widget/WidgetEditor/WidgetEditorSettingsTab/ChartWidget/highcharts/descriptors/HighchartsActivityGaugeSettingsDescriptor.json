@@ -101,6 +101,12 @@
                 "title": "dashboard.widgetEditor.tooltip.title",
                 "type": "ActivityGaugeTooltip"
             }
+        ],
+        "Help": [
+            {
+                "title": "dashboard.widgetEditor.help.title",
+                "type": "HelpSettings"
+            }
         ]
     },
     "settingsListOptions": [

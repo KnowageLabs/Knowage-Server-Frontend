@@ -3,7 +3,7 @@
         <div id="dashboard-css" v-html="dashboardCss" />
 
         <div v-if="activeDashboardSheet" class="sheet-container">
-            <grid-layout
+            <GridLayout
                 :layout.sync="activeDashboardSheet.widgets[currentScreenSize]"
                 :responsive-layouts="activeDashboardSheet.widgets"
                 :responsive="true"
@@ -39,7 +39,7 @@
                         <span>{{ $t('dashboard.wizard.addWidget') }}</span>
                     </div>
                 </div>
-            </grid-layout>
+            </GridLayout>
         </div>
     </KnDashboardTabsPanel>
     <div v-if="canEditDashboard(document)" class="responsive-device">
@@ -186,7 +186,7 @@ export default defineComponent({
     overflow-x: clip;
 }
 
-.vue-grid-layout {
+.vgl-layout {
     min-height: 100%;
     .vue-grid-item {
         z-index: 1;

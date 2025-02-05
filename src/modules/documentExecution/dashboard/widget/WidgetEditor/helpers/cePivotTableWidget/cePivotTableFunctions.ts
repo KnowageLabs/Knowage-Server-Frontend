@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IPivotTableSettings } from '@/modules/documentExecution/dashboard/interfaces/pivotTable/DashboardPivotTableWidget'
 import { removeColumnFromSubmodel } from '../tableWidget/TableWidgetFunctions'
 import * as pivotTableDefaultValues from './cePivotTableDefaultValues'
@@ -34,7 +34,8 @@ export const createCeNewPivotTableWidgetSettings = () => {
             crossTabHeaders: pivotTableDefaultValues.getDefaultTotals()
         },
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
-        tooltips: pivotTableDefaultValues.getDefaultTooltips()
+        tooltips: pivotTableDefaultValues.getDefaultTooltips(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IPivotTableSettings
 }
 

@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn, IWidgetExports } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn, IWidgetExports, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 import { ISelectorWidgetDefaultValues, ISelectorWidgetSelectorType, ISelectorWidgetSettings, ISelectorWidgetValuesManagement, ISelectorWidgetConfiguration } from '@/modules/documentExecution/dashboard/interfaces/DashboardSelectorWidget'
 import { getFormattedStyle } from './SelectorWidgetStyleHelper'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -44,7 +44,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         clickable: widget.cliccable,
         configuration: getFormattedConfiguration(widget),
         style: getFormattedStyle(widget),
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ISelectorWidgetSettings
     return formattedSettings
 }

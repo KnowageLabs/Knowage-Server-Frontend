@@ -1,4 +1,4 @@
-import { IWidget, IWidgetExports, IWidgetInteractions } from '../../../Dashboard'
+import { IWidget, IWidgetExports, IWidgetHelpSettings, IWidgetInteractions } from '../../../Dashboard'
 import { IChartJSWidgetConfiguration, IChartJSWidgetSettings } from '../../../interfaces/chartJS/DashboardChartJSWidget'
 import { getFormattedInteractions } from '../../common/WidgetInteractionsHelper'
 import { getFormattedStyle } from './ChartJSWidgetStyleHelper'
@@ -35,7 +35,8 @@ const getFormattedWidgetSettings = (widget: any) => {
             colors: getFormattedColorSettings(widget)
         },
         style: getFormattedStyle(widget),
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IChartJSWidgetSettings
     return formattedSettings
 }

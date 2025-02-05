@@ -1,7 +1,7 @@
-
-import { IImageWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/DashboardImageWidget"
+import { IImageWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardImageWidget'
 import * as imageWidgetDefaultValues from './ImageWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewImageWidgetSettings = () => {
     return {
@@ -13,7 +13,7 @@ export const createNewImageWidgetSettings = () => {
         },
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
-            link: widgetCommonDefaultValues.getDefaultLinks(),
+            link: widgetCommonDefaultValues.getDefaultLinks()
         },
         style: {
             themeName: '',
@@ -23,6 +23,7 @@ export const createNewImageWidgetSettings = () => {
             shadows: widgetCommonDefaultValues.getDefaultShadowsStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IImageWidgetSettings
 }

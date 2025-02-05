@@ -25,6 +25,7 @@
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -59,6 +60,7 @@ import VegaTooltipSettings from '../vega/tooltip/VegaTooltipSettings.vue'
 import ChartColorSettings from '../common/ChartColorSettings.vue'
 import WidgetEditorThemePicker from '../../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import WidgetHelpSettings from '../../common/help/WidgetHelpSettings.vue'
 
 export default defineComponent({
     name: 'vega-charts-configuration-container',
@@ -84,7 +86,8 @@ export default defineComponent({
         WidgetEditorThemePicker,
         Message,
         WidgetMenuConfiguration,
-        WidgetSelectionConfiguration
+        WidgetSelectionConfiguration,
+        WidgetHelpSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

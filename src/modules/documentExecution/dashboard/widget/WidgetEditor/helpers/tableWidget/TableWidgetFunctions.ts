@@ -59,7 +59,8 @@ export const createNewTableWidgetSettings = () => {
         },
         tooltips: tableWidgetDefaultValues.getDefaultTooltips(),
         visualization: tableWidgetDefaultValues.getDefaultVisualizations(),
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings()
     } as ITableWidgetSettings
 }
 

@@ -692,17 +692,15 @@ export default defineComponent({
         async asyncExport(format) {
             this.setLoading(true)
             let body = this.hiddenFormData
+            let headers = {Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'}
             if (format.includes('xls')) {
                 format = 'spreadsheet'
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) body = this.dashboards[this.document.dashboardId]
-            }
+            }else headers['Content-Type'] = 'application/x-www-form-urlencoded'
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`, body, {
                     responseType: 'blob',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
-                    }
+                    headers: headers
                 })
                 .then((response) => {
                     downloadDirectFromResponse(response)
@@ -1391,7 +1389,7 @@ export default defineComponent({
         },
         openCrossNavigationInNewWindow(tempDocument: any, crossNavigation: IDashboardCrossNavigation) {
             const parameters = encodeURI(JSON.stringify(tempDocument.formattedCrossNavigationParameters))
-            const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/document-browser/dashboard/${this.document.label}?role=${this.userRole}&crossNavigationParameters=${parameters}`
+            let url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/document-browser/dashboard/${crossNavigation?.document?.name}?role=${this.userRole}&crossNavigationParameters=${parameters}`
             const popupOptions = crossNavigation.popupOptions ?? {
                 width: '800',
                 height: '600'

@@ -1,6 +1,6 @@
-import { IWidget, IWidgetExports } from "../../Dashboard"
-import { ISelectionsWidgetNoSelections, ISelectionsWidgetSettings, ISelectionsWidgetValuesManagement, ISelectionWidgetConfiguration } from "../../interfaces/DashboardSelectionsWidget"
-import { getFormattedStyle } from "./SelectionsWidgetStyleHelper"
+import { IWidget, IWidgetExports, IWidgetHelpSettings } from '../../Dashboard'
+import { ISelectionsWidgetNoSelections, ISelectionsWidgetSettings, ISelectionsWidgetValuesManagement, ISelectionWidgetConfiguration } from '../../interfaces/DashboardSelectionsWidget'
+import { getFormattedStyle } from './SelectionsWidgetStyleHelper'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import * as selectionsWidgetDefaultValues from '../../widget/WidgetEditor/helpers/selectionsWidget/SelectionsWidgetDefaultValues'
 
@@ -23,7 +23,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         clickable: widget.cliccable,
         configuration: getFormattedConfiguration(widget),
         style: getFormattedStyle(widget),
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ISelectionsWidgetSettings
     return formattedSettings
 }
@@ -36,7 +37,6 @@ const getFormattedConfiguration = (widget: any) => {
         exports: { showExcelExport: widget.style?.showExcelExport ?? false } as IWidgetExports
     } as ISelectionWidgetConfiguration
 }
-
 
 const getFormattedValuesManagement = (widget: any) => {
     if (!widget.style) return selectionsWidgetDefaultValues.getDefaultValuesManagement()

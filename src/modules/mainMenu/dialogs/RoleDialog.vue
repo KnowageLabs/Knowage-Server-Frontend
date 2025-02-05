@@ -3,8 +3,8 @@
         <Message v-if="mandatory" severity="warn">{{ $t('role.mandatoryRoleWarning') }}</Message>
         <Dropdown v-model="user.sessionRole" class="kn-material-input" :options="getRoleOptions()" :placeholder="$t('role.defaultRolePlaceholder')" @change="setDirty" />
         <template #footer>
-            <Button v-if="!mandatory" v-t="'common.close'" class="p-button-text kn-button" @click="closeDialog" />
-            <Button v-t="'common.save'" class="kn-button kn-button--primary" :disabled="!user.sessionRole" @click="changeRole" />
+            <Button v-if="!mandatory" :label="$t('common.close')" class="p-button-text kn-button" @click="closeDialog" />
+            <Button :label="$t('common.save')" class="kn-button kn-button--primary" :disabled="!user.sessionRole" @click="changeRole" />
         </template>
     </Dialog>
 </template>
@@ -43,7 +43,7 @@ export default defineComponent({
         },
         getRoleOptions(): Array<string> {
             const rolesOptions = this.user.roles
-            if (!this.mandatory) rolesOptions.unshift(this.$t('role.defaultRolePlaceholder'))
+            if (!this.mandatory && rolesOptions[0] !== this.$t('role.defaultRolePlaceholder')) rolesOptions.unshift(this.$t('role.defaultRolePlaceholder'))
             return rolesOptions
         },
         changeRole() {
