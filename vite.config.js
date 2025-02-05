@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 import loadVersion from 'vite-plugin-package-version'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
+import commonjs from 'vite-plugin-commonjs'
 
 const path = require('path')
 
