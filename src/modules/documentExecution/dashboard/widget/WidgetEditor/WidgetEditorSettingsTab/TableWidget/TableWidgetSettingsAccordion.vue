@@ -37,6 +37,7 @@
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
                 <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
                 <TableWidgetPaginator v-else-if="accordion.type === 'PaginatorStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></TableWidgetPaginator>
+                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -82,6 +83,7 @@ import TableWidgetSettingsAccordionHeader from './TableWidgetSettingsAccordionHe
 import TableWidgetPaginator from './style/TableWidgetPaginator.vue'
 import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue'
 import Message from 'primevue/message'
+import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 
 export default defineComponent({
     name: 'table-widget-configuration-container',
@@ -118,7 +120,8 @@ export default defineComponent({
         WidgetInteractionsIframe,
         WidgetEditorThemePicker,
         Message,
-        WidgetSelectionConfiguration
+        WidgetSelectionConfiguration,
+        WidgetHelpSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

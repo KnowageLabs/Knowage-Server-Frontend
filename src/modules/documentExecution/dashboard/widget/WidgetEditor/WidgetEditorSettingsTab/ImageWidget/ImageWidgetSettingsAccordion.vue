@@ -19,6 +19,7 @@
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
+                <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
             </AccordionTab>
         </Accordion>
     </div>
@@ -48,6 +49,7 @@ import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue
 import Message from 'primevue/message'
 import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfiguration.vue'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
+import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
 
 export default defineComponent({
     name: 'image-widget-configuration-container',
@@ -68,7 +70,8 @@ export default defineComponent({
         WidgetEditorThemePicker,
         Message,
         WidgetMenuConfiguration,
-        WidgetSelectionConfiguration
+        WidgetSelectionConfiguration,
+        WidgetHelpSettings
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

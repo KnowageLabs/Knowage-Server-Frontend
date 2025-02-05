@@ -50,10 +50,10 @@
             </template>
             <template #body="slotProps">
                 <span v-if="typeof slotProps.data[`column_${index + 1}`] === 'number' && slotProps.data[`column_${index + 1}`]" v-tooltip="{ value: slotProps.data[`column_${index + 1}`] }"> {{ getFormattedNumber(col, slotProps.data[`column_${index + 1}`]) }}</span>
-                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'date' && col.type != 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], previewData.metaData.fields[index + 1].metawebDateFormat, 'DD/MM/YYYY') }} </span>
-                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'date' && col.type == 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], col.id.format, 'DD/MM/YYYY') }} </span>
-                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'timestamp' && col.type != 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], previewData.metaData.fields[index + 1].metawebDateFormat, 'DD/MM/YYYY HH:mm:ss.SSS') }} </span>
-                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'timestamp' && col.type == 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], col.id.format, 'DD/MM/YYYY HH:mm:ss.SSS') }} </span>
+                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'date' && col.type != 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], previewData.metaData.fields[index + 1].metawebDateFormat, 'dd/MM/yyyy') }} </span>
+                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'date' && col.type == 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], col.id.format, 'dd/MM/yyyy') }} </span>
+                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'timestamp' && col.type != 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], previewData.metaData.fields[index + 1].metawebDateFormat, 'dd/MM/yyyy HH:mm:ss.SSS') }} </span>
+                <span v-else-if="previewData?.metaData?.fields[index + 1]?.type === 'timestamp' && col.type == 'inline.calculated.field'">{{ getFormattedDate(slotProps.data[`column_${index + 1}`], col.id.format, 'dd/MM/yyyy HH:mm:ss.SSS') }} </span>
                 <span v-else v-tooltip.bottom="slotProps.data[`column_${index + 1}`]">{{ slotProps.data[`column_${index + 1}`] }}</span>
             </template>
         </Column>
@@ -91,7 +91,7 @@ import Column from 'primevue/column'
 import Menu from 'primevue/contextmenu'
 import Dialog from 'primevue/dialog'
 import qbeSimpleTableDescriptor from './QBESmartTableDescriptor.json'
-import { formatDate, getLocale } from '@/helpers/commons/localeHelper'
+import { formatDateLuxon, getLocale } from '@/helpers/commons/localeHelper'
 import { formatNumber } from '@/helpers/commons/qbeHelpers'
 
 export default defineComponent({
@@ -215,7 +215,7 @@ export default defineComponent({
         },
         getFormattedDate(date: any, output: any, input: any) {
             if (!date) return null
-            return formatDate(date, output, input)
+            return formatDateLuxon(date, output, input)
         }
     }
 })

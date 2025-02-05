@@ -70,11 +70,11 @@
         <template #footer>
             <Button :visible="visibility" class="p-button-text kn-button thirdButton" :label="$t('common.cancel')" @click="resetAndClose" />
 
-            <Button v-if="step == 0" v-t="'common.next'" :visible="visibility" class="kn-button kn-button--primary" :disabled="uploadedFiles && uploadedFiles.length == 0" @click="goToChooseElement(uploadedFiles)" />
+            <Button v-if="step == 0" :visible="visibility" class="kn-button kn-button--primary" :disabled="uploadedFiles && uploadedFiles.length == 0" @click="goToChooseElement(uploadedFiles)">caccapupu</Button>
             <span v-if="step == 1">
-                <Button v-t="'common.back'" :visible="visibility" class="kn-button kn-button--secondary" @click="resetToFirstStep" />
-                <Button v-t="'common.import'" :visible="visibility" class="kn-button kn-button--primary" :disabled="isImportDisabled()" @click="startImport"
-            /></span>
+                <Button :label="$t('common.back')" :visible="visibility" class="kn-button kn-button--secondary" @click="resetToFirstStep" />
+                <Button :label="$t('common.import')" :visible="visibility" class="kn-button kn-button--primary" :disabled="isImportDisabled()" @click="startImport" />
+            </span>
         </template>
     </Dialog>
 </template>

@@ -80,7 +80,7 @@
                         :class="{
                             'p-invalid': parameter.mandatory && parameter.parameterValue && !parameter.parameterValue[0]?.value
                         }"
-                        :maxDate="parameter.driverMaxValue ?? undefined"
+                        :maxDate="parameter.driverMaxDateValue ?? undefined"
                         :data-test="'parameter-date-input-' + parameter.id"
                         @change="updateDependency(parameter)"
                         @date-select="updateDependency(parameter)"
@@ -328,7 +328,7 @@ export default defineComponent({
                     id = this.document.federation_id
                 }
 
-                if (id || this.document.label) {
+                if (id || (this.document.label && this.document.label !== 'new-dashboard')) {
                     getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
                         this.availableRolesForExecution = response
                         if (!this.role && this.availableRolesForExecution.length == 1) {

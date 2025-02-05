@@ -21,6 +21,40 @@ export function formatDate(dateString?: string, format?: string, incomingFormat?
     else return tmp.format(format || 'L')
 }
 
+export function formatDateLuxon(dateString: string, format: string, incomingFormat: string) {
+    const baseLocale = getLocale()?.split('_')[0] ?? fallbackLocale
+    const dt = DateTime.fromFormat(dateString, incomingFormat, { locale: baseLocale })
+
+    if (!dt.isValid) {
+        return null
+    }
+
+    switch (format) {
+        case 'LT':
+            return dt.toLocaleString(DateTime.TIME_SIMPLE)
+        case 'LTS':
+            return dt.toLocaleString(DateTime.TIME_WITH_SECONDS)
+        case 'L':
+            return dt.toLocaleString(DateTime.DATE_SHORT)
+        case 'l':
+            return dt.toLocaleString(DateTime.DATE_SHORT).replace(/^0+/, '')
+        case 'LL':
+            return dt.toLocaleString(DateTime.DATE_MED)
+        case 'll':
+            return dt.toLocaleString(DateTime.DATE_MED).replace(/(\w{3})/, (match) => match.toUpperCase())
+        case 'LLL':
+            return dt.toLocaleString(DateTime.DATETIME_MED)
+        case 'lll':
+            return dt.toLocaleString(DateTime.DATETIME_MED)
+        case 'LLLL':
+            return dt.toLocaleString(DateTime.DATETIME_FULL)
+        case 'llll':
+            return dt.toLocaleString(DateTime.DATETIME_FULL)
+        default:
+            return dt.toLocaleString(DateTime.DATE_SHORT)
+    }
+}
+
 export function formatDateWithLocale(dateString?: string | number, format?: any, keepNull?: boolean): string {
     if (keepNull && !dateString) return ''
     let dateToFormat = new Date()

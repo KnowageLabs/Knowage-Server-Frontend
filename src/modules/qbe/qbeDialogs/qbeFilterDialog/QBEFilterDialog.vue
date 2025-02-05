@@ -263,29 +263,11 @@ export default defineComponent({
             })
         },
         save() {
-            this.formatManualDatesFiltersForSave()
             if (this.propParameters.length > 0 && !this.parameterTableVisible && this.filterUsesParameters()) {
                 this.parameterTableVisible = true
             } else {
                 this.$emit('save', this.filters, this.filterDialogData?.field, this.updatedParameters, this.expression)
                 this.parameterTableVisible = false
-            }
-        },
-        formatManualDatesFiltersForSave() {
-            this.filters?.forEach((filter: iFilter) => {
-                const field = this.filterDialogData?.field as any
-                const isDateOrTimestamp = ['DATE', 'TIMESTAMP'].includes(field?.id?.type)
-                if (isDateOrTimestamp) this.formatManualDate(filter)
-            })
-        },
-        formatManualDate(filter: iFilter) {
-            const serverFormat = 'DD/MM/YYYY hh:mm'
-            const format = localeDate().replace(/yyyy/g, 'YYYY').replace(/dd/g, 'DD').replace(/d/g, 'D').replace(/MM/g, 'MM').replace(/M/g, 'M').replace(/hh/g, 'HH').replace(/mm/g, 'mm').replace(/ss/g, 'ss').replace(/SSS/g, 'SSS')
-            const momentDate = moment(filter.rightOperandDescription, format, true)
-
-            if (momentDate.isValid()) {
-                const formattedDate = momentDate.format(serverFormat)
-                filter.rightOperandDescription = formattedDate
             }
         },
         onParametersUpdated(updatedParameters: any[]) {

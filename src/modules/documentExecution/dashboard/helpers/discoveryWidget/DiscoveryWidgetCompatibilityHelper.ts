@@ -1,4 +1,4 @@
-import { ITableWidgetStyle, IWidget, IDashboardDriver, IWidgetInteractions, IWidgetResponsive, ITableWidgetTooltipStyle } from '../../Dashboard'
+import { ITableWidgetStyle, IWidget, IDashboardDriver, IWidgetInteractions, IWidgetResponsive, ITableWidgetTooltipStyle, IWidgetHelpSettings } from '../../Dashboard'
 import { IDiscoveryWidgetSettings, IDiscoveryWidgetConfiguration, IDiscoveryWidgetFacetsSettings, IDiscoveryWidgetSearchSettings } from '../../interfaces/DashboardDiscoveryWidget'
 import { getFormattedWidgetColumns } from '../common/WidgetColumnHelper'
 import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
@@ -32,13 +32,16 @@ const getFormattedWidgetSettings = (widget: any, drivers: IDashboardDriver[]) =>
     const formattedSettings = {
         updatable: widget.updateble,
         clickable: widget.cliccable,
+        conditionalStyles: tableWidgetDefaultValues.getDefaultConditionalStyles(),
         facets: getFormattedFacetsSettings(widget) as IDiscoveryWidgetFacetsSettings,
         search: getFormattedSearchSettings(widget, drivers) as IDiscoveryWidgetSearchSettings,
         configuration: getFormattedDiscoveryConfiguration(widget) as IDiscoveryWidgetConfiguration,
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget) as ITableWidgetStyle,
         tooltips: tableWidgetDefaultValues.getDefaultTooltips() as ITableWidgetTooltipStyle[],
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive
+        visualization: tableWidgetDefaultValues.getDefaultVisualizations(),
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IDiscoveryWidgetSettings
     return formattedSettings
 }

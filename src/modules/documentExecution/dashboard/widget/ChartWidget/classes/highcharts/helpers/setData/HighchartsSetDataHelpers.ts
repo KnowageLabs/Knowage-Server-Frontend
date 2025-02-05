@@ -1,5 +1,7 @@
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { replaceVariablesPlaceholdersByVariableName } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/InteractionsParserHelper'
 import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
+import deepcopy from 'deepcopy'
 import moment from 'moment'
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
@@ -21,7 +23,7 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
     return date.isValid() ? date.format(dateFormat) : dateString
 }
 
-export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string) => {
+export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[]) => {
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
@@ -40,7 +42,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
                 serieElement.data.push({
                     name: serieName,
                     y: row[metadata.dataIndex],
-                    color: getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex])?.color,
+                    color: getColumnConditionalStyles(widgetModel, column.id, row[metadata.dataIndex], variables)?.color,
                     drilldown: drilldownEnabled && attributeColumns.length > 1
                 })
                 if (!drilldownEnabled && model.xAxis && model.xAxis[0]) model.xAxis[0].categories.push(serieName)
@@ -364,7 +366,7 @@ export const createTreeSeriesStructureFromHierarchy = (node: any, parentId = 'ro
     return result
 }
 
-export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCompare: any, returnString?: boolean) => {
+export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCompare: any, variables: IVariable[], returnString?: boolean) => {
     const conditionalStyles = propWidget.settings.series?.conditionalStyles
     if (!conditionalStyles || !conditionalStyles.enabled) return ''
     let styleString = null as any
@@ -373,15 +375,18 @@ export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCo
 
     if (columnConditionalStyles.length > 0) {
         for (let i = 0; i < columnConditionalStyles.length; i++) {
-            if (isConditionMet(columnConditionalStyles[i].condition, valueToCompare)) {
-                if (columnConditionalStyles[i].applyToWholeRow && !returnString) {
-                    styleString = columnConditionalStyles[i].properties
+            const conditionalStyle = deepcopy(columnConditionalStyles[i])
+            if (conditionalStyle.condition.value) conditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(conditionalStyle.condition.value, variables)
+
+            if (isConditionMet(conditionalStyle.condition, valueToCompare)) {
+                if (conditionalStyle.applyToWholeRow && !returnString) {
+                    styleString = conditionalStyle.properties
                 } else if (returnString) {
-                    styleString = Object.entries(columnConditionalStyles[i].properties)
+                    styleString = Object.entries(conditionalStyle.properties)
                         .map(([k, v]) => `${k}:${v}`)
                         .join(';')
                 } else if (!returnString) {
-                    styleString = columnConditionalStyles[i].properties
+                    styleString = conditionalStyle.properties
                 }
                 break
             }

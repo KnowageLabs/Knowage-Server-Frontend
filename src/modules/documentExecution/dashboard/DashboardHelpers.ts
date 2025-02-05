@@ -1,5 +1,5 @@
 import { getDefaultDashboardThemeConfig } from './../../managers/dashboardThemeManagement/DashboardThemeHelper'
-import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetSheetItem } from './Dashboard'
+import { IDashboard, IDashboardConfiguration, IDashboardOutputParameter, IDashboardSheet, IDashboardView, IDataset, IVariable, IWidget, IWidgetColumn, IWidgetHelpSettings, IWidgetSheetItem } from './Dashboard'
 import { formatWidgetForSave, recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { setVariableValueFromDataset } from './generalSettings/VariablesHelper'
 import mitt from 'mitt'
@@ -16,6 +16,7 @@ import { formatDashboardTableWidgetAfterLoading } from './widget/WidgetEditor/he
 import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesHelper'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { formatDashboardDiscoveryWidgetAfterLoading } from './widget/WidgetEditor/helpers/discoveryWidget/DiscoveryWidgetFunctions'
+import * as widgetCommonDefaultValues from './widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 
 const store = mainStore()
 
@@ -109,7 +110,7 @@ const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxW
 
 export const cloneWidgetInSheet = (widget: IWidget, dashboard: IDashboard, selectedSheet: IDashboardSheet) => {
     const clonedWidget = deepcopy(widget)
-    clonedWidget.id = cryptoRandomString({ length: 16, type: 'base64' })
+    clonedWidget.id = crypto.randomUUID()
     recreateKnowageChartModel(clonedWidget)
     const originalWidgetSheetItem = findOriginalWidgetInSheet(widget, selectedSheet)
     const clonedWidgetSheetItem = createDashboardSheetWidgetItem(clonedWidget)
@@ -240,6 +241,7 @@ export const addMissingMenuWidgetsConfiguration = (dashboard: IDashboard) => {
 const formatWidget = (widget: IWidget) => {
     addColumnIdsToWidgetColumns(widget)
     addWidgetMenuConfig(widget)
+    addWidgetHelpConfig(widget)
     switch (widget.type) {
         case 'table':
             formatDashboardTableWidgetAfterLoading(widget)
@@ -267,6 +269,10 @@ const addColumnIdsToWidgetColumns = (widget: IWidget) => {
 export const addWidgetMenuConfig = (widget: IWidget) => {
     if (!widget.settings.configuration) widget.settings.configuration = { widgetMenu: { enabled: true } }
     if (!widget.settings.configuration.widgetMenu) widget.settings.configuration.widgetMenu = { enabled: true }
+}
+
+export const addWidgetHelpConfig = (widget: IWidget) => {
+    if (!widget.settings.help) widget.settings.help = widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
 }
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {

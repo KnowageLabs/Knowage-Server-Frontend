@@ -52,6 +52,12 @@
                 "type": "Export"
             }
         ],
+        "Help": [
+            {
+                "title": "dashboard.widgetEditor.help.title",
+                "type": "HelpSettings"
+            }
+        ],
         "Interactions": [
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
@@ -146,6 +152,16 @@
             "icon": "pi pi-tablet",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
+        },
+        {
+            "icon": "pi pi-info-circle",
+            "label": "dashboard.widgetEditor.help.title",
+            "value": "Help"
+        },
+        {
+            "icon": "pi pi-info-circle",
+            "label": "dashboard.widgetEditor.help.title",
+            "value": "Help"
         }
     ],
     "tooltipStyleOptions": [

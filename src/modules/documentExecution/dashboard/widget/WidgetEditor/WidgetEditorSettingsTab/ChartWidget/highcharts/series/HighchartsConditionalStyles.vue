@@ -27,7 +27,7 @@
 
                     <div class="p-sm-12 p-md-4 p-lg-4 p-d-flex p-flex-column">
                         <label class="kn-material-input-label">{{ $t('common.value') }}</label>
-                        <InputNumber v-model="conditionalStyle.condition.value" class="kn-material-input p-inputtext-sm" :disabled="conditionalStylesDisabled" />
+                        <InputText v-model="conditionalStyle.condition.value" class="kn-material-input p-inputtext-sm" :disabled="conditionalStylesDisabled" />
                     </div>
 
                     <div class="p-col-12 p-grid p-ai-center">

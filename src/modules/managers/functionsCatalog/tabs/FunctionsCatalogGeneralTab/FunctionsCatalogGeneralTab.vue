@@ -35,31 +35,7 @@
         <div class="p-field p-col-12 p-mb-12">
             <Accordion>
                 <AccordionTab :header="$t('common.description') + ' *'">
-                    <label for="description" class="kn-material-input-label"> {{ $t('common.description') }} *</label>
-                    <Textarea
-                        v-if="showDescriptionSource"
-                        v-model="selectedFunction.description"
-                        :style="functionsCatalogGeneralTabDescriptor.editor.style"
-                        :class="{
-                            'p-invalid': selectedFunction.description.length === 0 && descriptionDirty
-                        }"
-                        :readonly="readonly"
-                        @click="descriptionDirty = true"
-                        @input="descriptionDirty = true"
-                    ></Textarea>
-                    <Editor
-                        v-else
-                        id="description"
-                        v-model="selectedFunction.description"
-                        :editor-style="functionsCatalogGeneralTabDescriptor.editor.style"
-                        :class="{
-                            'p-invalid': selectedFunction.description.length === 0 && descriptionDirty
-                        }"
-                        :readonly="readonly"
-                        @click="descriptionDirty = true"
-                        @input="descriptionDirty = true"
-                    />
-                    <Button class="editor-switch-button" icon="pi pi-bars" :label="showDescriptionSource ? 'wysiwyg' : $t('common.source')" @click="showDescriptionSource = !showDescriptionSource" />
+                    <q-editor ref="editordesc" id="description" class="q-ma-sm" v-model="selectedFunction.description" min-height="260px" :readonly="readonly" @update:model-value="() => (descriptionDirty = true)" />
                 </AccordionTab>
             </Accordion>
             <div v-if="selectedFunction.description.length === 0 && descriptionDirty" class="p-error p-grid p-m-2">
@@ -69,10 +45,7 @@
         <div class="p-field p-col-12 p-mb-12">
             <Accordion>
                 <AccordionTab :header="$t('managers.functionsCatalog.benchmarks')">
-                    <label for="benchmarks" class="kn-material-input-label"> {{ $t('managers.functionsCatalog.benchmarks') }}</label>
-                    <Textarea v-if="showBenchmarksSource" v-model="selectedFunction.benchmark" :style="functionsCatalogGeneralTabDescriptor.editor.style" :readonly="readonly"></Textarea>
-                    <Editor v-else id="benchmarks" v-model="selectedFunction.benchmark" :editor-style="functionsCatalogGeneralTabDescriptor.editor.style" :readonly="readonly" />
-                    <Button class="editor-switch-button" icon="pi pi-bars" :label="showBenchmarksSource ? 'wysiwyg' : $t('common.source')" @click="showBenchmarksSource = !showBenchmarksSource"></Button>
+                    <q-editor ref="editor" id="benchmark" class="q-ma-sm" v-model="selectedFunction.benchmark" min-height="260px" :readonly="readonly" />
                 </AccordionTab>
             </Accordion>
         </div>
@@ -86,17 +59,14 @@ import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import Chips from 'primevue/chips'
 import Dropdown from 'primevue/dropdown'
-import Editor from 'primevue/editor'
-import functionsCatalogGeneralTabDescriptor from './FunctionsCatalogGeneralTabDescriptor.json'
 import Textarea from 'primevue/textarea'
 
 export default defineComponent({
     name: 'function-catalog-general-tab',
-    components: { Accordion, AccordionTab, Chips, Dropdown, Editor, Textarea },
+    components: { Accordion, AccordionTab, Chips, Dropdown, Textarea },
     props: { propFunction: { type: Object }, readonly: { type: Boolean }, functionTypes: { type: Array }, propKeywords: { type: Array } },
     data() {
         return {
-            functionsCatalogGeneralTabDescriptor,
             selectedFunction: {} as iFunction,
             descriptionDirty: false,
             showDescriptionSource: false,

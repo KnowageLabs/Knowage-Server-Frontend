@@ -138,7 +138,7 @@ export default defineComponent({
         background-color: #bbd6ed;
     }
     &:hover {
-        background-color: darken(#bbd6ed, 15%);
+        background-color: color.adjust(#bbd6ed, $lightness: -15%);
     }
     &:hover,
     &.selected {

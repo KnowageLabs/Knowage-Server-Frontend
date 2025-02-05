@@ -60,6 +60,8 @@ export default defineComponent({
                     return this.widgetModel.settings.style.padding
                 case 'ShadowsStyle':
                     return this.widgetModel.settings.style.shadows
+                case 'HelpSettings':
+                    return this.widgetModel.settings.help
                 default:
                     return null
             }

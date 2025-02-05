@@ -54,6 +54,10 @@ export default defineComponent({
                     return this.widgetModel.settings.facets
                 case 'SearchSettings':
                     return this.widgetModel.settings.search
+                case 'VisualizationType':
+                    return this.widgetModel.settings.visualization.visualizationTypes
+                case 'VisibilityConditions':
+                    return this.widgetModel.settings.visualization.visibilityConditions
                 case 'Title':
                     return this.widgetModel.settings.style.title
                 case 'ColumnStyle':
@@ -74,6 +78,8 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.link
                 case 'Preview':
                     return this.widgetModel.settings.interactions.preview
+                case 'HelpSettings':
+                    return this.widgetModel.settings.help
                 default:
                     return null
             }
@@ -85,6 +91,10 @@ export default defineComponent({
             switch (this.type) {
                 case 'FacetsSettings':
                 case 'SearchSettings':
+                    setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
+                    break
+                case 'VisualizationType':
+                case 'VisibilityConditions':
                     setTimeout(() => emitter.emit('refreshTable', this.widgetModel.id), 250)
                     break
                 case 'Title':

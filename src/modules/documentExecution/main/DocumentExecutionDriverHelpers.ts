@@ -178,7 +178,10 @@ const formatDateDriver = (el: any, dateFormat: string) => {
 
     if (el.type === 'DATE' && !el.selectionType && el.valueSelection === 'man_in' && el.showOnPanel === 'true' && el.visible) {
         el.parameterValue[0].value = getValidDate('' + el.parameterValue[0].value, dateFormat)
-        if (el.driverMaxValue) el.driverMaxValue = getValidDate('' + el.driverMaxValue, dateFormat)
+        if (el.driverMaxValue) {
+            const validDate = getValidDate('' + el.driverMaxValue, dateFormat)
+            el.driverMaxDateValue = validDate === '' ? null : validDate
+        }
     }
 }
 

@@ -1,10 +1,10 @@
-import { IWidget, IWidgetExports, IWidgetInteractions } from "../../Dashboard"
-import { ITextWidgetConfiguration, ITextWidgetEditor, ITextWidgetSettings } from "../../interfaces/DashboardTextWidget"
-import { getFormattedStyle } from "./TextWidgetStyleHelper"
+import { IWidget, IWidgetExports, IWidgetHelpSettings, IWidgetInteractions } from '../../Dashboard'
+import { ITextWidgetConfiguration, ITextWidgetEditor, ITextWidgetSettings } from '../../interfaces/DashboardTextWidget'
+import { getFormattedStyle } from './TextWidgetStyleHelper'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
-import { getFormattedInteractions } from "../common/WidgetInteractionsHelper"
-import { getFormattedWidgetColumns } from "../common/WidgetColumnHelper"
-import { columnTextCompatibilityRegex, crossNavigationTextCompatibilityRegex, parameterTextCompatibilityRegex, variableTextCompatibilityRegex } from "../common/DashboardRegexHelper"
+import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
+import { getFormattedWidgetColumns } from '../common/WidgetColumnHelper'
+import { columnTextCompatibilityRegex, crossNavigationTextCompatibilityRegex, parameterTextCompatibilityRegex, variableTextCompatibilityRegex } from '../common/DashboardRegexHelper'
 
 const columnNameIdMap = {}
 
@@ -21,7 +21,6 @@ export const formatTextWidget = (widget: any) => {
     return formattedWidget
 }
 
-
 const getFormattedWidgetSettings = (widget: any) => {
     const formattedSettings = {
         updatable: widget.updateble,
@@ -30,7 +29,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         configuration: getFormattedConfiguration(widget),
         style: getFormattedStyle(widget),
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ITextWidgetSettings
     return formattedSettings
 }
@@ -46,7 +46,7 @@ const getFormattedConfiguration = (widget: any) => {
 }
 
 const getFormattedText = (widget: any, originalText: string) => {
-    if ((originalText.indexOf("$F{") < 0 && originalText.indexOf("$P{") < 0 && originalText.indexOf("$V{") < 0)) return originalText
+    if (originalText.indexOf('$F{') < 0 && originalText.indexOf('$P{') < 0 && originalText.indexOf('$V{') < 0) return originalText
     let formattedText = replaceParameters(originalText)
     formattedText = replaceVariables(formattedText)
     formattedText = replaceColumns(widget, formattedText)

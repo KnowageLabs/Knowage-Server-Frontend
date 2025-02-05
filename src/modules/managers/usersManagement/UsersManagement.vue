@@ -171,6 +171,8 @@ export default defineComponent({
             this.userDetailsForm.id = null
             this.userDetailsForm.userId = ''
             this.userDetailsForm.fullName = ''
+            if(this.userDetailsForm.password) delete this.userDetailsForm.password
+            if(this.userDetailsForm.passwordConfirm) delete this.userDetailsForm.passwordConfirm
             this.userDetailsForm.failedLoginAttempts = 0
             this.userDetailsForm.sbiExtUserRoleses = []
             this.userDetailsForm.sbiUserAttributeses = {}
@@ -295,12 +297,15 @@ export default defineComponent({
         },
         populateForms(userObj: any) {
             this.dirty = false
+            this.v$.$reset()
             this.attributesForm = {}
             this.hiddenForm = false
             this.disableUsername = userObj.id ? true : false
             this.defaultRole = userObj.defaultRoleId
             this.selectedRoles = this.getSelectedUserRoles(userObj.sbiExtUserRoleses)
             this.userDetailsForm = { ...userObj }
+            if(this.userDetailsForm.password) delete this.userDetailsForm.password
+            if(this.userDetailsForm.passwordConfirm) delete this.userDetailsForm.passwordConfirm
             this.populateAttributesForm(userObj.sbiUserAttributeses)
         },
         populateAttributesForm(userAttributeValues: any) {

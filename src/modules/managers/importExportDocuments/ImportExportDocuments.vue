@@ -56,7 +56,7 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { mapState } from 'pinia'
 import { iNode, iFile } from './ImportExportDocuments'
-import { findObjectById } from './ImportExportDocumentsHelpers'
+import { findObjectById, findObjectByKey } from './ImportExportDocumentsHelpers'
 import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import { primeVueDate } from '@/helpers/commons/localeHelper'
 import deepcopy from 'deepcopy'
@@ -132,6 +132,7 @@ export default defineComponent({
                 .finally(() => {
                     this.loading = false
                     this.createNodeTree()
+                    this.removeEmptyFolders()
                 })
         },
         createNodeTree() {
@@ -141,7 +142,7 @@ export default defineComponent({
             this.folders.forEach((file: iFile) => {
                 if (file.codType != 'USER_FUNCT') {
                     const node = {
-                        key: file.id,
+                        key: crypto.randomUUID(),
                         id: file.id,
                         parentId: file.parentId,
                         label: file.name,
@@ -162,9 +163,7 @@ export default defineComponent({
         formatFolderChildren(folderChildren: any[], filePath: string) {
             const formattedChildren = [] as iNode[]
             folderChildren.forEach((document: any) => {
-                if (document.visible) {
-                    formattedChildren.push({ key: document.id, icon: 'pi pi-file', id: document.id, label: document.name, data: document, selectable: true, path: filePath })
-                }
+                formattedChildren.push({ key: crypto.randomUUID(), icon: 'pi pi-file', id: document.id, label: document.name, data: document, selectable: true, path: filePath })
             })
 
             return formattedChildren
@@ -234,10 +233,10 @@ export default defineComponent({
 
             exportPayload.DOCUMENT_ID_LIST = []
             for (const fileId in this.selectedDocumentsKeys) {
-                const file = findObjectById(this.nodes, fileId)
+                const file = findObjectByKey(this.nodes, fileId)
                 if (file && !file.isFolder) {
                     if (exportPayload.EXPORT_SELECTED_FUNCTIONALITY) exportPayload.DOCUMENT_ID_LIST.push({ id: file.id, folder: file.path })
-                    else exportPayload.DOCUMENT_ID_LIST.push(fileId)
+                    else exportPayload.DOCUMENT_ID_LIST.push(file.id.toString())
                 }
             }
 
@@ -245,8 +244,8 @@ export default defineComponent({
 
             this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/document/export', exportPayload)
-                .then(() => {
-                    this.downloadExportedDocuments(exportPayload)
+                .then((response: AxiosResponse<any>) => {
+                    this.downloadExportedDocuments(response.data.FILE_NAME_EXPORT)
                 })
                 .catch((error) => console.error(error))
                 .finally(() => {
@@ -254,8 +253,8 @@ export default defineComponent({
                     this.toggleExportDialog()
                 })
         },
-        downloadExportedDocuments(exportPayload) {
-            const postData = { FILE_NAME: exportPayload.EXPORT_FILE_NAME }
+        downloadExportedDocuments(fileName) {
+            const postData = { FILE_NAME: fileName }
             this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/serverManager/importExport/document/downloadExportFile', postData, {
                     responseType: 'arraybuffer', // important...because we need to convert it to a blob. If we don't specify this, response.data will be the raw data. It cannot be converted to blob directly.
@@ -277,6 +276,27 @@ export default defineComponent({
         },
         toggleImportDialog() {
             this.displayImportDialog = !this.displayImportDialog
+        },
+        filterDocuments(folder: iNode, parentFolder: any) {
+            if (folder.children && folder.children.length > 0) {
+                for (let i = folder.children.length - 1; i >= 0; i--) {
+                    this.filterDocuments(folder.children[i], folder)
+                }
+            }
+
+            if (folder.children?.length == 0 && parentFolder && parentFolder.children) {
+                const array = parentFolder.children
+                const index = array.findIndex((node: iNode) => node.id === folder.id)
+                array.splice(index, 1)
+            }
+        },
+        removeEmptyFolders() {
+            for (let i = 0; i < this.nodes.length; i++) {
+                this.filterDocuments(this.nodes[i], null as any)
+                if (this.nodes[i].children?.length === 0) {
+                    this.nodes[i].selectable = false
+                }
+            }
         }
     }
 })

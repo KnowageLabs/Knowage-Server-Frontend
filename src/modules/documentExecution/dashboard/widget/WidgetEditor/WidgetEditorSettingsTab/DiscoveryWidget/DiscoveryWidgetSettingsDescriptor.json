@@ -36,6 +36,12 @@
                 "type": "CustomMessages"
             }
         ],
+        "Help": [
+            {
+                "title": "dashboard.widgetEditor.help.title",
+                "type": "HelpSettings"
+            }
+        ],
         "Interactions": [
             {
                 "title": "dashboard.widgetEditor.interactions.selection",
@@ -99,6 +105,16 @@
                 "title": "dashboard.widgetEditor.tooltips.title",
                 "type": "Tooltips"
             }
+        ],
+        "Visualization": [
+            {
+                "title": "dashboard.widgetEditor.visualizationType.title",
+                "type": "VisualizationType"
+            },
+            {
+                "title": "dashboard.widgetEditor.visibilityConditions.title",
+                "type": "VisibilityConditions"
+            }
         ]
     },
     "settingsListOptions": [
@@ -106,6 +122,11 @@
             "icon": "fa fa-cogs",
             "label": "dashboard.widgetEditor.configuration",
             "value": "Configuration"
+        },
+        {
+            "icon": "pi pi-eye",
+            "label": "dashboard.widgetEditor.visualization",
+            "value": "Visualization"
         },
         {
             "icon": "fa fa-paint-brush",
@@ -126,6 +147,11 @@
             "icon": "pi pi-tablet",
             "label": "dashboard.widgetEditor.responsive.title",
             "value": "Responsive"
+        },
+        {
+            "icon": "pi pi-info-circle",
+            "label": "dashboard.widgetEditor.help.title",
+            "value": "Help"
         }
     ]
 }

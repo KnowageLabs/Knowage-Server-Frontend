@@ -4,7 +4,8 @@ import forwardToTrailingSlashPlugin from './forward-to-trailing-slash-plugin.js'
 import { VitePWA } from 'vite-plugin-pwa'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 import loadVersion from 'vite-plugin-package-version'
-import path from 'path'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import commonjs from 'vite-plugin-commonjs'
 
 const build = {
     rollupOptions: {
@@ -18,7 +19,16 @@ export default defineConfig((command, mode) => {
     const env = loadEnv(mode, process.cwd())
     return {
         plugins: [
-            loadVersion,
+            nodeResolve({
+                preferBuiltins: true
+            }),
+            commonjs({
+                include: 'node_modules/**',
+                namedExports: {
+                    dexie: ['default']
+                }
+            }),
+            loadVersion(),
             vue({
                 template: { transformAssetUrls }
             }),
@@ -143,7 +153,9 @@ export default defineConfig((command, mode) => {
         css: {
             preprocessorOptions: {
                 scss: {
-                    additionalData: '@import "@/assets/scss/main.scss";'
+                    additionalData: '@use "sass:color"; @import "@/assets/scss/main.scss";',
+                    api: 'modern',
+                    silenceDeprecations: ['legacy-js-api']
                 }
             }
         },
@@ -151,6 +163,7 @@ export default defineConfig((command, mode) => {
         build: {
             outDir: `./target/knowage-vue`,
             sourcemap: true,
+            commonjsOptions: { include: [] },
             rollupOptions: {
                 output: {
                     chunkFileNames: 'assets/js/[name]-[hash].js',

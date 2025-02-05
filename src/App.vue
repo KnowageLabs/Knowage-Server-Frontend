@@ -44,6 +44,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(mainStore, {
+            configurations: 'configurations',
             error: 'error',
             info: 'info',
             warning: 'warning',
@@ -229,7 +230,7 @@ export default defineComponent({
                             }
                         })
                         .catch((error) => {
-                            if (error.response.request.responseURL) {
+                            if (error.response?.request?.responseURL) {
                                 const responseURL = new URL(error.response.request.responseURL)
                                 if (responseURL.searchParams.get('error')) auth.logout()
                             }
@@ -249,7 +250,7 @@ export default defineComponent({
 
                 this.setDownloads(json.downloads)
 
-                this.newsDownloadHandler()
+                if (!this.configurations['KNOWAGE.WEBSOCKET.DISABLE']) this.newsDownloadHandler()
                 this.loadInternationalization()
                 this.setLoading(false)
             })
@@ -325,7 +326,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    min-height: 100%;
+    height: 100%;
 }
 .layout-wrapper-content::after {
     content: '';

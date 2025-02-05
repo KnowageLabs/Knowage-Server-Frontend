@@ -1,6 +1,7 @@
-import { IRWidgetSettings } from "@/modules/documentExecution/dashboard/interfaces/DashboardRWidget"
+import { IRWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardRWidget'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
-import * as  rWidgetDefaultValues from './RWidgetDefaultValues'
+import * as rWidgetDefaultValues from './RWidgetDefaultValues'
+import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewRWidgetSettings = () => {
     return {
@@ -20,8 +21,9 @@ export const createNewRWidgetSettings = () => {
         },
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
-            preview: widgetCommonDefaultValues.getDefaultPreview(),
+            preview: widgetCommonDefaultValues.getDefaultPreview()
         },
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IRWidgetSettings
 }

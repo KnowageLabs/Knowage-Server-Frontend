@@ -1,8 +1,9 @@
-import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn, IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IDiscoveryWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/DashboardDiscoveryWidget'
 import * as tableWidgetDefaultValues from '../tableWidget/TableWidgetDefaultValues'
 import * as discoveryWidgetDefaultValues from './DiscoveryWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
+import { removeColumnFromSubmodel } from '../tableWidget/TableWidgetFunctions'
 
 export const createNewDiscoveryWidgetSettings = () => {
     return {
@@ -10,6 +11,7 @@ export const createNewDiscoveryWidgetSettings = () => {
         clickable: true,
         facets: discoveryWidgetDefaultValues.getDefaultFacetsSettings(),
         search: discoveryWidgetDefaultValues.getDefaultSearchSettings(),
+        conditionalStyles: tableWidgetDefaultValues.getDefaultConditionalStyles(),
         configuration: {
             exports: tableWidgetDefaultValues.getDefaultExportsConfiguration(),
             customMessages: tableWidgetDefaultValues.getDefaultCustomMessages()
@@ -32,7 +34,9 @@ export const createNewDiscoveryWidgetSettings = () => {
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle()
         },
         tooltips: tableWidgetDefaultValues.getDefaultTooltips(),
-        responsive: widgetCommonDefaultValues.getDefaultResponsivnes()
+        visualization: tableWidgetDefaultValues.getDefaultVisualizations(),
+        responsive: widgetCommonDefaultValues.getDefaultResponsivnes(),
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as IDiscoveryWidgetSettings
 }
 
@@ -44,6 +48,8 @@ export const addColumnToDiscoveryWidgetModel = (widgetModel: IWidget, column: IW
 export const removeColumnFromDiscoveryWidgetModel = (widgetModel: IWidget, column: IWidgetColumn) => {
     removeColumnNameFromStringArray(widgetModel.settings.facets.columns, column.columnName)
     removeColumnNameFromStringArray(widgetModel.settings.search.columns, column.columnName)
+    removeColumnFromSubmodel(column, widgetModel.settings.visualization.visualizationTypes.types, 'target', 'columnRemovedFromVisibilityTypes', true)
+    removeColumnFromSubmodel(column, widgetModel.settings.visualization.visibilityConditions.conditions, 'target', 'columnRemovedFromVisibilityConditions', false)
 }
 
 export const removeColumnNameFromStringArray = (array: string[], columnName: string) => {
@@ -55,4 +61,6 @@ export const formatDashboardDiscoveryWidgetAfterLoading = (widget: IWidget) => {
     if (!widget || !widget.settings) return
 
     if (!widget.settings.interactions.selection) widget.settings.interactions.selection = { enabled: true }
+    if (!widget.settings.conditionalStyles) widget.settings.conditionalStyles = tableWidgetDefaultValues.getDefaultConditionalStyles()
+    if (!widget.settings.visualization) widget.settings.visualization = tableWidgetDefaultValues.getDefaultVisualizations()
 }

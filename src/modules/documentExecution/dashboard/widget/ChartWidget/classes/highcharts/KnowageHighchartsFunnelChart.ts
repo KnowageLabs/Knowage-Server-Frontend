@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
 import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
@@ -20,7 +20,6 @@ export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
         if (this.model.plotOptions?.series?.showCheckbox) this.model.plotOptions.series.showCheckbox = false
     }
 
-
     setSpecificOptionsDefaultValues() {
         this.setPlotOptions()
     }
@@ -30,25 +29,25 @@ export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
         if (!this.model.plotOptions.series.neckHeight) this.model.plotOptions.series.neckHeight = '25%'
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.setFunnelChartData(data, widgetModel, attributeColumns, measureColumns, dateFormat)
+        this.setFunnelChartData(data, widgetModel, attributeColumns, measureColumns, dateFormat, variables)
         return this.model.series
     }
 
-    setFunnelChartData(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
+    setFunnelChartData(data: any, widgetModel: IWidget, attributeColumns: any[], measureColumns: any[], dateFormat: string, variables: IVariable[]) {
         const attibuteColumn = attributeColumns[0]
         const measureColumn = measureColumns[0]
         if (!data || !measureColumn || !attibuteColumn) return
         const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true }
-        data.rows.forEach((row: any,) => {
+        data.rows.forEach((row: any) => {
             serieElement.data.push({
                 name: dateFormat && ['date', 'timestamp'].includes(attibuteColumn.metadata.type) ? getFormattedDateCategoryValue(row[attibuteColumn.metadata.dataIndex], dateFormat, attibuteColumn.metadata.type) : row[attibuteColumn.metadata.dataIndex],
                 y: row[measureColumn.metadata.dataIndex],
-                color: getColumnConditionalStyles(widgetModel, measureColumn.column.id, row[measureColumn.metadata.dataIndex])?.color,
+                color: getColumnConditionalStyles(widgetModel, measureColumn.column.id, row[measureColumn.metadata.dataIndex], variables)?.color
             })
         })
         this.model.series.push(serieElement)

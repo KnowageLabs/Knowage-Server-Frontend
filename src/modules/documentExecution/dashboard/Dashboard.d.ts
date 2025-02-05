@@ -414,6 +414,7 @@ export interface ITableWidgetVisualizationType {
     prefix?: string
     suffix?: string
     pinned?: string
+    maximumCharacters?: number
     min?: number
     max?: number
     alignment?: string
@@ -829,4 +830,16 @@ export interface IHighchartsCommonConditionalStyle {
     properties: {
         color: string
     }
+}
+
+export interface IWidgetHelpSettings {
+    enabled: boolean
+    type: 'free-text' | 'link'
+    text: string
+    url: string
+    visualizationType: 'pop-up' | 'tooltip'
+    icon: string
+    iconPosition: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+    popupWidth: string
+    popupHeight: string
 }

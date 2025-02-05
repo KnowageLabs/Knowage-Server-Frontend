@@ -162,7 +162,7 @@ export default defineComponent({
             }
         },
         async startWorkflow() {
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/workflow/startWorkflow/${this.schema.id}`
+            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/workflow/startWorkflow/${this.schema.id}`
             await this.$http
                 .put(url)
                 .then((response: AxiosResponse<any>) => {

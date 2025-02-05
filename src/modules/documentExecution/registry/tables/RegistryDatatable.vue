@@ -22,9 +22,6 @@ import { setInputDataType, formatRegistryNumber } from '@/helpers/commons/tableH
 import { AxiosResponse } from 'axios'
 import { mapActions } from 'pinia'
 import { emitter } from './RegistryDatatableHelper'
-import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
-import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
-import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
 import registryDescriptor from '../RegistryDescriptor.json'
 import RegistryDatatableWarningDialog from './RegistryDatatableWarningDialog.vue'
 import CellEditor from './registryCellRenderers/RegistryCellEditor.vue'
@@ -35,7 +32,6 @@ export default defineComponent({
     name: 'registry-datatable',
     components: {
         RegistryDatatableWarningDialog,
-        AgGridVue,
         // eslint-disable-next-line vue/no-unused-components
         HeaderRenderer,
         // eslint-disable-next-line vue/no-unused-components
@@ -108,7 +104,7 @@ export default defineComponent({
             this.loadConfiguration()
         },
         propRows() {
-            this.gridApi.setRowData(this.rows)
+            this.gridApi.setGridOption('rowData', this.rows)
         },
         dataLoading() {
             this.dataLoading ? this.gridApi.showLoadingOverlay() : this.gridApi.hideOverlay()
@@ -152,8 +148,8 @@ export default defineComponent({
             this.refreshGridConfiguration()
         },
         refreshGridConfiguration() {
-            this.gridApi.setColumnDefs(this.columns)
-            this.gridApi.setRowData(this.rows)
+            this.gridApi.setGridOption('columnDefs', this.columns)
+            this.gridApi.setGridOption('rowData', this.rows)
         },
         setupDatatableOptions() {
             this.gridOptions = {
@@ -227,7 +223,7 @@ export default defineComponent({
             await this.loadInitialDropdownOptions()
             this.loading = false
 
-            this.gridApi.setColumnDefs(this.columns)
+            this.gridApi.setGridOption('columnDefs', this.columns)
         },
         addColumnEditableProps(el: any) {
             if (el.editable) {
@@ -336,7 +332,7 @@ export default defineComponent({
         },
         loadRows() {
             this.rows = this.propRows
-            this.gridApi?.setRowData(this.rows)
+            this.gridApi?.setGridOption('rowData', this.rows)
         },
         getRowId(params) {
             return params.data.uniqueId

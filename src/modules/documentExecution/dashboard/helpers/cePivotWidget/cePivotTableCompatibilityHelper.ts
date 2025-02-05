@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn, IWidgetColumnFilter, IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetColumnFilter, IWidgetHelpSettings, IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
 import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
 import { getFormattedPivotFields } from './cePivotTableColumnHelper'
 import { ICePivotTableConfiguration, ICePivotTableSettings, ICePivotTableStyle, ICePivotTableWidgetConditionalStyles, ICePivotTableWidgetVisualization, IPivotTooltips } from '../../interfaces/cePivotTable/ceDashboardPivotTableWidget'
@@ -54,7 +54,8 @@ const getFormattedWidgetSettings = (widget: any) => {
         interactions: getFormattedInteractions(widget) as IWidgetInteractions,
         style: getFormattedStyle(widget) as ICePivotTableStyle,
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
-        tooltips: pivotTableDefaultValues.getDefaultTooltips() as IPivotTooltips[]
+        tooltips: pivotTableDefaultValues.getDefaultTooltips() as IPivotTooltips[],
+        help: widgetCommonDefaultValues.getDefaultHelpSettings() as IWidgetHelpSettings
     } as ICePivotTableSettings
     return formattedSettings
 }

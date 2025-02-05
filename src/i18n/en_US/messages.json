@@ -205,6 +205,7 @@
         "password": "Password",
         "path": "Path",
         "paused": "Paused",
+        "popup": "Pop-up",
         "preview": "Preview",
         "print": "Print",
         "private": "Private",
@@ -298,6 +299,7 @@
         "url": "URL",
         "user": "User",
         "validation": {
+            "jndiformat": "The JNDI string is required to start with \"java:comp/env/jdbc/\"",
             "maxLength": "This field must have less then {max} characters",
             "maximumCharacters": "The maximum length allowed is {max}",
             "minLength": "This field should have at least {min} characters",
@@ -502,6 +504,7 @@
             "screenshot": "Capture Screenshot",
             "search": "Search on Widget",
             "unlock": "Unlock widget position",
+            "xlsExport": "Excel Export",
             "xor": "View One Layer"
         },
         "rWidgetError": "Error loading R widget.",
@@ -522,6 +525,7 @@
         "tableWidget": {
             "launchSelection": "LAUNCH SELECTION"
         },
+        "truncateDialog": "Cell Content",
         "warning": {
             "downloading": "The document has been requested in a specific output type and will be available soon"
         },
@@ -733,6 +737,18 @@
                 "hideHeader": "Hide header",
                 "setLabel": "Set label",
                 "title": "Headers"
+            },
+            "help": {
+                "bottomLeft": "Bottom Left",
+                "bottomRight": "Bottom Right",
+                "freeText": "Free Text",
+                "iconPosition": "Icon Position",
+                "popupHeight": "Pop-up Height",
+                "popupWidth": "Pop-up Width",
+                "title": "Help",
+                "topLeft": "Top Left",
+                "topRight": "Top Right",
+                "visualization": "Visualization"
             },
             "hidden": "Hidden",
             "highcharts": {
@@ -1355,6 +1371,8 @@
                 "alignment": "Alignment",
                 "bar": "Bar",
                 "barAndText": "Bar & Text",
+                "maximumCharacters": "Maximum Characters",
+                "multilineText": "Multiline Text",
                 "pinned": "Pinned",
                 "sparkline": "Sparkline",
                 "textAndIcon": "Text & Icon",
@@ -1907,7 +1925,10 @@
             "itemsWithEmptyIdWarning": "Items with empty IDs were found. They will be imported as new.",
             "successfullyCompleted": "Import successfully completed"
         },
-        "title": "Import/Export"
+        "title": "Import/Export",
+        "warning": {
+            "newCategoryCreated": "A new category has been created with the name: {category}. Check roles definitions accordingly. | The following categories have been created: {category}. Check roles definitions accordingly"
+        }
     },
     "infoDialog": {
         "aboutKnowage": "About Knowage",
@@ -3307,6 +3328,7 @@
                 "logoHint": "The company/product logo, visible on the menu bar. If not present the default Knowage \"K\" will be shown.",
                 "logoWide": "Tenant Logo Wide",
                 "logoWideHint": "This logo will be used within dashboards XLSX exports. If no image is provided it will not be visible in those instances. The images should be below 200KB and in jpg or png format.",
+                "name": "Tenant Name",
                 "theme": "Theme",
                 "title": "Detail"
             },

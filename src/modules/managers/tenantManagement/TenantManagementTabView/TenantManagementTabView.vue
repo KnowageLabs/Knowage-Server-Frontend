@@ -2,7 +2,7 @@
     <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
         <template #start>{{ tenant.TENANT_NAME }}</template>
         <template #end>
-            <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save"  class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" @click="handleSubmit" />
+            <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" @click="handleSubmit" />
             <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplateConfirm" />
         </template>
     </Toolbar>
@@ -44,7 +44,6 @@ import TabPanel from 'primevue/tabpanel'
 import tabViewDescriptor from './TenantManagementTabViewDescriptor.json'
 import TenantDetail from './DetailTab/TenantDetail.vue'
 import ProductTypes from './SelectionTableTab/SelectionTable.vue'
-import useValidate from '@vuelidate/core'
 import mainStore from '../../../../App.store'
 
 export default defineComponent({
@@ -72,7 +71,6 @@ export default defineComponent({
             loading: false,
             touched: false,
             operation: 'insert',
-            v$: useValidate() as any,
             tenant: {} as iTenant,
             listOfThemes: [] as any,
             availableLicenses: [] as any,
@@ -84,7 +82,7 @@ export default defineComponent({
     },
     computed: {
         buttonDisabled(): any {
-            if ((this.listOfSelectedProducts && this.listOfSelectedProducts.length === 0) || (this.listOfSelectedDataSources && this.listOfSelectedDataSources.length === 0) || this.v$.$invalid) {
+            if ((this.listOfSelectedProducts && this.listOfSelectedProducts.length === 0) || (this.listOfSelectedDataSources && this.listOfSelectedDataSources.length === 0) || !this.validateTenantName()) {
                 return true
             }
             return false
@@ -160,8 +158,12 @@ export default defineComponent({
             }
         },
 
+        validateTenantName(): boolean {
+            return this.tenant.TENANT_NAME && this.tenant.TENANT_NAME.match(/^[a-zA-Z0-9_]+$/) ? true : false
+        },
+
         async handleSubmit() {
-            if (this.v$.$invalid) {
+            if (!this.validateTenantName()) {
                 return
             }
             const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/multitenant/save'

@@ -37,7 +37,7 @@
         </DataTable>
         <template #footer>
             <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="$emit('close')" />
-            <Button v-t="'common.add'" class="kn-button kn-button--primary" @click="addSelectedDatasets" />
+            <Button class="kn-button kn-button--primary" :label="$t('common.add')" @click="addSelectedDatasets" />
         </template>
     </Dialog>
 </template>

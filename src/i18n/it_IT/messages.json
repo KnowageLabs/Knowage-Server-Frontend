@@ -237,6 +237,7 @@
         "uppercaseDelete": "elimina",
         "user": "Utente",
         "validation": {
+            "jndiformat": "La stringa JNDI deve iniziare con: \"java:comp/env/jdbc/\"",
             "maxLength": "questo campo deve avere meno di {max} caratteri",
             "maximumCharacters": "la lunghezza massima consentita è {max}",
             "minLength": "il campo deve avere almeno {min} caratteri",
@@ -425,6 +426,7 @@
             "screenshot": "Cattura Immagine",
             "search": "Cerca nel Widget",
             "unlock": "Sblocca posizione Widget",
+            "xlsExport": "Esporta in Excel",
             "xor": "Visualizza un layer"
         },
         "rWidgetError": "Error loading R widget.",
@@ -1705,7 +1707,10 @@
             "itemsWithEmptyIdWarning": "Sono stati trovati elementi con ID vuoti. Verranno importati come nuovi.",
             "successfullyCompleted": "Importazione completata con successo"
         },
-        "title": "Import/Export"
+        "title": "Import/Export",
+        "warning": {
+            "newCategoryCreated": "Una nuova categoria è stata aggiunta: {category}. Controllare i rouli utente per abilitarla. | Le seguenti categorie sono state aggiunte: {category}. Controllare i ruoli utente per abilitarla."
+        }
     },
     "infoDialog": {
         "aboutKnowage": "about Knowage",
@@ -3003,6 +3008,7 @@
                 "title": "Data Source"
             },
             "detail": {
+                "name": "Nome del tenant",
                 "theme": "Theme",
                 "title": "Detail"
             },

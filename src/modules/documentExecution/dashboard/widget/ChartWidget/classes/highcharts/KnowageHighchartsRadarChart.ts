@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget, } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateRadarChartModel } from './updater/KnowageHighchartsRadarChartUpdater'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
@@ -33,7 +33,7 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
         if (!this.model.yAxis || !this.model.yAxis[0] || !this.model.yAxis[0].title) this.setRadarYAxis()
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
@@ -44,12 +44,11 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
             const serieName = widgetModel.settings.configuration.grouping.secondDimension.serie
             setGroupedByCategoriesData(this.model, data, attributeColumns, measureColumns, serieName)
         } else {
-            setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat)
+            setRegularData(this.model, widgetModel, data, attributeColumns, measureColumns, drilldownEnabled, dateFormat, variables)
         }
 
         return this.model.series
     }
-
 
     setRadarXAxis() {
         this.model.xAxis = [highchartsDefaultValues.getDefaultRadarXAxis()]
@@ -62,5 +61,4 @@ export class KnowageHighchartsRadarChart extends KnowageHighcharts {
     updateSeriesLabelSettings(widgetModel: IWidget) {
         updateSeriesLabelSettingsWhenAllOptionIsAvailable(this.model, widgetModel)
     }
-
 }

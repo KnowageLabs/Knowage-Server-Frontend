@@ -70,6 +70,8 @@ export default defineComponent({
                     return this.widgetModel.settings.interactions.link
                 case 'Preview':
                     return this.widgetModel.settings.interactions.preview
+                case 'HelpSettings':
+                    return this.widgetModel.settings.help
                 default:
                     return null
             }

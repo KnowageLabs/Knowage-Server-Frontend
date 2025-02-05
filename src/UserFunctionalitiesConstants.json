@@ -86,7 +86,6 @@
     "IMP_EXP_RESOURCES": "ImpExpResources",
     "IMP_EXP_SCHEDULER": "ImpExpScheduler",
     "IMP_EXP_USERS": "ImpExpUsers",
-    "INSTALL_CONFIG": "InstallConfig",
     "KPI_MANAGEMENT": "KpiManagement",
     "KPI_SCHEDULATION": "KpiSchedulation",
     "KPI_TARGETS_MANAGEMENT": "KpiTargetsManagement",

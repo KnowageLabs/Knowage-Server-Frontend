@@ -1,6 +1,6 @@
 <template>
     <div class="p-m-2">
-        <Editor v-model="note.content" class="p-m-2" editor-style="height: 220px"></Editor>
+        <q-editor ref="editor" class="q-ma-sm" v-model="note.content" min-height="260px" />
 
         <div class="p-d-field p-my-3">
             <label class="kn-material-input-label">{{ $t('common.type') + ' *' }}</label>
@@ -19,12 +19,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Dropdown from 'primevue/dropdown'
-import Editor from 'primevue/editor'
 import documentExecutionNotesDialogDescriptor from './DocumentExecutionNotesDialogDescriptor.json'
 
 export default defineComponent({
     name: 'document-execution-notes-form',
-    components: { Dropdown, Editor },
+    components: { Dropdown },
     props: { datasets: { type: Array }, selectedNote: { type: Object } },
     emits: ['selected'],
     data() {

@@ -1,5 +1,5 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { updateSunburstChartModel } from './updater/KnowageHighchartsSunburstChartUpdater'
 import deepcopy from 'deepcopy'
 import { createHierarchyFromData, createTreeSeriesStructureFromHierarchy, getAllColumnsOfSpecificTypeFromDataResponse } from './helpers/setData/HighchartsSetDataHelpers'
@@ -53,7 +53,7 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
         else this.model.yAxis = [{ visible: false, ...highchartsDefaultValues.getDefaultBarYAxis() }]
     }
 
-    setData(data: any, widgetModel: IWidget) {
+    setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
 
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
@@ -143,19 +143,19 @@ export class KnowageHighchartsSunburstChart extends KnowageHighcharts {
 
     formatFirstSunburstElement(treemapArray: any[], attributeColumns: any[], centerTextSettings: any) {
         if (!treemapArray[0]) return
-            ; (treemapArray[0].parent = null),
-                (treemapArray[0].id = 'root'),
-                (treemapArray[0].name = centerTextSettings?.text ?? attributeColumns[0].column.columnName),
-                (treemapArray[0].dataLabels = {
-                    enabled: true,
-                    style: {
-                        fontFamily: centerTextSettings?.style['font-family'] ?? 'Arial',
-                        fontStyle: centerTextSettings?.style['font-style'] ?? 'normal',
-                        fontSize: centerTextSettings?.style['font-size'] ?? '12px',
-                        color: centerTextSettings?.style.color ?? '#000000',
-                        width: '10000'
-                    }
-                })
+        ;(treemapArray[0].parent = null),
+            (treemapArray[0].id = 'root'),
+            (treemapArray[0].name = centerTextSettings?.text ?? attributeColumns[0].column.columnName),
+            (treemapArray[0].dataLabels = {
+                enabled: true,
+                style: {
+                    fontFamily: centerTextSettings?.style['font-family'] ?? 'Arial',
+                    fontStyle: centerTextSettings?.style['font-style'] ?? 'normal',
+                    fontSize: centerTextSettings?.style['font-size'] ?? '12px',
+                    color: centerTextSettings?.style.color ?? '#000000',
+                    width: '10000'
+                }
+            })
     }
 
     updateSeriesLabelSettings(widgetModel: IWidget) {

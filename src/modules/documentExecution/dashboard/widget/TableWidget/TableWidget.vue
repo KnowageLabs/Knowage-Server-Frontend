@@ -4,28 +4,26 @@
             <i class="fas fa-bolt" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
-        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context"> </ag-grid-vue>
+        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context" :theme="themeBalham"> </ag-grid-vue>
         <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
 
         <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @page-changed="$emit('pageChanged')" />
+        <TruncationDialog v-if="truncateDialogVisible" :cellContent="truncateDialogCellContent" :visible="truncateDialogVisible" :dashboard-id="dashboardId" @close="truncateDialogVisible = false" />
     </div>
 </template>
 
 <script lang="ts">
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
-import { AgGridVue } from 'ag-grid-vue3' // the AG Grid Vue Component
 import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
-import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions } from './TableWidgetHelper'
+import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions, replaceTooltipConfigurationVariablesAndParametersPlaceholders } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
 import { openNewLinkTableWidget } from '../interactionsHelpers/InteractionLinkHelper'
 import { startTableWidgetIFrameInteractions } from '../interactionsHelpers/IFrameInteractionHelper'
 import mainStore from '../../../../../App.store'
 import dashboardStore from '../../Dashboard.store'
 import descriptor from '../../dataset/DatasetEditorDescriptor.json'
-import 'ag-grid-community/styles/ag-grid.css' // Core grid CSS, always needed
-import 'ag-grid-community/styles/ag-theme-alpine.css' // Optional theme CSS
 import CellRenderer from './CellRenderer'
 import HeaderRenderer from './HeaderRenderer.vue'
 import TooltipRenderer from './TooltipRenderer.vue'
@@ -34,11 +32,14 @@ import HeaderGroupRenderer from './HeaderGroupRenderer.vue'
 import PaginatorRenderer from './PaginatorRenderer.vue'
 import store from '../../Dashboard.store'
 import ContextMenu from 'primevue/contextmenu'
+import TruncationDialog from './TruncationDialog.vue'
+import { replaceVariablesPlaceholdersByVariableName } from '../interactionsHelpers/InteractionsParserHelper'
+import deepcopy from 'deepcopy'
+import { themeBalham } from 'ag-grid-community'
 
 export default defineComponent({
     name: 'table-widget',
     components: {
-        AgGridVue,
         // eslint-disable-next-line vue/no-unused-components
         HeaderRenderer,
         // eslint-disable-next-line vue/no-unused-components
@@ -48,7 +49,8 @@ export default defineComponent({
         // eslint-disable-next-line vue/no-unused-components
         TooltipRenderer,
         PaginatorRenderer,
-        ContextMenu
+        ContextMenu,
+        TruncationDialog
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -83,7 +85,11 @@ export default defineComponent({
             selectedColumn: false as any,
             selectedColumnArray: [] as any,
             context: null as any,
-            interactionsMenuItems: [] as any
+            interactionsMenuItems: [] as any,
+            truncateDialogVisible: false,
+            truncateDialogCellContent: '',
+            variables: [] as IVariable[],
+            themeBalham: themeBalham
         }
     },
     watch: {
@@ -101,6 +107,9 @@ export default defineComponent({
         },
         propActiveSelections() {
             this.loadActiveSelections()
+        },
+        propVariables() {
+            this.loadVariables()
         }
     },
     beforeMount() {
@@ -108,6 +117,7 @@ export default defineComponent({
     },
     created() {
         this.setEventListeners()
+        this.loadVariables()
         this.loadWidgetModel()
         this.loadActiveSelections()
         this.setupDatatableOptions()
@@ -147,6 +157,9 @@ export default defineComponent({
                 }
             }
         },
+        loadVariables() {
+            this.variables = this.propVariables
+        },
         setSelectedCellForMultiselected(columnName: string) {
             if (!columnName || !this.tableData || !this.tableData.metaData) this.selectedColumn = ''
             const index = this.tableData.metaData.fields?.findIndex((field: any) => field.header === columnName)
@@ -177,8 +190,8 @@ export default defineComponent({
 
                 // CALLBACKS
                 onGridReady: this.onGridReady,
-                getRowStyle: this.getRowStyle,
-                getRowHeight: this.getRowHeight
+                getRowStyle: this.getRowStyle
+                // getRowHeight: this.getRowHeight
             }
         },
         onGridReady(params) {
@@ -190,7 +203,7 @@ export default defineComponent({
         async refreshGridConfiguration(updateData?: boolean) {
             const gridColumns = this.createGridColumns(this.tableData?.metaData?.fields)
             this.toggleHeaders(this.widgetModel.settings.configuration.headers)
-            this.gridApi?.setColumnDefs(gridColumns)
+            this.gridApi?.setGridOption('columnDefs', gridColumns)
 
             if (updateData) this.updateData(this.tableData?.rows)
         },
@@ -198,12 +211,12 @@ export default defineComponent({
             if (this.editorMode) {
                 const gridColumns = this.createGridColumns(this.tableData?.metaData?.fields)
                 this.toggleHeaders(this.widgetModel.settings.configuration.headers)
-                this.gridApi?.setColumnDefs(gridColumns)
+                this.gridApi?.setGridOption('columnDefs', gridColumns)
                 this.gridApi?.redrawRows()
             }
         },
         toggleHeaders(headersConfiguration) {
-            headersConfiguration.enabled ? this.gridApi?.setHeaderHeight(this.widgetModel.settings.style.headers.height) : this.gridApi?.setHeaderHeight(0)
+            this.gridApi?.setGridOption('rowHeight', headersConfiguration.enabled ? this.widgetModel.settings.style.headers.height : 0)
         },
         getRowHeight() {
             const rowsConfiguration = this.widgetModel.settings.style.rows
@@ -216,10 +229,10 @@ export default defineComponent({
             this.columnsNameArray = []
 
             const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
-            const dashboardVariables = this.propVariables
+            const dashboardVariables = this.variables
             const dataset = { type: 'SbiFileDataSet' }
 
-            const conditionalStyles = this.propWidget.settings.conditionalStyles
+            const conditionalStyles = this.getFormattedConditionalStyles(this.propWidget.settings.conditionalStyles)
             const columnDataMap = Object.fromEntries(this.propWidget.columns.map((column, index) => [column.id, `column_${index + 1}`]))
             // const selectedColumnsIds = this.propWidget.columns.map((currElement) => {
             //     return currElement.id
@@ -367,6 +380,11 @@ export default defineComponent({
                         if (visTypes.enabled) {
                             const colVisType = this.getColumnVisualizationType(tempCol.colId)
                             tempCol.pinned = colVisType.pinned
+                            if (colVisType.type.toLowerCase() === 'multiline text') {
+                                tempCol.autoHeight = true
+                                tempCol.wrapText = responseFields[responseField].type === 'text'
+                                tempCol.cellStyle = { 'white-space': 'normal' }
+                            }
                         }
 
                         // CUSTOM MESSAGE CONFIGURATION  -----------------------------------------------------------------
@@ -433,6 +451,14 @@ export default defineComponent({
 
             return columns
         },
+        getFormattedConditionalStyles(conditionalStyle: ITableWidgetConditionalStyles) {
+            const formattedContidionalStyle = deepcopy(conditionalStyle)
+            formattedContidionalStyle.conditions?.forEach((tempCondition: ITableWidgetConditionalStyle) => {
+                if (tempCondition.condition?.formula) tempCondition.condition.formula = replaceVariablesPlaceholdersByVariableName(tempCondition.condition.formula, this.variables)
+            })
+
+            return formattedContidionalStyle
+        },
         activateInteractionFromClickedIcon(cell: { type: string; index: string | null; icon: string; node: object }) {
             switch (cell.type) {
                 case 'crossNavigation':
@@ -461,11 +487,15 @@ export default defineComponent({
         },
         getColumnTooltipConfig(colId) {
             const tooltipConfig = this.widgetModel.settings.tooltips
+
             let columntooltipConfig = null as any
             tooltipConfig[0].enabled ? (columntooltipConfig = tooltipConfig[0]) : ''
             tooltipConfig.forEach((config) => {
                 config.target.includes(colId) ? (columntooltipConfig = config) : ''
             })
+
+            const dashboardDrivers = this.getDashboardDrivers(this.dashboardId)
+            columntooltipConfig = replaceTooltipConfigurationVariablesAndParametersPlaceholders(columntooltipConfig, this.variables, dashboardDrivers)
 
             return columntooltipConfig
         },
@@ -517,11 +547,11 @@ export default defineComponent({
         updateData(data) {
             if (this.widgetModel.settings.configuration.summaryRows.enabled) {
                 const rowsNumber = this.widgetModel.settings.configuration.summaryRows.list.length
-                this.gridApi?.setRowData(data.slice(0, data.length - rowsNumber))
-                this.gridApi?.setPinnedBottomRowData(data.slice(-rowsNumber))
+                this.gridApi?.setGridOption('rowData', data.slice(0, data.length - rowsNumber))
+                this.gridApi?.setGridOption('pinnedBottomRowData', data.slice(-rowsNumber))
             } else {
-                this.gridApi?.setRowData(data)
-                this.gridApi?.setPinnedBottomRowData()
+                this.gridApi?.setGridOption('rowData', data)
+                this.gridApi?.setGridOption('pinnedBottomRowData', [])
             }
         },
         onCellClicked(node: any) {
@@ -615,11 +645,11 @@ export default defineComponent({
         startLinkInteraction(node: any, activeInteraction: any) {
             if (!activeInteraction) return
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            openNewLinkTableWidget(formattedRow, this.dashboardId, this.propVariables, activeInteraction)
+            openNewLinkTableWidget(formattedRow, this.dashboardId, this.variables, activeInteraction)
         },
         startIframeInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.propVariables, window)
+            startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.variables, window)
         },
         applyMultiSelection() {
             const modalSelection = this.widgetModel.settings.interactions.selection
@@ -677,6 +707,10 @@ export default defineComponent({
             if (pagination.enabled) {
                 this.widgetModel.settings.pagination.properties.totalItems = this.dataToShow?.results
             }
+        },
+        toggleTruncatedDialog(cellContent) {
+            this.truncateDialogCellContent = cellContent
+            this.truncateDialogVisible = true
         }
     }
 })
