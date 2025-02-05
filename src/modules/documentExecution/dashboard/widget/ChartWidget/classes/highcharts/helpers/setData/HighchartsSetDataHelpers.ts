@@ -23,6 +23,8 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
 }
 
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[]) => {
+    if (widgetModel?.settings?.sortingColumn && data?.rows && model?.chart?.type !== 'dumbbell') data.rows = formatDataRowsWhenUsingTheExternalSortingColumn(data)
+
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
@@ -52,6 +54,29 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
         }
     })
     if (areaRangeColumns.length > 1) setRegularAreaRangeData(model, data, attributeColumn, areaRangeColumns, dateFormat)
+}
+
+const formatDataRowsWhenUsingTheExternalSortingColumn = (data: any) => {
+    if (!data?.rows) return
+
+    const groupedDataByTheFirstCategory = groupAndSumByFirstColumn(data.rows)
+    return groupedDataByTheFirstCategory
+}
+
+const groupAndSumByFirstColumn = (data: { column_1: string; column_2: number; column_3: number }[]): { column_1: string; column_2: number }[] => {
+    const result: { column_1: string; column_2: number }[] = []
+    const map = new Map<string, { column_1: string; column_2: number }>()
+
+    data.forEach((item) => {
+        if (!map.has(item.column_1)) {
+            const newItem = { column_1: item.column_1, column_2: 0 }
+            map.set(item.column_1, newItem)
+            result.push(newItem)
+        }
+        map.get(item.column_1)!.column_2 += item.column_2
+    })
+
+    return result
 }
 
 const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, areaRangeColumns: any[], dateFormat: string) => {
