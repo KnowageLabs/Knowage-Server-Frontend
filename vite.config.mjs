@@ -1,14 +1,11 @@
 import { defineConfig, loadEnv } from 'vite'
-const { resolve } = require('path')
+import path from 'path'
 import vue from '@vitejs/plugin-vue'
 import forwardToTrailingSlashPlugin from './forward-to-trailing-slash-plugin.js'
 import { VitePWA } from 'vite-plugin-pwa'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 import loadVersion from 'vite-plugin-package-version'
-import { nodeResolve } from '@rollup/plugin-node-resolve'
-import commonjs from 'vite-plugin-commonjs'
-
-const path = require('path')
+import commonjs from '@rollup/plugin-commonjs'
 
 const build = {
     rollupOptions: {
@@ -22,14 +19,8 @@ export default defineConfig((command, mode) => {
     const env = loadEnv(mode, process.cwd())
     return {
         plugins: [
-            nodeResolve({
-                preferBuiltins: true
-            }),
             commonjs({
-                include: 'node_modules/**',
-                namedExports: {
-                    dexie: ['default']
-                }
+                include: 'node_modules/**'
             }),
             loadVersion(),
             vue({
