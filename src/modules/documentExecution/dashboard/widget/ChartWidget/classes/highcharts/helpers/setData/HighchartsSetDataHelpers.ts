@@ -1,6 +1,7 @@
 import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { replaceVariablesPlaceholdersByVariableName } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/InteractionsParserHelper'
 import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
+import { getDataType } from '@/modules/documentExecution/dashboard/widget/SelectorWidget/SelectorWidgetDataProxy'
 import deepcopy from 'deepcopy'
 import moment from 'moment'
 
@@ -31,7 +32,7 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
 }
 
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[]) => {
-    if (widgetModel?.settings?.sortingColumn && widgetModel?.settings?.sortingOrder && data?.rows && model?.chart?.type !== 'dumbbell') data.rows = formatDataRowsWhenUsingTheExternalSortingColumn(data, widgetModel)
+    if (widgetModel?.settings?.sortingColumn && widgetModel?.settings?.sortingOrder && data?.rows && model?.chart?.type !== 'dumbbell') data = formatDataRowsWhenUsingTheExternalSortingColumn(data, widgetModel, measureColumns)
 
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
@@ -64,168 +65,81 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
     if (areaRangeColumns.length > 1) setRegularAreaRangeData(model, data, attributeColumn, areaRangeColumns, dateFormat)
 }
 
-const formatDataRowsWhenUsingTheExternalSortingColumn = (data: any, widgetModel: IWidget) => {
-    if (!data.rows || !data.metaData?.fields) return data.rows
-    console.log('----- CHART - data: ', data)
-    const sortingColumnMetadata = data.metaData.fields[data.metaData.fields.length - 1]
+const formatDataRowsWhenUsingTheExternalSortingColumn = (data: any, widgetModel: IWidget, measureColumns: any[]) => {
+    if (!data.rows || !data.metaData?.fields || widgetModel?.settings?.sortingColumn?.type === 'MEASURE') return data
 
-    console.log('--------- sortingColumnMetadata: ', sortingColumnMetadata)
-    if (!sortingColumnMetadata || sortingColumnMetadata.header !== widgetModel.settings.sortingColumn) return data.rows
+    const sortingColumnMetadataIndex = data.metaData.fields.findIndex((field: any) => field.header === widgetModel.settings.sortingColumn.name)
 
-    const sortingColumnType = getSortingColumnType(sortingColumnMetadata)
-    console.log('------- SORTING COLUMN TYPE: ', sortingColumnType)
-    if (!sortingColumnType) return data.rows
+    if (sortingColumnMetadataIndex < 0) return data
 
-    const tempResponse = formatReponseWithTheExternalSortingColumn(data, widgetModel.settings.sortingOrder, sortingColumnType)
+    const sortingColumnProperty = 'column_' + sortingColumnMetadataIndex
+    const dataType = getDataType(data.rows, sortingColumnProperty)
+    if (!dataType) return data
 
-    console.log('--------- tempResponse: ', tempResponse)
+    const sortedDataRows = sortByLastColumn(data.rows, widgetModel.settings.sortingOrder, dataType)
+    if (!sortedDataRows) return data
 
-    const groupedDataByTheFirstCategory = groupAndSumByFirstColumn(data.rows)
-    console.log('----- CHART - groupedDataByTheFirstCategory: ', groupedDataByTheFirstCategory)
-    return groupedDataByTheFirstCategory
+    const groupedAndAggregatedDataArray = groupAndAggregateToArray(sortedDataRows)
+    if (!groupedAndAggregatedDataArray) return data
+
+    data.rows = groupedAndAggregatedDataArray
+
+    return data
 }
 
-const getSortingColumnType = (sortingColumnMetadata: any) => {
-    switch (sortingColumnMetadata.type) {
-        case 'timestamp':
-            return DataType.DATE_LONG
-        case 'date':
-            return DataType.DATE_LONG
-        case 'int':
-        case 'float':
-        case 'double':
-            return DataType.NUMBER
-        default:
-            return DataType.STRING
-    }
+const sortByLastColumn = (data: any[], sortingOrder: 'ASC' | 'DESC', dataType: DataType) => {
+    if (data.length === 0) return []
+
+    const columnKeys = Object.keys(data[0]).filter((key) => key.startsWith('column_'))
+    if (columnKeys.length < 2) return data
+
+    const sortingColumn = columnKeys[columnKeys.length - 1]
+    return data.sort((a, b) => {
+        const valueA = parseValue(a[sortingColumn], dataType) as any
+        const valueB = parseValue(b[sortingColumn], dataType) as any
+
+        if (valueA === null || valueB === null) return 0
+        switch (dataType) {
+            case DataType.DATE_LONG:
+            case DataType.DATE_SHORT:
+                return sortingOrder === 'ASC' ? moment(valueA).diff(moment(valueB)) : moment(valueB).diff(moment(valueA))
+            case DataType.NUMBER:
+                return sortingOrder === 'ASC' ? valueA - valueB : valueB - valueA
+            default:
+                return sortingOrder === 'ASC' ? (valueA < valueB ? -1 : valueA > valueB ? 1 : 0) : valueA > valueB ? -1 : valueA < valueB ? 1 : 0
+        }
+    })
 }
 
-const formatReponseWithTheExternalSortingColumn = (tempResponse: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
-    const grouped = groupData(tempResponse.rows, dataType, 'column_3')
-    console.log('------ GROUPED DATA: ', grouped)
-    if (!grouped) return tempResponse
+const groupAndAggregateToArray = (data: any[]) => {
+    if (data.length === 0) return []
 
-    const formattedGroupedData = formatGroupedData(grouped, dataType, sortingOrder)
-    console.log('------- formattedGroupedData: ', formattedGroupedData)
-    if (!formattedGroupedData) return tempResponse
+    const columnKeys = Object.keys(data[0]).filter((key) => key.startsWith('column_'))
+    if (columnKeys.length < 2) return null
 
-    const sortedRows = formatAndSortData(formattedGroupedData, sortingOrder, dataType)
-    console.log('------ sortedRows: ', sortedRows)
-    tempResponse.rows = sortedRows
+    const groupColumn = columnKeys[0]
+    const sortingColumn = columnKeys[columnKeys.length - 1]
+    const valueColumns = columnKeys.slice(1, -1)
 
-    return tempResponse
-}
+    const sortedData = [...data].sort((a, b) => {
+        return new Date(a[sortingColumn]).getTime() - new Date(b[sortingColumn]).getTime()
+    })
 
-const groupData = (data: any, dataType: DataType, sortingColumnIndex: string) => {
     const grouped: { [key: string]: any } = {}
 
-    data.forEach((item: any) => {
-        const group = item.column_1
-        const value = parseValue(item[sortingColumnIndex], dataType)
+    sortedData.forEach((item) => {
+        const groupKey = item[groupColumn]
 
-        if (value === null) return
-
-        if (!grouped[group]) {
-            grouped[group] = [{ sortingValue: value, value: item.column_2 }]
+        if (!grouped[groupKey]) {
+            grouped[groupKey] = { column_1: groupKey, ...valueColumns.reduce((acc, col) => ({ ...acc, [col]: item[col] || 0 }), {}) }
         } else {
-            grouped[group].push({ sortingValue: value, value: item.column_2 })
+            valueColumns.forEach((col) => {
+                grouped[groupKey][col] += item[col] || 0
+            })
         }
     })
 
-    return grouped
-}
-
-const formatGroupedData = (grouped: any, dataType: DataType, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
-    switch (dataType) {
-        case DataType.DATE_LONG:
-        case DataType.DATE_SHORT:
-            grouped = filterGroupedDataForTheDateAndStringType(grouped, sortingOrder)
-            return grouped
-        case DataType.NUMBER:
-            grouped = formatGroupedDataForTheNumberType(grouped)
-            return grouped
-        default:
-            grouped = filterGroupedDataForTheDateAndStringType(grouped, sortingOrder)
-            return grouped
-    }
-}
-
-const filterGroupedDataForTheDateAndStringType = (groupedData: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
-    const result: { [key: string]: any } = {}
-
-    Object.keys(groupedData).forEach((key) => {
-        if (groupedData[key].length === 0) return
-
-        const sortedArray = groupedData[key].sort((a: any, b: any) => {
-            const dateA = moment(a.sortingValue)
-            const dateB = moment(b.sortingValue)
-
-            return sortingOrder === 'ASC' ? dateA.diff(dateB) : dateB.diff(dateA)
-        })
-
-        result[key] = sortingOrder === 'ASC' ? sortedArray[0] : sortedArray[sortedArray.length - 1]
-    })
-
-    return result
-}
-
-const formatGroupedDataForTheNumberType = (groupedData: any) => {
-    console.log('----- GROUPED NUMBER DATA: ', groupedData)
-    const summedData: { [key: string]: [{ sortingValue: number; value: number }] } = [] as any
-
-    Object.keys(groupedData).forEach((key) => {
-        const items = groupedData[key]
-
-        let totalSortingValue = 0
-        let totalValue = 0
-
-        items.forEach((item: { sortingValue: number; value: number }) => {
-            totalSortingValue += item.sortingValue
-            totalValue += item.value
-        })
-
-        summedData[key] = [
-            {
-                sortingValue: totalSortingValue,
-                value: totalValue
-            }
-        ]
-    })
-
-    return summedData
-}
-
-const formatAndSortData = (groupedData: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
-    const dataArray = Object.keys(groupedData).map((key) => ({
-        column_1: key,
-        column_2: groupedData[key]
-    }))
-
-    console.log('----- dataArray: ', dataArray)
-    console.log('--------- dataType!', dataType)
-
-    const sortedDataArray = dataArray.sort((a, b) => {
-        const sortingValueA = a.column_2[0]?.sortingValue
-        const sortingValueB = b.column_2[0]?.sortingValue
-
-        if (sortingValueA != null && sortingValueB != null) {
-            if (dataType === DataType.STRING) {
-                return sortingOrder === 'ASC' ? sortingValueA.localeCompare(sortingValueB) : sortingValueB.localeCompare(sortingValueA)
-            } else if (dataType === DataType.NUMBER) {
-                const comparison = sortingValueA - sortingValueB
-                return sortingOrder === 'ASC' ? (comparison < 0 ? -1 : comparison > 0 ? 1 : 0) : comparison > 0 ? -1 : comparison < 0 ? 1 : 0
-            } else {
-                return sortingOrder === 'ASC' ? moment(sortingValueA).diff(moment(sortingValueB)) : moment(sortingValueB).diff(moment(sortingValueA))
-            }
-        }
-        return 0
-    })
-
-    console.log('----- sortedDataArray: ', sortedDataArray)
-    return sortedDataArray.map((item) => ({
-        column_1: item.column_1,
-        column_2: item.column_2[0].value
-    }))
+    return Object.values(grouped)
 }
 
 const parseValue = (value: string, dataType: DataType) => {
@@ -242,22 +156,6 @@ const parseValue = (value: string, dataType: DataType) => {
 
 const isValidDate = (dateString: string, format: string): boolean => {
     return moment(dateString, format, true).isValid()
-}
-
-const groupAndSumByFirstColumn = (data: { column_1: string; column_2: number; column_3: number }[]): { column_1: string; column_2: number }[] => {
-    const result: { column_1: string; column_2: number }[] = []
-    const map = new Map<string, { column_1: string; column_2: number }>()
-
-    data.forEach((item) => {
-        if (!map.has(item.column_1)) {
-            const newItem = { column_1: item.column_1, column_2: 0 }
-            map.set(item.column_1, newItem)
-            result.push(newItem)
-        }
-        map.get(item.column_1)!.column_2 += item.column_2
-    })
-
-    return result
 }
 
 const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, areaRangeColumns: any[], dateFormat: string) => {
@@ -396,14 +294,6 @@ const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: an
         })
         model.series.push(serieElement)
     })
-}
-
-const createMeasureSerieForGroupedByCategoriesData = (model: any, measureForGrouping: any, measureSerieElementValueMap: any) => {
-    const measureSerieElement = { id: model.series.length, name: measureForGrouping.column.columnName, data: [] as any[], connectNulls: true }
-    Object.keys(measureSerieElementValueMap).forEach((key: string) => {
-        measureSerieElement.data.push({ name: key, y: measureSerieElementValueMap[key] })
-    })
-    model.series.push(measureSerieElement)
 }
 
 export const getAllColumnsOfSpecificAxisTypeFromDataResponse = (data: any, widgetModel: IWidget, axis: 'X' | 'Y' | 'Z') => {

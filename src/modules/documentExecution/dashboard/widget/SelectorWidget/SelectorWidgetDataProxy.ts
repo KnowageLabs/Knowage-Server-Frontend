@@ -96,7 +96,7 @@ const findSortingColumn = (widget: IWidget) => {
 }
 
 const formatReponseWithTheExternalSortingColumn = (tempResponse: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
-    const dataType = getDataType(tempResponse.rows)
+    const dataType = getDataType(tempResponse.rows, 'column_2')
     if (!dataType) return
 
     const grouped = groupData(tempResponse.rows, sortingOrder, dataType)
@@ -108,17 +108,17 @@ const formatReponseWithTheExternalSortingColumn = (tempResponse: any, sortingOrd
     return tempResponse
 }
 
-const getDataType = (rows: any): DataType | null => {
-    if (!rows || !rows[0] || !rows[0].column_2) return null
+export const getDataType = (rows: any, sortingColmnIndex: string): DataType | null => {
+    if (!rows || !rows[0] || !rows[0][sortingColmnIndex]) return null
 
     const dateFormats = [DataType.DATE_LONG, DataType.DATE_SHORT]
     for (const format of dateFormats) {
-        if (moment(rows[0].column_2, format, true).isValid()) {
+        if (moment(rows[0][sortingColmnIndex], format, true).isValid()) {
             return format === DataType.DATE_LONG ? DataType.DATE_LONG : DataType.DATE_SHORT
         }
     }
 
-    if (!isNaN(Number(rows[0].column_2))) {
+    if (!isNaN(Number(rows[0][sortingColmnIndex]))) {
         return DataType.NUMBER
     }
 
@@ -166,7 +166,7 @@ const parseValue = (value: string, dataType: DataType) => {
     }
 }
 
-const compareValues = (currentValue: any, newValue: any, sortingOrder: 'ASC' | 'DESC', dataType: DataType) => {
+export const compareValues = (currentValue: any, newValue: any, sortingOrder: 'ASC' | 'DESC', dataType: DataType) => {
     switch (dataType) {
         case DataType.DATE_LONG:
         case DataType.DATE_SHORT:

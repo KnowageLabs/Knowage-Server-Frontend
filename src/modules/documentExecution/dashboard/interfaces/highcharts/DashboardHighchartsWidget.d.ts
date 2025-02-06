@@ -1,11 +1,12 @@
-import { IWidgetExports, IWidgetTitle, IWidgetPaddingStyle, IWidgetBordersStyle, IWidgetShadowsStyle, IWidgetBackgroundStyle } from './../../Dashboard.d'
+import { IWidgetExports, IWidgetTitle, IWidgetPaddingStyle, IWidgetBordersStyle, IWidgetShadowsStyle, IWidgetBackgroundStyle, IDatasetColumn, IWidgetColumn } from './../../Dashboard.d'
 import { IWidgetInteractions, IWidgetResponsive } from '../../Dashboard'
 
 export interface IHighchartsWidgetSettings {
     updatable: boolean
     clickable: boolean
-    sortingColumn?: string
+    sortingColumn?: IDatasetColumn | null
     sortingOrder?: string
+    sortingColumnAggregation?: string
     chartModel: IHighchartsChartModel | null
     configuration: IHighchartsWidgetConfiguration
     accesssibility: IHighchartsWidgetAccessibility

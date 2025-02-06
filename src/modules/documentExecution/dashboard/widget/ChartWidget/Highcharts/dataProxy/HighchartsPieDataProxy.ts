@@ -107,8 +107,24 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     if (categories.length >= categoryLength) {
         for (let index = 0; index < categoryLength; index++) {
             const category = categories[index]
-            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: sortingColumn ? sortingColumn.columnName : category.alias, orderType: sortingColumn ? sortingColumn.sortingOrder : category.orderType, funct: 'NONE' } as any
+            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: category.alias, orderType: category.orderType, funct: 'NONE' } as any
             dataToSend.aggregations.categories.push(categoryToPush)
+        }
+    }
+
+    if (sortingColumn && sortingColumn.sortingOrder && sortingColumn.datasetColumn) {
+        if (sortingColumn.datasetColumn.fieldType === 'ATTRIBUTE' && dataToSend.aggregations.categories[0]) {
+            dataToSend.aggregations.categories[0].orderColumn = sortingColumn.datasetColumn.name
+            dataToSend.aggregations.categories[0].orderType = sortingColumn.sortingOrder
+        } else {
+            dataToSend.aggregations.measures.push({
+                id: sortingColumn.datasetColumn.name,
+                alias: sortingColumn.datasetColumn.name,
+                columnName: sortingColumn.datasetColumn.name,
+                orderColumn: sortingColumn.datasetColumn.name,
+                orderType: sortingColumn.sortingOrder,
+                funct: sortingColumn.sortingColumnAggregation || 'SUM'
+            })
         }
     }
 }

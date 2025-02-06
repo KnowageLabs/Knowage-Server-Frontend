@@ -1,4 +1,4 @@
-import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../../Dashboard'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration, IDatasetColumn } from '../../../Dashboard'
 import { getHighchartsBarData } from './dataProxy/HighchartsBarDataProxy'
 import { getHighchartsBubbleData } from './dataProxy/HighchartsBubbleDataProxy'
 import { getHighchartsGaugeData } from './dataProxy/HighchartsGaugeDataProxy'
@@ -7,14 +7,15 @@ import { getHighchartsScatterData } from './dataProxy/HighchartsScatterDataProxy
 import { getHighchartsSunburstData } from './dataProxy/HighchartsSunburstDataProxy'
 
 export interface ISortingColumn {
-    columnName: string
+    datasetColumn: IDatasetColumn
     sortingOrder: string
+    sortingColumnAggregation: string
 }
 
 export const getHighchartsWidgetData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     let sortingColumn = null as ISortingColumn | null
     if (widget?.settings?.sortingColumn) {
-        sortingColumn = { columnName: widget.settings.sortingColumn, sortingOrder: widget.settings.sortingOrder || 'ASC' }
+        sortingColumn = { datasetColumn: widget.settings.sortingColumn, sortingOrder: widget.settings.sortingOrder || 'ASC', sortingColumnAggregation: widget.settings.sortingColumnAggregation || 'COUNT' }
     }
 
     const chartType = widget.settings.chartModel?.model?.chart.type
