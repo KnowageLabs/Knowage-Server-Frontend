@@ -36,7 +36,7 @@ import i18n from '@/App.i18n'
 
 import QBEOperator from './modules/qbe/qbeDialogs/qbeAdvancedFilterDialog/QBEOperator.vue'
 
-if (import.meta.env.DEV) document.domain = 'localhost'
+if (import.meta.env.DEV) document.domain = '127.0.0.1'
 
 import { GridLayout, GridItem } from 'grid-layout-plus'
 
