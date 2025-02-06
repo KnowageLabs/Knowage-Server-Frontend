@@ -5,6 +5,7 @@ import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import moment from 'moment'
+import { DataType } from '../ChartWidget/classes/highcharts/helpers/setData/HighchartsSetDataHelpers'
 
 const dashStore = dashboardStore()
 
@@ -49,7 +50,6 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
 
         if (widget.settings?.sortingColumn && tempResponse?.metaData?.fields?.length > 2) tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, widget.settings.sortingOrder)
 
-        console.log('----- FINAL RESPONSE: ', tempResponse)
         return tempResponse
     }
 }
@@ -96,58 +96,102 @@ const findSortingColumn = (widget: IWidget) => {
 }
 
 const formatReponseWithTheExternalSortingColumn = (tempResponse: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
-    console.log('------------ tempResponse: ', tempResponse)
+    const dataType = getDataType(tempResponse.rows)
+    if (!dataType) return
 
-    const grouped = groupDates(tempResponse.rows, sortingOrder)
+    const grouped = groupData(tempResponse.rows, sortingOrder, dataType)
     if (!grouped) return
 
-    const sortedRows = formatAndSortData(grouped)
+    const sortedRows = formatAndSortData(grouped, sortingOrder, dataType)
     tempResponse.rows = sortedRows
 
     return tempResponse
 }
 
-const groupDates = (data: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
-    const grouped = {}
-    data.forEach((item) => {
-        if (isValidDate(item.column_2)) {
-            const group = item.column_1
-            const date = moment(item.column_2, 'DD/MM/YYYY HH:mm:ss.SSS')
-            if (!grouped[group]) {
-                grouped[group] = date
-            } else {
-                grouped[group] = sortingOrder === 'ASC' ? moment.min(grouped[group], date) : moment.max(grouped[group], date)
-            }
-        }
-    })
+const getDataType = (rows: any): DataType | null => {
+    if (!rows || !rows[0] || !rows[0].column_2) return null
 
-    for (const group in grouped) {
-        grouped[group] = grouped[group].format('DD/MM/YYYY HH:mm:ss.SSS')
+    const dateFormats = [DataType.DATE_LONG, DataType.DATE_SHORT]
+    for (const format of dateFormats) {
+        if (moment(rows[0].column_2, format, true).isValid()) {
+            return format === DataType.DATE_LONG ? DataType.DATE_LONG : DataType.DATE_SHORT
+        }
     }
 
-    console.log('----- GROUPED: ', grouped)
+    if (!isNaN(Number(rows[0].column_2))) {
+        return DataType.NUMBER
+    }
+
+    return DataType.STRING
+}
+
+const groupData = (data: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
+    const grouped: { [key: string]: any } = {}
+
+    data.forEach((item: any) => {
+        const group = item.column_1
+        const value = parseValue(item.column_2, dataType)
+
+        if (value === null) return
+
+        if (!grouped[group]) {
+            grouped[group] = value
+        } else {
+            grouped[group] = compareValues(grouped[group], value, sortingOrder, dataType)
+        }
+    })
 
     return grouped
 }
 
-const formatAndSortData = (groupedData: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
+const formatAndSortData = (groupedData: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
     const dataArray = Object.keys(groupedData).map((key) => ({
         column_1: key,
         column_2: groupedData[key]
     }))
 
-    const sortedDataArray = dataArray.sort((a, b) => {
-        if (sortingOrder === 'ASC') {
-            return moment.min(moment(a.column_2, 'DD/MM/YYYY HH:mm:ss.SSS'), moment(b.column_2, 'DD/MM/YYYY HH:mm:ss.SSS')).isSame(moment(a.column_2, 'DD/MM/YYYY HH:mm:ss.SSS')) ? -1 : 1
-        } else {
-            return moment.max(moment(a.column_2, 'DD/MM/YYYY HH:mm:ss.SSS'), moment(b.column_2, 'DD/MM/YYYY HH:mm:ss.SSS')).isSame(moment(a.column_2, 'DD/MM/YYYY HH:mm:ss.SSS')) ? -1 : 1
-        }
-    })
-
-    console.log('----- sortedDataArray: ', sortedDataArray)
+    const sortedDataArray = dataArray.sort((a, b) => compareValuesForSort(a.column_2, b.column_2, sortingOrder, dataType))
     return sortedDataArray
 }
 
-const isValidDate = (dateString) => {
-    return moment(dateString, 'DD/MM/YYYY HH:mm:ss.SSS', true).isValid()
+const parseValue = (value: string, dataType: DataType) => {
+    switch (dataType) {
+        case DataType.DATE_LONG:
+        case DataType.DATE_SHORT:
+            return isValidDate(value, dataType) ? moment(value, dataType) : null
+        case DataType.NUMBER:
+            return !isNaN(Number(value)) ? Number(value) : null
+        default:
+            return value
+    }
+}
+
+const compareValues = (currentValue: any, newValue: any, sortingOrder: 'ASC' | 'DESC', dataType: DataType) => {
+    switch (dataType) {
+        case DataType.DATE_LONG:
+        case DataType.DATE_SHORT:
+            return sortingOrder === 'ASC' ? moment.min(currentValue, newValue) : moment.max(currentValue, newValue)
+        case DataType.NUMBER:
+            return sortingOrder === 'ASC' ? Math.min(currentValue, newValue) : Math.max(currentValue, newValue)
+        default:
+            return sortingOrder === 'ASC' ? (currentValue < newValue ? currentValue : newValue) : currentValue > newValue ? currentValue : newValue
+    }
+}
+
+const compareValuesForSort = (currentValue: any, newValue: any, sortingOrder: 'ASC' | 'DESC', dataType: DataType): number => {
+    switch (dataType) {
+        case DataType.DATE_LONG:
+        case DataType.DATE_SHORT:
+            return sortingOrder === 'ASC' ? moment(currentValue).diff(moment(newValue)) : moment(newValue).diff(moment(currentValue))
+
+        case DataType.NUMBER:
+            return sortingOrder === 'ASC' ? currentValue - newValue : newValue - currentValue
+
+        default:
+            return sortingOrder === 'ASC' ? (currentValue < newValue ? -1 : currentValue > newValue ? 1 : 0) : currentValue > newValue ? -1 : currentValue < newValue ? 1 : 0
+    }
+}
+
+const isValidDate = (dateString: string, format: string): boolean => {
+    return moment(dateString, format, true).isValid()
 }
