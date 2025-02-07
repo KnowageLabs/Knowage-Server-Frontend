@@ -30,6 +30,8 @@ export const createNewHighchartsSettings = () => {
         updatable: true,
         clickable: true,
         chartModel: null,
+        sortingColumn: null,
+        sortingOrder: '',
         configuration: {
             exports: { showExcelExport: true, showScreenshot: true },
             datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(),
