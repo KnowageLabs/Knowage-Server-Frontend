@@ -31,7 +31,7 @@
             <template #body-cell="props">
                 <q-td class="kn-truncated">
                     <div class="row">
-                        <div class="kn-truncated text-weight-thin" style="max-width: 300px; font-size: 0.8rem">
+                        <div class="kn-truncated" style="max-width: 300px; font-size: 0.8rem">
                             {{ props.value }}<q-tooltip>{{ props.value }}</q-tooltip>
                         </div>
                     </div>
