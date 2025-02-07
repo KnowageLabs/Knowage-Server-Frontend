@@ -1,6 +1,9 @@
 import { AxiosResponse } from 'axios'
 import { getValidDate } from './DocumentExecutionHelpers'
 import deepcopy from 'deepcopy'
+import mainStore from '@/App.store'
+
+const store = mainStore()
 
 export const executeAngularCrossNavigation = async (vueComponent: any, event: any, $http: any) => {
     vueComponent.angularData = event.data
@@ -176,13 +179,40 @@ const checkIfParameterHasFixedValue = (navigationParams: any, crossNavigationDoc
     })
 }
 
-const openCrossNavigationInNewWindow = (vueComponent: any, popupOptions: any, crossNavigationDocument: any, navigationParams: any) => {
+const openCrossNavigationInNewWindow = async (vueComponent: any, popupOptions: any, crossNavigationDocument: any, navigationParams: any) => {
     if (!crossNavigationDocument || !crossNavigationDocument.document) return
     const parameters = encodeURI(JSON.stringify(navigationParams))
     const url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${crossNavigationDocument.document.id}&OBJECT_LABEL=${crossNavigationDocument.document.label}&SELECTED_ROLE=${
         vueComponent.sessionRole
     }&SBI_EXECUTION_ID=null&OBJECT_NAME=${crossNavigationDocument.document.name}&CROSS_PARAMETER=${parameters}`
-    window.open(url, '_blank', `toolbar=0,status=0,menubar=0,width=${popupOptions.width || '800'},height=${popupOptions.height || '600'}`)
+
+    console.log('------------------ USER FORM STORE: ', store.user)
+
+    try {
+        const response = await vueComponent.$http.get(url, {
+            withCredentials: true,
+            headers: {
+                'X-KN-Correlation-ID': 'BOJAN'
+            },
+            responseType: 'text'
+        })
+
+        console.log('------- RESPONSE: ', response)
+        const newWindow = window.open('', '_blank', `toolbar=0,status=0,menubar=0,width=${popupOptions.width || '800'},height=${popupOptions.height || '600'}`)
+
+        console.log('------- newWindow: ', newWindow)
+
+        if (newWindow) {
+            newWindow.document.open()
+            newWindow.document.write(response.data)
+            newWindow.document.close()
+        }
+    } catch (error) {
+        console.error('Failed to open the document:', error)
+    }
+
+    // Commented original code
+    // window.open(url, '_blank', `toolbar=0,status=0,menubar=0,width=${popupOptions.width || '800'},height=${popupOptions.height || '600'}`)
 }
 
 function findCrossTargetByCrossName(angularData: any, temp: any[]) {
