@@ -278,7 +278,7 @@ export const addWidgetHelpConfig = (widget: IWidget) => {
 
 export const addWidgetSortingColumn = (widget: IWidget) => {
     if (!widget || widget.type !== 'selector') return
-    if (!widget.settings.sortingColumn) widget.settings.sortingColumn = ''
+    if (!widget.settings.sortingColumn) widget.settings.sortingColumn = null
 }
 
 export const loadDatasets = async (dashboardModel: IDashboard | any, appStore: any, setAllDatasets: Function, $http: any) => {

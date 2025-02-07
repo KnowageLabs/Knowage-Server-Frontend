@@ -14,7 +14,7 @@ export interface ISortingColumn {
 
 export const getHighchartsWidgetData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     let sortingColumn = null as ISortingColumn | null
-    if (widget?.settings?.sortingColumn) {
+    if (widget.settings && widget.settings.sortingColumn && widget.settings.sortingOrder) {
         sortingColumn = { datasetColumn: widget.settings.sortingColumn, sortingOrder: widget.settings.sortingOrder || 'ASC', sortingColumnAggregation: widget.settings.sortingColumnAggregation || 'COUNT' }
     }
 
