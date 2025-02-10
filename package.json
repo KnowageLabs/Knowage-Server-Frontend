@@ -11,6 +11,7 @@
         "build": "vite build --base=/knowage-vue"
     },
     "main": "main.ts",
+    "type": "module",
     "dependencies": {
         "@fortawesome/fontawesome-free": "6.4.0",
         "@guolao/vue-monaco-editor": "1.5.4",
@@ -62,7 +63,7 @@
         "vue-chartjs": "^4.1.2",
         "vue-class-component": "^8.0.0-0",
         "vue-color-kit": "^1.0.5",
-        "vue-i18n": "11.0.1",
+        "vue-i18n": "11.1.0",
         "vue-router": "4.5.0",
         "vue3-cookies": "1.0.6",
         "x2js": "^3.4.1"
@@ -72,7 +73,6 @@
         "@eslint/js": "^9.18.0",
         "@pinia/testing": "0.0.12",
         "@quasar/vite-plugin": "1.9.0",
-        "@rollup/plugin-commonjs": "^28.0.2",
         "@types/jest": "^24.0.19",
         "@types/luxon": "^2.3.1",
         "@types/sanitize-html": "^2.6.2",
@@ -84,9 +84,14 @@
         "material-icons": "^1.10.0",
         "sass": "1.83.4",
         "typescript": "5.7.3",
-        "vite": "5.4.14",
-        "vite-plugin-commonjs": "^0.10.4",
+        "vite": "6.1.0",
         "vite-plugin-pwa": "0.21.1"
+    },
+    "exports": {
+        ".": {
+            "import": "./src/main.ts",
+            "require": "./src/main.ts"
+        }
     },
     "browserslist": [
         "> 1%",
