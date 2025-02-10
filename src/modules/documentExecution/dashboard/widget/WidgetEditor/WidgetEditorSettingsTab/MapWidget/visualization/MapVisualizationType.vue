@@ -76,7 +76,7 @@ export default defineComponent({
             return this.widgetModel.layers.filter((i) => i.type === 'dataset')
         },
         availableMeasures(dsName) {
-            const targetLayer = this.widgetModel.layers.find((i) => dsName === i.layerId)
+            const targetLayer = this.widgetModel.layers.find((i) => dsName === i.name)
             return targetLayer ? targetLayer.columns.filter((i) => i.fieldType === 'MEASURE') : []
         },
         availableProperties(visualization) {
