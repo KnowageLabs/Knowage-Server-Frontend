@@ -1,8 +1,16 @@
 import { IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { replaceVariablesPlaceholdersByVariableName } from '@/modules/documentExecution/dashboard/widget/interactionsHelpers/InteractionsParserHelper'
 import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
+import { getDataType } from '@/modules/documentExecution/dashboard/widget/SelectorWidget/SelectorWidgetDataProxy'
 import deepcopy from 'deepcopy'
 import moment from 'moment'
+
+export enum DataType {
+    DATE_SHORT = 'DD/MM/YYYY',
+    DATE_LONG = 'DD/MM/YYYY HH:mm:ss.SSS',
+    NUMBER = 'NUMBER',
+    STRING = 'STRING'
+}
 
 export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetModel: IWidget, type: 'ATTRIBUTE' | 'MEASURE') => {
     if (!data || !widgetModel.columns) return []
@@ -24,6 +32,8 @@ export const getFormattedDateCategoryValue = (dateString: string, dateFormat: st
 }
 
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[]) => {
+    if (widgetModel?.settings?.sortingColumn && widgetModel?.settings?.sortingOrder && data?.rows && model?.chart?.type !== 'dumbbell') data = formatDataRowsWhenUsingTheExternalSortingColumn(data, widgetModel, measureColumns)
+
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
@@ -53,6 +63,99 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
         }
     })
     if (areaRangeColumns.length > 1) setRegularAreaRangeData(model, data, attributeColumn, areaRangeColumns, dateFormat)
+}
+
+const formatDataRowsWhenUsingTheExternalSortingColumn = (data: any, widgetModel: IWidget, measureColumns: any[]) => {
+    if (!data.rows || !data.metaData?.fields || widgetModel?.settings?.sortingColumn?.type === 'MEASURE') return data
+
+    const sortingColumnMetadataIndex = data.metaData.fields.findIndex((field: any) => field.header === widgetModel.settings.sortingColumn.name)
+
+    if (sortingColumnMetadataIndex < 0) return data
+
+    const sortingColumnProperty = 'column_' + sortingColumnMetadataIndex
+    const dataType = getDataType(data.rows, sortingColumnProperty)
+    if (!dataType) return data
+
+    const sortedDataRows = sortByLastColumn(data.rows, widgetModel.settings.sortingOrder, dataType)
+    if (!sortedDataRows) return data
+
+    const groupedAndAggregatedDataArray = groupAndAggregateToArray(sortedDataRows)
+    if (!groupedAndAggregatedDataArray) return data
+
+    data.rows = groupedAndAggregatedDataArray
+
+    return data
+}
+
+const sortByLastColumn = (data: any[], sortingOrder: 'ASC' | 'DESC', dataType: DataType) => {
+    if (data.length === 0) return []
+
+    const columnKeys = Object.keys(data[0]).filter((key) => key.startsWith('column_'))
+    if (columnKeys.length < 2) return data
+
+    const sortingColumn = columnKeys[columnKeys.length - 1]
+    return data.sort((a, b) => {
+        const valueA = parseValue(a[sortingColumn], dataType) as any
+        const valueB = parseValue(b[sortingColumn], dataType) as any
+
+        if (valueA === null || valueB === null) return 0
+        switch (dataType) {
+            case DataType.DATE_LONG:
+            case DataType.DATE_SHORT:
+                return sortingOrder === 'ASC' ? moment(valueA).diff(moment(valueB)) : moment(valueB).diff(moment(valueA))
+            case DataType.NUMBER:
+                return sortingOrder === 'ASC' ? valueA - valueB : valueB - valueA
+            default:
+                return sortingOrder === 'ASC' ? (valueA < valueB ? -1 : valueA > valueB ? 1 : 0) : valueA > valueB ? -1 : valueA < valueB ? 1 : 0
+        }
+    })
+}
+
+const groupAndAggregateToArray = (data: any[]) => {
+    if (data.length === 0) return []
+
+    const columnKeys = Object.keys(data[0]).filter((key) => key.startsWith('column_'))
+    if (columnKeys.length < 2) return null
+
+    const groupColumn = columnKeys[0]
+    const sortingColumn = columnKeys[columnKeys.length - 1]
+    const valueColumns = columnKeys.slice(1, -1)
+
+    const sortedData = [...data].sort((a, b) => {
+        return new Date(a[sortingColumn]).getTime() - new Date(b[sortingColumn]).getTime()
+    })
+
+    const grouped: { [key: string]: any } = {}
+
+    sortedData.forEach((item) => {
+        const groupKey = item[groupColumn]
+
+        if (!grouped[groupKey]) {
+            grouped[groupKey] = { column_1: groupKey, ...valueColumns.reduce((acc, col) => ({ ...acc, [col]: item[col] || 0 }), {}) }
+        } else {
+            valueColumns.forEach((col) => {
+                grouped[groupKey][col] += item[col] || 0
+            })
+        }
+    })
+
+    return Object.values(grouped)
+}
+
+const parseValue = (value: string, dataType: DataType) => {
+    switch (dataType) {
+        case DataType.DATE_LONG:
+        case DataType.DATE_SHORT:
+            return isValidDate(value, dataType) ? moment(value, dataType) : null
+        case DataType.NUMBER:
+            return !isNaN(Number(value)) ? Number(value) : null
+        default:
+            return value
+    }
+}
+
+const isValidDate = (dateString: string, format: string): boolean => {
+    return moment(dateString, format, true).isValid()
 }
 
 const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, areaRangeColumns: any[], dateFormat: string) => {
@@ -191,14 +294,6 @@ const createSeriesForGroupedByCategoriesData = (model: any, categoryValueMap: an
         })
         model.series.push(serieElement)
     })
-}
-
-const createMeasureSerieForGroupedByCategoriesData = (model: any, measureForGrouping: any, measureSerieElementValueMap: any) => {
-    const measureSerieElement = { id: model.series.length, name: measureForGrouping.column.columnName, data: [] as any[], connectNulls: true }
-    Object.keys(measureSerieElementValueMap).forEach((key: string) => {
-        measureSerieElement.data.push({ name: key, y: measureSerieElementValueMap[key] })
-    })
-    model.series.push(measureSerieElement)
 }
 
 export const getAllColumnsOfSpecificAxisTypeFromDataResponse = (data: any, widgetModel: IWidget, axis: 'X' | 'Y' | 'Z') => {

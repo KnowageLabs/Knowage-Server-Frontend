@@ -1,9 +1,11 @@
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
-import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, addVariablesToFormula, showGetDataError } from '../../DashboardDataProxy'
+import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import moment from 'moment'
+import { DataType } from '../ChartWidget/classes/highcharts/helpers/setData/HighchartsSetDataHelpers'
 
 const dashStore = dashboardStore()
 
@@ -37,16 +39,17 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
 
-                // 6. after getting said data, we add it to indexedDB cache using defined dataHash
                 if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
             } catch (error) {
                 console.error(error)
                 showGetDataError(error, selectedDataset.dsLabel)
             } finally {
-                // 7. finally, we need to resolve the promise from step 3 and remove it from the queue object
                 delete dashStore.dataProxyQueue[dataHash]
             }
         }
+
+        if (widget.settings?.sortingColumn && tempResponse?.metaData?.fields?.length > 2) tempResponse = formatReponseWithTheExternalSortingColumn(tempResponse, widget.settings.sortingOrder)
+
         return tempResponse
     }
 }
@@ -70,19 +73,125 @@ const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: 
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend)
 
-    widget.columns.forEach((column) => {
-        if (column.fieldType === 'MEASURE') {
-            const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
-            if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
+    let sortingColumn = null as any
+    if (widget.settings?.sortingColumn) sortingColumn = findSortingColumn(widget)
 
-            dataToSend.aggregations.measures.push(measureToPush)
-        } else {
-            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any
+    widget.columns.forEach((column) => {
+        if (column.fieldType === 'ATTRIBUTE') {
+            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderColumn: widget.settings?.sortingColumn ?? '', orderType: widget.settings?.sortingOrder ?? '', funct: 'NONE' } as any
             attributeToPush.orderType = widget.settings.sortingOrder
 
             dataToSend.aggregations.categories.push(attributeToPush)
         }
     })
 
+    if (sortingColumn) dataToSend.aggregations.categories.push(sortingColumn)
+
     return dataToSend
+}
+
+const findSortingColumn = (widget: IWidget) => {
+    const sortingColumnName = widget.settings.sortingColumn
+    return { id: sortingColumnName, alias: sortingColumnName, columnName: sortingColumnName, orderColumn: sortingColumnName ?? '', orderType: widget.settings.sortingOrder ?? '' }
+}
+
+const formatReponseWithTheExternalSortingColumn = (tempResponse: any, sortingOrder: 'ASC' | 'DESC' = 'ASC') => {
+    const dataType = getDataType(tempResponse.rows, 'column_2')
+    if (!dataType) return
+
+    const grouped = groupData(tempResponse.rows, sortingOrder, dataType)
+    if (!grouped) return
+
+    const sortedRows = formatAndSortData(grouped, sortingOrder, dataType)
+    tempResponse.rows = sortedRows
+
+    return tempResponse
+}
+
+export const getDataType = (rows: any, sortingColmnIndex: string): DataType | null => {
+    if (!rows || !rows[0] || !rows[0][sortingColmnIndex]) return null
+
+    const dateFormats = [DataType.DATE_LONG, DataType.DATE_SHORT]
+    for (const format of dateFormats) {
+        if (moment(rows[0][sortingColmnIndex], format, true).isValid()) {
+            return format === DataType.DATE_LONG ? DataType.DATE_LONG : DataType.DATE_SHORT
+        }
+    }
+
+    if (!isNaN(Number(rows[0][sortingColmnIndex]))) {
+        return DataType.NUMBER
+    }
+
+    return DataType.STRING
+}
+
+const groupData = (data: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
+    const grouped: { [key: string]: any } = {}
+
+    data.forEach((item: any) => {
+        const group = item.column_1
+        const value = parseValue(item.column_2, dataType)
+
+        if (value === null) return
+
+        if (!grouped[group]) {
+            grouped[group] = value
+        } else {
+            grouped[group] = compareValues(grouped[group], value, sortingOrder, dataType)
+        }
+    })
+
+    return grouped
+}
+
+const formatAndSortData = (groupedData: any, sortingOrder: 'ASC' | 'DESC' = 'ASC', dataType: DataType) => {
+    const dataArray = Object.keys(groupedData).map((key) => ({
+        column_1: key,
+        column_2: groupedData[key]
+    }))
+
+    const sortedDataArray = dataArray.sort((a, b) => compareValuesForSort(a.column_2, b.column_2, sortingOrder, dataType))
+    return sortedDataArray
+}
+
+const parseValue = (value: string, dataType: DataType) => {
+    switch (dataType) {
+        case DataType.DATE_LONG:
+        case DataType.DATE_SHORT:
+            return isValidDate(value, dataType) ? moment(value, dataType) : null
+        case DataType.NUMBER:
+            return !isNaN(Number(value)) ? Number(value) : null
+        default:
+            return value
+    }
+}
+
+export const compareValues = (currentValue: any, newValue: any, sortingOrder: 'ASC' | 'DESC', dataType: DataType) => {
+    switch (dataType) {
+        case DataType.DATE_LONG:
+        case DataType.DATE_SHORT:
+            return sortingOrder === 'ASC' ? moment.min(currentValue, newValue) : moment.max(currentValue, newValue)
+        case DataType.NUMBER:
+            return sortingOrder === 'ASC' ? Math.min(currentValue, newValue) : Math.max(currentValue, newValue)
+        default:
+            return sortingOrder === 'ASC' ? (currentValue < newValue ? currentValue : newValue) : currentValue > newValue ? currentValue : newValue
+    }
+}
+
+const compareValuesForSort = (currentValue: any, newValue: any, sortingOrder: 'ASC' | 'DESC', dataType: DataType): number => {
+    switch (dataType) {
+        case DataType.DATE_LONG:
+        case DataType.DATE_SHORT:
+            return sortingOrder === 'ASC' ? moment(currentValue).diff(moment(newValue)) : moment(newValue).diff(moment(currentValue))
+
+        case DataType.NUMBER:
+            return sortingOrder === 'ASC' ? currentValue - newValue : newValue - currentValue
+
+        default:
+            return sortingOrder === 'ASC' ? (currentValue < newValue ? -1 : currentValue > newValue ? 1 : 0) : currentValue > newValue ? -1 : currentValue < newValue ? 1 : 0
+    }
+}
+
+const isValidDate = (dateString: string, format: string): boolean => {
+    return moment(dateString, format, true).isValid()
 }
