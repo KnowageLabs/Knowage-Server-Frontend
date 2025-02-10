@@ -160,6 +160,9 @@ export default defineComponent({
         },
         updateFromSelections() {
             return this.widgetModel.settings?.configuration?.updateFromSelections
+        },
+        widgetLocked() {
+            return this.widget?.settings?.locked
         }
     },
     watch: {
@@ -180,6 +183,9 @@ export default defineComponent({
         },
         dashboardSheets() {
             this.loadMenuItems()
+        },
+        widgetLocked() {
+            this.item.static = this.widget?.settings?.locked
         }
     },
     async created() {

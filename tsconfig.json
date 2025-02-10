@@ -14,7 +14,7 @@
         "noImplicitAny": false,
         "sourceMap": true,
         "baseUrl": ".",
-        "types": ["webpack-env", "jest", "vite/client"],
+        "types": ["webpack-env", "jest", "vite/client", "vite-plugin-pwa/client"],
         "paths": {
             "@/*": ["src/*"]
         },

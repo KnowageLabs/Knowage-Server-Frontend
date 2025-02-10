@@ -6,7 +6,9 @@ import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashb
 export const createNewSelectorWidgetSettings = () => {
     return {
         isDateType: false,
+        sortingColumn: null,
         sortingOrder: '',
+        sortingColumnAggregation: '',
         updatable: true,
         clickable: true,
         configuration: {
