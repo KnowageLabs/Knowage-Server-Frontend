@@ -185,11 +185,7 @@ export default defineComponent({
                 const formData = new FormData()
                 formData.append('file', uploadedFiles[0])
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/import/upload', formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    })
+                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/import/upload', formData)
                     .then(
                         (response: AxiosResponse<any>) => {
                             this.packageItems = response.data.entries

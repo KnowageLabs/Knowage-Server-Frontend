@@ -269,8 +269,6 @@ export default defineComponent({
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/locker/${this.olap.modelConfig.artifactId}`, null, {
                     headers: {
-                        Accept: 'application/json, text/plain, */*',
-                        'Content-Type': 'application/json;charset=UTF-8',
                         'X-Disable-Errors': 'true'
                     }
                 })

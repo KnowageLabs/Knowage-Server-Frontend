@@ -37,9 +37,6 @@ axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
 
 axios.interceptors.request.use(
     async (config) => {
-        config.headers['Accept'] = 'application/json; charset=utf-8'
-        config.headers['Content-Type'] = 'application/json; charset=utf-8'
-        // config.headers.common['Access-Control-Allow-Origin'] = '*'
         if (!config.headers['x-session-polling']) {
             let CSRFToken = null
             if (localStorage.getItem('X-CSRF-TOKEN')) CSRFToken = localStorage.getItem('X-CSRF-TOKEN')

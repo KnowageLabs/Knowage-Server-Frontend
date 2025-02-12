@@ -141,12 +141,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOAD_REGISTRY_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*',
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                })
+                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=LOAD_REGISTRY_ACTION&SBI_EXECUTION_ID=${this.id}`, postData)
                 .then((response: AxiosResponse<any>) => {
                     this.pagination.size = response.data.results
                     this.registry = response.data

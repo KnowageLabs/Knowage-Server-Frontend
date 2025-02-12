@@ -355,11 +355,7 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFile)
             this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/analysis/${this.selectedAnalysis.id}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/analysis/${this.selectedAnalysis.id}`, formData)
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('common.uploading'),

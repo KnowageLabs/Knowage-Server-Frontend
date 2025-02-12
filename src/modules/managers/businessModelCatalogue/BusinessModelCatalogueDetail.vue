@@ -282,7 +282,7 @@ export default defineComponent({
         async uploadFile() {
             const formData = new FormData()
             formData.append('file', this.uploadedFile)
-            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/businessmodels/${this.selectedBusinessModel.id}/versions`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((response: AxiosResponse<any>) => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/businessmodels/${this.selectedBusinessModel.id}/versions`, formData).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
                     this.store.setError({ title: this.$t('managers.businessModelManager.toast.uploadFile'), msg: response.data.errors })
                 } else {

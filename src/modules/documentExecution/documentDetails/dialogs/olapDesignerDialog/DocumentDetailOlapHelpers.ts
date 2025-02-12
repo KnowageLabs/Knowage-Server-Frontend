@@ -21,7 +21,7 @@ export async function startOlap($http: any, user: any, sbiExecutionId: string, d
 
 async function getSelectedTemplate($http: any, selectedTemplateFileType: string, document: any, template: any) {
     let selectedTemplateContent = {} as any
-    await $http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${document.id}/templates/selected/${template.id}`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } }).then((response: AxiosResponse<any>) => {
+    await $http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${document.id}/templates/selected/${template.id}`, { headers: { 'X-Disable-Errors': 'true' } }).then((response: AxiosResponse<any>) => {
         selectedTemplateFileType == 'sbicockpit' || selectedTemplateFileType == 'json' || selectedTemplateFileType == 'sbigeoreport' ? (selectedTemplateContent = JSON.stringify(response.data, null, 4)) : (selectedTemplateContent = response.data)
         const x2js = new X2JS()
         selectedTemplateContent = x2js.xml2js(selectedTemplateContent)

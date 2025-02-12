@@ -123,7 +123,7 @@ export default defineComponent({
         async updateDatasetAndSave(newConfig) {
             this.closeDialog()
 
-            await this.$http.patch(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/instance/' + newConfig.instanceId, { config: newConfig.config }, { headers: { Accept: 'application/json, */*' } }).then(
+            await this.$http.patch(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/instance/' + newConfig.instanceId, { config: newConfig.config }).then(
                 () => {
                     this.loadDataset(this.selectedDataset.id)
                 },

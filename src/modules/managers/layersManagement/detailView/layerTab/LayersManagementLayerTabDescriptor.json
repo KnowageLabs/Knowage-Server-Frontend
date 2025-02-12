@@ -1,4 +1,18 @@
 {
+    "layerTypes": [
+        {
+            "label": "managers.layersManagement.layerTypes.wkt",
+            "value": "wkt"
+        },
+        {
+            "label": "managers.layersManagement.layerTypes.geojson",
+            "value": "geojson"
+        },
+        {
+            "label": "managers.layersManagement.layerTypes.topojson",
+            "value": "topojson"
+        }
+    ],
     "validations": {
         "layer": [
             {

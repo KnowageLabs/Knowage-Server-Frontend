@@ -223,7 +223,6 @@ export default defineComponent({
                 fields.forEach((field: string) => delete filter[field])
             })
             const config = {
-                headers: { Accept: 'application/json, text/plain, */*' },
                 data: encodeURIComponent(JSON.stringify(filters))
             }
             await this.$http
@@ -248,7 +247,7 @@ export default defineComponent({
             const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/activity/${selectedDossier.id}`
             if (selectedDossier.status == 'DOWNLOAD' || selectedDossier.status == 'ERROR' || !this.dateCheck(selectedDossier)) {
                 await this.$http
-                    .delete(url, { headers: { Accept: 'application/json, text/plain, */*' } })
+                    .delete(url)
                     .then(() => {
                         this.store.setInfo({
                             title: this.$t('common.toast.deleteTitle'),
@@ -278,7 +277,7 @@ export default defineComponent({
             if (this.jsonTemplate) this.jsonTemplate.executionRole = this.userRole
 
             const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossier/run?activityName=${this.activity.activityName}&documentId=${this.id}`
-            await this.$http.post(url, this.jsonTemplate, { headers: { Accept: 'application/json, text/plain, */*' } }).then((response: AxiosResponse<any>) => {
+            await this.$http.post(url, this.jsonTemplate).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
                     this.store.setError({ title: this.$t('common.error.saving'), msg: response.data.errors })
                 } else {
@@ -322,7 +321,7 @@ export default defineComponent({
                     window.open(link)
                 } else {
                     const link = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/random-key/${selectedActivity.progressId}`
-                    await this.$http.get(link, { headers: { Accept: 'application/json, text/plain, */*' } }).then((response: AxiosResponse<any>) => {
+                    await this.$http.get(link).then((response: AxiosResponse<any>) => {
                         if (this.jsonTemplate.PPT_TEMPLATE != null) {
                             this.storePPT(selectedActivity.id, response.data, selectedActivity.activity)
                         } else if (this.jsonTemplate.DOC_TEMPLATE != null) {
@@ -420,7 +419,7 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFile)
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: {  'X-Disable-Errors': 'true' } })
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
                 })
