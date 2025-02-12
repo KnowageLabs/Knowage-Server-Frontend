@@ -5,7 +5,7 @@ import {
     IMapWidgetControlPanel,
     IMapWidgetLegend,
     IMapWidgetMapSettings,
-    IMapWidgetVisualizationSettings,
+    IMapWidgetVisualizationType,
     IMapWidgetVisualizationTypeBalloons,
     IMapWidgetVisualizationTypeChoropleth,
     IMapWidgetVisualizationTypeCluster,
@@ -43,7 +43,7 @@ export const getDefaultConditionalStyle = () => {
 export const getDefaultVisualizationSettings = () => {
     const visualizationSettings = [
         {
-            target: [],
+            target: '',
             type: 'markers',
             markerConf: getDefaultVisualizationMarkerConfiguration(),
             balloonConf: getDefaultVisualizationBalloonsConfiguration(),
@@ -52,7 +52,7 @@ export const getDefaultVisualizationSettings = () => {
             heatmapConf: getDefaultVisualizationHeatmapConfiguration(),
             analysisConf: getDefaultVisualizationChoroplethConfiguration()
         }
-    ] as Array<IMapWidgetVisualizationSettings>
+    ] as Array<IMapWidgetVisualizationType>
     return deepcopy(visualizationSettings)
 }
 

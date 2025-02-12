@@ -91,7 +91,11 @@
         "properties": {
             "thresholds": []
         },
-        "toColor": "rgba(91, 91, 91, 1)"
+        "style": {
+            "color": ""
+        },
+        "toColor": "rgba(91, 91, 91, 1)",
+        "type": "default"
     },
     "defaultVisualizationChoroplethConfiguration": {
         "borderColor": "",
