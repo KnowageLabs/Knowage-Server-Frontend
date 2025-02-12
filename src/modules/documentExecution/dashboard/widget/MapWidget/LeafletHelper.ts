@@ -1,10 +1,32 @@
+import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import L from 'leaflet'
 import italy from './italy.json'
+import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
+import deepcopy from 'deepcopy'
+import { addBaloonMarkers } from './visualization/MapVisualizationHelper'
+import { getLayerData } from './MapWidgetDataProxy'
 
-function createDialog(tooltip, layer, settings, meta, row) {
+function createDialog(tooltip, layerVisualizationSettings: IMapWidgetVisualizationType, settings, meta, row) {
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
-    const layersList = settings.layers.filter((l) => l.name === layer.target)
+    const layersList = settings.layers.filter((l) => l.name === layerVisualizationSettings.target)
+    // TODO
+    // layersList.forEach((item) => {
+    //     item.columns.forEach((column) => {
+    //         const li = document.createElement('li')
+    //         //TODO set style
+    //         li.innerHTML = `${column}: ${row[getColumnName(column, meta)]}`
+    //         list.append(li)
+    //     })
+    // })
+
+    // TODO - Remove hardcoded
+    layersList.push({
+        columns: ['measure'],
+        name: 'ds_2'
+    })
+
     layersList.forEach((item) => {
         item.columns.forEach((column) => {
             const li = document.createElement('li')
@@ -39,10 +61,10 @@ function getGeographyStyle(feature) {
     }
 }
 
-function createMarker(position, settings) {
+function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons) {
     let icon
-    const defaultMarkerSettings = { color: settings.style.color, radius: settings.size || 10 }
-    if (settings.type === 'default') {
+    const defaultMarkerSettings = { color: settings.style?.color ?? '', fillColor: settings.style?.color ?? '', radius: settings?.size || 10 }
+    if (!settings.type || settings.type === 'default') {
         return L.circleMarker(position, defaultMarkerSettings)
     }
     if (settings.type === 'icon') {
@@ -58,10 +80,12 @@ function createMarker(position, settings) {
     if (['img', 'icon', 'url'].includes(settings.type)) return L.marker(position, { icon: icon })
 }
 
-export function addMarker(position, container, settings, value?: any, spatialAttribute?) {
+export function addMarker(position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | undefined, value: number, spatialAttribute: any) {
+    // TODO - Ask Davide about error(s)
+    if (!settings) return
     let marker
     if (spatialAttribute.properties.coordType === 'json')
-        L.geoJSON(JSON.parse(position), {
+        L.geoJSON(JSON.parse(position as string), {
             pointToLayer: function (feature, latlng) {
                 return (marker = createMarker(latlng, settings).addTo(container))
             }
@@ -75,7 +99,7 @@ export function createGeography(map: L.Map, features, data) {
     return L.geoJson(features, getGeographyStyle).addTo(map)
 }
 
-function getCoordinates(spatialAttribute, input, coord?) {
+export function getCoordinates(spatialAttribute, input, coord?) {
     if (spatialAttribute) {
         if (spatialAttribute.properties.coordType === 'string') {
             if (spatialAttribute.properties.coordFormat === 'lat lon') {
@@ -88,45 +112,62 @@ function getCoordinates(spatialAttribute, input, coord?) {
     }
 }
 
-export function initializeLayers(map: L.Map, model: any, data: any): void {
+export function initializeLayers(map: L.Map, model: any, data: any, $http: any): void {
+    console.log('--------- MODEL: ', model)
     const markerBounds = [] as any
-    model.settings.visualizations.forEach((layer) => {
+    model.settings.visualizations.forEach((layer: IMapWidgetVisualizationType) => {
+        const layerVisualizationSettings = deepcopy(layer)
+        console.log('---------- LAYER VISUALIZATION: ', layerVisualizationSettings)
+
         let spatialAttribute = undefined
         let geoColumn: any = undefined
         let dataColumn: any = undefined
-        const target = model.layers.filter((i) => i.layerId === layer.target)[0]
+
+        let layersData = {}
+
+        const target = model.layers.filter((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.targetDataset || widgetLayer.name === layerVisualizationSettings.targetDataset)[0] // TOOD - Ask Davide why we use filter instead of find; Changed conditions
+        console.log('------- target: ', target)
         if (target.type === 'dataset') {
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
+            console.log('---------- spatialAttribute: ', spatialAttribute)
             geoColumn = getColumnName(spatialAttribute.name, data[target.name])
-            dataColumn = getColumnName(layer.targetMeasure, data[target.name])
+            dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
+        } else {
+            const data = getLayerData(target, $http)
+            console.log('---------- DATA: ', data)
         }
+
         const layerGroup = L.layerGroup().addTo(map)
         layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
-        if (layer.type === 'markers') {
+        if (layerVisualizationSettings.type === 'markers') {
             data[target.name].rows.forEach((row) => {
-                const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layer.markerConf, row[dataColumn], spatialAttribute)
+                const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.markerConf, row[dataColumn], spatialAttribute)
                 markerBounds.push(marker.getLatLng())
                 if (model.settings.dialog?.enabled) {
-                    const popup = createDialog(false, layer, model.settings.dialog, data[target.name], row)
+                    const popup = createDialog(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row)
                     marker.bindPopup(popup)
                 }
                 if (model.settings.tooltips?.enabled) {
-                    const tooltip = createDialog(true, layer, model.settings.tooltips, data[target.name], row)
+                    const tooltip = createDialog(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row)
                     marker.bindTooltip(tooltip)
                 }
             })
         }
-        if (layer.type === 'clusters') {
+        if (layerVisualizationSettings.type === 'balloons') {
+            addBaloonMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
+        }
+
+        if (layerVisualizationSettings.type === 'clusters') {
             var clusters = L.markerClusterGroup()
             clusters.knProperties = { cluster: true, layerId: target.layerId }
             data[target.name].rows.forEach((row) => {
-                const marker = addMarker(getCoordinates(spatialAttribute, row.column_1, null), layerGroup, layer.markerConf, row.column_2, spatialAttribute)
+                const marker = addMarker(getCoordinates(spatialAttribute, row.column_1, null), layerGroup, layerVisualizationSettings.markerConf, row.column_2, spatialAttribute)
                 clusters.addLayer(marker)
                 markerBounds.push(marker.getLatLng())
                 layerGroup.addLayer(clusters)
             })
         }
-        if (layer.type === 'heatmap') {
+        if (layerVisualizationSettings.type === 'heatmap') {
             const values = { data: [] } as any
             data[target.name].rows.forEach((row) => {
                 values.data.push({ lat: row.column_1.split(' ')[0], lon: row.column_1.split(' ')[1], value: row.column_2 })
@@ -143,12 +184,26 @@ export function initializeLayers(map: L.Map, model: any, data: any): void {
             heatmapLayer.setData(values)
             layerGroup.addLayer(heatmapLayer)
         }
-        if (layer.type === 'choropleth') {
+        if (layerVisualizationSettings.type === 'choropleth') {
             const geography = createGeography(map, italy, data)
             markerBounds.push(geography.getBounds())
         }
     })
     if (model.settings.configuration.map.autoCentering && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
+}
+
+export const addDialogToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any) => {
+    if (model.settings.dialog?.enabled) {
+        const popup = createDialog(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row)
+        marker.bindPopup(popup)
+    }
+}
+
+export const addTooltipToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any) => {
+    if (model.settings.tooltips?.enabled) {
+        const tooltip = createDialog(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row)
+        marker.bindTooltip(tooltip)
+    }
 }
 
 export function filterLayers(map: L.Map, layers): void {

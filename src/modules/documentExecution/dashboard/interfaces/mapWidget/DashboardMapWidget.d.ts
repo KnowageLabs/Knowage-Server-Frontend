@@ -59,16 +59,24 @@ export interface IMapWidgetVisualizationTypeMarker {
 }
 
 export interface IMapWidgetVisualizationTypeBalloons {
-    borderColor: string
-    fromColor: string
-    toColor: string
     minSize: number
     maxSize: number
     method: string
     classes: number
-    properties?: {
-        thresholds: { color: string; from: number; to: number }[]
+    size?: number
+    type: 'default'
+    style: {
+        color?: string
     }
+    properties?: {
+        thresholds: IMapWidgetVisualizationThreshold[]
+    }
+}
+
+export interface IMapWidgetVisualizationThreshold {
+    color: string
+    from: number
+    to: number
 }
 
 export interface IMapWidgetVisualizationTypePie {
@@ -102,8 +110,11 @@ export interface IMapWidgetVisualizationTypeChoropleth {
     fromColor: string
     toColor: string
     borderColor: string
+    style: {
+        color?: string
+    }
     properties?: {
-        thresholds: { color: string; from: number; to: number }[]
+        thresholds: IMapWidgetVisualizationThreshold[]
     }
 }
 
@@ -226,7 +237,7 @@ export interface ILayer {
 export interface IMapWidgetLayer {
     type: string
     id: number
-    name: String
+    name: string
     columns?: IWidgetMapLayerColumn[]
     order?: number
     layerId: string

@@ -3,7 +3,20 @@
         <div class="row items-center q-mb-sm">
             <q-select filled dense class="col" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')"></q-select>
             <q-select v-if="visType && getTargetLayerType(visType) === 'layer'" filled dense class="col q-ml-sm" v-model="visType.targetType" :options="['column', 'property']" emit-value map-options option-value="name" option-label="name" options-dense label="Data Link"></q-select>
-            <q-select v-if="visType.targetType === 'column'" filled dense class="col q-ml-sm" v-model="visType.targetDataset" :options="availableDatasets()" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.dataset')"></q-select>
+            <q-select
+                v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column'"
+                filled
+                dense
+                class="col q-ml-sm"
+                v-model="visType.targetDataset"
+                :options="availableDatasets()"
+                emit-value
+                map-options
+                option-value="name"
+                option-label="name"
+                options-dense
+                :label="$t('common.dataset')"
+            ></q-select>
             <q-select
                 v-if="getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset)"
                 filled
@@ -18,7 +31,20 @@
                 options-dense
                 :label="$t('common.measure')"
             ></q-select>
-            <q-select v-if="visType.targetType === 'property'" filled dense class="col q-ml-sm" v-model="visType.targetProperty" :options="availableProperties(visType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.property')"></q-select>
+            <q-select
+                v-if="visType && getTargetLayerType(visType) === 'layer'"
+                filled
+                dense
+                class="col q-ml-sm"
+                v-model="visType.targetProperty"
+                :options="availableProperties(visType)"
+                emit-value
+                map-options
+                option-value="name"
+                option-label="name"
+                options-dense
+                :label="$t('common.property')"
+            ></q-select>
 
             <Button v-if="visTypeIndex == 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
             <Button icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeVisualizationType(visTypeIndex)" />
@@ -76,10 +102,11 @@ export default defineComponent({
             return this.widgetModel.layers.filter((i) => i.type === 'dataset')
         },
         availableMeasures(dsName) {
-            const targetLayer = this.widgetModel.layers.find((i) => dsName === i.name)
+            console.log('-------- DS NAME: ', dsName)
+            const targetLayer = this.widgetModel.layers.find((i) => dsName === i.name || dsName === i.layerId)
             return targetLayer ? targetLayer.columns.filter((i) => i.fieldType === 'MEASURE') : []
         },
-        availableProperties(visualization) {
+        availableProperties(visualization: IMapWidgetVisualizationType) {
             const targetLayer = this.widgetModel.layers.find((i) => visualization.target === i.layerId)
             return targetLayer ? targetLayer.properties : []
         },

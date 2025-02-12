@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, watch } from 'vue'
+import { onMounted, watch, inject } from 'vue'
 import L from 'leaflet'
 import './leaflet-layervisibility'
 import 'leaflet.markercluster'
@@ -32,6 +32,8 @@ async function getCoords() {
 }
 
 onMounted(async () => {
+    const $http = inject('$http')
+
     map = L.map(mapId, {
         center: navigator && !props.widgetModel.settings?.configuration?.map?.autoCentering ? await getCoords() : [0, 0],
         zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10
@@ -43,7 +45,7 @@ onMounted(async () => {
 
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
-    await initializeLayers(map, props.widgetModel, props.data)
+    await initializeLayers(map, props.widgetModel, props.data, $http)
 })
 
 watch(props.layerVisibility, (newModel) => {

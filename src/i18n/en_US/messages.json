@@ -1170,7 +1170,7 @@
                     "pies3d": "Pies 3D"
                 },
                 "range": "Range",
-                "rangeLabel": "Min size (%)/Max size (%)",
+                "rangeLabel": "Min size/Max size",
                 "south": "South",
                 "toColor": "To color",
                 "toThreshold": "To (<)",

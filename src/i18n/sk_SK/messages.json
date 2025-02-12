@@ -1016,7 +1016,7 @@
                     "xor": "Zobraziť jednu vrstvu"
                 },
                 "range": "Rozsah",
-                "rangeLabel": "Minimálna veľkosť (%)/maximálna veľkosť (%)",
+                "rangeLabel": "Minimálna veľkosť/maximálna veľkosť",
                 "south": "juh",
                 "toColor": "Vyfarbiť",
                 "toThreshold": "Do (<)",

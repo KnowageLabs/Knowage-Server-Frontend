@@ -2,6 +2,7 @@ import { IDashboardConfiguration, IDashboardDataset, ISelection, IWidget } from 
 import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula } from '../../DashboardDataProxy'
 import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
+import { IMapWidgetLayer } from '../../interfaces/mapWidget/DashboardMapWidget'
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {}
@@ -65,4 +66,19 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     })
 
     return dataToSend
+}
+
+export const getLayerData = async (layer: IMapWidgetLayer, $http: any) => {
+    console.log('------------ LAYER: ', layer)
+    const url = `/restful-services/layers/${layer.id}/download/${layer.layerType}`
+
+    await $http
+        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url, { headers: { 'X-Disable-Errors': 'true' } })
+        .then((response: AxiosResponse<any>) => {
+            // TODO
+            console.log('-------- RESPONSE: ', response)
+        })
+        .catch((error: any) => {
+            showGetDataError(error, '' + layer.id)
+        })
 }
