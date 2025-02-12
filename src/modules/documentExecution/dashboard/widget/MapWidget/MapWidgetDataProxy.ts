@@ -68,14 +68,13 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     return dataToSend
 }
 
+// TODO - Function for retrieving layer Data
 export const getLayerData = async (layer: IMapWidgetLayer, $http: any) => {
-    console.log('------------ LAYER: ', layer)
     const url = `/restful-services/layers/${layer.id}/download/${layer.layerType}`
 
     await $http
         .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url, { headers: { 'X-Disable-Errors': 'true' } })
         .then((response: AxiosResponse<any>) => {
-            // TODO
             console.log('-------- RESPONSE: ', response)
         })
         .catch((error: any) => {

@@ -241,6 +241,7 @@ export interface IMapWidgetLayer {
     columns?: IWidgetMapLayerColumn[]
     order?: number
     layerId: string
+    layerType: string
     datasetLink?: number
     datasetColumnLink?: number
     catalogLayerPropertyLink?: number
