@@ -9,7 +9,7 @@
                 dense
                 class="col q-ml-sm"
                 v-model="visType.targetDataset"
-                :options="availableDatasets()"
+                :options="availableDatasets"
                 emit-value
                 map-options
                 option-value="name"
@@ -46,8 +46,8 @@
                 :label="$t('common.property')"
             ></q-select>
 
-            <Button v-if="visTypeIndex == 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
-            <Button icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeVisualizationType(visTypeIndex)" />
+            <Button v-if="visTypeIndex === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
+            <Button v-if="visTypeIndex !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeVisualizationType(visTypeIndex)" />
         </div>
 
         <div class="p-grid gap-1 p-m-0" style="column-gap: 0.5em; row-gap: 0.5em">
@@ -63,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetLayer, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { defineComponent, PropType } from 'vue'
 import descriptor from './MapVisualizationTypeDescriptor.json'
@@ -86,6 +86,12 @@ export default defineComponent({
             widgetLayersNameMap: {} as any
         }
     },
+    computed: {
+        availableDatasets() {
+            if (!this.widgetModel?.layers) return []
+            return this.widgetModel.layers.filter((layer: IMapWidgetLayer) => layer.type === 'dataset')
+        }
+    },
     watch: {
         widgetModel() {
             this.loadVisTypeModel()
@@ -98,13 +104,9 @@ export default defineComponent({
         this.loadVisTypeModel()
     },
     methods: {
-        availableDatasets() {
-            return this.widgetModel.layers.filter((i) => i.type === 'dataset')
-        },
-        availableMeasures(dsName) {
-            console.log('-------- DS NAME: ', dsName)
-            const targetLayer = this.widgetModel.layers.find((i) => dsName === i.name || dsName === i.layerId)
-            return targetLayer ? targetLayer.columns.filter((i) => i.fieldType === 'MEASURE') : []
+        availableMeasures(dsName: string) {
+            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsName === layer.name || dsName === layer.layerId)
+            return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
         },
         availableProperties(visualization: IMapWidgetVisualizationType) {
             const targetLayer = this.widgetModel.layers.find((i) => visualization.target === i.layerId)
@@ -157,7 +159,7 @@ export default defineComponent({
         },
         createDefaultVisualizationType() {
             return {
-                target: [],
+                target: '',
                 type: 'markers',
                 markerConf: mapWidgetDefaultValues.getDefaultVisualizationMarkerConfiguration(),
                 balloonConf: mapWidgetDefaultValues.getDefaultVisualizationBalloonsConfiguration(),
@@ -166,23 +168,6 @@ export default defineComponent({
                 heatmapConf: mapWidgetDefaultValues.getDefaultVisualizationHeatmapConfiguration(),
                 analysisConf: mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
             }
-        },
-        onLayersSelected(event: any, visualizationType: IMapWidgetVisualizationType) {
-            const intersection = visualizationType.target.filter((el: string) => !event.value.includes(el))
-            visualizationType.target = event.value
-            intersection.length > 0 ? this.onLayersRemovedFromMultiselect(intersection) : this.onLayersAddedFromMultiselect(visualizationType)
-        },
-        onLayersRemovedFromMultiselect(intersection: string[]) {
-            intersection.forEach((el: string) => {
-                const options = { layerId: el, name: this.widgetLayersNameMap[el] }
-                this.availableLayersOptions.push(options)
-            })
-        },
-        onLayersAddedFromMultiselect(visualizationType: IMapWidgetVisualizationType) {
-            visualizationType.target.forEach((target: string) => {
-                const index = this.availableLayersOptions.findIndex((targetOption: { layerId: string | null; name: string }) => targetOption.layerId === target)
-                if (index !== -1) this.availableLayersOptions.splice(index, 1)
-            })
         }
     }
 })

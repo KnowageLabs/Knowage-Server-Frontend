@@ -97,6 +97,11 @@
             "class": "choropleth",
             "name": "choropleth",
             "tooltip": "dashboard.widgetEditor.map.visTypes.choropleth"
+        },
+        {
+            "class": "geography",
+            "name": "geography",
+            "tooltip": "dashboard.widgetEditor.map.visTypes.geography"
         }
     ]
 }
