@@ -150,12 +150,7 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFiles)
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/upload` + `/${this.selectedHost.hostName}` + `?isForUpdate=${this.isForUpdate}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'X-Disable-Errors': 'true'
-                    }
-                })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/license/upload` + `/${this.selectedHost.hostName}` + `?isForUpdate=${this.isForUpdate}`, formData)
                 .then((response: AxiosResponse<any>) => {
                     this.setInfo({
                         title: this.$t('common.uploading'),

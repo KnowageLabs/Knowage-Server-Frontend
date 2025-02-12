@@ -180,7 +180,7 @@ export default defineComponent({
         },
 
         async findActiveTemplate() {
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.$route.query.documentId}/templates`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } }).then(async (response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.$route.query.documentId}/templates`, { headers: { 'X-Disable-Errors': 'true' } }).then(async (response: AxiosResponse<any>) => {
                 if (response.data.length > 0) {
                     let activeTemplateId = null
                     response.data.find((template) => (template.active === true ? (activeTemplateId = template.id) : ''))
@@ -191,7 +191,7 @@ export default defineComponent({
 
         async getDocumentDrivers() {
             if (this.selectedDocument.drivers.length > 0) {
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${this.documentData.documentLabel}/parameters`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } }).then(async (response: AxiosResponse<any>) => {
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${this.documentData.documentLabel}/parameters`, { headers: { 'X-Disable-Errors': 'true' } }).then(async (response: AxiosResponse<any>) => {
                     this.documentData.allDrivers = response.data.results
                 })
             }
@@ -210,18 +210,16 @@ export default defineComponent({
         },
 
         async getActiveTemplateData(templateId) {
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.$route.query.documentId}/templates/selected/${templateId}`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
-                .then(async (response: AxiosResponse<any>) => {
-                    this.documentTemplate = response.data
-                    this.documentData.indicators = response.data.indicators
-                    this.documentData.filters = response.data.filters
-                    this.documentData.visibilityData = {
-                        crossNavigation: response.data.crossNavigation,
-                        crossNavigationMultiselect: response.data.crossNavigationMultiselect,
-                        visibilityControls: response.data.visibilityControls
-                    }
-                })
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.$route.query.documentId}/templates/selected/${templateId}`, { headers: { 'X-Disable-Errors': 'true' } }).then(async (response: AxiosResponse<any>) => {
+                this.documentTemplate = response.data
+                this.documentData.indicators = response.data.indicators
+                this.documentData.filters = response.data.filters
+                this.documentData.visibilityData = {
+                    crossNavigation: response.data.crossNavigation,
+                    crossNavigationMultiselect: response.data.crossNavigationMultiselect,
+                    visibilityControls: response.data.visibilityControls
+                }
+            })
         },
         initializeSelectedLayer() {
             if (this.documentTemplate.targetLayerConf) {

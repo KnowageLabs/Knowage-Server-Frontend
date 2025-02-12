@@ -902,7 +902,7 @@ export default defineComponent({
 
             const postData = { catalogue: this.qbe?.qbeJSONQuery?.catalogue.queries, meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/qbequery/export/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&outputType=${mimeType}`, postData, { headers: { Accept: 'application/json, text/plain, */*' }, responseType: 'blob' })
+                .post(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/qbequery/export/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&outputType=${mimeType}`, postData, { responseType: 'blob' })
                 .then((response: AxiosResponse<any>) => {
                     downloadDirect(response.data, fileName, response.headers['content-type'])
                 })

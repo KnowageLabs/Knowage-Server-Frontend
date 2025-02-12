@@ -320,12 +320,7 @@ export default defineComponent({
             dsToSave.isScheduled ? (dsToSave.schedulingCronLine = await this.formatCronForSave()) : ''
 
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/`, dsToSave, {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*',
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    }
-                })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/`, dsToSave)
                 .then(async (response: AxiosResponse<any>) => {
                     this.touched = false
                     this.setInfo({ title: this.$t('common.toast.createTitle'), msg: this.$t('common.toast.success') })
@@ -345,25 +340,11 @@ export default defineComponent({
             tags.versNum = dsToSave.versNum + 1
             tags.tagsToAdd = dsToSave.tags
 
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${id}/dstags/`, tags, {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*',
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    }
-                })
-                .catch()
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${id}/dstags/`, tags).catch()
         },
         async saveSchedulation(dsToSave, id) {
             if (dsToSave.isScheduled) {
-                await this.$http
-                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/id/${id}`, dsToSave, {
-                        headers: {
-                            Accept: 'application/json, text/plain, */*',
-                            'Content-Type': 'application/json;charset=UTF-8'
-                        }
-                    })
-                    .catch()
+                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/id/${id}`, dsToSave).catch()
             } else {
                 await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/label/${dsToSave.label}`).catch()
             }
@@ -373,11 +354,7 @@ export default defineComponent({
                 this.tablesToAdd.forEach(async (link) => {
                     if (link.added === true) {
                         delete link.added
-                        await this.$http
-                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDsRelationResource/${id}`, link, {
-                                headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' }
-                            })
-                            .catch()
+                        await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDsRelationResource/${id}`, link).catch()
                     }
                 })
             }
@@ -386,11 +363,7 @@ export default defineComponent({
             if (this.tablesToRemove.length > 0) {
                 this.tablesToRemove.forEach(async (link) => {
                     if (link.deleted === true) {
-                        await this.$http
-                            .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDsRelationResource/${id}/${link.tableId}`, {
-                                headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' }
-                            })
-                            .catch()
+                        await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/metaDsRelationResource/${id}/${link.tableId}`).catch()
                     }
                 })
             }

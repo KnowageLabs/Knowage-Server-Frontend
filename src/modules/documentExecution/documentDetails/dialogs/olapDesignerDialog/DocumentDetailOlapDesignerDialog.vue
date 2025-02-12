@@ -146,7 +146,7 @@ export default defineComponent({
             const postData = this.type === 'xmla' ? { ...this.xmlModel } : { ...this.mondrianModel }
             this.setLoading(true)
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/designer/cubes?SBI_EXECUTION_ID=${this.sbiExecutionId}`, postData, { headers: { Accept: 'application/json, text/plain, */*' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/designer/cubes?SBI_EXECUTION_ID=${this.sbiExecutionId}`, postData)
                 .then(() => {
                     this.$emit('designerStarted', {
                         ...this.selectedDocument,

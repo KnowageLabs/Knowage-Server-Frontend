@@ -172,7 +172,7 @@ export default defineComponent({
                 formData.append('file', this.uploadedFiles[meta.id])
                 formData.append('fileName', this.uploadedFiles[meta.id].name)
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/uploadfilemetadata`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/uploadfilemetadata`, formData)
                     .then(() => {
                         this.store.setInfo({
                             title: this.$t('common.uploadFile'),
@@ -214,9 +214,6 @@ export default defineComponent({
 
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentexecution/${this.document.id}/${meta.id}/documentfilemetadata`, {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*'
-                    },
                     responseType: 'blob'
                 })
                 .then((response: AxiosResponse<any>) => {

@@ -530,7 +530,7 @@ export default defineComponent({
         },
         async directDownloadDataset(dataset: any) {
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${dataset.id}/csv`, this.prepareDriversAndParameter(dataset.pars), { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${dataset.id}/csv`, this.prepareDriversAndParameter(dataset.pars))
                 .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
                 .catch(() => {})
         },
@@ -692,11 +692,11 @@ export default defineComponent({
         async asyncExport(format) {
             this.setLoading(true)
             let body = this.hiddenFormData
-            let headers = {Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'}
+            let headers = { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
             if (format.includes('xls')) {
                 format = 'spreadsheet'
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) body = this.dashboards[this.document.dashboardId]
-            }else headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            } else headers['Content-Type'] = 'application/x-www-form-urlencoded'
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`, body, {
                     responseType: 'blob',
