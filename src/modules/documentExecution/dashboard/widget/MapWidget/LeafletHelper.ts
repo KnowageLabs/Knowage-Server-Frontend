@@ -11,22 +11,6 @@ function createDialog(tooltip, layerVisualizationSettings: IMapWidgetVisualizati
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
     const layersList = settings.layers.filter((l) => l.name === layerVisualizationSettings.target)
-    // TODO
-    // layersList.forEach((item) => {
-    //     item.columns.forEach((column) => {
-    //         const li = document.createElement('li')
-    //         //TODO set style
-    //         li.innerHTML = `${column}: ${row[getColumnName(column, meta)]}`
-    //         list.append(li)
-    //     })
-    // })
-
-    // TODO - Remove hardcoded
-    layersList.push({
-        columns: ['measure'],
-        name: 'ds_2'
-    })
-
     layersList.forEach((item) => {
         item.columns.forEach((column) => {
             const li = document.createElement('li')
@@ -81,7 +65,6 @@ function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IM
 }
 
 export function addMarker(position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | undefined, value: number, spatialAttribute: any) {
-    // TODO - Ask Davide about error(s)
     if (!settings) return
     let marker
     if (spatialAttribute.properties.coordType === 'json')
@@ -113,28 +96,22 @@ export function getCoordinates(spatialAttribute, input, coord?) {
 }
 
 export function initializeLayers(map: L.Map, model: any, data: any, $http: any): void {
-    console.log('--------- MODEL: ', model)
     const markerBounds = [] as any
     model.settings.visualizations.forEach((layer: IMapWidgetVisualizationType) => {
         const layerVisualizationSettings = deepcopy(layer)
-        console.log('---------- LAYER VISUALIZATION: ', layerVisualizationSettings)
-
         let spatialAttribute = undefined
         let geoColumn: any = undefined
         let dataColumn: any = undefined
 
         let layersData = {}
 
-        const target = model.layers.filter((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.targetDataset || widgetLayer.name === layerVisualizationSettings.targetDataset)[0] // TOOD - Ask Davide why we use filter instead of find; Changed conditions
-        console.log('------- target: ', target)
+        const target = model.layers.filter((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.targetDataset || widgetLayer.name === layerVisualizationSettings.targetDataset)[0]
         if (target.type === 'dataset') {
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
-            console.log('---------- spatialAttribute: ', spatialAttribute)
             geoColumn = getColumnName(spatialAttribute.name, data[target.name])
             dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
         } else {
             const data = getLayerData(target, $http)
-            console.log('---------- DATA: ', data)
         }
 
         const layerGroup = L.layerGroup().addTo(map)
