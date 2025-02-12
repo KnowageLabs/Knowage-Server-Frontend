@@ -264,7 +264,7 @@ export default defineComponent({
         },
         async loadOlapDesigner() {
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/olap/designer/${this.documentId}`, { headers: { Accept: 'application/json, text/plain, */*' } })
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/olap/designer/${this.documentId}`)
                 .then(async (response: AxiosResponse<any>) => {
                     this.olapDesigner = response.data
                 })
@@ -307,7 +307,7 @@ export default defineComponent({
 
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/?SBI_EXECUTION_ID=${this.id}`, null, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/?SBI_EXECUTION_ID=${this.id}`, null)
                 .then(async (response: AxiosResponse<any>) => {
                     this.olap = response.data
                     if (this.noTemplate === 'true') {
@@ -396,7 +396,7 @@ export default defineComponent({
         async loadModelConfig() {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/modelconfig?SBI_EXECUTION_ID=${this.id}&NOLOADING=undefined`, this.olap.modelConfig, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/modelconfig?SBI_EXECUTION_ID=${this.id}&NOLOADING=undefined`, this.olap.modelConfig)
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
 
@@ -438,12 +438,7 @@ export default defineComponent({
                 positionUniqueName: event.target.parentNode.getAttribute('positionuniquename')
             })
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilldown/${axis}/${position}/${member}/?SBI_EXECUTION_ID=${this.id}`, postData, {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*',
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    }
-                })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilldown/${axis}/${position}/${member}/?SBI_EXECUTION_ID=${this.id}`, postData)
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
 
@@ -454,12 +449,7 @@ export default defineComponent({
         async drillUp(event: any, replace: boolean) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drillup?SBI_EXECUTION_ID=${this.id}`, this.formatDrillUpPostData(event, replace), {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*',
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    }
-                })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drillup?SBI_EXECUTION_ID=${this.id}`, this.formatDrillUpPostData(event, replace))
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
 
@@ -521,7 +511,7 @@ export default defineComponent({
         async enableSorting() {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/sort/disable?SBI_EXECUTION_ID=${this.id}`, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/sort/disable?SBI_EXECUTION_ID=${this.id}`)
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
 
@@ -553,7 +543,7 @@ export default defineComponent({
         async reloadOlap() {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/cache/?SBI_EXECUTION_ID=${this.id}`, null, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/cache/?SBI_EXECUTION_ID=${this.id}`, null)
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
             this.formatOlapTable()
@@ -564,7 +554,7 @@ export default defineComponent({
             const toSend = { fromAxis: fromAxis, hierarchy: filter.selectedHierarchyUniqueName, toAxis: filter.axis }
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/moveDimensionToOtherAxis?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/moveDimensionToOtherAxis?SBI_EXECUTION_ID=${this.id}`, toSend)
                 .then((response: AxiosResponse<any>) => {
                     this.olap = response.data
                     if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
@@ -576,7 +566,7 @@ export default defineComponent({
         async swapAxis() {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/swap?SBI_EXECUTION_ID=${this.id}`, null, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/swap?SBI_EXECUTION_ID=${this.id}`, null)
                 .then((response: AxiosResponse<any>) => {
                     this.olap = response.data
                     if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
@@ -589,7 +579,7 @@ export default defineComponent({
             const toSend = { axis: data.axis, hierarchy: data.selectedHierarchyUniqueName, newPosition: data.positionInAxis + 1, direction: 1 }
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/moveHierarchy?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/moveHierarchy?SBI_EXECUTION_ID=${this.id}`, toSend)
                 .then((response: AxiosResponse<any>) => {
                     this.olap = response.data
                     if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
@@ -613,7 +603,7 @@ export default defineComponent({
                 const toSend = { axis: this.multiHierFilter.axis, oldHierarchyUniqueName: oldHier, newHierarchyUniqueName: newHier, hierarchyPosition: this.multiHierFilter.positionInAxis }
                 this.loading = true
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/updateHierarchyOnDimension?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/updateHierarchyOnDimension?SBI_EXECUTION_ID=${this.id}`, toSend)
                     .then((response: AxiosResponse<any>) => {
                         this.olap = response.data
                         if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
@@ -645,7 +635,7 @@ export default defineComponent({
             this.loading = true
             this.olap.modelConfig.crossNavigation.buttonClicked = crossNavigation
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/crossnavigation/initialize/?SBI_EXECUTION_ID=${this.id}`, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/crossnavigation/initialize/?SBI_EXECUTION_ID=${this.id}`)
                 .then((response: AxiosResponse<any>) => {
                     this.olap = response.data
                     if (this.olapDesigner && this.olapDesigner.template) this.updateOlapDesignerWithMDXFromOlap()
@@ -667,7 +657,7 @@ export default defineComponent({
 
             let tempResponse = null
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/crossnavigation/getCrossNavigationUrl/${temp[0]},${temp[1]}?SBI_EXECUTION_ID=${this.id}`, null, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/crossnavigation/getCrossNavigationUrl/${temp[0]},${temp[1]}?SBI_EXECUTION_ID=${this.id}`, null)
                 .then((response: AxiosResponse<any>) => (tempResponse = response.data))
                 .catch(() => {})
             await this.executeCrossnavigationFromCell(tempResponse)
@@ -713,11 +703,7 @@ export default defineComponent({
             this.loading = true
 
             await this.$http
-                .post(
-                    import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${this.documentLabel}/saveOlapTemplate`,
-                    { olap: { ...this.olapDesigner.template.wrappedObject.olap, JSONTEMPLATE: { XML_TAG_TEXT_CONTENT: JSON.stringify(this.olapDesigner.template.wrappedObject) } } },
-                    { headers: { Accept: 'application/json, text/plain, */*' } }
-                )
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${this.documentLabel}/saveOlapTemplate`, { olap: { ...this.olapDesigner.template.wrappedObject.olap, JSONTEMPLATE: { XML_TAG_TEXT_CONTENT: JSON.stringify(this.olapDesigner.template.wrappedObject) } } })
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.updateSuccess') })
                     await this.loadOlapDesigner()
@@ -741,7 +727,7 @@ export default defineComponent({
                 const toSend = {} as any
                 toSend.ordinal = this.usedOrdinal
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilltrough?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilltrough?SBI_EXECUTION_ID=${this.id}`, toSend)
                     .then((response: AxiosResponse<any>) => {
                         this.dtData = []
                         this.dtColumns = []
@@ -765,7 +751,7 @@ export default defineComponent({
                 toSend.levels = JSON.stringify(this.dtAssociatedLevels)
                 toSend.max = this.dtMaxRows
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilltrough/full?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilltrough/full?SBI_EXECUTION_ID=${this.id}`, toSend)
                     .then((response: AxiosResponse<any>) => {
                         this.dtData = []
                         this.dtColumns = []
@@ -804,7 +790,7 @@ export default defineComponent({
             toSend.filters = JSON.stringify(this.olap.filters)
 
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilltrough/levels/?SBI_EXECUTION_ID=${this.id}`, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilltrough/levels/?SBI_EXECUTION_ID=${this.id}`, toSend)
                 .then((response: AxiosResponse<any>) => {
                     this.dtTree = response.data
                     setTimeout(() => {
@@ -964,7 +950,7 @@ export default defineComponent({
         },
         async sliceOLAP(payload) {
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/hierarchy/slice?SBI_EXECUTION_ID=${this.id}`, payload, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/hierarchy/slice?SBI_EXECUTION_ID=${this.id}`, payload)
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
         },
@@ -973,7 +959,7 @@ export default defineComponent({
                 return { id: member.id, leaf: member.leaf, name: member.name, uniqueName: member.uniqueName, visible: member.visible }
             })
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/${payload.axis}/placeMembersOnAxis?SBI_EXECUTION_ID=${this.id}`, members, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/axis/${payload.axis}/placeMembersOnAxis?SBI_EXECUTION_ID=${this.id}`, members)
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
         },
@@ -993,7 +979,7 @@ export default defineComponent({
         async undo() {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/undo/?SBI_EXECUTION_ID=${this.id}`, null, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8', 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/undo/?SBI_EXECUTION_ID=${this.id}`, null, { headers: { 'X-Disable-Errors': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     this.store.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -1051,7 +1037,7 @@ export default defineComponent({
             if (this.checkIfVersionIsSet()) {
                 this.loading = true
                 this.$http
-                    .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/exceledit?SBI_EXECUTION_ID=${this.id}`, { headers: { Accept: 'application/json, text/plain, */*' }, responseType: 'blob' })
+                    .get(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/exceledit?SBI_EXECUTION_ID=${this.id}`, { responseType: 'blob' })
                     .then((response: AxiosResponse<any>) => {
                         const fileName = response.headers['content-disposition'].split('filename="')[1].split('"')[0]
                         downloadDirect(response.data, fileName, response.headers['content-type'])
@@ -1156,7 +1142,7 @@ export default defineComponent({
                 const postData = { expression: this.whatifInputNewValue }
                 this.loading = true
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/setValue/${this.whatifInputOrdinal}?SBI_EXECUTION_ID=${this.id}`, postData, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/setValue/${this.whatifInputOrdinal}?SBI_EXECUTION_ID=${this.id}`, postData)
                     .then((response: AxiosResponse<any>) => {
                         this.olap = response.data
                         this.closeWhatifInput()

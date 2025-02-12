@@ -110,11 +110,7 @@ export default defineComponent({
                 const checkedAsString = this.checked ? 'true' : 'false'
                 formData.append('extract', checkedAsString)
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/2.0/resources/files/uploadFile', formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    })
+                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/2.0/resources/files/uploadFile', formData)
                     .then(
                         (response: AxiosResponse<any>) => {
                             if (response.data.errors) {

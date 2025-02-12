@@ -219,7 +219,6 @@ export default defineComponent({
                     message: this.$t('managers.businessModelManager.analyticalDropdownConfirm'),
                     header: this.$t('common.toast.deleteTitle'),
                     icon: 'pi pi-exclamation-triangle',
-                    // accept: () => this.deleteAllConditions(),
                     accept: () => '',
                     reject: () => this.resetDrodpwonValue()
                 })
@@ -314,9 +313,9 @@ export default defineComponent({
         },
         sendRequest(url: string, condition: any) {
             if (this.operation === 'insert') {
-                return this.$http.post(url, condition, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                return this.$http.post(url, condition, { headers: { 'X-Disable-Errors': 'true' } })
             } else {
-                return this.$http.put(url, condition, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                return this.$http.put(url, condition, { headers: { 'X-Disable-Errors': 'true' } })
             }
         },
         async deleteConditions(condition: any) {
@@ -327,7 +326,7 @@ export default defineComponent({
         async deleteCondition(condition: any) {
             delete condition.parFather
             delete condition.modalities
-            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/datadependencies/delete`, condition, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } }).then(() => {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/datadependencies/delete`, condition, { headers: { 'X-Disable-Errors': 'true' } }).then(() => {
                 this.store.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')

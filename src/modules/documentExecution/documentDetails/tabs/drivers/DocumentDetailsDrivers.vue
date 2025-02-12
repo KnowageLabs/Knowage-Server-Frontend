@@ -287,7 +287,7 @@ export default defineComponent({
         async movePriority(driver, direction) {
             direction == 'up' ? (driver.priority -= 1) : (driver.priority += 1)
             await this.$http
-                .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(() => {
                     this.store.setInfo({ title: 'Succes', msg: 'Driver priority changed' })
                     this.getDocumentDrivers()

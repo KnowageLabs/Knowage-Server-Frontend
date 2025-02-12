@@ -131,8 +131,8 @@ export default defineComponent({
                 toSend = formData
             }
             if (layer.layerId) {
-                return this.$http.put(url, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
-            } else return this.$http.post(url, toSend, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                return this.$http.put(url, toSend, { headers: { 'X-Disable-Errors': 'true' } })
+            } else return this.$http.post(url, toSend, { headers: { 'X-Disable-Errors': 'true' } })
         },
         async saveLayer() {
             this.layer.roles === null ? (this.layer.roles = []) : ''

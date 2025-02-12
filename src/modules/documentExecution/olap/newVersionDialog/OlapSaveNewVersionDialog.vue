@@ -71,7 +71,7 @@ export default defineComponent({
                 .post(
                     import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/saveAs?SBI_EXECUTION_ID=${this.id}`,
                     { name: this.version.name !== '' ? this.version.name : 'sbiNoDescription', descr: this.version.descr !== '' ? this.version.descr : 'sbiNoDescription' },
-                    { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8', 'X-Disable-Errors': 'true' } }
+                    { headers: { 'X-Disable-Errors': 'true' } }
                 )
                 .then((response: AxiosResponse<any>) => {
                     this.store.setInfo({
