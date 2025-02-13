@@ -67,7 +67,8 @@ function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IM
 export function addMarker(position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | undefined, value: number, spatialAttribute: any) {
     if (!settings) return
     let marker
-    if (spatialAttribute.properties.coordType === 'json')
+    console.log('------------- POSITION: ', position)
+    if (spatialAttribute?.properties?.coordType === 'json')
         L.geoJSON(JSON.parse(position as string), {
             pointToLayer: function (feature, latlng) {
                 return (marker = createMarker(latlng, settings).addTo(container))
@@ -97,28 +98,28 @@ export function getCoordinates(spatialAttribute, input, coord?) {
 
 export async function initializeLayers(map: L.Map, model: any, data: any) {
     const markerBounds = [] as any
-    model.settings.visualizations.forEach(async (layer: IMapWidgetVisualizationType) => {
+    for (const layer of model.settings.visualizations) {
         const layerVisualizationSettings = deepcopy(layer)
-        let spatialAttribute = undefined
+        let spatialAttribute = undefined as any
         let geoColumn: any = undefined
         let dataColumn: any = undefined
-
-        let layersData = {}
+        let layersData = null as any
 
         const target = model.layers.find((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.target)
+
         if (target.type === 'dataset') {
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
             geoColumn = getColumnName(spatialAttribute.name, data[target.name])
             dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
         } else {
-            const data = await getLayerData(target)
-            console.log('---------- DATA: ', data)
+            layersData = await getLayerData(target)
         }
 
         const layerGroup = L.layerGroup().addTo(map)
         layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
+
         if (layerVisualizationSettings.type === 'markers') {
-            data[target.name].rows.forEach((row) => {
+            for (const row of data[target.name].rows) {
                 const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.markerConf, row[dataColumn], spatialAttribute)
                 markerBounds.push(marker.getLatLng())
                 if (model.settings.dialog?.enabled) {
@@ -129,28 +130,31 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
                     const tooltip = createDialog(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row)
                     marker.bindTooltip(tooltip)
                 }
-            })
+            }
         }
+
         if (layerVisualizationSettings.type === 'balloons') {
-            addBaloonMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
+            addBaloonMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData)
+            console.log('------- MARKER BOUNDS 123: ', markerBounds)
         }
 
         if (layerVisualizationSettings.type === 'clusters') {
-            var clusters = L.markerClusterGroup()
+            const clusters = L.markerClusterGroup()
             clusters.knProperties = { cluster: true, layerId: target.layerId }
-            data[target.name].rows.forEach((row) => {
+            for (const row of data[target.name].rows) {
                 const marker = addMarker(getCoordinates(spatialAttribute, row.column_1, null), layerGroup, layerVisualizationSettings.markerConf, row.column_2, spatialAttribute)
                 clusters.addLayer(marker)
                 markerBounds.push(marker.getLatLng())
                 layerGroup.addLayer(clusters)
-            })
+            }
         }
+
         if (layerVisualizationSettings.type === 'heatmap') {
             const values = { data: [] } as any
-            data[target.name].rows.forEach((row) => {
+            for (const row of data[target.name].rows) {
                 values.data.push({ lat: row.column_1.split(' ')[0], lon: row.column_1.split(' ')[1], value: row.column_2 })
                 markerBounds.push({ lat: row.column_1.split(' ')[0], lng: row.column_1.split(' ')[1] })
-            })
+            }
             const heatmapLayer = new HeatmapOverlay({
                 radius: 0.05,
                 maxOpacity: 0.5,
@@ -162,11 +166,14 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
             heatmapLayer.setData(values)
             layerGroup.addLayer(heatmapLayer)
         }
+
         if (layerVisualizationSettings.type === 'choropleth') {
             const geography = createGeography(map, italy, data)
             markerBounds.push(geography.getBounds())
         }
-    })
+    }
+
+    console.log('---- markerBounds FINAL: ', markerBounds)
     if (model.settings.configuration.map.autoCentering && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
 }
 
