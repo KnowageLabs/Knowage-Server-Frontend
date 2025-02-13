@@ -1,7 +1,7 @@
 <template>
     <div v-for="(visType, visTypeIndex) in visualizationTypeModel" :key="visTypeIndex" class="p-d-flex p-flex-column p-m-3 widget-editor-card p-p-3">
         <div class="row items-center q-mb-sm">
-            <q-select filled dense class="col" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')"></q-select>
+            <q-select filled dense class="col" v-model="visType.target" :options="widgetModel.layers" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
             <q-select v-if="visType && getTargetLayerType(visType) === 'layer'" filled dense class="col q-ml-sm" v-model="visType.targetType" :options="['column', 'property']" emit-value map-options option-value="name" option-label="name" options-dense label="Data Link"></q-select>
             <q-select
                 v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column'"
@@ -101,9 +101,6 @@ export default defineComponent({
             this.loadVisTypeModel()
         }
     },
-    created() {
-        this.loadVisTypeModel()
-    },
     mounted() {
         this.loadVisTypeModel()
     },
@@ -132,6 +129,18 @@ export default defineComponent({
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
             }
+        },
+        async loadAvailablePropertiesInVisualizationTypeForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
+            this.setLoading(true)
+            const properties = await getPropertiesByLayerId(targetLayer.id)
+            this.setLoading(false)
+            this.propertiesCache.set(targetLayer.layerId, properties)
+            visualization.properties = properties
+        },
+        async onTargetChange(id: string, visualization: IMapWidgetVisualizationType) {
+            const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => id === layer.layerId)
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(visualization.target)) return
+            await this.loadAvailablePropertiesInVisualizationTypeForLayer(target, visualization)
         },
         getTargetLayerType(visualization: IMapWidgetVisualizationType) {
             return this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId) ? this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId).type : 'dataset'
