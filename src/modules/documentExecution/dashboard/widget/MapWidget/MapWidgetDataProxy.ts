@@ -3,6 +3,7 @@ import { addDriversToData, addParametersToData, addSelectionsToData, showGetData
 import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IMapWidgetLayer } from '../../interfaces/mapWidget/DashboardMapWidget'
+import axios from 'axios'
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {}
@@ -68,16 +69,24 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     return dataToSend
 }
 
-// TODO - Function for retrieving layer Data
-export const getLayerData = async (layer: IMapWidgetLayer, $http: any) => {
-    const url = `/restful-services/layers/${layer.id}/download/${layer.layerType}`
-
-    await $http
-        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + url, { headers: { 'X-Disable-Errors': 'true' } })
-        .then((response: AxiosResponse<any>) => {
-            console.log('-------- RESPONSE: ', response)
-        })
+export const getLayerData = async (layer: IMapWidgetLayer) => {
+    let tempResponse = null as any
+    await axios
+        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/${layer.id}/download/file`, { headers: { 'X-Disable-Errors': 'true' } })
+        .then((response: AxiosResponse<any>) => (tempResponse = response.data))
         .catch((error: any) => {
             showGetDataError(error, '' + layer.id)
         })
+    return tempResponse
+}
+
+export const getPropertiesByLayerId = async (layerId: number) => {
+    let properties = [] as any[]
+    await axios
+        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?id=${layerId}`)
+        .then((response: AxiosResponse<any>) => (properties = response.data))
+        .catch((error: any) => {
+            showGetDataError(error, '' + layerId)
+        })
+    return properties
 }

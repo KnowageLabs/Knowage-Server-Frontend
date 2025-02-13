@@ -37,11 +37,11 @@
                 dense
                 class="col q-ml-sm"
                 v-model="visType.targetProperty"
-                :options="availableProperties(visType)"
+                :options="visType.properties || []"
                 emit-value
                 map-options
-                option-value="name"
-                option-label="name"
+                option-value="property"
+                option-label="property"
                 options-dense
                 :label="$t('common.property')"
             ></q-select>
@@ -64,11 +64,14 @@
 
 <script lang="ts">
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapWidgetLayer, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { defineComponent, PropType } from 'vue'
+import { mapActions } from 'pinia'
+import appStore from '@/App.store'
 import descriptor from './MapVisualizationTypeDescriptor.json'
 import VisTypeConfig from './MapVisualizationTypeConfigurations.vue'
 import * as mapWidgetDefaultValues from '../../../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
+import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
 
 export default defineComponent({
     name: 'map-visualization-type',
@@ -83,7 +86,8 @@ export default defineComponent({
                 layerId: string | null
                 name: string
             }[],
-            widgetLayersNameMap: {} as any
+            widgetLayersNameMap: {} as any,
+            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>()
         }
     },
     computed: {
@@ -104,22 +108,40 @@ export default defineComponent({
         this.loadVisTypeModel()
     },
     methods: {
+        ...mapActions(appStore, ['setLoading']),
         availableMeasures(dsName: string) {
             const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsName === layer.name || dsName === layer.layerId)
             return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
         },
-        availableProperties(visualization: IMapWidgetVisualizationType) {
-            const targetLayer = this.widgetModel.layers.find((i) => visualization.target === i.layerId)
-            return targetLayer ? targetLayer.properties : []
+        async loadPropertiesForVisualizationTypes() {
+            await Promise.all(this.visualizationTypeModel.map((visTypeModel) => this.loadAvailableProperties(visTypeModel)))
         },
-        getTargetLayerType(visualization) {
-            return this.widgetModel.layers.find((i) => visualization.target === i.layerId) ? this.widgetModel.layers.find((i) => visualization.target === i.layerId).type : 'dataset'
+        async loadAvailableProperties(visualization: IMapWidgetVisualizationType) {
+            if (!visualization.target) return
+
+            if (this.propertiesCache.has(visualization.target)) {
+                visualization.properties = this.propertiesCache.get(visualization.target)
+                return
+            }
+
+            const targetLayer = this.widgetModel.layers.find((layer) => visualization.target === layer.layerId)
+            if (targetLayer?.type === 'layer') {
+                this.setLoading(true)
+                const properties = await getPropertiesByLayerId(targetLayer.id)
+                this.setLoading(false)
+                this.propertiesCache.set(targetLayer.layerId, properties)
+                visualization.properties = properties
+            }
         },
-        loadVisTypeModel() {
+        getTargetLayerType(visualization: IMapWidgetVisualizationType) {
+            return this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId) ? this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId).type : 'dataset'
+        },
+        async loadVisTypeModel() {
             if (this.widgetModel.settings?.visualizations) this.visualizationTypeModel = this.widgetModel.settings?.visualizations as IMapWidgetVisualizationType[]
             this.loadLayersOptions()
             this.loadWidgetLayersMaps()
             this.removelayersFromAvailableOptions()
+            await this.loadPropertiesForVisualizationTypes()
         },
         loadLayersOptions() {
             this.availableLayersOptions = this.widgetModel.layers

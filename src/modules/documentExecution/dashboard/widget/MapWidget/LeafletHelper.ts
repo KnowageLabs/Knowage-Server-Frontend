@@ -95,9 +95,9 @@ export function getCoordinates(spatialAttribute, input, coord?) {
     }
 }
 
-export function initializeLayers(map: L.Map, model: any, data: any, $http: any): void {
+export async function initializeLayers(map: L.Map, model: any, data: any) {
     const markerBounds = [] as any
-    model.settings.visualizations.forEach((layer: IMapWidgetVisualizationType) => {
+    model.settings.visualizations.forEach(async (layer: IMapWidgetVisualizationType) => {
         const layerVisualizationSettings = deepcopy(layer)
         let spatialAttribute = undefined
         let geoColumn: any = undefined
@@ -105,13 +105,14 @@ export function initializeLayers(map: L.Map, model: any, data: any, $http: any):
 
         let layersData = {}
 
-        const target = model.layers.filter((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.targetDataset || widgetLayer.name === layerVisualizationSettings.targetDataset)[0]
+        const target = model.layers.find((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.target)
         if (target.type === 'dataset') {
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
             geoColumn = getColumnName(spatialAttribute.name, data[target.name])
             dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
         } else {
-            const data = getLayerData(target, $http)
+            const data = await getLayerData(target)
+            console.log('---------- DATA: ', data)
         }
 
         const layerGroup = L.layerGroup().addTo(map)
