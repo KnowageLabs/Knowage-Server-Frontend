@@ -54,6 +54,7 @@ export default defineComponent({
         loadDocument() {
             this.document = this.propDocument
             this.document.invalid.invalidFile = false
+            if (typeof this.document.zipFileDocument === 'undefined') this.document.zipFileDocument = false
             this.validateDocument()
         },
         setFileNameValidation() {

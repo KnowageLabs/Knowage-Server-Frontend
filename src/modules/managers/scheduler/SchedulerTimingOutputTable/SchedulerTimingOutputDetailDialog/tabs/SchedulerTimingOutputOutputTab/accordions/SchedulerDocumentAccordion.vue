@@ -90,6 +90,7 @@ export default defineComponent({
             this.document = this.propDocument
 
             this.document.invalid.invalidDocument = false
+            if (typeof this.document.useFixedFolder === 'undefined') this.document.useFixedFolder = false
 
             this.validateDocument(null)
         },

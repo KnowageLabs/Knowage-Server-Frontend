@@ -30,7 +30,6 @@
                             <template #prepend>
                                 <q-icon name="mail" />
                             </template>
-                            <template #hint> TODO: Field hint </template>
                         </q-input>
                     </div>
                     <div class="row">
