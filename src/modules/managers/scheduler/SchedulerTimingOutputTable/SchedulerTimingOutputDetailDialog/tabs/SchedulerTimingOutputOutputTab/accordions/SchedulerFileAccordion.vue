@@ -1,92 +1,45 @@
 <template>
-    <Accordion :active-index="0">
-        <AccordionTab>
-            <template #header>
-                <i class="pi pi-file"></i>
-                <span class="p-m-2">{{ $t('managers.scheduler.saveAsFile') }}</span>
-                <i v-if="document.invalid?.invalidFile" class="pi pi-exclamation-triangle kn-warning-icon" data-test="warning-icon"></i>
-            </template>
-
-            <div v-if="document">
-                <div class="p-m-2">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('common.fileName') }} *</label>
-                        <InputText
+    <q-expansion-item default-opened expand-separator icon="edit_document" :label="$t('managers.scheduler.saveAsFile')">
+        <q-card>
+            <q-card-section>
+                <div v-if="document">
+                    <div class="row">
+                        <q-input
+                            bottom-slots
+                            dense
+                            filled
+                            :rules="[(val) => val.length > 0 || $t('common.validation.required', { fieldName: $t('common.fileName') })]"
                             v-model="document.fileName"
-                            class="kn-material-input p-inputtext-sm"
-                            :class="{
-                                'p-invalid': fileNameDirty && (!document.fileName || document.fileName.length === 0)
-                            }"
-                            :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.file.nameMaxLength"
-                            @input="setFileNameValidation"
-                            @blur="setFileNameValidation"
+                            @update:model-value="setFileNameValidation"
+                            :label="$t('common.fileName')"
+                            counter
+                            :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.file.nameMaxLength"
+                            class="col"
                         />
-                    </span>
-                    <div class="p-d-flex p-flex-row p-jc-between">
-                        <div>
-                            <div v-show="fileNameDirty && (!document.fileName || document.fileName.length === 0)" class="p-error p-grid p-m-2">
-                                {{ $t('common.validation.required', { fieldName: $t('common.fileName') }) }}
-                            </div>
-                        </div>
-                        <p class="name-help p-m-0">{{ fileNameHelp }}</p>
+                        <q-input bottom-slots dense filled v-model="document.destinationfolder" :label="$t('managers.scheduler.destinationFolder')" counter :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.file.destinationFolderMaxLength" class="col q-ml-sm" />
+                    </div>
+                    <div class="row">
+                        <q-checkbox v-model="document.zipFileDocument" :label="$t('managers.scheduler.zipFileDocument')" />
+                        <q-input v-if="document.zipFileDocument" bottom-slots dense filled v-model="document.zipFileName" :label="$t('managers.scheduler.zipFileName')" counter :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.file.zipFileNameMaxLength" class="col q-ml-sm" />
                     </div>
                 </div>
-
-                <div class="p-m-2">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('managers.scheduler.destinationFolder') }}</label>
-                        <InputText v-model="document.destinationfolder" class="kn-material-input p-inputtext-sm" :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.file.destinationFolderMaxLength" />
-                    </span>
-                    <div class="p-d-flex p-jc-end">
-                        <small>{{ destinationFolderHelp }}</small>
-                    </div>
-                </div>
-
-                <div class="p-m-2">
-                    <Checkbox v-model="document.zipFileDocument" :binary="true" />
-                    <span class="p-ml-2">{{ $t('managers.scheduler.zipFileDocument') }}</span>
-                </div>
-                <div v-if="document.zipFileDocument" class="kn-flex p-mx-2 p-my-4">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('managers.scheduler.zipFileName') }}</label>
-                        <InputText v-model="document.zipFileName" class="kn-material-input p-inputtext-sm" :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.file.zipFileNameMaxLength" />
-                    </span>
-                    <div class="p-d-flex p-jc-end">
-                        <small>{{ zipFileNameHelp }}</small>
-                    </div>
-                </div>
-            </div>
-        </AccordionTab>
-    </Accordion>
+            </q-card-section>
+        </q-card>
+    </q-expansion-item>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
-import Checkbox from 'primevue/checkbox'
 import schedulerTimingOutputOutputTabDescriptor from '../SchedulerTimingOutputOutputTabDescriptor.json'
 
 export default defineComponent({
     name: 'scheduler-file-accordion',
-    components: { Accordion, AccordionTab, Checkbox },
     props: { propDocument: { type: Object }, functionalities: { type: Array }, datasets: { type: Array }, jobInfo: { type: Object } },
     data() {
         return {
             schedulerTimingOutputOutputTabDescriptor,
             document: null as any,
             fileNameDirty: false
-        }
-    },
-    computed: {
-        fileNameHelp(): string {
-            return (this.document.fileName?.length ?? '0') + ' / ' + schedulerTimingOutputOutputTabDescriptor.accordion.file.nameMaxLength
-        },
-        destinationFolderHelp(): string {
-            return (this.document.destinationfolder?.length ?? '0') + ' / ' + schedulerTimingOutputOutputTabDescriptor.accordion.file.destinationFolderMaxLength
-        },
-        zipFileNameHelp(): string {
-            return (this.document.zipFileName?.length ?? '0') + ' / ' + schedulerTimingOutputOutputTabDescriptor.accordion.file.zipFileNameMaxLength
         }
     },
     watch: {

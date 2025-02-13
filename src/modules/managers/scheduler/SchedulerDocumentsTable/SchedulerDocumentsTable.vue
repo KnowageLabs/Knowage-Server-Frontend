@@ -1,16 +1,23 @@
 <template>
     <div>
-        <Toolbar class="kn-toolbar kn-toolbar--secondary">
-            <template #start>
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>
                 {{ $t('common.documents') }}
+            </q-toolbar-title>
+            <q-btn flat stretch :label="$t('common.add')" @click="openDocumentsSelectionDialog" />
+        </q-toolbar>
+        <q-banner v-if="deletedDocuments?.length > 0" rounded dense class="bg-warning q-ma-sm text-center">
+            <template v-slot:avatar>
+                <q-icon name="warning" />
             </template>
-            <template #end>
-                <Button class="kn-button p-button-text p-button-rounded" @click="openDocumentsSelectionDialog">{{ $t('common.add') }}</Button>
+            {{ $t('managers.scheduler.deletedDocumentsWarning') }}
+        </q-banner>
+        <q-banner v-if="documents?.length === 0" rounded dense class="bg-info q-ma-sm text-center">
+            <template v-slot:avatar>
+                <q-icon name="info" />
             </template>
-        </Toolbar>
-        <Message v-if="documents?.length === 0" class="p-m-4" severity="info" :closable="false" :style="schedulerDocumentsTableDescriptor.styles.message">
             {{ $t('managers.scheduler.noDocumentsInfo') }}
-        </Message>
+        </q-banner>
         <DataTable
             v-else
             id="documents-datatable"
@@ -23,6 +30,9 @@
             :breakpoint="schedulerDocumentsTableDescriptor.breakpoint"
             data-test="documents-table"
         >
+            <Column v-if="deletedDocuments?.length > 0" style="width: 50px">
+                <template #body="slotProps"> <i v-if="slotProps.data.deleted" class="pi pi-exclamation-triangle kn-warning-icon"></i> </template
+            ></Column>
             <Column class="kn-truncated" :header="$t('common.name')" :style="schedulerDocumentsTableDescriptor.nameColumnStyle">
                 <template #body="slotProps">
                     {{ slotProps.data.name }}
@@ -60,7 +70,6 @@
 import { defineComponent } from 'vue'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
-import Message from 'primevue/message'
 import schedulerDocumentsTableDescriptor from './SchedulerDocumentsTableDescriptor.json'
 import SchedulerDocumentsSelectionDialog from './SchedulerDocumentsSelectionDialog.vue'
 import SchedulerDocumentParameterDialog from './SchedulerDocumentParameterDialog.vue'
@@ -68,7 +77,7 @@ import { AxiosResponse } from 'axios'
 
 export default defineComponent({
     name: 'scheduler-documents-table',
-    components: { Column, DataTable, Message, SchedulerDocumentsSelectionDialog, SchedulerDocumentParameterDialog },
+    components: { Column, DataTable, SchedulerDocumentsSelectionDialog, SchedulerDocumentParameterDialog },
     props: { jobDocuments: { type: Array } },
     emits: ['loading'],
     data() {
@@ -88,6 +97,11 @@ export default defineComponent({
     watch: {
         jobDocuments() {
             this.loadDocuments()
+        }
+    },
+    computed: {
+        deletedDocuments(): any {
+            return this.documents && this.documents.filter((document: any) => document.deleted)
         }
     },
     created() {

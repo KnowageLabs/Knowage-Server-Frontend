@@ -1,83 +1,41 @@
 <template>
-    <Accordion :active-index="0">
-        <AccordionTab>
-            <template #header>
-                <i class="fa fa-camera"></i>
-                <span class="p-m-2">{{ $t('managers.scheduler.saveAsSnapshot') }}</span>
-                <i v-if="document.invalid?.invalidSnapshot" class="pi pi-exclamation-triangle kn-warning-icon" data-test="warning-icon"></i>
-            </template>
-
-            <div v-if="document">
-                <div class="p-d-flex p-flex-row">
-                    <div id="snapshot-name-container" class="p-m-2">
-                        <span>
-                            <label class="kn-material-input-label">{{ $t('common.name') }} *</label>
-                            <InputText
-                                v-model="document.snapshotname"
-                                class="kn-material-input"
-                                :class="{
-                                    'p-invalid': snapshotNameDirty && (!document.snapshotname || document.snapshotname.length === 0)
-                                }"
-                                :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.snapshot.nameMaxLength"
-                                @input="setNameValidation"
-                                @blur="setNameValidation"
-                            />
-                        </span>
-                        <div class="p-d-flex p-flex-row p-jc-between">
-                            <div>
-                                <div v-show="snapshotNameDirty && (!document.snapshotname || document.snapshotname.length === 0)" class="p-error p-grid p-m-2">
-                                    {{ $t('common.validation.required', { fieldName: $t('common.name') }) }}
-                                </div>
-                            </div>
-                            <p class="name-help p-m-0">{{ nameHelp }}</p>
-                        </div>
-                    </div>
-
-                    <div class="p-m-2">
-                        <span>
-                            <label class="kn-material-input-label">{{ $t('managers.scheduler.historyLength') }}</label>
-                            <InputText v-model="document.snapshothistorylength" class="kn-material-input" type="number" />
-                        </span>
+    <q-expansion-item default-opened expand-separator icon="camera" :label="$t('managers.scheduler.saveAsSnapshot')">
+        <q-card>
+            <q-card-section>
+                <div v-if="document">
+                    <div class="row">
+                        <q-input
+                            bottom-slots
+                            dense
+                            filled
+                            :rules="[(val) => val.length > 0 || $t('common.validation.required', { fieldName: $t('common.name') })]"
+                            v-model="document.documentname"
+                            @update:model-value="setNameValidation"
+                            :label="$t('common.name')"
+                            counter
+                            :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.snapshot.nameMaxLength"
+                            class="col"
+                        />
+                        <q-input bottom-slots class="q-ml-sm" dense filled v-model="document.snapshothistorylength" @update:model-value="setNameValidation" :label="$t('managers.scheduler.historyLength')" type="number" />
                     </div>
                 </div>
-
-                <div class="p-m-2">
-                    <span>
-                        <label class="kn-material-input-label">{{ $t('common.description') }}</label>
-                        <InputText v-model="document.snapshotdescription" class="kn-material-input" :max-length="schedulerTimingOutputOutputTabDescriptor.accordion.snapshot.descriptionMaxLength" />
-                    </span>
-                    <div class="p-d-flex p-jc-end">
-                        <small>{{ descriptionHelp }}</small>
-                    </div>
-                </div>
-            </div>
-        </AccordionTab>
-    </Accordion>
+            </q-card-section>
+        </q-card>
+    </q-expansion-item>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Accordion from 'primevue/accordion'
-import AccordionTab from 'primevue/accordiontab'
 import schedulerTimingOutputOutputTabDescriptor from '../SchedulerTimingOutputOutputTabDescriptor.json'
 
 export default defineComponent({
     name: 'scheduler-snapshot-accordion',
-    components: { Accordion, AccordionTab },
     props: { propDocument: { type: Object } },
     data() {
         return {
             schedulerTimingOutputOutputTabDescriptor,
             document: null as any,
             snapshotNameDirty: false
-        }
-    },
-    computed: {
-        nameHelp(): string {
-            return (this.document.snapshotname?.length ?? '0') + ' / ' + schedulerTimingOutputOutputTabDescriptor.accordion.snapshot.nameMaxLength
-        },
-        descriptionHelp(): string {
-            return (this.document.snapshotdescription?.length ?? '0') + ' / ' + schedulerTimingOutputOutputTabDescriptor.accordion.snapshot.descriptionMaxLength
         }
     },
     watch: {

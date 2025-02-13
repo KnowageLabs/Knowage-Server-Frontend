@@ -34,3 +34,8 @@
         }
     }
 }
+.q-banner {
+    &.bg-info {
+        color: var(--kn-message-info-color);
+    }
+}

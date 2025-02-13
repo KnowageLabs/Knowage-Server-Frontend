@@ -82,6 +82,7 @@ export default defineComponent({
             }
 
             for (let i = 0; i < this.trigger.documents?.length; i++) {
+                debugger
                 if (
                     (this.trigger.documents[i].invalid &&
                         (this.trigger.documents[i].invalid.invalidSnapshot || this.trigger.documents[i].invalid.invalidFile || this.trigger.documents[i].invalid.invalidJavaClass || this.trigger.documents[i].invalid.invalidMail || this.trigger.documents[i].invalid.invalidDocument)) ||
