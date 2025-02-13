@@ -156,7 +156,7 @@ export default defineComponent({
         },
         onCalcFieldAdded(field) {
             this.rows.push(field as IWidgetColumn)
-            this.$emit('itemAdded', field)
+            this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings, fieldType: this.fieldType })
         },
         getColumnSortIcon(column: IWidgetColumn) {
             switch (column.sort) {
