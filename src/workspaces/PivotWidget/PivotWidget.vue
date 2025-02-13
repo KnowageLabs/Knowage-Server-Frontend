@@ -1,10 +1,16 @@
 <template>
-    <div class="pivot-widget-container p-d-flex p-d-row kn-flex">Pivot Widget Goes Here</div>
+    <div class="pivot-widget-container p-d-flex p-d-row kn-flex dx-viewport">
+        <DxPivotGrid id="pivotgrid" ref="grid" :data-source="dataSource" v-bind="pivotConfig" @initialized="onGridInitialization">
+            <DxFieldChooser v-bind="fieldPickerConfig" />
+            <DxFieldPanel v-bind="fieldPanelConfig" />
+            <DxScrolling mode="virtual" />
+        </DxPivotGrid>
+    </div>
 </template>
 
 <script lang="ts">
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { IDataset, ISelection, IWidget, ITableWidgetColumnStyles, ITableWidgetConditionalStyles, ITableWidgetVisualizationTypes, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDataset, ISelection, IWidget, ITableWidgetColumnStyles, ITableWidgetConditionalStyles, ITableWidgetVisualizationTypes, IDashboardView, IVariable } from '@/modules/documentExecution/dashboard/Dashboard'
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -15,10 +21,13 @@ import { updateAllStoreSelections, executePivotTableWidgetCrossNavigation } from
 import { mapActions } from 'pinia'
 import { formatNumberWithLocale } from '@/helpers/commons/localeHelper'
 import { getColumnConditionalStyles } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
+import { DxPivotGrid, DxFieldChooser, DxFieldPanel, DxScrolling } from 'devextreme-vue/pivot-grid'
+import PivotGridDataSource from 'devextreme/ui/pivot_grid/data_source'
+import 'devextreme/dist/css/dx.light.css'
 
 export default defineComponent({
     name: 'table-widget',
-    components: {},
+    components: { DxPivotGrid, DxFieldChooser, DxFieldPanel, DxScrolling },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         editorMode: { type: Boolean, required: false },
@@ -35,19 +44,25 @@ export default defineComponent({
         return { store, appStore }
     },
     data() {
+        const dataSource = new PivotGridDataSource({
+            fields: this.getFormattedFieldsFromModel(),
+            store: this.getPivotData()
+        })
         return {
+            dataSource,
             tableData: [] as any,
             pivotConfig: {} as any,
             fieldPickerConfig: {} as any,
             fieldPanelConfig: {} as any,
             gridInstance: null as any,
             activeSelections: [] as ISelection[],
+            pivotState: {} as any,
             variables: [] as IVariable[]
         }
     },
     computed: {
         dataFields() {
-            return []
+            return this.dataSource.fields().filter((field) => field.area == 'data')
         },
         pivotFields() {
             return this.gridInstance.getDataSource()._descriptions
@@ -77,7 +92,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapActions(dashboardStore, ['setSelections']),
+        ...mapActions(dashboardStore, ['setSelections', 'getDashboardDrivers']),
         setEventListeners() {
             emitter.on('widgetResized', this.resizePivot)
             emitter.on('savePivotStates', this.saveState)
@@ -94,7 +109,9 @@ export default defineComponent({
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
         },
-        resizePivot() {},
+        resizePivot() {
+            this.gridInstance.repaint()
+        },
         setPivotConfiguration() {
             const widgetConfig = this.propWidget.settings.configuration
             this.pivotConfig = {
@@ -228,7 +245,7 @@ export default defineComponent({
             const tooltipsConfig = this.propWidget.settings.tooltips as IPivotTooltips[]
             const parentField = this.getCellParent(cellEvent)
 
-            let cellTooltipConfig = null as unknown as IPivotTooltips
+            let cellTooltipConfig = null as IPivotTooltips | null
             if (parentField?.id && tooltipsConfig.length > 1) cellTooltipConfig = tooltipsConfig.find((tooltipConfig) => tooltipConfig.target.includes(parentField.id)) as IPivotTooltips
             else if (tooltipsConfig[0].enabled) cellTooltipConfig = tooltipsConfig[0] as IPivotTooltips
 
@@ -327,8 +344,17 @@ export default defineComponent({
         //#endregion ===============================================================================================
 
         //#region ===================== State Management For Views ====================================================
-        saveState() {},
-        loadState() {}
+        saveState() {
+            const dashboardViews = this.store.getCurrentDashboardView(this.dashboardId) as IDashboardView
+            const widgetId = this.propWidget.id as string
+            const pivotState = this.dataSource.state()
+            dashboardViews.settings.states[widgetId] = pivotState
+        },
+        loadState(stateToLoad) {
+            const widgetId = this.propWidget.id as string
+            const savedState = stateToLoad.settings.states[widgetId]
+            if (savedState) this.dataSource.state(savedState)
+        }
         //#endregion ===============================================================================================
     }
 })
