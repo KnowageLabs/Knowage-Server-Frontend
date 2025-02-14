@@ -1,27 +1,46 @@
 import { IWidget } from '../../../Dashboard'
 import { IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { addDialogToMarker, addMarker, addTooltipToMarker, getCoordinates } from '../LeafletHelper'
+import { addDialogToMarker, addMarker, addTooltipToMarker, getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
 
-export const addBaloonMarkers = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any) => {
+export const addBaloonMarkers = (
+    data: any,
+    model: IWidget,
+    target: IMapWidgetLayer,
+    dataColumn: string,
+    spatialAttribute: any,
+    geoColumn: string,
+    layerGroup: any,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    markerBounds: any[],
+    layersData: any,
+    visualizationDataType: VisualizationDataType,
+    targetDatasetData: any
+) => {
     if (!layerVisualizationSettings.balloonConf) return
     switch (layerVisualizationSettings.balloonConf.method) {
         case 'CLASSIFY_BY_RANGES':
-            if (layerVisualizationSettings.targetType === 'property' && layersData !== null) {
+            if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
                 addBaloonMarkersClassifedByRangesFromLayersData(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds)
+            } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
+                addBaloonMarkersClassifedByRangesFromDataAndLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds)
             } else {
                 addBaloonMarkersClassifedByRangesFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
             }
             break
         case 'CLASSIFY_BY_QUANTILS':
-            if (layerVisualizationSettings.targetType === 'property' && layersData !== null) {
+            if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
                 addBaloonMarkersClassifedByQuantilsFromLayersData(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds)
+            } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
+                addBaloonMarkersClassifedByQuantilsFromDataAndLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds)
             } else {
                 addBaloonMarkersClassifedByQuantilsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
             }
             break
         default:
-            if (layerVisualizationSettings.targetType === 'property' && layersData !== null) {
+            if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
                 addBaloonMarkersClassifedByEqualIntervalsFromLayersData(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds)
+            } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
+                addBaloonMarkersClassifedByEqualIntervalsFromDataAndLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds)
             } else {
                 addBaloonMarkersClassifedByEqualIntervalsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
             }
@@ -91,6 +110,40 @@ const addBaloonMarkersClassifedByRangesFromLayersData = (layersData: any, spatia
 
         const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value, spatialAttribute)
         markerBounds.push(marker.getLatLng())
+        // addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
+        // addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
+    })
+}
+
+const addBaloonMarkersClassifedByRangesFromDataAndLayers = (targetDatasetData: any, layersData: any, dataColumn: string, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
+    const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
+    const ranges = layerVisualizationSettings.balloonConf?.properties?.thresholds ?? []
+    const minValue = valueColumnMinMaxValues?.min ?? 0
+    const maxValue = valueColumnMinMaxValues?.max ?? 0
+    const formattedRanges = formatRanges(ranges, minValue, maxValue)
+    const sortedRanges = sortRanges(formattedRanges)
+    const defaultColor = layerVisualizationSettings.balloonConf?.style?.color ?? ''
+
+    const pivotColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+    if (!pivotColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
+    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, pivotColumnName, dataColumn)
+
+    layersData.features.forEach((feature: any) => {
+        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+        const value = mappedData[valueKey]
+
+        let sizeAndColor = null as { size: number; color: string } | null
+        if (layerVisualizationSettings.balloonConf) {
+            sizeAndColor = getSizeAndColorFromRanges(value, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize, sortedRanges, defaultColor)
+            if (!sizeAndColor) sizeAndColor = { size: 1, color: layerVisualizationSettings.balloonConf?.style.color ?? '' }
+            layerVisualizationSettings.balloonConf.size = sizeAndColor.size
+            layerVisualizationSettings.balloonConf.style.color = sizeAndColor.color
+        }
+
+        const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value, spatialAttribute)
+        markerBounds.push(marker.getLatLng())
+
+        // TODO - Change Dialog and Tooltip
         // addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
         // addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
     })
@@ -200,6 +253,28 @@ const getQuantilesFromLayersData = (rows: number[], numQuantiles: number): numbe
     return quantiles
 }
 
+const addBaloonMarkersClassifedByQuantilsFromDataAndLayers = (targetDatasetData: any, layersData: any, dataColumn: string, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
+    if (!layerVisualizationSettings.balloonConf) return
+
+    const quantiles = getQuantiles(targetDatasetData.rows, layerVisualizationSettings.balloonConf.classes, dataColumn)
+    const pivotColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+    if (!pivotColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
+    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, pivotColumnName, dataColumn)
+
+    layersData.features.forEach((feature: any) => {
+        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+        const value = mappedData[valueKey]
+
+        if (layerVisualizationSettings.balloonConf) layerVisualizationSettings.balloonConf.size = getSizeFromQuantiles(quantiles, value, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
+        const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value, spatialAttribute)
+        markerBounds.push(marker.getLatLng())
+
+        // TODO - Change Dialog and Tooltip
+        // addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
+        // addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
+    })
+}
+
 const addBaloonMarkersClassifedByQuantilsFromData = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
     if (!layerVisualizationSettings.balloonConf) return
     const quantiles = getQuantiles(data[target.name].rows, layerVisualizationSettings.balloonConf.classes, dataColumn)
@@ -249,14 +324,11 @@ const getSizeFromQuantiles = (quantiles: number[], value: number, numQuantiles: 
 }
 
 const addBaloonMarkersClassifedByEqualIntervalsFromLayersData = (layersData: any, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
-    console.log('-------- layersData: ', layersData)
     let layerPropertyValues = [] as number[]
     if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
         layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
     }
 
-    console.log('-------- layerVisualizationSettings: ', layerVisualizationSettings)
-    console.log('-------- layerPropertyValues: ', layerPropertyValues)
     const minValue = Math.min(...layerPropertyValues) ?? 0
     const maxValue = Math.max(...layerPropertyValues) ?? 0
 
@@ -273,6 +345,44 @@ const addBaloonMarkersClassifedByEqualIntervalsFromLayersData = (layersData: any
     })
 }
 
+const addBaloonMarkersClassifedByEqualIntervalsFromDataAndLayers = (targetDatasetData: any, layersData: any, dataColumn: string, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
+    if (!layerVisualizationSettings.targetDataset) return
+
+    const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
+    const pivotColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+    if (!pivotColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
+    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, pivotColumnName, dataColumn)
+
+    layersData.features.forEach((feature: any) => {
+        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+        const value = mappedData[valueKey]
+
+        if (layerVisualizationSettings.balloonConf)
+            layerVisualizationSettings.balloonConf.size = getSizeFromEqualIntervals(
+                value,
+                valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER,
+                valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER,
+                layerVisualizationSettings.balloonConf.classes,
+                layerVisualizationSettings.balloonConf.minSize,
+                layerVisualizationSettings.balloonConf.maxSize
+            )
+
+        const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value, spatialAttribute)
+        markerBounds.push(marker.getLatLng())
+
+        // TODO - Change Dialog and Tooltip
+        // addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
+        // addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
+    })
+}
+
+const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
+    return rows.reduce((acc: number, row: any) => {
+        acc[row[pivotColumnIndex]] = row[valueColumnIndex]
+        return acc
+    }, {})
+}
+
 const addBaloonMarkersClassifedByEqualIntervalsFromData = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
     const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, incrementColumnName(dataColumn))
 
@@ -287,7 +397,6 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (data: any, model: IWi
                 layerVisualizationSettings.balloonConf.maxSize
             )
 
-        console.log('------- row[geoColumn]: ', row[geoColumn])
         const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.balloonConf, row[dataColumn], spatialAttribute)
         markerBounds.push(marker.getLatLng())
         addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)

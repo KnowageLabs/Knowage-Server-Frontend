@@ -5,7 +5,14 @@ import italy from './italy.json'
 import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
 import { addBaloonMarkers } from './visualization/MapVisualizationHelper'
-import { getLayerData } from './MapWidgetDataProxy'
+import { getLayerData, getMapWidgetData } from './MapWidgetDataProxy'
+import targetDatasetDataMock from './target-dataset-data-mock.json'
+
+export enum VisualizationDataType {
+    DATASET_ONLY,
+    LAYER_ONLY,
+    DATASET_AND_LAYER
+}
 
 function createDialog(tooltip, layerVisualizationSettings: IMapWidgetVisualizationType, settings, meta, row) {
     const list = document.createElement('ul')
@@ -23,7 +30,7 @@ function createDialog(tooltip, layerVisualizationSettings: IMapWidgetVisualizati
     else return L.popup().setContent(list)
 }
 
-function getColumnName(column, data) {
+export function getColumnName(column, data) {
     return data.metaData.fields.find((field) => field.header === column).name
 }
 
@@ -67,7 +74,6 @@ function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IM
 export function addMarker(position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | undefined, value: number, spatialAttribute: any) {
     if (!settings) return
     let marker
-    console.log('------------- POSITION: ', position)
     if (spatialAttribute?.properties?.coordType === 'json')
         L.geoJSON(JSON.parse(position as string), {
             pointToLayer: function (feature, latlng) {
@@ -97,6 +103,7 @@ export function getCoordinates(spatialAttribute, input, coord?) {
 }
 
 export async function initializeLayers(map: L.Map, model: any, data: any) {
+    console.log('--- MODEL: ', model)
     const markerBounds = [] as any
     for (const layer of model.settings.visualizations) {
         const layerVisualizationSettings = deepcopy(layer)
@@ -104,15 +111,26 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         let geoColumn: any = undefined
         let dataColumn: any = undefined
         let layersData = null as any
+        let visualizationDataType = VisualizationDataType.DATASET_ONLY
+        let targetDatasetData = null as any
 
         const target = model.layers.find((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.target)
+        console.log('--------- TARGET: ', target)
 
         if (target.type === 'dataset') {
+            visualizationDataType = VisualizationDataType.DATASET_ONLY
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
             geoColumn = getColumnName(spatialAttribute.name, data[target.name])
             dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
         } else {
+            visualizationDataType = VisualizationDataType.LAYER_ONLY
             layersData = await getLayerData(target)
+            if (layerVisualizationSettings.targetDataset) {
+                visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
+                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
+                // TODO - Remove Mocked
+                targetDatasetData = deepcopy(targetDatasetDataMock)
+            }
         }
 
         const layerGroup = L.layerGroup().addTo(map)
@@ -134,8 +152,7 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         }
 
         if (layerVisualizationSettings.type === 'balloons') {
-            addBaloonMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData)
-            console.log('------- MARKER BOUNDS 123: ', markerBounds)
+            addBaloonMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'clusters') {
@@ -173,7 +190,6 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         }
     }
 
-    console.log('---- markerBounds FINAL: ', markerBounds)
     if (model.settings.configuration.map.autoCentering && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
 }
 

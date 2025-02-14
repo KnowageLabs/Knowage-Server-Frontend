@@ -2,7 +2,21 @@
     <div v-for="(visType, visTypeIndex) in visualizationTypeModel" :key="visTypeIndex" class="p-d-flex p-flex-column p-m-3 widget-editor-card p-p-3">
         <div class="row items-center q-mb-sm">
             <q-select filled dense class="col" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
-            <q-select v-if="visType && getTargetLayerType(visType) === 'layer'" filled dense class="col q-ml-sm" v-model="visType.targetType" :options="['column', 'property']" emit-value map-options option-value="name" option-label="name" options-dense label="Data Link"></q-select>
+            <q-select
+                v-if="visType && getTargetLayerType(visType) === 'layer'"
+                filled
+                dense
+                class="col q-ml-sm"
+                v-model="visType.targetType"
+                :options="['column', 'property']"
+                emit-value
+                map-options
+                option-value="name"
+                option-label="name"
+                options-dense
+                label="Data Link"
+                @update:modelValue="onDataLinkChange($event, visType)"
+            ></q-select>
             <q-select
                 v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column'"
                 filled
@@ -141,6 +155,9 @@ export default defineComponent({
             const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => id === layer.layerId)
             if (!target || target.type !== 'layer' || this.propertiesCache.has(visualization.target)) return
             await this.loadAvailablePropertiesInVisualizationTypeForLayer(target, visualization)
+        },
+        onDataLinkChange(dataLinkType: 'column' | 'property', visualization: IMapWidgetVisualizationType) {
+            if (dataLinkType === 'property') delete visualization.targetDataset
         },
         getTargetLayerType(visualization: IMapWidgetVisualizationType) {
             return this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId) ? this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId).type : 'dataset'
