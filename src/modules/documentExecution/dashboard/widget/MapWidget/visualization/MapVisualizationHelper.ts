@@ -1,6 +1,6 @@
 import { IWidget } from '../../../Dashboard'
 import { IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { addDialogToMarker, addMarker, addTooltipToMarker, getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
+import { addDialogToMarker, addDialogToMarkerBojan, addMarker, addTooltipToMarker, addTooltipToMarkerBojan, getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
 
 export const addBaloonMarkers = (
     data: any,
@@ -22,7 +22,7 @@ export const addBaloonMarkers = (
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
                 addBaloonMarkersClassifedByRangesFromLayersData(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds)
             } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
-                addBaloonMarkersClassifedByRangesFromDataAndLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds)
+                addBaloonMarkersClassifedByRangesFromDataAndLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model)
             } else {
                 addBaloonMarkersClassifedByRangesFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
             }
@@ -115,7 +115,7 @@ const addBaloonMarkersClassifedByRangesFromLayersData = (layersData: any, spatia
     })
 }
 
-const addBaloonMarkersClassifedByRangesFromDataAndLayers = (targetDatasetData: any, layersData: any, dataColumn: string, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
+const addBaloonMarkersClassifedByRangesFromDataAndLayers = (targetDatasetData: any, layersData: any, dataColumn: string, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget) => {
     const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
     const ranges = layerVisualizationSettings.balloonConf?.properties?.thresholds ?? []
     const minValue = valueColumnMinMaxValues?.min ?? 0
@@ -143,9 +143,8 @@ const addBaloonMarkersClassifedByRangesFromDataAndLayers = (targetDatasetData: a
         const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value, spatialAttribute)
         markerBounds.push(marker.getLatLng())
 
-        // TODO - Change Dialog and Tooltip
-        // addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
-        // addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
+        addDialogToMarkerBojan(widgetModel, layerVisualizationSettings, value, marker)
+        addTooltipToMarkerBojan(widgetModel, layerVisualizationSettings, value, marker)
     })
 }
 

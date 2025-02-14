@@ -200,7 +200,12 @@ export interface IMapDialogSettingsProperty {
 
 export interface IMapTooltipSettings {
     enabled: boolean
-    layers: { name: string; columns: string[] }[]
+    layers: IMapTooltipSettingsLayer[]
+}
+
+export interface IMapTooltipSettingsLayer {
+    name: string
+    columns: string[]
 }
 
 export interface IMapWidgetStyle {

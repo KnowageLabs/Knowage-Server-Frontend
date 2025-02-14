@@ -135,7 +135,7 @@ export default defineComponent({
                 return
             }
 
-            const targetLayer = this.widgetModel.layers.find((layer) => visualization.target === layer.layerId)
+            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
             if (targetLayer?.type === 'layer') {
                 this.setLoading(true)
                 const properties = await getPropertiesByLayerId(targetLayer.id)
