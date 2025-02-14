@@ -127,6 +127,15 @@ export default defineComponent({
     list-style-type: none;
     padding-left: 0;
 }
+
+.customLeafletPopupListHeader {
+    font-weight: bold;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #c2c2c2;
+    text-align: center;
+    padding: 0.5rem;
+}
+
 .customLeafletIcon {
     background-color: transparent;
 }

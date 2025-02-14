@@ -1,5 +1,5 @@
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapDialogSettings, IMapTooltipSettings, IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
+import { IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import L from 'leaflet'
 import italy from './italy.json'
 import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
@@ -233,42 +233,55 @@ export function switchLayerVisibility(map: L.Map, visibleLayers): void {
     })
 }
 
-export const addDialogToMarkerBojan = (model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
+export const addDialogToMarkerForLayerData = (feature: any, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
     if (model.settings.dialog?.enabled) {
-        const popup = createDialogBojan(false, layerVisualizationSettings, model.settings.tooltips, value)
+        const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.tooltips, value)
         marker.bindPopup(popup)
     }
 }
 
-export const addTooltipToMarkerBojan = (model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
-    //if (model.settings.tooltips?.enabled) {
-    const tooltip = createDialogBojan(true, layerVisualizationSettings, model.settings.tooltips, value)
-    marker.bindTooltip(tooltip)
-    //}
+export const addTooltipToMarkerForLayerData = (feature: any, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
+    if (model.settings.tooltips?.enabled) {
+        const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value)
+        marker.bindTooltip(tooltip)
+    }
 }
 
-function createDialogBojan(tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number) {
-    console.log('------- CREATE DIALOG!!!')
-    console.log('------- settings: ', settings)
-    console.log('------- value: ', value)
+function createDialogForLayerData(feature: any, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number) {
+    const container = document.createElement('div')
+    const layersList = settings.layers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target) as any
+
+    if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) {
+        const targetDatasetList = document.createElement('ul')
+        targetDatasetList.classList.add('customLeafletPopup')
+        targetDatasetList.append(createTooltipListHeader(layerVisualizationSettings.targetDataset))
+        targetDatasetList.append(createTooltipListItem(`${layerVisualizationSettings.targetProperty}: ${value}`))
+        container.appendChild(targetDatasetList)
+    }
 
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
 
-    // TODO - Remove Hardcoded
+    layersList.forEach((item: IMapTooltipSettingsLayer) => {
+        if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) list.append(createTooltipListHeader(item.name))
+        item.columns.forEach((property: string) => list.append(createTooltipListItem(`${property}: ${feature.properties[property] ?? ''}`)))
+    })
+
+    container.appendChild(list)
+    if (tooltip) return L.tooltip().setContent(container)
+    else return L.popup().setContent(container)
+}
+
+const createTooltipListHeader = (header: string) => {
+    const headerElement = document.createElement('li')
+    headerElement.innerHTML = `${header}`
+    headerElement.classList.add('customLeafletPopupListHeader')
+    return headerElement
+}
+
+const createTooltipListItem = (value: string) => {
     const li = document.createElement('li')
-    li.innerHTML = `VALUE: ${value}`
-    list.append(li)
-    // const layersList = settings.layers.filter((l) => l.name === layerVisualizationSettings.target)
-    // console.log('------- layersList: ', layersList)
-    // layersList.forEach((item) => {
-    //     item.columns.forEach((column) => {
-    //         const li = document.createElement('li')
-    //         //TODO set style
-    //         li.innerHTML = `${column}: ${value}`
-    //         list.append(li)
-    //     })
-    // })
-    if (tooltip) return L.tooltip().setContent(list)
-    else return L.popup().setContent(list)
+    //TODO set style
+    li.innerHTML = `value`
+    return li
 }

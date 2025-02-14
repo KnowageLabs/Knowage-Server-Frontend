@@ -1,6 +1,6 @@
 import { IWidget } from '../../../Dashboard'
 import { IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { addDialogToMarker, addDialogToMarkerBojan, addMarker, addTooltipToMarker, addTooltipToMarkerBojan, getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
+import { addDialogToMarker, addDialogToMarkerForLayerData, addMarker, addTooltipToMarker, addTooltipToMarkerForLayerData, getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
 
 export const addBaloonMarkers = (
     data: any,
@@ -124,9 +124,9 @@ const addBaloonMarkersClassifedByRangesFromDataAndLayers = (targetDatasetData: a
     const sortedRanges = sortRanges(formattedRanges)
     const defaultColor = layerVisualizationSettings.balloonConf?.style?.color ?? ''
 
-    const pivotColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
-    if (!pivotColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
-    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, pivotColumnName, dataColumn)
+    const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+    if (!foreignKeyColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
+    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, foreignKeyColumnName, dataColumn)
 
     layersData.features.forEach((feature: any) => {
         const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
@@ -143,8 +143,8 @@ const addBaloonMarkersClassifedByRangesFromDataAndLayers = (targetDatasetData: a
         const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value, spatialAttribute)
         markerBounds.push(marker.getLatLng())
 
-        addDialogToMarkerBojan(widgetModel, layerVisualizationSettings, value, marker)
-        addTooltipToMarkerBojan(widgetModel, layerVisualizationSettings, value, marker)
+        addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+        addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
     })
 }
 
@@ -256,9 +256,9 @@ const addBaloonMarkersClassifedByQuantilsFromDataAndLayers = (targetDatasetData:
     if (!layerVisualizationSettings.balloonConf) return
 
     const quantiles = getQuantiles(targetDatasetData.rows, layerVisualizationSettings.balloonConf.classes, dataColumn)
-    const pivotColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
-    if (!pivotColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
-    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, pivotColumnName, dataColumn)
+    const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+    if (!foreignKeyColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
+    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, foreignKeyColumnName, dataColumn)
 
     layersData.features.forEach((feature: any) => {
         const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
@@ -348,9 +348,9 @@ const addBaloonMarkersClassifedByEqualIntervalsFromDataAndLayers = (targetDatase
     if (!layerVisualizationSettings.targetDataset) return
 
     const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
-    const pivotColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
-    if (!pivotColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
-    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, pivotColumnName, dataColumn)
+    const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+    if (!foreignKeyColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
+    const mappedData = transformDataUsingForeginKey(targetDatasetData.rows, foreignKeyColumnName, dataColumn)
 
     layersData.features.forEach((feature: any) => {
         const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
