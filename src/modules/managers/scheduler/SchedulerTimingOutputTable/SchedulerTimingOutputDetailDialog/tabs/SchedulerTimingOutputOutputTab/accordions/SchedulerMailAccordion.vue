@@ -219,7 +219,7 @@ export default defineComponent({
             const expressionInvalid = this.document.useExpression && (!this.document.expression || (this.document.expression.length === 0 && !this.uniqueMailEnabledOnOtherDocument))
             const datasetInvalid = this.document.useDataset && (!this.document.datasetLabel || this.document.datasetLabel?.length === 0 || !this.document.datasetParameter || this.document.datasetParameter?.length === 0) && !this.uniqueMailEnabledOnOtherDocument
 
-            this.document.invalid.invalidMail = fixedRecipientsListInvalid || expressionInvalid || datasetInvalid
+            this.document.invalid.invalidMail = (!this.document.useFixedRecipients && !this.document.useExpression && !this.document.useDataset) || fixedRecipientsListInvalid || expressionInvalid || datasetInvalid
         },
         onSendUniqueMailChanged() {
             this.$emit('sendUniqueMailSelected', this.document)

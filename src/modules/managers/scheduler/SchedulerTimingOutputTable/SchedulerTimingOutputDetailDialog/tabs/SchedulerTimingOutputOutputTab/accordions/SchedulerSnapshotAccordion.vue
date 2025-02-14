@@ -9,7 +9,7 @@
                             dense
                             filled
                             :rules="[(val) => val.length > 0 || $t('common.validation.required', { fieldName: $t('common.name') })]"
-                            v-model="document.documentname"
+                            v-model="document.snapshotname"
                             @update:model-value="setNameValidation"
                             :label="$t('common.name')"
                             counter
