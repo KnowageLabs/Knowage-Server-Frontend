@@ -66,10 +66,12 @@ export default defineComponent({
             this.selectedDocument = document
         },
         documentInvalid(document: any) {
-            return (
-                (document.engine != 'knowagetalendengine' && document.invalid && (document.invalid.invalidSnapshot || document.invalid.invalidFile || document.invalid.invalidJavaClass || document.invalid.invalidMail || document.invalid.invalidDocument)) ||
-                (!document.saveassnapshot && !document.saveasfile && !document.saveasdocument && !document.sendtojavaclass && !document.sendmail)
-            )
+            if (document.engine === 'knowagetalendengine') return false
+            else
+                return (
+                    (document.invalid && (document.invalid.invalidSnapshot || document.invalid.invalidFile || document.invalid.invalidJavaClass || document.invalid.invalidMail || document.invalid.invalidDocument)) ||
+                    (!document.saveassnapshot && !document.saveasfile && !document.saveasdocument && !document.sendtojavaclass && !document.sendmail)
+                )
         },
         onSendUniqueMailSelected(document: any) {
             if (this.documentWithUniqueMail && this.documentWithUniqueMail.uniqueMail === document.uniqueMail) return
