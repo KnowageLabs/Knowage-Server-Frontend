@@ -1550,7 +1550,8 @@
                 "paramName": "Parameter Name",
                 "paramType": "Parameter Type",
                 "persistError": "Error saving output param",
-                "title": "Output Parameters"
+                "title": "Output Parameters",
+                "usedParameterWarning": "The output parameter cannot be deleted because it is used by the following cross-navigation: {cross} | The output parameter cannot be deleted because it is used by the following cross-navigations: {cross}"
             },
             "subreports": {
                 "deleteError": "Error deleting subreport",

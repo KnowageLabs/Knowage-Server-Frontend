@@ -1365,7 +1365,8 @@
                 "paramName": "nome parametro",
                 "paramType": "tipo parametro",
                 "persistError": "errore durante il salvataggio del parametro di output",
-                "title": "parametro di output"
+                "title": "parametro di output",
+                "usedParameterWarning": "Il parametro di output non può essere cancellato perché è utilizzato nella seguente navigazione: {cross} | l parametro di output non può essere cancellato perché è utilizzato nelle seguenti navigazioni: {cross}"
             },
             "subreports": {
                 "deleteError": "Errore durante l'eliminazione del sottoreport",
