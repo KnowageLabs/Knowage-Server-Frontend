@@ -9,7 +9,7 @@
         </template>
         <template #content>
             <div class="p-m-5">
-                <Button id="metadata-button" class="p-jc-center" @click="confirmImport">{{ $t('managers.businessModelManager.importMetadata') }}</Button>
+                <Button id="metadata-button" class="p-jc-center" data-test="submit-button" @click="confirmImport">{{ $t('managers.businessModelManager.importMetadata') }}</Button>
                 <div v-if="importing" class="p-mt-5">
                     <div id="import-metadata-spinner">
                         <ProgressSpinner />
