@@ -7,7 +7,7 @@
         <template #end>
             <Button v-if="toggleCardDisplay" icon="fas fa-list" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" />
             <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" /> -->
-            <KnFabButton v-if="tableMode === 'My Datasets'" icon="fas fa-plus" data-test="new-folder-button" @click="showCreationMenu" />
+            <KnFabButton v-if="tableMode === 'My Datasets'" icon="fas fa-plus" data-test="new-button" @click="showCreationMenu" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar p-ml-2" data-test="progress-bar" />

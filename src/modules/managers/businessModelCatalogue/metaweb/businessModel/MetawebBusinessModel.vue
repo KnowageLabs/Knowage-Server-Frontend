@@ -8,7 +8,7 @@
                         <span>{{ $t('metaweb.businessModel.businessClass') }}</span>
                     </template>
                     <template #end>
-                        <KnFabButton icon="fas fa-plus" @click="showMenu" />
+                        <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showMenu" />
                     </template>
                 </Toolbar>
                 <div class="kn-relative kn-flex">

@@ -7,7 +7,7 @@
                 </template>
 
                 <template #end>
-                    <KnFabButton icon="fas fa-plus" @click="addNewHaving"></KnFabButton>
+                    <KnFabButton icon="fas fa-plus" data-test="new-button" @click="addNewHaving"></KnFabButton>
                 </template>
             </Toolbar>
         </template>

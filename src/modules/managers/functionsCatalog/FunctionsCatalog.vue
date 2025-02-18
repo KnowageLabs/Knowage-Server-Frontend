@@ -5,7 +5,7 @@
                 {{ $t('managers.functionsCatalog.title') }}
             </template>
             <template #end>
-                <KnFabButton v-if="!detailDialogVisible" icon="fas fa-plus" @click="showForm(null)" />
+                <KnFabButton v-if="!detailDialogVisible" icon="fas fa-plus" data-test="new-button" @click="showForm(null)" />
             </template>
         </Toolbar>
         <div class="p-d-flex p-flex-column kn-flex functions-main-content">

@@ -6,7 +6,7 @@
                     {{ $t('common.parameters') }}
                 </template>
                 <template #end>
-                    <KnFabButton icon="fas fa-plus" @click="addNewParam" />
+                    <KnFabButton icon="fas fa-plus" data-test="new-button" @click="addNewParam" />
                 </template>
             </Toolbar>
         </template>

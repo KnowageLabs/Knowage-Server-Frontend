@@ -5,7 +5,7 @@
                 {{ $t('managers.scorecards.title') }}
             </template>
             <template #end>
-                <KnFabButton icon="fas fa-plus" @click="openScorecardDetail()"></KnFabButton>
+                <KnFabButton icon="fas fa-plus" data-test="new-button" @click="openScorecardDetail()"></KnFabButton>
             </template>
         </Toolbar>
 

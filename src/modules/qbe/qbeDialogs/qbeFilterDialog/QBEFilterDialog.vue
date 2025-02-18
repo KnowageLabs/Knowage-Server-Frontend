@@ -8,7 +8,7 @@
 
                 <template #end>
                     <i v-show="temporalFiltersEnabled()" class="fa fa-calendar kn-cursor-pointer p-mr-4" @click="openTemporalFilterDialog"></i>
-                    <KnFabButton icon="fas fa-plus" @click="addNewFilter"></KnFabButton>
+                    <KnFabButton icon="fas fa-plus" data-test="new-button" @click="addNewFilter"></KnFabButton>
                 </template>
             </Toolbar>
         </template>
