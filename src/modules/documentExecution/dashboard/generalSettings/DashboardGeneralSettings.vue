@@ -3,8 +3,8 @@
         <Toolbar class="kn-toolbar kn-toolbar--primary">
             <template #start> {{ $t('dashboard.generalSettings.title') }} </template>
             <template #end>
-                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" @click="saveGeneralSettings" />
-                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="$emit('closeGeneralSettings')" />
+                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="saveGeneralSettings" />
+                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="$emit('closeGeneralSettings')" />
             </template>
         </Toolbar>
 

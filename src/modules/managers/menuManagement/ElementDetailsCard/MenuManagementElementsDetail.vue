@@ -4,8 +4,8 @@
             {{ menuNode.name }}
         </template>
         <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="formValid" @click="save" />
-            <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" @click="closeForm" />
+            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="formValid" data-test="save-button" @click="save" />
+            <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" data-test="close-button" @click="closeForm" />
         </template>
     </Toolbar>
 

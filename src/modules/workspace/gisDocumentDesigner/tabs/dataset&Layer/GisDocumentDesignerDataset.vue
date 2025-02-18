@@ -51,7 +51,7 @@
                 <div class="table-header p-d-flex p-ai-center">
                     <span id="search-container" class="p-input-icon-left p-mr-3">
                         <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                     </span>
                 </div>
             </template>
@@ -66,8 +66,8 @@
         </DataTable>
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
-                <Button class="kn-button kn-button--secondary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-                <Button class="kn-button kn-button--primary" @click="saveDatasetSelection"> {{ $t('common.save') }}</Button>
+                <Button class="kn-button kn-button--secondary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+                <Button class="kn-button kn-button--primary" data-test="save-button" @click="saveDatasetSelection"> {{ $t('common.save') }}</Button>
             </div>
         </template>
     </Dialog>

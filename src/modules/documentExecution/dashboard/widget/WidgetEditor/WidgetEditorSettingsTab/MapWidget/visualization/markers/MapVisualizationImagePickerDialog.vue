@@ -4,7 +4,7 @@
 
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
-                <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+                <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
                 <Button class="kn-button kn-button--primary" @click="setImage">{{ $t('common.set') }}</Button>
             </div>
         </template>

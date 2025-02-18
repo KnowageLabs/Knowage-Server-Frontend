@@ -12,7 +12,7 @@
                 </template>
                 <q-table :rows="messages" :columns="columns" :filter="filter" row-key="name" hide-pagination flat :pagination="{ rowsPerPage: 0 }" style="height: 100%">
                     <template #top>
-                        <q-input v-model="filter" rounded outlined debounce="300" :label="$t('common.search')" color="primary">
+                        <q-input v-model="filter" rounded outlined debounce="300" :label="$t('common.search')" color="primary" data-test="search-input">
                             <template #append>
                                 <q-icon name="search" />
                             </template>
@@ -35,8 +35,16 @@
                     </template>
                     <template #body-cell-buttons="props">
                         <q-td key="buttons" :props="props" auto-width>
-                            <q-btn v-tooltip.top="$t('common.save')" flat round color="primary" icon="save" @click="saveLabel(language, props.row)" />
-                            <q-btn v-tooltip.top="language.defaultLanguage ? $t('common.delete') : $t('common.cancel')" flat round color="primary" :icon="language.defaultLanguage ? 'delete' : 'cancel'" @click="deleteLabelConfirm(language, props.row, props.rowIndex, language.defaultLanguage)" />
+                            <q-btn v-tooltip.top="$t('common.save')" flat round color="primary" icon="save" data-test="submit-button" @click="saveLabel(language, props.row)" />
+                            <q-btn
+                                v-tooltip.top="language.defaultLanguage ? $t('common.delete') : $t('common.cancel')"
+                                flat
+                                round
+                                color="primary"
+                                :icon="language.defaultLanguage ? 'delete' : 'cancel'"
+                                data-test="delete-button"
+                                @click="deleteLabelConfirm(language, props.row, props.rowIndex, language.defaultLanguage)"
+                            />
                         </q-td>
                     </template>
                 </q-table>

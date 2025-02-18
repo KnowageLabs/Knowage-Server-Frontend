@@ -3,7 +3,7 @@
         <ProgressSpinner v-if="widgetLoading" class="kn-progress-spinner" />
         <div class="kn-width-full p-d-flex">
             <Button v-if="widgetWidth < 600 && displayFacets" :icon="burgerIcon" class="p-button-text p-button-rounded p-button-plain p-as-center" @click="toggleFacets" />
-            <InputText v-if="displaySearch" v-model="searchWord" class="discovery-search kn-material-input kn-flex p-mb-2" type="text" :placeholder="$t('common.search')" @keyup.enter="searchItems" />
+            <InputText v-if="displaySearch" v-model="searchWord" class="discovery-search kn-material-input kn-flex p-mb-2" type="text" :placeholder="$t('common.search')" data-test="search-input" @keyup.enter="searchItems" />
         </div>
         <div class="discovery-content">
             <div v-if="displayFacets" ref="facetsContainer" :class="{ sidenav: widgetWidth < 600 }" class="facets-container dashboard-scrollbar p-mr-2" :style="getFacetWidth()">

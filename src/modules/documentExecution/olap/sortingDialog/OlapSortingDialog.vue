@@ -22,51 +22,51 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
-    import { defineComponent, PropType } from 'vue'
-    import { iOlap } from '../Olap'
-    import Dialog from 'primevue/dialog'
-    import olapSortingDialogDescriptor from './OlapSortingDialogDescriptor.json'
-    import RadioButton from 'primevue/radiobutton'
+import { defineComponent, PropType } from 'vue'
+import { iOlap } from '../Olap'
+import Dialog from 'primevue/dialog'
+import olapSortingDialogDescriptor from './OlapSortingDialogDescriptor.json'
+import RadioButton from 'primevue/radiobutton'
 
-    export default defineComponent({
-        name: 'olap-custom-view-save-dialog',
-        components: { Dialog, RadioButton },
-        props: { sbiExecutionId: { type: String }, olap: { type: Object as PropType<iOlap> } },
-        emits: ['save'],
-        data() {
-            return {
-                olapSortingDialogDescriptor,
-                sortingMode: 'no sorting',
-                sortingCount: 10
-            }
-        },
-        created() {},
-        methods: {
-            save() {
-                if (this.sortingMode !== 'count' || this.sortingCount < 1) {
-                    this.sortingCount = 10
-                }
-                this.$emit('save', { sortingMode: this.sortingMode, sortingCount: this.sortingCount })
-            }
+export default defineComponent({
+    name: 'olap-custom-view-save-dialog',
+    components: { Dialog, RadioButton },
+    props: { sbiExecutionId: { type: String }, olap: { type: Object as PropType<iOlap> } },
+    emits: ['save'],
+    data() {
+        return {
+            olapSortingDialogDescriptor,
+            sortingMode: 'no sorting',
+            sortingCount: 10
         }
-    })
+    },
+    created() {},
+    methods: {
+        save() {
+            if (this.sortingMode !== 'count' || this.sortingCount < 1) {
+                this.sortingCount = 10
+            }
+            this.$emit('save', { sortingMode: this.sortingMode, sortingCount: this.sortingCount })
+        }
+    }
+})
 </script>
 
 <style lang="scss">
-    #olap-sorting-dialog .p-dialog-header,
-    #olap-sorting-dialog .p-dialog-content {
-        padding: 0;
-    }
+#olap-sorting-dialog .p-dialog-header,
+#olap-sorting-dialog .p-dialog-content {
+    padding: 0;
+}
 
-    #olap-sorting-dialog .p-dialog-content {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
+#olap-sorting-dialog .p-dialog-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
 </style>

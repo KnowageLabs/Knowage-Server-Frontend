@@ -6,8 +6,8 @@
                     {{ selectedFunction.name }}
                 </template>
                 <template #end>
-                    <Button class="kn-button p-button-text p-m-2" :label="$t('common.close')" @click="closeFunctionDetail"></Button>
-                    <Button class="kn-button p-button-text" :label="$t('common.save')" :disabled="readonly" @click="onSave"></Button>
+                    <Button class="kn-button p-button-text p-m-2" :label="$t('common.close')" data-test="close-button" @click="closeFunctionDetail"></Button>
+                    <Button class="kn-button p-button-text" :label="$t('common.save')" :disabled="readonly" data-test="save-button" @click="onSave"></Button>
                 </template>
             </Toolbar>
             <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />

@@ -1,12 +1,12 @@
 <template>
-    <Card style="width:100%" class="p-m-2">
+    <Card style="width: 100%" class="p-m-2">
         <template #content>
             <DataTable v-model:selection="selectedMode.associatedChecks" v-model:filters="filters" :value="constraints" class="p-datatable-sm kn-table" data-key="checkId" responsive-layout="stack" filter-display="menu" data-test="values-list">
                 <template #header>
                     <div class="table-header">
                         <span class="p-input-icon-left">
                             <i class="pi pi-search" />
-                            <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0" data-test="filter-input" />
+                            <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0" data-test="search-input" />
                         </span>
                     </div>
                 </template>

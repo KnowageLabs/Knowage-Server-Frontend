@@ -120,7 +120,7 @@
                     {{ $t('managers.businessModelManager.driverDataConditions') }}
                 </template>
                 <template #end>
-                    <Button class="kn-button p-button-text" :disabled="modes.length === 0 || !driver.id || readonly" @click="showForm">{{ $t('managers.businessModelManager.addCondition') }}</Button>
+                    <Button class="kn-button p-button-text" :disabled="modes.length === 0 || !driver.id || readonly" data-test="new-button" @click="showForm">{{ $t('managers.businessModelManager.addCondition') }}</Button>
                 </template>
             </Toolbar>
         </template>
@@ -134,7 +134,7 @@
                                 <div class="kn-list-item-text">
                                     <span>{{ slotProps.option.filterOperation + ' ' + $t('managers.businessModelManager.value') + ' ' + slotProps.option.parFatherUrlName }}</span>
                                 </div>
-                                <Button icon="far fa-trash-alt" class="p-button-link p-button-sm" :disabled="readonly" @click.stop="showConditionDeleteDialog(slotProps.option)" />
+                                <Button icon="far fa-trash-alt" class="p-button-link p-button-sm" :disabled="readonly" data-test="delete-button" @click.stop="showConditionDeleteDialog(slotProps.option)" />
                             </div>
                         </template>
                     </Listbox>
@@ -210,8 +210,8 @@
                 </div>
             </form>
             <template #footer>
-                <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="closeForm"></Button>
-                <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="readonly" @click="handleSubmit"></Button>
+                <Button class="kn-button kn-button--secondary" :label="$t('common.close')" data-test="close-button" @click="closeForm"></Button>
+                <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="readonly" data-test="submit-button" @click="handleSubmit"></Button>
             </template>
         </Dialog>
     </div>

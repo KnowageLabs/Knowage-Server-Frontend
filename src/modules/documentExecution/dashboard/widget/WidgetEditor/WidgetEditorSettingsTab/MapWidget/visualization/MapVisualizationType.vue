@@ -5,8 +5,8 @@
                 <WidgetEditorLayersMultiselect :value="visType.target" class="kn-material-input kn-width-full" :available-target-options="availableLayersOptions" :widget-layers-name-map="widgetLayersNameMap" option-label="name" option-value="name" @change="onLayersSelected($event, visType)" />
                 <label class="kn-material-input-label"> {{ $t('common.layers') }} </label>
             </span>
-            <Button v-if="visTypeIndex == 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
-            <Button icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeVisualizationType(visTypeIndex)" />
+            <Button v-if="visTypeIndex == 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" data-test="new-button" @click="addVisualizationType" />
+            <Button icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" data-test="delete-button" @click="removeVisualizationType(visTypeIndex)" />
         </div>
 
         <div class="p-grid gap-1 p-m-0" style="column-gap: 0.5em; row-gap: 0.5em">

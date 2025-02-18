@@ -1,5 +1,5 @@
 <template>
-    <DataTable class="p-datatable-sm kn-table  kn-height-full" :value="rows" responsive-layout="scroll" @rowReorder="onRowReorder" @drop="onDrop($event)" @dragover.prevent @dragenter.prevent>
+    <DataTable class="p-datatable-sm kn-table kn-height-full" :value="rows" responsive-layout="scroll" @rowReorder="onRowReorder" @drop="onDrop($event)" @dragover.prevent @dragenter.prevent>
         <Column :row-reorder="true" :style="QBESimpleTableDescriptor.style.firstColumn" />
         <Column v-for="column in QBESimpleTableDescriptor.columns" :key="column.header" :field="column.field" :style="column.style" :sortable="true">
             <template #header>
@@ -18,7 +18,7 @@
         <Column :style="QBESimpleTableDescriptor.style.lastColumn">
             <template #body="slotProps">
                 <Button icon="fas fa-ellipsis-v" class="p-button-link" data-test="menu-toggle" @click="toggle($event, slotProps.data, slotProps.index)" />
-                <Menu ref="menu" :model="menuItems" :popup="true" />
+                <Menu ref="menu" :model="menuItems" :popup="true" data-test="menu" />
             </template>
         </Column>
     </DataTable>

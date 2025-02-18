@@ -21,7 +21,7 @@
             <div v-else aria-hidden="true" class="card-image" :style="documentImageSource" />
         </div>
     </div>
-    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
+    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu" />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'

@@ -7,7 +7,7 @@
                         {{ $t('kpi.targetDefinition.title') }}
                     </template>
                     <template #end>
-                        <KnFabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm(null, false)"></KnFabButton>
+                        <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm(null, false)"></KnFabButton>
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />

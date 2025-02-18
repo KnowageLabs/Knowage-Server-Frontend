@@ -3,7 +3,7 @@
         <template #content>
             <Message v-if="kpi.threshold.usedByKpi" severity="info" :closable="false" :style="tresholdTabDescriptor.styles.message">
                 {{ $t('kpi.kpiDefinition.thresholdReused') }}
-                <Button :label="$t('kpi.kpiDefinition.clone')" @click="cloneExistingThreshold" />
+                <Button :label="$t('kpi.kpiDefinition.clone')" data-test="clone-button" @click="cloneExistingThreshold" />
             </Message>
 
             <form class="p-fluid p-formgrid p-grid">
@@ -122,12 +122,12 @@
                         <Button :label="$t('kpi.kpiDefinition.thresholdsListTitle')" class="p-button-link" @click="thresholdListVisible = true" />
                     </template>
                     <template #body="slotProps">
-                        <Button icon="pi pi-trash" class="p-button-link" @click="deleteThresholdItemConfirm(slotProps.index)" />
+                        <Button icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="deleteThresholdItemConfirm(slotProps.index)" />
                     </template>
                 </Column>
 
                 <template #footer>
-                    <Button :label="$t('kpi.kpiDefinition.addNewThreshold')" class="p-button-link" :style="tresholdTabDescriptor.styles.table.footer" @click="addNewThresholdItem" />
+                    <Button :label="$t('kpi.kpiDefinition.addNewThreshold')" class="p-button-link" :style="tresholdTabDescriptor.styles.table.footer" data-test="new-button" @click="addNewThresholdItem" />
                 </template>
             </DataTable>
         </template>
@@ -137,7 +137,17 @@
         <Toolbar class="kn-toolbar kn-toolbar--secondary">
             <template #start>{{ $t('kpi.kpiDefinition.thresholdsListTitle') }}</template>
         </Toolbar>
-        <Listbox class="kn-list--column" :options="thresholdsList" :filter="true" :filter-placeholder="$t('common.search')" filter-match-mode="contains" :filter-fields="tabViewDescriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')" @change="confirmToLoadThreshold">
+        <Listbox
+            class="kn-list--column"
+            :options="thresholdsList"
+            :filter="true"
+            :filter-placeholder="$t('common.search')"
+            filter-match-mode="contains"
+            :filter-fields="tabViewDescriptor.filterFields"
+            :empty-filter-message="$t('common.info.noDataFound')"
+            data-test="search-input"
+            @change="confirmToLoadThreshold"
+        >
             <template #empty>{{ $t('common.info.noDataFound') }}</template>
             <template #option="slotProps">
                 <div class="kn-list-item" data-test="list-item">
@@ -154,9 +164,9 @@
         <p class="p-mt-4">{{ $t('kpi.kpiDefinition.thresholdReused') }}</p>
         <template #footer>
             <div class="p-d-flex p-jc-center">
-                <Button class="kn-button kn-button--primary" :label="$t('common.cancel')" @click="overrideDialogVisible = false" />
-                <Button class="kn-button kn-button--primary" :label="$t('kpi.kpiDefinition.useIt')" @click="cloneSelectedThreshold('use')" />
-                <Button class="kn-button kn-button--primary" :label="$t('kpi.kpiDefinition.clone')" @click="cloneSelectedThreshold('clone')" />
+                <Button class="kn-button kn-button--primary" :label="$t('common.cancel')" data-test="close-button" @click="overrideDialogVisible = false" />
+                <Button class="kn-button kn-button--primary" :label="$t('kpi.kpiDefinition.useIt')" data-test="close-button-use-threshold" @click="cloneSelectedThreshold('use')" />
+                <Button class="kn-button kn-button--primary" :label="$t('kpi.kpiDefinition.clone')" data-test="clone-button-threshold" @click="cloneSelectedThreshold('clone')" />
             </div>
         </template>
     </Dialog>

@@ -3,7 +3,7 @@
         <Toolbar id="document-detail-toolbar" class="kn-toolbar kn-toolbar--secondary">
             <template #start>
                 <div id="document-icons-container" class="p-d-flex p-flex-row p-jc-around">
-                    <i v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_USER_MANAGEMENT)" v-tooltip.top="$t('documentBrowser.executeDocument')" class="fa fa-play-circle document-pointer p-mx-4" @click="executeDocument" />
+                    <i v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_USER_MANAGEMENT)" v-tooltip.top="$t('documentBrowser.executeDocument')" class="fa fa-play-circle document-pointer p-mx-4" data-test="execution" @click="executeDocument" />
                     <template v-if="canEditDocument">
                         <i v-tooltip.top="$t('documentBrowser.editDocument')" class="pi pi-pencil document-pointer p-mx-4" @click="$emit('showDocumentDetails', document)" />
                         <i v-tooltip.top="$t('documentBrowser.cloneDocument')" class="far fa-copy document-pointer p-mx-4" @click="cloneDocumentConfirm" />

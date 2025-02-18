@@ -27,7 +27,7 @@
             <div class="table-header p-d-flex p-ai-center">
                 <span id="search-container" class="p-input-icon-left p-mr-3">
                     <i class="pi pi-search" />
-                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" />
+                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" />
                 </span>
             </div>
         </template>
@@ -74,10 +74,10 @@ export default defineComponent({
             this.rows = this.parameterPopUpData.result.data
 
             this.columns = []
-            
+
             let keyMap: any[] = []
             let pref: string = ''
- 
+
             Object.keys(this.parameterPopUpData.result.metadata.colsMap).forEach((col) => {
                 const colMatch = col.match(/(?<pref>[a-zA-Z_\-\.]+)(?<key>\d+)/)
                 if (colMatch && colMatch.groups) {
@@ -87,7 +87,7 @@ export default defineComponent({
             })
 
             keyMap = keyMap.sort().map((k) => pref + k)
-            
+
             keyMap.forEach((key: string) => {
                 if (this.parameterPopUpData?.result.metadata.visibleColumns?.includes(this.parameterPopUpData.result.metadata.colsMap[key])) {
                     this.columns.push({

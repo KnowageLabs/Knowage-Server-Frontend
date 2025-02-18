@@ -5,7 +5,7 @@
                 {{ $t('managers.scorecards.title') }}
             </template>
             <template #end>
-                <KnFabButton icon="fas fa-plus" @click="openScorecardDetail()"></KnFabButton>
+                <KnFabButton icon="fas fa-plus" data-test="new-button" @click="openScorecardDetail()"></KnFabButton>
             </template>
         </Toolbar>
 
@@ -27,7 +27,7 @@
                         <div class="table-header">
                             <span class="p-input-icon-left">
                                 <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                                <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                             </span>
                         </div>
                     </template>

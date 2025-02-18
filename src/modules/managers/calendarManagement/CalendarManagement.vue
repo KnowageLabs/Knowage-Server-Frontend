@@ -5,7 +5,7 @@
                 {{ $t('managers.calendarManagement.title') }}
             </template>
             <template #end>
-                <KnFabButton v-show="canManageCalendar" icon="fas fa-plus" @click="showForm()"></KnFabButton>
+                <KnFabButton v-show="canManageCalendar" icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
             </template>
         </Toolbar>
         <KnOverlaySpinnerPanel :visibility="loading" data-test="spinner" />

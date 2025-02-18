@@ -58,8 +58,8 @@
                     </template>
                     <template #end>
                         <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-filter" class="p-button-text p-button-rounded p-button-plain" @click="parameterSidebarVisible = !parameterSidebarVisible" />
-                        <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" @click="saveQbeDataset" />
-                        <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeQbeIframe" />
+                        <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="saveQbeDataset" />
+                        <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeQbeIframe" />
                     </template>
                 </Toolbar>
             </template>

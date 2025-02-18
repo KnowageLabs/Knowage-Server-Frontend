@@ -31,7 +31,7 @@
                                 <span>{{ slotProps.option.name }}</span>
                                 <span v-if="slotProps.option.category" class="kn-list-item-text-secondary">{{ slotProps.option.category.valueDescription }}</span>
                             </div>
-                            <Button icon="far fa-copy" class="p-button-text p-button-rounded p-button-plain" data-test="copy-button" @click.stop="emitCopyKpi(slotProps.option.id, slotProps.option.version)" />
+                            <Button icon="far fa-copy" class="p-button-text p-button-rounded p-button-plain" data-test="clone-button" @click.stop="emitCopyKpi(slotProps.option.id, slotProps.option.version)" />
                             <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" data-test="delete-button" @click.stop="deleteKpiConfirm(slotProps.option.id, slotProps.option.version)" />
                         </div>
                     </template>

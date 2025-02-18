@@ -62,10 +62,10 @@
         </div>
 
         <template #footer>
-            <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
+            <Button class="p-button-text kn-button" :label="$t('common.cancel')" data-test="close-button" @click="closeDialog" />
             <Button v-if="wizardStep == 2 && !editMode" class="kn-button kn-button--secondary" :label="$t('common.back')" :disabled="buttonDisabled || summary.length > 0" @click="previousStep" />
             <Button v-if="wizardStep == 1" class="kn-button kn-button--primary" :label="$t('common.next')" :disabled="buttonDisabled" @click="nextStep" />
-            <Button v-if="wizardStep == 2" class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" @click="saveBusinessView" />
+            <Button v-if="wizardStep == 2" class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" data-test="save-button" @click="saveBusinessView" />
         </template>
     </Dialog>
 </template>

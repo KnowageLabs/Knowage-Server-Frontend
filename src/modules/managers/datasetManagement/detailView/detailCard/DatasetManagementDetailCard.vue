@@ -87,7 +87,7 @@
                 </div>
                 <div class="p-field p-mt-1 p-col-12">
                     <span class="p-float-label kn-material-input">
-                        <AutoComplete v-model="dataset.tags" :suggestions="filteredTagsNames" :multiple="true" @complete="searchTag" @keydown.enter="createTagChip">
+                        <AutoComplete v-model="dataset.tags" :suggestions="filteredTagsNames" :multiple="true" @complete="searchTag" @keydown.enter="createTagChip" data-test="search-input">
                             <template #chip="slotProps">
                                 {{ slotProps.value.name }}
                             </template>
@@ -128,8 +128,8 @@
                 </Column>
                 <Column @rowClick="false">
                     <template #body="slotProps">
-                        <Button v-if="slotProps.data.versNum !== 0" icon="fas fa-retweet" class="p-button-link" @click="restoreVersionConfirm(slotProps.data)" />
-                        <Button v-if="slotProps.data.versNum !== 0" icon="pi pi-trash" class="p-button-link" @click="deleteConfirm('deleteOne', slotProps.data)" />
+                        <Button v-if="slotProps.data.versNum !== 0" icon="fas fa-retweet" class="p-button-link" data-test="submit-button" @click="restoreVersionConfirm(slotProps.data)" />
+                        <Button v-if="slotProps.data.versNum !== 0" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="deleteConfirm('deleteOne', slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -274,7 +274,7 @@ export default defineComponent({
             } else {
                 this.dataset.limitRows = null
             }
-            
+
             if (item != undefined) {
                 this.dataset.catTypeVn = item.catTypeVn
                 this.dataset.catTypeId = Number(item.catTypeId)
@@ -337,7 +337,7 @@ export default defineComponent({
         },
         updateCdFromId(optionsArray, fieldToUpdate, updatedField) {
             const selectedField = optionsArray.find((option) => option.VALUE_ID === updatedField)
-            if(selectedField) this.dataset[fieldToUpdate] = selectedField.VALUE_CD
+            if (selectedField) this.dataset[fieldToUpdate] = selectedField.VALUE_CD
         }
     }
 })

@@ -1,5 +1,5 @@
 <template>
-    <Card style="width:100%">
+    <Card style="width: 100%">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--secondary">
                 <template #start>
@@ -22,7 +22,7 @@
                 <Column field="value" :header="$t('common.value')"></Column>
                 <Column header-style="glossaryDefinitionDialogDescriptor.table.iconColumn.style" :style="glossaryDefinitionDialogDescriptor.table.iconColumn.style">
                     <template #body="slotProps">
-                        <Button icon="pi pi-trash" class="p-button-link" @click="deleteAttribute(slotProps.data)" />
+                        <Button icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="deleteAttribute(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -30,35 +30,35 @@
     </Card>
 </template>
 <script lang="ts">
-    import { defineComponent } from 'vue'
-    import DataTable from 'primevue/datatable'
-    import Column from 'primevue/column'
-    import glossaryDefinitionDialogDescriptor from '../GlossaryDefinitionDialogDescriptor.json'
-    export default defineComponent({
-        name: 'attributes-table',
-        components: { DataTable, Column },
-        props: {},
-        data() {
-            return {
-                mockedAtributes: [
-                    { name: 'mock1', value: 0 },
-                    { name: 'mock2', value: 0 }
-                ],
-                glossaryDefinitionDialogDescriptor
-            }
-        },
-        computed: {},
-        watch: {
-            propWord() {}
-        },
-        mounted() {},
-        methods: {
-            showDialog() {
-                console.log('DIALOG')
-            },
-            deleteAttribute(attribute: any) {
-                console.log(attribute)
-            }
+import { defineComponent } from 'vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import glossaryDefinitionDialogDescriptor from '../GlossaryDefinitionDialogDescriptor.json'
+export default defineComponent({
+    name: 'attributes-table',
+    components: { DataTable, Column },
+    props: {},
+    data() {
+        return {
+            mockedAtributes: [
+                { name: 'mock1', value: 0 },
+                { name: 'mock2', value: 0 }
+            ],
+            glossaryDefinitionDialogDescriptor
         }
-    })
+    },
+    computed: {},
+    watch: {
+        propWord() {}
+    },
+    mounted() {},
+    methods: {
+        showDialog() {
+            console.log('DIALOG')
+        },
+        deleteAttribute(attribute: any) {
+            console.log(attribute)
+        }
+    }
+})
 </script>

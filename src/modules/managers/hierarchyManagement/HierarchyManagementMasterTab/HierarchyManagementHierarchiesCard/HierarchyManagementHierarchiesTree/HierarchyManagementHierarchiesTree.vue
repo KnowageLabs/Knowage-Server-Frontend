@@ -25,7 +25,7 @@
                     <span class="node-label">{{ slotProps.node.label }}</span>
                     <div v-show="buttonVisible[slotProps.node.key]">
                         <template v-if="treeMode !== 'info'">
-                            <Button v-if="slotProps.node.leaf" v-tooltip.top="$t('common.clone')" icon="pi pi-clone" class="p-button-link p-button-sm p-p-0" @click.stop="cloneNode(slotProps.node)" />
+                            <Button v-if="slotProps.node.leaf" v-tooltip.top="$t('common.clone')" icon="pi pi-clone" class="p-button-link p-button-sm p-p-0" data-test="clone-button" @click.stop="cloneNode(slotProps.node)" />
                             <Button v-else v-tooltip.top="$t('common.add')" icon="pi pi-plus" class="p-button-link p-button-sm p-p-0" @click.stop="addNode(slotProps.node)" />
                             <Button v-if="!slotProps.node.data.root" v-tooltip.top="$t('common.edit')" icon="pi pi-pencil" class="p-button-link p-button-sm p-p-0" @click.stop="editNode(slotProps.node)" />
                             <Button v-if="!slotProps.node.data.root" v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link p-button-sm p-p-0" @click.stop="deleteNodeConfirm(slotProps.node)" />

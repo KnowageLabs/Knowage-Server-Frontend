@@ -11,7 +11,7 @@
                     <input v-if="index === sheetToRenameIndex" v-model="tempLabel" :ref="`input_${index}`" type="text" @click.stop="" @blur="saveRename(index, $event)" @keyup.enter="saveRename(index, $event)" />
                     <span v-else class="kn-truncated sheet-label-text" :title="sheet.label" :class="{ hasIcon: sheet.icon }">{{ sheet.label }} </span>
                     <Button v-if="edit" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
-                    <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`">
+                    <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`" data-test="menu">
                         <q-list style="min-width: 100px" dense>
                             <q-item clickable v-close-popup @click="renameSheet(index)">
                                 <q-item-section>

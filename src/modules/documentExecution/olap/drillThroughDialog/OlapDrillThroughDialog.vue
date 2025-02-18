@@ -24,7 +24,7 @@
                 <div class="table-header p-d-flex p-ai-center">
                     <span id="search-container" class="p-input-icon-left p-mr-3">
                         <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                     </span>
                     <span class="p-float-label p-as-end p-ml-auto">
                         <Dropdown id="rows" v-model="maxRows" class="kn-material-input" :options="maxRowsOptions" :style="dtDescriptor.style.dropdown" @change="$emit('rowsChanged', maxRows)" />
@@ -42,7 +42,7 @@
             <Button class="kn-button kn-button--primary" :label="$t('common.apply')" @click="$emit('drill')" />
         </div>
 
-        <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons">
+        <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu">
             <template #item="{ item }">
                 <span class="p-m-2">
                     <Checkbox v-model="item.checked" :binary="true" @click="$emit('checkCheckboxes', item, dtAssociatedLevels)" />

@@ -6,7 +6,7 @@
             </template>
             <template #end>
                 <div class="p-d-flex p-flex-row">
-                    <Button class="kn-button p-button-text" @click="saveRegistry">{{ $t('common.save') }}</Button>
+                    <Button class="kn-button p-button-text" data-test="submit-button" data-test="save-button" @click="saveRegistry">{{ $t('common.save') }}</Button>
                 </div>
             </template>
         </Toolbar>

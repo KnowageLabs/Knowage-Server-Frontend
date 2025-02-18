@@ -4,7 +4,7 @@
             <template #start>{{ $t('managers.glossary.glossaryDefinition.title') }}</template>
 
             <template #end>
-                <FabButton icon="fas fa-plus" class="fab-button" @click="addNewGlossary('Save')" />
+                <FabButton icon="fas fa-plus" class="fab-button" data-test="submit-button" @click="addNewGlossary('Save')" />
             </template>
         </Toolbar>
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
@@ -17,8 +17,8 @@
                     <template #end>
                         <div class="p-d-flex p-flex-row">
                             <div v-if="selectedGlossary && selectedGlossaryId && selectedGlossaryId != -1">
-                                <Button class="kn-button p-button-text glossary-info-button" @click="addNewGlossary('Clone')">{{ $t('common.clone') }}</Button>
-                                <Button class="kn-button p-button-text glossary-info-button" @click="deleteGlossaryConfirm">{{ $t('common.delete') }}</Button>
+                                <Button class="kn-button p-button-text glossary-info-button" data-test="clone-button" @click="addNewGlossary('Clone')">{{ $t('common.clone') }}</Button>
+                                <Button class="kn-button p-button-text glossary-info-button" data-test="delete-button" @click="deleteGlossaryConfirm">{{ $t('common.delete') }}</Button>
                             </div>
                         </div>
                     </template>
@@ -95,7 +95,7 @@
                                     <Button v-if="!slotProps.node.data.HAVE_CONTENTS_CHILD && slotProps.node.data.CONTENT_NM" v-tooltip.top="$t('managers.glossary.glossaryDefinition.addWord')" icon="pi pi-book" class="p-button-link p-button-sm p-p-0" @click.stop="addWord(slotProps.node)" />
                                     <Button v-if="slotProps.node.data.CONTENT_NM" v-tooltip.top="$t('common.edit')" icon="pi pi-pencil" class="p-button-link p-button-sm p-p-0" @click.stop="showNodeDialog(slotProps.node, 'edit')" />
                                     <Button v-tooltip.top="$t('managers.glossary.glossaryDefinition.showInfo')" icon="pi pi-info-circle" class="p-button-link p-button-sm p-p-0" @click.stop="$emit('infoClicked', slotProps.node.data)" />
-                                    <Button v-tooltip.top="$t('common.delete')" icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" @click.stop="deleteNodeConfirm(slotProps.node)" />
+                                    <Button v-tooltip.top="$t('common.delete')" icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" data-test="delete-button" @click.stop="deleteNodeConfirm(slotProps.node)" />
                                 </div>
                             </div>
                         </template>

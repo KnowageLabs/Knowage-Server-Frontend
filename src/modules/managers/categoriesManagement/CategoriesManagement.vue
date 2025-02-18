@@ -5,7 +5,7 @@
                 {{ $t('managers.categoriesManagement.title') }}
             </template>
             <template #end>
-                <KnFabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm" />
+                <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm" />
             </template>
         </Toolbar>
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />

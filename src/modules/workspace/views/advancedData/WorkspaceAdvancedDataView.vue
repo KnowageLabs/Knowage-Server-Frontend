@@ -84,8 +84,8 @@
     />
 
     <EditPreparedDatasetDialog :dataset="selectedDataset" :visible="showEditPreparedDatasetDialog" @save="updatePreparedDataset" @cancel="showEditPreparedDatasetDialog = false" />
-    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
-    <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" />
+    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu" />
+    <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" data-test="creation-menu" />
 
     <WorkspaceDataCloneDialog :visible="cloneDialogVisible" :prop-dataset="selectedDataset" @close="cloneDialogVisible = false" @clone="handleDatasetClone"> </WorkspaceDataCloneDialog>
     <WorkspaceDataPreviewDialog :visible="previewDialogVisible" :prop-dataset="selectedDataset" @close="previewDialogVisible = false"> </WorkspaceDataPreviewDialog>

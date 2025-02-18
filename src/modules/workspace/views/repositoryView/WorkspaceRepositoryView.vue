@@ -83,7 +83,7 @@
 
     <WorkspaceRepositoryMoveDialog :visible="moveDialogVisible" :prop-folders="folders" @close="moveDialogVisible = false" @move="handleDocumentMove"></WorkspaceRepositoryMoveDialog>
     <WorkspaceWarningDialog :visible="warningDialogVisbile" :warning-message="warningMessage" @close="closeWarningDialog"></WorkspaceWarningDialog>
-    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
+    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu" />
 
     <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" @close="onSaveViewListDialogClose" @viewUpdated="onViewUpdated"></DashboardSaveViewDialog>
 </template>

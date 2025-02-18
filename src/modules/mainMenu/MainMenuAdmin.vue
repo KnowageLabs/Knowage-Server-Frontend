@@ -3,7 +3,7 @@
         <div class="p-grid p-mb-1">
             <span class="p-input-icon-left p-col">
                 <i class="pi pi-search" />
-                <InputText v-model="searchText" type="text" :placeholder="$t('common.search')" @click="focusInput($event)" @keyup="filter()" />
+                <InputText v-model="searchText" type="text" :placeholder="$t('common.search')" data-test="search-input" @click="focusInput($event)" @keyup="filter()" />
             </span>
         </div>
         <div style="overflow-y: auto">
