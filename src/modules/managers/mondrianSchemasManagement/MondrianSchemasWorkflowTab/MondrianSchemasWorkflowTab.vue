@@ -36,7 +36,7 @@
                     </template>
                     <template #end>
                         <span v-tooltip.top="$t(tooltipValue)">
-                            <Button :disabled="disableButton" icon="pi pi-play" class="p-button-rounded" @click="startWorkflow" />
+                            <Button :disabled="disableButton" icon="pi pi-play" class="p-button-rounded" data-test="submit-button" @click="startWorkflow" />
                         </span>
                     </template>
                 </Toolbar>
@@ -53,7 +53,7 @@
                 >
                     <template #empty>{{ $t('common.info.noDataFound') }}</template>
                     <template #option="slotProps">
-                        <div class="kn-list-item" :class="{ disableCursor: isStartedWf }" data-test="userList2-item" @click="removeUserFromWfList(slotProps.option.id)">
+                        <div class="kn-list-item" :class="{ disableCursor: isStartedWf }" data-test="list-item" @click="removeUserFromWfList(slotProps.option.id)">
                             <div class="kn-list-item-text">
                                 <span>{{ slotProps.option.userId }}</span>
                                 <span class="kn-list-item-text-secondary">{{ slotProps.option.fullName }}</span>
