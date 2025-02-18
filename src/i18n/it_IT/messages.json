@@ -3225,7 +3225,8 @@
         }
     },
     "menu": {
-        "ThemeManagement": "Themes",
+        "DashboardThemeManagement": "Temi della dashboard",
+        "ThemeManagement": "Temi",
         "group": {
             "ImportExport": "Import/Export",
             "ServerManager": "Server manager"

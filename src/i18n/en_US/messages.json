@@ -3557,6 +3557,7 @@
     },
     "menu": {
         "Categories": "Categories",
+        "DashboardThemeManagement": "Dashboard Themes",
         "ThemeManagement": "Themes",
         "group": {
             "ImportExport": "Import/Export",
