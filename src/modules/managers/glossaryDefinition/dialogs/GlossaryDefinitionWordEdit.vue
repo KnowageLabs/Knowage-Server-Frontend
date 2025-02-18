@@ -57,7 +57,7 @@
                 </div>
                 <div class="p-field p-col-12">
                     <span class="p-float-label">
-                        <AutoComplete id="link" v-model="word.LINK" class="kn-material-input" :multiple="true" :suggestions="availableWords" field="WORD" @complete="searchWord($event)"></AutoComplete>
+                        <AutoComplete id="link" v-model="word.LINK" class="kn-material-input" :multiple="true" :suggestions="availableWords" field="WORD" data-test="search-input" @complete="searchWord($event)"></AutoComplete>
                         <label for="link" class="kn-material-input-label">{{ $t('managers.glossary.common.link') }} </label>
                     </span>
                 </div>
@@ -65,8 +65,8 @@
             <!-- <AttributesTable></AttributesTable> -->
         </div>
         <template #footer>
-            <Button :label="$t('common.cancel')" class="kn-button kn-button--secondary" @click="closeDialog" />
-            <Button :label="$t('common.save')" class="kn-button kn-button--primary" :disabled="buttonDisabled" @click="saveWord" />
+            <Button :label="$t('common.cancel')" class="kn-button kn-button--secondary" data-test="close-button" @click="closeDialog" />
+            <Button :label="$t('common.save')" class="kn-button kn-button--primary" :disabled="buttonDisabled" data-test="save-button" @click="saveWord" />
         </template>
     </Dialog>
 </template>
