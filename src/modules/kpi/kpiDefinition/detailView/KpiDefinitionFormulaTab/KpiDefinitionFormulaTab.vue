@@ -56,7 +56,7 @@
         </div>
         <template #footer>
             <div>
-                <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" @click="cancel" />
+                <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="cancel" />
                 <Button class="kn-button" :label="$t('common.apply')" @click="openFunctionPicker" />
             </div>
         </template>

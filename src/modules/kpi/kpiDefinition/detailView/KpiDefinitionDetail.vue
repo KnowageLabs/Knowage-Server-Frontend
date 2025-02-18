@@ -4,7 +4,7 @@
         <template #end>
             <Button :label="$t('kpi.kpiDefinition.aliasToolbarTitle')" :style="tabViewDescriptor.style.aliasButton" class="p-button-text p-button-rounded p-button-plain" @click="toggleAlias" />
             <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" @click="showSaveDialog = true" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplateConfirm" />
+            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplateConfirm" />
         </template>
     </Toolbar>
 
@@ -113,7 +113,7 @@
             <template #footer>
                 <div>
                     <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" @click="showSaveDialog = false" />
-                    <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="v$.$invalid" @click="saveKpi" />
+                    <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="v$.$invalid" data-test="submit-button" @click="saveKpi" />
                 </div>
             </template>
         </Dialog>
