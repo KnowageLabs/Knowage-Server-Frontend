@@ -21,8 +21,8 @@
                         {{ userDetailsForm.userId }}
                     </template>
                     <template #end>
-                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!dirty || !passwordValidation" @click="saveUser" />
-                        <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" @click="closeForm" />
+                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!dirty || !passwordValidation" data-test="save-button" @click="saveUser" />
+                        <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" data-test="close-button" @click="closeForm" />
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />

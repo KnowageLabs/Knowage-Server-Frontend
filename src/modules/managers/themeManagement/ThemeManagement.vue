@@ -27,7 +27,7 @@
                 </template>
                 <template #end>
                     <Button v-if="selectedTheme.id" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" @click="downloadTheme" :title="$t('managers.themeManagement.download')" />
-                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" @click="handleSave" :title="$t('managers.themeManagement.save')" />
+                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="handleSave" :title="$t('managers.themeManagement.save')" />
                 </template>
             </Toolbar>
             <div class="p-p-2 p-mt-2 p-d-flex p-ai-center">

@@ -8,8 +8,8 @@
                             {{ $t('kpi.kpiDocumentDesigner.title') }}
                         </template>
                         <template #end>
-                            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveButtonDisabled" @click="saveKpi" />
-                            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeKpi" />
+                            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveButtonDisabled" data-test="save-button" @click="saveKpi" />
+                            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeKpi" />
                         </template>
                     </Toolbar>
                     <ProgressBar v-if="loading" class="kn-progress-bar" mode="indeterminate" data-test="progress-bar" />
