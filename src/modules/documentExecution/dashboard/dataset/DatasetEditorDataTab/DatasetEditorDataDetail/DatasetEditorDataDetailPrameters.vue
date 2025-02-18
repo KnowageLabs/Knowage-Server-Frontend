@@ -55,7 +55,7 @@
         </AccordionTab>
     </Accordion>
 
-    <Menu id="parameterPickerMenu" ref="parameterPickerMenu" :model="menuButtons" />
+    <Menu id="parameterPickerMenu" ref="parameterPickerMenu" :model="menuButtons" data-test="menu" />
     <DatasetEditorDriverDialog :visible="driversDialogVisible" :prop-driver="selectedDriver" :dashboard-id="dashboardId" :selected-dataset-prop="selectedDataset" :drivers="selectedDataset.formattedDrivers" @updateDriver="onUpdateDriver" @close="onDriversDialogClose"></DatasetEditorDriverDialog>
 </template>
 

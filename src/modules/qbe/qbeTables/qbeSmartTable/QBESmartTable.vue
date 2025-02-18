@@ -81,7 +81,7 @@
         </template>
     </Dialog>
 
-    <Menu id="smartTableMenu" ref="smartTableMenu" :model="menuButtons" />
+    <Menu id="smartTableMenu" ref="smartTableMenu" :model="menuButtons" data-test="menu" />
 </template>
 
 <script lang="ts">

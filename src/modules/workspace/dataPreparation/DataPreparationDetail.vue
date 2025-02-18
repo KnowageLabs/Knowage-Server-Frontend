@@ -141,7 +141,7 @@
                             <span class="kn-list-item-text-secondary kn-truncated roleType">{{ $t(removePrefixFromType(col.Type)) }}</span>
                         </div>
                         <Button icon="pi pi-ellipsis-v" :class="descriptor.css.buttonClassHeader" @click="toggle($event, 'trOpType-' + colIndex)" />
-                        <Menu :ref="'trOpType-' + colIndex" :model="getTransformationsMenu(col)" :popup="true">
+                        <Menu :ref="'trOpType-' + colIndex" :model="getTransformationsMenu(col)" :popup="true" data-test="menu">
                             <template #item="{ item }">
                                 <span :class="['p-menuitem-link', 'toolbarCustomConfig', descriptor.css.buttonClassHeader]" @click="callFunction(item, col)">
                                     <span v-if="item.icon.class" :class="item.icon.class" class="menu-icon">{{ item.icon.name }}</span>

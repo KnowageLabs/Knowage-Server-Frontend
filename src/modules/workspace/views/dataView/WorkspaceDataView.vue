@@ -117,7 +117,7 @@
     <DatasetWizard v-if="showDatasetDialog" :selected-dataset="selectedDataset" :visible="showDatasetDialog" @closeDialog="showDatasetDialog = false" @closeDialogAndReload="closeWizardAndReload" />
     <EditPreparedDatasetDialog :dataset="selectedDataset" :visible="showEditPreparedDatasetDialog" @save="updatePreparedDataset" @cancel="showEditPreparedDatasetDialog = false" />
     <TieredMenu id="optionsMenu" ref="optionsMenu" class="kn-tieredMenu" :model="menuButtons" :popup="true" />
-    <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" />
+    <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" data-test="menu" />
 
     <WorkspaceDataCloneDialog :visible="cloneDialogVisible" :prop-dataset="selectedDataset" @close="cloneDialogVisible = false" @clone="handleDatasetClone"> </WorkspaceDataCloneDialog>
     <WorkspaceDataShareDialog :visible="shareDialogVisible" :prop-dataset="selectedDataset" :dataset-categories="datasetCategories" @close="shareDialogVisible = false" @share="handleDatasetShare"></WorkspaceDataShareDialog>

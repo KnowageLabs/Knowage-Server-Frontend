@@ -9,7 +9,7 @@
             <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="$emit('toggleDisplayView')" /> -->
 
             <q-btn v-if="addButtonIsVisible" round class="customFabButton" icon="fas fa-plus">
-                <q-menu>
+                <q-menu data-test="menu">
                     <q-list dense style="min-width: 200px">
                         <q-item v-for="item in creationMenuButtons" :key="item" v-close-popup clickable @click="item.command">
                             <q-item-section
@@ -86,8 +86,8 @@
         @uploadAnalysisPreviewFile="uploadAnalysisPreviewFile"
         @close="showDetailSidebar = false"
     />
-    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
-    <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" />
+    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu" />
+    <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" data-test="creation-menu" />
 
     <WorkspaceAnalysisViewShareDialog :visible="shareDialogVisible" :prop-folders="folders" @close="shareDialogVisible = false" @share="handleAnalysShared($event, false)"></WorkspaceAnalysisViewShareDialog>
     <WorkspaceAnalysisViewEditDialog :visible="editDialogVisible" :prop-analysis="selectedAnalysis" @close="editDialogVisible = false" @save="handleEditAnalysis"></WorkspaceAnalysisViewEditDialog>

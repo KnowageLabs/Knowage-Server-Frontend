@@ -7,7 +7,7 @@
                 </template>
                 <template #end>
                     <FabButton icon="fas fa-plus" @click="toggleAdd" />
-                    <Menu ref="menu" :model="addMenuItems" :popup="true" style="width: 240px"></Menu>
+                    <Menu ref="menu" :model="addMenuItems" :popup="true" style="width: 240px" data-test="menu"></Menu>
                 </template>
             </Toolbar>
             <KnInputFile label="" :change-function="uploadTheme" accept="application/json,application/zip" :trigger-input="triggerInput" />

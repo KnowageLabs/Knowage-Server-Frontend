@@ -42,7 +42,7 @@
             <Button class="kn-button kn-button--primary" :label="$t('common.apply')" @click="$emit('drill')" />
         </div>
 
-        <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons">
+        <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu">
             <template #item="{ item }">
                 <span class="p-m-2">
                     <Checkbox v-model="item.checked" :binary="true" @click="$emit('checkCheckboxes', item, dtAssociatedLevels)" />

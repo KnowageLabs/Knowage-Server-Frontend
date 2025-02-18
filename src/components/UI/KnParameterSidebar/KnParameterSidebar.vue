@@ -166,7 +166,7 @@
         <div v-if="(parameters && parameters.filterStatus.length > 0) || mode === 'qbeView' || mode === 'workspaceView' || mode === 'datasetManagement'" class="p-fluid p-d-flex p-flex-row p-m-2 kn-parameter-sidebar-buttons">
             <Button class="kn-button kn-button--primary" :disabled="buttonsDisabled" @click="$emit('execute', qbeParameters, parameters)"> {{ $t('common.execute') }}</Button>
             <Button v-if="mode !== 'qbeView' && mode !== 'workspaceView' && mode !== 'datasetManagement'" class="kn-button kn-button--primary p-ml-1" icon="fa fa-chevron-down" :disabled="buttonsDisabled" @click="toggle($event)" />
-            <Menu ref="executeButtonMenu" :model="executeMenuItems" :popup="true" />
+            <Menu ref="executeButtonMenu" :model="executeMenuItems" :popup="true" data-test="menu" />
         </div>
         <KnParameterPopupDialog v-if="popupDialogVisible" :visible="popupDialogVisible" :selected-parameter="selectedParameter" :prop-loading="loading" :parameter-pop-up-data="parameterPopUpData" @close="popupDialogVisible = false" @save="onPopupSave"></KnParameterPopupDialog>
         <KnParameterTreeDialog v-if="treeDialogVisible" :visible="treeDialogVisible" :selected-parameter="selectedParameter" :formated-parameter-values="formatedParameterValues" :document="document" :mode="mode" :selected-role="role" @close="onTreeClose" @save="onTreeSave"> </KnParameterTreeDialog>

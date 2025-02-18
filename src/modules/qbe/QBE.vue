@@ -162,7 +162,7 @@
             </template>
         </KnCalculatedField>
 
-        <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
+        <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu" />
     </Dialog>
 </template>
 

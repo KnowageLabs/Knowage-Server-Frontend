@@ -16,7 +16,7 @@
     </div>
 
     <div class="qmenu-anchor">
-        <q-menu v-model:model-value="qMenuShown" anchor="top right" self="top left" no-parent-event>
+        <q-menu v-model:model-value="qMenuShown" anchor="top right" self="top left" no-parent-event data-test="menu">
             <q-list style="min-width: 100px">
                 <q-item v-for="(item, index) in menuItems" :key="index" v-ripple dense clickable :style="{ display: item.visible ? 'flex' : 'none' }" data-test="close-button" @click="closeMenu(item.command)">
                     <q-item-section>

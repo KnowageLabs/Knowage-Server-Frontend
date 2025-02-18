@@ -71,7 +71,7 @@
             </div>
             <template #footer>
                 <div class="p-d-flex p-flex-row p-jc-end">
-                    <Button class="kn-button kn-button--secondary" data-test="close-button" @click="saveDialogVisible = false"> {{ $t('common.cancel') }}</Button>
+                    <Button class="kn-button kn-button--secondary" @click="saveDialogVisible = false"> {{ $t('common.cancel') }}</Button>
                     <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" data-test="save-button" @click="buildGisTemplate"> {{ $t('common.save') }}</Button>
                 </div>
             </template>
