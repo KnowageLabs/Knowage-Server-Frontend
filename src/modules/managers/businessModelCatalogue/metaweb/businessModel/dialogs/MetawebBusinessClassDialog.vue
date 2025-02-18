@@ -68,8 +68,8 @@
             </div>
         </div>
         <template #footer>
-            <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" @click="saveBusinessClass" />
+            <Button class="p-button-text kn-button" :label="$t('common.cancel')" data-test="close-button" @click="closeDialog" />
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" data-test="save-button" @click="saveBusinessClass" />
         </template>
     </Dialog>
 </template>

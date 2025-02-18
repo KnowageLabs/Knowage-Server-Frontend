@@ -41,8 +41,8 @@
         </DataTable>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" :label="$t('common.close')" @click="closeScorecardAssociations"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="addScorecardAssociations"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.close')" data-test="close-button" @click="closeScorecardAssociations"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" @click="addScorecardAssociations"></Button>
         </template>
     </Dialog>
 </template>

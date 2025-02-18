@@ -47,8 +47,8 @@
             <template #start> {{ $t('managers.workspaceManagement.dataPreparation.label') }} ({{ $t('managers.workspaceManagement.dataPreparation.originalDataset') }}: {{ dataset.name }})</template>
             <template #end>
                 <Button v-tooltip.bottom="$t('common.refresh')" icon="pi pi-refresh" class="p-button-text p-button-rounded p-button-plain" :disabled="loading > 0" @click="refreshOriginalDataset" />
-                <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="loading > 0" @click="saveDataset" />
-                <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplate()" /> </template
+                <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="loading > 0" data-test="save-button" @click="saveDataset" />
+                <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplate()" /> </template
         ></Toolbar>
         <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0 toolbarCustomConfig">
             <template #start>

@@ -33,8 +33,8 @@
         </TabView>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="$emit('close')"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="buttonDisabled" @click="saveDataset"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="$emit('close')"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="buttonDisabled" data-test="save-button" @click="saveDataset"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

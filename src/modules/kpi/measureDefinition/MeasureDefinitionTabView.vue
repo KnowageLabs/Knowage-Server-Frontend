@@ -5,8 +5,8 @@
             <template #end>
                 <q-btn size="sm" flat unelevated :label="$t('kpi.measureDefinition.alias')" @click="toggleAliases" />
                 <q-btn size="sm" flat unelevated :label="$t('kpi.measureDefinition.placeholder')" @click="togglePlaceholders" />
-                <q-btn size="sm" flat unelevated round icon="fa-solid fa-save" :disabled="metadataDisabled" :title="$t('common.save')" @click="submitConfirm" />
-                <q-btn size="sm" flat unelevated round icon="fa-solid fa-times" :title="$t('common.close')" @click="closeTemplate" />
+                <q-btn size="sm" flat unelevated round icon="fa-solid fa-save" :disabled="metadataDisabled" :title="$t('common.save')" data-test="save-button" @click="submitConfirm" />
+                <q-btn size="sm" flat unelevated round icon="fa-solid fa-times" :title="$t('common.close')" data-test="close-button" @click="closeTemplate" />
             </template>
         </Toolbar>
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />

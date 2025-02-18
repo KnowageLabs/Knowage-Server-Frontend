@@ -2,9 +2,9 @@
     <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
         <template #start> Template {{ template.label }} </template>
         <template #end>
-            <Button v-tooltip.bottom="$t('common.download')" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" :disabled="!template.id" @click="downloadTemplate" />
-            <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="isSaveButtonDisabled" @click="saveTemplate" />
-            <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplateConfirm()" />
+            <Button v-tooltip.bottom="$t('common.download')" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" :disabled="!template.id" data-test="download" @click="downloadTemplate" />
+            <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="isSaveButtonDisabled" data-test="save-button" @click="saveTemplate" />
+            <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplateConfirm()" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />

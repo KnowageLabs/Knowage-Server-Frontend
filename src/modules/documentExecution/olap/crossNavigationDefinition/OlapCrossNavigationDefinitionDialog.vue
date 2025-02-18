@@ -17,7 +17,7 @@
         <template #footer>
             <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
             <Button v-if="step === 0" class="kn-button kn-button--primary" :disabled="!selectedParameter || !selectedParameter.type" @click="step = 1"> {{ $t('common.next') }}</Button>
-            <Button v-else class="kn-button kn-button--primary" :disabled="!selectedParameter || !selectedParameter.name" @click="save"> {{ $t('common.save') }}</Button>
+            <Button v-else class="kn-button kn-button--primary" :disabled="!selectedParameter || !selectedParameter.name" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

@@ -16,8 +16,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="close"> {{ $t('common.cancel') }}</Button>
-            <Button v-if="canManageCalendar" class="kn-button kn-button--primary" :disabled="buttonDisabled" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="close"> {{ $t('common.cancel') }}</Button>
+            <Button v-if="canManageCalendar" class="kn-button kn-button--primary" :disabled="buttonDisabled" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

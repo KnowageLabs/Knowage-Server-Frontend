@@ -17,8 +17,8 @@
         </form>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="$emit('close')"> {{ $t('common.close') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="!selectedAlgorithm" @click="changeAlgorithm"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="$emit('close')"> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="!selectedAlgorithm" data-test="save-button" @click="changeAlgorithm"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

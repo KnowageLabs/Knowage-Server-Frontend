@@ -26,8 +26,8 @@
         </form>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" :disabled="loading" @click="close"> {{ $t('common.close') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="loading" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" :disabled="loading" data-test="close-button" @click="close"> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="loading" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

@@ -12,8 +12,8 @@
         <HierarchyManagementHierarchyMasterSelectList :dimension-metadata="dimensionMetadata" @recursiveChanged="onRecursiveChanged" @levelsChanged="onLevelsChanged"></HierarchyManagementHierarchyMasterSelectList>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="close">{{ $t('common.close') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="save">{{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="close">{{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" data-test="save-button" @click="save">{{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

@@ -29,8 +29,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.close') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

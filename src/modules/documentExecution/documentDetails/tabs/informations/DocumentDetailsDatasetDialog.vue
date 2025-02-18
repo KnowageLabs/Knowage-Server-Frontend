@@ -22,8 +22,8 @@
             <Column class="kn-truncated" field="scope" :header="$t('managers.datasetManagement.scope')" :sortable="true" />
         </DataTable>
         <template #footer>
-            <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="$emit('closeDialog')" />
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="$emit('saveSelectedDataset', selectedDataset), $emit('closeDialog')" />
+            <Button class="p-button-text kn-button" :label="$t('common.cancel')" data-test="close-button" @click="$emit('closeDialog')" />
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" @click="$emit('saveSelectedDataset', selectedDataset), $emit('closeDialog')" />
         </template>
     </Dialog>
 </template>

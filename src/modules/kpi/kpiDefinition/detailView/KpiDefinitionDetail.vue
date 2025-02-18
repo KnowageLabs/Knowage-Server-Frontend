@@ -112,7 +112,7 @@
             </form>
             <template #footer>
                 <div>
-                    <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" @click="showSaveDialog = false" />
+                    <Button class="kn-button kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="showSaveDialog = false" />
                     <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="v$.$invalid" data-test="submit-button" @click="saveKpi" />
                 </div>
             </template>

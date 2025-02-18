@@ -23,8 +23,8 @@
         <QBEFilterParameters v-else-if="parameterTableVisible" :prop-parameters="parameters" @parametersUpdated="onParametersUpdated"></QBEFilterParameters>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ parameterTableVisible ? $t('qbe.filters.applyParameters') : $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ parameterTableVisible ? $t('qbe.filters.applyParameters') : $t('common.save') }}</Button>
         </template>
 
         <QBETemporalFilterDialog :visible="temporalFilterDialogVisible" :temporal-filters="temporalFilters" @close="temporalFilterDialogVisible = false" @save="addTemporalFilter"></QBETemporalFilterDialog>

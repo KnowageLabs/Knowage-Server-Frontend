@@ -16,8 +16,8 @@
         <QBEOperator v-if="expression" :prop-node="root" @selectedChanged="onSelectedChanged" @treeUpdated="onTreeUpdated"></QBEOperator>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

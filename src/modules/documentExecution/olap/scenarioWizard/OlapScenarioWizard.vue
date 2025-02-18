@@ -75,8 +75,8 @@
 
         <template #footer>
             <Button class="kn-button" @click="resetScenarioData"> {{ $t('documentExecution.olap.scenarioWizard.clearData') }}</Button>
-            <Button class="kn-button kn-button--secondary" @click="$emit('close')"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="saveScenario"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="$emit('close')"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" data-test="save-button" @click="saveScenario"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

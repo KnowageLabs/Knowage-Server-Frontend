@@ -53,7 +53,7 @@
 
             <template #footer>
                 <Button class="kn-button kn-button--secondary" @click="closeDialog">{{ $t('common.close') }} </Button>
-                <Button class="kn-button kn-button--primary" :disabled="!dirty" @click="saveMetadata"> {{ $t('common.save') }}</Button>
+                <Button class="kn-button kn-button--primary" :disabled="!dirty" data-test="save-button" @click="saveMetadata"> {{ $t('common.save') }}</Button>
             </template>
         </Dialog>
     </div>

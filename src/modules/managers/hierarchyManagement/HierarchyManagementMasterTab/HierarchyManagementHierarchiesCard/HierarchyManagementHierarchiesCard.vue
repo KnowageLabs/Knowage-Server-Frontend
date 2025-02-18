@@ -15,7 +15,7 @@
                     <Calendar v-model="date" class="kn-material-input" :manual-input="true" :show-icon="true" @dateSelect="onTreeDateChanged" />
                 </div>
                 <div class="p-field p-col-8 p-lg-4">
-                    <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="!treeModel" @click="handleSaveHiararchy" />
+                    <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="!treeModel" data-test="save-button" @click="handleSaveHiararchy" />
                 </div>
                 <div class="p-field-checkbox p-col-4 p-lg-2">
                     <Checkbox v-model="backup" :binary="true" :disabled="!treeModel" />

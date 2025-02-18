@@ -31,8 +31,8 @@
                             {{ $t('kpi.kpiScheduler.saveKpiAssociation') }}
                         </template>
                         <template #end>
-                            <Button class="kn-button p-button-text p-m-2" :label="$t('common.close')" @click="closeKpiAssociations"></Button>
-                            <Button class="kn-button p-button-text" :label="$t('common.save')" @click="addKpiAssociations"></Button>
+                            <Button class="kn-button p-button-text p-m-2" :label="$t('common.close')" data-test="close-button" @click="closeKpiAssociations"></Button>
+                            <Button class="kn-button p-button-text" :label="$t('common.save')" data-test="save-button" @click="addKpiAssociations"></Button>
                         </template>
                     </Toolbar>
                 </template>

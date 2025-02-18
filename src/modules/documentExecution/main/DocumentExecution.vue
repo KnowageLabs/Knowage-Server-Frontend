@@ -21,6 +21,7 @@
                         icon="pi pi-save"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
                         :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
+                        data-test="save-button"
                         @click="saveDashboard"
                     ></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
@@ -692,11 +693,11 @@ export default defineComponent({
         async asyncExport(format) {
             this.setLoading(true)
             let body = this.hiddenFormData
-            let headers = {Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'}
+            let headers = { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
             if (format.includes('xls')) {
                 format = 'spreadsheet'
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) body = this.dashboards[this.document.dashboardId]
-            }else headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            } else headers['Content-Type'] = 'application/x-www-form-urlencoded'
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`, body, {
                     responseType: 'blob',
