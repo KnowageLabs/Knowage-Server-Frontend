@@ -487,7 +487,7 @@ export default defineComponent({
         },
         async exportDataset(postData?) {
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${this.selectedDataset.id}/${this.exportFormat}`, postData ?? {}, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${this.selectedDataset.id}/${this.exportFormat}`, postData ?? {})
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -585,16 +585,7 @@ export default defineComponent({
             this.pushEvent(1)
             // launch avro export job
             this.$http
-                .post(
-                    import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/data-preparation/prepare/${dsId}`,
-                    {},
-                    {
-                        headers: {
-                            Accept: 'application/json, text/plain, */*',
-                            'Content-Type': 'application/json;charset=UTF-8'
-                        }
-                    }
-                )
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/data-preparation/prepare/${dsId}`, {})
                 .then(() => {
                     this.pushEvent(2)
                     this.addToLoadingAvros(dsId)
@@ -666,9 +657,6 @@ export default defineComponent({
             await this.loadDataset(dataset.label)
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/download/file?dsLabel=${this.selectedDataset.label}&type=${this.selectedDataset.fileType.toLowerCase()}`, {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*'
-                    },
                     responseType: 'blob'
                 })
                 .then((response: AxiosResponse<any>) => {

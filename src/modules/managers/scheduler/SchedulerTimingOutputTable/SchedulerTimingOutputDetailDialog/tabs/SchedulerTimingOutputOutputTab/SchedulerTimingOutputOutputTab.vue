@@ -1,7 +1,7 @@
 <template>
-    <div class="p-d-flex p-flex-row">
+    <div class="p-d-flex p-flex-row" style="max-height: 700px">
         <div class="p-col-4 p-sm-4 p-md-3 p-p-0">
-            <Listbox class="kn-list--column" :options="documents" @change="showDocumentDetail($event.value)">
+            <Listbox class="kn-list" style="height: 100%; min-height: 400px" :options="documents" @change="showDocumentDetail($event.value)">
                 <template #empty>{{ $t('common.info.noDataFound') }}</template>
                 <template #option="slotProps">
                     <div class="kn-list-item">
@@ -13,7 +13,7 @@
                 </template>
             </Listbox>
         </div>
-        <div class="p-col-8 p-sm-8 p-md-9 p-p-0">
+        <div class="p-col-8 p-sm-8 p-md-9 p-p-0 overflow-auto">
             <SchedulerTimingOutputDocumentDetail
                 v-if="selectedDocument"
                 :propDocument="selectedDocument"
@@ -66,10 +66,12 @@ export default defineComponent({
             this.selectedDocument = document
         },
         documentInvalid(document: any) {
-            return (
-                (document.invalid && (document.invalid.invalidSnapshot || document.invalid.invalidFile || document.invalid.invalidJavaClass || document.invalid.invalidMail || document.invalid.invalidDocument)) ||
-                (!document.saveassnapshot && !document.saveasfile && !document.saveasdocument && !document.sendtojavaclass && !document.sendmail)
-            )
+            if (document.engine === 'knowagetalendengine') return false
+            else
+                return (
+                    (document.invalid && (document.invalid.invalidSnapshot || document.invalid.invalidFile || document.invalid.invalidJavaClass || document.invalid.invalidMail || document.invalid.invalidDocument)) ||
+                    (!document.saveassnapshot && !document.saveasfile && !document.saveasdocument && !document.sendtojavaclass && !document.sendmail)
+                )
         },
         onSendUniqueMailSelected(document: any) {
             if (this.documentWithUniqueMail && this.documentWithUniqueMail.uniqueMail === document.uniqueMail) return

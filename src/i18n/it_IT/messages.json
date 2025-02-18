@@ -1365,7 +1365,8 @@
                 "paramName": "nome parametro",
                 "paramType": "tipo parametro",
                 "persistError": "errore durante il salvataggio del parametro di output",
-                "title": "parametro di output"
+                "title": "parametro di output",
+                "usedParameterWarning": "Il parametro di output non può essere cancellato perché è utilizzato nella seguente navigazione: {cross} | l parametro di output non può essere cancellato perché è utilizzato nelle seguenti navigazioni: {cross}"
             },
             "subreports": {
                 "deleteError": "Errore durante l'eliminazione del sottoreport",
@@ -2912,6 +2913,7 @@
             "contextBroker": "Context Broker message",
             "datasetVerification": "Data set verification",
             "dateError": "Start date must be before end date. End date must be in future.",
+            "deletedDocumentsWarning": "Alcuni documenti sono stati cancellati. Controllare la schedulazione.",
             "destinationFolder": "Destination folder",
             "detail": "Schedulation Detail",
             "doNotIterateOnParameterValues": "Don't iterate for each value",
@@ -2969,6 +2971,7 @@
             "sendToJavaClass": "Send to Java class",
             "singleExecution": "Single Execution",
             "startDate": "Start Date",
+            "talendWarning": "I documenti Talend non supportano nessuna tipologia di output. Verificare nella definizione dell'ETL le informazioni sul risultato della schedulazione.",
             "timeWindow": "Time Window",
             "timing": "Timing",
             "timingAndOutput": "Timing & Output",
@@ -3222,7 +3225,8 @@
         }
     },
     "menu": {
-        "ThemeManagement": "Themes",
+        "DashboardThemeManagement": "Temi della dashboard",
+        "ThemeManagement": "Temi",
         "group": {
             "ImportExport": "Import/Export",
             "ServerManager": "Server manager"

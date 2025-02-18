@@ -408,7 +408,6 @@ export default defineComponent({
                 await this.$http
                     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, {
                         headers: {
-                            'Content-Type': 'multipart/form-data',
                             'X-Disable-Errors': 'true'
                         }
                     })
@@ -752,7 +751,6 @@ export default defineComponent({
                                 await this.$http
                                     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, {
                                         headers: {
-                                            Accept: 'application/json, text/plain, */*',
                                             'X-Disable-Errors': 'true'
                                         }
                                     })
@@ -819,7 +817,6 @@ export default defineComponent({
             await this.$http
                 .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossiervalidator/validateDocument?user_id=${this.user?.userUniqueIdentifier}`, formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
                         'X-Disable-Errors': 'true'
                     }
                 })

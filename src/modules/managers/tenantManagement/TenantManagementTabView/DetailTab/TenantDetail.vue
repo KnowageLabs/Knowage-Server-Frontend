@@ -137,7 +137,7 @@ export default defineComponent({
                 'load',
                 () => {
                     this.tenant.TENANT_IMAGE_WIDE = reader.result || ''
-                    this.onFieldChange('TENANT_IMAGE', this.tenant.TENANT_IMAGE_WIDE)
+                    this.onFieldChange('TENANT_IMAGE_WIDE', this.tenant.TENANT_IMAGE_WIDE)
                 },
                 false
             )

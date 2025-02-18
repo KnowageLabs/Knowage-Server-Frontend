@@ -531,7 +531,7 @@ export default defineComponent({
         },
         async directDownloadDataset(dataset: any) {
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${dataset.id}/csv`, this.prepareDriversAndParameter(dataset.pars), { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'application/json;charset=UTF-8' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${dataset.id}/csv`, this.prepareDriversAndParameter(dataset.pars))
                 .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
                 .catch(() => {})
         },

@@ -107,7 +107,7 @@ export default defineComponent({
             }
 
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/hierarchy/${type}?SBI_EXECUTION_ID=${this.id}`, postData, { headers: { Accept: 'application/json, text/plain, */*' } })
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/hierarchy/${type}?SBI_EXECUTION_ID=${this.id}`, postData)
                 .then((response: AxiosResponse<any>) => {
                     response.data.forEach((el: any) => {
                         content.push(this.createNode(el))
@@ -197,11 +197,7 @@ export default defineComponent({
                     this.loading = true
                     const content = [] as any[]
                     await this.$http
-                        .post(
-                            import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/hierarchy/search?SBI_EXECUTION_ID=${this.id}`,
-                            { axis: this.filter.axis, hierarchy: this.filter.selectedHierarchyUniqueName, name: this.searchWord, showS: false },
-                            { headers: { Accept: 'application/json, text/plain, */*' } }
-                        )
+                        .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/hierarchy/search?SBI_EXECUTION_ID=${this.id}`, { axis: this.filter.axis, hierarchy: this.filter.selectedHierarchyUniqueName, name: this.searchWord, showS: false })
                         .then((response: AxiosResponse<any>) => {
                             this.expandedKeys = {}
                             response.data.forEach((el: any) => {

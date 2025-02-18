@@ -112,12 +112,7 @@ export default defineComponent({
             dsToSave.isScheduled ? (dsToSave.schedulingCronLine = await this.formatCronForSave()) : ''
 
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/`, dsToSave, {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*',
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    }
-                })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/datasets/`, dsToSave)
                 .then((response: AxiosResponse<any>) => {
                     this.store.setInfo({ title: this.$t('common.toast.createTitle'), msg: this.$t('common.toast.success') })
                     this.selectedDataset.meta = response.data.meta

@@ -101,7 +101,7 @@ export default defineComponent({
                 const formData = new FormData()
                 formData.append('uploadedImage', imageToUpload)
                 await this.$http
-                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/images/addImage`, formData, { headers: { Accept: 'application/json, text/plain, */*', 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' } })
+                    .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/images/addImage`, formData, { headers: { 'X-Disable-Errors': 'true' } })
                     .then((response: AxiosResponse<any>) => {
                         if (response.data.success) {
                             this.$emit('uploadedImage')

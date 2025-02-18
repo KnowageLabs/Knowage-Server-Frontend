@@ -87,13 +87,10 @@ export default defineComponent({
         ...mapActions(mainStore, ['setInfo']),
         async loadPage() {
             this.loading = true
-            const config = {
-                headers: { Accept: 'application/json, text/plain, */*' }
-            }
 
             const language = this.user.locale?.split('_')[0]
             const country = this.user.locale?.split('_')[1]
-            await this.$http.get(import.meta.env.VITE_KNOWAGEKPIENGINE_CONTEXT + `/restful-services/1.0/pages/edit?SBI_LANGUAGE=${language}&SBI_COUNTRY=${country}&user_id=${this.user.userUniqueIdentifier}&document=${this.id}`, config).then(() => {})
+            await this.$http.get(import.meta.env.VITE_KNOWAGEKPIENGINE_CONTEXT + `/restful-services/1.0/pages/edit?SBI_LANGUAGE=${language}&SBI_COUNTRY=${country}&user_id=${this.user.userUniqueIdentifier}&document=${this.id}`).then(() => {})
 
             await this.loadKpi()
             await this.loadKpiList()
@@ -225,12 +222,7 @@ export default defineComponent({
             postData.append('jsonTemplate', JSON.stringify(this.getFormattedKpiDesigner()))
 
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/saveKpiTemplate`, postData, {
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        Accept: 'application/json, text/plain, */*'
-                    }
-                })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/saveKpiTemplate`, postData)
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.updateTitle'),

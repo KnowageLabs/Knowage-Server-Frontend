@@ -176,11 +176,7 @@ export default defineComponent({
         async exportNotes(type: string) {
             this.loading = true
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/document-notes/${this.document.id}/download/${type}`, {
-                    headers: {
-                        Accept: 'application/json, text/plain, */*'
-                    }
-                })
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/document-notes/${this.document.id}/download/${type}`)
                 .then((response: AxiosResponse<any>) => {
                     const byteArray = new Uint8Array(response.data.file)
                     downloadDirect(byteArray, this.document.label, type === 'pdf' ? 'application/pdf' : 'application/rtf')

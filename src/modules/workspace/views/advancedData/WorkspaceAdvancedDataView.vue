@@ -410,16 +410,7 @@ export default defineComponent({
 
             // launch avro export job
             await this.$http
-                .post(
-                    import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/data-preparation/prepare/${dsId}`,
-                    {},
-                    {
-                        headers: {
-                            Accept: 'application/json, text/plain, */*',
-                            'Content-Type': 'application/json;charset=UTF-8'
-                        }
-                    }
-                )
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/data-preparation/prepare/${dsId}`, {})
                 .then(() => {
                     this.pushEvent(2)
 
@@ -444,16 +435,7 @@ export default defineComponent({
             this.loading = true
             //  { 'Content-Type': 'application/x-www-form-urlencoded' }
             await this.$http
-                .post(
-                    import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/export/dataset/${dataset.id}/${format}`,
-                    {},
-                    {
-                        headers: {
-                            Accept: 'application/json, text/plain, */*',
-                            'Content-Type': 'application/json;charset=UTF-8'
-                        }
-                    }
-                )
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/export/dataset/${dataset.id}/${format}`, {})
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.updateTitle'),
@@ -574,7 +556,7 @@ export default defineComponent({
         },
         async updateDatasetAndSave(newConfig) {
             this.showMonitoring = false
-            await this.$http.patch(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/instance/' + newConfig.instanceId, { config: newConfig.config }, { headers: { Accept: 'application/json, */*' } }).then(
+            await this.$http.patch(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/instance/' + newConfig.instanceId, { config: newConfig.config }).then(
                 () => {
                     this.loadDataset(this.selectedDataset.id)
                     this.setInfo({ title: this.$t('common.save'), msg: this.$t('common.toast.updateSuccess') })

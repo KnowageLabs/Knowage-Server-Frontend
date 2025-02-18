@@ -1,16 +1,17 @@
 <template>
     <div>
-        <Toolbar class="kn-toolbar kn-toolbar--secondary">
-            <template #start>
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>
                 {{ $t('managers.scheduler.timingAndOutput') }}
+            </q-toolbar-title>
+            <q-btn flat stretch :label="$t('common.add')" @click="showTriggerDetail(null)" />
+        </q-toolbar>
+        <q-banner v-if="triggers.length === 0" rounded dense class="bg-info q-ma-sm text-center">
+            <template v-slot:avatar>
+                <q-icon name="info" />
             </template>
-            <template #end>
-                <Button class="kn-button p-button-text p-button-rounded" @click="showTriggerDetail(null)">{{ $t('common.add') }}</Button>
-            </template>
-        </Toolbar>
-        <Message v-if="triggers.length === 0" class="p-m-4" severity="info" :closable="false" :style="schedulerTimingOutputTableDescriptor.styles.message">
             {{ $t('managers.scheduler.noTriggersInfo') }}
-        </Message>
+        </q-banner>
         <DataTable
             v-else
             id="triggers-datatable"
@@ -69,7 +70,6 @@ import { formatDate } from '@/helpers/commons/localeHelper'
 import { AxiosResponse } from 'axios'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
-import Message from 'primevue/message'
 import Menu from 'primevue/menu'
 import schedulerTimingOutputTableDescriptor from './SchedulerTimingOutputTableDescriptor.json'
 import SchedulerTimingOutputDetailDialog from './SchedulerTimingOutputDetailDialog/SchedulerTimingOutputDetailDialog.vue'
@@ -78,7 +78,7 @@ import mainStore from '../../../../App.store'
 
 export default defineComponent({
     name: 'scheduler-timing-output-table',
-    components: { Column, DataTable, Message, Menu, SchedulerTimingOutputDetailDialog, SchedulerTimingOutputInfoDialog },
+    components: { Column, DataTable, Menu, SchedulerTimingOutputDetailDialog, SchedulerTimingOutputInfoDialog },
     props: { job: { type: Object, required: true } },
     emits: ['loading', 'triggerSaved'],
     setup() {

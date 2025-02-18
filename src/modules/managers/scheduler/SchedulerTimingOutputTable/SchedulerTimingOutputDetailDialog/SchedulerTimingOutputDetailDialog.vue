@@ -76,12 +76,14 @@ export default defineComponent({
     computed: {
         saveDisabled(): any {
             let disabled = false
-
             if (!this.trigger.triggerDescription || this.trigger.triggerDescription.length === 0 || !this.validCron) {
                 return true
             }
 
             for (let i = 0; i < this.trigger.documents?.length; i++) {
+                if (this.trigger.documents[i].engine === 'knowagetalendengine') {
+                    continue
+                }
                 if (
                     (this.trigger.documents[i].invalid &&
                         (this.trigger.documents[i].invalid.invalidSnapshot || this.trigger.documents[i].invalid.invalidFile || this.trigger.documents[i].invalid.invalidJavaClass || this.trigger.documents[i].invalid.invalidMail || this.trigger.documents[i].invalid.invalidDocument)) ||

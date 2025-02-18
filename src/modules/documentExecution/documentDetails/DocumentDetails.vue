@@ -322,7 +322,7 @@ export default defineComponent({
                 formData.append('file', uploadedFile)
                 await this.$http
                     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${responseId}/templates`, formData, {
-                        headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' }
+                        headers: { 'X-Disable-Errors': 'true' }
                     })
                     .then(() => (this.templateToUpload = null))
                     .catch(() => {
@@ -332,7 +332,7 @@ export default defineComponent({
         },
         deleteImage() {
             this.$http
-                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/image`, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/image`, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(() => this.loadPage(this.docId))
                 .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.info.imageError') }))
         },
@@ -346,7 +346,7 @@ export default defineComponent({
                 formData.append('fileName', uploadedFile.name)
                 await this.$http
                     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${responseId}/image`, formData, {
-                        headers: { 'Content-Type': 'multipart/form-data', 'X-Disable-Errors': 'true' }
+                        headers: { 'X-Disable-Errors': 'true' }
                     })
                     .then(() => (this.imageToUpload = null))
                     .catch(() => {
@@ -362,13 +362,13 @@ export default defineComponent({
                         delete parameter.tempId
                         delete parameter.isChanged
                         this.$http
-                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters`, parameter, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters`, parameter, { headers: { 'X-Disable-Errors': 'true' } })
                             .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
                     } else if (parameter.isChanged) {
                         delete parameter.numberOfErrors
                         delete parameter.isChanged
                         this.$http
-                            .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${parameter.id}`, parameter, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                            .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${parameter.id}`, parameter, { headers: { 'X-Disable-Errors': 'true' } })
                             .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.outputParams.persistError') }))
                     }
                 })
@@ -382,13 +382,13 @@ export default defineComponent({
                         delete driver.numberOfErrors
                         delete driver.isChanged
                         this.$http
-                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers`, driver, { headers: { 'X-Disable-Errors': 'true' } })
                             .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
                     } else if (driver.isChanged) {
                         delete driver.numberOfErrors
                         delete driver.isChanged
                         this.$http
-                            .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                            .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/drivers/${driver.id}`, driver, { headers: { 'X-Disable-Errors': 'true' } })
                             .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.documentDetails.drivers.persistError') }))
                     }
                 })
@@ -396,9 +396,9 @@ export default defineComponent({
         },
         saveRequest(docToSave) {
             if (!this.selectedDocument.id) {
-                return this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails`, docToSave, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                return this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails`, docToSave, { headers: { 'X-Disable-Errors': 'true' } })
             } else {
-                return this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${docToSave.id}`, docToSave, { headers: { Accept: 'application/json, text/plain, */*', 'X-Disable-Errors': 'true' } })
+                return this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${docToSave.id}`, docToSave, { headers: { 'X-Disable-Errors': 'true' } })
             }
         },
         async saveDocument() {
