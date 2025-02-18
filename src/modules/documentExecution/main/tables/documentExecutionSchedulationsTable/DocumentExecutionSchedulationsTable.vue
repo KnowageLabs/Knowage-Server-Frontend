@@ -9,7 +9,7 @@
         </Toolbar>
 
         <div class="row">
-            <q-input class="q-ma-md col-sm-6 col-md-3 col-xs-12" dense filled v-model="filter" :label="$t('common.search')">
+            <q-input class="q-ma-md col-sm-6 col-md-3 col-xs-12" dense filled v-model="filter" :label="$t('common.search')" data-test="search-input">
                 <template v-slot:prepend>
                     <q-icon name="search" />
                 </template>

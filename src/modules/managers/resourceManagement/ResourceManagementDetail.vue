@@ -45,7 +45,7 @@
                                 <div class="p-col-10">
                                     <span class="p-input-icon-left p-col p-p-0">
                                         <i class="pi pi-search" />
-                                        <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0"
+                                        <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" badge="0"
                                     /></span>
                                 </div>
                                 <div class="p-col p-d-flex p-jc-end p-ai-center">

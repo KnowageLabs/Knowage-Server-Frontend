@@ -27,7 +27,7 @@
                         <div class="table-header">
                             <span class="p-input-icon-left">
                                 <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                                <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                             </span>
                         </div>
                     </template>

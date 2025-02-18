@@ -11,7 +11,7 @@
         <div>
             <div class="p-d-flex p-ai-center p-m-4">
                 <i class="pi pi-search kn-cursor-pointer" />
-                <InputText v-model="searchWord" class="kn-material-input p-ml-2" :placeholder="$t('common.search')" @input="searchItems" />
+                <InputText v-model="searchWord" class="kn-material-input p-ml-2" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
             </div>
 
             <div class="p-m-4">

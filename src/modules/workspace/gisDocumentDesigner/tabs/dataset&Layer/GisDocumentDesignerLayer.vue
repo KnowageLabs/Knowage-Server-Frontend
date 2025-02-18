@@ -17,11 +17,11 @@
                 <template #header>
                     <span v-if="!isDatasetChosen" id="search-container" class="p-input-icon-left p-mr-3">
                         <i class="pi pi-search" />
-                        <InputText v-model="mainFilters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                        <InputText v-model="mainFilters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                     </span>
                 </template>
                 <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)" :sortable="true">
-                    <template #body="{data}">
+                    <template #body="{ data }">
                         <span v-tooltip.top="data[col.field]" class="kn-truncated">{{ data[col.field] }}</span>
                     </template>
                 </Column>
@@ -47,11 +47,11 @@
             <template #header>
                 <span id="search-container" class="p-input-icon-left p-mr-3">
                     <i class="pi pi-search" />
-                    <InputText v-model="singleFilters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                    <InputText v-model="singleFilters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                 </span>
             </template>
             <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)">
-                <template #body="{data}">
+                <template #body="{ data }">
                     <span v-tooltip.top="data[col.field]" class="kn-truncated">{{ data[col.field] }}</span>
                 </template>
             </Column>
@@ -63,12 +63,12 @@
             <template #header>
                 <span id="search-container" class="p-input-icon-left p-mr-3">
                     <i class="pi pi-search" />
-                    <InputText v-model="multipleFilters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                    <InputText v-model="multipleFilters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                 </span>
             </template>
             <Column selection-mode="multiple" />
             <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)">
-                <template #body="{data}">
+                <template #body="{ data }">
                     <span v-tooltip.top="data[col.field]" class="kn-truncated">{{ data[col.field] }}</span>
                 </template>
             </Column>

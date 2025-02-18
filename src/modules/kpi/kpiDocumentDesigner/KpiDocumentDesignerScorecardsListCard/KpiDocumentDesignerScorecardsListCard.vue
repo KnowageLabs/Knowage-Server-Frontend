@@ -14,7 +14,7 @@
                         <div class="table-header p-d-flex p-ai-center">
                             <span id="search-container" class="p-input-icon-left p-mr-3">
                                 <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" />
+                                <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" />
                             </span>
                             <Button id="kpi-edit-add-scorecard-association-button" class="kn-button kn-button--primary" :label="$t('kpi.kpiDocumentDesigner.addScorecardAssociation')" @click="addScorecardVisible = true"></Button>
                         </div>

@@ -7,7 +7,7 @@
         </template>
 
         <div class="widget-editor-icon-picker-content">
-            <q-input v-model="searchWord" class="p-mx-3 p-mb-3" :label="$t('common.search')" @update:model-value="filterIcons">
+            <q-input v-model="searchWord" class="p-mx-3 p-mb-3" :label="$t('common.search')" data-test="search-input" @update:model-value="filterIcons">
                 <template #prepend>
                     <q-icon name="search" />
                 </template>
