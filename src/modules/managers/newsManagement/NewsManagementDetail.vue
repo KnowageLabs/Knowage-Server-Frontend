@@ -2,7 +2,7 @@
     <Toolbar class="kn-toolbar kn-toolbar--primary p-m-0">
         <template #start>{{ $t('managers.newsManagement.detailTitle') }}</template>
         <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="invalid" @click="handleSubmit" />
+            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="invalid" data-test="submit-button" @click="handleSubmit" />
             <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplateConfirm" />
         </template>
     </Toolbar>
