@@ -1,14 +1,14 @@
 <template>
     <Dialog :visible="true" :modal="true" header="Add Quick Widget" class="p-fluid kn-dialog--toolbar--primary" :closable="false">
         <div class="p-grid gap-1 p-m-0 p-pt-4" style="column-gap: 0.5em; row-gap: 0.5em">
-            <div v-for="(widgetType, index) in descriptor.quickWidgets" :key="index" v-tooltip.bottom="$t(widgetType.tooltip)" class="widgetTypeCards" :class="{ selected: selectedWidget === widgetType.name }" @click="selectWidget(widgetType.name)">
+            <div v-for="(widgetType, index) in descriptor.quickWidgets" :key="index" v-tooltip.bottom="$t(widgetType.tooltip)" class="widgetTypeCards" :class="{ selected: selectedWidget === widgetType.name }" data-test="list-item" @click="selectWidget(widgetType.name)">
                 <img :src="getImageSource(widgetType.name)" />
             </div>
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="$emit('close')"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="onChartTypeSelected"></Button>
+            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" data-test="close-button" @click="$emit('close')"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" @click="onChartTypeSelected"></Button>
         </template>
     </Dialog>
 </template>

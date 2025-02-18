@@ -1,15 +1,15 @@
 <template>
     <Dialog :visible="true" :modal="true" header="Change Widget Type" class="kn-dialog--toolbar--primary" :closable="false" style="width: 550px">
         <div class="p-grid gap-1 p-m-0 p-pt-4" style="column-gap: 0.5em; row-gap: 0.5em">
-            <div v-for="(widgetType, index) in availableChartOptions" :key="index" v-tooltip.bottom="$t(widgetType.tooltip)" class="widgetTypeCards" :class="{ selected: selectedWidget === widgetType.name }" @click="selectWidget(widgetType.name)">
+            <div v-for="(widgetType, index) in availableChartOptions" :key="index" v-tooltip.bottom="$t(widgetType.tooltip)" class="widgetTypeCards" :class="{ selected: selectedWidget === widgetType.name }" data-test="list-item" @click="selectWidget(widgetType.name)">
                 <i v-if="starredChartOptionsMap[widgetType.name]" class="fa fa-star suggestedStar"></i>
                 <img :src="getImageSource(widgetType.name)" />
             </div>
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="$emit('close')"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="saveChargeChange"></Button>
+            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" data-test="close-button" @click="$emit('close')"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" @click="saveChargeChange"></Button>
         </template>
     </Dialog>
 </template>
