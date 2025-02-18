@@ -6,8 +6,8 @@
             </template>
             <template #end>
                 <Button class="p-button-text p-button-rounded p-button-plain" :label="$t('workspace.gis.editMap')" :disabled="!canOpenMap" @click="openMapConfirm" />
-                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveDialogDisabled" @click="saveOrUpdateGis" />
-                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeGis" />
+                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveDialogDisabled" data-test="submit-button" @click="saveOrUpdateGis" />
+                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeGis" />
             </template>
         </Toolbar>
         <div class="gis-tabview-container p-d-flex p-flex-column kn-flex">
