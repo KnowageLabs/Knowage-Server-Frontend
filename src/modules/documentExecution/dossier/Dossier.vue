@@ -72,7 +72,7 @@
                         <div class="table-header">
                             <span class="p-input-icon-left">
                                 <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0" />
+                                <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0" data-test="search-input" />
                             </span>
                         </div>
                     </template>
@@ -91,7 +91,7 @@
                     <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)" :style="col.style" class="kn-truncated" :sortable="true" />
                     <Column header :style="dossierDescriptor.table.iconColumn.style" @rowClick="false">
                         <template #body="slotProps">
-                            <Button icon="pi pi-download" class="p-button-link" @click="downloadActivity(slotProps.data)" />
+                            <Button icon="pi pi-download" class="p-button-link" data-test="download" @click="downloadActivity(slotProps.data)" />
                             <Button icon="pi pi-trash" class="p-button-link" :disabled="dateCheck(slotProps.data)" data-test="delete-button" @click="deleteDossierConfirm(slotProps.data)" />
                         </template>
                     </Column>
