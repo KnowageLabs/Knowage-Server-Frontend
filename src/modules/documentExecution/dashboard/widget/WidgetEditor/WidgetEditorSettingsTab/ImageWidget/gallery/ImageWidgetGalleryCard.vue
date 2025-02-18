@@ -5,7 +5,7 @@
                 <template #start>{{ imageProp.name }} </template>
                 <template #end>
                     <Button v-if="mode !== 'map'" v-tooltip.top="$t('common.view')" icon="pi pi-eye" class="p-button-link" :class="[isSelected ? 'active-image-toolbar-buttons' : '']" @click="openImageSidebar" />
-                    <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" :class="[isSelected ? 'active-image-toolbar-buttons' : '']" @click="deleteImageConfirm" />
+                    <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" :class="[isSelected ? 'active-image-toolbar-buttons' : '']" data-test="delete-button" @click="deleteImageConfirm" />
                 </template>
             </Toolbar>
             <div class="p-d-flex p-flex-column p-jc-center p-ai-center kn-flex image-container" @click="$emit('imageSelected', imageProp)">

@@ -1,7 +1,7 @@
 <template>
     <div class="dashboard-card-shadow kn-height-full p-ml-1 p-d-flex p-flex-column">
         <div class="p-d-flex p-flex-row p-ai-center p-flex-wrap">
-            <InputText v-model="searchWord" class="kn-material-input p-m-3 model-search" type="text" :placeholder="$t('common.search')" @input="searchItems" />
+            <InputText v-model="searchWord" class="kn-material-input p-m-3 model-search" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
         </div>
         <div class="p-grid p-m-2 kn-flex kn-overflow dashboard-scrollbar">
             <Message v-if="customChartGalleryProp.length == 0" class="kn-flex p-m-2" severity="info" :closable="false">

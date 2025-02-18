@@ -2,7 +2,7 @@
     <div class="p-grid p-jc-center p-ai-center kn-flex p-p-3">
         <div class="p-d-flex p-flex-row p-col-12">
             <label class="kn-material-input-label">{{ $t('common.fields') }}</label>
-            <i class="pi pi-plus-circle kn-cursor-pointer p-ml-auto" @click="addField"></i>
+            <i class="pi pi-plus-circle kn-cursor-pointer p-ml-auto" data-test="new-button" @click="addField"></i>
         </div>
 
         <div v-for="field in layerFields" :key="field.name" class="dynamic-form-item p-grid p-col-12 p-ai-center">
@@ -21,7 +21,7 @@
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
                     </div>
                     <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-center p-ai-center p-ml-3 p-mb-2">
-                        <i class="pi pi-trash kn-cursor-pointer" @click="removeField(field)"></i>
+                        <i class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeField(field)"></i>
                     </div>
                 </div>
 
