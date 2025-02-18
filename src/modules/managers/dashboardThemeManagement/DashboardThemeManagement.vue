@@ -4,13 +4,13 @@
             <Toolbar class="kn-toolbar kn-toolbar--primary">
                 <template #start> Dashboard {{ $t('managers.themeManagement.title') }} </template>
                 <template #end>
-                    <FabButton icon="fas fa-plus" @click="toggleAddThemeMenu" />
+                    <FabButton icon="fas fa-plus" data-test="new-button" @click="toggleAddThemeMenu" />
                     <Menu ref="menu" :model="addMenuItems" :popup="true" style="width: 240px"></Menu>
                 </template>
             </Toolbar>
             <KnInputFile label="" :change-function="uploadTheme" accept="application/json,application/zip" :trigger-input="triggerInput" />
             <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-            <KnListBox :options="availableThemes" :selected="selectedTheme" :settings="descriptor.knListSettings" @click="selectTheme" @delete.stop="deleteThemeConfirm" />
+            <KnListBox :options="availableThemes" :selected="selectedTheme" :settings="descriptor.knListSettings" data-test="edit-button" @click="selectTheme" @delete.stop="deleteThemeConfirm" />
         </div>
 
         <div class="p-col p-p-0 p-m-0 kn-page form-container">
@@ -18,8 +18,8 @@
             <Toolbar v-if="selectedTheme.themeName != null" class="kn-toolbar kn-toolbar--secondary">
                 <template #start> {{ selectedTheme.themeName }} </template>
                 <template #end>
-                    <Button v-if="selectedTheme.id" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.download')" @click="downloadTheme" />
-                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.save')" @click="handleSave" />
+                    <Button v-if="selectedTheme.id" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.download')" data-test="download" @click="downloadTheme" />
+                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.save')" data-test="save-button" @click="handleSave" />
                 </template>
             </Toolbar>
             <DashboardThemeManagementEditor v-if="selectedTheme.themeName != null" :selected-theme-prop="selectedTheme" />

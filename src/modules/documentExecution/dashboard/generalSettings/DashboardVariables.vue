@@ -1,6 +1,6 @@
 <template>
     <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
-        <KnFabButton icon="fas fa-plus" class="p-as-end" style="position: absolute; right: 10px" @click="addNewVariable()"></KnFabButton>
+        <KnFabButton icon="fas fa-plus" class="p-as-end" style="position: absolute; right: 10px" data-test="new-button" @click="addNewVariable()"></KnFabButton>
         <label class="kn-material-input-label p-m-3"> {{ $t('common.variables') }}</label>
 
         <KnHint v-if="variables.length == 0" class="p-as-center" :title="'common.variables'" :hint="'dashboard.generalSettings.variablesHint'"></KnHint>
@@ -62,7 +62,7 @@
                 </span>
             </div>
 
-            <Button v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-mt-1" @click="removeVariable(index)" />
+            <Button v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-mt-1" data-test="delete-button" @click="removeVariable(index)" />
         </div>
     </div>
 </template>
