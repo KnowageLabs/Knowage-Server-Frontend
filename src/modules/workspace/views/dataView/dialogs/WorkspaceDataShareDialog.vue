@@ -21,55 +21,55 @@
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
                 <Button class="kn-button kn-button--primary" @click="shareDataset(false)">{{ $t('workspace.myData.unshareDataset') }}</Button>
-                <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-                <Button class="kn-button kn-button--primary" :disabled="!dataset.catTypeId" @click="shareDataset(true)">{{ $t('common.save') }}</Button>
+                <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+                <Button class="kn-button kn-button--primary" :disabled="!dataset.catTypeId" data-test="save-button" @click="shareDataset(true)">{{ $t('common.save') }}</Button>
             </div>
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
-    import { defineComponent } from 'vue'
-    import Dialog from 'primevue/dialog'
-    import Dropdown from 'primevue/dropdown'
-    import Message from 'primevue/message'
-    import workspaceDataShareDialogDescriptor from './WorkspaceDataShareDialogDescriptor.json'
+import { defineComponent } from 'vue'
+import Dialog from 'primevue/dialog'
+import Dropdown from 'primevue/dropdown'
+import Message from 'primevue/message'
+import workspaceDataShareDialogDescriptor from './WorkspaceDataShareDialogDescriptor.json'
 
-    export default defineComponent({
-        name: 'workspace-repository-move-dialog',
-        components: { Dialog, Dropdown, Message },
-        props: { visible: { type: Boolean }, propDataset: { type: Object }, datasetCategories: { type: Array } },
-        emits: ['close', 'share'],
-        data() {
-            return {
-                workspaceDataShareDialogDescriptor,
-                dataset: {} as any
-            }
-        },
-        watch: {
-            propDataset() {
-                this.loadDataset()
-            }
-        },
-        created() {
-            this.loadDataset()
-        },
-        methods: {
-            loadDataset() {
-                if (this.propDataset) {
-                    this.dataset = { ...this.propDataset }
-                }
-            },
-            closeDialog() {
-                this.loadDataset()
-                this.$emit('close')
-            },
-            shareDataset(share: boolean) {
-                if (!share) {
-                    this.dataset.catTypeId = null
-                }
-                this.$emit('share', this.dataset)
-            }
+export default defineComponent({
+    name: 'workspace-repository-move-dialog',
+    components: { Dialog, Dropdown, Message },
+    props: { visible: { type: Boolean }, propDataset: { type: Object }, datasetCategories: { type: Array } },
+    emits: ['close', 'share'],
+    data() {
+        return {
+            workspaceDataShareDialogDescriptor,
+            dataset: {} as any
         }
-    })
+    },
+    watch: {
+        propDataset() {
+            this.loadDataset()
+        }
+    },
+    created() {
+        this.loadDataset()
+    },
+    methods: {
+        loadDataset() {
+            if (this.propDataset) {
+                this.dataset = { ...this.propDataset }
+            }
+        },
+        closeDialog() {
+            this.loadDataset()
+            this.$emit('close')
+        },
+        shareDataset(share: boolean) {
+            if (!share) {
+                this.dataset.catTypeId = null
+            }
+            this.$emit('share', this.dataset)
+        }
+    }
+})
 </script>
