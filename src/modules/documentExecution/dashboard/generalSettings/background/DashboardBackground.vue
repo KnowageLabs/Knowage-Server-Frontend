@@ -5,7 +5,7 @@
             <span class="p-col-12 p-sm-6 p-xl-3 p-mb-4">
                 <q-input v-model="background.imageBackgroundUrl" :label="$t('dashboard.generalSettings.background.sheetsImage')" :hint="$t('dashboard.generalSettings.background.sheetsImageHint')">
                     <template #append>
-                        <q-icon name="close" @click="background.imageBackgroundUrl = ''" />
+                        <q-icon name="close" data-test="close-button" @click="background.imageBackgroundUrl = ''" />
                     </template>
                 </q-input>
             </span>
