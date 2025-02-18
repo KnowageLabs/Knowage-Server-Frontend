@@ -61,7 +61,7 @@
             <div class="p-col-3 kn-height-full">
                 <Card class="imageUploader">
                     <template #title>
-                        <input id="inputImage" type="file" accept="image/png, image/jpeg" @change="uploadFile" />
+                        <input id="inputImage" type="file" accept="image/png, image/jpeg" data-test="upload" @change="uploadFile" />
                         <label v-tooltip.bottom="$t('common.upload')" for="inputImage">
                             <i class="pi pi-upload" />
                         </label>

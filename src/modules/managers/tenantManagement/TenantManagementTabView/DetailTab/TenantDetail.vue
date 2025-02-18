@@ -22,7 +22,7 @@
                     <div class="imageContainer p-d-flex p-jc-center p-ai-center">
                         <i v-if="!tenant.TENANT_IMAGE" class="far fa-image fa-5x icon" />
                         <img v-if="tenant.TENANT_IMAGE" :src="tenant.TENANT_IMAGE" class="kn-no-select" />
-                        <input id="organizationImage" type="file" accept="image/png, image/jpeg" @change="uploadFile" />
+                        <input id="organizationImage" type="file" accept="image/png, image/jpeg" data-test="upload" @change="uploadFile" />
                         <label v-tooltip.bottom="$t('common.upload')" for="organizationImage">
                             <i class="pi pi-upload"></i>
                         </label>

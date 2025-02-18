@@ -26,7 +26,7 @@
                 </span>
                 <span class="p-col-4 kn-height-full">
                     <span class="p-d-flex p-jc-end p-ai-center">
-                        <input id="inputImage" type="file" accept="image/png, image/jpeg" @change="uploadFile" />
+                        <input id="inputImage" type="file" accept="image/png, image/jpeg" data-test="upload" @change="uploadFile" />
                         <label v-tooltip.bottom="$t('common.upload')" for="inputImage">
                             <i class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0 pi pi-upload" />
                         </label>

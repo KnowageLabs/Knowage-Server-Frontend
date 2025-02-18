@@ -60,8 +60,8 @@
                     </div>
 
                     <div class="kn-flex p-d-flex p-flex-row p-jc-between p-ml-auto">
-                        <Button v-if="canModify" class="kn-button kn-button--primary document-execution-metadata-dialog-upload-button" @click="uploadMetaFile(meta)"> {{ $t('common.upload') }}</Button>
-                        <Button v-show="canModify && meta.value" class="kn-button kn-button--primary document-execution-metadata-dialog-upload-button" @click="downloadFile(meta)"> {{ $t('common.download') }}</Button>
+                        <Button v-if="canModify" class="kn-button kn-button--primary document-execution-metadata-dialog-upload-button" data-test="upload" @click="uploadMetaFile(meta)"> {{ $t('common.upload') }}</Button>
+                        <Button v-show="canModify && meta.value" class="kn-button kn-button--primary document-execution-metadata-dialog-upload-button" data-test="download" @click="downloadFile(meta)"> {{ $t('common.download') }}</Button>
                         <Button v-if="canModify" class="kn-button kn-button--primary document-execution-metadata-dialog-upload-button" @click="cleanFile(meta)"> {{ $t('common.clean') }}</Button>
                     </div>
                 </div>
