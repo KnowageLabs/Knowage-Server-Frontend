@@ -2,7 +2,7 @@
     <div v-if="model || mode === 'map'" class="imageGallery dashboard-card-shadow kn-height-full p-ml-1 p-d-flex p-flex-column p-grid">
         <Toolbar class="kn-toolbar kn-toolbar--default p-col-12">
             <template #end>
-                <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" :label="$t('common.upload')" @click="setImageUploadType" />
+                <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" :label="$t('common.upload')" data-test="upload" @click="setImageUploadType" />
                 <KnInputFile :change-function="setImageForUpload" accept=".png, .jpg, .jpeg" :trigger-input="triggerImageUpload" />
             </template>
         </Toolbar>

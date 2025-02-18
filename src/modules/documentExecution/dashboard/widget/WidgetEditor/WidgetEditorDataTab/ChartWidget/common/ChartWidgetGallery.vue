@@ -1,7 +1,7 @@
 <template>
     <div v-if="widgetModel" class="dashboard-editor-list-card-container kn-flex p-m-3">
         <div class="gallery-inputs p-d-flex p-flex-row p-ai-center p-flex-wrap p-mt-4 p-ml-4">
-            <InputText v-model="searchWord" class="kn-material-input p-mr-2 model-search" :style="galleryDescriptor.style.filterInput" type="text" :placeholder="$t('common.search')" @input="searchItems" />
+            <InputText v-model="searchWord" class="kn-material-input p-mr-2 model-search" :style="galleryDescriptor.style.filterInput" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
         </div>
 
         <MasonryWall class="p-mx-4 p-my-2 kn-flex kn-overflow dashboard-scrollbar" :items="filteredChartTypes" :column-width="200" :gap="6">

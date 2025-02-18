@@ -18,8 +18,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="!forInsert" @click="addInsert"> {{ $t('common.add') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="!forInsert" data-test="new-button" @click="addInsert"> {{ $t('common.add') }}</Button>
         </template>
     </Dialog>
 </template>

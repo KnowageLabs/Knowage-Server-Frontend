@@ -14,7 +14,7 @@
                     <div v-if="settings.globalFilterFields?.length > 0" class="table-header p-d-flex p-ai-center">
                         <span id="search-container" class="p-input-icon-left p-mr-3">
                             <i class="pi pi-search" />
-                            <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                            <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                         </span>
                     </div>
                 </template>
@@ -49,8 +49,8 @@
                     <template #body="slotProps">
                         <div>
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
-                            <Button v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" @click.stop="$emit('itemSelected', slotProps.data)"></Button>
-                            <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" @click.stop="deleteItem(slotProps.data, slotProps.index)"></Button>
+                            <Button v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" data-test="edit-button" @click.stop="$emit('itemSelected', slotProps.data)"></Button>
+                            <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data, slotProps.index)"></Button>
                         </div>
                     </template>
                 </Column>

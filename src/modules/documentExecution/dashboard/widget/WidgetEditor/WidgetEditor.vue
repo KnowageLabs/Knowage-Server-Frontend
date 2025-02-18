@@ -3,8 +3,8 @@
         <Toolbar class="kn-toolbar kn-toolbar--primary">
             <template #start> {{ widgetTitle }} Widget Editor</template>
             <template #end>
-                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="widgetIsInvalid" @click="save" />
-                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="close" />
+                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="widgetIsInvalid" data-test="save-button" @click="save" />
+                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="close" />
             </template>
         </Toolbar>
         <div class="datasetEditor-container kn-overflow">
