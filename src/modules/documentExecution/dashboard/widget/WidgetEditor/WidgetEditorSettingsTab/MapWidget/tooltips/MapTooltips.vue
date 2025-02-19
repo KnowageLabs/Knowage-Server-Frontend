@@ -75,23 +75,16 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.setEventListeners()
         this.loadTooltips()
-        await this.loadPropertiesForVisualizationTypes()
-    },
-
-    unmounted() {
-        this.removeEventListeners()
+        await this.loadPropertiesForTooltips()
     },
     methods: {
         ...mapActions(appStore, ['setLoading']),
-        setEventListeners() {},
-        removeEventListeners() {},
         loadTooltips() {
             if (this.widgetModel?.settings?.tooltips) this.tooltip = this.widgetModel.settings.tooltips
             else this.tooltip = defaultsDescriptor.defaultTooltip
         },
-        async loadPropertiesForVisualizationTypes() {
+        async loadPropertiesForTooltips() {
             if (!this.tooltip?.layers) return
             await Promise.all(this.tooltip.layers.map((layer: IMapTooltipSettingsLayer) => this.loadAvailableProperties(layer)))
         },

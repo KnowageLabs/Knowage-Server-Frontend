@@ -21,7 +21,7 @@
                 <i class="pi pi-th-large kn-cursor-pointer"></i>
                 <div class="kn-flex p-mx-2 p-d-flex p-flex-row" style="gap: 0.5em">
                     <span class="p-float-label kn-flex">
-                        <Dropdown v-model="dialogProperty.name" :disabled="dialogSettingsDisabled" class="kn-material-input kn-width-full" :options="widgetModel.layers" option-value="name" option-label="name" show-clear @change="onLayerChange(dialogProperty)"> </Dropdown>
+                        <Dropdown v-model="dialogProperty.name" :disabled="dialogSettingsDisabled" class="kn-material-input kn-width-full" :options="widgetModel.layers" option-value="layerId" option-label="name" show-clear @change="onLayerChange(dialogProperty)"> </Dropdown>
                         <label class="kn-material-input-label">{{ $t('common.layer') }}</label>
                     </span>
                     <span class="p-float-label kn-flex">
@@ -30,8 +30,8 @@
                     </span>
                 </div>
                 <div class="p-d-flex p-flex-row p-jc-center p-ai-center">
-                    <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addTooltip()"></i>
-                    <i v-if="index !== 0" class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeTooltip(index)"></i>
+                    <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addDialog()"></i>
+                    <i v-if="index !== 0" class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeDialog(index)"></i>
                 </div>
             </div>
 
@@ -51,14 +51,17 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapDialogSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapDialogSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { IMapDialogSettingsProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { mapActions } from 'pinia'
+import appStore from '@/App.store'
 import descriptor from './MapDialogSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import MultiSelect from 'primevue/multiselect'
 import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
+import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
 
 export default defineComponent({
     name: 'map-dialog-settings',
@@ -69,7 +72,8 @@ export default defineComponent({
             descriptor,
             dialogSettings: null as IMapDialogSettings | null,
             dropzoneTopVisible: {},
-            dropzoneBottomVisible: {}
+            dropzoneBottomVisible: {},
+            propertiesCache: new Map<string, { name: string; alias: string }[]>()
         }
     },
     computed: {
@@ -77,17 +81,28 @@ export default defineComponent({
             return !this.widgetModel || !this.widgetModel.settings.dialog.enabled
         }
     },
-    created() {
-        this.loadTooltips()
+    async mounted() {
+        this.loadDialogSettings()
     },
     methods: {
-        loadTooltips() {
+        ...mapActions(appStore, ['setLoading']),
+        loadDialogSettings() {
             if (this.widgetModel?.settings?.dialog) this.dialogSettings = this.widgetModel.settings.dialog
         },
-        addTooltip() {
+        async loadPropertiesForDialogSettings() {
+            if (!this.dialogSettings?.layers) return
+            await Promise.all(this.dialogSettings.layers.map((layer: IMapTooltipSettingsLayer) => this.loadAvailableProperties(layer)))
+        },
+        async loadAvailableProperties(layer: IMapTooltipSettingsLayer | null) {
+            if (!layer) return
+
+            const targetLayer = this.widgetModel.layers.find((tempLayer: IMapWidgetLayer) => tempLayer.layerId === layer.name)
+            if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer)
+        },
+        addDialog() {
             this.dialogSettings?.layers.push({ name: '', columns: [] })
         },
-        removeTooltip(index: number) {
+        removeDialog(index: number) {
             if (!this.dialogSettings || !this.dialogSettings.layers) return
             if (index === 0) {
                 this.dialogSettings.layers[0].name = ''
@@ -122,21 +137,34 @@ export default defineComponent({
             const index = this.widgetModel.layers.findIndex((layer: any) => layer.name === dialogProperty.name)
             return index !== -1 ? this.widgetModel.layers[index].columns : []
         },
-        onLayerChange(dialogProperty: IMapDialogSettingsProperty) {
+        async onLayerChange(dialogProperty: IMapDialogSettingsProperty) {
             dialogProperty.columns = []
+            const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => dialogProperty.name === layer.layerId)
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(dialogProperty.name)) return
+            await this.loadAvailablePropertiesInTooltipSettingsForLayer(target)
+        },
+        async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
+            this.setLoading(true)
+            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
+            this.propertiesCache.set(targetLayer.layerId, formattedProperties)
+            this.setLoading(false)
+        },
+        getPropertiesFormattedForDropdownOptions(properties: IMapWidgetLayerProperty[]) {
+            return properties.map((property: IMapWidgetLayerProperty) => {
+                return { name: property.property, alias: property.property }
+            })
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.dialogSettings) return
             const defaultDialogSettings = mapWidgetDefaultValues.getDefaultDialogSettings()
-            this.dialogSettings.style = {
-                'font-family': model['font-family'] ?? defaultDialogSettings.style['font-family'],
-                'font-style': model['font-style'] ?? defaultDialogSettings.style['font-style'],
-                'font-size': model['font-size'] ?? defaultDialogSettings.style['font-size'],
-                'font-weight': model['font-weight'] ?? defaultDialogSettings.style['font-weight'],
-                'justify-content': model['justify-content'] ?? defaultDialogSettings.style['justify-content'],
-                color: model.color ?? defaultDialogSettings.style.color,
-                'background-color': model['background-color'] ?? defaultDialogSettings.style['background-color']
-            }
+            this.dialogSettings.style['font-family'] = model['font-family'] ?? defaultDialogSettings.style['font-family']
+            this.dialogSettings.style['font-style'] = model['font-style'] ?? defaultDialogSettings.style['font-style']
+            this.dialogSettings.style['font-size'] = model['font-size'] ?? defaultDialogSettings.style['font-size']
+            this.dialogSettings.style['font-weight'] = model['font-weight'] ?? defaultDialogSettings.style['font-weight']
+            this.dialogSettings.style['justify-content'] = model['justify-content'] ?? defaultDialogSettings.style['justify-content']
+            this.dialogSettings.style.color = model.color ?? defaultDialogSettings.style.color
+            this.dialogSettings.style['background-color'] = model['justify-content'] ?? defaultDialogSettings.style['background-color']
         }
     }
 })

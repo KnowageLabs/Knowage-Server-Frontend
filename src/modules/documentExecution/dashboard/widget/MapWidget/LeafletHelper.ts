@@ -248,6 +248,7 @@ export const addTooltipToMarkerForLayerData = (feature: any, model: IWidget, lay
 }
 
 function createDialogForLayerData(feature: any, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number) {
+    console.log('---------- FEATURE: ', feature)
     const container = document.createElement('div')
     const layersList = settings.layers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target) as any
 
@@ -274,7 +275,7 @@ function createDialogForLayerData(feature: any, tooltip: boolean, layerVisualiza
 
 const createTooltipListHeader = (header: string) => {
     const headerElement = document.createElement('li')
-    headerElement.innerHTML = `${header}`
+    headerElement.innerHTML = header
     headerElement.classList.add('customLeafletPopupListHeader')
     return headerElement
 }
@@ -282,6 +283,6 @@ const createTooltipListHeader = (header: string) => {
 const createTooltipListItem = (value: string) => {
     const li = document.createElement('li')
     //TODO set style
-    li.innerHTML = `value`
+    li.innerHTML = value
     return li
 }
