@@ -21,8 +21,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="close"> {{ mode === 'info' ? $t('common.ok') : $t('common.cancel') }}</Button>
-            <Button v-if="mode !== 'info'" class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="close"> {{ mode === 'info' ? $t('common.ok') : $t('common.cancel') }}</Button>
+            <Button v-if="mode !== 'info'" class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

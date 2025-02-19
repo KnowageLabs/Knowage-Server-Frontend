@@ -6,8 +6,8 @@
                     {{ $t('managers.scorecards.scorecardDesigner') }}
                 </template>
                 <template #end>
-                    <Button class="kn-button p-button-text" :disabled="saveButtonDisabled" @click="saveScorecard">{{ $t('common.save') }}</Button>
-                    <Button class="kn-button p-button-text" @click="close">{{ $t('common.close') }}</Button>
+                    <Button class="kn-button p-button-text" :disabled="saveButtonDisabled" data-test="save-button" @click="saveScorecard">{{ $t('common.save') }}</Button>
+                    <Button class="kn-button p-button-text" data-test="close-button" @click="close">{{ $t('common.close') }}</Button>
                 </template>
             </Toolbar>
 

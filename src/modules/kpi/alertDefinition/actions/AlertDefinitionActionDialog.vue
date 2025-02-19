@@ -6,8 +6,8 @@
                     {{ $t('kpi.alert.addAction') }}
                 </template>
                 <template #end>
-                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="actionSaveButtonDisabled" @click="handleSave" />
-                    <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="$emit('close')" />
+                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="actionSaveButtonDisabled" data-test="save-button" @click="handleSave" />
+                    <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="$emit('close')" />
                 </template>
             </Toolbar>
         </template>

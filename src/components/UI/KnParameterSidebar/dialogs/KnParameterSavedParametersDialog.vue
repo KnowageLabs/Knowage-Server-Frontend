@@ -14,7 +14,7 @@
                 <div class="table-header p-d-flex p-ai-center">
                     <span id="search-container" class="p-input-icon-left p-mr-3">
                         <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                     </span>
                 </div>
             </template>
@@ -30,8 +30,8 @@
                 <template #body="slotProps">
                     <div class="p-d-flex p-flex-row">
                         <Button v-tooltip.left="$t('documentExecution.main.fillForm')" icon="fas fa-file-signature" class="p-button-link p-mr-2" @click.stop="$emit('fillForm', slotProps.data)" />
-                        <Button v-tooltip.left="$t('common.execute')" icon="fa fa-play-circle" class="p-button-link p-mr-2" @click.stop="$emit('executeViewpoint', slotProps.data)" />
-                        <Button v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-link" @click.stop="deleteViewpointConfirm(slotProps.data)" />
+                        <Button v-tooltip.left="$t('common.execute')" icon="fa fa-play-circle" class="p-button-link p-mr-2" data-test="execution" @click.stop="$emit('executeViewpoint', slotProps.data)" />
+                        <Button v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-link" data-test="delete-button" @click.stop="deleteViewpointConfirm(slotProps.data)" />
                     </div>
                 </template>
             </Column>

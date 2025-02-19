@@ -7,7 +7,7 @@
                         {{ $t('managers.metadata.title') }}
                     </template>
                     <template #end>
-                        <KnFabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm"></KnFabButton>
+                        <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm"></KnFabButton>
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
@@ -31,7 +31,7 @@
                                 <span>{{ slotProps.option.name }}</span>
                                 <span class="kn-list-item-text-secondary">{{ slotProps.option.dataType }}</span>
                             </div>
-                            <Button icon="pi pi-trash" class="p-button-link p-button-sm" :data-test="'delete-button'" @click="deleteMetadataConfirm(slotProps.option.id)" />
+                            <Button icon="pi pi-trash" class="p-button-link p-button-sm" data-test="delete-button" @click="deleteMetadataConfirm(slotProps.option.id)" />
                         </div>
                     </template>
                 </Listbox>

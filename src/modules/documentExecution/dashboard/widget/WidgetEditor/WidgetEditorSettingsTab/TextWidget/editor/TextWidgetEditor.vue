@@ -42,7 +42,7 @@
                 <template #font-family>
                     <q-btn-dropdown dense no-caps ref="familytoken" no-wrap unelevated icon="font_download" label="Font Family" size="sm">
                         <q-list dense>
-                            <q-item v-for="font in TextWidgetEditorDescriptor.fontFamilies" clickable @click="setFontFamily(font)"
+                            <q-item v-for="font in TextWidgetEditorDescriptor.fontFamilies" clickable data-test="list-item" @click="setFontFamily(font)"
                                 ><q-item-section
                                     ><span :style="{ 'font-family': font }">{{ font }}</span></q-item-section
                                 ></q-item
@@ -53,7 +53,7 @@
                 <template #color>
                     <q-btn-dropdown dense no-caps ref="token" no-wrap unelevated icon="format_color_text" label="Text Color" size="sm">
                         <q-list dense>
-                            <q-item tag="label" clickable @click="color('backColor', highlight)">
+                            <q-item tag="label" clickable data-test="list-item" @click="color('backColor', highlight)">
                                 <q-item-section side>
                                     <q-icon name="format_color_fill" />
                                 </q-item-section>
@@ -89,7 +89,7 @@
                                     />
                                 </q-item-section>
                             </q-item>
-                            <q-item tag="label" clickable @click="color('foreColor', foreColor)">
+                            <q-item tag="label" clickable data-test="list-item" @click="color('foreColor', foreColor)">
                                 <q-item-section side>
                                     <q-icon name="format_color_text" />
                                 </q-item-section>

@@ -17,9 +17,9 @@
             @update:cronExpressionType="updateCronExpressionType"
         />
         <template #footer>
-            <Button :visible="visibility" class="kn-button--secondary" :label="$t('common.cancel')" @click="cancel" />
+            <Button :visible="visibility" class="kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="cancel" />
 
-            <Button :label="$t('common.save')" :visible="visibility" class="kn-button--primary" :disabled="!touched" @click="saveSchedulation" />
+            <Button :label="$t('common.save')" :visible="visibility" class="kn-button--primary" :disabled="!touched" data-test="save-button" @click="saveSchedulation" />
         </template>
     </Dialog>
 </template>

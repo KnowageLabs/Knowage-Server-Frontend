@@ -1558,7 +1558,8 @@
                 "paramName": "Parameter Name",
                 "paramType": "Parameter Type",
                 "persistError": "Error saving output param",
-                "title": "Output Parameters"
+                "title": "Output Parameters",
+                "usedParameterWarning": "The output parameter cannot be deleted because it is used by the following cross-navigation: {cross} | The output parameter cannot be deleted because it is used by the following cross-navigations: {cross}"
             },
             "subreports": {
                 "deleteError": "Error deleting subreport",
@@ -3219,6 +3220,7 @@
             "contextBroker": "Context Broker message",
             "datasetVerification": "Data set verification",
             "dateError": "Start date must be before end date. End date must be in future.",
+            "deletedDocumentsWarning": "Some documents have been deleted. Please check the schedulation.",
             "destinationFolder": "Destination folder",
             "detail": "Schedulation Detail",
             "doNotIterateOnParameterValues": "Don't iterate for each value",
@@ -3276,6 +3278,7 @@
             "sendToJavaClass": "Send to Java class",
             "singleExecution": "Single Execution",
             "startDate": "Start Date",
+            "talendWarning": "Talend document does not support any output type. See the ETL defition to have more informations on the schedulation results.",
             "timeWindow": "Time Window",
             "timing": "Timing",
             "timingAndOutput": "Timing & Output",
@@ -3560,6 +3563,7 @@
     },
     "menu": {
         "Categories": "Categories",
+        "DashboardThemeManagement": "Dashboard Themes",
         "ThemeManagement": "Themes",
         "group": {
             "ImportExport": "Import/Export",

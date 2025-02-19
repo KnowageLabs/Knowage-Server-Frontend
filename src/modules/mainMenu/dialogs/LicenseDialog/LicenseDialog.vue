@@ -13,7 +13,7 @@
             </TabPanel>
         </TabView>
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.close') }}</Button>
         </template>
     </Dialog>
 </template>

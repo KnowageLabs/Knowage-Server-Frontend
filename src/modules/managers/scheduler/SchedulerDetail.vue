@@ -3,7 +3,7 @@
         <template #start>{{ job.jobName }}</template>
         <template #end>
             <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveDisabled" data-test="save-button" @click="saveJob" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeJobDetail" />
+            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeJobDetail" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />

@@ -30,8 +30,8 @@
                     </span>
                 </div>
                 <div class="p-d-flex p-flex-row p-jc-center p-ai-center">
-                    <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" @click="addTooltip()"></i>
-                    <i v-if="index !== 0" class="pi pi-trash kn-cursor-pointer" @click="removeTooltip(index)"></i>
+                    <i v-if="index === 0" class="pi pi-plus-circle kn-cursor-pointer" data-test="new-button" @click="addTooltip()"></i>
+                    <i v-if="index !== 0" class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeTooltip(index)"></i>
                 </div>
             </div>
 

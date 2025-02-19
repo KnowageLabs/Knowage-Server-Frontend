@@ -83,8 +83,8 @@
             </div>
 
             <template #footer>
-                <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="conditionFormVisible = false" />
-                <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="handleSubmit" />
+                <Button class="p-button-text kn-button" :label="$t('common.cancel')" data-test="close-button" @click="conditionFormVisible = false" />
+                <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" @click="handleSubmit" />
             </template>
         </Dialog>
     </div>

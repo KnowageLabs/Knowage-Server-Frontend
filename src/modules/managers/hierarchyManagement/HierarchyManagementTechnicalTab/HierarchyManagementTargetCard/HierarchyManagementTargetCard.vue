@@ -18,7 +18,7 @@
                     <Button class="kn-button kn-button--primary" :label="$t('common.create')" :disabled="!selectedDimension" @click="createHierarchy" />
                 </div>
                 <div class="p-field p-col-6 p-lg-3">
-                    <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="!treeModel" @click="handleSaveHiararchy" />
+                    <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="!treeModel" data-test="save-button" @click="handleSaveHiararchy" />
                 </div>
                 <div class="p-field-checkbox p-col-6 p-lg-2">
                     <Checkbox v-model="backup" :binary="true" :disabled="!treeModel" />

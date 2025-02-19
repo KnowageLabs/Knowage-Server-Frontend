@@ -11,7 +11,7 @@
         <div>
             <div class="p-d-flex p-ai-center p-m-4">
                 <i class="pi pi-search kn-cursor-pointer" />
-                <InputText v-model="searchWord" class="kn-material-input p-ml-2" :placeholder="$t('common.search')" @input="searchItems" />
+                <InputText v-model="searchWord" class="kn-material-input p-ml-2" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
             </div>
 
             <div class="p-m-4">
@@ -29,8 +29,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

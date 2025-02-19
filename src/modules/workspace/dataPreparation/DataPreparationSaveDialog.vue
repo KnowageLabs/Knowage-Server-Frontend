@@ -65,9 +65,9 @@
             </div>
         </div>
         <template #footer>
-            <Button class="kn-button--secondary" :label="$t('common.cancel')" @click="cancel" />
+            <Button class="kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="cancel" />
 
-            <Button :label="$t('common.save')" class="kn-button--primary" :disabled="saveButtonDisabled" @click="savePreparedDataset()" />
+            <Button :label="$t('common.save')" class="kn-button--primary" :disabled="saveButtonDisabled" data-test="save-button" @click="savePreparedDataset()" />
         </template>
     </Dialog>
 </template>

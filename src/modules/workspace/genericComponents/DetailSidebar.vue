@@ -44,7 +44,7 @@
             </div>
         </div>
     </Sidebar>
-    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" :style="descriptor.style.menuItems" />
+    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" :style="descriptor.style.menuItems" data-test="menu" />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'

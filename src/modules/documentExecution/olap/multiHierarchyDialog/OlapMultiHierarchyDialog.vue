@@ -17,41 +17,41 @@
             </span>
         </div>
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="$emit('close')"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="$emit('updateHierarchy')"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="$emit('close')"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="$emit('updateHierarchy')"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
-    import { defineComponent } from 'vue'
-    import { iOlapFilter } from '@/modules/documentExecution/olap/Olap'
-    import Dropdown from 'primevue/dropdown'
-    import Dialog from 'primevue/dialog'
+import { defineComponent } from 'vue'
+import { iOlapFilter } from '@/modules/documentExecution/olap/Olap'
+import Dropdown from 'primevue/dropdown'
+import Dialog from 'primevue/dialog'
 
-    export default defineComponent({
-        components: { Dialog, Dropdown },
-        props: { selectedFilter: { type: Object, required: true }, multiHierUN: { type: String, required: true } },
-        emits: ['save', 'updateHierarchy', 'setMultiHierUN'],
-        data() {
-            return {
-                member: {} as iOlapFilter,
-                selecetedMultiHierUN: '' as any
-            }
-        },
-        watch: {
-            selectedFilter() {
-                this.loadData()
-            }
-        },
-        created() {
-            this.loadData()
-        },
-        methods: {
-            loadData() {
-                this.member = this.selectedFilter as iOlapFilter
-                this.selecetedMultiHierUN = this.multiHierUN
-            }
+export default defineComponent({
+    components: { Dialog, Dropdown },
+    props: { selectedFilter: { type: Object, required: true }, multiHierUN: { type: String, required: true } },
+    emits: ['save', 'updateHierarchy', 'setMultiHierUN'],
+    data() {
+        return {
+            member: {} as iOlapFilter,
+            selecetedMultiHierUN: '' as any
         }
-    })
+    },
+    watch: {
+        selectedFilter() {
+            this.loadData()
+        }
+    },
+    created() {
+        this.loadData()
+    },
+    methods: {
+        loadData() {
+            this.member = this.selectedFilter as iOlapFilter
+            this.selecetedMultiHierUN = this.multiHierUN
+        }
+    }
+})
 </script>

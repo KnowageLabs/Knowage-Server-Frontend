@@ -11,6 +11,7 @@
                     class="kn-list-item kn-draggable"
                     draggable="true"
                     :style="dataListDescriptor.style.list.listItem"
+                    data-test="list-item"
                     @dragstart="onDragStart($event, slotProps.index)"
                     @drop.stop="onDropComplete($event, slotProps.index)"
                     @dragover.prevent
@@ -25,7 +26,7 @@
                     <div class="kn-list-item-text">
                         <span v-tooltip.top="slotProps.option.name" class="dashboard-editor-list-alias-container">{{ slotProps.option.name }}</span>
                     </div>
-                    <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-ml-auto" @click.stop="deleteLayer(slotProps.index)" />
+                    <Button icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-ml-auto" data-test="delete-button" @click.stop="deleteLayer(slotProps.index)" />
                 </div>
             </template>
         </Listbox>

@@ -46,7 +46,7 @@
             </template>
             <template #body-cell-play="slotProps">
                 <q-td class="text-center">
-                    <q-btn flat round size="xs" color="primary" icon="fa fa-play-circle" @click.stop="executeDocument(slotProps.row)">
+                    <q-btn flat round size="xs" color="primary" icon="fa fa-play-circle" data-test="execution" @click.stop="executeDocument(slotProps.row)">
                         <q-tooltip>{{ $t('documentBrowser.executeDocument') }}</q-tooltip>
                     </q-btn>
                 </q-td>

@@ -49,8 +49,8 @@
             </div>
 
             <template #footer>
-                <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.close') }}</Button>
-                <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="saveFederation"> {{ $t('common.save') }}</Button>
+                <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.close') }}</Button>
+                <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" data-test="save-button" @click="saveFederation"> {{ $t('common.save') }}</Button>
             </template>
         </Dialog>
     </div>

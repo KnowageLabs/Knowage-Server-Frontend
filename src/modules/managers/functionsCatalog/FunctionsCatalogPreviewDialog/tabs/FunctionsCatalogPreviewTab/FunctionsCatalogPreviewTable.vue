@@ -20,12 +20,12 @@
             <div class="table-header p-d-flex">
                 <span class="p-input-icon-left p-mr-3 p-col-12">
                     <i class="pi pi-search" />
-                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="filterInput" />
+                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" />
                 </span>
             </div>
         </template>
         <Column v-for="col of columns" :key="col.field" class="kn-truncated" :field="col.field" :header="col.header" :sortable="true">
-            <template #filter="{filterModel}">
+            <template #filter="{ filterModel }">
                 <InputText v-model="filterModel.value" type="text" class="p-column-filter"></InputText>
             </template>
         </Column>

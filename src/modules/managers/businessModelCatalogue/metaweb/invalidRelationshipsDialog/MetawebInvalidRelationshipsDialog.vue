@@ -24,60 +24,60 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
-    import { defineComponent } from 'vue'
-    import Chip from 'primevue/chip'
-    import Dialog from 'primevue/dialog'
-    import metawebInvalidRelationshipsDialogDescriptor from './MetawebInvalidRelationshipsDialogDescriptor.json'
+import { defineComponent } from 'vue'
+import Chip from 'primevue/chip'
+import Dialog from 'primevue/dialog'
+import metawebInvalidRelationshipsDialogDescriptor from './MetawebInvalidRelationshipsDialogDescriptor.json'
 
-    export default defineComponent({
-        name: 'metaweb-invalid-relationships-dialog',
-        components: { Chip, Dialog },
-        props: { visible: { type: Boolean }, propIncorrectRelationships: { type: Array } },
-        emits: ['close', 'save'],
-        data() {
-            return {
-                metawebInvalidRelationshipsDialogDescriptor,
-                incorrectRelationships: [] as any[]
-            }
-        },
-        watch: {
-            propIncorrectRelationships() {
-                this.loadIncorrectRelationships()
-            }
-        },
-        created() {
-            this.loadIncorrectRelationships()
-        },
-        methods: {
-            loadIncorrectRelationships() {
-                this.incorrectRelationships = this.propIncorrectRelationships as any[]
-            },
-            closeDialog() {
-                this.$emit('close')
-            },
-            save() {
-                this.$emit('save')
-            }
+export default defineComponent({
+    name: 'metaweb-invalid-relationships-dialog',
+    components: { Chip, Dialog },
+    props: { visible: { type: Boolean }, propIncorrectRelationships: { type: Array } },
+    emits: ['close', 'save'],
+    data() {
+        return {
+            metawebInvalidRelationshipsDialogDescriptor,
+            incorrectRelationships: [] as any[]
         }
-    })
+    },
+    watch: {
+        propIncorrectRelationships() {
+            this.loadIncorrectRelationships()
+        }
+    },
+    created() {
+        this.loadIncorrectRelationships()
+    },
+    methods: {
+        loadIncorrectRelationships() {
+            this.incorrectRelationships = this.propIncorrectRelationships as any[]
+        },
+        closeDialog() {
+            this.$emit('close')
+        },
+        save() {
+            this.$emit('save')
+        }
+    }
+})
 </script>
 
 <style lang="scss">
-    #metaweb-inccorect-relationships-dialog .p-dialog-header,
-    #metaweb-inccorect-relationships-dialog .p-dialog-content {
-        padding: 0;
-    }
+#metaweb-inccorect-relationships-dialog .p-dialog-header,
+#metaweb-inccorect-relationships-dialog .p-dialog-content {
+    padding: 0;
+}
 
-    #metaweb-inccorect-relationships-dialog .p-dialog-content {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
+#metaweb-inccorect-relationships-dialog .p-dialog-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
 </style>

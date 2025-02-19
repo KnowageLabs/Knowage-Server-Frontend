@@ -74,6 +74,7 @@
 <script lang="ts">
 import { iDocument, iParType, iDateFormat, iOutputParam } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
+import { AxiosResponse } from 'axios'
 import { defineComponent, PropType } from 'vue'
 import mainDescriptor from '@/modules/documentExecution/documentDetails/DocumentDetailsDescriptor.json'
 import driversDescriptor from '@/modules/documentExecution/documentDetails/tabs/drivers/DocumentDetailsDriversDescriptor.json'
@@ -83,6 +84,7 @@ import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import Dropdown from 'primevue/dropdown'
 import InlineMessage from 'primevue/inlinemessage'
+import { useQuasar } from 'quasar'
 
 export default defineComponent({
     name: 'document-drivers',
@@ -92,6 +94,7 @@ export default defineComponent({
     data() {
         return {
             v$: useValidate() as any,
+            $q: useQuasar() as any,
             mainDescriptor,
             driversDescriptor,
             outputParamDescriptor,
@@ -123,12 +126,21 @@ export default defineComponent({
             this.selectedParam.numberOfErrors = this.v$.$errors.length
         },
 
-        deleteParamConfirm(event) {
-            this.$confirm.require({
-                header: this.$t('common.toast.deleteConfirmTitle'),
-                message: this.$t('common.toast.deleteMessage'),
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteParam(event.item)
+        async deleteParamConfirm(event) {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${event.item.id}`).then((response: AxiosResponse<any>) => {
+                if (response.data.length === 0) {
+                    this.$confirm.require({
+                        header: this.$t('common.toast.deleteConfirmTitle'),
+                        message: this.$t('common.toast.deleteMessage'),
+                        icon: 'pi pi-exclamation-triangle',
+                        accept: () => this.deleteParam(event.item)
+                    })
+                } else {
+                    this.$q.dialog({
+                        title: this.$t('common.warning'),
+                        message: this.$t('documentExecution.documentDetails.outputParams.usedParameterWarning', response.data.length, { named: { cross: response.data.join(', ') } })
+                    })
+                }
             })
         },
         async deleteParam(paramToDelete) {

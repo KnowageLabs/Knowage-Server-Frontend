@@ -8,8 +8,8 @@
             <Column class="icon-cell" :style="descriptor.iconColumnStyle">
                 <template #body="slotProps">
                     <Button icon="pi pi-copy" class="p-button-link" @click="moveView(slotProps.data)" />
-                    <Button icon="fa fa-play-circle" class="p-button-link" @click="executeView(slotProps.data)" />
-                    <Button icon="pi pi-trash" class="p-button-link" @click="deleteViewConfirm(slotProps.data)" />
+                    <Button icon="fa fa-play-circle" class="p-button-link" data-test="execution" @click="executeView(slotProps.data)" />
+                    <Button icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="deleteViewConfirm(slotProps.data)" />
                 </template>
             </Column>
         </DataTable>

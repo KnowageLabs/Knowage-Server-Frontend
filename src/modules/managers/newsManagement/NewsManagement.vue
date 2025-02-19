@@ -7,7 +7,7 @@
                         {{ $t('managers.newsManagement.title') }}
                     </template>
                     <template #end>
-                        <FabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm" />
+                        <FabButton icon="fas fa-plus" data-test="open-form-button" data-test="new-button" @click="showForm" />
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />

@@ -1,39 +1,34 @@
 <template>
     <div>
-        <div id="top-container" class="p-grid p-p-2">
+        <div v-if="document.engine != 'knowagetalendengine'" id="top-container" class="row">
             <div class="p-md-12 p-lg-6 p-d-flex p-flex-row p-ai-center p-p-2">
-                <div>
-                    <q-checkbox v-model="document.saveassnapshot" :label="$t('managers.scheduler.saveAsSnapshot')" @change="removeProperty('saveassnapshot')" data-test="snapshot-checkbox" />
-                </div>
-                <div>
-                    <q-checkbox v-model="document.saveasfile" :label="$t('managers.scheduler.saveAsFile')" @change="removeProperty('saveasfile')" data-test="file-checkbox" />
-                </div>
-                <div>
-                    <q-checkbox v-model="document.saveasdocument" :label="$t('managers.scheduler.saveAsDocument')" @change="removeProperty('saveasdocument')" data-test="document-checkbox" />
-                </div>
-                <div>
-                    <q-checkbox v-model="document.sendtojavaclass" :label="$t('managers.scheduler.sendToJavaClass')" @change="removeProperty('sendtojavaclass')" data-test="java-checkbox" />
-                </div>
-                <div>
-                    <q-checkbox v-model="document.sendmail" :label="$t('managers.scheduler.sendMail')" @change="removeProperty('sendmail')" data-test="mail-checkbox" />
-                </div>
+                <q-checkbox v-model="document.saveassnapshot" class="ellipsis-2-lines" :label="$t('managers.scheduler.saveAsSnapshot')" data-test="snapshot-checkbox" />
+                <q-checkbox v-model="document.saveasfile" class="ellipsis-2-lines" :label="$t('managers.scheduler.saveAsFile')" data-test="file-checkbox" />
+                <q-checkbox v-model="document.saveasdocument" class="ellipsis-2-lines" :label="$t('managers.scheduler.saveAsDocument')" data-test="document-checkbox" />
+                <!--q-checkbox v-model="document.sendtojavaclass" class="ellipsis-2-lines" :label="$t('managers.scheduler.sendToJavaClass')" @change="removeProperty('sendtojavaclass')" data-test="java-checkbox" /-->
+                <q-checkbox v-model="document.sendmail" class="ellipsis-2-lines" :label="$t('managers.scheduler.sendMail')" data-test="mail-checkbox" />
             </div>
             <div class="p-md-12 p-lg-6 p-px-5">
-                <span>
-                    <label class="kn-material-input-label">{{ $t('managers.widgetGallery.outputType') }}</label>
-                    <Dropdown v-model="document.outputType" class="kn-material-input" :options="descriptor.documentOutputTypes" option-value="value" option-label="label" />
-                </span>
+                <q-select filled dense v-model="document.outputType" :options="descriptor.documentOutputTypes" emit-value map-options option-value="value" option-label="label" :label="$t('managers.widgetGallery.outputType')" />
             </div>
         </div>
+        <div v-else class="row justify-center q-mt-md">
+            <q-banner rounded dense class="bg-info col-6 text-center">
+                <template v-slot:avatar>
+                    <q-icon name="info" />
+                </template>
+                {{ $t('managers.scheduler.talendWarning') }}
+            </q-banner>
+        </div>
 
-        <div v-if="document">
-            <SchedulerSnapshotAccordion v-if="document.saveassnapshot" class="p-m-3" :propDocument="document" data-test="snapshot-accordion"></SchedulerSnapshotAccordion>
-            <SchedulerFileAccordion v-if="document.saveasfile" class="p-m-3" :propDocument="document" data-test="file-accordion"></SchedulerFileAccordion>
-            <SchedulerDocumentAccordion v-if="document.saveasdocument" class="p-m-3" :propDocument="document" :functionalities="functionalities" :datasets="datasets" :jobInfo="jobInfo" data-test="document-accordion"></SchedulerDocumentAccordion>
-            <SchedulerJavaClassAccordion v-if="document.sendtojavaclass" class="p-m-3" :propDocument="document" data-test="java-accordion"></SchedulerJavaClassAccordion>
+        <div v-if="document && document.engine != 'knowagetalendengine'" class="q-pa-sm">
+            <SchedulerSnapshotAccordion v-if="document.saveassnapshot" class="q-ma-sm" :propDocument="document" data-test="snapshot-accordion"></SchedulerSnapshotAccordion>
+            <SchedulerFileAccordion v-if="document.saveasfile" class="q-ma-sm" :propDocument="document" data-test="file-accordion"></SchedulerFileAccordion>
+            <SchedulerDocumentAccordion v-if="document.saveasdocument" class="q-ma-sm" :propDocument="document" :functionalities="functionalities" :datasets="datasets" :jobInfo="jobInfo" data-test="document-accordion"></SchedulerDocumentAccordion>
+            <!--SchedulerJavaClassAccordion v-if="document.sendtojavaclass" class="p-m-3" :propDocument="document" data-test="java-accordion"></SchedulerJavaClassAccordion-->
             <SchedulerMailAccordion
                 v-if="document.sendmail"
-                class="p-m-3"
+                class="q-ma-sm"
                 :propDocument="document"
                 :datasets="datasets"
                 :jobInfo="jobInfo"
@@ -126,9 +121,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style lang="scss" scoped>
-#top-container {
-    width: 95%;
-}
-</style>

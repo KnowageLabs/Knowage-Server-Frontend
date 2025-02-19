@@ -23,73 +23,73 @@
         </Listbox>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
-    import { defineComponent } from 'vue'
-    import Checkbox from 'primevue/checkbox'
-    import Dialog from 'primevue/dialog'
-    import Listbox from 'primevue/listbox'
-    import Message from 'primevue/message'
-    import metawebAttributeUnusedFieldDialogDescriptor from './MetawebAttributeUnusedFieldDialogDescriptor.json'
+import { defineComponent } from 'vue'
+import Checkbox from 'primevue/checkbox'
+import Dialog from 'primevue/dialog'
+import Listbox from 'primevue/listbox'
+import Message from 'primevue/message'
+import metawebAttributeUnusedFieldDialogDescriptor from './MetawebAttributeUnusedFieldDialogDescriptor.json'
 
-    export default defineComponent({
-        name: 'metaweb-attribute-detail-dialog',
-        components: { Checkbox, Dialog, Listbox, Message },
-        props: { visible: { type: Boolean }, unusedFields: { type: Object } },
-        emits: ['close', 'save'],
-        data() {
-            return {
-                metawebAttributeUnusedFieldDialogDescriptor,
-                fields: [] as any[],
-                selectedUnusedFields: [] as any[],
-                loading: false
-            }
-        },
-        watch: {
-            unusedFields() {
-                this.loadFields()
-            }
-        },
-        created() {
-            this.loadFields()
-        },
-        methods: {
-            loadFields() {
-                this.fields = this.unusedFields as any[]
-            },
-            closeDialog() {
-                this.$emit('close')
-                this.selectedUnusedFields = []
-            },
-            save() {
-                this.$emit('save', this.selectedUnusedFields)
-            }
+export default defineComponent({
+    name: 'metaweb-attribute-detail-dialog',
+    components: { Checkbox, Dialog, Listbox, Message },
+    props: { visible: { type: Boolean }, unusedFields: { type: Object } },
+    emits: ['close', 'save'],
+    data() {
+        return {
+            metawebAttributeUnusedFieldDialogDescriptor,
+            fields: [] as any[],
+            selectedUnusedFields: [] as any[],
+            loading: false
         }
-    })
+    },
+    watch: {
+        unusedFields() {
+            this.loadFields()
+        }
+    },
+    created() {
+        this.loadFields()
+    },
+    methods: {
+        loadFields() {
+            this.fields = this.unusedFields as any[]
+        },
+        closeDialog() {
+            this.$emit('close')
+            this.selectedUnusedFields = []
+        },
+        save() {
+            this.$emit('save', this.selectedUnusedFields)
+        }
+    }
+})
 </script>
 
 <style lang="scss">
-    #metaweb-attribute-unused-field-dialog #metaweb-attribute-detail-dialog .p-dialog-header,
-    #metaweb-attribute-unused-field-dialog .p-dialog-content {
-        padding: 0;
-    }
+#metaweb-attribute-unused-field-dialog #metaweb-attribute-detail-dialog .p-dialog-header,
+#metaweb-attribute-unused-field-dialog .p-dialog-content {
+    padding: 0;
+}
 
-    #metaweb-attribute-unused-field-dialog .p-dialog-content {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
+#metaweb-attribute-unused-field-dialog .p-dialog-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
 
-    .metaweb-unused-fields-listbox {
-        border: none;
-    }
+.metaweb-unused-fields-listbox {
+    border: none;
+}
 
-    .metaweb-unused-fields-listbox .p-listbox-item {
-        padding: 0 !important;
-    }
+.metaweb-unused-fields-listbox .p-listbox-item {
+    padding: 0 !important;
+}
 </style>

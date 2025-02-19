@@ -3,7 +3,7 @@
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
                 <template #end>
-                    <Button id="add-range-button" class="kn-button kn-button--primary" @click="addRange"> {{ $t('dashboard.widgetEditor.map.addThreshold') }} </Button>
+                    <Button id="add-range-button" class="kn-button kn-button--primary" data-test="new-button" @click="addRange"> {{ $t('dashboard.widgetEditor.map.addThreshold') }} </Button>
                 </template>
             </Toolbar>
         </template>
@@ -21,13 +21,13 @@
                 <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.toThreshold') }}</label>
             </div>
             <div class="p-col-6 p-lg-2 p-text-right">
-                <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" @click.stop="deleteRange(index)"></Button>
+                <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteRange(index)"></Button>
             </div>
         </div>
 
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
-                <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+                <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
                 <Button class="kn-button kn-button--primary" @click="setRanges">{{ $t('common.set') }}</Button>
             </div>
         </template>

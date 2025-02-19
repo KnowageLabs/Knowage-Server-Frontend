@@ -6,7 +6,7 @@
                     {{ $t('managers.cacheManagement.generalSettings') }}
                 </template>
                 <template #end>
-                    <Button class="kn-button p-button-text p-button-rounded" data-test="save-button" @click="save">{{ $t('common.save') }}</Button>
+                    <Button class="kn-button p-button-text p-button-rounded" data-test="save-button" data-test="save-button" @click="save">{{ $t('common.save') }}</Button>
                     <Button class="kn-button p-button-text p-button-rounded" data-test="reset-button" @click="discardChanges">{{ $t('managers.cacheManagement.discard') }}</Button>
                 </template>
             </Toolbar>

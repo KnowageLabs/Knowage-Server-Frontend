@@ -7,7 +7,7 @@
                         {{ $t('managers.usersManagement.title') }}
                     </template>
                     <template #end>
-                        <KnFabButton icon="fas fa-plus" data-test="open-form-button" @click="showForm()"></KnFabButton>
+                        <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
@@ -21,8 +21,8 @@
                         {{ userDetailsForm.userId }}
                     </template>
                     <template #end>
-                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!dirty || !passwordValidation" @click="saveUser" />
-                        <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" @click="closeForm" />
+                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!dirty || !passwordValidation" data-test="save-button" @click="saveUser" />
+                        <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" data-test="close-button" @click="closeForm" />
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
@@ -171,8 +171,8 @@ export default defineComponent({
             this.userDetailsForm.id = null
             this.userDetailsForm.userId = ''
             this.userDetailsForm.fullName = ''
-            if(this.userDetailsForm.password) delete this.userDetailsForm.password
-            if(this.userDetailsForm.passwordConfirm) delete this.userDetailsForm.passwordConfirm
+            if (this.userDetailsForm.password) delete this.userDetailsForm.password
+            if (this.userDetailsForm.passwordConfirm) delete this.userDetailsForm.passwordConfirm
             this.userDetailsForm.failedLoginAttempts = 0
             this.userDetailsForm.sbiExtUserRoleses = []
             this.userDetailsForm.sbiUserAttributeses = {}
@@ -304,8 +304,8 @@ export default defineComponent({
             this.defaultRole = userObj.defaultRoleId
             this.selectedRoles = this.getSelectedUserRoles(userObj.sbiExtUserRoleses)
             this.userDetailsForm = { ...userObj }
-            if(this.userDetailsForm.password) delete this.userDetailsForm.password
-            if(this.userDetailsForm.passwordConfirm) delete this.userDetailsForm.passwordConfirm
+            if (this.userDetailsForm.password) delete this.userDetailsForm.password
+            if (this.userDetailsForm.passwordConfirm) delete this.userDetailsForm.passwordConfirm
             this.populateAttributesForm(userObj.sbiUserAttributeses)
         },
         populateAttributesForm(userAttributeValues: any) {

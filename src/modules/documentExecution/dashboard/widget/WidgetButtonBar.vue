@@ -5,7 +5,7 @@
     </div>
 
     <div v-if="helpConfig.enabled" class="infoButtonContainer" :class="[helpConfig.iconPosition]" @mouseover="$emit('changeFocus', true)" @mouseleave="$emit('changeFocus', false)">
-        <i :class="helpConfig.icon" @click="handleHelpClick()" />
+        <i :class="helpConfig.icon" data-test="hint" @click="handleHelpClick()" />
         <q-tooltip v-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'free-text'"> {{ helpConfig.text }} </q-tooltip>
         <q-tooltip v-else-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'link'"> {{ helpConfig.url }} </q-tooltip>
     </div>
@@ -16,9 +16,9 @@
     </div>
 
     <div class="qmenu-anchor">
-        <q-menu v-model:model-value="qMenuShown" anchor="top right" self="top left" no-parent-event>
+        <q-menu v-model:model-value="qMenuShown" anchor="top right" self="top left" no-parent-event data-test="menu">
             <q-list style="min-width: 100px">
-                <q-item v-for="(item, index) in menuItems" :key="index" v-ripple dense clickable :style="{ display: item.visible ? 'flex' : 'none' }" @click="closeMenu(item.command)">
+                <q-item v-for="(item, index) in menuItems" :key="index" v-ripple dense clickable :style="{ display: item.visible ? 'flex' : 'none' }" data-test="close-button" @click="closeMenu(item.command)">
                     <q-item-section>
                         <div>
                             <i class="p-mr-3" :class="item.icon" />

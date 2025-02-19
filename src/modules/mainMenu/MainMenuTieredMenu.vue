@@ -9,7 +9,7 @@
             <q-item-section side v-if="item.items">
                 <q-icon name="keyboard_arrow_right" />
             </q-item-section>
-            <q-menu v-model="item.visibleChild" anchor="top right" self="top left">
+            <q-menu v-model="item.visibleChild" anchor="top right" self="top left" data-test="menu">
                 <MainMenuTieredMenu :items="item.items" @link="itemClick"></MainMenuTieredMenu>
             </q-menu>
         </q-item>

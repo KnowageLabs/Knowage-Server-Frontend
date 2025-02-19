@@ -11,6 +11,9 @@
     border-top-right-radius: 0;
     border-top-right-radius: 0;
     text-transform: capitalize;
+    .q-toolbar__title {
+        font-size: var(--kn-toolbar-font-size);
+    }
 
     &--primary {
         @extend .kn-toolbar;

@@ -6,7 +6,7 @@
         <Message v-if="selectedAncestorsWarningVisible" class="p-m-4" severity="warn" :closable="false" :style="olapFilterDialogDescriptor.styles.message">
             {{ $t('documentExecution.olap.filterDialog.ancestorDescendantWarning') }}
         </Message>
-        <InputText v-if="!treeLocked" id="olap-filter-tree-search" v-model.trim="searchWord" class="kn-material-input" type="text" :placeholder="$t('common.search')" @input="searchTree" />
+        <InputText v-if="!treeLocked" id="olap-filter-tree-search" v-model.trim="searchWord" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchTree" />
         <Tree id="kn-parameter-tree" :class="{ 'olap-filter-tree-locked': treeLocked }" :value="nodes" :meta-key-selection="false" :expanded-keys="expandedKeys" :loading="loading" @nodeExpand="loadNodes($event)">
             <template #default="slotProps">
                 <Checkbox

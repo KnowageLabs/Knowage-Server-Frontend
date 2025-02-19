@@ -2,8 +2,8 @@
     <Dialog class="kn-dialog--toolbar--secondary selectionsDialog" :visible="visible" style="width: 60%" :header="$t('dashboard.selectionsList')" :closable="false" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }">
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine selectionGrid p-m-2" :grid-options="gridOptions" :context="context"></ag-grid-vue>
         <template #footer>
-            <Button class="kn-button kn-button--secondary p-mb-2" :label="$t('common.close')" @click="closeDialog" />
-            <Button class="kn-button kn-button p-mb-2" :label="$t('common.save')" @click="onSave" />
+            <Button class="kn-button kn-button--secondary p-mb-2" :label="$t('common.close')" data-test="close-button" @click="closeDialog" />
+            <Button class="kn-button kn-button p-mb-2" :label="$t('common.save')" data-test="save-button" @click="onSave" />
         </template>
     </Dialog>
 </template>

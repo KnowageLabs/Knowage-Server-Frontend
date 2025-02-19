@@ -3,7 +3,7 @@
         <template #start>{{ timespan?.name }}</template>
         <template #end>
             <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveDisabled" data-test="save-button" @click="saveTimespan(null)" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTimespanDetailsConfirm" />
+            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTimespanDetailsConfirm" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" class="kn-progress-bar" mode="indeterminate" data-test="progress-bar" />

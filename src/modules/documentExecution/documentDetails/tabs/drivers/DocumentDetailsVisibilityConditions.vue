@@ -83,8 +83,8 @@
         </form>
 
         <template #footer>
-            <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click=";(showVisibilityConditionDialog = false), (selectedCondition = {})" />
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="v$.$invalid" @click="saveCondition" />
+            <Button class="p-button-text kn-button" :label="$t('common.cancel')" data-test="close-button" @click=";(showVisibilityConditionDialog = false), (selectedCondition = {})" />
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" :disabled="v$.$invalid" @click="saveCondition" />
         </template>
     </Dialog>
 </template>

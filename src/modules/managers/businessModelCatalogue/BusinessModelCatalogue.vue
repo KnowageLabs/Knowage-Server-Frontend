@@ -11,7 +11,7 @@
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <KnListBox :options="businessModelList" :settings="businessModelCatalogueDescriptor.knListSettings" @click="showForm" @delete.stop="deleteBusinessModelConfirm" />
+                <KnListBox :options="businessModelList" :settings="businessModelCatalogueDescriptor.knListSettings" data-test="edit-button" @click="showForm" @delete.stop="deleteBusinessModelConfirm" />
             </div>
 
             <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">

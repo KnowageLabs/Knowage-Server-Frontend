@@ -29,7 +29,7 @@ export default class themeHelper {
 
     setQuasarPreset(variables): void {
         document.documentElement.style.setProperty('--q-primary', variables['--kn-button-primary-background-color'])
+        document.documentElement.style.setProperty('--q-info', variables['--kn-message-info-background-color'])
         document.documentElement.style.setProperty('--q-secondary', variables['--kn-button-secondary-background-color'])
-        
     }
 }

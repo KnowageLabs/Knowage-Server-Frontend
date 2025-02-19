@@ -8,8 +8,8 @@
             </span>
         </div>
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="folderName && folderName.length == 0" @click="emitCreateFolder"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="folderName && folderName.length == 0" data-test="save-button" @click="emitCreateFolder"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

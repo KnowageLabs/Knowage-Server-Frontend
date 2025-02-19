@@ -30,11 +30,11 @@
                     :model="model"
                 ></WidgetController>
                 <div v-if="canEditDashboard(document)" class="emptyDashboardWizard">
-                    <div v-if="dashboardModel?.configuration?.datasets.length === 0" class="dashboardWizardContainer" @click="addDataset">
+                    <div v-if="dashboardModel?.configuration?.datasets.length === 0" class="dashboardWizardContainer" data-test="new-button" @click="addDataset">
                         <img :src="getImageSource('images/dashboard/common/databaseWizardDashboard.svg')" />
                         <span>{{ $t('dashboard.wizard.addDataset') }}</span>
                     </div>
-                    <div v-if="activeDashboardSheet.widgets?.lg?.length === 0" class="dashboardWizardContainer" @click="addWidget">
+                    <div v-if="activeDashboardSheet.widgets?.lg?.length === 0" class="dashboardWizardContainer" data-test="new-button" @click="addWidget">
                         <img :src="getImageSource('images/dashboard/common/widgetWizardDashboard.svg')" />
                         <span>{{ $t('dashboard.wizard.addWidget') }}</span>
                     </div>
