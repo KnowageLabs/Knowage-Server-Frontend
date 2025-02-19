@@ -5,29 +5,14 @@ import italy from './italy.json'
 import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
 import { addBaloonMarkers } from './visualization/MapVisualizationHelper'
-import { getLayerData, getMapWidgetData } from './MapWidgetDataProxy'
+import { getLayerData } from './MapWidgetDataProxy'
 import targetDatasetDataMock from './target-dataset-data-mock.json'
+import { createDialogFromDataset } from './visualization/MapDialogHelper'
 
 export enum VisualizationDataType {
     DATASET_ONLY,
     LAYER_ONLY,
     DATASET_AND_LAYER
-}
-
-function createDialog(tooltip, layerVisualizationSettings: IMapWidgetVisualizationType, settings, meta, row) {
-    const list = document.createElement('ul')
-    list.classList.add('customLeafletPopup')
-    const layersList = settings.layers.filter((l) => l.name === layerVisualizationSettings.target)
-    layersList.forEach((item) => {
-        item.columns.forEach((column) => {
-            const li = document.createElement('li')
-            //TODO set style
-            li.innerHTML = `${column}: ${row[getColumnName(column, meta)]}`
-            list.append(li)
-        })
-    })
-    if (tooltip) return L.tooltip().setContent(list)
-    else return L.popup().setContent(list)
 }
 
 export function getColumnName(column, data) {
@@ -103,7 +88,6 @@ export function getCoordinates(spatialAttribute, input, coord?) {
 }
 
 export async function initializeLayers(map: L.Map, model: any, data: any) {
-    console.log('--- MODEL: ', model)
     const markerBounds = [] as any
     for (const layer of model.settings.visualizations) {
         const layerVisualizationSettings = deepcopy(layer)
@@ -115,7 +99,6 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         let targetDatasetData = null as any
 
         const target = model.layers.find((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.target)
-        console.log('--------- TARGET: ', target)
 
         if (target.type === 'dataset') {
             visualizationDataType = VisualizationDataType.DATASET_ONLY
@@ -141,11 +124,11 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
                 const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.markerConf, row[dataColumn], spatialAttribute)
                 markerBounds.push(marker.getLatLng())
                 if (model.settings.dialog?.enabled) {
-                    const popup = createDialog(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row)
+                    const popup = createDialogFromDataset(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row)
                     marker.bindPopup(popup)
                 }
                 if (model.settings.tooltips?.enabled) {
-                    const tooltip = createDialog(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row)
+                    const tooltip = createDialogFromDataset(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row)
                     marker.bindTooltip(tooltip)
                 }
             }
@@ -193,20 +176,6 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
     if (model.settings.configuration.map.autoCentering && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
 }
 
-export const addDialogToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any) => {
-    if (model.settings.dialog?.enabled) {
-        const popup = createDialog(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row)
-        marker.bindPopup(popup)
-    }
-}
-
-export const addTooltipToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any) => {
-    if (model.settings.tooltips?.enabled) {
-        const tooltip = createDialog(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row)
-        marker.bindTooltip(tooltip)
-    }
-}
-
 export function filterLayers(map: L.Map, layers): void {
     layers.forEach((layer) => {
         if (layer.filter?.enabled) {
@@ -231,58 +200,4 @@ export function switchLayerVisibility(map: L.Map, visibleLayers): void {
             else layer.show()
         }
     })
-}
-
-export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
-    if (model.settings.dialog?.enabled) {
-        const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.tooltips, value)
-        marker.bindPopup(popup)
-    }
-}
-
-export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
-    if (model.settings.tooltips?.enabled) {
-        const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value)
-        marker.bindTooltip(tooltip)
-    }
-}
-
-function createDialogForLayerData(feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number) {
-    console.log('---------- FEATURE: ', feature)
-    const container = document.createElement('div')
-    const layersList = settings.layers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target) as any
-
-    if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) {
-        const targetDatasetList = document.createElement('ul')
-        targetDatasetList.classList.add('customLeafletPopup')
-        targetDatasetList.append(createTooltipListHeader(layerVisualizationSettings.targetDataset))
-        targetDatasetList.append(createTooltipListItem(`${layerVisualizationSettings.targetProperty}: ${value}`))
-        container.appendChild(targetDatasetList)
-    }
-
-    const list = document.createElement('ul')
-    list.classList.add('customLeafletPopup')
-
-    layersList.forEach((item: IMapTooltipSettingsLayer) => {
-        if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) list.append(createTooltipListHeader(item.name))
-        item.columns.forEach((property: string) => list.append(createTooltipListItem(`${property}: ${feature.properties[property] ?? ''}`)))
-    })
-
-    container.appendChild(list)
-    if (tooltip) return L.tooltip().setContent(container)
-    else return L.popup().setContent(container)
-}
-
-const createTooltipListHeader = (header: string) => {
-    const headerElement = document.createElement('li')
-    headerElement.innerHTML = header
-    headerElement.classList.add('customLeafletPopupListHeader')
-    return headerElement
-}
-
-const createTooltipListItem = (value: string) => {
-    const li = document.createElement('li')
-    //TODO set style
-    li.innerHTML = value
-    return li
 }
