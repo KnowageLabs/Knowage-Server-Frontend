@@ -8,6 +8,8 @@ import { addBaloonMarkers } from './visualization/MapVisualizationHelper'
 import { getLayerData } from './MapWidgetDataProxy'
 import targetDatasetDataMock from './target-dataset-data-mock.json'
 import { createDialogFromDataset } from './visualization/MapDialogHelper'
+import wktMock from './wkt-mock.json'
+import { wktToGeoJSON } from '@terraformer/wkt'
 
 export enum VisualizationDataType {
     DATASET_ONLY,
@@ -107,7 +109,21 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
             dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
         } else {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
-            layersData = await getLayerData(target)
+            // TODO - Remove mock
+            // layersData = await getLayerData(target)
+            layersData = wktMock
+            if (layersData.type === 'wkt') {
+                console.log('----- wktMock: ', wktMock)
+                const wktData = wktMock.data
+                const cleanWKT = (wktData) => {
+                    return wktData.replace(/\bM\b|\bZM\b/g, '').replace(/\(\s*(-?\d+(\.\d+)?\s+-?\d+(\.\d+)?)(\s+-?\d+(\.\d+)?)?(\s+-?\d+(\.\d+)?)?\s*\)/g, (match, p1) => {
+                        return `(${p1})` // Keeps only X, Y, and optionally Z
+                    })
+                }
+                const geojsonGeometries = wktData.map((wkt) => wktToGeoJSON(cleanWKT(wkt)))
+                console.log('----- geojsonGeometries: ', geojsonGeometries)
+            }
+            console.log('------------ LAYERS DATA: ', layersData)
             if (layerVisualizationSettings.targetDataset) {
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
                 dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])

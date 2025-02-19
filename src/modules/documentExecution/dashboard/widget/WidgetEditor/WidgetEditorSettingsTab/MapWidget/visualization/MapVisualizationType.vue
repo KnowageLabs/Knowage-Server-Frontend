@@ -157,6 +157,7 @@ export default defineComponent({
             await this.loadAvailablePropertiesInVisualizationTypeForLayer(target, visualization)
         },
         onDataLinkChange(dataLinkType: 'column' | 'property', visualization: IMapWidgetVisualizationType) {
+            visualization.targetProperty = null
             if (dataLinkType === 'property') delete visualization.targetDataset
         },
         getTargetLayerType(visualization: IMapWidgetVisualizationType) {

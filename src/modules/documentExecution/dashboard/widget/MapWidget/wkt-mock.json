@@ -1,0 +1,4 @@
+{
+    "data": ["POINT (10 20)", "POINT (10 20 30)", "POINT M (10 20 30)", "POINT ZM (10 20 30 40)", "LINESTRING (10 20, 30 40, 50 60)", "POLYGON ((10 20, 30 40, 50 20, 10 20))"],
+    "type": "wkt"
+}
