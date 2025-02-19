@@ -282,3 +282,14 @@ export interface IWidgetMapLayerColumn {
     aggregationSelected?: string
     deleted?: boolean
 }
+
+export interface ILayerFeature {
+    type: string
+    geometry: {
+        type: string
+        coordinates: [number, number]
+    }
+    properties: {
+        [key: string]: string | number
+    }
+}

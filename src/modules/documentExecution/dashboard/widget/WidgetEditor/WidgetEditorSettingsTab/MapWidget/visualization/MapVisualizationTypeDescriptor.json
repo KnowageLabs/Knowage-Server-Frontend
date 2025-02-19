@@ -99,9 +99,9 @@
             "tooltip": "dashboard.widgetEditor.map.visTypes.choropleth"
         },
         {
-            "class": "geography",
-            "name": "geography",
-            "tooltip": "dashboard.widgetEditor.map.visTypes.geography"
+            "class": "geometry",
+            "name": "geometry",
+            "tooltip": "dashboard.widgetEditor.map.visTypes.geometry"
         }
     ]
 }

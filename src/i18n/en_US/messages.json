@@ -1180,7 +1180,7 @@
                     "balloons": "Balloons",
                     "choropleth": "Choropleth",
                     "clusters": "Clusters",
-                    "geography": "Geography",
+                    "geometry": "Geometry",
                     "heatmap": "Heatmap",
                     "markers": "Markers",
                     "pies": "Pies"

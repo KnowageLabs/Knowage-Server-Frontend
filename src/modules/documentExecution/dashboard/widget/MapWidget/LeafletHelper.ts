@@ -1,5 +1,5 @@
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
+import { ILayerFeature, IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import L from 'leaflet'
 import italy from './italy.json'
 import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
@@ -233,21 +233,21 @@ export function switchLayerVisibility(map: L.Map, visibleLayers): void {
     })
 }
 
-export const addDialogToMarkerForLayerData = (feature: any, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
+export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
     if (model.settings.dialog?.enabled) {
         const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.tooltips, value)
         marker.bindPopup(popup)
     }
 }
 
-export const addTooltipToMarkerForLayerData = (feature: any, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
+export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number, marker: any) => {
     if (model.settings.tooltips?.enabled) {
         const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value)
         marker.bindTooltip(tooltip)
     }
 }
 
-function createDialogForLayerData(feature: any, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number) {
+function createDialogForLayerData(feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number) {
     console.log('---------- FEATURE: ', feature)
     const container = document.createElement('div')
     const layersList = settings.layers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target) as any
