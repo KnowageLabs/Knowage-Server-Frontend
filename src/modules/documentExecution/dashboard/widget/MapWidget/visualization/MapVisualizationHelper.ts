@@ -496,6 +496,7 @@ export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: str
 }
 
 const addGeograhyFromData = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[]) => {
+    console.log('------ GEO COLUMN: ', geoColumn)
     for (const row of data[target.name].rows) {
         const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, null, row[dataColumn], spatialAttribute)
         markerBounds.push(marker.getLatLng())

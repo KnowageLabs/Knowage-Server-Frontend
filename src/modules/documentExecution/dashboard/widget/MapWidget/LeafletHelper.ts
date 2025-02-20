@@ -69,7 +69,7 @@ export function addMarker(position: number[] | string, container: any, settings:
                 return (marker = createMarker(latlng, settings).addTo(container))
             }
         })
-    else marker = createMarker(position, settings).addTo(container)
+    marker = createMarker(position, settings).addTo(container)
     marker.knProperties = { measureValue: value, layerId: container.knProperties.layerId }
     return marker
 }
@@ -79,15 +79,18 @@ export function createGeography(map: L.Map, features, data) {
 }
 
 export function getCoordinates(spatialAttribute, input, coord?) {
-    if (spatialAttribute) {
-        if (spatialAttribute.properties.coordType === 'string') {
-            if (spatialAttribute.properties.coordFormat === 'lat lon') {
-                if (coord === 'lat') return input.split(' ')[0]
-                if (coord === 'lon') return input.split(' ')[1]
-                else return input.split(' ')
-            }
+    if (!spatialAttribute) return []
+
+    if (spatialAttribute.properties.coordType === 'string') {
+        if (spatialAttribute.properties.coordFormat === 'lat lon') {
+            if (coord === 'lat') return input.split(' ')[0]
+            if (coord === 'lon') return input.split(' ')[1]
+            else return input.split(' ')
         }
-        if (spatialAttribute.properties.coordType === 'json') return input
+    } else if (spatialAttribute.properties.coordType === 'json') return input
+    else if (spatialAttribute.properties.coordType === 'wkt') {
+        const formattedWKTInput = wktToGeoJSON(input)
+        return formattedWKTInput?.coordinates ?? []
     }
 }
 

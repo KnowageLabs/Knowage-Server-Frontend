@@ -49,7 +49,7 @@ onMounted(async () => {
     try {
         await initializeLayers(map, props.widgetModel, props.data)
     } catch (error) {
-        console.log(' ERROR INITIALIZING LAYER: ', error)
+        console.log('------- ERROR: ', error)
         appStore.setError(error)
     }
 })
