@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, watch, inject } from 'vue'
+import { onMounted, watch } from 'vue'
 import L from 'leaflet'
 import './leaflet-layervisibility'
 import 'leaflet.markercluster'
@@ -12,6 +12,9 @@ import 'leaflet/dist/leaflet.css'
 import * as h337 from 'heatmap.js'
 import './Leaflet-heatmap.js'
 import { filterLayers, initializeLayers, switchLayerVisibility } from './LeafletHelper'
+import useAppStore from '@/App.store'
+
+const appStore = useAppStore()
 
 const props = defineProps<{
     widgetModel: any
@@ -43,7 +46,12 @@ onMounted(async () => {
 
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
-    await initializeLayers(map, props.widgetModel, props.data)
+    try {
+        await initializeLayers(map, props.widgetModel, props.data)
+    } catch (error) {
+        console.log(' ERROR INITIALIZING LAYER: ', error)
+        appStore.setError(error)
+    }
 })
 
 watch(props.layerVisibility, (newModel) => {

@@ -39,9 +39,12 @@ function getGeographyStyle(feature) {
     }
 }
 
-function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons) {
+function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null) {
+    const defaultMarkerSettings = { color: settings?.style?.color ?? '', fillColor: settings?.style?.color ?? '', radius: settings?.size || 10 }
+    if (!settings) return L.marker(position, defaultMarkerSettings)
+
     let icon
-    const defaultMarkerSettings = { color: settings.style?.color ?? '', fillColor: settings.style?.color ?? '', radius: settings?.size || 10 }
+
     if (!settings.type || settings.type === 'default') {
         return L.circleMarker(position, defaultMarkerSettings)
     }
@@ -58,8 +61,7 @@ function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IM
     if (['img', 'icon', 'url'].includes(settings.type)) return L.marker(position, { icon: icon })
 }
 
-export function addMarker(position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | undefined, value: number, spatialAttribute: any) {
-    if (!settings) return
+export function addMarker(position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, value: number, spatialAttribute: any) {
     let marker
     if (spatialAttribute?.properties?.coordType === 'json')
         L.geoJSON(JSON.parse(position as string), {
@@ -110,19 +112,19 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         } else {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
             // TODO - Remove mock
-            // layersData = await getLayerData(target)
-            layersData = wktMock
-            if (layersData.type === 'wkt') {
-                console.log('----- wktMock: ', wktMock)
-                const wktData = wktMock.data
-                const cleanWKT = (wktData) => {
-                    return wktData.replace(/\bM\b|\bZM\b/g, '').replace(/\(\s*(-?\d+(\.\d+)?\s+-?\d+(\.\d+)?)(\s+-?\d+(\.\d+)?)?(\s+-?\d+(\.\d+)?)?\s*\)/g, (match, p1) => {
-                        return `(${p1})` // Keeps only X, Y, and optionally Z
-                    })
-                }
-                const geojsonGeometries = wktData.map((wkt) => wktToGeoJSON(cleanWKT(wkt)))
-                console.log('----- geojsonGeometries: ', geojsonGeometries)
-            }
+            layersData = await getLayerData(target)
+            // layersData = wktMock
+            // if (layersData.type === 'wkt') {
+            //     console.log('----- wktMock: ', wktMock)
+            //     const wktData = wktMock.data
+            //     const cleanWKT = (wktData) => {
+            //         return wktData.replace(/\bM\b|\bZM\b/g, '').replace(/\(\s*(-?\d+(\.\d+)?\s+-?\d+(\.\d+)?)(\s+-?\d+(\.\d+)?)?(\s+-?\d+(\.\d+)?)?\s*\)/g, (match, p1) => {
+            //             return `(${p1})` // Keeps only X, Y, and optionally Z
+            //         })
+            //     }
+            //     const geojsonGeometries = wktData.map((wkt) => wktToGeoJSON(cleanWKT(wkt)))
+            //     console.log('----- geojsonGeometries: ', geojsonGeometries)
+            // }
             console.log('------------ LAYERS DATA: ', layersData)
             if (layerVisualizationSettings.targetDataset) {
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
@@ -186,6 +188,20 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         if (layerVisualizationSettings.type === 'choropleth') {
             const geography = createGeography(map, italy, data)
             markerBounds.push(geography.getBounds())
+        }
+
+        if (layerVisualizationSettings.type === 'geography') {
+            if (data && data[target.name]) {
+                for (const row of data[target.name].rows) {
+                    const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, null, row[dataColumn], spatialAttribute)
+                    markerBounds.push(marker.getLatLng())
+                }
+            } else {
+                layersData.features.forEach((feature: ILayerFeature) => {
+                    const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, null, 0, spatialAttribute)
+                    markerBounds.push(marker.getLatLng())
+                })
+            }
         }
     }
 

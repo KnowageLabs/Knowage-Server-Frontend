@@ -3,7 +3,7 @@
         <div class="row items-center q-mb-sm">
             <q-select filled dense class="col" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
             <q-select
-                v-if="visType && getTargetLayerType(visType) === 'layer'"
+                v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'"
                 filled
                 dense
                 class="col q-ml-sm"
@@ -18,7 +18,7 @@
                 @update:modelValue="onDataLinkChange($event, visType)"
             ></q-select>
             <q-select
-                v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column'"
+                v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column' && visType.type !== 'geography'"
                 filled
                 dense
                 class="col q-ml-sm"
@@ -32,7 +32,7 @@
                 :label="$t('common.dataset')"
             ></q-select>
             <q-select
-                v-if="getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset)"
+                v-if="visType.type !== 'geography' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
                 filled
                 dense
                 class="col q-ml-sm"
@@ -46,7 +46,7 @@
                 :label="$t('common.measure')"
             ></q-select>
             <q-select
-                v-if="visType && getTargetLayerType(visType) === 'layer'"
+                v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'"
                 filled
                 dense
                 class="col q-ml-sm"
@@ -152,6 +152,8 @@ export default defineComponent({
             visualization.properties = properties
         },
         async onTargetChange(id: string, visualization: IMapWidgetVisualizationType) {
+            ;['targetDataset', 'targetMeasure', 'targetProperty', 'targetType'].forEach((property: string) => delete visualization[property])
+
             const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => id === layer.layerId)
             if (!target || target.type !== 'layer' || this.propertiesCache.has(visualization.target)) return
             await this.loadAvailablePropertiesInVisualizationTypeForLayer(target, visualization)

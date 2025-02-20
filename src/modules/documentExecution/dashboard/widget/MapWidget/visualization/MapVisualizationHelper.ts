@@ -145,7 +145,7 @@ const addBaloonMarkersClassifedByRangesFromData = (data: any, model: IWidget, ta
             layerVisualizationSettings.balloonConf.style.color = sizeAndColor.color
         }
 
-        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.balloonConf, row[dataColumn], spatialAttribute)
+        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.balloonConf ?? null, row[dataColumn], spatialAttribute)
         markerBounds.push(marker.getLatLng())
         addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
         addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
@@ -249,7 +249,7 @@ const addBaloonMarkersClassifedByQuantilsFromData = (data: any, model: IWidget, 
     data[target.name].rows.forEach((row: any) => {
         if (layerVisualizationSettings.balloonConf) layerVisualizationSettings.balloonConf.size = getSizeFromQuantiles(quantiles, row[dataColumn], layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
 
-        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.balloonConf, row[dataColumn], spatialAttribute)
+        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.balloonConf ?? null, row[dataColumn], spatialAttribute)
         markerBounds.push(marker.getLatLng())
         addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
         addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
@@ -324,7 +324,7 @@ const addBaloonMarkersClassifiedByEqualIntervalsUsingLayers = (layersData: any, 
             layerVisualizationSettings.balloonConf.size = getSizeFromEqualIntervals(value as number, minValue, maxValue, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
         }
 
-        const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute)
+        const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf ?? null, value as number, spatialAttribute)
         markerBounds.push(marker.getLatLng())
 
         addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
@@ -353,7 +353,7 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (data: any, model: IWi
                 layerVisualizationSettings.balloonConf.maxSize
             )
 
-        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.balloonConf, row[dataColumn], spatialAttribute)
+        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.balloonConf ?? null, row[dataColumn], spatialAttribute)
         markerBounds.push(marker.getLatLng())
         addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
         addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
