@@ -342,4 +342,11 @@ body {
     flex: 1;
     max-width: calc(100% - var(--kn-mainmenu-width));
 }
+@media screen and (max-width: 1025px) {
+    .layout-main {
+        margin-top: var(--kn-mainmenu-width);
+        margin-left: 0;
+        min-width: 100%;
+    }
+}
 </style>

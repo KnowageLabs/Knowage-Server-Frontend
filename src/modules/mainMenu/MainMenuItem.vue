@@ -113,6 +113,12 @@ li {
         &.router-link-active {
             border-left: 3px solid var(--kn-mainmenu-highlight-color);
         }
+        @media screen and (max-width: 1025px) {
+            &.router-link-active {
+                border-left: none;
+                border-top: 3px solid var(--kn-mainmenu-highlight-color);
+            }
+        }
         img {
             width: 20px;
             height: 20px;
