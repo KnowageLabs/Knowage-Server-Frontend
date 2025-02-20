@@ -1148,6 +1148,7 @@
                     "scale%": "Scale %",
                     "web": "Web Image Marker"
                 },
+                "maxClusterRadius": "Max Cluster Radius",
                 "metadata": {
                     "addField": "Add Field",
                     "aggregateBy": "Aggregate by",

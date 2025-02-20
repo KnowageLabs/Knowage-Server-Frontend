@@ -1,14 +1,20 @@
 <template>
     <div class="p-d-flex p-flex-column">
         <div class="p-d-flex p-flex-row p-jc-sb p-mb-2">
-            <div class="p-fluid p-formgrid p-grid kn-flex">
-                <div class="p-col-12 p-lg-3">
+            <div class="p-fluid p-formgrid p-grid kn-flex p-p-2">
+                <div class="p-col-12 p-lg-2">
+                    <span class="p-float-label kn-flex">
+                        <InputNumber v-model="clusterConfig.maxClusterRadius" class="kn-material-input" :max="500" />
+                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.maxClusterRadius') }}</label>
+                    </span>
+                </div>
+                <div class="p-col-12 p-lg-2">
                     <span class="p-float-label kn-flex">
                         <InputNumber v-model="clusterConfig.radiusSize" class="kn-material-input" :max="500" />
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.radius') }}</label>
                     </span>
                 </div>
-                <div class="p-col-12 p-lg-3">
+                <div class="p-col-12 p-lg-2">
                     <span class="p-float-label kn-flex">
                         <InputText id="fontSize" v-model="clusterConfig.style['font-size']" class="kn-material-input" />
                         <label for="fontSize" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.iconTooltips.fontSize') }} </label>

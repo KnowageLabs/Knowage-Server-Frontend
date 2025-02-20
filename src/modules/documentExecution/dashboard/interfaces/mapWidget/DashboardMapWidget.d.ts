@@ -93,6 +93,7 @@ export interface IMapWidgetVisualizationTypePie {
 export interface IMapWidgetVisualizationTypeCluster {
     enabled: boolean
     radiusSize: number
+    maxClusterRadius: number
     style: {
         'font-size'?: string
         color?: string

@@ -4,7 +4,7 @@ import L from 'leaflet'
 import italy from './italy.json'
 import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
-import { addBaloonMarkers } from './visualization/MapVisualizationHelper'
+import { addBaloonMarkers, addClusters, addGeography, addMarkers } from './visualization/MapVisualizationHelper'
 import { getLayerData } from './MapWidgetDataProxy'
 import targetDatasetDataMock from './target-dataset-data-mock.json'
 import { createDialogFromDataset } from './visualization/MapDialogHelper'
@@ -138,18 +138,7 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
         if (layerVisualizationSettings.type === 'markers') {
-            for (const row of data[target.name].rows) {
-                const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.markerConf, row[dataColumn], spatialAttribute)
-                markerBounds.push(marker.getLatLng())
-                if (model.settings.dialog?.enabled) {
-                    const popup = createDialogFromDataset(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row)
-                    marker.bindPopup(popup)
-                }
-                if (model.settings.tooltips?.enabled) {
-                    const tooltip = createDialogFromDataset(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row)
-                    marker.bindTooltip(tooltip)
-                }
-            }
+            addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'balloons') {
@@ -157,14 +146,7 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         }
 
         if (layerVisualizationSettings.type === 'clusters') {
-            const clusters = L.markerClusterGroup()
-            clusters.knProperties = { cluster: true, layerId: target.layerId }
-            for (const row of data[target.name].rows) {
-                const marker = addMarker(getCoordinates(spatialAttribute, row.column_1, null), layerGroup, layerVisualizationSettings.markerConf, row.column_2, spatialAttribute)
-                clusters.addLayer(marker)
-                markerBounds.push(marker.getLatLng())
-                layerGroup.addLayer(clusters)
-            }
+            addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'heatmap') {
@@ -191,17 +173,7 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         }
 
         if (layerVisualizationSettings.type === 'geography') {
-            if (data && data[target.name]) {
-                for (const row of data[target.name].rows) {
-                    const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, null, row[dataColumn], spatialAttribute)
-                    markerBounds.push(marker.getLatLng())
-                }
-            } else {
-                layersData.features.forEach((feature: ILayerFeature) => {
-                    const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, null, 0, spatialAttribute)
-                    markerBounds.push(marker.getLatLng())
-                })
-            }
+            addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData)
         }
     }
 
