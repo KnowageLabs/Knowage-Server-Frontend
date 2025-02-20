@@ -28,7 +28,7 @@
             </Toolbar>
             <span id="search-container" class="p-input-icon-left p-m-2">
                 <i class="pi pi-search" />
-                <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="filterInput" />
+                <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" />
             </span>
         </template>
         <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)" :sortable="true" :header-style="descriptor.style.uppercase">

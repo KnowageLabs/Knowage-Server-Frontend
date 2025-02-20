@@ -8,7 +8,7 @@
         <LicenseDialog v-if="user && user.isSuperadmin && isEnterprise" v-model:visibility="licenseDisplay"></LicenseDialog>
         <AccountDialog :visible="accountDisplay" @closed="accountManagement"></AccountDialog>
         <MainMenuAdmin v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" :opened-panel-event="adminMenuOpened" :model="technicalUserFunctionalities" @click="itemClick"></MainMenuAdmin>
-        <q-menu ref="menu" :target="menuTargetElem" :anchor="anchorPosition" self="top left">
+        <q-menu ref="menu" :target="menuTargetElem" :anchor="anchorPosition" self="top left" data-test="menu">
             <MainMenuTieredMenu :items="selectedCustomMenu" @link="itemClick"></MainMenuTieredMenu>
         </q-menu>
         <div ref="menuProfile" class="profile">

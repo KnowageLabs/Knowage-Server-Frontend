@@ -6,8 +6,8 @@
             </template>
             <template #end>
                 <Button class="p-button-text p-button-rounded p-button-plain" :label="$t('workspace.gis.editMap')" :disabled="!canOpenMap" @click="openMapConfirm" />
-                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveDialogDisabled" @click="saveOrUpdateGis" />
-                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeGis" />
+                <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveDialogDisabled" data-test="submit-button" @click="saveOrUpdateGis" />
+                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeGis" />
             </template>
         </Toolbar>
         <div class="gis-tabview-container p-d-flex p-flex-column kn-flex">
@@ -72,7 +72,7 @@
             <template #footer>
                 <div class="p-d-flex p-flex-row p-jc-end">
                     <Button class="kn-button kn-button--secondary" @click="saveDialogVisible = false"> {{ $t('common.cancel') }}</Button>
-                    <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="buildGisTemplate"> {{ $t('common.save') }}</Button>
+                    <Button class="kn-button kn-button--primary" :disabled="saveButtonDisabled" data-test="save-button" @click="buildGisTemplate"> {{ $t('common.save') }}</Button>
                 </div>
             </template>
         </Dialog>

@@ -11,8 +11,8 @@
         <LovsManagementSimpleDatatable v-if="treeListTypeModel.LOVTYPE === 'simple'" :table-data="model" :tree-list-type-model="treeListTypeModel" @modelChanged="onModelChange($event)"></LovsManagementSimpleDatatable>
         <LovsManagementTree v-else :list-data="model" :tree-model="treeModel" @modelChanged="onTreeModelChange($event)"></LovsManagementTree>
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="$emit('close')"> {{ $t('common.close') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="buttonDisabled" @click="onSave"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="$emit('close')"> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="buttonDisabled" data-test="save-button" @click="onSave"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

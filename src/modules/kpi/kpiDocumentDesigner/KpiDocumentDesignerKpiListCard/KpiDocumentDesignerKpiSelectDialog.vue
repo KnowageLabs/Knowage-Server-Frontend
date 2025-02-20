@@ -24,7 +24,7 @@
                 <div class="table-header p-d-flex">
                     <span class="p-input-icon-left p-mr-3">
                         <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="filterInput" />
+                        <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" />
                     </span>
                 </div>
             </template>
@@ -43,8 +43,8 @@
         </DataTable>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" :label="$t('common.close')" @click="closeKpiAssociations"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="addKpiAssociations"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.close')" data-test="close-button" @click="closeKpiAssociations"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" @click="addKpiAssociations"></Button>
         </template>
     </Dialog>
 </template>

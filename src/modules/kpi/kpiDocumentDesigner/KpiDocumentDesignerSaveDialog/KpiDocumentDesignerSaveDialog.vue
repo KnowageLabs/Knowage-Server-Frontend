@@ -26,8 +26,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" :label="$t('common.close')" @click="close"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="saveButtonDisabled" @click="saveKpi"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.close')" data-test="close-button" @click="close"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="saveButtonDisabled" data-test="save-button" @click="saveKpi"></Button>
         </template>
     </Dialog>
 </template>

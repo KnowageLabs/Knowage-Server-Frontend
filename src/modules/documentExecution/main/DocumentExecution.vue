@@ -21,6 +21,7 @@
                         icon="pi pi-save"
                         class="p-button-text p-button-rounded p-button-plain p-mx-2"
                         :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
+                        data-test="save-button"
                         @click="saveDashboard"
                     ></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>

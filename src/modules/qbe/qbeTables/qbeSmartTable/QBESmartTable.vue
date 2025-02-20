@@ -76,12 +76,12 @@
         </span>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="aliasDialogVisible = false"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="changeAlias"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="aliasDialogVisible = false"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="changeAlias"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 
-    <Menu id="smartTableMenu" ref="smartTableMenu" :model="menuButtons" />
+    <Menu id="smartTableMenu" ref="smartTableMenu" :model="menuButtons" data-test="menu" />
 </template>
 
 <script lang="ts">

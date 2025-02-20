@@ -24,7 +24,7 @@
                 <div class="table-header">
                     <span class="p-input-icon-left">
                         <i class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                        <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                     </span>
                 </div>
             </template>
@@ -50,8 +50,8 @@
         </DataTable>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.close') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

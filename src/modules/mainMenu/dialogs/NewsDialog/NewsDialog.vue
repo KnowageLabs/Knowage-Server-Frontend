@@ -36,7 +36,7 @@
             </TabPanel>
         </TabView>
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"><ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" /> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"><ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" /> {{ $t('common.close') }}</Button>
         </template>
     </Dialog>
 </template>

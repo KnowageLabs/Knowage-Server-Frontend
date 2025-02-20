@@ -38,8 +38,8 @@
         </form>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="closeTemplate"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" @click="generateDatamart"></Button>
+            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" data-test="close-button" @click="closeTemplate"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="save-button" @click="generateDatamart"></Button>
         </template>
     </Dialog>
 </template>

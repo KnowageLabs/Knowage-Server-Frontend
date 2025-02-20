@@ -8,7 +8,7 @@
                         <span>{{ $t('metaweb.businessModel.businessClass') }}</span>
                     </template>
                     <template #end>
-                        <KnFabButton icon="fas fa-plus" @click="showMenu" />
+                        <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showMenu" />
                     </template>
                 </Toolbar>
                 <div class="kn-relative kn-flex">
@@ -139,7 +139,7 @@
             </div>
         </div>
     </div>
-    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" />
+    <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" data-test="menu" />
     <BusinessClassDialog v-if="showBusinessClassDialog" :meta="meta" :observer="observer" :physical-models="meta.physicalModels" :show-business-class-dialog="showBusinessClassDialog" @closeDialog="showBusinessClassDialog = false" />
     <BusinessViewDialog v-if="showBusinessViewDialog" :meta="meta" :observer="observer" :show-business-view-dialog="showBusinessViewDialog" @closeDialog="showBusinessViewDialog = false" />
 </template>

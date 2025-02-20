@@ -4,7 +4,7 @@
             <Message class="p-text-center p-col-12" severity="info" :closable="false">{{ $t('dashboard.widgetEditor.searchInTableWidgetHint') }}</Message>
 
             <div class="p-field p-float-label p-col-12">
-                <InputText v-model="searchText" class="kn-material-input kn-width-full" />
+                <InputText v-model="searchText" class="kn-material-input kn-width-full" data-test="search-input" />
                 <label class="kn-material-input-label">{{ $t('common.search') }}</label>
             </div>
 
@@ -16,7 +16,7 @@
 
         <template #footer>
             <div class="p-d-flex p-flex-row p-jc-end">
-                <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.close') }}</Button>
+                <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.close') }}</Button>
                 <Button class="kn-button kn-button--primary" @click="search"> {{ $t('common.search') }}</Button>
             </div>
         </template>

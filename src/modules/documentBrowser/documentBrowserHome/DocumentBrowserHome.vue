@@ -18,7 +18,7 @@
                 <q-tooltip>{{ $t('documentBrowser.wholeBrowserSearch') }}</q-tooltip>
             </q-btn>
             <q-btn v-if="(isSuperAdmin || canAddNewDocument) && selectedFolder && selectedFolder.parentId && selectedFolder.codType !== 'USER_FUNCT'" round class="customFabButton" icon="fas fa-plus">
-                <q-menu>
+                <q-menu data-test="menu">
                     <q-list dense style="min-width: 200px">
                         <q-item v-for="item in items" :key="item" v-close-popup clickable @click="item.command">
                             <q-item-section

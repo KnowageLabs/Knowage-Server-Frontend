@@ -2,8 +2,8 @@
     <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
         <template #start>{{ selectedRole.name }} </template>
         <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" @click="handleSubmit" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplate" />
+            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="submit-button" :disabled="buttonDisabled" @click="handleSubmit" />
+            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplate" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />

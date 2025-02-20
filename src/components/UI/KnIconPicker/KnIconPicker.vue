@@ -7,7 +7,7 @@
         </template>
 
         <div class="widget-editor-icon-picker-content">
-            <q-input v-model="searchWord" class="p-mx-3 p-mb-3" :label="$t('common.search')" @update:model-value="filterIcons">
+            <q-input v-model="searchWord" class="p-mx-3 p-mb-3" :label="$t('common.search')" data-test="search-input" @update:model-value="filterIcons">
                 <template #prepend>
                     <q-icon name="search" />
                 </template>
@@ -34,8 +34,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.close') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

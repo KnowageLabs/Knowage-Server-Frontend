@@ -7,7 +7,7 @@
         <template #end>
             <Button v-if="toggleCardDisplay" icon="fas fa-list" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" />
             <!-- <Button v-if="!toggleCardDisplay" icon="fas fa-th-large" class="p-button-text p-button-rounded p-button-plain" @click="toggleDisplayView" /> -->
-            <KnFabButton v-if="tableMode === 'My Datasets'" icon="fas fa-plus" data-test="new-folder-button" @click="showCreationMenu" />
+            <KnFabButton v-if="tableMode === 'My Datasets'" icon="fas fa-plus" data-test="new-button" @click="showCreationMenu" />
         </template>
     </Toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar p-ml-2" data-test="progress-bar" />
@@ -117,7 +117,7 @@
     <DatasetWizard v-if="showDatasetDialog" :selected-dataset="selectedDataset" :visible="showDatasetDialog" @closeDialog="showDatasetDialog = false" @closeDialogAndReload="closeWizardAndReload" />
     <EditPreparedDatasetDialog :dataset="selectedDataset" :visible="showEditPreparedDatasetDialog" @save="updatePreparedDataset" @cancel="showEditPreparedDatasetDialog = false" />
     <TieredMenu id="optionsMenu" ref="optionsMenu" class="kn-tieredMenu" :model="menuButtons" :popup="true" />
-    <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" />
+    <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" data-test="menu" />
 
     <WorkspaceDataCloneDialog :visible="cloneDialogVisible" :prop-dataset="selectedDataset" @close="cloneDialogVisible = false" @clone="handleDatasetClone"> </WorkspaceDataCloneDialog>
     <WorkspaceDataShareDialog :visible="shareDialogVisible" :prop-dataset="selectedDataset" :dataset-categories="datasetCategories" @close="shareDialogVisible = false" @share="handleDatasetShare"></WorkspaceDataShareDialog>

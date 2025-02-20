@@ -10,7 +10,7 @@
 
         <div class="widget-editor-icon-picker-content">
             <div class="p-m-2">
-                <InputText v-model="searchWord" class="p-inputtext p-component kn-material-input" :placeholder="$t('common.search')" @input="filterIcons()" />
+                <InputText v-model="searchWord" class="p-inputtext p-component kn-material-input" :placeholder="$t('common.search')" data-test="search-input" @input="filterIcons()" />
             </div>
 
             <label class="kn-material-input-label p-my-3"> {{ $t('dashboard.widgetEditor.recentlyUsed') }}</label>
@@ -29,8 +29,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.close') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

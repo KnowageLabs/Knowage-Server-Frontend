@@ -58,7 +58,7 @@
                         <div class="table-header p-d-flex">
                             <span class="p-input-icon-left p-mr-3 p-col-12">
                                 <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" />
+                                <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
                             </span>
                         </div>
                     </template>
@@ -68,8 +68,8 @@
             </div>
         </div>
         <template #footer>
-            <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" @click="saveBusinessClass" />
+            <Button class="p-button-text kn-button" :label="$t('common.cancel')" data-test="close-button" @click="closeDialog" />
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" data-test="save-button" @click="saveBusinessClass" />
         </template>
     </Dialog>
 </template>

@@ -81,7 +81,7 @@
                             <div class="table-header">
                                 <span class="p-input-icon-left">
                                     <i class="pi pi-search" />
-                                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0" />
+                                    <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0" data-test="search-input" />
                                 </span>
                             </div>
                         </template>
@@ -100,8 +100,8 @@
                         </Column>
                         <Column :style="detailDescriptor.table.iconColumn.style" @rowClick="false">
                             <template #body="slotProps">
-                                <Button icon="pi pi-download" class="p-button-link" @click="downloadVersion(slotProps.data.id)" />
-                                <Button icon="pi pi-trash" class="p-button-link" @click="showDeleteDialog(slotProps.data.id)" />
+                                <Button icon="pi pi-download" class="p-button-link" data-test="download-button" @click="downloadVersion(slotProps.data.id)" />
+                                <Button icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="showDeleteDialog(slotProps.data.id)" />
                             </template>
                         </Column>
                     </DataTable>

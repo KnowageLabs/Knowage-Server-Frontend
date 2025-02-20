@@ -21,7 +21,7 @@
                             <span>{{ slotProps.option.creationUser }}</span>
                         </div>
                         <Button class="p-button-link p-button-sm" icon="fa fa-ellipsis-v" aria-haspopup="true" aria-controls="overlay_menu" @click="toggle($event, slotProps.option)" />
-                        <Menu ref="menu" :model="items" :popup="true" />
+                        <Menu ref="menu" :model="items" :popup="true" data-test="menu" />
                     </div>
                 </template>
             </Listbox>

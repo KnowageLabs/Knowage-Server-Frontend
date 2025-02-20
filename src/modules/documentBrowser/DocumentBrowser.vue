@@ -23,7 +23,7 @@
             </div>
             <div v-if="activeIndex !== 0" id="document-browser-tab-icon-container">
                 <i id="document-browser-tab-icon" class="fa fa-times-circle" @click="toggle($event)"></i>
-                <Menu ref="menu" :model="menuItems" :popup="true" />
+                <Menu ref="menu" :model="menuItems" :popup="true" data-test="menu" />
             </div>
         </div>
     </div>

@@ -6,7 +6,7 @@
                     {{ $t('common.parameters') }}
                 </template>
                 <template #end>
-                    <KnFabButton icon="fas fa-plus" @click="addNewParam" />
+                    <KnFabButton icon="fas fa-plus" data-test="new-button" @click="addNewParam" />
                 </template>
             </Toolbar>
         </template>
@@ -18,22 +18,22 @@
                 {{ $t('managers.datasetManagement.tableEmpty') }}
             </template>
             <Column field="name" :header="$t('kpi.alert.name')" :sortable="true">
-                <template #body="{data}">
+                <template #body="{ data }">
                     <InputText v-model="data.name" class="kn-material-input" />
                 </template>
             </Column>
             <Column field="type" :header="$t('kpi.alert.type')" :sortable="true">
-                <template #body="{data}">
+                <template #body="{ data }">
                     <Dropdown id="scope" v-model="data.type" class="kn-material-input" :options="datasetParamTypes" option-label="name" option-value="value" />
                 </template>
             </Column>
             <Column field="defaultValue" :header="$t('managers.driversManagement.useModes.defaultValue')" :sortable="true">
-                <template #body="{data}">
+                <template #body="{ data }">
                     <InputText v-model="data.defaultValue" class="kn-material-input" @change="onDefaultValueChange(data)" />
                 </template>
             </Column>
             <Column field="multiValue" :header="$t('managers.profileAttributesManagement.form.multiValue')" :sortable="true">
-                <template #body="{data}">
+                <template #body="{ data }">
                     <Checkbox v-model="data.multiValue" :binary="true" />
                 </template>
             </Column>
@@ -48,8 +48,8 @@
         </DataTable>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" @click="cancelChanges"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="hasDuplicates" @click="saveParameters"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="cancelChanges"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="hasDuplicates" data-test="save-button" @click="saveParameters"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

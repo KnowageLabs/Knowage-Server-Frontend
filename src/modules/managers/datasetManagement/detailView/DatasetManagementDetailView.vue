@@ -3,8 +3,8 @@
         <template #start>{{ selectedDataset.label }}</template>
         <template #end>
             <Button :label="$t('managers.lovsManagement.preview')" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" @click="sendDatasetForPreview" />
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" @click="checkFormulaForParams" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="$emit('close')" />
+            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="submit-button" @click="checkFormulaForParams" />
+            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="$emit('close')" />
         </template>
     </Toolbar>
     <div class="datasetDetail">
@@ -80,7 +80,7 @@
         />
         <QBE v-if="qbeVisible" :source-dataset="selectedDataset" @close="closeQbe" />
 
-        <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" :popup="true" />
+        <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" :popup="true" data-test="menu" />
 
         <WorkspaceDataPreviewDialog v-if="showPreviewDialog" :visible="showPreviewDialog" :prop-dataset="previewDataset" :preview-type="'dataset'" :load-from-dataset-management="true" @close="showPreviewDialog = false"></WorkspaceDataPreviewDialog>
     </div>

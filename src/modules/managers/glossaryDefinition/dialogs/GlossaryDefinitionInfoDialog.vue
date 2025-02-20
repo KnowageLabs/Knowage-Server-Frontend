@@ -71,7 +71,7 @@
                 </ul>
             </div>
             <template #footer>
-                <Button class="kn-button kn-button--primary" @click="$emit('close')"> {{ $t('common.close') }}</Button>
+                <Button class="kn-button kn-button--primary" data-test="close-button" @click="$emit('close')"> {{ $t('common.close') }}</Button>
             </template>
         </Dialog>
     </div>

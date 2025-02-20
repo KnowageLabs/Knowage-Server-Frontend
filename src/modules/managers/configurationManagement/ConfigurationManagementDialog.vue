@@ -115,8 +115,8 @@
         </form>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="closeTemplate" />
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="buttonDisabled" @click="handleSubmit" />
+            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" data-test="close-button" @click="closeTemplate" />
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" data-test="submit-button" :disabled="buttonDisabled" @click="handleSubmit" />
         </template>
     </Dialog>
 </template>

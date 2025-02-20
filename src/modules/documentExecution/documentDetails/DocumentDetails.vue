@@ -5,8 +5,8 @@
                 {{ $t('documentExecution.documentDetails.title') }}
             </template>
             <template #end>
-                <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="invalidDrivers > 0 || invalidOutputParams > 0 || invalidFunctionalities == 0 || v$.$invalid" @click="saveDocument" />
-                <Button v-if="propMode === 'execution'" v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeDocument" />
+                <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="invalidDrivers > 0 || invalidOutputParams > 0 || invalidFunctionalities == 0 || v$.$invalid" data-test="submit-button" @click="saveDocument" />
+                <Button v-if="propMode === 'execution'" v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeDocument" />
             </template>
         </Toolbar>
         <ProgressSpinner v-if="loading" class="doc-details-spinner" :style="mainDescriptor.style.spinnerStyle" />

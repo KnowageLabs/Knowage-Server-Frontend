@@ -38,8 +38,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="$emit('close')"></Button>
-            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="saveRuleButtonDisabled" @click="$emit('save', name)"></Button>
+            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" data-test="close-button" @click="$emit('close')"></Button>
+            <Button class="kn-button kn-button--primary" :label="$t('common.save')" :disabled="saveRuleButtonDisabled" data-test="save-button" @click="$emit('save', name)"></Button>
         </template>
     </Dialog>
 </template>

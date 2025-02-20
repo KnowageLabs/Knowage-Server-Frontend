@@ -3,7 +3,7 @@
         <template #start> {{ selectedFolder.name }} </template>
         <template #end>
             <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="submit-button" @click="handleSubmit" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeTemplate" />
+            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplate" />
         </template>
     </Toolbar>
     <div v-if="!selectedFolder.id || selectedFolder.parentId" class="kn-detail">

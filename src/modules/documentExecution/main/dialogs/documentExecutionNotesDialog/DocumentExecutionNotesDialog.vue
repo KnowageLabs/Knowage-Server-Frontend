@@ -35,8 +35,8 @@
                 <Button v-if="activeTab === 1" class="kn-button kn-button--primary" :disabled="exportButtonDisabled" @click="exportNotes('pdf')"> {{ $t('documentExecution.main.exportInPDF') }}</Button>
                 <Button v-if="activeTab === 1" class="kn-button kn-button--primary" :disabled="exportButtonDisabled" @click="exportNotes('rtf')"> {{ $t('documentExecution.main.exportInRTF') }}</Button>
 
-                <Button class="kn-button kn-button--primary p-ml-auto" @click="closeDialog"> {{ $t('common.close') }}</Button>
-                <Button v-if="activeTab === 0" class="kn-button kn-button--primary" :disabled="saveButtonDisabled" @click="saveNote"> {{ $t('common.save') }}</Button>
+                <Button class="kn-button kn-button--primary p-ml-auto" data-test="close-button" @click="closeDialog"> {{ $t('common.close') }}</Button>
+                <Button v-if="activeTab === 0" class="kn-button kn-button--primary" :disabled="saveButtonDisabled" data-test="save-button" @click="saveNote"> {{ $t('common.save') }}</Button>
             </div>
         </template>
     </Dialog>

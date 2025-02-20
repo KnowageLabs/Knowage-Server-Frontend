@@ -5,17 +5,17 @@
                 {{ $t('dashboard.widgetEditor.addWidget') }}
             </template>
             <template #end>
-                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="$emit('closeWidgetPicker')" />
+                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" data-test="close-button" @click="$emit('closeWidgetPicker')" />
             </template>
         </Toolbar>
 
-        <q-input v-model="searchText" :label="$t('common.search')" class="q-pa-sm" learable>
+        <q-input v-model="searchText" :label="$t('common.search')" class="q-pa-sm" learable data-test="search-input">
             <template #prepend>
                 <q-icon name="search" />
             </template>
         </q-input>
         <div id="widget-card-container" class="p-my-2">
-            <WidgetCard v-for="(widget, index) in filteredWidgetTypes" :key="index" :widget="widget" @click="openWidgetEditor(widget)" />
+            <WidgetCard v-for="(widget, index) in filteredWidgetTypes" :key="index" :widget="widget" data-test="list-item" @click="openWidgetEditor(widget)" />
         </div>
     </div>
 </template>

@@ -171,7 +171,7 @@
                 <Button v-if="step >= 0 && step < 2" class="kn-button kn-button--secondary" @click="back"> {{ $t('common.back') }}</Button>
                 <Button v-if="step == 0" class="kn-button kn-button--primary" :disabled="v$.$invalid" @click="next"> {{ $t('common.next') }}</Button>
 
-                <Button v-if="step == 1" class="kn-button kn-button--primary" @click="saveAndClose()"> {{ $t('common.save') }}</Button>
+                <Button v-if="step == 1" class="kn-button kn-button--primary" data-test="save-button" @click="saveAndClose()"> {{ $t('common.save') }}</Button>
                 <Button v-if="step == 1" class="kn-button kn-button--primary" @click="saveAndRun()"> {{ $t('documentExecution.dossier.designerDialog.saveAndRun') }}</Button>
             </div>
         </template>

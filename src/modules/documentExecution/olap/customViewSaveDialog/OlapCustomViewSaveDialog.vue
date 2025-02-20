@@ -46,8 +46,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="!view.name" @click="saveCustomizedView"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="!view.name" data-test="save-button" @click="saveCustomizedView"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

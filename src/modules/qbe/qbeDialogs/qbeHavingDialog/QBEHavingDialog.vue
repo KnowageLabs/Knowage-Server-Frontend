@@ -7,7 +7,7 @@
                 </template>
 
                 <template #end>
-                    <KnFabButton icon="fas fa-plus" @click="addNewHaving"></KnFabButton>
+                    <KnFabButton icon="fas fa-plus" data-test="new-button" @click="addNewHaving"></KnFabButton>
                 </template>
             </Toolbar>
         </template>
@@ -24,8 +24,8 @@
         </div>
 
         <template #footer>
-            <Button class="kn-button kn-button--primary" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" @click="save"> {{ $t('common.save') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"> {{ $t('common.cancel') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="save-button" @click="save"> {{ $t('common.save') }}</Button>
         </template>
     </Dialog>
 </template>

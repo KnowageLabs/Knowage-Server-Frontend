@@ -14,7 +14,7 @@
                 <div class="p-d-flex p-flex-row p-jc-end">
                     <div v-if="slotProps.data.type === 'federatedDataset'" class="p-d-flex p-flex-row">
                         <Button icon="fas fa-ellipsis-v" class="p-button-link" @click="toggle($event, slotProps.data)" />
-                        <Menu ref="menu" :model="menuItems" :popup="true" />
+                        <Menu ref="menu" :model="menuItems" :popup="true" data-test="menu" />
                     </div>
                     <Button v-tooltip.left="$t('workspace.myModels.showInfo')" icon="fas fa-info-circle" class="p-button-link" :data-test="'info-button-' + slotProps.data.name" @click.stop="$emit('selected', slotProps.data)" />
                     <Button v-tooltip.left="$t('workspace.myModels.openInQBE')" icon="fas fa-search" class="p-button-link" @click.stop="openDatasetInQBE(slotProps.data)" />
