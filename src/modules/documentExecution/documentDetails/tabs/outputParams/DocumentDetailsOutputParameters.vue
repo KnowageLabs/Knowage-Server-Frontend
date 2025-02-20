@@ -127,7 +127,7 @@ export default defineComponent({
         },
 
         async deleteParamConfirm(event) {
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${event.item.id}`).then((response: AxiosResponse<any>) => {
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/outputparameters/${event.item.id}/sbicrossnavigation`).then((response: AxiosResponse<any>) => {
                 if (response.data.length === 0) {
                     this.$confirm.require({
                         header: this.$t('common.toast.deleteConfirmTitle'),
