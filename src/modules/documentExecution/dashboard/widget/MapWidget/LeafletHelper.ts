@@ -69,7 +69,7 @@ export function addMarker(position: number[] | string, container: any, settings:
                 return (marker = createMarker(latlng, settings).addTo(container))
             }
         })
-    marker = createMarker(position, settings).addTo(container)
+    else marker = createMarker(position, settings).addTo(container)
     marker.knProperties = { measureValue: value, layerId: container.knProperties.layerId }
     return marker
 }
@@ -115,32 +115,33 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         } else {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
             layersData = await getLayerData(target)
+
             // TODO - Remove mock
             // layersData = wktMock
 
-            // console.log('------------ wktMock DATA: ', wktMock)
-            // if (layersData.type === 'wkt') {
-            //     console.log('----- wktMock: ', wktMock)
-            //     const wktData = wktMock.data
-            //     const cleanWKT = (wktData) => {
-            //         return wktData.replace(/\bM\b|\bZM\b/g, '').replace(/\(\s*(-?\d+(\.\d+)?\s+-?\d+(\.\d+)?)(\s+-?\d+(\.\d+)?)?(\s+-?\d+(\.\d+)?)?\s*\)/g, (match, p1) => {
-            //             return `(${p1})` // Keeps only X, Y, and optionally Z
-            //         })
-            //     }
-            //     const geojsonGeometries = wktData.map((wkt) => wktToGeoJSON(cleanWKT(wkt)))
-            //     console.log('----- geojsonGeometries: ', geojsonGeometries)
+            if (layersData.wkt) {
+                const wktData = wktMock.wkt
+                const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
+                const wktArray = wktData.match(wktRegex) || []
 
-            //     const geojsonFeatures = {
-            //         type: 'FeatureCollection',
-            //         features: geojsonGeometries.map((geometry) => ({
-            //             type: 'Feature',
-            //             geometry: geometry,
-            //             properties: {}
-            //         }))
-            //     }
-            //     console.log('----- geojsonFeatures: ', geojsonFeatures)
-            //     layersData = geojsonGeometries
-            //}
+                console.log('------- WKT ARRAY: ', wktArray)
+
+                const geojsonGeometries = wktArray.map((wkt: string) => wktToGeoJSON(wkt))
+
+                console.log('-------- GeoJSON Geometries:', geojsonGeometries)
+
+                const geojsonFeatures = {
+                    type: 'FeatureCollection',
+                    features: geojsonGeometries.map((geometry) => ({
+                        type: 'Feature',
+                        geometry: geometry,
+                        properties: {}
+                    }))
+                }
+
+                console.log('----- geojsonFeatures: ', geojsonFeatures)
+                layersData = geojsonFeatures
+            }
 
             if (layerVisualizationSettings.targetDataset) {
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
@@ -189,7 +190,7 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         }
 
         if (layerVisualizationSettings.type === 'geography') {
-            addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData)
+            addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map)
         }
     }
 

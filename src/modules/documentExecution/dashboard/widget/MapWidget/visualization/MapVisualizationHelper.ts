@@ -487,11 +487,11 @@ const addClustersUsingLayers = (targetDatasetData: any | null, layersData: any, 
     layerGroup.addLayer(clusters)
 }
 
-export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], layersData: any) => {
+export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], layersData: any, map: any) => {
     if (data && data[target.name]) {
         addGeograhyFromData(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds)
     } else {
-        addGeographyUsingLayers(layersData, spatialAttribute, layerGroup, markerBounds)
+        addGeographyUsingLayers(layersData, spatialAttribute, layerGroup, markerBounds, map)
     }
 }
 
@@ -502,9 +502,21 @@ const addGeograhyFromData = (data: any, target: IMapWidgetLayer, dataColumn: str
     }
 }
 
-const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, markerBounds: any[]) => {
+const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, markerBounds: any[], map: any) => {
     layersData.features.forEach((feature: ILayerFeature) => {
-        const marker = addMarker(feature.geometry.coordinates.reverse(), layerGroup, null, 0, spatialAttribute)
-        markerBounds.push(marker.getLatLng())
+        console.log('---------- FEATURE: ', feature)
+        const type = feature.geometry?.type
+        console.log('---------- type: ', type)
+        if (!type) return
+        if (type === 'Point') {
+            const coordinates = feature.geometry.coordinates.length > 2 ? feature.geometry.coordinates.slice(0, 2) : feature.geometry.coordinates
+            const marker = addMarker(coordinates.reverse(), layerGroup, null, 0, spatialAttribute)
+            markerBounds.push(marker.getLatLng())
+        } else if (type === 'LineString') {
+            L.polyline(feature.geometry.coordinates.reverse(), { color: 'blue' }).addTo(map)
+        } else if (type === 'Polygon') {
+            const polygonCoords = (feature.geometry.coordinates as any).map((ring) => ring.map(([x, y]) => [y, x]))
+            L.polygon(polygonCoords).addTo(map)
+        }
     })
 }
