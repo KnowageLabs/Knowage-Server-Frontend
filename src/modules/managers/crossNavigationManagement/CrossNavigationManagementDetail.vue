@@ -135,8 +135,7 @@ export default defineComponent({
             crossNavigationDescriptor,
             crossModes: [
                 { name: this.$t('managers.crossNavigationManagement.normal'), value: 3 },
-                { name: this.$t('managers.crossNavigationManagement.popUp'), value: 1 },
-                { name: this.$t('managers.crossNavigationManagement.popUpWindow'), value: 2 }
+                { name: this.$t('managers.crossNavigationManagement.popUp'), value: 1 }
             ],
             v$: useValidate() as any
         }
@@ -185,7 +184,7 @@ export default defineComponent({
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/crossNavigation/' + this.id + '/load/')
                 .then((response: AxiosResponse<any>) => {
                     this.navigation = response.data
-                    if (this.navigation.simpleNavigation.type === 0) this.navigation.simpleNavigation.type = 3
+                    if (this.navigation.simpleNavigation.type === 0 || this.navigation.simpleNavigation.type === 2) this.navigation.simpleNavigation.type = 3
                     this.simpleNavigation = this.navigation.simpleNavigation
                     if (this.simpleNavigation.popupOptions) {
                         this.simpleNavigation.popupOptions = JSON.parse(this.simpleNavigation.popupOptions)

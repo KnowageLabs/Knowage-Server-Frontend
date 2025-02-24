@@ -1376,10 +1376,7 @@ export default defineComponent({
             this.executeCrossNavigation(crossNavigation, documentCrossNavigationParameters)
         },
         async executeCrossNavigation(crossNavigation: IDashboardCrossNavigation, documentCrossNavigationParameters: ICrossNavigationParameter[]) {
-            if (crossNavigation.crossType === 2) {
-                const tempDocument = getDocumentForCrossNavigation(documentCrossNavigationParameters, this.filtersData, crossNavigation)
-                this.openCrossNavigationInNewWindow(tempDocument, crossNavigation)
-            } else if (crossNavigation.crossType === 1) {
+            if (crossNavigation.crossType === 1 || crossNavigation.crossType === 2) {
                 this.crossNavigationPopupDialogDocument = getDocumentForCrossNavigation(documentCrossNavigationParameters, this.filtersData, crossNavigation)
                 this.crossNavigationDialogVisible = true
             } else {
@@ -1387,15 +1384,6 @@ export default defineComponent({
                 updateBreadcrumbForCrossNavigation(this.breadcrumbs, this.document)
                 await this.loadPage(false, this.document.dsLabel, false)
             }
-        },
-        openCrossNavigationInNewWindow(tempDocument: any, crossNavigation: IDashboardCrossNavigation) {
-            const parameters = encodeURI(JSON.stringify(tempDocument.formattedCrossNavigationParameters))
-            let url = `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_VUE_CONTEXT}/document-browser/dashboard/${crossNavigation?.document?.name}?role=${this.userRole}&crossNavigationParameters=${parameters}`
-            const popupOptions = crossNavigation.popupOptions ?? {
-                width: '800',
-                height: '600'
-            }
-            window.open(url, '_blank', `toolbar=0,status=0,menubar=0,width=${popupOptions.width},height=${popupOptions.height}`)
         },
         onCrossNavigationPopupClose() {
             this.crossNavigationPopupDialogDocument = null

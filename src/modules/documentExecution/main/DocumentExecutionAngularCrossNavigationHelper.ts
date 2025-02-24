@@ -43,9 +43,7 @@ export const loadCrossNavigation = async (vueComponent: any, crossNavigationDocu
         }
     }
 
-    if (crossNavigationDocument?.crossType === 2) {
-        openCrossNavigationInNewWindow(vueComponent, popupOptions, crossNavigationDocument, navigationParams)
-    } else if (crossNavigationDocument?.crossType === 1) {
+    if (crossNavigationDocument?.crossType === 1 || crossNavigationDocument?.crossType === 2) {
         const documentLabel = crossNavigationDocument?.document.label
         vueComponent.crossNavigationSourceDocumentName = sourceDocumentName
         vueComponent.crossNavigationContainerData = {
