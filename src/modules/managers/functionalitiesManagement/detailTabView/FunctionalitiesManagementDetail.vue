@@ -1,73 +1,42 @@
 <template>
     <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
-        <template #start> {{ selectedFolder.name }} </template>
+        <template #start>{{ selectedFolder.name }}</template>
         <template #end>
             <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="submit-button" @click="handleSubmit" />
             <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplate" />
         </template>
     </Toolbar>
-    <div v-if="!selectedFolder.id || selectedFolder.parentId" class="kn-detail">
-        <Card class="p-m-3">
+    <div v-if="!selectedFolder.id || selectedFolder.parentId" class="kn-detail col">
+        <Card class="q-ma-md q-mb-sm">
             <template #content>
-                <form class="p-fluid p-m-3">
-                    <div class="p-field" :style="detailDescriptor.pField.style">
-                        <span class="p-float-label">
-                            <InputText
-                                id="label"
-                                v-model.trim="v$.selectedFolder.code.$model"
-                                class="kn-material-input"
-                                type="text"
-                                :class="{
-                                    'p-invalid': v$.selectedFolder.code.$invalid && v$.selectedFolder.code.$dirty
-                                }"
-                                max-length="100"
-                                data-test="code-input"
-                                @blur="v$.selectedFolder.code.$touch()"
-                                @input="$emit('touched')"
-                            />
-                            <label for="label" class="kn-material-input-label"> {{ $t('common.label') }} * </label>
-                        </span>
-                        <KnValidationMessages
-                            :v-comp="v$.selectedFolder.code"
-                            :additional-translate-params="{
-                                fieldName: $t('common.label')
-                            }"
-                        />
-                    </div>
-                    <div class="p-field" :style="detailDescriptor.pField.style">
-                        <span class="p-float-label">
-                            <InputText
-                                id="name"
-                                v-model.trim="v$.selectedFolder.name.$model"
-                                class="kn-material-input"
-                                type="text"
-                                :class="{
-                                    'p-invalid': v$.selectedFolder.name.$invalid && v$.selectedFolder.name.$dirty
-                                }"
-                                max-length="255"
-                                data-test="name-input"
-                                @blur="v$.selectedFolder.name.$touch()"
-                                @input="$emit('touched')"
-                            />
-                            <label for="name" class="kn-material-input-label"> {{ $t('common.name') }} * </label>
-                        </span>
-                        <KnValidationMessages
-                            :v-comp="v$.selectedFolder.name"
-                            :additional-translate-params="{
-                                fieldName: $t('common.name')
-                            }"
-                        />
-                    </div>
-                    <div class="p-field" :style="detailDescriptor.pField.style">
-                        <span class="p-float-label">
-                            <InputText id="description" v-model.trim="selectedFolder.description" class="kn-material-input" type="text" max-length="255" data-test="description-input" @input="$emit('touched')" />
-                            <label for="description" class="kn-material-input-label">{{ $t('common.description') }}</label>
-                        </span>
-                    </div>
-                </form>
+                <div class="row">
+                    <q-input
+                        filled
+                        class="col"
+                        v-model="v$.selectedFolder.code.$model"
+                        max-length="100"
+                        :error="v$.selectedFolder.code.$invalid && v$.selectedFolder.code.$dirty"
+                        :error-message="$t('common.validation.required', { fieldName: $t('common.label') })"
+                        :label="$t('common.label')"
+                        @update:model-value="$emit('touched')"
+                        data-test="code-input"
+                    />
+                    <q-input
+                        filled
+                        class="col q-ml-sm"
+                        v-model="v$.selectedFolder.name.$model"
+                        max-length="255"
+                        :error="v$.selectedFolder.name.$invalid && v$.selectedFolder.name.$dirty"
+                        :error-message="$t('common.validation.required', { fieldName: $t('common.name') })"
+                        :label="$t('common.name')"
+                        @update:model-value="$emit('touched')"
+                        data-test="name-input"
+                    />
+                </div>
+                <q-input class="q-mt-sm" filled type="textarea" v-model="selectedFolder.description" max-length="255" :label="$t('common.description')" @update:model-value="$emit('touched')" data-test="description-input" />
             </template>
         </Card>
-        <Card class="p-m-3">
+        <Card class="q-ma-md q-mt-sm" v-if="!loading">
             <template #header>
                 <Toolbar class="kn-toolbar kn-toolbar--secondary">
                     <template #start>
@@ -76,37 +45,42 @@
                 </Toolbar>
             </template>
             <template #content>
-                <DataTable v-if="!loading" :value="roles" data-key="id" class="p-datatable-sm kn-table" responsive-layout="scroll" data-test="roles-table">
-                    <Column field="name" :header="$t('managers.functionalitiesManagement.roles')" :sortable="true" />
-                    <Column :header="$t('managers.functionalitiesManagement.development')" :style="detailDescriptor.checkboxColumns.style">
-                        <template #body="slotProps">
-                            <Checkbox v-model="slotProps.data.development" :binary="true" :disabled="!slotProps.data['devRoles'].checkable" />
-                        </template>
-                    </Column>
-                    <Column :header="$t('common.test')" :style="detailDescriptor.checkboxColumns.style">
-                        <template #body="slotProps">
-                            <Checkbox v-model="slotProps.data.test" :binary="true" :disabled="!slotProps.data['testRoles'].checkable" />
-                        </template>
-                    </Column>
-                    <Column :header="$t('managers.functionalitiesManagement.execution')" :style="detailDescriptor.checkboxColumns.style">
-                        <template #body="slotProps">
-                            <Checkbox v-model="slotProps.data.execution" :binary="true" :disabled="!slotProps.data['execRoles'].checkable" />
-                        </template>
-                    </Column>
-                    <Column :header="$t('managers.functionalitiesManagement.creation')" :style="detailDescriptor.checkboxColumns.style">
-                        <template #body="slotProps">
-                            <Checkbox v-model="slotProps.data.creation" :binary="true" :disabled="!slotProps.data['createRoles'].checkable" />
-                        </template>
-                    </Column>
-                    <Column @rowClick="false">
-                        <template #body="slotProps">
-                            <div class="p-d-flex p-jc-end">
-                                <Button icon="pi pi-check" class="p-button-link" :disabled="slotProps.data.isButtonDisabled" :data-test="'check-all-' + slotProps.data.id" @click="checkAll(slotProps.data)" />
-                                <Button icon="pi pi-times" class="p-button-link" :disabled="slotProps.data.isButtonDisabled" :data-test="'uncheck-all-' + slotProps.data.id" @click="uncheckAll(slotProps.data)" />
-                            </div>
-                        </template>
-                    </Column>
-                </DataTable>
+                <q-table flat dense :rows="roles" :pagination="{ rowsPerPage: 0 }" :columns="columns" row-key="name">
+                    <template #body-cell-development="props">
+                        <q-td class="text-center no-padding">
+                            <q-checkbox size="xs" v-model="props.row[props.col.field]" :disable="!props.row['devRoles'].checkable" />
+                        </q-td>
+                    </template>
+                    <template #body-cell-test="props">
+                        <q-td class="text-center no-padding">
+                            <q-checkbox size="xs" v-model="props.row[props.col.field]" :disable="!props.row['testRoles'].checkable" />
+                        </q-td>
+                    </template>
+                    <template #body-cell-creation="props">
+                        <q-td class="text-center no-padding">
+                            <q-checkbox size="xs" v-model="props.row[props.col.field]" :disable="!props.row['createRoles'].checkable" />
+                        </q-td>
+                    </template>
+                    <template #body-cell-execution="props">
+                        <q-td class="text-center no-padding">
+                            <q-checkbox size="xs" v-model="props.row[props.col.field]" :disable="!props.row['execRoles'].checkable" />
+                        </q-td>
+                    </template>
+                    <template #body-cell-actions="props">
+                        <q-td class="text-center no-padding">
+                            <q-btn flat round icon="done_all" size="xs" :disable="props.row.isButtonDisabled" :data-test="'check-all-' + props.row.id" @click="checkAll(props.row)">
+                                <q-tooltip>
+                                    {{ $t('common.checkAll') }}
+                                </q-tooltip>
+                            </q-btn>
+                            <q-btn flat round icon="clear_all" size="xs" :disable="props.row.isButtonDisabled" :data-test="'uncheck-all-' + props.row.id" @click="uncheckAll(props.row)">
+                                <q-tooltip>
+                                    {{ $t('common.clearAll') }}
+                                </q-tooltip>
+                            </q-btn>
+                        </q-td>
+                    </template>
+                </q-table>
             </template>
         </Card>
     </div>
@@ -118,7 +92,6 @@ import { createValidations } from '@/helpers/commons/validationHelper'
 import { AxiosResponse } from 'axios'
 import useValidate from '@vuelidate/core'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-import detailDescriptor from './FunctionalitiesManagementDetailDescriptor.json'
 import validationDescriptor from './FunctionalitiesManagementValidation.json'
 import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
@@ -147,7 +120,6 @@ export default defineComponent({
     data() {
         return {
             v$: useValidate() as any,
-            detailDescriptor,
             validationDescriptor,
             formVisible: false,
             selectedFolder: {} as any,
@@ -155,7 +127,15 @@ export default defineComponent({
             roles: [] as any,
             checked: [] as any,
             loading: false,
-            dirty: false
+            dirty: false,
+            columns: [
+                { name: 'name', sortable: true, field: 'name', label: this.$t('managers.functionalitiesManagement.roles'), align: 'left' },
+                { name: 'development', field: 'development', label: this.$t('managers.functionalitiesManagement.development'), align: 'center' },
+                { name: 'test', field: 'test', label: this.$t('common.test'), align: 'center' },
+                { name: 'execution', field: 'execution', label: this.$t('managers.functionalitiesManagement.execution'), align: 'center' },
+                { name: 'creation', field: 'creation', label: this.$t('managers.functionalitiesManagement.creation'), align: 'center' },
+                { name: 'actions', field: 'actions', label: '', align: 'right' }
+            ]
         }
     },
     computed: {
