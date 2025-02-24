@@ -149,5 +149,9 @@ export default defineComponent({
             break-inside: avoid;
         }
     }
+    @media screen and (max-width: 1025px) {
+        left: 0;
+        top: var(--kn-mainmenu-width) !important;
+    }
 }
 </style>
