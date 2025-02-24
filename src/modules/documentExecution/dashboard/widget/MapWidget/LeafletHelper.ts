@@ -119,29 +119,29 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
             // TODO - Remove mock
             // layersData = wktMock
 
-            if (layersData.wkt) {
-                const wktData = wktMock.wkt
-                const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
-                const wktArray = wktData.match(wktRegex) || []
+            // if (layersData.wkt) {
+            //     const wktData = wktMock.wkt
+            //     const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
+            //     const wktArray = wktData.match(wktRegex) || []
 
-                console.log('------- WKT ARRAY: ', wktArray)
+            //     console.log('------- WKT ARRAY: ', wktArray)
 
-                const geojsonGeometries = wktArray.map((wkt: string) => wktToGeoJSON(wkt))
+            //     const geojsonGeometries = wktArray.map((wkt: string) => wktToGeoJSON(wkt))
 
-                console.log('-------- GeoJSON Geometries:', geojsonGeometries)
+            //     console.log('-------- GeoJSON Geometries:', geojsonGeometries)
 
-                const geojsonFeatures = {
-                    type: 'FeatureCollection',
-                    features: geojsonGeometries.map((geometry) => ({
-                        type: 'Feature',
-                        geometry: geometry,
-                        properties: {}
-                    }))
-                }
+            //     const geojsonFeatures = {
+            //         type: 'FeatureCollection',
+            //         features: geojsonGeometries.map((geometry) => ({
+            //             type: 'Feature',
+            //             geometry: geometry,
+            //             properties: {}
+            //         }))
+            //     }
 
-                console.log('----- geojsonFeatures: ', geojsonFeatures)
-                layersData = geojsonFeatures
-            }
+            //     console.log('----- geojsonFeatures: ', geojsonFeatures)
+            //     layersData = geojsonFeatures
+            // }
 
             if (layerVisualizationSettings.targetDataset) {
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
