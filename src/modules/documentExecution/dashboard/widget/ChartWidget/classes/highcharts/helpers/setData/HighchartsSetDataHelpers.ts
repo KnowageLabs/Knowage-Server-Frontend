@@ -4,6 +4,7 @@ import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/Piv
 import { getDataType } from '@/modules/documentExecution/dashboard/widget/SelectorWidget/SelectorWidgetDataProxy'
 import deepcopy from 'deepcopy'
 import moment from 'moment'
+import { getColumnAlias } from '../dataLabels/HighchartsDataLabelsHelpers'
 
 export enum DataType {
     DATE_SHORT = 'DD/MM/YYYY',
@@ -37,13 +38,14 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
+    const columnAliases = widgetModel.settings?.series?.aliases ?? []
     const areaRangeColumns = [] as any[]
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
 
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
-            const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
+            const serieElement = { id: index, name: getColumnAlias(column, columnAliases), data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
             if (drilldownEnabled && model.xAxis && model.xAxis[0]) delete model.xAxis[0].categories
             else if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []

@@ -156,6 +156,8 @@ export default defineComponent({
             applyAdvancedSettingsToModelForRender(modelToRender, this.widgetModel.settings.advancedSettings)
             formatChartAnnotations(modelToRender, this.variables, this.getDashboardDrivers(this.dashboardId))
 
+            console.log('--------- MODEL TO RENDER: ', modelToRender)
+
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
                 this.highchartsInstance.reflow()

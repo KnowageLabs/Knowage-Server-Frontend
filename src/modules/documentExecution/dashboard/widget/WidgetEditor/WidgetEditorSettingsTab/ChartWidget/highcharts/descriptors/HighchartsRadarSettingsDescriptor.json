@@ -90,6 +90,10 @@
             {
                 "title": "dashboard.widgetEditor.series.title",
                 "type": "SeriesLabel"
+            },
+            {
+                "title": "common.aliases",
+                "type": "SeriesAliasesSettings"
             }
         ],
         "Style": [

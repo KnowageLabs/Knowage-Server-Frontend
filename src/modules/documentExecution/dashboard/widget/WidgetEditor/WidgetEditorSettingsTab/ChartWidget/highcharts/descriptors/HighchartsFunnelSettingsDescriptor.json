@@ -96,6 +96,10 @@
             {
                 "title": "dashboard.widgetEditor.conditionalStyle",
                 "type": "ConditionalStyles"
+            },
+            {
+                "title": "common.aliases",
+                "type": "SeriesAliasesSettings"
             }
         ],
         "Style": [
