@@ -62,7 +62,7 @@ export class KnowageHighchartsSankeyChart extends KnowageHighcharts {
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
 
-        setSankeyData(this.model, data, attributeColumns, measureColumns, dateFormat)
+        setSankeyData(this.model, data, attributeColumns, measureColumns, dateFormat, widgetModel)
         return this.model.series
     }
 }

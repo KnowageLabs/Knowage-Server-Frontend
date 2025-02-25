@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn } from "@/modules/documentExecution/dashboard/Dashboard";
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, attributesOnly: boolean, measuresOnly: boolean, widgetModel: IWidget) => {
@@ -41,16 +41,15 @@ const addHighchartsColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidget
     }
 }
 
-
 const addAttributeColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[]) => {
     if (tempColumn.fieldType === 'MEASURE') {
         tempColumn.fieldType = 'ATTRIBUTE'
         tempColumn.aggregation = ''
     }
     tempColumn.drillOrder = {
-        "orderColumn": "",
-        "orderColumnId": "",
-        "orderType": ""
+        orderColumn: '',
+        orderColumnId: '',
+        orderType: ''
     }
     addColumnToRows(rows, tempColumn)
 }
@@ -87,7 +86,6 @@ const addSerieToWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, char
 
 const addColumnAsFirstOption = (column: IWidgetColumn, array: any[]) => {
     if (array[0] && array[0]?.names?.length === 0) array[0].names = [column.columnName]
-
 }
 
 export const removeSerieFromWidgetModel = (widgetModel: IWidget, column: IWidgetColumn, chartType: string | undefined) => {
@@ -95,6 +93,7 @@ export const removeSerieFromWidgetModel = (widgetModel: IWidget, column: IWidget
     const allSeriesOption = !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes('' + chartType)
     removeColumnFromSubmodel(column, widgetModel.settings.accesssibility.seriesAccesibilitySettings, allSeriesOption)
     removeColumnFromSubmodel(column, widgetModel.settings.series.seriesSettings, allSeriesOption)
+    widgetModel.settings.series.aliases = widgetModel.settings.series.aliases.filter((aliasSettings: { column: IWidgetColumn | null; alias: string }) => aliasSettings.column?.id !== column.id && aliasSettings.column?.columnName !== column.columnName)
     emitter.emit('seriesRemoved', column)
 }
 
