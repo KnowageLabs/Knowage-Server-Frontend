@@ -22,7 +22,7 @@
                                 v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)"
                                 v-model="slotProps.data[column.field]"
                                 class="kn-material-input column-aggregation-dropdown"
-                                :options="commonDescriptor.columnAggregationOptions"
+                                :options="descriptor.columnAggregationOptions"
                                 option-label="label"
                                 option-value="value"
                                 @change="$emit('itemUpdated', slotProps.data)"
@@ -57,6 +57,7 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Dropdown from 'primevue/dropdown'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
+import descriptor from './PivotTableDataContainerDescriptor.json'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
@@ -65,6 +66,7 @@ export default defineComponent({
     emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {
+            descriptor,
             commonDescriptor,
             rows: [] as IWidgetColumn[],
             filters: {} as any,

@@ -148,7 +148,7 @@ export default defineComponent({
                         })
 
                         tempField.id = modelField.id
-                        tempField.summaryType = 'sum'
+                        tempField.summaryType = modelField?.aggregation === 'NONE' ? '' : modelField?.aggregation?.toLowerCase()
                         tempField.caption = modelField.alias
                         tempField.dataField = `column_${index}`
                         tempField.area = this.getDataField(fieldsName)
