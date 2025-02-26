@@ -2,6 +2,7 @@ import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Da
 import { IHighchartsChartSerie } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { createGaugeSerie } from './updater/KnowageHighchartsCommonUpdater'
+import { getColumnAlias } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 export class KnowageHighchartsGaugeChart extends KnowageHighcharts {
     constructor() {
@@ -11,12 +12,18 @@ export class KnowageHighchartsGaugeChart extends KnowageHighcharts {
     setGaugeData(data: any, widgetModel: IWidget, maxNumberOfSeries: number | undefined) {
         this.getSeriesFromWidgetModel(widgetModel, maxNumberOfSeries)
 
+        const columnAliases = widgetModel.settings?.series?.aliases ?? []
+
         let startingRadius = 112
         let startingInnerRadius = 88
 
         for (let i = 0; i < this.model.series.length; i++) {
             const serie = this.model.series[i] as any
             serie.data = []
+
+            const column = widgetModel.columns.find((column: IWidgetColumn) => column.columnName === serie.name)
+            if (column) serie.name = getColumnAlias(column, columnAliases)
+
             data?.rows?.forEach((row: any) => {
                 const value = row[`column_${i + 1}`]
                 const serieElement = {
@@ -55,7 +62,9 @@ export class KnowageHighchartsGaugeChart extends KnowageHighcharts {
     }
 
     formatSeriesFromOtherChartTypeSeries() {
-        this.model.series = this.model.series.map((serie: IHighchartsChartSerie) => { return this.getFormattedSerieFromOtherChartTypeSerie(serie) })
+        this.model.series = this.model.series.map((serie: IHighchartsChartSerie) => {
+            return this.getFormattedSerieFromOtherChartTypeSerie(serie)
+        })
     }
 
     getFormattedSerieFromOtherChartTypeSerie(otherChartSerie: IHighchartsChartSerie) {

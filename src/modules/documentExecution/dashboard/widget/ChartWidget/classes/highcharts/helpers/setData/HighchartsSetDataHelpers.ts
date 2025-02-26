@@ -4,6 +4,7 @@ import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/Piv
 import { getDataType } from '@/modules/documentExecution/dashboard/widget/SelectorWidget/SelectorWidgetDataProxy'
 import deepcopy from 'deepcopy'
 import moment from 'moment'
+import { getColumnAlias } from '../dataLabels/HighchartsDataLabelsHelpers'
 
 export enum DataType {
     DATE_SHORT = 'DD/MM/YYYY',
@@ -37,13 +38,14 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
     const attributeColumn = attributeColumns[0]
     if (!attributeColumn || !attributeColumn.metadata) return
 
+    const columnAliases = widgetModel.settings?.series?.aliases ?? []
     const areaRangeColumns = [] as any[]
     measureColumns.forEach((measureColumn: any, index: number) => {
         const column = measureColumn.column as IWidgetColumn
         const metadata = measureColumn.metadata as any
 
         if (column.serieType !== 'arearangelow' && column.serieType !== 'arearangehigh') {
-            const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true, selected: true } as any
+            const serieElement = { id: index, name: getColumnAlias(column, columnAliases), data: [] as any[], connectNulls: true, selected: true } as any
             if (column.serieType) serieElement.type = column.serieType === 'bar' ? 'column' : column.serieType
             if (drilldownEnabled && model.xAxis && model.xAxis[0]) delete model.xAxis[0].categories
             else if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []
@@ -62,7 +64,7 @@ export const setRegularData = (model: any, widgetModel: IWidget, data: any, attr
             areaRangeColumns.push(measureColumn)
         }
     })
-    if (areaRangeColumns.length > 1) setRegularAreaRangeData(model, data, attributeColumn, areaRangeColumns, dateFormat)
+    if (areaRangeColumns.length > 1) setRegularAreaRangeData(model, data, attributeColumn, areaRangeColumns, dateFormat, columnAliases)
 }
 
 const formatDataRowsWhenUsingTheExternalSortingColumn = (data: any, widgetModel: IWidget, measureColumns: any[]) => {
@@ -158,14 +160,14 @@ const isValidDate = (dateString: string, format: string): boolean => {
     return moment(dateString, format, true).isValid()
 }
 
-const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, areaRangeColumns: any[], dateFormat: string) => {
+const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, areaRangeColumns: any[], dateFormat: string, columnAliases: { column: IWidgetColumn; alias: string }[]) => {
     if (!attributeColumn || !attributeColumn.metadata) return
 
     const lowAreaRangeColumn = areaRangeColumns.find((areaRangeColumn: any) => areaRangeColumn.column.serieType === 'arearangelow')
     const highAreaRangeColumn = areaRangeColumns.find((areaRangeColumn: any) => areaRangeColumn.column.serieType === 'arearangehigh')
 
     if (!lowAreaRangeColumn || !highAreaRangeColumn) return
-    const serieElement = { id: model.series.length, name: lowAreaRangeColumn.column.columnName + ' / ' + highAreaRangeColumn.column.columnName, data: [] as any[], connectNulls: true } as any
+    const serieElement = { id: model.series.length, name: getColumnAlias(lowAreaRangeColumn.column, columnAliases) + ' / ' + getColumnAlias(highAreaRangeColumn.column, columnAliases), data: [] as any[], connectNulls: true } as any
     serieElement.type = 'arearange'
     if (model.xAxis && model.xAxis[0]) model.xAxis[0].categories = []
     data?.rows?.forEach((row: any) => {
@@ -182,13 +184,15 @@ const setRegularAreaRangeData = (model: any, data: any, attributeColumn: any, ar
     model.series.push(serieElement)
 }
 
-export const setGroupedCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
+export const setGroupedCategoriesData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string, widgetModel: IWidget) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
     const measureColumn = measureColumns[0]
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
 
-    const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], connectNulls: true }
+    const columnAliases = widgetModel.settings?.series?.aliases ?? []
+
+    const serieElement = { id: 0, name: getColumnAlias(measureColumn.column, columnAliases), data: [] as any[], connectNulls: true }
     const categoryValuesMap: Record<string, { categories: string[] }> = {}
 
     data.rows.forEach((row: any) => {
@@ -312,9 +316,10 @@ export const setSunburstData = (model: any, data: any, widgetModel: IWidget, att
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
     const measureColumn = measureColumns[0]
     const centerTextSettings = widgetModel.settings.configuration.centerText
+    const columnAliases = widgetModel.settings?.series?.aliases ?? []
     const serieElement = {
         id: 0,
-        name: measureColumn.column.columnName,
+        name: getColumnAlias(measureColumn.column, columnAliases),
         data: [] as any[],
         layoutAlgorithm: 'squarified',
         type: 'sunburst',
@@ -490,12 +495,14 @@ export const getColumnConditionalStyles = (propWidget: IWidget, colId, valueToCo
     return styleString
 }
 
-export const setSankeyData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) => {
+export const setSankeyData = (model: any, data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string, widgetModel: IWidget) => {
     if (!data || !measureColumns[0] || attributeColumns.length < 2) return
     const measureColumn = measureColumns[0]
     const firstAttributeColumn = attributeColumns[0]
     const secondAttributeColumn = attributeColumns[1]
-    const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true, colorByPoint: true, connectNulls: true }
+    const columnAliases = widgetModel.settings?.series?.aliases ?? []
+
+    const serieElement = { id: 0, name: getColumnAlias(measureColumn.column, columnAliases), data: [] as any[], showInLegend: true, colorByPoint: true, connectNulls: true }
     data.rows.forEach((row: any) => {
         const from = dateFormat && ['date', 'timestamp'].includes(row[firstAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[firstAttributeColumn.metadata.dataIndex], dateFormat, firstAttributeColumn.metadata.type) : row[firstAttributeColumn.metadata.dataIndex]
         const to = dateFormat && ['date', 'timestamp'].includes(row[secondAttributeColumn.metadata.type]) ? getFormattedDateCategoryValue(row[secondAttributeColumn.metadata.dataIndex], dateFormat, secondAttributeColumn.metadata.type) : row[secondAttributeColumn.metadata.dataIndex]

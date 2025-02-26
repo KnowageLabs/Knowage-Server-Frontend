@@ -4,7 +4,7 @@ import { updateScatterChartModel } from './updater/KnowageHighchartsScatterChart
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { getColumnAlias, updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 
 export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     constructor(model: any, isJittered = false) {
@@ -76,18 +76,19 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
         const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.model.plotOptions.scatter.jitter ? this.setJitteredChartData(data, attributeColumns, measureColumns, dateFormat) : this.setRegularData(data, attributeColumns, measureColumns, dateFormat)
+        this.model.plotOptions.scatter.jitter ? this.setJitteredChartData(data, attributeColumns, measureColumns, dateFormat) : this.setRegularData(data, attributeColumns, measureColumns, dateFormat, widgetModel)
         return this.model.series
     }
 
-    setRegularData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
+    setRegularData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string, widgetModel: IWidget) {
         const attributeColumn = attributeColumns[0]
         if (!attributeColumn || !attributeColumn.metadata) return
+        const columnAliases = widgetModel.settings?.series?.aliases ?? []
 
         measureColumns.forEach((measureColumn: any, index: number) => {
             const column = measureColumn.column as IWidgetColumn
             const metadata = measureColumn.metadata as any
-            const serieElement = { id: index, name: column.columnName, data: [] as any[], connectNulls: true }
+            const serieElement = { id: index, name: getColumnAlias(column, columnAliases), data: [] as any[], connectNulls: true }
             data?.rows?.forEach((row: any) => {
                 serieElement.data.push({
                     x: row[attributeColumn.metadata.dataIndex],

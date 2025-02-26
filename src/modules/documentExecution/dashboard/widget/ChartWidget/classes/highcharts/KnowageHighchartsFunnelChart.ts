@@ -1,7 +1,7 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { getColumnAlias, updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import deepcopy from 'deepcopy'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
@@ -42,7 +42,9 @@ export class KnowageHighchartsFunnelChart extends KnowageHighcharts {
         const attibuteColumn = attributeColumns[0]
         const measureColumn = measureColumns[0]
         if (!data || !measureColumn || !attibuteColumn) return
-        const serieElement = { id: 0, name: measureColumn.column.columnName, data: [] as any[], showInLegend: true }
+
+        const columnAliases = widgetModel.settings?.series?.aliases ?? []
+        const serieElement = { id: 0, name: getColumnAlias(measureColumn.column, columnAliases), data: [] as any[], showInLegend: true }
         data.rows.forEach((row: any) => {
             serieElement.data.push({
                 name: dateFormat && ['date', 'timestamp'].includes(attibuteColumn.metadata.type) ? getFormattedDateCategoryValue(row[attibuteColumn.metadata.dataIndex], dateFormat, attibuteColumn.metadata.type) : row[attibuteColumn.metadata.dataIndex],

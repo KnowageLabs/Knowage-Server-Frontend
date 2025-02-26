@@ -46,6 +46,7 @@ export interface ISerieAccessibilitySetting {
 export interface IHighchartsSeriesSetting {
     seriesSettings: IHighchartsSeriesLabelsSetting[]
     conditionalStyles?: any
+    aliases: { column: IWidgetColumn | null; alias: string }[]
 }
 
 export interface IHighchartsSeriesLabelsSetting {
