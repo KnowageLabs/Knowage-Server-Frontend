@@ -23,10 +23,6 @@
         {
             "label": "COUNT",
             "value": "COUNT"
-        },
-        {
-            "label": "COUNT_DISTINCT",
-            "value": "COUNT_DISTINCT"
         }
     ],
     "columnTypeOptions": [
