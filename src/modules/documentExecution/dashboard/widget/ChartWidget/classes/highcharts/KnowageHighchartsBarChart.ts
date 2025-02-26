@@ -61,7 +61,7 @@ export class KnowageHighchartsBarChart extends KnowageHighcharts {
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
 
         if (widgetModel.settings.configuration?.grouping?.enabled) {
-            setGroupedCategoriesData(this.model, data, attributeColumns, measureColumns, dateFormat)
+            setGroupedCategoriesData(this.model, data, attributeColumns, measureColumns, dateFormat, widgetModel)
         } else if (widgetModel.settings.configuration?.grouping?.secondSeries.enabled) {
             setGroupedBySeriesData(this.model, data, attributeColumns, measureColumns)
         } else if (widgetModel.settings.configuration?.grouping?.secondDimension.enabled) {

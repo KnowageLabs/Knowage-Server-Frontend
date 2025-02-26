@@ -823,6 +823,7 @@ export default defineComponent({
                       label: this.document.name,
                       document: this.document
                   })
+            if (this.mode === 'iframe' && this.document.typeCode === 'DASHBOARD') this.mode = 'dashboard'
         },
         async loadView() {
             this.loading = true

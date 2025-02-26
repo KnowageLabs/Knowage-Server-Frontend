@@ -1,7 +1,7 @@
 import { KnowageHighcharts } from './KnowageHighcharts'
 import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles, getFormattedDateCategoryValue } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { getColumnAlias, updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import deepcopy from 'deepcopy'
 
@@ -67,7 +67,9 @@ export class KnowageHighchartsDumbbellChart extends KnowageHighcharts {
         const endMeasureColumn = measureColumns[1]
 
         if (!data || !attibuteColumn || !startMeasureColumn || !endMeasureColumn) return
-        const serieElement = { id: 0, name: startMeasureColumn.column.columnName + ' | ' + endMeasureColumn.column.columnName, data: [] as any[], showInLegend: true }
+
+        const columnAliases = widgetModel.settings?.series?.aliases ?? []
+        const serieElement = { id: 0, name: getColumnAlias(startMeasureColumn.column, columnAliases) + ' | ' + getColumnAlias(endMeasureColumn.column, columnAliases), data: [] as any[], showInLegend: true }
         data.rows.forEach((row: any) => {
             const firstMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, startMeasureColumn.column.id, row[startMeasureColumn.metadata.dataIndex], variables)?.color
             const secondMeasureConditionalStyle = getColumnConditionalStyles(widgetModel, endMeasureColumn.column.id, row[endMeasureColumn.metadata.dataIndex], variables)?.color

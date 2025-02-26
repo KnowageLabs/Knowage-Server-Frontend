@@ -1,4 +1,4 @@
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IHighchartsSeriesLabelsSetting } from '@/modules/documentExecution/dashboard/interfaces/highcharts/DashboardHighchartsWidget'
 import * as highchartsDefaultValues from '../../../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 import { KnowageHighcharts } from '../../KnowageHighcharts'
@@ -86,4 +86,11 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
             }
         })
     })
+}
+
+export const getColumnAlias = (column: IWidgetColumn, columnAliases: { column: IWidgetColumn | null; alias: string }[]) => {
+    if (!columnAliases || columnAliases.length === 0) return column.columnName
+
+    const columnAluisSettings = columnAliases.find((columnAliasSetting: { column: IWidgetColumn | null; alias: string }) => columnAliasSetting.column?.id === column.id || columnAliasSetting.column?.columnName === column.columnName)
+    return columnAluisSettings ? columnAluisSettings.alias : column.columnName
 }

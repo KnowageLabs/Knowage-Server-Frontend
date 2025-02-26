@@ -1,7 +1,7 @@
 <template>
     <div class="kn-page">
         <div class="p-grid p-m-0">
-            <div class="p-col-4 p-sm-4 p-md-3 p-p-0 p-d-flex p-flex-column">
+            <div class="p-col-4 p-sm-4 p-md-3 p-p-0 column window-height">
                 <Toolbar class="kn-toolbar kn-toolbar--primary">
                     <template #start>
                         {{ $t('managers.functionalitiesManagement.title') }}
@@ -11,41 +11,26 @@
                     </template>
                 </Toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-
-                <Tree
-                    id="document-tree"
-                    scroll-height="calc(100vh - 91px)"
-                    maximizable
-                    :value="nodes"
-                    selection-mode="single"
-                    :expanded-keys="expandedKeys"
-                    :filter="true"
-                    filter-mode="lenient"
-                    data-test="functionality-tree"
-                    class="kn-tree kn-column-tree kn-flex p-p-0"
-                    @node-select="showForm($event.data, $event.data.parentId)"
-                >
-                    <template #default="slotProps">
-                        <div class="p-d-flex p-flex-row p-ai-center" :data-test="'tree-item-' + slotProps.node.id" @mouseover="buttonsVisible[slotProps.node.id] = true" @mouseleave="buttonsVisible[slotProps.node.id] = false">
-                            <span>{{ slotProps.node.label }}</span>
-                            <div v-show="buttonsVisible[slotProps.node.id]" class="p-ml-2">
-                                <Button v-if="canBeMovedUp(slotProps.node.data)" v-tooltip.top="$t('managers.functionalitiesManagement.moveUp')" icon="fa fa-arrow-up" class="p-button-link p-button-sm p-p-0" :data-test="'move-up-button-' + slotProps.node.id" @click.stop="moveUp(slotProps.node.id)" />
-                                <Button
-                                    v-if="canBeMovedDown(slotProps.node.data)"
-                                    v-tooltip.top="$t('managers.functionalitiesManagement.moveDown ')"
-                                    icon="fa fa-arrow-down"
-                                    class="p-button-link p-button-sm p-p-0"
-                                    :data-test="'move-down-button-' + slotProps.node.id"
-                                    @click.stop="moveDown(slotProps.node.id)"
-                                />
-                                <Button v-if="canBeDeleted(slotProps.node)" v-tooltip.top="$t('common.delete')" icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" :data-test="'delete-button-' + slotProps.node.id" @click.stop="deleteFunctionalityConfirm(slotProps.node.id)" />
+                <div class="col listContainer overflow-auto">
+                    <q-input ref="filter" class="q-ma-sm" dense square standout outlined v-model="filter" :placeholder="$t('common.search')">
+                        <template v-slot:append>
+                            <q-icon name="search" />
+                        </template>
+                    </q-input>
+                    <q-tree ref="tree" :filter="filter" class="q-pt-sm functionalitiesTree" :nodes="nodes" node-key="id" default-expand-all selected-color="primary" @update:selected="updateSelected" v-model:selected="selectedFunctionalityKey">
+                        <template #default-header="{ node }">
+                            <div class="row full-width" :class="{ treeButtons: selectedFunctionalityKey !== node.id }">
+                                <span class="col">{{ node.label }}</span>
+                                <q-btn v-if="canBeMovedDown(node.data)" flat round dense size="xs" icon="arrow_downward" :data-test="'move-down-button-' + node.id" @click.stop="moveDown(node.id)" />
+                                <q-btn v-if="canBeMovedUp(node.data)" flat round dense size="xs" icon="arrow_upward" :data-test="'move-up-button-' + node.id" @click.stop="moveUp(node.id)" />
+                                <q-btn v-if="canBeDeleted(node)" flat round dense size="xs" icon="delete" :data-test="'delete-button-' + node.id" @click.stop="deleteFunctionalityConfirm(node.id)" />
                             </div>
-                        </div>
-                    </template>
-                </Tree>
+                        </template>
+                    </q-tree>
+                </div>
             </div>
 
-            <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-height-full-vertical">
+            <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 column window-height">
                 <KnHint v-if="showHint" :title="'managers.functionalitiesManagement.title'" :hint="'managers.functionalitiesManagement.hint'" data-test="functionality-hint"></KnHint>
                 <FunctionalitiesManagementDetail v-if="formVisible" :functionality="selectedFunctionality" :parent-id="functionalityParentId" :roles-short="rolesShort" @touched="touched = true" @close="onClose" @inserted="loadPage($event)" />
             </div>
@@ -83,16 +68,18 @@ export default defineComponent({
             rolesShort: [] as { id: number; name: 'string' }[],
             nodes: [] as iNode[],
             selectedFunctionality: null as iFunctionality | null,
+            selectedFunctionalityKey: [] as Array<number> | [],
             functionalityParentId: null as number | null,
             expandedKeys: {},
             showHint: true,
             touched: false,
             loading: false,
             buttonsVisible: [],
-            formVisible: false
+            formVisible: false,
+            filter: ''
         }
     },
-    async created() {
+    async mounted() {
         await this.loadPage(null)
     },
     methods: {
@@ -103,10 +90,10 @@ export default defineComponent({
             this.rolesShort = []
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/roles/short/').then((response: AxiosResponse<any>) => (this.rolesShort = response.data))
         },
-        createNodeTree() {
+        async createNodeTree() {
             this.nodes = []
             const foldersWithMissingParent = [] as iNode[]
-            this.functionalities.forEach((functionality: iFunctionality) => {
+            await this.functionalities.forEach((functionality: iFunctionality) => {
                 if (functionality.codType !== 'USER_FUNCT') {
                     const node = {
                         key: functionality.id,
@@ -122,6 +109,7 @@ export default defineComponent({
                     this.attachFolderToTree(node, foldersWithMissingParent)
                 }
             })
+            this.expandAll()
         },
         attachFolderToTree(folder: iNode, foldersWithMissingParent: iNode[]) {
             if (folder.parentId) {
@@ -166,22 +154,9 @@ export default defineComponent({
             }
         },
         expandAll() {
-            for (const node of this.nodes) {
-                this.expandNode(node)
-            }
-
-            this.expandedKeys = { ...this.expandedKeys }
+            this.$refs.tree?.expandAll()
         },
 
-        expandNode(node: iNode) {
-            if (node.children && node.children.length) {
-                this.expandedKeys[node.key] = true
-
-                for (const child of node.children) {
-                    this.expandNode(child)
-                }
-            }
-        },
         showForm(functionality: iFunctionality, parentId: number) {
             this.showHint = false
             this.functionalityParentId = parentId
@@ -266,12 +241,28 @@ export default defineComponent({
             await this.loadFunctionalities()
             await this.loadRolesShort()
             this.createNodeTree()
-            this.expandAll()
             const id = functionalityId ? functionalityId : this.selectedFunctionality?.id
             this.selectedFunctionality = this.functionalities.find((functionality) => functionality.id === id) as any
             this.touched = false
             this.loading = false
+        },
+        updateSelected(value: any) {
+            this.selectedFunctionality = this.functionalities.find((functionality) => functionality.id === value) as any
+            if (this.selectedFunctionality) this.showForm(this.selectedFunctionality, this.selectedFunctionality.parentId)
         }
     }
 })
 </script>
+<style lang="scss" scoped>
+.listContainer {
+    border: 1px solid var(--kn-list-border-color);
+}
+.functionalitiesTree {
+    border-top: 1px solid var(--kn-list-border-color);
+}
+.treeButtons {
+    &:deep(.q-icon) {
+        opacity: 0.4;
+    }
+}
+</style>
