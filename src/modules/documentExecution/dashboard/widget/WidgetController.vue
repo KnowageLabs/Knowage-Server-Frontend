@@ -36,7 +36,7 @@
             @dataset-interaction-preview="previewInteractionDataset"
         ></WidgetRenderer>
         <WidgetButtonBar
-            v-if="items.filter((i) => i.visible).length > 0"
+            v-if="items.filter((i) => i.visible).length > 0 || playSelectionButtonVisible"
             :document="document"
             :widget="widget"
             :play-selection-button-visible="playSelectionButtonVisible"
