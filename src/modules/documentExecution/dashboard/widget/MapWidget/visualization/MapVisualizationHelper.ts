@@ -5,6 +5,7 @@ import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, a
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import L from 'leaflet'
 
+// Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addMarkers = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any) => {
     if (data && data[target.name]) {
         addMarkersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
@@ -43,6 +44,7 @@ const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, d
     })
 }
 
+// Showing baloons from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addBaloonMarkers = (
     data: any,
     model: IWidget,
@@ -60,6 +62,7 @@ export const addBaloonMarkers = (
     if (!layerVisualizationSettings.balloonConf) return
     switch (layerVisualizationSettings.balloonConf.method) {
         case 'CLASSIFY_BY_RANGES':
+            // We use user defined value ranges to determine what size (depending also on number of ranges) and color should each balloon value have
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
                 addBaloonMarkersClassifedByRangesUsingLayers(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model)
             } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
@@ -68,6 +71,7 @@ export const addBaloonMarkers = (
                 addBaloonMarkersClassifedByRangesFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
             }
             break
+        // We divide the value array into user defined number of subarrays, each having the same number of elements, and determine the balloon size depending where the value fits
         case 'CLASSIFY_BY_QUANTILS':
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
                 addBaloonMarkersClassifedByQuantilsUsingLayers(null, layersData, null, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model)
@@ -78,6 +82,7 @@ export const addBaloonMarkers = (
             }
             break
         default:
+            // We divide the value array into user defined number of subarrays, using the minimum and maximum values as starting points (3 classes, 1-10, 10-20, 20-30 for example), and determine the balloon size depending where the value fits
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
                 addBaloonMarkersClassifiedByEqualIntervalsUsingLayers(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, spatialAttribute)
             } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
@@ -498,6 +503,7 @@ const addClustersUsingLayers = (targetDatasetData: any | null, layersData: any, 
     layerGroup.addLayer(clusters)
 }
 
+// Showing only the defined data, no measures, no extra logic. It will show all Point, LineString and Polygon from WKT.
 export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], layersData: any, map: any) => {
     if (data && data[target.name]) {
         addGeograhyFromData(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds)

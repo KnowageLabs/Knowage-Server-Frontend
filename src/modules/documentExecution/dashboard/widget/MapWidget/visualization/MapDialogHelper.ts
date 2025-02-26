@@ -3,6 +3,7 @@ import { ILayerFeature, IMapDialogSettings, IMapTooltipSettings, IMapTooltipSett
 import { getColumnName } from '../LeafletHelper'
 import L from 'leaflet'
 
+// Function that creates popup/tooltip for the maps that use dataset as the target
 export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, meta: any, row: any) => {
     const list = document.createElement('ul')
     list.classList.add('customLeafletPopup')
@@ -44,10 +45,13 @@ export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IW
     marker.bindTooltip(tooltip)
 }
 
+// Function that creates popup/tooltip for the maps that use layers as the target
 const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number) => {
     const container = document.createElement('div')
     const layersList = settings.layers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target) as any
 
+    // In the third use case (layer + external dataset), there are two dialogs:
+    // one displaying the layer values and the other showing the values of the target dataset's foreign key column.
     if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) {
         const targetDatasetList = document.createElement('ul')
         targetDatasetList.classList.add('customLeafletPopup')
@@ -78,7 +82,7 @@ const createTooltipListHeader = (header: string) => {
 
 const createTooltipListItem = (value: string) => {
     const li = document.createElement('li')
-    //TODO set style
+    // TODO set style
     li.innerHTML = value
     return li
 }

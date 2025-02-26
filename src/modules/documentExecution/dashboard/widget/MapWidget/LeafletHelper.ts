@@ -11,6 +11,8 @@ import { createDialogFromDataset } from './visualization/MapDialogHelper'
 import wktMock from './wkt-mock.json'
 import { wktToGeoJSON } from '@terraformer/wkt'
 
+// Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
+// There is no explicit model property.
 export enum VisualizationDataType {
     DATASET_ONLY,
     LAYER_ONLY,
@@ -39,6 +41,8 @@ function getGeographyStyle(feature) {
     }
 }
 
+// Used for adding a marker to Leaflet. If there is no MEASURE data (e.g., when only Geography is needed),
+// the settings passed will be null, and the default ones from the first line will be used.
 function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null) {
     const defaultMarkerSettings = { color: settings?.style?.color ?? '', fillColor: settings?.style?.color ?? '', radius: settings?.size || 10 }
     if (!settings) return L.marker(position, defaultMarkerSettings)
@@ -61,6 +65,7 @@ function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IM
     if (['img', 'icon', 'url'].includes(settings.type)) return L.marker(position, { icon: icon })
 }
 
+// Used for creating marker object
 export function addMarker(position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, value: number, spatialAttribute: any) {
     let marker
     if (spatialAttribute?.properties?.coordType === 'json')
@@ -78,6 +83,7 @@ export function createGeography(map: L.Map, features, data) {
     return L.geoJson(features, getGeographyStyle).addTo(map)
 }
 
+// Used for getting coordinates, if the type is WKT we are transforming them using the wktToGeoJSON from the @terraformer/wkt lib
 export function getCoordinates(spatialAttribute, input, coord?) {
     if (!spatialAttribute) return []
 
@@ -94,6 +100,7 @@ export function getCoordinates(spatialAttribute, input, coord?) {
     }
 }
 
+// Starting point for the data/layers logic
 export async function initializeLayers(map: L.Map, model: any, data: any) {
     const markerBounds = [] as any
     for (const layer of model.settings.visualizations) {
@@ -107,6 +114,12 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
 
         const target = model.layers.find((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.target)
 
+        // This section handles data loading. In the first case, the user selects a dataset as the target;
+        // in the else case, the target is a layer.
+        // There are two use cases: layer only and layer with a target dataset.
+        // Here, we need to add a data proxy call for the target dataset.
+        // Additionally, if the layer is WKT, there is commented-out code related to it.
+        // The backend service for retrieving layers does not work properly for WKT.
         if (target.type === 'dataset') {
             visualizationDataType = VisualizationDataType.DATASET_ONLY
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
@@ -143,6 +156,7 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
             //     layersData = geojsonFeatures
             // }
 
+            // Use case when we have layer with the external dataset connected with foreign key
             if (layerVisualizationSettings.targetDataset) {
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
                 dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
