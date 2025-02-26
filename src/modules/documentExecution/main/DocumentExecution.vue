@@ -34,15 +34,6 @@
                         :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
                         @click="refresh"
                     ></Button>
-                    <Button
-                        v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters"
-                        v-tooltip.left="$t('common.parameters')"
-                        icon="fa fa-filter"
-                        class="p-button-text p-button-rounded p-button-plain p-mx-2"
-                        :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
-                        data-test="parameter-sidebar-icon"
-                        @click="parameterSidebarVisible = !parameterSidebarVisible"
-                    ></Button>
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
                     <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode != 'document-execution-cross-navigation-popup'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
@@ -109,6 +100,18 @@
 
             <DocumentExecutionSchedulationsTable v-if="schedulationsTableVisible" id="document-execution-schedulations-table" :prop-schedulations="schedulations" @deleteSchedulation="onDeleteSchedulation" @close="schedulationsTableVisible = false"></DocumentExecutionSchedulationsTable>
 
+            <!-- <transition name="slide-button-right"> -->
+            <Button
+                v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters"
+                class="sidebar-toggle-button"
+                :class="{ 'sidebar-visible': parameterSidebarVisible, 'sidebar-hidden': !parameterSidebarVisible }"
+                :icon="parameterSidebarVisible ? 'fa fa-angles-right' : 'fa fa-angles-left'"
+                v-tooltip.left="$t('common.parameters')"
+                data-test="parameter-sidebar-icon"
+                @click="parameterSidebarVisible = !parameterSidebarVisible"
+            ></Button>
+            <!-- </transition> -->
+            <!-- <transition name="slide-right"> -->
             <KnParameterSidebar
                 v-show="parameterSidebarVisible"
                 class="document-execution-parameter-sidebar kn-overflow-y"
@@ -124,6 +127,7 @@
                 @roleChanged="onRoleChange"
                 @parametersChanged="$emit('parametersChanged', $event)"
             ></KnParameterSidebar>
+            <!-- </transition> -->
 
             <DocumentExecutionHelpDialog :visible="helpDialogVisible" :prop-document="document" @close="helpDialogVisible = false"></DocumentExecutionHelpDialog>
 
@@ -1552,5 +1556,48 @@ export default defineComponent({
     color: 1px solid var(--kn-message-warning-color);
     font-weight: bold;
     padding: 16px 32px;
+}
+
+.slide-right-enter-active,
+.slide-right-leave-active {
+    transition: transform 0.3s linear;
+}
+.slide-right-enter-from,
+.slide-right-leave-to {
+    transform: translateX(100%);
+}
+
+.sidebar-toggle-button {
+    position: absolute;
+    top: 100px;
+    z-index: 99;
+    height: 50px;
+    width: 50px;
+    background: white;
+    color: var(--kn-color-fab);
+    border: none !important;
+    // transition: right 0.3s linear; /* Apply transition for the 'right' property */
+    right: -5px;
+    border-top-left-radius: 50%;
+    border-bottom-left-radius: 50%;
+    &:hover,
+    &:focus {
+        background: white !important;
+        color: var(--kn-color-fab) !important;
+    }
+    &:hover {
+        opacity: 100% !important;
+    }
+}
+.sidebar-visible {
+    right: 345px;
+}
+.sidebar-hidden {
+    right: -5px;
+    opacity: 50%;
+}
+.slide-button-right-enter-active,
+.slide-button-right-leave-active {
+    transition: right 0.3s ease-in-out;
 }
 </style>
