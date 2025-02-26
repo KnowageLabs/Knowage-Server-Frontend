@@ -257,7 +257,7 @@ export default defineComponent({
                     label: this.$t(this.widget.settings.locked ? 'dashboard.qMenu.unlock' : 'dashboard.qMenu.lock'),
                     icon: this.widget.settings.locked ? 'fas fa-lock-open' : 'fas fa-lock',
                     command: () => this.toggleWidgetLock(),
-                    visible: true
+                    visible: canEditDashboard(this.document)
                 },
                 { label: this.$t('dashboard.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
