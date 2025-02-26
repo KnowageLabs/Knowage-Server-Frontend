@@ -20,7 +20,7 @@
             </button>
         </div>
         <div ref="menuScroll" class="menu-scroll-content">
-            <transition name="slide-down">
+            <transition :name="transitionType">
                 <ul v-show="showProfileMenu" ref="menuProfileSlide" class="layout-menu profile-menu">
                     <template v-for="(item, i) of commonUserFunctionalities" :key="i">
                         <template v-if="item">
@@ -117,6 +117,10 @@ export default defineComponent({
         }),
         isPortrait(): boolean | undefined {
             return this.windowWidth <= 1025
+        },
+        transitionType(): string | undefined {
+            if (this.isPortrait) return 'slide-right'
+            else return 'slide-down'
         }
     },
     watch: {
@@ -345,15 +349,20 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .slide-down-enter-active,
-.slide-down-leave-active {
-    overflow: hidden;
-    transition: max-height 0.6s ease-in-out;
-    max-height: 500px;
+.slide-down-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+    transition: transform 0.3s ease-in-out;
 }
 .slide-down-enter-from,
 .slide-down-leave-to {
-    max-height: 0;
+    transform: translateY(-100%);
 }
+.slide-right-enter-from,
+.slide-right-leave-to {
+    transform: translateX(-100%);
+}
+
 .p-scrollpanel:deep(.p-scrollpanel-content) {
     padding: 0 0 18px 0;
 }
