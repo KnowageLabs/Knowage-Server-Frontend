@@ -181,6 +181,7 @@ export default defineComponent({
                 if (this.widget.settings.interactions.selection) this.widget.settings.interactions.selection.enabled = false
                 if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
                 if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
+                if (this.widget.settings.interactions.iframe) this.widget.settings.interactions.iframe.enabled = false
             }
         }
     }
