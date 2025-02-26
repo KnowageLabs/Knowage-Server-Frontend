@@ -2,7 +2,7 @@
     <div class="widget-editor-card p-d-flex p-flex-column">
         <div class="p-d-flex p-flex-column">
             <label v-if="settings.label" class="kn-material-input-label">{{ $t(settings.label) }}</label>
-            <small v-if="settings.hint"> {{ $t(settings.hint) }}</small>
+            <small v-if="settings.hint">{{ $t(settings.hint) }}</small>
         </div>
 
         <div class="p-d-flex p-flex-column kn-flex" :class="{ 'dropzone-active': settings.dropIsActive }" @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
@@ -155,8 +155,10 @@ export default defineComponent({
             emitter.emit('editCalculatedField', column)
         },
         onCalcFieldAdded(field) {
-            this.rows.push(field as IWidgetColumn)
-            this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings, fieldType: this.fieldType })
+            if (this.settings.label === 'dashboard.widgetEditor.pivotData') {
+                this.rows.push(field as IWidgetColumn)
+                this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings, fieldType: this.fieldType })
+            }
         },
         getColumnSortIcon(column: IWidgetColumn) {
             switch (column.sort) {
