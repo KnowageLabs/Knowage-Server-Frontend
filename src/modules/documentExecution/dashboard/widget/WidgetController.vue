@@ -248,16 +248,16 @@ export default defineComponent({
         loadMenuItems() {
             this.items = [
                 { label: this.$t('dashboard.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
-                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: this.document.seeAsFinalUser || canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: (this.document.seeAsFinalUser || canEditDashboard(this.document)) && ['highcharts', 'vega'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: ['highcharts', 'vega'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
                 { label: this.$t('dashboard.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
                 {
                     label: this.$t(this.widget.settings.locked ? 'dashboard.qMenu.unlock' : 'dashboard.qMenu.lock'),
                     icon: this.widget.settings.locked ? 'fas fa-lock-open' : 'fas fa-lock',
                     command: () => this.toggleWidgetLock(),
-                    visible: canEditDashboard(this.document)
+                    visible: true
                 },
                 { label: this.$t('dashboard.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
