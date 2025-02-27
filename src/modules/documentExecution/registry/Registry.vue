@@ -119,6 +119,8 @@ export default defineComponent({
             await this.loadRegistry()
             this.loadRegistryData()
             this.loading = false
+
+            console.log('Integrity Check 12345', this.configuration)
         },
         async loadRegistry() {
             const postData = new URLSearchParams()

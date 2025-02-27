@@ -188,6 +188,8 @@ export default defineComponent({
                 getRowStyle: this.getRowStyle,
                 getRowId: this.getRowId
             }
+
+            console.log('Integrity Check REGISTRY DATATABLE AGGRID', this.gridOptions)
         },
         async loadColumnDefinitions() {
             if (this.propColumns.length == 0 || this.columns.length > 0) return
