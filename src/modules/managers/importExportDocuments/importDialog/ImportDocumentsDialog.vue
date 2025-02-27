@@ -375,7 +375,8 @@ export default defineComponent({
     },
     computed: {
         disableStep1() {
-            return this.uploadedFiles.length == 0
+            if (this.step === 1) return this.uploadedFiles.length == 0
+            if (this.step === 4) return this.hasEmptyDatasource(this.importData.datasources.associatedDatasources)
         }
     },
     created() {},
@@ -585,6 +586,15 @@ export default defineComponent({
                     this.store.setLoading(false)
                     // this.toggleExportDialog()
                 })
+        },
+        hasEmptyDatasource(associatedDatasources) {
+            for (const key in associatedDatasources) {
+                if (associatedDatasources.hasOwnProperty(key)) {
+                    const datasource = associatedDatasources[key]
+                    if (datasource === null || datasource === '') return true
+                }
+            }
+            return false
         }
     }
 })
