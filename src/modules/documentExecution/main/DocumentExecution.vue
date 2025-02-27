@@ -100,18 +100,15 @@
 
             <DocumentExecutionSchedulationsTable v-if="schedulationsTableVisible" id="document-execution-schedulations-table" :prop-schedulations="schedulations" @deleteSchedulation="onDeleteSchedulation" @close="schedulationsTableVisible = false"></DocumentExecutionSchedulationsTable>
 
-            <!-- <transition name="slide-button-right"> -->
             <Button
                 v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters"
-                class="sidebar-toggle-button"
-                :class="{ 'sidebar-visible': parameterSidebarVisible, 'sidebar-hidden': !parameterSidebarVisible }"
-                :icon="parameterSidebarVisible ? 'fa fa-angles-right' : 'fa fa-angles-left'"
+                class="kn-param-sidebar-toggle-button"
+                :class="{ 'kn-param-sidebar-visible': parameterSidebarVisible, 'kn-param-sidebar-hidden': !parameterSidebarVisible }"
+                :icon="paramSidebarIcon"
                 v-tooltip.left="$t('common.parameters')"
                 data-test="parameter-sidebar-icon"
-                @click="parameterSidebarVisible = !parameterSidebarVisible"
+                @click="toggleParamSidebar()"
             ></Button>
-            <!-- </transition> -->
-            <!-- <transition name="slide-right"> -->
             <KnParameterSidebar
                 v-show="parameterSidebarVisible"
                 class="document-execution-parameter-sidebar kn-overflow-y"
@@ -127,7 +124,6 @@
                 @roleChanged="onRoleChange"
                 @parametersChanged="$emit('parametersChanged', $event)"
             ></KnParameterSidebar>
-            <!-- </transition> -->
 
             <DocumentExecutionHelpDialog :visible="helpDialogVisible" :prop-document="document" @close="helpDialogVisible = false"></DocumentExecutionHelpDialog>
 
@@ -348,7 +344,9 @@ export default defineComponent({
     computed: {
         ...mapState(mainStore, {
             user: 'user',
-            configurations: 'configurations'
+            configurations: 'configurations',
+            theme: 'theme',
+            defaultTheme: 'defaultTheme'
         }),
         ...mapState(dashboardStore, {
             dashboards: 'dashboards'
@@ -398,6 +396,10 @@ export default defineComponent({
         },
         isMobileDevice() {
             return /Android|iPhone/i.test(navigator.userAgent)
+        },
+        paramSidebarIcon() {
+            if (Object.keys(this.theme).length > 0) return this.parameterSidebarVisible ? this.theme['--kn-param-sidebar-expanded-icon'] : this.theme['--kn-param-sidebar-collapsed-icon']
+            else return this.parameterSidebarVisible ? this.defaultTheme['--kn-param-sidebar-expanded-icon'] : this.defaultTheme['--kn-param-sidebar-collapsed-icon']
         }
     },
     watch: {
@@ -1440,6 +1442,9 @@ export default defineComponent({
                 })
             }
             this.seeAsFinalUser = !this.seeAsFinalUser
+        },
+        toggleParamSidebar() {
+            this.parameterSidebarVisible = !this.parameterSidebarVisible
         }
     }
 })
@@ -1556,48 +1561,5 @@ export default defineComponent({
     color: 1px solid var(--kn-message-warning-color);
     font-weight: bold;
     padding: 16px 32px;
-}
-
-.slide-right-enter-active,
-.slide-right-leave-active {
-    transition: transform 0.3s linear;
-}
-.slide-right-enter-from,
-.slide-right-leave-to {
-    transform: translateX(100%);
-}
-
-.sidebar-toggle-button {
-    position: absolute;
-    top: 100px;
-    z-index: 99;
-    height: 50px;
-    width: 50px;
-    background: white;
-    color: var(--kn-color-fab);
-    border: none !important;
-    // transition: right 0.3s linear; /* Apply transition for the 'right' property */
-    right: -5px;
-    border-top-left-radius: 50%;
-    border-bottom-left-radius: 50%;
-    &:hover,
-    &:focus {
-        background: white !important;
-        color: var(--kn-color-fab) !important;
-    }
-    &:hover {
-        opacity: 100% !important;
-    }
-}
-.sidebar-visible {
-    right: 345px;
-}
-.sidebar-hidden {
-    right: -5px;
-    opacity: 50%;
-}
-.slide-button-right-enter-active,
-.slide-button-right-leave-active {
-    transition: right 0.3s ease-in-out;
 }
 </style>
