@@ -21,9 +21,15 @@
                         <template #default-header="{ node }">
                             <div class="row full-width" :class="{ treeButtons: selectedFunctionalityKey !== node.id }">
                                 <span class="col">{{ node.label }}</span>
-                                <q-btn v-if="canBeMovedDown(node.data)" flat round dense size="xs" icon="arrow_downward" :data-test="'move-down-button-' + node.id" @click.stop="moveDown(node.id)" />
-                                <q-btn v-if="canBeMovedUp(node.data)" flat round dense size="xs" icon="arrow_upward" :data-test="'move-up-button-' + node.id" @click.stop="moveUp(node.id)" />
-                                <q-btn v-if="canBeDeleted(node)" flat round dense size="xs" icon="delete" :data-test="'delete-button-' + node.id" @click.stop="deleteFunctionalityConfirm(node.id)" />
+                                <q-btn v-if="canBeMovedDown(node.data)" flat round dense size="xs" icon="arrow_downward" :data-test="'move-down-button-' + node.id" @click.stop="moveDown(node.id)">
+                                    <q-tooltip>{{ $t('managers.functionalitiesManagement.moveDown') }}</q-tooltip>
+                                </q-btn>
+                                <q-btn v-if="canBeMovedUp(node.data)" flat round dense size="xs" icon="arrow_upward" :data-test="'move-up-button-' + node.id" @click.stop="moveUp(node.id)">
+                                    <q-tooltip>{{ $t('managers.functionalitiesManagement.moveUp') }}</q-tooltip>
+                                </q-btn>
+                                <q-btn v-if="canBeDeleted(node)" flat round dense size="xs" icon="delete" :data-test="'delete-button-' + node.id" @click.stop="deleteFunctionalityConfirm(node.id)">
+                                    <q-tooltip class="text-capitalize">{{ $t('common.delete') }}</q-tooltip>
+                                </q-btn>
                             </div>
                         </template>
                     </q-tree>
@@ -262,7 +268,12 @@ export default defineComponent({
 }
 .treeButtons {
     &:deep(.q-icon) {
-        opacity: 0.4;
+        opacity: 0.2;
+    }
+    &:hover {
+        &:deep(.q-icon) {
+            opacity: 0.4;
+        }
     }
 }
 </style>
