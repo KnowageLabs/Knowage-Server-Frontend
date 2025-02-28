@@ -55,7 +55,7 @@
                     <div class="row">
                         <q-input filled rows="2" class="col" type="textarea" v-model="datasource.descr" max-length="160" :label="$t('common.description')" :disable="readOnly" data-test="description-input" />
                     </div>
-                    <div class="row q-mt-sm justify-between">
+                    <div v-if="!showOwnerMessage" class="row q-mt-sm justify-between">
                         <q-btn-toggle
                             v-model="datasource.readOnly"
                             toggle-color="primary"
@@ -79,7 +79,7 @@
                 </q-card-section>
             </q-card>
         </div>
-        <div class="row">
+        <div class="row" v-if="!showOwnerMessage">
             <q-card class="full-width">
                 <q-card-section>
                     <div class="row">
@@ -342,7 +342,7 @@ export default defineComponent({
         selectDatabase(selectedDatabaseDialect) {
             this.availableDatabases.forEach((database) => {
                 if (database.value == selectedDatabaseDialect) {
-                    this.selectedDatabase = database
+                    this.selectedDatabase = database.dialectName
                 }
             })
             if (typeof this.selectedDatabase.cacheSupported === 'undefined') {
@@ -393,18 +393,22 @@ export default defineComponent({
         },
 
         async testDataSource() {
+            this.setLoading(true)
             const url = import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasources/test'
             let dsToTest = {} as any
             dsToTest = { ...this.datasource }
             dsToTest.type = this.jdbcOrJndi.type
 
-            await this.$http.post(url, dsToTest).then((response: AxiosResponse<any>) => {
-                if (response.data.error) {
-                    this.setError({ title: this.$t('managers.dataSourceManagement.form.errorTitle'), msg: response.data.error })
-                } else {
-                    this.setInfo({ msg: this.$t('managers.dataSourceManagement.form.testOk') })
-                }
-            })
+            await this.$http
+                .post(url, dsToTest)
+                .then((response: AxiosResponse<any>) => {
+                    if (response.data.error) {
+                        this.setError({ title: this.$t('managers.dataSourceManagement.form.errorTitle'), msg: response.data.error })
+                    } else {
+                        this.setInfo({ msg: this.$t('managers.dataSourceManagement.form.testOk') })
+                    }
+                })
+                .finally(() => this.setLoading(false))
         },
 
         async createOrUpdate(url, dsToSave) {
