@@ -1,154 +1,172 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary">
-        <template #start>
-            {{ menuNode.name }}
-        </template>
-        <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="formValid" data-test="save-button" @click="save" />
-            <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" data-test="close-button" @click="closeForm" />
-        </template>
-    </Toolbar>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ menuNode.name }}</q-toolbar-title>
+
+        <q-btn flat round dense icon="save" :disable="formValid" data-test="submit-button" @click="save">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeForm">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
 
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
 
-    <div class="p-grid p-m-0 p-fluid kn-page-content">
-        <div class="p-col-12">
-            <Card>
-                <template #content>
-                    <form ref="menu-configuration-form" class="p-p-3">
-                        <div class="p-field p-mb-5">
-                            <div class="p-inputgroup">
-                                <span class="p-float-label">
-                                    <InputText id="name" v-model.trim="v$.menuNode.name.$model" type="text" class="p-inputtext p-component kn-material-input" @change="onDataChange(v$.menuNode.name)" />
-                                    <label for="name">{{ $t('managers.menuManagement.form.name') }} *</label>
-                                </span>
+    <div class="kn-detail col">
+        <Card class="q-ma-md q-mb-sm">
+            <template #content>
+                <div class="row q-col-gutter-sm">
+                    <kn-icon-picker v-if="chooseIconModalShown" :enable-base64="true" :current-icon="selectedIcon" @save="onChosenIcon" @close="closeFontAwesomeSelectionModal"></kn-icon-picker>
+                    <q-input
+                        filled
+                        class="col"
+                        v-model="v$.menuNode.name.$model"
+                        :error="v$.menuNode.name.$invalid && v$.menuNode.name.$dirty"
+                        :error-message="$t('common.validation.required', { fieldName: $t('managers.menuManagement.form.name') })"
+                        :label="$t('managers.menuManagement.form.name') + '*'"
+                        @update:model-value="onDataChange(v$.menuNode.name)"
+                        data-test="name-input"
+                    >
+                        <template #before v-if="isIconSelectorShown(menuNode)">
+                            <div class="relative-position">
+                                <q-btn v-if="isCustomIconShown(menuNode)" flat size="lg" @click="openFontAwesomeSelectionModal()">
+                                    <q-avatar size="42px">
+                                        <img :src="menuNode?.custIcon?.src" />
+                                    </q-avatar>
+                                    <q-tooltip :delay="500">{{ $t('managers.menuManagement.chooseIcon') }}</q-tooltip>
+                                </q-btn>
+                                <q-btn v-else flat :icon="iconToShow" size="lg" @click="openFontAwesomeSelectionModal()">
+                                    <q-tooltip :delay="500">{{ $t('managers.menuManagement.chooseIcon') }}</q-tooltip>
+                                </q-btn>
+                                <q-btn v-if="menuNode?.icon?.className || menuNode?.custIcon?.src" dense flat rounded @click.stop="clearSelectedIcon()" class="clearIcon">
+                                    <q-icon name="highlight_off" size="sm" />
+                                    <q-tooltip :delay="500">{{ $t('managers.menuManagement.clearIcon') }}</q-tooltip>
+                                </q-btn>
                             </div>
-                            <KnValidationMessages :v-comp="v$.menuNode.name" :additional-translate-params="{ fieldName: $t('managers.menuManagement.form.name') }"></KnValidationMessages>
-                        </div>
+                        </template>
+                    </q-input>
+                    <q-select
+                        filled
+                        class="col"
+                        emit-value
+                        map-options
+                        v-model="v$.menuNode.menuNodeContent.$model"
+                        :options="menuNodeContent"
+                        option-label="name"
+                        option-value="value"
+                        :label="$t('managers.menuManagement.form.menuNodeContent') + '*'"
+                        @update:model-value="onMenuNodeChange(v$.menuNode.menuNodeContent)"
+                    />
+                </div>
+                <div class="row q-col-gutter-sm">
+                    <q-input
+                        class="col"
+                        rows="2"
+                        filled
+                        type="textarea"
+                        v-model="v$.menuNode.descr.$model"
+                        :error="v$.menuNode.descr.$invalid && v$.menuNode.descr.$dirty"
+                        :error-message="$t('common.validation.required', { fieldName: $t('common.description') })"
+                        max-length="255"
+                        :label="$t('common.description') + '*'"
+                        @update:model-value="onDataChange(v$.menuNode.descr)"
+                        data-test="description-input"
+                    />
+                </div>
 
-                        <div class="p-field p-mb-5">
-                            <div class="p-inputgroup">
-                                <span class="p-float-label">
-                                    <InputText id="descr" v-model.trim="v$.menuNode.descr.$model" type="text" class="p-inputtext p-component kn-material-input" aria-describedby="descr-help" @blur="onDataChange(v$.menuNode.descr)" />
-                                    <Button v-if="isIconSelectorShown(menuNode) && (menuNode.icon != null || menuNode.custIcon != null)" icon="pi pi-times" @click="clearSelectedIcon" />
-                                    <Button v-if="isCustomIconShown(menuNode)"><img style="max-height: 26px; max-width: 26px" :src="menuNode.custIcon.src" /></Button>
-                                    <Button v-if="isFaIconShown(menuNode)" style="display: inline-flex; justify-content: center"><i :class="selectedIcon"></i></Button>
-                                    <Button v-if="isIconSelectorShown(menuNode)" class="p-button" @click="openFontAwesomeSelectionModal()">{{ $t('managers.menuManagement.chooseIcon').toUpperCase() }}</Button>
-                                    <label for="descr">{{ $t('managers.menuManagement.description') }} *</label>
-                                </span>
-                            </div>
-                            <small id="descr-help">{{ $t('managers.menuManagement.descrHelp') }}</small>
-                            <KnValidationMessages :v-comp="v$.menuNode.descr" :additional-translate-params="{ fieldName: $t('managers.menuManagement.description') }"></KnValidationMessages>
-                        </div>
+                <div v-if="!staticPageHidden" class="row q-col-gutter-sm">
+                    <q-select filled class="col" emit-value map-options v-model="v$.menuNode.staticPage.$model" :options="staticPagesList" option-label="name" option-value="name" :label="$t('managers.menuManagement.form.staticPage') + '*'" @update:model-value="onStaticPageSelect()">
+                        <template #no-option>
+                            <div class="row justify-center q-pa-sm">{{ $t('common.info.noAvailableItems') }}</div>
+                        </template>
+                    </q-select>
+                </div>
 
-                        <kn-icon-picker v-if="chooseIconModalShown" :enable-base64="true" :current-icon="selectedIcon" @save="onChoosenIcon" @close="closeFontAwesomeSelectionModal"></kn-icon-picker>
-
-                        <div class="p-field p-mb-5">
-                            <div class="p-inputgroup">
-                                <span class="p-float-label">
-                                    <Dropdown
-                                        id="menuNodeContent"
-                                        v-model="v$.menuNode.menuNodeContent.$model"
-                                        :options="menuNodeContent"
-                                        option-label="name"
-                                        option-value="value"
-                                        class="p-dropdown p-component p-inputwrapper p-inputwrapper-filled kn-material-input"
-                                        @change="onMenuNodeChange(v$.menuNode.menuNodeContent)"
-                                    />
-                                    <label for="menuNodeContent">{{ $t('managers.menuManagement.form.menuNodeContent') }} *</label>
-                                </span>
-                            </div>
-                            <KnValidationMessages :v-comp="v$.menuNode.menuNodeContent" :additional-translate-params="{ fieldName: $t('managers.menuManagement.form.menuNodeContent') }"></KnValidationMessages>
-                        </div>
-
-                        <div class="p-field p-mb-5" :hidden="staticPageHidden">
-                            <div class="p-field">
-                                <div class="p-inputgroup">
-                                    <span class="p-float-label">
-                                        <Dropdown id="staticPage" v-model="v$.menuNode.staticPage.$model" :options="staticPagesList" option-label="name" option-value="name" class="p-dropdown p-component p-inputwrapper p-inputwrapper-filled kn-material-input" @change="onStaticPageSelect()" />
-                                        <label for="staticPage">{{ $t('managers.menuManagement.form.staticPage') }} *</label>
-                                    </span>
-                                </div>
-                                <KnValidationMessages :v-comp="v$.menuNode.staticPage" :additional-translate-params="{ fieldName: $t('managers.menuManagement.form.staticPage') }"></KnValidationMessages>
-                            </div>
-                        </div>
-
-                        <div class="p-field p-mb-5" :hidden="externalAppHidden">
-                            <div class="p-inputgroup">
-                                <span class="p-float-label">
-                                    <InputText id="externalApplicationUrl" v-model.trim="v$.menuNode.externalApplicationUrl.$model" type="text" class="p-inputtext p-component kn-material-input" @blur="onDataChange(v$.menuNode.externalApplicationUrl)" />
-                                    <label for="externalApplicationUrl">{{ $t('managers.menuManagement.form.externalApplicationUrl') }} *</label>
-                                </span>
-                            </div>
-                            <KnValidationMessages :v-comp="v$.menuNode.externalApplicationUrl" :additional-translate-params="{ fieldName: $t('managers.menuManagement.form.externalApplicationUrl') }"></KnValidationMessages>
-                        </div>
-
-                        <div :hidden="documentHidden">
-                            <div class="p-field p-mb-5">
-                                <div class="p-inputgroup">
-                                    <span class="p-float-label">
-                                        <InputText id="selectedDocument" v-model.trim="v$.menuNode.document.$model" type="text" class="p-inputtext p-component kn-material-input" @blur="onDataChange(v$.menuNode.document)" />
-                                        <InputText id="objId" v-model.trim="v$.menuNode.objId.$model" :hidden="true" type="text" class="p-inputtext p-component kn-material-input" @blur="onDataChange(v$.menuNode.objId)" />
-                                        <Button icon="pi pi-search" class="p-button" @click="openRelatedDocumentModal()" />
-                                        <label for="objId">{{ $t('managers.menuManagement.form.document') }} *</label>
-                                    </span>
-                                </div>
-                                <KnValidationMessages :v-comp="v$.menuNode.document" :additional-translate-params="{ fieldName: $t('managers.menuManagement.form.document') }"></KnValidationMessages>
-                            </div>
-
-                            <div class="p-field p-mb-5">
-                                <div class="p-inputgroup">
-                                    <span class="p-float-label">
-                                        <InputText id="objParameters" v-model.trim="v$.menuNode.objParameters.$model" type="text" class="p-inputtext p-component kn-material-input" @blur="onDataChange(v$.menuNode.objParameters)" />
-                                        <label for="objParameters">{{ $t('managers.menuManagement.form.objParameters') }}</label>
-                                    </span>
-                                </div>
-                                <KnValidationMessages :v-comp="v$.menuNode.objParameters" :additional-translate-params="{ fieldName: $t('managers.menuManagement.form.objParameters') }"></KnValidationMessages>
-                            </div>
-
-                            <Dialog v-model:visible="displayModal" :header="$t('managers.menuManagement.selectDocument')" :style="{ width: '50vw' }" :modal="true">
+                <div v-if="!documentHidden" class="row q-col-gutter-sm">
+                    <q-input
+                        class="col"
+                        filled
+                        readonly
+                        v-model="v$.menuNode.document.$model"
+                        :error="v$.menuNode.document.$invalid && v$.menuNode.document.$dirty"
+                        :error-message="$t('common.validation.required', { fieldName: $t('managers.menuManagement.form.document') })"
+                        :label="$t('managers.menuManagement.form.document') + '*'"
+                        @update:model-value="onDataChange(v$.menuNode.document)"
+                    >
+                        <template v-slot:before>
+                            <q-btn flat icon="find_in_page" size="lg" @click="openRelatedDocumentModal()">
+                                <q-tooltip :delay="500">{{ $t('managers.menuManagement.selectDocument') }}</q-tooltip>
+                            </q-btn>
+                        </template>
+                    </q-input>
+                    <q-input class="hidden" v-model="v$.menuNode.objId.$model" @update:model-value="onDataChange(v$.menuNode.objId)" />
+                    <q-input class="col" filled v-model="v$.menuNode.objParameters.$model" :label="$t('managers.menuManagement.form.objParameters')" @update:model-value="onDataChange(v$.menuNode.objParameters)" />
+                    <q-dialog v-model="displayModal">
+                        <q-card style="min-width: 50vw; max-width: 60vw">
+                            <q-card-section>
                                 <RelatedDocumentList :loading="loading" data-test="related-documents-list" @selectedDocument="onDocumentSelect"></RelatedDocumentList>
-                            </Dialog>
-                        </div>
+                            </q-card-section>
+                        </q-card>
+                    </q-dialog>
+                </div>
 
-                        <div class="p-field p-mb-5" :hidden="functionalityHidden">
-                            <div class="p-inputgroup">
-                                <span class="p-float-label">
-                                    <Dropdown
-                                        id="functionality"
-                                        v-model="v$.menuNode.functionality.$model"
-                                        :options="menuNodeContentFunctionalies"
-                                        option-label="name"
-                                        option-value="value"
-                                        class="p-dropdown p-component p-inputwrapper p-inputwrapper-filled kn-material-input"
-                                        @change="onFunctionalityTypeChange(v$.menuNode.functionality)"
-                                    />
-                                    <label for="functionality">{{ $t('managers.menuManagement.form.functionality') }}*</label>
-                                </span>
-                            </div>
-                            <KnValidationMessages :v-comp="v$.menuNode.functionality" :additional-translate-params="{ fieldName: $t('managers.menuManagement.form.functionality') }"></KnValidationMessages>
-                        </div>
+                <div v-if="!externalAppHidden" class="row q-col-gutter-sm">
+                    <q-input
+                        class="col"
+                        filled
+                        v-model="v$.menuNode.externalApplicationUrl.$model"
+                        :error="v$.menuNode.externalApplicationUrl.$invalid && v$.menuNode.externalApplicationUrl.$dirty"
+                        :error-message="$t('common.validation.required', { fieldName: $t('managers.menuManagement.form.externalApplicationUrl') })"
+                        :label="$t('managers.menuManagement.form.externalApplicationUrl') + '*'"
+                        @update:model-value="onDataChange(v$.menuNode.externalApplicationUrl)"
+                    />
+                </div>
 
-                        <div class="p-field p-mb-5" :hidden="workspaceInitialHidden">
-                            <div class="p-inputgroup">
-                                <span class="p-float-label">
-                                    <Dropdown id="initialPath" v-model="v$.menuNode.initialPath.$model" :options="workspaceOptions" option-label="name" option-value="value" class="p-dropdown p-component p-inputwrapper p-inputwrapper-filled kn-material-input" />
-                                    <label for="initialPath">{{ $t('managers.menuManagement.form.initialPath') }} *</label>
-                                </span>
-                            </div>
-                        </div>
+                <div v-if="!functionalityHidden" class="row q-col-gutter-sm">
+                    <q-select
+                        filled
+                        class="col"
+                        emit-value
+                        map-options
+                        v-model="v$.menuNode.functionality.$model"
+                        :options="menuNodeContentFunctionalies"
+                        option-label="name"
+                        option-value="value"
+                        :label="$t('managers.menuManagement.form.functionality') + '*'"
+                        @update:model-value="onFunctionalityTypeChange(v$.menuNode.functionality)"
+                    ></q-select>
 
-                        <div class="p-field p-mb-5" :hidden="documentTreeHidden">
-                            <p>Open document browser on {{ v$.menuNode.initialPath.$model }}</p>
-                            <DocumentBrowserTree :selected="v$.menuNode.initialPath.$model" :loading="loading" @selectedDocumentNode="onSelectedDocumentNode"></DocumentBrowserTree>
-                        </div>
-                    </form>
-                </template>
-            </Card>
-        </div>
-        <div class="p-col-12">
-            <RolesCard :hidden="hideForm" :roles-list="roles" :parent-node-roles="parentNodeRoles" :selected="selectedMenuNode.roles" @changed="setSelectedRoles($event)"></RolesCard>
-        </div>
+                    <q-input v-if="!documentTreeHidden" class="col" readonly filled v-model="v$.menuNode.initialPath.$model" :label="$t('managers.menuManagement.form.initialPath', { functionality: $t('documentBrowser.title') })" @update:model-value="onDataChange(v$.menuNode.initialPath.$model)">
+                        <template v-slot:before>
+                            <q-btn flat icon="folder_open" size="lg" @click="openDocumentBrowserSelector()">
+                                <q-tooltip :delay="500">{{ $t('managers.menuManagement.form.initialPathDialog', { functionality: $t('workspace.menuLabels.menuTitle') }) }}</q-tooltip>
+                            </q-btn>
+                        </template>
+                    </q-input>
+                    <q-dialog v-model="showDocumentBrowserFolders">
+                        <q-card style="min-width: 50vw; max-width: 60vw">
+                            <q-card-section>
+                                <DocumentBrowserTree :selected="v$.menuNode.initialPath.$model" :loading="loading" @selectedDocumentNode="onSelectedDocumentNode"></DocumentBrowserTree>
+                            </q-card-section>
+                        </q-card>
+                    </q-dialog>
+
+                    <q-select
+                        v-if="!workspaceInitialHidden"
+                        filled
+                        class="col"
+                        emit-value
+                        map-options
+                        v-model="v$.menuNode.initialPath.$model"
+                        :options="workspaceOptions"
+                        option-label="name"
+                        option-value="value"
+                        :label="$t('managers.menuManagement.form.initialPath', { functionality: $t('workspace.menuLabels.menuTitle') })"
+                    ></q-select>
+                </div>
+            </template>
+        </Card>
+        <RolesCard :hidden="hideForm" :roles-list="roles" :parent-node-roles="parentNodeRoles" :selected="selectedMenuNode.roles" @changed="setSelectedRoles($event)"></RolesCard>
     </div>
 </template>
 
@@ -204,12 +222,16 @@ export default defineComponent({
             workspaceOptions: MenuConfigurationDescriptor.workspaceOptions,
             menuNodeContentFunctionalies: MenuConfigurationDescriptor.menuNodeContentFunctionalies,
             menuManagementElementDetailDescriptor: MenuManagementElementDetailDescriptor.importantfields,
-            nodes: [] as iMenuNode[]
+            nodes: [] as iMenuNode[],
+            showDocumentBrowserFolders: false as boolean
         }
     },
     computed: {
         formValid(): any {
             return this.v$.$invalid
+        },
+        iconToShow(): string {
+            return this.menuNode.icon ? this.menuNode.icon.className : 'bookmark_add'
         }
     },
     watch: {
@@ -226,6 +248,11 @@ export default defineComponent({
         },
         menuNodes() {
             this.loadNodes()
+        },
+        'menuNode.functionality': {
+            handler: function (newFunctionality, oldFunctionality) {
+                if (oldFunctionality && newFunctionality != oldFunctionality) this.menuNode.initialPath = null
+            }
         }
     },
     validations() {
@@ -248,6 +275,12 @@ export default defineComponent({
         },
         openRelatedDocumentModal() {
             this.displayModal = true
+        },
+        openDocumentBrowserSelector() {
+            this.showDocumentBrowserFolders = true
+        },
+        closeDocumentBrowserFolders() {
+            this.showDocumentBrowserFolders = false
         },
         closeRelatedDocumentModal() {
             this.displayModal = false
@@ -350,7 +383,7 @@ export default defineComponent({
             }
             this.selectedIcon = base64image
         },
-        onChoosenIcon(choosenIcon) {
+        onChosenIcon(choosenIcon) {
             if (choosenIcon.category === 'custom') {
                 this.setBase64Image(choosenIcon)
             } else {
@@ -358,7 +391,6 @@ export default defineComponent({
 
                 this.menuNode.custIcon = null
                 this.selectedIcon = this.menuNode.icon.className
-                this.menuNode.icon.id = choosenIcon.id
             }
 
             this.closeFontAwesomeSelectionModal()
@@ -482,12 +514,18 @@ export default defineComponent({
 
         onSelectedDocumentNode(documentInitialPath) {
             this.menuNode.initialPath = documentInitialPath
+            this.closeDocumentBrowserFolders()
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
+.clearIcon {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+}
 .table-header {
     display: flex;
     align-items: center;

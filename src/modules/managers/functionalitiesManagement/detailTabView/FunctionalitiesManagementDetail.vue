@@ -2,7 +2,7 @@
     <q-toolbar class="kn-toolbar kn-toolbar--secondary">
         <q-toolbar-title>{{ selectedFolder.name }}</q-toolbar-title>
 
-        <q-btn flat round dense icon="save" :disabled="buttonDisabled" data-test="submit-button" @click="handleSubmit">
+        <q-btn flat round dense icon="save" :disable="buttonDisabled" data-test="submit-button" @click="handleSubmit">
             <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
         </q-btn>
         <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeTemplate">

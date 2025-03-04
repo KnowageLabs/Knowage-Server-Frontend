@@ -147,6 +147,7 @@
             "dataLoading": "Loading data. Please wait.",
             "emptySearch": "The search returns no data",
             "info": "Info",
+            "noAvailableItems": "No available items",
             "noDataFound": "No data found",
             "noElementSelected": "No element selected",
             "noImageFound": "No image available"
@@ -2639,6 +2640,7 @@
             "moveDown": "Move down",
             "moveUp": "Move up",
             "roles": "Roles",
+            "swapParent": "Swap with parent",
             "table": {
                 "creationHeader": "Creation",
                 "developmentHeader": "Development",
@@ -2922,13 +2924,14 @@
                 "document": "Related document",
                 "externalApplicationUrl": "Application's url",
                 "functionality": "Choose Functionality",
-                "initialPath": "Open workspace on:",
+                "initialPath": "Open {functionality} on:",
+                "initialPathDialog": "Open {functionality} folder selector",
                 "menuNodeContent": "Menu node content",
                 "name": "Name",
                 "objParameters": "Document parameters",
                 "staticPage": "HTML Page"
             },
-            "hint": "Menu configuration allows you to manage menu entries.",
+            "hint": "Menu configuration allows you to manage menu entries. You can create a menu item, set the name, the description and the icon that will be visible in the side menu. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "info": {
                 "createMessage": "Menu item created",
                 "createTitle": "Create menu item",
@@ -2942,6 +2945,7 @@
                 "updateMessage": "Menu item updated",
                 "updateTitle": "Update menu item"
             },
+            "noRoles": "No roles available. Check if the one you are searching for is present in the parent menu object",
             "roles": "Roles",
             "selectDocument": "Select document",
             "title": "List of menus"

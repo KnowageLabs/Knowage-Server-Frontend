@@ -116,6 +116,7 @@
             "dataLoading": "caricamento dati. attendere prego.",
             "emptySearch": "la ricerca non ritorna dati",
             "info": "informazioni",
+            "noAvailableItems": "Nessun elemento disponibile",
             "noDataFound": "nessun dato trovato",
             "noElementSelected": "nessun elemento selezionato",
             "noImageFound": "Nessuna immagine disponibile"
@@ -2352,13 +2353,14 @@
             }
         },
         "functionalitiesManagement": {
-            "creation": "Creation",
-            "development": "Development",
-            "execution": "Execution",
+            "creation": "Creazione",
+            "development": "Sviluppo",
+            "execution": "Esecuzione",
             "hint": "The functionalities management page allows you to create folders to contain the users reports and documents. It's also possible to set the folders visibility depending on the users roles. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
-            "moveDown": "Move down",
-            "moveUp": "Move up",
-            "roles": "Roles",
+            "moveDown": "Sposta giù",
+            "moveUp": "Sposta su",
+            "roles": "Ruoli",
+            "swapParent": "Inverti con nodo padre",
             "table": {
                 "creationHeader": "Creation",
                 "developmentHeader": "Development",
@@ -2620,13 +2622,14 @@
                 "document": "Related document",
                 "externalApplicationUrl": "Application's url",
                 "functionality": "Choose Functionality",
-                "initialPath": "Open workspace on:",
+                "initialPath": "Apri il {functionality} a:",
+                "initialPathDialog": "Apri il selettore cartelle del {functionality}",
                 "menuNodeContent": "Menu node content",
                 "name": "Name",
                 "objParameters": "Document parameters",
                 "staticPage": "HTML Page"
             },
-            "hint": "Menu configuration allows you to manage menu entries.",
+            "hint": "Menu configuration allows you to manage menu entries. You can create a menu item, set the name, the description and the icon that will be visible in the side menu. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "info": {
                 "createMessage": "Menu item created",
                 "createTitle": "Create menu item",
@@ -2640,7 +2643,8 @@
                 "updateMessage": "Menu item updated",
                 "updateTitle": "Update menu item"
             },
-            "roles": "Roles",
+            "noRoles": "Nessun ruolo disponibile. Controlla se lo stesso è presente nel menu padre",
+            "roles": "Ruoli",
             "selectDocument": "Select document",
             "title": "List of menus"
         },
