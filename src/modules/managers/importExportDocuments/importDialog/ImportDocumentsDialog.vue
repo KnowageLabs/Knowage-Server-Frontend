@@ -31,7 +31,7 @@
                                 <Dropdown id="datasource" v-model="importData.roles.associatedRoles[expRol.id]" class="datasource-dropdown kn-material-input" panel-class="import-export-dropdown" style="min-width: 50%" :options="importData.roles.currentRoles" option-label="name" show-clear>
                                     <template #option="slotProps">
                                         <div :class="[{ 'datasource-dropdown-option': currentRoleIsSelectable(slotProps.option, expRol) }]">
-                                            <span v-if="currentRoleIsSelectable(slotProps.option, expRol)">{{ $t(slotProps.option.name) }} </span>
+                                            <span v-if="currentRoleIsSelectable(slotProps.option, expRol)">{{ $t(slotProps.option.name) }}</span>
                                         </div>
                                     </template>
                                 </Dropdown>
@@ -55,13 +55,15 @@
                                     <q-card-section>
                                         <span class="p-d-flex p-flex-column p-m-0">
                                             <span>
-                                                <b>{{ $t('common.description') }}: </b>{{ expEngines.description }}
+                                                <b>{{ $t('common.description') }}:</b>
+                                                {{ expEngines.description }}
                                             </span>
                                             <span>
-                                                <b>{{ $t('common.url') }}: </b>{{ expEngines.url }}
+                                                <b>{{ $t('common.url') }}:</b>
+                                                {{ expEngines.url }}
                                             </span>
                                             <span>
-                                                <b>{{ $t('managers.importExportDocs.driverName') }}: </b>
+                                                <b>{{ $t('managers.importExportDocs.driverName') }}:</b>
                                                 {{ expEngines.driverName }}
                                             </span>
                                         </span>
@@ -94,19 +96,25 @@
                                     <q-card-section>
                                         <span class="p-d-flex p-flex-column p-m-0">
                                             <span>
-                                                <b>{{ $t('common.type') }}: </b>
+                                                <b>{{ $t('common.type') }}:</b>
                                                 {{ expDatasources.jndi != undefined && expDatasources.jndi != '' ? '(jndi)' : '(jdbc)' }}
                                             </span>
                                             <span>
-                                                <b>{{ $t('common.description') }}: </b>{{ expDatasources.descr }}
+                                                <b>{{ $t('common.description') }}:</b>
+                                                {{ expDatasources.descr }}
                                             </span>
                                             <span>
-                                                <b> {{ $t('common.driver') }}: </b>{{ expDatasources.driver }}
+                                                <b>{{ $t('common.driver') }}:</b>
+                                                {{ expDatasources.driver }}
                                             </span>
                                             <span>
-                                                <b>{{ $t('common.url') }}: </b>{{ expDatasources.urlConnection }}
+                                                <b>{{ $t('common.url') }}:</b>
+                                                {{ expDatasources.urlConnection }}
                                             </span>
-                                            <span><b>JNDI: </b>{{ expDatasources.jndi }}</span>
+                                            <span>
+                                                <b>JNDI:</b>
+                                                {{ expDatasources.jndi }}
+                                            </span>
                                         </span>
                                     </q-card-section>
                                 </q-card>
@@ -138,13 +146,16 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.url') }}: </b>{{ doc.label }}
+                                                    <b>{{ $t('common.url') }}:</b>
+                                                    {{ doc.label }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ doc.name }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ doc.name }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ doc.description }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ doc.description }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -155,13 +166,16 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.url') }}: </b>{{ doc.engine.label }}
+                                                    <b>{{ $t('common.url') }}:</b>
+                                                    {{ doc.engine.label }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ doc.engine.name }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ doc.engine.name }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ doc.engine.description }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ doc.engine.description }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -173,7 +187,7 @@
                 </div>
 
                 <div v-if="importData.summary.SbiObjects.length != 0">
-                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">Documents that will be imported </span>
+                    <span class="p-d-flex p-flex-row p-ai-center p-jc-center kn-toolbar p-m-0 p-p-0">Documents that will be imported</span>
                     <ul class="roles-list p-mt-0">
                         <li v-for="(item, index) in importData.summary.SbiObjects" :key="index">
                             <form class="p-fluid p-formgrid p-grid p-m-1">
@@ -182,10 +196,12 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.name') }}: </b>{{ item.biobjExp.label }}
+                                                    <b>{{ $t('common.name') }}:</b>
+                                                    {{ item.biobjExp.label }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ item.biobjExp.label }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ item.biobjExp.label }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -196,10 +212,12 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.name') }}: </b>{{ item.biobjExist.name }}
+                                                    <b>{{ $t('common.name') }}:</b>
+                                                    {{ item.biobjExist.name }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ item.biobjExist.description }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ item.biobjExist.description }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -220,10 +238,12 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.name') }}: </b>{{ item.lovExp.name }}
+                                                    <b>{{ $t('common.name') }}:</b>
+                                                    {{ item.lovExp.name }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ item.lovExp.description }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ item.lovExp.description }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -234,10 +254,12 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.name') }}: </b>{{ item.lovExist.name }}
+                                                    <b>{{ $t('common.name') }}:</b>
+                                                    {{ item.lovExist.name }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ item.lovExist.description }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ item.lovExist.description }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -258,13 +280,16 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.name') }}: </b>{{ item.functExp.name }}
+                                                    <b>{{ $t('common.name') }}:</b>
+                                                    {{ item.functExp.name }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.path') }}: </b>{{ item.functExp.path }}
+                                                    <b>{{ $t('common.path') }}:</b>
+                                                    {{ item.functExp.path }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ item.functExp.description }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ item.functExp.description }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -275,13 +300,16 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.name') }}: </b>{{ item.functExist.name }}
+                                                    <b>{{ $t('common.name') }}:</b>
+                                                    {{ item.functExist.name }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.path') }}: </b>{{ item.functExist.path }}
+                                                    <b>{{ $t('common.path') }}:</b>
+                                                    {{ item.functExist.path }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ item.functExist.description }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ item.functExist.description }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -302,10 +330,12 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.name') }}: </b>{{ item.paramExp.label }}
+                                                    <b>{{ $t('common.name') }}:</b>
+                                                    {{ item.paramExp.label }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ item.paramExp.label }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ item.paramExp.label }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -316,10 +346,12 @@
                                         <q-card-section>
                                             <span class="p-d-flex p-flex-column p-m-0">
                                                 <span>
-                                                    <b>{{ $t('common.name') }}: </b>{{ item.paramExist.name }}
+                                                    <b>{{ $t('common.name') }}:</b>
+                                                    {{ item.paramExist.name }}
                                                 </span>
                                                 <span>
-                                                    <b>{{ $t('common.description') }}: </b>{{ item.paramExist.description }}
+                                                    <b>{{ $t('common.description') }}:</b>
+                                                    {{ item.paramExist.description }}
                                                 </span>
                                             </span>
                                         </q-card-section>
@@ -335,7 +367,7 @@
                     <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
                     <span class="p-ml-auto">
                         <Button v-if="step > 1" class="kn-button kn-button--secondary" :label="$t('common.back')" @click=";($refs.stepper as any).previous()" />
-                        <Button class="kn-button kn-button--primary p-ml-2" :disabled="disableStep1" :label="step === 5 ? $t('common.finish') : $t('common.next')" @click="goToNextStep" />
+                        <Button class="kn-button kn-button--primary p-ml-2" :disabled="disableStep1 || disableStep4" :label="step === 5 ? $t('common.finish') : $t('common.next')" @click="goToNextStep" />
                     </span>
                 </q-stepper-navigation>
             </template>
@@ -373,6 +405,8 @@ export default defineComponent({
     computed: {
         disableStep1() {
             if (this.step === 1) return this.uploadedFiles.length == 0
+        },
+        disableStep4() {
             if (this.step === 4) return this.hasEmptyDatasource(this.importData.datasources.associatedDatasources)
         }
     },
@@ -587,6 +621,7 @@ export default defineComponent({
                 })
         },
         hasEmptyDatasource(associatedDatasources) {
+            if (Object.keys(associatedDatasources).length === 0) return true
             for (const key in associatedDatasources) {
                 if (associatedDatasources.hasOwnProperty(key)) {
                     const datasource = associatedDatasources[key]
