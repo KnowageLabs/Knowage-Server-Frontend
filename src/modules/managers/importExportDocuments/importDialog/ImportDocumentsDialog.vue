@@ -338,7 +338,7 @@
                     <Button class="p-button-text kn-button" :label="$t('common.cancel')" @click="closeDialog" />
                     <span class="p-ml-auto">
                         <Button v-if="step > 1" class="kn-button kn-button--secondary" :label="$t('common.back')" @click=";($refs.stepper as any).previous()" />
-                        <Button class="kn-button kn-button--primary p-ml-2" :disabled="disableStep1" :label="step === 5 ? $t('common.finish') : $t('common.next')" @click="goToNextStep" />
+                        <Button class="kn-button kn-button--primary p-ml-2" :disabled="disableStep1 || disableStep4" :label="step === 5 ? $t('common.finish') : $t('common.next')" @click="goToNextStep" />
                     </span>
                 </q-stepper-navigation>
             </template>
@@ -376,6 +376,8 @@ export default defineComponent({
     computed: {
         disableStep1() {
             if (this.step === 1) return this.uploadedFiles.length == 0
+        },
+        disableStep4() {
             if (this.step === 4) return this.hasEmptyDatasource(this.importData.datasources.associatedDatasources)
         }
     },
@@ -588,6 +590,7 @@ export default defineComponent({
                 })
         },
         hasEmptyDatasource(associatedDatasources) {
+            if (Object.keys(associatedDatasources).length === 0) return true
             for (const key in associatedDatasources) {
                 if (associatedDatasources.hasOwnProperty(key)) {
                     const datasource = associatedDatasources[key]
