@@ -40,7 +40,7 @@
                                 </q-btn>
                                 <q-btn v-if="menuNode?.icon?.className || menuNode?.custIcon?.src" dense flat rounded @click.stop="clearSelectedIcon()" class="clearIcon">
                                     <q-icon name="highlight_off" size="sm" />
-                                    <q-tooltip :delay="500">{{ $t('managers.menuManagement.clearIcon') }}</q-tooltip>
+                                    <q-tooltip :delay="500">{{ $t('common.clear') }}</q-tooltip>
                                 </q-btn>
                             </div>
                         </template>
@@ -188,16 +188,13 @@ import MenuConfigurationDescriptor from '../MenuManagementDescriptor.json'
 import MenuConfigurationValidationDescriptor from './MenuManagementValidationDescriptor.json'
 import MenuManagementElementDetailDescriptor from './MenuManagementElementDetailDescriptor.json'
 import mainStore from '../../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'profile-attributes-detail',
     components: { Dropdown, DocumentBrowserTree, RelatedDocumentList, KnIconPicker, KnValidationMessages, Dialog, RolesCard },
     props: { roles: { type: Array }, selectedMenuNode: { type: Object, required: true }, selectedRoles: { type: Array }, staticPagesList: { type: Array }, menuNodes: { type: Array }, parentNodeRoles: { type: Array } },
     emits: ['refreshRecordSet', 'closesForm', 'dataChanged'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             v$: useValidate() as any,
@@ -241,11 +238,6 @@ export default defineComponent({
                 this.loadNode(node)
             }
         },
-        selectedRoles: {
-            handler: function (roles) {
-                this.menuNode.roles = roles
-            }
-        },
         menuNodes() {
             this.loadNodes()
         },
@@ -267,6 +259,7 @@ export default defineComponent({
         }
     },
     methods: {
+        ...mapActions(mainStore, ['setInfo', 'setError']),
         loadNodes() {
             this.nodes = this.menuNodes as iMenuNode[]
         },
@@ -402,7 +395,7 @@ export default defineComponent({
         },
         async save() {
             if (this.checkIfNodeExists()) {
-                this.store.setError({ title: this.$t('managers.menuManagement.info.errorTitle'), msg: this.$t('managers.menuManagement.info.duplicateErrorMessage') })
+                this.setError({ title: this.$t('managers.menuManagement.info.errorTitle'), msg: this.$t('managers.menuManagement.info.duplicateErrorMessage') })
                 return
             }
 
@@ -416,9 +409,9 @@ export default defineComponent({
 
             if (response.status == 200) {
                 if (response.data.errors) {
-                    this.store.setError({ title: this.$t('managers.menuManagement.info.errorTitle'), msg: this.$t('managers.menuManagement.info.errorMessage') })
+                    this.setError({ title: this.$t('managers.menuManagement.info.errorTitle'), msg: this.$t('managers.menuManagement.info.errorMessage') })
                 } else {
-                    this.store.setInfo({ title: this.$t('managers.menuManagement.info.saveTitle'), msg: this.$t('managers.menuManagement.info.saveMessage') })
+                    this.setInfo({ title: this.$t('managers.menuManagement.info.saveTitle'), msg: this.$t('managers.menuManagement.info.saveMessage') })
                 }
             }
             this.$emit('refreshRecordSet')

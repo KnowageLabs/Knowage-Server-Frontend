@@ -70,7 +70,7 @@ export default defineComponent({
             }
         }
     },
-    created() {
+    updated() {
         if (this.selected) {
             this.selectedRoles = this.selected
         }
