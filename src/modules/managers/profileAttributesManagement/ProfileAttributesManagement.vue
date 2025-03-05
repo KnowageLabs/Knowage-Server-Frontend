@@ -1,23 +1,21 @@
 <template>
-    <div class="kn-page kn-width-full-with-menu">
-        <div class="kn-page-content p-grid p-m-0">
-            <div class="kn-list--column p-col-4 p-sm-4 p-md-3 p-p-0">
-                <Toolbar class="kn-toolbar kn-toolbar--primary">
-                    <template #start>
-                        {{ $t('managers.profileAttributesManagement.title') }}
-                    </template>
-                    <template #end>
-                        <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
-                    </template>
-                </Toolbar>
-                <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <AttributesListBox :attributes="attributes" :loading="loading" data-test="profile-attributes-listbox" @deleteAttribute="onAttributeDelete" @selectedAttribute="onAttributeSelect"></AttributesListBox>
-            </div>
+    <div class="kn-page-content p-grid p-m-0">
+        <div class="kn-list--column p-col-4 p-sm-4 p-md-3 p-p-0">
+            <Toolbar class="kn-toolbar kn-toolbar--primary">
+                <template #start>
+                    {{ $t('managers.profileAttributesManagement.title') }}
+                </template>
+                <template #end>
+                    <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
+                </template>
+            </Toolbar>
+            <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
+            <AttributesListBox :attributes="attributes" :loading="loading" data-test="profile-attributes-listbox" @deleteAttribute="onAttributeDelete" @selectedAttribute="onAttributeSelect"></AttributesListBox>
+        </div>
 
-            <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0">
-                <KnHint v-if="hideForm" :title="'managers.profileAttributesManagement.title'" :hint="'managers.profileAttributesManagement.hint'"></KnHint>
-                <ProfileAttributesDetail v-if="!hideForm" :selected-attribute="attribute" @refreshRecordSet="loadAllAttributes" @closesForm="closeForm" @dataChanged="dirty = true"></ProfileAttributesDetail>
-            </div>
+        <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 column window-height">
+            <KnHint v-if="hideForm" :title="'managers.profileAttributesManagement.title'" :hint="'managers.profileAttributesManagement.hint'"></KnHint>
+            <ProfileAttributesDetail v-if="!hideForm" :selected-attribute="attribute" @refreshRecordSet="loadAllAttributes" @closesForm="closeForm" @dataChanged="dirty = true"></ProfileAttributesDetail>
         </div>
     </div>
 </template>

@@ -9,7 +9,7 @@
         </template>
         <template #content>
             <div class="row q-mb-sm">
-                <q-input dense outlined v-model="filter" class="col-4" :placeholder="$t('common.search')" data-test="search-input">
+                <q-input dense outlined square v-model="filter" class="col-4" :placeholder="$t('common.search')" data-test="search-input">
                     <template v-slot:prepend>
                         <q-icon name="search" />
                     </template>
