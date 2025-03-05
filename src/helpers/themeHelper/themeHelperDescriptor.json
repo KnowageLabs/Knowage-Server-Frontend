@@ -283,6 +283,11 @@
                 "type": "text"
             },
             {
+                "key": "--kn-param-sidebar-icon-width",
+                "label": "Sidebar Button Width",
+                "type": "text"
+            },
+            {
                 "key": "--kn-param-sidebar-even-alternate-rows",
                 "label": "Sidebar Even Alternate Rows",
                 "type": "color"

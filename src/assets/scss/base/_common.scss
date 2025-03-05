@@ -221,7 +221,7 @@ body {
     top: 100px;
     z-index: 99;
     height: 50px;
-    width: 50px;
+    width: var(--kn-param-sidebar-icon-width) !important;
     border: none !important;
     right: -5px;
     border-top-left-radius: 50%;

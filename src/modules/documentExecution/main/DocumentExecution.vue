@@ -398,8 +398,9 @@ export default defineComponent({
             return /Android|iPhone/i.test(navigator.userAgent)
         },
         paramSidebarIcon() {
-            if (Object.keys(this.theme).length > 0) return this.parameterSidebarVisible ? this.theme['--kn-param-sidebar-expanded-icon'] : this.theme['--kn-param-sidebar-collapsed-icon']
-            else return this.parameterSidebarVisible ? this.defaultTheme['--kn-param-sidebar-expanded-icon'] : this.defaultTheme['--kn-param-sidebar-collapsed-icon']
+            const expandedIcon = getComputedStyle(document.documentElement).getPropertyValue('--kn-param-sidebar-expanded-icon')
+            const collapsedIcon = getComputedStyle(document.documentElement).getPropertyValue('--kn-param-sidebar-collapsed-icon')
+            return this.parameterSidebarVisible ? expandedIcon : collapsedIcon
         }
     },
     watch: {
