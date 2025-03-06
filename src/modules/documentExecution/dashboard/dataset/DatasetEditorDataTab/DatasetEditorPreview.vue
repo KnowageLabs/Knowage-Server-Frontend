@@ -1,51 +1,56 @@
 <template>
-    <Dialog :style="workspaceDataPreviewDialogDescriptor.dialog.style" :content-style="workspaceDataPreviewDialogDescriptor.dialog.contentStyle" :visible="visible" :modal="true" class="p-fluid kn-dialog--toolbar--primary" :closable="false">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary p-col-12" :style="mainDescriptor.style.maxWidth">
-                <template #start>
-                    <span>{{ dataset?.label }}</span>
-                </template>
-                <template #end>
-                    <Button class="kn-button p-button-text p-button-plain" :label="$t('common.close')" @click="closeDialog"></Button>
-                </template>
-            </Toolbar>
-        </template>
+    <q-dialog v-model="visible" ref="previewTable">
+        <q-card style="min-width: 40vw; max-width: 60vw; min-height: 40vh; max-height: 80vh" :style="cardStyle">
+            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                <q-toolbar-title v-touch-pan.prevent.mouse="onPan">{{ dataset?.label }}</q-toolbar-title>
 
-        <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar p-ml-2" data-test="progress-bar" />
+                <q-btn flat round dense icon="file_download" data-test="close-button">
+                    <q-menu auto-close>
+                        <q-list dense style="min-width: 100px">
+                            <q-item v-for="item in exporters" clickable @click="exportDataset(item)">
+                                <q-item-section>{{ item }}</q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-menu>
+                    <q-tooltip :delay="500" anchor="center left" self="center right" class="text-capitalize">{{ $t('common.export') }}</q-tooltip>
+                </q-btn>
 
-        <div class="p-d-flex p-flex-column kn-flex workspace-scrollable-table">
-            <Message v-if="errorMessageVisible" class="p-m-2" severity="warn" :closable="false" :style="mainDescriptor.style.message">
-                {{ errorMessage }}
-            </Message>
+                <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeDialog">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.close') }}</q-tooltip>
+                </q-btn>
+            </q-toolbar>
 
-            <DatasetPreviewTable v-else class="p-d-flex p-flex-column kn-flex p-m-2" :preview-columns="columns" :preview-rows="rows" :pagination="pagination" :preview-type="previewType" @pageChanged="updatePagination($event)" @sort="onSort" @filter="onFilter"></DatasetPreviewTable>
-        </div>
-    </Dialog>
+            <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar p-ml-2" data-test="progress-bar" />
+            <div class="p-d-flex p-flex-column kn-flex workspace-scrollable-table">
+                <q-banner v-if="errorMessageVisible" rounded dense class="bg-warning q-ma-sm text-center">
+                    <template v-slot:avatar>
+                        <q-icon name="warning" />
+                    </template>
+                    {{ errorMessage }}
+                </q-banner>
+                <DatasetPreviewTable v-else class="p-d-flex p-flex-column kn-flex p-m-2" :preview-columns="columns" :preview-rows="rows" :pagination="pagination" :preview-type="previewType" @pageChanged="updatePagination($event)" @sort="onSort" @filter="onFilter"></DatasetPreviewTable>
+            </div>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
-import Dialog from 'primevue/dialog'
 import DatasetPreviewTable from '@/modules/workspace/views/dataView/tables/DatasetPreviewTable.vue'
-import Message from 'primevue/message'
 import mainDescriptor from '@/modules/workspace/WorkspaceDescriptor.json'
 import workspaceDataPreviewDialogDescriptor from '@/modules/workspace/views/dataView/dialogs/WorkspaceDataPreviewDialogDescriptor.json'
-import mainStore from '../../../../../App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import mainStore from '@/App.store'
 
 import deepcopy from 'deepcopy'
+import { mapActions, mapState } from 'pinia'
 
 export default defineComponent({
     name: 'kpi-scheduler-save-dialog',
-    components: { Dialog, DatasetPreviewTable, Message },
+    components: { DatasetPreviewTable },
     props: { visible: { type: Boolean }, propDataset: { type: Object }, previewType: String, dashboardId: { type: String, required: true } },
     emits: ['close'],
-    setup() {
-        const store = mainStore()
-        const dashStore = dashboardStore()
-        return { store, dashStore }
-    },
     data() {
         return {
             mainDescriptor,
@@ -60,23 +65,33 @@ export default defineComponent({
             errorMessage: '',
             loading: false,
             filtersData: {} as any,
-            correctRolesForExecution: null
+            correctRolesForExecution: null,
+            exporters: ['csv', 'xls'] as any[],
+            postData: {} as any,
+            cardPos: { x: 0, y: 0 }
         }
     },
-    computed: {},
+    computed: {
+        ...mapState(dashboardStore, ['dashboards']),
+        cardStyle() {
+            return {
+                transform: `translate(${this.cardPos.x}px, ${this.cardPos.y}px)`
+            }
+        }
+    },
     watch: {
         async propDataset() {
             if (this.visible) await this.loadPreview()
         },
         async visible(value) {
             if (value) await this.loadPreview()
-        },
-        previewType() {}
+        }
     },
     async created() {
         await this.loadPreview()
     },
     methods: {
+        ...mapActions(mainStore, ['setInfo', 'setError']),
         async loadPreview() {
             this.loadDataset()
             await this.loadPreviewData()
@@ -86,18 +101,18 @@ export default defineComponent({
         },
         async loadPreviewData() {
             this.loading = true
-            const postData = { ...this.pagination }
+            this.postData = { ...this.pagination }
 
-            if (this.sort) postData.sorting = this.sort
-            if (this.filter) postData.filters = this.filter
+            if (this.sort) this.postData.sorting = this.sort
+            if (this.filter) this.postData.filters = this.filter
 
             if (this.dataset.pars && this.dataset.pars.length > 0) {
-                postData.pars = deepcopy(this.dataset.pars)
+                this.postData.pars = deepcopy(this.dataset.pars)
                 const paramRegex = /[^$P{]+(?=\})/
-                postData.pars.forEach((param: any) => {
+                this.postData.pars.forEach((param: any) => {
                     const matched = paramRegex.exec(param.value)
                     if (matched && matched[0]) {
-                        const documentDrivers = this.dashStore.dashboards[this.dashboardId].drivers
+                        const documentDrivers = this.dashboards[this.dashboardId].drivers
                         for (let index = 0; index < documentDrivers.length; index++) {
                             const driver = documentDrivers[index]
                             if (driver.urlName == matched[0]) {
@@ -113,11 +128,11 @@ export default defineComponent({
                 this.dataset.drivers.forEach((filter: any) => {
                     formattedDrivers[filter.urlName] = filter.parameterValue
                 })
-                postData.drivers = formattedDrivers
+                this.postData.drivers = formattedDrivers
             }
 
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${this.dataset.label}/preview`, postData, { headers: { 'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${this.dataset.label}/preview`, this.postData, { headers: { 'X-Disable-Errors': 'true' } })
                 .then((response: AxiosResponse<any>) => {
                     this.setPreviewColumns(response.data)
                     this.rows = response.data.rows
@@ -158,35 +173,32 @@ export default defineComponent({
             this.errorMessageVisible = false
             this.errorMessage = ''
             this.$emit('close')
+        },
+        async exportDataset(format) {
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${this.dataset.id}/${format}`, this.postData)
+                .then((response: AxiosResponse<any>) => {
+                    this.setInfo({
+                        title: this.$t('common.export'),
+                        msg: this.$t('common.exportSuccess')
+                    })
+                })
+                .catch((error) => {
+                    this.setError({
+                        title: this.$t('common.export'),
+                        msg: error.message
+                    })
+                })
+                .finally(() => {
+                    this.loading = false
+                })
+        },
+        onPan(event) {
+            this.cardPos = {
+                x: this.cardPos.x + event.delta.x,
+                y: this.cardPos.y + event.delta.y
+            }
         }
     }
 })
 </script>
-
-<style lang="scss">
-.workspace-full-screen-dialog.p-dialog {
-    max-height: 100%;
-}
-.workspace-full-screen-dialog .p-dialog .p-dialog-content {
-    padding: 0;
-}
-.workspace-scrollable-table {
-    height: 100%;
-    .p-datatable-wrapper {
-        position: relative;
-        flex: 1;
-        max-width: 96vw;
-        overflow-x: auto;
-    }
-    .p-datatable {
-        max-width: 96vw;
-    }
-}
-
-.workspace-parameter-sidebar {
-    top: 35px !important;
-}
-.workspace-parameter-sidebar .kn-parameter-sidebar-buttons {
-    margin-bottom: 45px !important;
-}
-</style>

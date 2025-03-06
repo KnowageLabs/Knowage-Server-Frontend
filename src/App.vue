@@ -250,7 +250,7 @@ export default defineComponent({
 
                 this.setDownloads(json.downloads)
 
-                if (!this.configurations['KNOWAGE.WEBSOCKET.DISABLE']) this.newsDownloadHandler()
+                if (!this.configurations['KNOWAGE.WEBSOCKET.DISABLE'] || this.configurations['KNOWAGE.WEBSOCKET.DISABLE'] === 'false') this.newsDownloadHandler()
                 this.loadInternationalization()
                 this.setLoading(false)
             })

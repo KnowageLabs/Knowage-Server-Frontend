@@ -4,7 +4,7 @@ import PrimeVue from 'primevue/config'
 import router from './App.routes.js'
 import store from './App.store.js'
 import { createPinia } from 'pinia'
-import { Quasar, Notify, Loading, Dialog } from 'quasar'
+import { Quasar, Notify, Loading, Dialog, TouchPan } from 'quasar'
 
 import VueAxios from 'vue-axios'
 import interceptor from './axios.js'
@@ -68,6 +68,9 @@ app.use(VueAxios, interceptor)
             Dialog,
             Notify,
             Loading
+        },
+        directives: {
+            TouchPan
         }
     })
 
