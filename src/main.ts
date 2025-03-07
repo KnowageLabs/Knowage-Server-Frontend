@@ -50,9 +50,9 @@ import { registerSW } from 'virtual:pwa-register'
 
 const pinia = createPinia()
 
-const app = await createApp(App).use(pinia)
+const app = createApp(App).use(pinia)
 
-const mainStore = await store()
+const mainStore = store()
 
 app.use(VueAxios, interceptor)
     .use(mainStore)
