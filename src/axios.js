@@ -81,9 +81,7 @@ axios.interceptors.response.use(
             if (error.response.status === 401) {
                 authHelper.handleUnauthorized()
             }
-            if (error.response.status === 500) {
-                console.log(500)
-
+            if ([400, 500].includes(error.response.status)) {
                 let obj = error.response.data
                 if (error.response.data instanceof ArrayBuffer) {
                     obj = JSON.parse(new TextDecoder().decode(error.response.data))
