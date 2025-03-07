@@ -251,9 +251,22 @@ export default defineComponent({
                 this.setDownloads(json.downloads)
 
                 if (!this.configurations['KNOWAGE.WEBSOCKET.DISABLE'] || this.configurations['KNOWAGE.WEBSOCKET.DISABLE'] === 'false') this.newsDownloadHandler()
-                this.loadInternationalization()
-                this.setLoading(false)
             })
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/news')
+                .then(async (newsResponse) => {
+                    await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/newsRead').then((newsReadResponse) => {
+                        const json = { news: { count: { total: 0, unread: 0 } } }
+                        json.news.count.total = newsResponse.data.length
+                        json.news.count.unread = newsResponse.data.length - newsReadResponse.data.length
+                        this.setNews(json.news)
+                    })
+                })
+                .catch((error) => {})
+                .finally(() => {
+                    this.loadInternationalization()
+                    this.setLoading(false)
+                })
         },
         async loadInternationalization() {
             let currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : this.locale
