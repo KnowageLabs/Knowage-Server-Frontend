@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import PrimeVue from 'primevue/config'
-import router from './App.routes.js'
 import store from './App.store.js'
 import { createPinia } from 'pinia'
 import { Quasar, Notify, Loading, Dialog, TouchPan } from 'quasar'
+import router from './App.routes.js'
 
 import VueAxios from 'vue-axios'
 import interceptor from './axios.js'
@@ -50,9 +50,9 @@ import { registerSW } from 'virtual:pwa-register'
 
 const pinia = createPinia()
 
-const app = createApp(App).use(pinia)
+const app = await createApp(App).use(pinia)
 
-const mainStore = store()
+const mainStore = await store()
 
 app.use(VueAxios, interceptor)
     .use(mainStore)
@@ -87,7 +87,9 @@ app.use(VueAxios, interceptor)
     .component('GridItem', GridItem)
     .component('AgGridVue', AgGridVue)
 
-    .mount('#app')
+router.isReady().then(() => {
+    app.mount('#app')
+})
 
 const updateSW = registerSW({
     onNeedRefresh() {

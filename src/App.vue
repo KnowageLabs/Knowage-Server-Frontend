@@ -85,9 +85,6 @@ export default defineComponent({
                 baseZIndex: typeof newWarning.baseZIndex == 'undefined' ? 0 : newWarning.baseZIndex,
                 life: typeof newWarning.duration == 'undefined' ? import.meta.env.VUE_APP_TOAST_DURATION : newWarning.duration
             })
-        },
-        user() {
-            /* if (!oldUser.userId && oldUser != newUser)  */
         }
     },
     async created() {

@@ -10,7 +10,6 @@ import overlayRoutes from '@/overlay/Overlay.routes.js'
 import authHelper from '@/helpers/commons/authHelper'
 import dataPreparationRoutes from '@/modules/workspace/dataPreparation/DataPreparation.routes.js'
 import { loadLanguageAsync } from '@/App.i18n.js'
-import { getCorrectRolesForExecutionForType } from '@/helpers/commons/roleHelper'
 import mainStore from '@/App.store'
 
 function sleep(ms) {
@@ -83,26 +82,21 @@ router.afterEach(async () => {
 
 router.beforeEach(async (to, from, next) => {
     const store = mainStore()
+
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
     const loggedIn = localStorage.getItem('token')
 
-    //const validRoutes = ['registry', 'document-composite', 'report', 'office-doc', 'olap', 'map', 'report', '/kpi/', 'dossier', 'etl']
-    //const invalidRoutes = ['olap-designer']
     if (to.meta.hideMenu || (to.query.menu != 'undefined' && to.query.menu === 'false')) {
         store.hideMainMenu()
     } else store.showMainMenu()
 
     if (checkRequired && !to.meta.public && !loggedIn && !to.query.public) {
         authHelper.handleUnauthorized()
-        /*} else if (validRoutes.some((el) => to.fullPath.includes(el)) && !invalidRoutes.some((el) => to.fullPath.includes(el))) {
-        getCorrectRolesForExecutionForType('DOCUMENT', null, to.params.id).then(() => {
-            next()
-        })*/
     } else {
         if (to.meta?.functionality) {
-            if (from.path === '/' && !store.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
+            if (from.path === '/' && !store.user?.functionalities?.includes(to.meta?.functionality)) await sleep(1000)
         }
-        if (to.meta?.functionality && !store.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
+        if (to.meta?.functionality && !store.user?.functionalities?.includes(to.meta?.functionality)) next({ replace: true, name: '404' })
         else next()
     }
 })
