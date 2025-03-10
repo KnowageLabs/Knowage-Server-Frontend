@@ -104,7 +104,7 @@ import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/Da
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
-import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
+import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -258,6 +258,8 @@ export default defineComponent({
             emitter.on('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
             emitter.on('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
             emitter.on('newDashboardClosed', this.onNewDashboardClosed)
+            emitter.on('selectionsChanged', this.onSelectionsChanged)
+            emitter.on('selectionsDeleted', this.onSelectionsChanged)
         },
         removeEventListeners() {
             emitter.off('openNewWidgetPicker', this.openNewWidgetPicker)
@@ -269,6 +271,8 @@ export default defineComponent({
             emitter.off('openSaveCurrentViewDialog', this.onOpenSaveCurrentViewDialog)
             emitter.off('openSavedViewsListDialog', this.onOpenSavedViewsListDialog)
             emitter.off('newDashboardClosed', this.onNewDashboardClosed)
+            emitter.off('selectionsChanged', this.onSelectionsChanged)
+            emitter.off('selectionsDeleted', this.onSelectionsChanged)
         },
         async getData() {
             this.loading = true
@@ -335,6 +339,9 @@ export default defineComponent({
                         break
                     case 'locale':
                         setVairableLocaleValue(variable)
+                        break
+                    case 'activeSelection':
+                        setVariableActiveSelectionValue(variable, this.dashboardId)
                 }
                 return variable
             })
@@ -535,6 +542,9 @@ export default defineComponent({
             if (!this.document || event !== this.dashboardId) return
             this.model = null
             this.emptyStoreValues()
+        },
+        onSelectionsChanged() {
+            this.updateVariableValuesWithDriverValuesAfterExecution()
         }
     }
 })

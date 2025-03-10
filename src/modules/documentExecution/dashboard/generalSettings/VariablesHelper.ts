@@ -1,5 +1,5 @@
-import { getFormattedDateTimeUsingToLocaleString, getLocale } from '@/helpers/commons/localeHelper'
-import { IDashboardDriver, IDataset, IVariable } from '../Dashboard'
+import { fallbackLocale, getFormattedDateTimeUsingToLocaleString, getLocale } from '@/helpers/commons/localeHelper'
+import { IDashboardDriver, IDataset, ISelection, IVariable } from '../Dashboard'
 import { getVariableData } from '../DataProxyHelper'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { DateTime } from 'luxon'
@@ -45,26 +45,34 @@ export const setVariableExectuionTimeValue = (variable: IVariable, dashboardId: 
     const executionTime = dashStore.getExecutionTime(dashboardId) as Date
     if (!executionTime) return
 
-    const executionTimeValue = getFormattedDateTimeUsingToLocaleString('LTS', DateTime.fromJSDate(executionTime))
+    const baseLocale = getLocale()?.split('_')[0] ?? fallbackLocale
+    const executionTimeValue = getFormattedDateTimeUsingToLocaleString('LTS', DateTime.fromJSDate(executionTime).setLocale(baseLocale))
     variable.value = executionTimeValue
     variable.executionTime = executionTimeValue
 }
 
 export const setVairableExecutionDateValue = (variable: IVariable, dashboardId: string) => {
-    console.log('--- setVairableExecutionDateValue: ', variable)
     const executionTime = dashStore.getExecutionTime(dashboardId) as Date
     if (!executionTime) return
 
-    const executionTimeValue = getFormattedDateTimeUsingToLocaleString('LL', DateTime.fromJSDate(executionTime))
+    const baseLocale = getLocale()?.split('_')[0] ?? fallbackLocale
+    const executionTimeValue = getFormattedDateTimeUsingToLocaleString('LL', DateTime.fromJSDate(executionTime).setLocale(baseLocale))
     variable.value = executionTimeValue
     variable.executionDate = executionTimeValue
 }
 
 export const setVairableLocaleValue = (variable: IVariable) => {
-    console.log('--- setVairableLocaleValue: ', variable)
     const locale = getLocale()
     if (!locale) return
 
     variable.value = locale
     variable.locale = locale
+}
+
+export const setVariableActiveSelectionValue = (variable: IVariable, dashboardId: string) => {
+    const activeSelections = dashStore.getSelections(dashboardId)
+    variable.value = ''
+    if (!variable.activeSelectionColumn || !activeSelections) return
+    const selection = activeSelections.find((activeSelection: ISelection) => activeSelection.datasetId === variable.activeSelectionDataset && activeSelection.columnName === variable.activeSelectionColumn)
+    if (selection) variable.value = selection.value.join(', ')
 }

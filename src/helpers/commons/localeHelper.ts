@@ -5,7 +5,7 @@ import store from '@/App.store.js'
 import formats from '@/helpers/commons/localeDateFormats.json'
 import timezones from '@/helpers/commons/localeTimeZones.json'
 
-let fallbackLocale = 'en_US'
+export let fallbackLocale = 'en_US'
 
 export function getLocale(js?: boolean): string {
     let locale = ''

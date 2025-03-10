@@ -129,7 +129,7 @@ const store = defineStore('dashboardStore', {
             }
             emitter.emit('selectionsDeleted', removedSelections)
         },
-        getDashboardDatasets(dashboardId: number) {
+        getDashboardDatasets(dashboardId: string) {
             return this.dashboards[dashboardId]?.configuration?.datasets
         },
         getAllDatasets() {

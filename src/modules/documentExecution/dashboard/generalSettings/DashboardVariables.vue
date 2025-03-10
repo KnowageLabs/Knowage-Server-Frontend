@@ -5,6 +5,10 @@
 
         <KnHint v-if="variables.length == 0" class="p-as-center" :title="'common.variables'" :hint="'dashboard.generalSettings.variablesHint'"></KnHint>
 
+        <div class="p-col-12">
+            {{ selectedDatasetOptions }}
+        </div>
+
         <div v-for="(variable, index) in variables" :key="index" class="p-fluid p-formgrid p-grid p-m-3" style="gap: 5px">
             <div class="p-col-12">
                 {{ variable }}
@@ -66,6 +70,19 @@
                 </span>
             </div>
 
+            <div v-if="variable.type === 'activeSelection'" class="p-field kn-flex">
+                <span class="p-float-label">
+                    <Dropdown v-model="variable.activeSelectionDataset" class="kn-material-input" :options="selectedDatasetOptions" option-label="label" option-value="id" @change="onActiveSelectionDatasetChanged(variable)"></Dropdown>
+                    <label class="kn-material-input-label">{{ $t('common.dataset') }}</label>
+                </span>
+            </div>
+            <div v-if="variable.type === 'activeSelection'" class="p-field kn-flex">
+                <span class="p-float-label">
+                    <Dropdown v-model="variable.activeSelectionColumn" class="kn-material-input" :options="getSelectionDatasetColumnOptions(variable)" @change="onActiveSelectionColumnChanged(variable)"></Dropdown>
+                    <label class="kn-material-input-label">{{ $t('common.column') }}</label>
+                </span>
+            </div>
+
             <Button v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-mt-1" data-test="delete-button" @click="removeVariable(index)" />
         </div>
     </div>
@@ -81,7 +98,7 @@ import KnHint from '@/components/UI/KnHint.vue'
 import descriptor from './DashboardGeneralSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import KnFabButton from '@/components/UI/KnFabButton.vue'
-import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableExectuionTimeValue } from './VariablesHelper'
+import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue } from './VariablesHelper'
 
 export default defineComponent({
     name: 'dashboard-variables',
@@ -111,7 +128,7 @@ export default defineComponent({
         this.loadData()
     },
     methods: {
-        ...mapActions(dashboardStore, ['getDashboardDrivers']),
+        ...mapActions(dashboardStore, ['getDashboardDrivers', 'getDashboardDatasets', 'getAllDatasets']),
         loadData() {
             this.loadVariables()
             this.loadDrivers()
@@ -135,7 +152,7 @@ export default defineComponent({
 
             switch (variable.type) {
                 case 'static':
-                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver'], variable)
+                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver', 'executionTime', 'executionDate', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
                     break
                 case 'dataset':
                     this.deleteVariableFields(['dataset', 'column', 'executionTime', 'executionDate', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
@@ -147,16 +164,19 @@ export default defineComponent({
                     this.deleteVariableFields(['dataset', 'column', 'driver', 'executionTime', 'executionDate', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
                     break
                 case 'executionTime':
-                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver'], variable)
+                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
                     setVariableExectuionTimeValue(variable, this.dashboardId)
                     break
                 case 'executionDate':
-                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver'], variable)
+                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
                     setVairableExecutionDateValue(variable, this.dashboardId)
                     break
                 case 'locale':
-                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver'], variable)
+                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
                     setVairableLocaleValue(variable)
+                    break
+                case 'activeSelection':
+                    this.deleteVariableFields(['dataset', 'column', 'driver', 'executionTime', 'executionDate', 'locale'], variable)
             }
         },
         deleteVariableFields(fields: string[], variable: IVariable) {
@@ -175,6 +195,13 @@ export default defineComponent({
         },
         removeVariable(index: number) {
             this.variables.splice(index, 1)
+        },
+        onActiveSelectionDatasetChanged(variable: IVariable) {
+            variable.value = ''
+            variable.activeSelectionColumn = null
+        },
+        onActiveSelectionColumnChanged(variable: IVariable) {
+            setVariableActiveSelectionValue(variable, this.dashboardId)
         }
     }
 })
