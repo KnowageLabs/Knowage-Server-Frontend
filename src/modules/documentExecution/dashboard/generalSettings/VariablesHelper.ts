@@ -1,5 +1,10 @@
-import { IDashboardDatasetDriver, IDashboardDriver, IDataset, IVariable } from '../Dashboard'
+import { getFormattedDateTimeUsingToLocaleString, getLocale } from '@/helpers/commons/localeHelper'
+import { IDashboardDriver, IDataset, IVariable } from '../Dashboard'
 import { getVariableData } from '../DataProxyHelper'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { DateTime } from 'luxon'
+
+const dashStore = dashboardStore()
 
 export const setVariableValueFromDataset = async (variable: IVariable, datasets: IDataset[], $http: any) => {
     const variableData = await getVariableData(variable, datasets, $http)
@@ -34,4 +39,32 @@ export const setVariableValueFromDriver = (variable: IVariable, drivers: IDashbo
     if (variable.type !== 'driver') return
     const driver = drivers.find((driver: IDashboardDriver) => driver.urlName === variable.driver)
     variable.value = driver ? driver.value : ''
+}
+
+export const setVariableExectuionTimeValue = (variable: IVariable, dashboardId: string) => {
+    const executionTime = dashStore.getExecutionTime(dashboardId) as Date
+    if (!executionTime) return
+
+    const executionTimeValue = getFormattedDateTimeUsingToLocaleString('LTS', DateTime.fromJSDate(executionTime))
+    variable.value = executionTimeValue
+    variable.executionTime = executionTimeValue
+}
+
+export const setVairableExecutionDateValue = (variable: IVariable, dashboardId: string) => {
+    console.log('--- setVairableExecutionDateValue: ', variable)
+    const executionTime = dashStore.getExecutionTime(dashboardId) as Date
+    if (!executionTime) return
+
+    const executionTimeValue = getFormattedDateTimeUsingToLocaleString('LL', DateTime.fromJSDate(executionTime))
+    variable.value = executionTimeValue
+    variable.executionDate = executionTimeValue
+}
+
+export const setVairableLocaleValue = (variable: IVariable) => {
+    console.log('--- setVairableLocaleValue: ', variable)
+    const locale = getLocale()
+    if (!locale) return
+
+    variable.value = locale
+    variable.locale = locale
 }

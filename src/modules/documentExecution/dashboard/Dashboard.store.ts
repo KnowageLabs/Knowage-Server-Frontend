@@ -123,7 +123,8 @@ const store = defineStore('dashboardStore', {
                 }
             })
             if (removedSelections.length > 0) {
-                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0)
+                    loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
                 else if (this.dashboards[dashboardId].selections.length === 0) this.setAssociations(dashboardId, {})
             }
             emitter.emit('selectionsDeleted', removedSelections)
@@ -200,6 +201,12 @@ const store = defineStore('dashboardStore', {
         },
         setCustomChartGaleryItems(dashboardId: string, customChartGallery: IGalleryItem[]) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].customChartGallery = customChartGallery
+        },
+        getExecutionTime(dashboardId: string) {
+            return this.dashboards[dashboardId] ? this.dashboards[dashboardId].executionTime : null
+        },
+        setExecutionTime(dashboardId: string, executionTime: Date) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].executionTime = executionTime
         }
     }
 })

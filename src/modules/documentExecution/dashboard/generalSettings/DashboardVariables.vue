@@ -1,11 +1,15 @@
 <template>
     <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
         <KnFabButton icon="fas fa-plus" class="p-as-end" style="position: absolute; right: 10px" data-test="new-button" @click="addNewVariable()"></KnFabButton>
-        <label class="kn-material-input-label p-m-3"> {{ $t('common.variables') }}</label>
+        <label class="kn-material-input-label p-m-3">{{ $t('common.variables') }}</label>
 
         <KnHint v-if="variables.length == 0" class="p-as-center" :title="'common.variables'" :hint="'dashboard.generalSettings.variablesHint'"></KnHint>
 
         <div v-for="(variable, index) in variables" :key="index" class="p-fluid p-formgrid p-grid p-m-3" style="gap: 5px">
+            <div class="p-col-12">
+                {{ variable }}
+            </div>
+
             <div class="p-field kn-flex">
                 <span class="p-float-label">
                     <InputText v-model="variable.name" class="kn-material-input" />
@@ -23,7 +27,7 @@
                             <span>{{ $t(slotProps.option.label) }}</span>
                         </template>
                     </Dropdown>
-                    <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
+                    <label class="kn-material-input-label">{{ $t('common.type') }}</label>
                 </span>
             </div>
 
@@ -36,28 +40,28 @@
 
             <div v-if="variable.type === 'dataset'" class="p-field kn-flex">
                 <span class="p-float-label">
-                    <Dropdown v-model="variable.dataset" class="kn-material-input" :options="selectedDatasetOptions" option-label="label" option-value="id"> </Dropdown>
-                    <label class="kn-material-input-label"> {{ $t('common.dataset') }}</label>
+                    <Dropdown v-model="variable.dataset" class="kn-material-input" :options="selectedDatasetOptions" option-label="label" option-value="id"></Dropdown>
+                    <label class="kn-material-input-label">{{ $t('common.dataset') }}</label>
                 </span>
             </div>
             <div v-if="variable.type === 'dataset'" class="p-field kn-flex">
                 <span class="p-float-label">
-                    <Dropdown v-model="variable.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions(variable)"> </Dropdown>
-                    <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
+                    <Dropdown v-model="variable.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions(variable)"></Dropdown>
+                    <label class="kn-material-input-label">{{ $t('common.column') }}</label>
                 </span>
                 <small>{{ $t('dashboard.generalSettings.variableColumnHint') }}</small>
             </div>
 
             <div v-if="variable.type === 'driver'" class="p-field kn-flex">
                 <span class="p-float-label">
-                    <Dropdown v-model="variable.driver" class="kn-material-input" :options="drivers" option-label="name" option-value="urlName" @change="setValueFromAnalyticalDriver(variable)"> </Dropdown>
+                    <Dropdown v-model="variable.driver" class="kn-material-input" :options="drivers" option-label="name" option-value="urlName" @change="setValueFromAnalyticalDriver(variable)"></Dropdown>
                     <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.interactions.analyticalDriver') }}</label>
                 </span>
             </div>
 
             <div v-if="variable.type === 'profile'" class="p-field kn-flex">
                 <span class="p-float-label">
-                    <Dropdown v-model="variable.attribute" class="kn-material-input" :options="profileAttributes" option-label="name" option-value="name" @change="setValueFromProfileAttribute(variable)"> </Dropdown>
+                    <Dropdown v-model="variable.attribute" class="kn-material-input" :options="profileAttributes" option-label="name" option-value="name" @change="setValueFromProfileAttribute(variable)"></Dropdown>
                     <label class="kn-material-input-label">{{ $t('dashboard.generalSettings.attribute') }}</label>
                 </span>
             </div>
@@ -77,6 +81,7 @@ import KnHint from '@/components/UI/KnHint.vue'
 import descriptor from './DashboardGeneralSettingsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import KnFabButton from '@/components/UI/KnFabButton.vue'
+import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableExectuionTimeValue } from './VariablesHelper'
 
 export default defineComponent({
     name: 'dashboard-variables',
@@ -127,18 +132,31 @@ export default defineComponent({
         },
         onVariableTypeChange(variable: IVariable) {
             variable.value = ''
+
             switch (variable.type) {
                 case 'static':
                     this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver'], variable)
                     break
                 case 'dataset':
-                    this.deleteVariableFields(['dataset', 'column'], variable)
+                    this.deleteVariableFields(['dataset', 'column', 'executionTime', 'executionDate', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
                     break
                 case 'driver':
-                    this.deleteVariableFields(['dataset', 'column', 'attribute'], variable)
+                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'executionTime', 'executionDate', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
                     break
                 case 'profile':
-                    this.deleteVariableFields(['dataset', 'column', 'driver'], variable)
+                    this.deleteVariableFields(['dataset', 'column', 'driver', 'executionTime', 'executionDate', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
+                    break
+                case 'executionTime':
+                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver'], variable)
+                    setVariableExectuionTimeValue(variable, this.dashboardId)
+                    break
+                case 'executionDate':
+                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver'], variable)
+                    setVairableExecutionDateValue(variable, this.dashboardId)
+                    break
+                case 'locale':
+                    this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver'], variable)
+                    setVairableLocaleValue(variable)
             }
         },
         deleteVariableFields(fields: string[], variable: IVariable) {

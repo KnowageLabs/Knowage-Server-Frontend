@@ -104,7 +104,7 @@ import DashboardSaveViewDialog from './DashboardViews/DashboardSaveViewDialog/Da
 import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialog/DashboardSavedViewsDialog.vue'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
-import { setVariableValueFromDriver } from './generalSettings/VariablesHelper'
+import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -245,7 +245,8 @@ export default defineComponent({
             'setHTMLGaleryItems',
             'setPythonGaleryItems',
             'setCustomChartGaleryItems',
-            'setSelectedSheetIndex'
+            'setSelectedSheetIndex',
+            'setExecutionTime'
         ]),
         setEventListeners() {
             emitter.on('openNewWidgetPicker', this.openNewWidgetPicker)
@@ -312,17 +313,28 @@ export default defineComponent({
                 emitter.emit('loadPivotStates', this.selectedViewForExecution)
             }
 
-            this.updateVariableValuesWithDriverValuesAfterExecution()
-
             this.store.setDashboard(this.dashboardId, this.model)
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
+            this.store.setExecutionTime(this.dashboardId, new Date())
+
+            this.updateVariableValuesWithDriverValuesAfterExecution()
         },
         updateVariableValuesWithDriverValuesAfterExecution() {
             if (!this.model?.configuration) return
             this.model.configuration.variables = this.model.configuration.variables.map((variable: IVariable) => {
-                if (variable.type === 'driver') {
-                    setVariableValueFromDriver(variable, this.drivers)
+                switch (variable.type) {
+                    case 'driver':
+                        setVariableValueFromDriver(variable, this.drivers)
+                        break
+                    case 'executionTime':
+                        setVariableExectuionTimeValue(variable, this.dashboardId)
+                        break
+                    case 'executionDate':
+                        setVairableExecutionDateValue(variable, this.dashboardId)
+                        break
+                    case 'locale':
+                        setVairableLocaleValue(variable)
                 }
                 return variable
             })

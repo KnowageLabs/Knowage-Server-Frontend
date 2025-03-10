@@ -29,6 +29,10 @@ export function formatDateLuxon(dateString: string, format: string, incomingForm
         return null
     }
 
+    return getFormattedDateTimeUsingToLocaleString(format, dt)
+}
+
+export const getFormattedDateTimeUsingToLocaleString = (format: string, dt: DateTime) => {
     switch (format) {
         case 'LT':
             return dt.toLocaleString(DateTime.TIME_SIMPLE)

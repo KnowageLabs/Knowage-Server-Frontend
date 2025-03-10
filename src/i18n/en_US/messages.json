@@ -168,6 +168,7 @@
         "library": "Library",
         "list": "List",
         "load": "Load",
+        "locale": "Locale",
         "locked": "Locked",
         "loggedUser": "logged user",
         "login": "Login",
@@ -471,6 +472,8 @@
             },
             "css": "CSS Editor",
             "customHeader": "Custom Header",
+            "executionDate": "Execution Date",
+            "executionTime": "Execution Time",
             "menuWidgets": {
                 "enableCaching": "Enable dashboard caching",
                 "enableChartChange": "Enable chart changing",

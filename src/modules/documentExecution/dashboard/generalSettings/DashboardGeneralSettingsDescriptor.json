@@ -61,6 +61,22 @@
         {
             "label": "dashboard.generalSettings.profile",
             "value": "profile"
+        },
+        {
+            "label": "dashboard.generalSettings.executionTime",
+            "value": "executionTime"
+        },
+        {
+            "label": "dashboard.generalSettings.executionDate",
+            "value": "executionDate"
+        },
+        {
+            "label": "common.locale",
+            "value": "locale"
+        },
+        {
+            "label": "managers.dashboardThemeManager.widgetNames.activeSelections",
+            "value": "activeSelection"
         }
     ]
 }
