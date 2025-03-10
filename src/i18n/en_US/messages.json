@@ -491,6 +491,14 @@
                 "editTheme": "Edit Theme",
                 "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager"
             },
+            "timeFormats": {
+                "dateTimeFull": "Full Date And Time",
+                "dateTimeMedium": "Medium Date And Time",
+                "mediumDate": "Medium Date",
+                "shortDate": "Short Date",
+                "simpleTime": "Simple Time",
+                "timeWithSeconds": "Time With Seconds"
+            },
             "title": "General Settings",
             "variableColumnHint": "If no column is defined the whole dataset will be used.",
             "variablesHint": "Variables can be used everywhere in the dashboard widgets. They can be static values or dynamic values set in different ways. Check the documentation or the single widgets to learn how to use them."

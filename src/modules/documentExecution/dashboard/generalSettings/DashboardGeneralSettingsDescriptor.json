@@ -78,5 +78,33 @@
             "label": "managers.dashboardThemeManager.widgetNames.activeSelections",
             "value": "activeSelection"
         }
+    ],
+    "variablesDateFormatOptions": [
+        {
+            "label": "dashboard.generalSettings.timeFormats.shortDate",
+            "value": "L"
+        },
+        {
+            "label": "dashboard.generalSettings.timeFormats.mediumDate",
+            "value": "LL"
+        },
+        {
+            "label": "dashboard.generalSettings.timeFormats.dateTimeMedium",
+            "value": "LLL"
+        },
+        {
+            "label": "dashboard.generalSettings.timeFormats.dateTimeFull",
+            "value": "LLLL"
+        }
+    ],
+    "variablesTimeFormatOptions": [
+        {
+            "label": "dashboard.generalSettings.timeFormats.simpleTime",
+            "value": "LT"
+        },
+        {
+            "label": "dashboard.generalSettings.timeFormats.timeWithSeconds",
+            "value": "LTS"
+        }
     ]
 }

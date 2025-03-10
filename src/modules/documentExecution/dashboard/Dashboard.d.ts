@@ -679,11 +679,12 @@ export interface IVariable {
     attribute?: string
     driver?: string
     pivotedValues?: any
-    executionTime?: any
-    executionDate?: any
-    locale?: any
-    activeSelectionDataset?: any
-    activeSelectionColumn?: any
+    executionTime?: string | null
+    executionDate?: string | null
+    dateTimeFormat?: string | null
+    locale?: string
+    activeSelectionDataset?: number | null
+    activeSelectionColumn?: string | null
 }
 
 export interface IWidgetTitle {

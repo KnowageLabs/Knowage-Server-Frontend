@@ -5,15 +5,7 @@
 
         <KnHint v-if="variables.length == 0" class="p-as-center" :title="'common.variables'" :hint="'dashboard.generalSettings.variablesHint'"></KnHint>
 
-        <div class="p-col-12">
-            {{ selectedDatasetOptions }}
-        </div>
-
         <div v-for="(variable, index) in variables" :key="index" class="p-fluid p-formgrid p-grid p-m-3" style="gap: 5px">
-            <div class="p-col-12">
-                {{ variable }}
-            </div>
-
             <div class="p-field kn-flex">
                 <span class="p-float-label">
                     <InputText v-model="variable.name" class="kn-material-input" />
@@ -67,6 +59,20 @@
                 <span class="p-float-label">
                     <Dropdown v-model="variable.attribute" class="kn-material-input" :options="profileAttributes" option-label="name" option-value="name" @change="setValueFromProfileAttribute(variable)"></Dropdown>
                     <label class="kn-material-input-label">{{ $t('dashboard.generalSettings.attribute') }}</label>
+                </span>
+            </div>
+
+            <div v-if="['executionTime', 'executionDate'].includes(variable.type)" class="p-field kn-flex">
+                <span class="p-float-label">
+                    <Dropdown v-model="variable.dateTimeFormat" class="kn-material-input" :options="variable.type === 'executionTime' ? descriptor.variablesTimeFormatOptions : descriptor.variablesDateFormatOptions" option-value="value" @change="onTimeFormatChanged(variable)">
+                        <template #value="slotProps">
+                            <span>{{ getTranslatedLabel(slotProps.value, variable.type === 'executionTime' ? descriptor.variablesTimeFormatOptions : descriptor.variablesDateFormatOptions, $t) }}</span>
+                        </template>
+                        <template #option="slotProps">
+                            <span>{{ $t(slotProps.option.label) }}</span>
+                        </template>
+                    </Dropdown>
+                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.format') }}</label>
                 </span>
             </div>
 
@@ -165,10 +171,12 @@ export default defineComponent({
                     break
                 case 'executionTime':
                     this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
+                    variable.dateTimeFormat = 'LTS'
                     setVariableExectuionTimeValue(variable, this.dashboardId)
                     break
                 case 'executionDate':
                     this.deleteVariableFields(['dataset', 'column', 'attribute', 'driver', 'locale', 'activeSelectionDataset', 'activeSelectionColumn'], variable)
+                    variable.dateTimeFormat = 'LL'
                     setVairableExecutionDateValue(variable, this.dashboardId)
                     break
                 case 'locale':
@@ -195,6 +203,9 @@ export default defineComponent({
         },
         removeVariable(index: number) {
             this.variables.splice(index, 1)
+        },
+        onTimeFormatChanged(variable: IVariable) {
+            variable.type === 'executionTime' ? setVariableExectuionTimeValue(variable, this.dashboardId) : setVairableExecutionDateValue(variable, this.dashboardId)
         },
         onActiveSelectionDatasetChanged(variable: IVariable) {
             variable.value = ''

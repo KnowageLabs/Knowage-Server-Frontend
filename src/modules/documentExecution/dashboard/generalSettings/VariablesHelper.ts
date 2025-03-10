@@ -46,7 +46,7 @@ export const setVariableExectuionTimeValue = (variable: IVariable, dashboardId: 
     if (!executionTime) return
 
     const baseLocale = getLocale()?.split('_')[0] ?? fallbackLocale
-    const executionTimeValue = getFormattedDateTimeUsingToLocaleString('LTS', DateTime.fromJSDate(executionTime).setLocale(baseLocale))
+    const executionTimeValue = getFormattedDateTimeUsingToLocaleString(variable.dateTimeFormat ?? 'LTS', DateTime.fromJSDate(executionTime).setLocale(baseLocale))
     variable.value = executionTimeValue
     variable.executionTime = executionTimeValue
 }
@@ -56,7 +56,7 @@ export const setVairableExecutionDateValue = (variable: IVariable, dashboardId: 
     if (!executionTime) return
 
     const baseLocale = getLocale()?.split('_')[0] ?? fallbackLocale
-    const executionTimeValue = getFormattedDateTimeUsingToLocaleString('LL', DateTime.fromJSDate(executionTime).setLocale(baseLocale))
+    const executionTimeValue = getFormattedDateTimeUsingToLocaleString(variable.dateTimeFormat ?? 'LL', DateTime.fromJSDate(executionTime).setLocale(baseLocale))
     variable.value = executionTimeValue
     variable.executionDate = executionTimeValue
 }
