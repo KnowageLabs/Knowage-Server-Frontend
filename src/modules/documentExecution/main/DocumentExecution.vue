@@ -103,7 +103,7 @@
             <Button
                 v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters"
                 class="kn-param-sidebar-toggle-button"
-                :class="{ 'kn-param-sidebar-visible': parameterSidebarVisible, 'kn-param-sidebar-hidden': !parameterSidebarVisible }"
+                :class="parameterSidebarVisible ? 'kn-param-sidebar-visible' : 'kn-param-sidebar-hidden'"
                 :icon="paramSidebarIcon"
                 v-tooltip.left="$t('common.parameters')"
                 data-test="parameter-sidebar-icon"

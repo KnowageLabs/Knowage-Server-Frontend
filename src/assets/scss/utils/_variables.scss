@@ -135,11 +135,15 @@
     --kn-param-sidebar-expanded-icon: fa fa-angles-right;
     --kn-param-sidebar-collapsed-icon: fa fa-angles-left;
     --kn-param-sidebar-icon-background-color: #ffffff;
-    --kn-param-sidebar-icon-text-color: #ce0651;
     --kn-param-sidebar-icon-width: 3rem;
-    --kn-param-sidebar-icon-hover-background-color: #ffffff;
-    --kn-param-sidebar-icon-hover-text-color: #ce0651;
     --kn-param-sidebar-icon-opacity: 50%;
     --kn-param-sidebar-even-alternate-rows: #ffffff;
     --kn-param-sidebar-odd-alternate-rows: #dcdcdc;
+    --kn-param-sidebar-icon-background-color-expanded: #ffffff;
+    --kn-param-sidebar-icon-text-color-expanded: #ce0651;
+    --kn-param-sidebar-icon-background-color-collapsed: #ffffff;
+    --kn-param-sidebar-icon-text-color-collapsed: #ce0651;
+    --kn-param-sidebar-icon-hover-background-color: #ffffff;
+    --kn-param-sidebar-icon-hover-text-color: #ce0651;
+    --kn-param-sidebar-icon-radius: 50%;
 }

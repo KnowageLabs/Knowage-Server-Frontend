@@ -136,7 +136,7 @@
         <Card class="p-mt-4">
             <template #content>
                 <div class="p-d-flex kn-width-full p-jc-center">
-                    <Button class="kn-param-sidebar-toggle-button example-button" :class="{ 'kn-param-sidebar-visible': parameterSidebarVisible, 'kn-param-sidebar-hidden': !parameterSidebarVisible }" :icon="paramSidebarIcon" data-test="parameter-sidebar-icon" @click="toggleParamSidebar()"></Button>
+                    <Button class="kn-param-sidebar-toggle-button example-button" :class="parameterSidebarVisible ? 'kn-param-sidebar-visible' : 'kn-param-sidebar-hidden'" :icon="paramSidebarIcon" data-test="parameter-sidebar-icon" @click="toggleParamSidebar()"></Button>
                 </div>
             </template>
         </Card>
