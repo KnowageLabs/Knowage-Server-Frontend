@@ -2863,7 +2863,7 @@
             },
             "fileLocation": "File Location",
             "filterTitle": "Filter",
-            "hint": "Change the hint to your liking inside the messages.json.",
+            "hint": "Layers are the main elements of a map. They can be of different types and can be added to the map to show different data. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "layerFilter": "Layer Filter",
             "layerFilterAdded": "Layer Filter Added",
             "layerIdentify": "Layer ID",
@@ -2874,9 +2874,11 @@
             "layerParams": "Params",
             "layerTitle": "Layer",
             "layerTypes": {
+                "geojson": "GeoJSON",
                 "google": "Google",
                 "osm": "OSM",
                 "tms": "TMS",
+                "topojson": "TopoJSON",
                 "wfs": "WFS",
                 "wms": "WMS"
             },

@@ -2552,7 +2552,7 @@
             },
             "fileLocation": "File Location",
             "filterTitle": "Filter",
-            "hint": "Change the hint to your liking inside the messages.json.",
+            "hint": "I livelli sono le rappresentazioni grafiche dei dati geografici. E' possibile aggiungere, modificare e rimuovere i livelli. Clicca su un elemento esistente nella lista a sinistra o premi il pulsante \"+\" per aggiungerne uno.",
             "layerFilter": "Layer Filter",
             "layerFilterAdded": "Layer Filter Added",
             "layerIdentify": "Layer ID",
@@ -2563,9 +2563,11 @@
             "layerParams": "Params",
             "layerTitle": "Layer",
             "layerTypes": {
+                "geojson": "GeoJSON",
                 "google": "Google",
                 "osm": "OSM",
                 "tms": "TMS",
+                "topojson": "TopoJSON",
                 "wfs": "WFS",
                 "wms": "WMS"
             },
