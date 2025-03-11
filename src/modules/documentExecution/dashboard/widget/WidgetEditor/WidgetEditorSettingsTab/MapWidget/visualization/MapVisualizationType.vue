@@ -155,7 +155,10 @@ export default defineComponent({
             ;['targetDataset', 'targetMeasure', 'targetProperty', 'targetType'].forEach((property: string) => delete visualization[property])
 
             const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => id === layer.layerId)
-            if (!target || target.type !== 'layer' || this.propertiesCache.has(visualization.target)) return
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(visualization.target)) {
+                visualization.properties = this.propertiesCache.get(visualization.target)
+                return
+            }
             await this.loadAvailablePropertiesInVisualizationTypeForLayer(target, visualization)
         },
         onDataLinkChange(dataLinkType: 'column' | 'property', visualization: IMapWidgetVisualizationType) {

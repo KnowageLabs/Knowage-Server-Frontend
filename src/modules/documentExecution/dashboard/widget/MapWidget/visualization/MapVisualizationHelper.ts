@@ -33,14 +33,26 @@ const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, d
     }
 
     layersData.features.forEach((feature: ILayerFeature) => {
-        if (feature.geometry?.type !== 'Point') return
-        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-        const value = mappedData ? mappedData[valueKey] : valueKey
-        const coordinates = getCoordinatesFromWktPointFeature(feature)
-        const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
-        addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-        addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-        markerBounds.push(marker.getLatLng())
+        if (feature.geometry?.type === 'Point') {
+            const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+            const value = mappedData ? mappedData[valueKey] : valueKey
+            const coordinates = getCoordinatesFromWktPointFeature(feature)
+            const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
+            addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+            addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+            markerBounds.push(marker.getLatLng())
+        } else if (feature.geometry?.type === 'MultiPoint') {
+            console.log('----- GOT HERE!')
+            feature.geometry.coordinates?.forEach((coord: any) => {
+                const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+                const value = mappedData ? mappedData[valueKey] : valueKey
+                const coordinates = coord // Directly using each coordinate pair from MultiPoint
+                const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
+                addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+                addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+                markerBounds.push(marker.getLatLng())
+            })
+        }
     })
 }
 
