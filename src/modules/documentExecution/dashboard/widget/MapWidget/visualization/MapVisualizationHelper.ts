@@ -527,10 +527,22 @@ const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGr
             const coordinates = getCoordinatesFromWktPointFeature(feature)
             const marker = addMarker(coordinates.reverse(), layerGroup, null, 0, spatialAttribute)
             markerBounds.push(marker.getLatLng())
+        } else if (type === 'Multipoint') {
+            const multiPointCoords = (feature.geometry.coordinates as any).map(([x, y]: [number, number]) => [y, x])
+            L.layerGroup(multiPointCoords.map((coord) => L.marker(coord.reverse()).addTo(map))).addTo(map)
         } else if (type === 'LineString') {
             L.polyline(feature.geometry.coordinates.reverse(), { color: 'blue' }).addTo(map)
-        } else if (type === 'Polygon') {
-            const polygonCoords = (feature.geometry.coordinates as any).map((ring) => ring.map(([x, y]) => [y, x]))
+        } else if (type === 'MultiLineString') {
+            const multiLineCoords = (feature.geometry.coordinates as any).map((line: any) => line.map(([x, y]: [number, number]) => [y, x]))
+            L.layerGroup(multiLineCoords.map((coords) => L.polyline(coords, { color: 'blue' }).addTo(map))).addTo(map)
+        } else if (type === 'Polygon' || type === 'MultiPolygon') {
+            let polygonCoords: any
+            if (type === 'Polygon') {
+                polygonCoords = (feature.geometry.coordinates as any).map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x]))
+            } else if (type === 'MultiPolygon') {
+                polygonCoords = (feature.geometry.coordinates as any).map((polygon: any) => polygon.map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x])))
+            }
+
             L.polygon(polygonCoords).addTo(map)
         }
     })

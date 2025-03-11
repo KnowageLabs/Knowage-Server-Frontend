@@ -10,6 +10,7 @@ import targetDatasetDataMock from './target-dataset-data-mock.json'
 import { createDialogFromDataset } from './visualization/MapDialogHelper'
 import wktMock from './wkt-mock.json'
 import { wktToGeoJSON } from '@terraformer/wkt'
+import { feature } from 'topojson-client'
 
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
@@ -129,32 +130,47 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
             layersData = await getLayerData(target)
 
+            console.log('--------- LAYERS DATA: ', layersData)
+
             // TODO - Remove mock
             // layersData = wktMock
 
-            // if (layersData.wkt) {
-            //     const wktData = wktMock.wkt
-            //     const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
-            //     const wktArray = wktData.match(wktRegex) || []
+            if (layersData.wkt) {
+                const wktData = wktMock.wkt
+                const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
+                const wktArray = wktData.match(wktRegex) || []
 
-            //     console.log('------- WKT ARRAY: ', wktArray)
+                console.log('------- WKT ARRAY: ', wktArray)
 
-            //     const geojsonGeometries = wktArray.map((wkt: string) => wktToGeoJSON(wkt))
+                const geojsonGeometries = wktArray.map((wkt: string) => wktToGeoJSON(wkt))
 
-            //     console.log('-------- GeoJSON Geometries:', geojsonGeometries)
+                console.log('-------- GeoJSON Geometries:', geojsonGeometries)
 
-            //     const geojsonFeatures = {
-            //         type: 'FeatureCollection',
-            //         features: geojsonGeometries.map((geometry) => ({
-            //             type: 'Feature',
-            //             geometry: geometry,
-            //             properties: {}
-            //         }))
-            //     }
+                const geojsonFeatures = {
+                    type: 'FeatureCollection',
+                    features: geojsonGeometries.map((geometry) => ({
+                        type: 'Feature',
+                        geometry: geometry,
+                        properties: {}
+                    }))
+                }
 
-            //     console.log('----- geojsonFeatures: ', geojsonFeatures)
-            //     layersData = geojsonFeatures
-            // }
+                console.log('----- geojsonFeatures: ', geojsonFeatures)
+                layersData = geojsonFeatures
+            }
+
+            if (layersData.type === 'Topology') {
+                const geojsonFeatures: any[] = Object.values(layersData.objects).flatMap((obj: any) => (feature(layersData, obj) as any).features ?? [])
+
+                console.log('-------- GEOJSON FEATURE: ', geojsonFeatures)
+
+                layersData = {
+                    type: 'FeatureCollection',
+                    features: geojsonFeatures
+                }
+
+                console.log('--------- LAYERS DATA: ', layersData)
+            }
 
             // Use case when we have layer with the external dataset connected with foreign key
             if (layerVisualizationSettings.targetDataset) {
