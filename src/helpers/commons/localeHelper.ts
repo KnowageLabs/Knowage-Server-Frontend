@@ -5,7 +5,7 @@ import store from '@/App.store.js'
 import formats from '@/helpers/commons/localeDateFormats.json'
 import timezones from '@/helpers/commons/localeTimeZones.json'
 
-let fallbackLocale = 'en_US'
+export let fallbackLocale = 'en_US'
 
 export function getLocale(js?: boolean): string {
     let locale = ''
@@ -29,6 +29,10 @@ export function formatDateLuxon(dateString: string, format: string, incomingForm
         return null
     }
 
+    return getFormattedDateTimeUsingToLocaleString(format, dt)
+}
+
+export const getFormattedDateTimeUsingToLocaleString = (format: string, dt: DateTime) => {
     switch (format) {
         case 'LT':
             return dt.toLocaleString(DateTime.TIME_SIMPLE)

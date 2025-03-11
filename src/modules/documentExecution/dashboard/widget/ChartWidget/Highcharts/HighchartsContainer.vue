@@ -216,7 +216,7 @@ export default defineComponent({
                 const tempDataLabelSettings = this.widgetModel.settings.chartModel?.model?.series[0] && this.widgetModel.settings.chartModel.model.series[0].data[0] ? this.widgetModel.settings.chartModel.model.series[0].data[0].dataLabels : null
                 const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
                 if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
-                const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
+                const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
                 this.drillLevel++
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })

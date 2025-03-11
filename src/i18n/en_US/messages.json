@@ -169,6 +169,7 @@
         "library": "Library",
         "list": "List",
         "load": "Load",
+        "locale": "Locale",
         "locked": "Locked",
         "loggedUser": "logged user",
         "login": "Login",
@@ -472,6 +473,8 @@
             },
             "css": "CSS Editor",
             "customHeader": "Custom Header",
+            "executionDate": "Execution Date",
+            "executionTime": "Execution Time",
             "menuWidgets": {
                 "enableCaching": "Enable dashboard caching",
                 "enableChartChange": "Enable chart changing",
@@ -488,6 +491,14 @@
                 "dashboardThemeHint": "Work in progress, themes preview will be soon visible here",
                 "editTheme": "Edit Theme",
                 "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager"
+            },
+            "timeFormats": {
+                "dateTimeFull": "Full Date And Time",
+                "dateTimeMedium": "Medium Date And Time",
+                "mediumDate": "Medium Date",
+                "shortDate": "Short Date",
+                "simpleTime": "Simple Time",
+                "timeWithSeconds": "Time With Seconds"
             },
             "title": "General Settings",
             "variableColumnHint": "If no column is defined the whole dataset will be used.",
