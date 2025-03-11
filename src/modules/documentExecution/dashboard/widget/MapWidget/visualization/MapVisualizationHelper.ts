@@ -34,26 +34,23 @@ const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, d
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-            const value = mappedData ? mappedData[valueKey] : valueKey
-            const coordinates = getCoordinatesFromWktPointFeature(feature)
-            const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
-            addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-            addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-            markerBounds.push(marker.getLatLng())
+            addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, null)
         } else if (feature.geometry?.type === 'MultiPoint') {
-            console.log('----- GOT HERE!')
             feature.geometry.coordinates?.forEach((coord: any) => {
-                const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-                const value = mappedData ? mappedData[valueKey] : valueKey
-                const coordinates = coord // Directly using each coordinate pair from MultiPoint
-                const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
-                addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-                addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-                markerBounds.push(marker.getLatLng())
+                addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord)
             })
         }
     })
+}
+
+const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null) => {
+    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const value = mappedData ? mappedData[valueKey] : valueKey
+    const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    markerBounds.push(marker.getLatLng())
 }
 
 // Showing baloons from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
@@ -166,24 +163,44 @@ const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAt
     const defaultColor = layerVisualizationSettings.balloonConf?.style?.color ?? ''
 
     layersData.features.forEach((feature: ILayerFeature) => {
-        if (feature.geometry?.type !== 'Point') return
-        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-        const value = mappedData ? mappedData[valueKey] : valueKey
-
-        validateNumber(value)
-        if (!layerVisualizationSettings.balloonConf) return
-        let sizeAndColor = getSizeAndColorFromRanges(value as number, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize, sortedRanges, defaultColor) || { size: 1, color: layerVisualizationSettings.balloonConf?.style.color ?? '' }
-
-        layerVisualizationSettings.balloonConf.size = sizeAndColor.size
-        layerVisualizationSettings.balloonConf.style.color = sizeAndColor.color
-
-        const coordinates = getCoordinatesFromWktPointFeature(feature)
-        const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute)
-        markerBounds.push(marker.getLatLng())
-
-        addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-        addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+        if (feature.geometry?.type === 'Point') {
+            addBaloonMarkerUsingLayersPointClassifedByRanges(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, sortedRanges, defaultColor, null)
+        } else if (feature.geometry?.type === 'MultiPoint') {
+            feature.geometry.coordinates?.forEach((coord: any) => {
+                addBaloonMarkerUsingLayersPointClassifedByRanges(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, sortedRanges, defaultColor, coord)
+            })
+        }
     })
+}
+
+const addBaloonMarkerUsingLayersPointClassifedByRanges = (
+    feature: ILayerFeature,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    mappedData: any,
+    layerGroup: any,
+    spatialAttribute: any,
+    widgetModel: IWidget,
+    markerBounds: any[],
+    sortedRanges: IMapWidgetVisualizationThreshold[],
+    defaultColor: string,
+    coord: any[] | null
+) => {
+    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const value = mappedData ? mappedData[valueKey] : valueKey
+
+    validateNumber(value)
+    if (!layerVisualizationSettings.balloonConf) return
+    let sizeAndColor = getSizeAndColorFromRanges(value as number, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize, sortedRanges, defaultColor) || { size: 1, color: layerVisualizationSettings.balloonConf?.style.color ?? '' }
+
+    layerVisualizationSettings.balloonConf.size = sizeAndColor.size
+    layerVisualizationSettings.balloonConf.style.color = sizeAndColor.color
+
+    const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute)
+    markerBounds.push(marker.getLatLng())
+
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
 }
 
 const addBaloonMarkersClassifedByRangesFromData = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
@@ -265,21 +282,30 @@ const addBaloonMarkersClassifedByQuantilsUsingLayers = (targetDatasetData: any |
     }
 
     layersData.features.forEach((feature: ILayerFeature) => {
-        if (feature.geometry?.type !== 'Point') return
-        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-        const value = mappedData ? mappedData[valueKey] : valueKey
-        validateNumber(value)
-
-        if (!layerVisualizationSettings.balloonConf) return
-        layerVisualizationSettings.balloonConf.size = getSizeFromQuantiles(quantiles, value as number, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
-
-        const coordinates = getCoordinatesFromWktPointFeature(feature)
-        const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute)
-        markerBounds.push(marker.getLatLng())
-
-        addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-        addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+        if (feature.geometry?.type === 'Point') {
+            addBaloonMarkerUsingLayersPointClassifedByQuantils(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, quantiles, null)
+        } else if (feature.geometry?.type === 'MultiPoint') {
+            feature.geometry.coordinates?.forEach((coord: any) => {
+                addBaloonMarkerUsingLayersPointClassifedByQuantils(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, quantiles, coord)
+            })
+        }
     })
+}
+
+const addBaloonMarkerUsingLayersPointClassifedByQuantils = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], quantiles: number[], coord: any[] | null) => {
+    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const value = mappedData ? mappedData[valueKey] : valueKey
+    validateNumber(value)
+
+    if (!layerVisualizationSettings.balloonConf) return
+    layerVisualizationSettings.balloonConf.size = getSizeFromQuantiles(quantiles, value as number, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
+
+    const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute)
+    markerBounds.push(marker.getLatLng())
+
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
 }
 
 const getQuantilesFromLayersData = (rows: number[], numQuantiles: number): number[] => {
@@ -376,23 +402,43 @@ const addBaloonMarkersClassifiedByEqualIntervalsUsingLayers = (layersData: any, 
     }
 
     layersData.features.forEach((feature: ILayerFeature) => {
-        if (feature.geometry?.type !== 'Point') return
-        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-        const value = mappedData ? mappedData[valueKey] : feature.properties[layerVisualizationSettings.targetProperty]
-
-        validateNumber(value)
-
-        if (layerVisualizationSettings.balloonConf) {
-            layerVisualizationSettings.balloonConf.size = getSizeFromEqualIntervals(value as number, minValue, maxValue, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
+        if (feature.geometry?.type === 'Point') {
+            addBaloonMarkerUsingLayersPointClassifedByEqualIntervals(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, minValue, maxValue, null)
+        } else if (feature.geometry?.type === 'MultiPoint') {
+            feature.geometry.coordinates?.forEach((coord: any) => {
+                addBaloonMarkerUsingLayersPointClassifedByEqualIntervals(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, minValue, maxValue, coord)
+            })
         }
-
-        const coordinates = getCoordinatesFromWktPointFeature(feature)
-        const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf ?? null, value as number, spatialAttribute)
-        markerBounds.push(marker.getLatLng())
-
-        addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-        addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
     })
+}
+
+const addBaloonMarkerUsingLayersPointClassifedByEqualIntervals = (
+    feature: ILayerFeature,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    mappedData: any,
+    layerGroup: any,
+    spatialAttribute: any,
+    widgetModel: IWidget,
+    markerBounds: any[],
+    minValue: number,
+    maxValue: number,
+    coord: any[] | null
+) => {
+    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const value = mappedData ? mappedData[valueKey] : feature.properties[layerVisualizationSettings.targetProperty]
+
+    validateNumber(value)
+
+    if (layerVisualizationSettings.balloonConf) {
+        layerVisualizationSettings.balloonConf.size = getSizeFromEqualIntervals(value as number, minValue, maxValue, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
+    }
+
+    const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf ?? null, value as number, spatialAttribute)
+    markerBounds.push(marker.getLatLng())
+
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
 }
 
 const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
@@ -501,18 +547,27 @@ const addClustersUsingLayers = (targetDatasetData: any | null, layersData: any, 
     }
 
     layersData.features.forEach((feature: ILayerFeature) => {
-        if (feature.geometry?.type !== 'Point') return
-        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-        const value = mappedData ? mappedData[valueKey] : valueKey
-
-        const coordinates = getCoordinatesFromWktPointFeature(feature)
-        const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
-        addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-        addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-        clusters.addLayer(marker)
-        markerBounds.push(marker.getLatLng())
+        if (feature.geometry?.type === 'Point') {
+            addClusterUsingLayersFeature(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, clusters, null)
+        } else if (feature.geometry?.type === 'MultiPoint') {
+            feature.geometry.coordinates?.forEach((coord: any) => {
+                addClusterUsingLayersFeature(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, clusters, coord)
+            })
+        }
     })
     layerGroup.addLayer(clusters)
+}
+
+const addClusterUsingLayersFeature = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], clusters: any, coord: any[] | null) => {
+    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const value = mappedData ? mappedData[valueKey] : valueKey
+
+    const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    clusters.addLayer(marker)
+    markerBounds.push(marker.getLatLng())
 }
 
 // Showing only the defined data, no measures, no extra logic. It will show all Point, LineString and Polygon from WKT.
@@ -539,14 +594,14 @@ const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGr
             const coordinates = getCoordinatesFromWktPointFeature(feature)
             const marker = addMarker(coordinates.reverse(), layerGroup, null, 0, spatialAttribute)
             markerBounds.push(marker.getLatLng())
-        } else if (type === 'Multipoint') {
+        } else if (type === 'MultiPoint') {
             const multiPointCoords = (feature.geometry.coordinates as any).map(([x, y]: [number, number]) => [y, x])
-            L.layerGroup(multiPointCoords.map((coord) => L.marker(coord.reverse()).addTo(map))).addTo(map)
+            L.layerGroup(multiPointCoords.map((coord) => L.marker(coord).addTo(map))).addTo(map)
         } else if (type === 'LineString') {
             L.polyline(feature.geometry.coordinates.reverse(), { color: 'blue' }).addTo(map)
         } else if (type === 'MultiLineString') {
             const multiLineCoords = (feature.geometry.coordinates as any).map((line: any) => line.map(([x, y]: [number, number]) => [y, x]))
-            L.layerGroup(multiLineCoords.map((coords) => L.polyline(coords, { color: 'blue' }).addTo(map))).addTo(map)
+            L.layerGroup(multiLineCoords.map((coords: number[]) => L.polyline(coords, { color: 'blue' }).addTo(map))).addTo(map)
         } else if (type === 'Polygon' || type === 'MultiPolygon') {
             let polygonCoords: any
             if (type === 'Polygon') {
