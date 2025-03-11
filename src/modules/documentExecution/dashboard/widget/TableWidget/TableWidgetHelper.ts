@@ -146,7 +146,7 @@ const getDatasetLabel = (datasetId: number, datasets: IDataset[]) => {
 }
 
 export const formatRowDataForCrossNavigation = (tableNode: any, dataToShow: any) => {
-    const columnDefs = tableNode.columnApi?.columnModel?.columnDefs
+    const columnDefs = tableNode.api.getColumnDefs()
     const rowData = tableNode.node.data
     if (!columnDefs || !rowData) return {}
     const formattedRow = { columnName: tableNode.colDef?.columnName ?? '' }

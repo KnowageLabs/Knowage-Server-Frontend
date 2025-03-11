@@ -175,8 +175,11 @@ export default defineComponent({
             this.$emit('close')
         },
         async exportDataset(format) {
+            let body = this.postData
+            body.parameters = body.pars
+            delete body.pars
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${this.dataset.id}/${format}`, this.postData)
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${this.dataset.id}/${format}`, body)
                 .then((response: AxiosResponse<any>) => {
                     this.setInfo({
                         title: this.$t('common.export'),
