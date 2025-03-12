@@ -115,6 +115,7 @@
                 :filters-data="filtersData"
                 :prop-document="document"
                 :user-role="userRole"
+                :correctRolesForExecution="correctRolesForExecution"
                 :session-enabled="sessionEnabled"
                 :date-format="dateFormat"
                 :show-in-dialog="true"
@@ -304,6 +305,7 @@ export default defineComponent({
             embed: false,
             olapCustomViewVisible: false,
             userRole: null as string | null,
+            correctRolesForExecution: null as string[] | null,
             loading: false,
             olapDesignerMode: false,
             sessionEnabled: false,
@@ -435,6 +437,7 @@ export default defineComponent({
         }, 200)
     },
     unmounted() {
+        if (this.initializePolling) clearInterval(this.initializePolling)
         this.removeEventListeners()
     },
     methods: {
@@ -484,17 +487,17 @@ export default defineComponent({
 
             let invalidRole = false
             getCorrectRolesForExecution(this.document).then(async (response: any) => {
-                const correctRolesForExecution = response
+                this.correctRolesForExecution = response
 
                 if (!this.userRole) {
-                    if (correctRolesForExecution.length == 1) {
-                        this.userRole = correctRolesForExecution[0]
+                    if (this.correctRolesForExecution?.length == 1) {
+                        this.userRole = this.correctRolesForExecution[0]
                     } else {
                         this.parameterSidebarVisible = true
                     }
                 } else if (this.userRole) {
-                    if (correctRolesForExecution.length == 1) {
-                        const correctRole = correctRolesForExecution[0]
+                    if (this.correctRolesForExecution?.length == 1) {
+                        const correctRole = this.correctRolesForExecution[0]
                         if (this.userRole !== correctRole) {
                             this.setError({
                                 title: this.$t('common.error.generic'),

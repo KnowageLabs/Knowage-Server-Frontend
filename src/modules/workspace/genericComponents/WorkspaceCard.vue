@@ -29,7 +29,6 @@ import descriptor from './DetailSidebarDescriptor.json'
 import cardDescriptor from './WorkspaceCardDescriptor.json'
 import Menu from 'primevue/contextmenu'
 import mainStore from '../../../App.store'
-import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
 export default defineComponent({
@@ -163,9 +162,7 @@ export default defineComponent({
             this.$refs.optionsMenu.toggle(event)
         },
         emitEvent(event) {
-            getCorrectRolesForExecution(this.document).then(() => {
-                return () => this.$emit(event, this.document)
-            })
+            this.$emit(event, this.document)
         },
         // prettier-ignore
         createMenuItems() {

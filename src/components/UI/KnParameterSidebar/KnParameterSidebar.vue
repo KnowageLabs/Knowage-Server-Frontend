@@ -198,7 +198,6 @@ import Menu from 'primevue/menu'
 import MultiSelect from 'primevue/multiselect'
 import RadioButton from 'primevue/radiobutton'
 import mainStore from '../../../App.store'
-import { getCorrectRolesForExecutionForType } from '../../../helpers/commons/roleHelper'
 import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
 
 export default defineComponent({
@@ -212,7 +211,7 @@ export default defineComponent({
         propQBEParameters: { type: Array },
         dateFormat: { type: String },
         dataset: { type: Object },
-        correctRolesForExecution: { type: Array },
+        correctRolesForExecution: { type: Array as PropType<string[] | null> },
         loadFromDatasetManagement: { type: Boolean, default: false },
         showInDialog: { type: Boolean }
     },
@@ -330,15 +329,6 @@ export default defineComponent({
                 } else if (this.document.type == 'federatedDataset' && this.document.federation_id) {
                     typeCode = 'FEDERATED_DATASET'
                     id = this.document.federation_id
-                }
-
-                if (id || (this.document.label && this.document.label !== 'new-dashboard')) {
-                    getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
-                        this.availableRolesForExecution = response
-                        if (!this.role && this.availableRolesForExecution.length == 1) {
-                            this.role = this.availableRolesForExecution[0]
-                        }
-                    })
                 }
             }
         },
