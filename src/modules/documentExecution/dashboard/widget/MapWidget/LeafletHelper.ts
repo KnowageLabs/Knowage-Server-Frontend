@@ -4,7 +4,7 @@ import L from 'leaflet'
 import italy from './italy.json'
 import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
-import { addBaloonMarkers, addClusters, addGeography, addMarkers } from './visualization/MapVisualizationHelper'
+import { addBaloonMarkers, addClusters, addGeography, addMarkers, createChoropleth } from './visualization/MapVisualizationHelper'
 import { getLayerData } from './MapWidgetDataProxy'
 import targetDatasetDataMock from './target-dataset-data-mock.json'
 import { createDialogFromDataset } from './visualization/MapDialogHelper'
@@ -29,17 +29,6 @@ function isConditionValid(operator: string, measureValue: any, value: any): bool
     if (operator === '>') return measureValue > value
     if (operator === '<') return measureValue < value
     return false
-}
-
-function getGeographyStyle(feature) {
-    return {
-        fillColor: 'blue',
-        weight: 2,
-        opacity: 1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.7
-    }
 }
 
 // Used for adding a marker to Leaflet. If there is no MEASURE data (e.g., when only Geography is needed),
@@ -78,10 +67,6 @@ export function addMarker(position: number[] | string, container: any, settings:
     else marker = createMarker(position, settings).addTo(container)
     marker.knProperties = { measureValue: value, layerId: container.knProperties.layerId }
     return marker
-}
-
-export function createGeography(map: L.Map, features, data) {
-    return L.geoJson(features, getGeographyStyle).addTo(map)
 }
 
 // Used for getting coordinates, if the type is WKT we are transforming them using the wktToGeoJSON from the @terraformer/wkt lib
@@ -215,8 +200,8 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         }
 
         if (layerVisualizationSettings.type === 'choropleth') {
-            const geography = createGeography(map, italy, data)
-            markerBounds.push(geography.getBounds())
+            const geography = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, targetDatasetData)
+            // markerBounds.push(geography.getBounds())
         }
 
         if (layerVisualizationSettings.type === 'geography') {

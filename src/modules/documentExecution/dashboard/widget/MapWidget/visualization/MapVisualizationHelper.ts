@@ -619,3 +619,125 @@ const getCoordinatesFromWktPointFeature = (feature: any) => {
     if (!feature?.geometry || !feature?.geometry.coordinates) return []
     return feature.geometry.coordinates.length > 2 ? feature.geometry.coordinates.slice(0, 2) : feature.geometry.coordinates
 }
+
+// TODO - Working on this
+
+export const createChoropleth = (map: L.Map, data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, layersData: any, targetDatasetData: any) => {
+    console.log('--------- layersData: ', layersData)
+    console.log('----------------- layerVisualizationSettings: ', layerVisualizationSettings)
+    createChoroplethClassifiedByEqualIntervalsUsingLayers(map, layersData, layerGroup, layerVisualizationSettings, model, spatialAttribute)
+    // return L.geoJson(layersData.features, getGeographyStyle).addTo(map)
+}
+
+const createChoroplethClassifiedByEqualIntervalsUsingLayers = (map: any, layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, spatialAttribute: any, targetDatasetData?: any, dataColumn?: string) => {
+    let minValue = Number.MIN_SAFE_INTEGER
+    let maxValue = Number.MAX_SAFE_INTEGER
+    let mappedData: Record<string, number> | null = null
+
+    if (targetDatasetData && dataColumn) {
+        if (!layerVisualizationSettings.targetDataset) return
+
+        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
+        minValue = valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER
+        maxValue = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
+
+        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+        if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
+
+        mappedData = transformDataUsingForeginKey(targetDatasetData.rows, foreignKeyColumnName, dataColumn)
+    } else {
+        if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+            const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
+            minValue = Math.min(...layerPropertyValues) ?? 0
+            maxValue = Math.max(...layerPropertyValues) ?? 0
+        }
+    }
+
+    layersData.features.forEach((feature: ILayerFeature) => {
+        if (feature.geometry?.type === 'Polygon') {
+            addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals(map, feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, minValue, maxValue, null)
+        } else if (feature.geometry?.type === 'MultiPolygon') {
+            feature.geometry.coordinates?.forEach((coord: any) => {
+                addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals(map, feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, minValue, maxValue, coord)
+            })
+        }
+    })
+}
+
+const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
+    map: any,
+    feature: ILayerFeature,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    mappedData: any,
+    layerGroup: any,
+    spatialAttribute: any,
+    widgetModel: IWidget,
+    minValue: number,
+    maxValue: number,
+    coord: any[] | null
+) => {
+    const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
+    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const value = mappedData ? mappedData[valueKey] : feature.properties[layerVisualizationSettings.targetProperty]
+    const numberOfClasses = layerVisualizationSettings.analysisConf?.classes ?? defaultChoroplethValues.classes
+
+    validateNumber(value)
+
+    const colorGradients = generateColorGradient(layerVisualizationSettings.analysisConf?.style.color ?? defaultChoroplethValues.style.color, layerVisualizationSettings.analysisConf?.style.toColor ?? defaultChoroplethValues.style.toColor, numberOfClasses)
+    const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    const polygonCoords = (coordinates as any).map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x]))
+    const color = colorGradients[getRangeIndexFromEqualIntervals(value, minValue, maxValue, numberOfClasses)] ?? defaultChoroplethValues.style.color
+
+    L.polygon(polygonCoords, { color: color, fillColor: color, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(map)
+
+    // TODO - Add Tooltips
+    // addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    // addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+}
+
+const generateColorGradient = (colorStart: string | undefined, colorEnd: string | undefined, steps: number | undefined): string[] => {
+    if (!colorStart || !colorEnd || !steps) return []
+
+    const extractRGBA = (color: string): number[] => {
+        const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/)
+        if (!match) throw new Error('Invalid RGBA format')
+        return match.slice(1, 5).map(Number)
+    }
+
+    const start = extractRGBA(colorStart)
+    const end = extractRGBA(colorEnd)
+    const gradient: string[] = []
+
+    for (let i = 0; i < steps; i++) {
+        const ratio = i / (steps - 1)
+        const interpolated = start.map((startVal, index) => startVal + (end[index] - startVal) * ratio)
+        gradient.push(`rgba(${interpolated[0]}, ${interpolated[1]}, ${interpolated[2]}, ${interpolated[3]})`)
+    }
+
+    return gradient
+}
+
+const getRangeIndexFromEqualIntervals = (value: number, min: number, max: number, classes: number | undefined): number => {
+    if (!classes) return 0
+
+    let range = (max - min) / classes
+
+    for (let i = 0; i < classes; i++) {
+        if (value < min + (i + 1) * range) {
+            return i
+        }
+    }
+
+    return classes - 1
+}
+
+const getGeographyStyle = (feature) => {
+    return {
+        fillColor: 'blue',
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    }
+}

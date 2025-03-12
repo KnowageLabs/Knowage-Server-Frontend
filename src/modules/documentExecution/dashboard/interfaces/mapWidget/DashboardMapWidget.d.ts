@@ -109,11 +109,13 @@ export interface IMapWidgetVisualizationTypeHeatmap {
 export interface IMapWidgetVisualizationTypeChoropleth {
     method: string
     classes: number
-    fromColor: string
-    toColor: string
     borderColor: string
+    minSize: number
+    maxSize: number
     style: {
         color?: string
+        toColor?: string
+        borderWidth?: number
     }
     properties?: {
         thresholds: IMapWidgetVisualizationThreshold[]

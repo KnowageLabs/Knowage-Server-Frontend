@@ -84,7 +84,6 @@
     "defaultVisualizationBalloonsConfiguration": {
         "borderColor": "",
         "classes": 3,
-        "fromColor": "rgba(209, 209, 209, 1)",
         "maxSize": 100,
         "method": "CLASSIFY_BY_EQUAL_INTERVALS",
         "minSize": 1,
@@ -94,18 +93,22 @@
         "style": {
             "color": ""
         },
-        "toColor": "rgba(91, 91, 91, 1)",
         "type": "default"
     },
     "defaultVisualizationChoroplethConfiguration": {
         "borderColor": "",
         "classes": 3,
-        "fromColor": "#rgba(209, 209, 209, 1)",
+        "maxSize": 100,
         "method": "CLASSIFY_BY_EQUAL_INTERVALS",
+        "minSize": 1,
         "properties": {
             "thresholds": []
         },
-        "toColor": "rgba(91, 91, 91, 1)"
+        "style": {
+            "borderWidth": 2,
+            "color": "rgba(51, 0, 255, 1)",
+            "toColor": "rgba(255, 6, 0, 1)"
+        }
     },
     "defaultVisualizationClusterConfiguration": {
         "enabled": false,

@@ -477,6 +477,7 @@ export default defineComponent({
 
             let invalidRole = false
             getCorrectRolesForExecution(this.document).then(async (response: any) => {
+                console.log('------------- ROLE - DOCUMENT EXECUTION!')
                 const correctRolesForExecution = response
 
                 if (!this.userRole) {
