@@ -200,8 +200,7 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         }
 
         if (layerVisualizationSettings.type === 'choropleth') {
-            const geography = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, targetDatasetData)
-            // markerBounds.push(geography.getBounds())
+            createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'geography') {

@@ -622,11 +622,52 @@ const getCoordinatesFromWktPointFeature = (feature: any) => {
 
 // TODO - Working on this
 
-export const createChoropleth = (map: L.Map, data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, layersData: any, targetDatasetData: any) => {
+export const createChoropleth = (
+    map: L.Map,
+    data: any,
+    model: IWidget,
+    target: IMapWidgetLayer,
+    dataColumn: string,
+    spatialAttribute: any,
+    geoColumn: string,
+    layerGroup: any,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    layersData: any,
+    visualizationDataType: VisualizationDataType,
+    targetDatasetData: any
+) => {
     console.log('--------- layersData: ', layersData)
     console.log('----------------- layerVisualizationSettings: ', layerVisualizationSettings)
-    createChoroplethClassifiedByEqualIntervalsUsingLayers(map, layersData, layerGroup, layerVisualizationSettings, model, spatialAttribute)
-    // return L.geoJson(layersData.features, getGeographyStyle).addTo(map)
+    if (!layerVisualizationSettings.analysisConf) return
+    switch (layerVisualizationSettings.analysisConf.method) {
+        case 'CLASSIFY_BY_RANGES':
+            // We use user defined value ranges to determine what size (depending also on number of ranges) and color should each balloon value have
+            if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
+                createChoroplethClassifiedByRangesUsingLayers(map, layersData, layerGroup, layerVisualizationSettings, model, spatialAttribute)
+            } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
+                createChoroplethClassifiedByRangesUsingLayers(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, model, targetDatasetData, dataColumn)
+            } else {
+                // addBaloonMarkersClassifedByRangesFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
+            }
+            break
+        case 'CLASSIFY_BY_QUANTILS':
+            if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
+                createChoroplethClassifiedByQuantilsUsingLayers(map, null, layersData, null, spatialAttribute, layerGroup, layerVisualizationSettings, model)
+            } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
+                createChoroplethClassifiedByQuantilsUsingLayers(map, targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, model)
+            } else {
+                // addBaloonMarkersClassifedByQuantilsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
+            }
+            break
+        default:
+            if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
+                createChoroplethClassifiedByEqualIntervalsUsingLayers(map, layersData, layerGroup, layerVisualizationSettings, model, spatialAttribute)
+            } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
+                createChoroplethClassifiedByEqualIntervalsUsingLayers(map, layersData, layerGroup, layerVisualizationSettings, model, spatialAttribute, targetDatasetData, dataColumn)
+            } else {
+                // addBaloonMarkersClassifedByEqualIntervalsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
+            }
+    }
 }
 
 const createChoroplethClassifiedByEqualIntervalsUsingLayers = (map: any, layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, spatialAttribute: any, targetDatasetData?: any, dataColumn?: string) => {
@@ -695,6 +736,159 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
     // addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
 }
 
+const getRangeIndexFromEqualIntervals = (value: number, min: number, max: number, classes: number | undefined): number => {
+    if (!classes) return 0
+
+    let range = (max - min) / classes
+
+    for (let i = 0; i < classes; i++) {
+        if (value < min + (i + 1) * range) {
+            return i
+        }
+    }
+
+    return classes - 1
+}
+
+const createChoroplethClassifiedByQuantilsUsingLayers = (map: any, targetDatasetData: any | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget) => {
+    if (!layerVisualizationSettings.balloonConf) return
+
+    let quantiles: number[]
+    let mappedData: Record<string, number> | null = null
+
+    if (targetDatasetData && dataColumn) {
+        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+        if (!foreignKeyColumnName) throw new Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
+        mappedData = transformDataUsingForeginKey(targetDatasetData.rows, foreignKeyColumnName, dataColumn)
+        quantiles = getQuantiles(targetDatasetData.rows, layerVisualizationSettings.balloonConf.classes, dataColumn)
+    } else {
+        const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
+        quantiles = getQuantilesFromLayersData(layerPropertyValues, layerVisualizationSettings.balloonConf.classes)
+    }
+
+    layersData.features.forEach((feature: ILayerFeature) => {
+        if (feature.geometry?.type === 'Polygon') {
+            addChoroplethPolygonUsingLayersPointClassifedByQuantils(map, feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, quantiles, null)
+        } else if (feature.geometry?.type === 'MultiPolygon') {
+            feature.geometry.coordinates?.forEach((coord: any) => {
+                addChoroplethPolygonUsingLayersPointClassifedByQuantils(map, feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, quantiles, coord)
+            })
+        }
+    })
+}
+
+const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (map: any, feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, quantiles: number[], coord: any[] | null) => {
+    const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
+    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const value = mappedData ? mappedData[valueKey] : valueKey
+    const numberOfClasses = layerVisualizationSettings.analysisConf?.classes ?? defaultChoroplethValues.classes
+    validateNumber(value)
+
+    const colorGradients = generateColorGradient(layerVisualizationSettings.analysisConf?.style.color ?? defaultChoroplethValues.style.color, layerVisualizationSettings.analysisConf?.style.toColor ?? defaultChoroplethValues.style.toColor, numberOfClasses)
+    const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    const polygonCoords = (coordinates as any).map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x]))
+    const color = colorGradients[getQuantileIndex(quantiles, value)] ?? defaultChoroplethValues.style.color
+
+    L.polygon(polygonCoords, { color: color, fillColor: color, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(map)
+
+    // TODO - Add Tooltips
+    // addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    // addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+}
+
+const getQuantileIndex = (quantiles: number[], value: number): number => {
+    for (let i = 0; i < quantiles.length; i++) {
+        if (value < quantiles[i]) {
+            return i
+        }
+    }
+    return quantiles.length
+}
+
+const createChoroplethClassifiedByRangesUsingLayers = (map: any, layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, spatialAttribute: any, targetDatasetData?: any, dataColumn?: string) => {
+    let minValue = Number.MIN_SAFE_INTEGER
+    let maxValue = Number.MAX_SAFE_INTEGER
+    let mappedData: Record<string, number> | null = null
+
+    if (targetDatasetData && dataColumn) {
+        if (!layerVisualizationSettings.targetDataset) return
+
+        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
+        minValue = valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER
+        maxValue = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
+
+        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
+        if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
+
+        mappedData = transformDataUsingForeginKey(targetDatasetData.rows, foreignKeyColumnName, dataColumn)
+    } else {
+        if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+            const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
+            minValue = Math.min(...layerPropertyValues) ?? 0
+            maxValue = Math.max(...layerPropertyValues) ?? 0
+        }
+    }
+
+    const ranges = layerVisualizationSettings.analysisConf?.properties?.thresholds ?? []
+    const formattedRanges = formatRanges(ranges, minValue, maxValue)
+    const sortedRanges = sortRanges(formattedRanges)
+    const defaultColor = layerVisualizationSettings.analysisConf?.style?.color ?? ''
+
+    layersData.features.forEach((feature: ILayerFeature) => {
+        if (feature.geometry?.type === 'Polygon') {
+            addChoroplethPolygonUsingLayersPointClassifedByRanges(map, feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, sortedRanges, defaultColor, null)
+        } else if (feature.geometry?.type === 'MultiPolygon') {
+            feature.geometry.coordinates?.forEach((coord: any) => {
+                addChoroplethPolygonUsingLayersPointClassifedByRanges(map, feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, sortedRanges, defaultColor, coord)
+            })
+        }
+    })
+}
+
+const addChoroplethPolygonUsingLayersPointClassifedByRanges = (
+    map: any,
+    feature: ILayerFeature,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    mappedData: any,
+    layerGroup: any,
+    spatialAttribute: any,
+    widgetModel: IWidget,
+    sortedRanges: IMapWidgetVisualizationThreshold[],
+    defaultColor: string,
+    coord: any[] | null
+) => {
+    const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
+    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const value = mappedData ? mappedData[valueKey] : valueKey
+
+    validateNumber(value)
+    if (!layerVisualizationSettings.analysisConf) return
+    let rangeIndexAndColor = getRangeIndexAndColor(value as number, sortedRanges, defaultChoroplethValues.style.color + '')
+
+    const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    const polygonCoords = (coordinates as any).map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x]))
+
+    L.polygon(polygonCoords, { color: rangeIndexAndColor.color, fillColor: rangeIndexAndColor.color, weight: layerVisualizationSettings.analysisConf?.style.borderWidth ?? defaultChoroplethValues.style.borderWidth }).addTo(map)
+
+    // TODO - Add Tooltip
+    // addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    // addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+}
+
+const getRangeIndexAndColor = (value: number, ranges: IMapWidgetVisualizationThreshold[], defaultColor: string): { index: number; color: string } => {
+    for (let i = 0; i < ranges.length; i++) {
+        const range = ranges[i]
+        if (value >= range.from && value < range.to) {
+            return {
+                index: i,
+                color: range.color ?? defaultColor
+            }
+        }
+    }
+
+    return { index: ranges.length, color: defaultColor }
+}
+
 const generateColorGradient = (colorStart: string | undefined, colorEnd: string | undefined, steps: number | undefined): string[] => {
     if (!colorStart || !colorEnd || !steps) return []
 
@@ -715,29 +909,4 @@ const generateColorGradient = (colorStart: string | undefined, colorEnd: string 
     }
 
     return gradient
-}
-
-const getRangeIndexFromEqualIntervals = (value: number, min: number, max: number, classes: number | undefined): number => {
-    if (!classes) return 0
-
-    let range = (max - min) / classes
-
-    for (let i = 0; i < classes; i++) {
-        if (value < min + (i + 1) * range) {
-            return i
-        }
-    }
-
-    return classes - 1
-}
-
-const getGeographyStyle = (feature) => {
-    return {
-        fillColor: 'blue',
-        weight: 2,
-        opacity: 1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.7
-    }
 }
