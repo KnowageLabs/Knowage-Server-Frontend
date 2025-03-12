@@ -18,18 +18,18 @@
                         <div id="prefix-input-container" class="p-field">
                             <span class="p-float-label field-container">
                                 <InputText id="prefixForCacheTablesName" v-model.trim="settings.prefixForCacheTablesName" class="kn-material-input" type="text" data-test="prefix-input" />
-                                <label for="prefixForCacheTablesName" class="kn-material-input-label"> {{ $t('managers.cacheManagement.prefixForCacheTablesName') }}</label>
+                                <label for="prefixForCacheTablesName" class="kn-material-input-label">{{ $t('managers.cacheManagement.prefixForCacheTablesName') }}</label>
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="limitForClean" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.maximumPercentOfCacheCleaningQuota') }}</label>
+                                <label for="limitForClean" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.maximumPercentOfCacheCleaningQuota') }}</label>
                                 <InputNumber id="limitForClean" v-model="settings.limitForClean" input-class="kn-material-input" :min="0" :max="100" :use-grouping="false" data-test="clean-limit-input" @input="onInputNumberChange('limitForClean', $event.value)" />
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="schedulingFullClean" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.frequencyOfCleaningDaemon') }}</label>
+                                <label for="schedulingFullClean" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.frequencyOfCleaningDaemon') }}</label>
                                 <Dropdown id="schedulingFullClean" v-model="settings.schedulingFullClean" class="kn-material-input" :options="generalSettingsCardDescriptor.schedulingTypes">
                                     <template #value="slotProps">
                                         <div v-if="slotProps.value">
@@ -40,19 +40,19 @@
                                         <div>
                                             <span>{{ $t(slotProps.option.label) }}</span>
                                         </div>
-                                    </template></Dropdown
-                                >
+                                    </template>
+                                </Dropdown>
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="lastAccessTtl" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.ttlForCachedDataset') }}</label>
+                                <label for="lastAccessTtl" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.ttlForCachedDataset') }}</label>
                                 <InputNumber id="lastAccessTtl" v-model="settings.lastAccessTtl" input-class="kn-material-input" :use-grouping="false" data-test="last-access-ttl-input" @input="onInputNumberChange('lastAccessTtl', $event.value)" />
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="createAndPersistTimeout" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.timeToCreateTempTable') }}</label>
+                                <label for="createAndPersistTimeout" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.timeToCreateTempTable') }}</label>
                                 <InputNumber id="createAndPersistTimeout" v-model="settings.createAndPersistTimeout" input-class="kn-material-input" :use-grouping="false" data-test="timeout-input" @input="onInputNumberChange('createAndPersistTimeout', $event.value)" />
                             </span>
                         </div>
@@ -60,20 +60,20 @@
                     <div class="p-col-6">
                         <div class="p-field">
                             <span>
-                                <label for="spaceAvailable" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.totalBytesAvailableForCache') }}</label>
+                                <label for="spaceAvailable" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.totalBytesAvailableForCache') }}</label>
                                 <InputNumber id="spaceAvailable" v-model="settings.spaceAvailable" input-class="kn-material-input" :min="0" :use-grouping="false" data-test="space-available-input" @input="onInputNumberChange('spaceAvailable', $event.value)" />
                                 <small id="spaceAvailable-hint">{{ formatCacheDimension(settings.spaceAvailable) }}</small>
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="cacheLimitForStore" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.cacheDimensionSingleDataset') }}</label>
+                                <label for="cacheLimitForStore" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.cacheDimensionSingleDataset') }}</label>
                                 <InputNumber id="cacheLimitForStore" v-model="settings.cacheLimitForStore" input-class="kn-material-input" :min="0" :max="100" :use-grouping="false" data-test="cache-limit-input" @input="onInputNumberChange('cacheLimitForStore', $event.value)" />
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="datasource" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.targetDatasource') }}</label>
+                                <label for="datasource" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.targetDatasource') }}</label>
                                 <Dropdown id="datasource" v-model="datasource" class="kn-material-input" :options="datasourceOptions">
                                     <template #value="slotProps">
                                         <div v-if="slotProps.value">
@@ -84,25 +84,25 @@
                                         <div>
                                             <span>{{ slotProps.option.label }}</span>
                                         </div>
-                                    </template></Dropdown
-                                >
+                                    </template>
+                                </Dropdown>
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="sqldbCacheTimeout" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.timeToLock') }}</label>
+                                <label for="sqldbCacheTimeout" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.timeToLock') }}</label>
                                 <InputNumber id="sqldbCacheTimeout" v-model="settings.sqldbCacheTimeout" input-class="kn-material-input" :use-grouping="false" data-test="sqldb-timeout-input" @input="onInputNumberChange('sqldbCacheTimeout', $event.value)" />
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="hazelcastTimeout" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.hazelcastTimeToLock') }}</label>
+                                <label for="hazelcastTimeout" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.hazelcastTimeToLock') }}</label>
                                 <InputNumber id="hazelcastTimeout" v-model="settings.hazelcastTimeout" input-class="kn-material-input" :use-grouping="false" data-test="hazelcast-timeout-input" @input="onInputNumberChange('hazelcastTimeout', $event.value)" />
                             </span>
                         </div>
                         <div class="p-field">
                             <span>
-                                <label for="hazelcastLeaseTime" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.hazelcastTimeToReleaseLock') }}</label>
+                                <label for="hazelcastLeaseTime" class="kn-material-input-label small-label">{{ $t('managers.cacheManagement.hazelcastTimeToReleaseLock') }}</label>
                                 <InputNumber id="hazelcastLeaseTime" v-model="settings.hazelcastLeaseTime" input-class="kn-material-input" :use-grouping="false" data-test="hazelcast-lease-time-input" @input="onInputNumberChange('hazelcastLeaseTime', $event.value)" />
                             </span>
                         </div>
@@ -181,7 +181,6 @@ export default defineComponent({
             this.datasource = { ...(this.selectedDatasource as Object) }
         },
         async save() {
-            await this.removeCache()
             await this.saveDatasource()
             await this.saveConfigurationOptions()
 
@@ -214,9 +213,6 @@ export default defineComponent({
         },
         async saveDatasource() {
             await this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasources', { ...this.datasource, writeDefault: true })
-        },
-        async removeCache() {
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/cacheee/remove')
         },
         onInputNumberChange(field: string, value: number) {
             this.settings[field] = value
