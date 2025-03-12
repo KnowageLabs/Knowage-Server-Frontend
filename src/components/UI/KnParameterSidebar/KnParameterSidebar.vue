@@ -330,7 +330,6 @@ export default defineComponent({
 
                 if (id || (this.document.label && this.document.label !== 'new-dashboard')) {
                     getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
-                        console.log('------------- ROLE - PARAMETER SIDEBAR!')
                         this.availableRolesForExecution = response
                         if (!this.role && this.availableRolesForExecution.length == 1) {
                             this.role = this.availableRolesForExecution[0]

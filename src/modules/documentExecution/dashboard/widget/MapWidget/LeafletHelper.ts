@@ -79,11 +79,32 @@ export function getCoordinates(spatialAttribute, input, coord?) {
             if (coord === 'lon') return input.split(' ')[1]
             else return input.split(' ')
         }
-    } else if (spatialAttribute.properties.coordType === 'json') return input
-    else if (spatialAttribute.properties.coordType === 'wkt') {
+    } else if (spatialAttribute.properties.coordType === 'json') {
+        try {
+            let sanitizedInput = input.replace(/\\/g, '')
+            sanitizedInput = sanitizedInput.replace(/(\w+)\s*:/g, '"$1":')
+            sanitizedInput = sanitizedInput.replace(/:\s*([a-zA-Z_][a-zA-Z0-9_]*)/g, ': "$1"')
+
+            const parsedInput = JSON.parse(sanitizedInput)
+
+            return parsedInput?.geometry?.coordinates ?? []
+        } catch (error) {
+            throw Error('Spatial attribute coordinates are not a valid JSON!')
+            return []
+        }
+    } else if (spatialAttribute.properties.coordType === 'wkt') {
         const formattedWKTInput = wktToGeoJSON(input)
         return formattedWKTInput?.coordinates ?? []
     }
+}
+
+const fixJsonString = (jsonString) => {
+    return jsonString
+        .replace(/\\type\\/g, '"type"')
+        .replace(/\\geometry\\/g, '"geometry"')
+        .replace(/\\coordinates\\/g, '"coordinates"')
+        .replace(/\\properties\\/g, '"properties"')
+        .replace(/\\\"/g, '"')
 }
 
 // Starting point for the data/layers logic
@@ -115,8 +136,6 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
             layersData = await getLayerData(target)
 
-            console.log('--------- LAYERS DATA: ', layersData)
-
             // TODO - Remove mock
             // layersData = wktMock
 
@@ -125,11 +144,7 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
                 const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
                 const wktArray = wktData.match(wktRegex) || []
 
-                console.log('------- WKT ARRAY: ', wktArray)
-
                 const geojsonGeometries = wktArray.map((wkt: string) => wktToGeoJSON(wkt))
-
-                console.log('-------- GeoJSON Geometries:', geojsonGeometries)
 
                 const geojsonFeatures = {
                     type: 'FeatureCollection',
@@ -140,21 +155,16 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
                     }))
                 }
 
-                console.log('----- geojsonFeatures: ', geojsonFeatures)
                 layersData = geojsonFeatures
             }
 
             if (layersData.type === 'Topology') {
                 const geojsonFeatures: any[] = Object.values(layersData.objects).flatMap((obj: any) => (feature(layersData, obj) as any).features ?? [])
 
-                console.log('-------- GEOJSON FEATURE: ', geojsonFeatures)
-
                 layersData = {
                     type: 'FeatureCollection',
                     features: geojsonFeatures
                 }
-
-                console.log('--------- LAYERS DATA: ', layersData)
             }
 
             // Use case when we have layer with the external dataset connected with foreign key
