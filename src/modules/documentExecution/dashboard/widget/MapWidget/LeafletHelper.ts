@@ -70,7 +70,7 @@ export function addMarker(position: number[] | string, container: any, settings:
 }
 
 // Used for getting coordinates, if the type is WKT we are transforming them using the wktToGeoJSON from the @terraformer/wkt lib
-export function getCoordinates(spatialAttribute, input, coord?) {
+export function getCoordinates(spatialAttribute: any, input: string, coord?: string | null | undefined) {
     if (!spatialAttribute) return []
 
     if (spatialAttribute.properties.coordType === 'string') {
@@ -78,6 +78,10 @@ export function getCoordinates(spatialAttribute, input, coord?) {
             if (coord === 'lat') return input.split(' ')[0]
             if (coord === 'lon') return input.split(' ')[1]
             else return input.split(' ')
+        } else {
+            if (coord === 'lat') return input.split(' ')[1]
+            if (coord === 'lon') return input.split(' ')[0]
+            else return input.split(' ').reverse()
         }
     } else if (spatialAttribute.properties.coordType === 'json') {
         try {
@@ -86,7 +90,6 @@ export function getCoordinates(spatialAttribute, input, coord?) {
             sanitizedInput = sanitizedInput.replace(/:\s*([a-zA-Z_][a-zA-Z0-9_]*)/g, ': "$1"')
 
             const parsedInput = JSON.parse(sanitizedInput)
-
             return parsedInput?.geometry?.coordinates ?? []
         } catch (error) {
             throw Error('Spatial attribute coordinates are not a valid JSON!')
@@ -135,6 +138,8 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
         } else {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
             layersData = await getLayerData(target)
+
+            if (!layersData) return
 
             // TODO - Remove mock
             // layersData = wktMock

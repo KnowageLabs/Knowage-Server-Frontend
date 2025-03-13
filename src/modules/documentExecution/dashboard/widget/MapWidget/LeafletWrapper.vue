@@ -48,9 +48,9 @@ onMounted(async () => {
 
     try {
         await initializeLayers(map, props.widgetModel, props.data)
-    } catch (error) {
+    } catch (error: any) {
         console.log('------- ERROR: ', error)
-        appStore.setError(error)
+        appStore.setError(error?.message ?? 'Error rendering the map!')
     }
 })
 
