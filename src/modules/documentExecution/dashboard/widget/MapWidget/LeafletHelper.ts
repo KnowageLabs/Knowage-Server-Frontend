@@ -10,7 +10,7 @@ import targetDatasetDataMock from './target-dataset-data-mock.json'
 import { createDialogFromDataset } from './visualization/MapDialogHelper'
 import wktMock from './wkt-mock.json'
 import { wktToGeoJSON } from '@terraformer/wkt'
-import { feature } from 'topojson-client'
+import { feature, mesh } from 'topojson-client'
 
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
@@ -74,40 +74,64 @@ export function getCoordinates(spatialAttribute: any, input: string, coord?: str
     if (!spatialAttribute) return []
 
     if (spatialAttribute.properties.coordType === 'string') {
-        if (spatialAttribute.properties.coordFormat === 'lat lon') {
-            if (coord === 'lat') return input.split(' ')[0]
-            if (coord === 'lon') return input.split(' ')[1]
-            else return input.split(' ')
-        } else {
-            if (coord === 'lat') return input.split(' ')[1]
-            if (coord === 'lon') return input.split(' ')[0]
-            else return input.split(' ').reverse()
-        }
+        return getCoordinatesFromString(spatialAttribute, input, coord)
     } else if (spatialAttribute.properties.coordType === 'json') {
-        try {
-            let sanitizedInput = input.replace(/\\/g, '')
-            sanitizedInput = sanitizedInput.replace(/(\w+)\s*:/g, '"$1":')
-            sanitizedInput = sanitizedInput.replace(/:\s*([a-zA-Z_][a-zA-Z0-9_]*)/g, ': "$1"')
-
-            const parsedInput = JSON.parse(sanitizedInput)
-            return parsedInput?.geometry?.coordinates ?? []
-        } catch (error) {
-            throw Error('Spatial attribute coordinates are not a valid JSON!')
-            return []
-        }
+        const coordinates = getCoordinatesFromJSONCoordType(input)
+        return coordinates
     } else if (spatialAttribute.properties.coordType === 'wkt') {
         const formattedWKTInput = wktToGeoJSON(input)
         return formattedWKTInput?.coordinates ?? []
     }
 }
 
-const fixJsonString = (jsonString) => {
-    return jsonString
-        .replace(/\\type\\/g, '"type"')
-        .replace(/\\geometry\\/g, '"geometry"')
-        .replace(/\\coordinates\\/g, '"coordinates"')
-        .replace(/\\properties\\/g, '"properties"')
-        .replace(/\\\"/g, '"')
+const getCoordinatesFromString = (spatialAttribute: any, input: string, coord?: string | null) => {
+    const [lat, lon] = input.split(' ')
+    const isLatLon = spatialAttribute.properties.coordFormat === 'lat lon'
+
+    if (coord === 'lat') return isLatLon ? lat : lon
+    if (coord === 'lon') return isLatLon ? lon : lat
+
+    return isLatLon ? [lat, lon] : [lon, lat]
+}
+
+const getCoordinatesFromJSONCoordType = (input: string) => {
+    try {
+        let sanitizedInput = input
+            .replace(/\\/g, '')
+            .replace(/(\w+)\s*:/g, '"$1":')
+            .replace(/:\s*([a-zA-Z_][a-zA-Z0-9_]*)/g, ': "$1"')
+
+        const parsedInput = JSON.parse(sanitizedInput)
+
+        if (!parsedInput) return getCoordinatesFromTopoJSONCoordType(parsedInput)
+
+        if (parsedInput.arcs) {
+        }
+        return parsedInput?.geometry?.coordinates ?? []
+    } catch (error) {
+        throw Error('Spatial attribute coordinates are not a valid JSON!')
+    }
+}
+
+// TODO - Need working example
+const getCoordinatesFromTopoJSONCoordType = (parsedInput: any) => {
+    const topojsonWithObjects = {
+        type: 'Topology',
+        arcs: parsedInput.arcs,
+        transform: { scale: [1, 1], translate: [0, 0] },
+        objects: {
+            region: {
+                type: 'Polygon',
+                properties: parsedInput.properties ?? {},
+                arcs: [parsedInput.arcs.map((_, i) => i)]
+            }
+        }
+    } as any
+
+    const geojsonFeatures = feature(topojsonWithObjects, topojsonWithObjects.objects.region)
+    const geojsonMesh = mesh(topojsonWithObjects, topojsonWithObjects.objects.region)
+
+    return geojsonFeatures?.geometry?.coordinates ? geojsonFeatures.geometry.coordinates : []
 }
 
 // Starting point for the data/layers logic

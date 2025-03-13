@@ -812,6 +812,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (map: any, featu
 
     const colorGradients = generateColorGradient(layerVisualizationSettings.analysisConf?.style.color ?? defaultChoroplethValues.style.color, layerVisualizationSettings.analysisConf?.style.toColor ?? defaultChoroplethValues.style.toColor, numberOfClasses)
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+
     const polygonCoords = (coordinates as any).map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x]))
     const color = colorGradients[getQuantileIndex(quantiles, value)] ?? defaultChoroplethValues.style.color
 
@@ -832,6 +833,7 @@ const createChoroplethClassifiedByQuantilsFromData = (map: any, data: any, model
 
     data[target.name].rows.forEach((row: any) => {
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
+
         const polygonCoords = (coordinates as any).map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x]))
         const color = colorGradients[getQuantileIndex(quantiles, row[dataColumn])] ?? defaultChoroplethValues.style.color
 

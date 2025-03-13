@@ -13,8 +13,10 @@ import * as h337 from 'heatmap.js'
 import './Leaflet-heatmap.js'
 import { filterLayers, initializeLayers, switchLayerVisibility } from './LeafletHelper'
 import useAppStore from '@/App.store'
+import i18n from '@/App.i18n'
 
 const appStore = useAppStore()
+const { t } = i18n.global
 
 const props = defineProps<{
     widgetModel: any
@@ -50,7 +52,10 @@ onMounted(async () => {
         await initializeLayers(map, props.widgetModel, props.data)
     } catch (error: any) {
         console.log('------- ERROR: ', error)
-        appStore.setError(error?.message ?? 'Error rendering the map!')
+        appStore.setError({
+            title: t('common.toast.errorTitle'),
+            msg: error ? error.message : ''
+        })
     }
 })
 
