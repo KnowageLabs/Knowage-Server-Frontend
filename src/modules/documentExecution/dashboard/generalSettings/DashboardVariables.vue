@@ -150,8 +150,10 @@ export default defineComponent({
             if (!this.selectedDatasetsColumnsMap) return
             Object.keys(this.selectedDatasetsColumnsMap).forEach((key: string) => this.selectedDatasetOptions.push({ id: +key, label: this.selectedDatasetsColumnsMap[key].name }))
         },
-        getSelectionDatasetColumnOptions(variable: IVariable, forActiveSelections: boolean = false) {
-            return variable.dataset && this.selectedDatasetsColumnsMap ? [''].concat(this.selectedDatasetsColumnsMap[forActiveSelections && variable.activeSelectionDataset ? variable.activeSelectionDataset : variable.dataset].columns) : []
+        getSelectionDatasetColumnOptions(variable: IVariable, forActiveSelections?: boolean) {
+            const index = forActiveSelections && variable.activeSelectionDataset != null ? variable.activeSelectionDataset : variable.dataset
+            if (!index) return []
+            return this.selectedDatasetsColumnsMap ? [''].concat(this.selectedDatasetsColumnsMap[index].columns) : []
         },
         onVariableTypeChange(variable: IVariable) {
             variable.value = ''
