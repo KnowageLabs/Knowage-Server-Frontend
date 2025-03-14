@@ -59,6 +59,8 @@
             "python": "python"
         },
         "collapse": "collapse",
+        "lock": "Lock",
+        "unlock": "Unlock",
         "color": "Color",
         "colors": "Colors",
         "column": "Column",

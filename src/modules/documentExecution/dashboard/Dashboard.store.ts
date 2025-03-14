@@ -100,9 +100,9 @@ const store = defineStore('dashboardStore', {
                 emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
             }
         },
-        removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string, $http: any) {
+        removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string, $http: any, forceDelete?: boolean) {
             const index = this.dashboards[dashboardId].selections?.findIndex((selection: ISelection) => selection.datasetId === payload.datasetId && selection.columnName === payload.columnName)
-            if (index !== -1) {
+            if (index !== -1 && (!this.dashboards[dashboardId].selections[index].locked || forceDelete)) {
                 const tempSelection = deepcopy(this.dashboards[dashboardId].selections[index])
                 this.dashboards[dashboardId].selections.splice(index, 1)
                 if (selectionsUseDatasetWithAssociation([tempSelection], this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) {
@@ -117,7 +117,7 @@ const store = defineStore('dashboardStore', {
             const removedSelections = [] as ISelection[]
             selectionsToRemove?.forEach((selection: ISelection) => {
                 const index = this.dashboards[dashboardId].selections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === selection.datasetId && activeSelection.columnName === selection.columnName)
-                if (index !== -1) {
+                if (index !== -1 && !selection.locked) {
                     this.dashboards[dashboardId].selections.splice(index, 1)
                     removedSelections.push(selection)
                 }

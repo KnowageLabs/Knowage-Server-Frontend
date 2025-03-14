@@ -718,6 +718,7 @@ export interface ISelection {
     value: (string | number)[]
     aggregated: boolean
     timestamp: number
+    locked?: boolean
 }
 
 export interface IDashboardDriver {
