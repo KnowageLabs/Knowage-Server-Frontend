@@ -103,10 +103,8 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 
         const parsedInput = JSON.parse(sanitizedInput)
 
-        if (!parsedInput) return getCoordinatesFromTopoJSONCoordType(parsedInput)
+        if (!parsedInput) if (parsedInput.arcs) return getCoordinatesFromTopoJSONCoordType(parsedInput)
 
-        if (parsedInput.arcs) {
-        }
         return parsedInput?.geometry?.coordinates ?? []
     } catch (error) {
         throw Error('Spatial attribute coordinates are not a valid JSON!')
