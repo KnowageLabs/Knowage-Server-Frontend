@@ -84,7 +84,7 @@
             </div>
             <div v-if="variable.type === 'activeSelection'" class="p-field kn-flex">
                 <span class="p-float-label">
-                    <Dropdown v-model="variable.activeSelectionColumn" class="kn-material-input" :options="getSelectionDatasetColumnOptions(variable)" @change="onActiveSelectionColumnChanged(variable)"></Dropdown>
+                    <Dropdown v-model="variable.activeSelectionColumn" class="kn-material-input" :options="getSelectionDatasetColumnOptions(variable, true)" @change="onActiveSelectionColumnChanged(variable)"></Dropdown>
                     <label class="kn-material-input-label">{{ $t('common.column') }}</label>
                 </span>
             </div>
@@ -150,8 +150,8 @@ export default defineComponent({
             if (!this.selectedDatasetsColumnsMap) return
             Object.keys(this.selectedDatasetsColumnsMap).forEach((key: string) => this.selectedDatasetOptions.push({ id: +key, label: this.selectedDatasetsColumnsMap[key].name }))
         },
-        getSelectionDatasetColumnOptions(variable: IVariable) {
-            return variable.dataset && this.selectedDatasetsColumnsMap ? [''].concat(this.selectedDatasetsColumnsMap[variable.dataset].columns) : []
+        getSelectionDatasetColumnOptions(variable: IVariable, forActiveSelections: boolean = false) {
+            return variable.dataset && this.selectedDatasetsColumnsMap ? [''].concat(this.selectedDatasetsColumnsMap[forActiveSelections && variable.activeSelectionDataset ? variable.activeSelectionDataset : variable.dataset].columns) : []
         },
         onVariableTypeChange(variable: IVariable) {
             variable.value = ''
