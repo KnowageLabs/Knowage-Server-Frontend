@@ -55,9 +55,11 @@ export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: I
 }
 
 export const applyStylesToWidget = (widgetStyle, themeName, themeStyle) => {
+    const propertiesToIgnore = ['title']
+
     widgetStyle.themeName = themeName
     for (const styleProp in themeStyle.style) {
-        if (widgetStyle[styleProp]) {
+        if (!propertiesToIgnore.includes(styleProp) && widgetStyle[styleProp]) {
             widgetStyle[styleProp] = themeStyle.style[styleProp]
         }
     }
