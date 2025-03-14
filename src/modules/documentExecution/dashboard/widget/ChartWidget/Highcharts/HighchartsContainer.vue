@@ -158,6 +158,7 @@ export default defineComponent({
 
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
+                this.addAditionalCSSClasses(modelToRender)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
                 this.setError({
@@ -165,6 +166,15 @@ export default defineComponent({
                     msg: error ? error.message : ''
                 })
             }
+        },
+        addAditionalCSSClasses(modelToRender: IHighchartsChartModel) {
+            if (!modelToRender.plotOptions?.series?.showCheckbox || !modelToRender.legend) return
+            setTimeout(() => {
+                const horizontalAlignment = modelToRender.legend.layout === 'horizontal'
+                document.querySelectorAll('.highcharts-legend-checkbox').forEach((el) => {
+                    el.classList.add(horizontalAlignment ? 'custom-checkbox-style-horizontal' : 'custom-checkbox-style-vertical')
+                })
+            }, 100)
         },
         updateLegendSettings() {
             if (this.chartModel.plotOptions.pie) this.chartModel.plotOptions.pie.showInLegend = true
@@ -372,3 +382,17 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss">
+.custom-checkbox-style-horizontal {
+    margin-top: 3.3px;
+    margin-left: -10px;
+    vertical-align: middle;
+}
+
+.custom-checkbox-style-vertical {
+    margin-top: 3.5px;
+    margin-left: 5.5px;
+    vertical-align: middle;
+}
+</style>
