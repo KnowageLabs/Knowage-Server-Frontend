@@ -103,7 +103,9 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 
         const parsedInput = JSON.parse(sanitizedInput)
 
-        if (!parsedInput) if (parsedInput.arcs) return getCoordinatesFromTopoJSONCoordType(parsedInput)
+        if (!parsedInput) return []
+
+        if (parsedInput.arcs) return getCoordinatesFromTopoJSONCoordType(parsedInput)
 
         return parsedInput?.geometry?.coordinates ?? []
     } catch (error) {
