@@ -6,7 +6,7 @@
         </span>
 
         <form class="p-fluid p-formgrid p-grid p-mb-2">
-            <q-input v-if="!themeStyle" v-model="titleStyleModel.text" class="p-col-12 p-lg-6" outlined dense :label="$t('common.text')" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
+            <q-input v-if="!themeStyle" v-model="titleStyleModel.text" class="p-col-12 p-lg-6" outlined dense :label="$t('common.text')" :disabled="titleStyleDisabled" @change="titleStyleChanged(true)" />
             <q-input v-model="titleStyleModel.height" type="number" class="p-col-12 p-lg-2" outlined dense :label="$t('common.height')" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
             <q-input v-model="titleStyleModel.properties['padding-left']" class="p-col-12 p-lg-2" outlined dense :label="$t('dashboard.widgetEditor.padding.paddingLeft')" :title="$t('dashboard.widgetEditor.borders.bordersThicknessHint')" :disabled="titleStyleDisabled" @change="titleStyleChanged" />
             <q-input
@@ -68,7 +68,8 @@ export default defineComponent({
             if (this.widgetModel?.settings?.style?.title) this.titleStyleModel = this.widgetModel.settings.style.title
             else if (this.themeStyle) this.titleStyleModel = this.themeStyle
         },
-        titleStyleChanged() {
+        titleStyleChanged(titleTextChanged: boolean = false) {
+            if (titleTextChanged) return
             if (this.widgetModel) this.$emit('styleChanged')
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
