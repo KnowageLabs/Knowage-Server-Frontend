@@ -205,8 +205,11 @@ export const formatDashboardForSave = (dashboard: IDashboard) => {
         dashboard.widgets[i] = formatWidgetForSave(dashboard.widgets[i]) as IWidget
     }
     formatVariablesForSave(dashboard.configuration)
+
     const propertiesForDelete = ['allDatasetsLoaded', 'htmlGallery', 'pythonGallery', 'customChartGallery', 'currentView', 'associations', 'drivers', 'crossNavigations', 'document', 'outputParameters']
     propertiesForDelete.forEach((property: string) => delete dashboard[property])
+
+    if (dashboard.configuration.theme) delete dashboard.configuration.theme.config
 }
 
 const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration) => {
