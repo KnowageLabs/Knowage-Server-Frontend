@@ -5,12 +5,15 @@ import italy from './italy.json'
 import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
 import { addBaloonMarkers, addClusters, addGeography, addMarkers, createChoropleth } from './visualization/MapVisualizationHelper'
-import { getLayerData } from './MapWidgetDataProxy'
+import { getLayerData, getMapWidgetData } from './MapWidgetDataProxy'
 import targetDatasetDataMock from './target-dataset-data-mock.json'
 import { createDialogFromDataset } from './visualization/MapDialogHelper'
 import wktMock from './wkt-mock.json'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { feature, mesh } from 'topojson-client'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+
+const dashStore = dashboardStore()
 
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
@@ -135,7 +138,7 @@ const getCoordinatesFromTopoJSONCoordType = (parsedInput: any) => {
 }
 
 // Starting point for the data/layers logic
-export async function initializeLayers(map: L.Map, model: any, data: any) {
+export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string) {
     const markerBounds = [] as any
     for (const layer of model.settings.visualizations) {
         const layerVisualizationSettings = deepcopy(layer)
@@ -201,7 +204,12 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
                 dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
                 // TODO - Remove Mocked
-                targetDatasetData = deepcopy(targetDatasetDataMock)
+                // targetDatasetData = deepcopy(targetDatasetDataMock)
+                const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
+                const selections = dashStore.getSelections(dashboardId) ?? []
+
+                const targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
+                if (targetDatasetTempData?.[layerVisualizationSettings.targetDataset]) targetDatasetData = targetDatasetTempData[layerVisualizationSettings.targetDataset]
             }
         }
 
@@ -249,6 +257,8 @@ export async function initializeLayers(map: L.Map, model: any, data: any) {
 
     if (model.settings.configuration.map.autoCentering && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
 }
+
+const getTargetDatasetData = () => {}
 
 export function filterLayers(map: L.Map, layers): void {
     layers.forEach((layer) => {

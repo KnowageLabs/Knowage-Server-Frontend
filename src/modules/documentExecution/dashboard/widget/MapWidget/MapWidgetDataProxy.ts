@@ -5,7 +5,7 @@ import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefres
 import { IMapWidgetLayer } from '../../interfaces/mapWidget/DashboardMapWidget'
 import axios from 'axios'
 
-export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {}
     const datasetOnly = widget.layers.filter((e) => e.type === 'dataset')
     const datasetsInWidget = datasetOnly.map((e) => e.name)
@@ -17,7 +17,7 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
         const postData = formatMapModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        await $http
+        await axios
             .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse[selectedDataset.dsLabel] = response.data

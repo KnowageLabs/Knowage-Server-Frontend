@@ -1,5 +1,5 @@
 <template>
-    <LeafletWrapper :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState"></LeafletWrapper>
+    <LeafletWrapper :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId"></LeafletWrapper>
     <q-btn round push class="kn-parameter-sidebar-showLegend" color="white" text-color="black" size="sm" icon="settings" @click="showPanel = true">
         <q-tooltip :delay="500">{{ $t('common.open') }}</q-tooltip>
     </q-btn>

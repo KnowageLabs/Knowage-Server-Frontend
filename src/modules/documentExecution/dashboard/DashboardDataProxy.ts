@@ -67,7 +67,7 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
         case 'r':
             return await getRData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'map':
-            return await getMapWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+            return await getMapWidgetData(dashboardId, dashboardConfig, widget, datasets, initialCall, selections, associativeResponseSelections)
         default:
             break
     }

@@ -22,6 +22,7 @@ const props = defineProps<{
     widgetModel: any
     data: any
     layerVisibility: any
+    dashboardId: string
 }>()
 
 const mapId = 'map_' + Math.random().toString(36).slice(2, 7)
@@ -49,7 +50,7 @@ onMounted(async () => {
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
     try {
-        await initializeLayers(map, props.widgetModel, props.data)
+        await initializeLayers(map, props.widgetModel, props.data, props.dashboardId)
     } catch (error: any) {
         console.log('------- ERROR: ', error)
         appStore.setError({
