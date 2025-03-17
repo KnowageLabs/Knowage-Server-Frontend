@@ -21,7 +21,7 @@ export interface IChartJSChartSettings {
 }
 
 export interface IChartJSWidgetStyle {
-    themeName: string
+    themeId: number | null
     title: IWidgetTitle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle

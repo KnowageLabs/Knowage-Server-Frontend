@@ -1,14 +1,26 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
     <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
-        <label class="kn-material-input-label p-m-3"> {{ $t('common.themes') }}</label>
+        <label class="kn-material-input-label p-m-3">{{ $t('common.themes') }}</label>
 
         <form class="p-fluid p-formgrid p-grid p-m-1">
             <Message class="p-m-2" severity="info" :closable="false">
                 {{ $t('dashboard.generalSettings.themes.info') }}
             </Message>
             <span class="p-col-12 p-grid p-mt-2">
-                <q-select v-model="dashboardModelProp.configuration.theme.themeName" clearable emit-value class="p-col-8" outlined :options="availableThemes" option-value="themeName" option-label="themeName" :label="$t('dashboard.generalSettings.themes.dashboardTheme')" />
+                <q-select
+                    v-model="dashboardModelProp.configuration.theme.id"
+                    clearable
+                    emit-value
+                    class="p-col-8"
+                    outlined
+                    :options="availableThemes"
+                    option-value="id"
+                    option-label="themeName"
+                    map-options
+                    :label="$t('dashboard.generalSettings.themes.dashboardTheme')"
+                    @update:model-value="onThemeSelected"
+                />
                 <q-btn color="primary" class="kn-flex" :label="$t('dashboard.generalSettings.themes.editTheme')" />
             </span>
         </form>
@@ -29,6 +41,7 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import { mapActions } from 'pinia'
 import ThemeExamples from '@/modules/managers/dashboardThemeManagement/dashboardThemeManagementExamples/DashboardThemeManagementExamples.vue'
 import KnHint from '@/components/UI/KnHint.vue'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 
 export default defineComponent({
     name: 'dashboard-variables',
@@ -59,6 +72,10 @@ export default defineComponent({
             this.availableThemes = this.getAllThemes()
             this.dashboardModel = this.dashboardModelProp
             this.document = this.dashboardModelProp.document
+        },
+        onThemeSelected(selectedThemeId: number | null) {
+            const theme = this.availableThemes.find((theme: IDashboardTheme) => theme.id === selectedThemeId)
+            if (this.dashboardModelProp.configuration.theme) this.dashboardModelProp.configuration.theme.themeName = theme ? theme.themeName : ''
         }
     }
 })

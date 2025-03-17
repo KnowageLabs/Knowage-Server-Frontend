@@ -53,15 +53,6 @@
                                         <input v-model="selectedTheme.config[property.key]" type="color" @change="updateModelToSend(property.key)" />
                                         <label for="exampleTextInput" class="kn-material-input-label">{{ property.label }}</label>
                                     </span>
-                                    <span v-if="property.type === 'icon'" class="p-float-label">
-                                        <InputText id="exampleTextInput" v-model="selectedTheme.config[property.key]" class="kn-material-input p-inputtext-sm" type="text" @change="updateModelToSend(property.key)" />
-                                        <q-item class="icon-picker-button" clickable v-close-popup @click="openIconPicker(index, property.key)">
-                                            <q-item-section>
-                                                <i :class="selectedTheme.config[property.key]" />
-                                            </q-item-section>
-                                        </q-item>
-                                        <label for="exampleTextInput" class="kn-material-input-label">{{ property.label }}</label>
-                                    </span>
                                 </div>
                             </div>
                         </Fieldset>
@@ -200,7 +191,7 @@ export default defineComponent({
             // no default theme
             if (newValues) {
                 this.themeToSend = { ...newValues }
-                this.selectedTheme.id = newValues.id
+                this.selectedTheme.themeId = newValues.id
                 this.selectedTheme.themeName = newValues.themeName
                 this.selectedTheme.active = newValues.active
                 this.selectedTheme.config = { ...this.currentTheme, ...newValues.config }
@@ -232,7 +223,7 @@ export default defineComponent({
             json.active = false
             this.importWidget(json)
         },
-        importWidget(json: JSON) {
+        importWidget(json: any) {
             if (this.availableThemes.find((i) => i.themeName === json.themeName)) json.themeName = json.themeName + '_copy'
             this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/thememanagement', json).then(() => {
                 this.setInfo({ title: this.$t('managers.themeManagement.uploadTheme'), msg: this.$t('managers.themeManagement.themeSuccessfullyUploaded') })

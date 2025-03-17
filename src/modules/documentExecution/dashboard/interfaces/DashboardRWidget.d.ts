@@ -1,12 +1,12 @@
-import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from "../Dashboard"
+import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from '../Dashboard'
 
 export interface IRWidgetSettings {
-    updatable: boolean,
-    clickable: boolean,
-    configuration: IRWidgetConfiguration,
+    updatable: boolean
+    clickable: boolean
+    configuration: IRWidgetConfiguration
     editor: IREditorSettings
-    style: IRWidgetStyle,
-    interactions: IWidgetInteractions,
+    style: IRWidgetStyle
+    interactions: IWidgetInteractions
     responsive: IWidgetResponsive
 }
 
@@ -15,17 +15,17 @@ export interface IRWidgetConfiguration {
 }
 
 export interface IREditorSettings {
-    environment: string,
-    outputType: string,
-    outputName: string,
+    environment: string
+    outputType: string
+    outputName: string
     script: string
 }
 
 export interface IRWidgetStyle {
-    themeName: string
-    title: IWidgetTitle,
-    padding: IWidgetPaddingStyle,
-    borders: IWidgetBordersStyle,
-    shadows: IWidgetShadowsStyle,
+    themeId: number | null
+    title: IWidgetTitle
+    padding: IWidgetPaddingStyle
+    borders: IWidgetBordersStyle
+    shadows: IWidgetShadowsStyle
     background: IWidgetBackgroundStyle
 }

@@ -219,7 +219,7 @@
                         "color": ""
                     }
                 },
-                "themeName": "",
+                "themeId": null,
                 "title": {
                     "enabled": false,
                     "height": 25,

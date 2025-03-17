@@ -1,44 +1,43 @@
 import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetPaddingStyle, IWidgetResponsive, IWidgetRowsStyle, IWidgetShadowsStyle, IWidgetTitle } from '../Dashboard'
 
 export interface ISelectionsWidgetSettings {
-    updatable: boolean,
-    clickable: boolean,
-    configuration: ISelectionWidgetConfiguration,
-    style: ISelectionWidgetStyle,
+    updatable: boolean
+    clickable: boolean
+    configuration: ISelectionWidgetConfiguration
+    style: ISelectionWidgetStyle
     responsive: IWidgetResponsive
 }
 
 export interface ISelectionWidgetConfiguration {
-    type: "chips" | "list",
-    valuesManagement: ISelectionsWidgetValuesManagement,
-    noSelections: ISelectionsWidgetNoSelections,
+    type: 'chips' | 'list'
+    valuesManagement: ISelectionsWidgetValuesManagement
+    noSelections: ISelectionsWidgetNoSelections
     exports: IWidgetExports
 }
 
 export interface ISelectionsWidgetValuesManagement {
-    showColumn: boolean,
+    showColumn: boolean
     showDataset: boolean
 }
 
 export interface ISelectionsWidgetNoSelections {
-    enabled: boolean,
+    enabled: boolean
     customText: string
 }
 
 export interface ISelectionWidgetStyle {
-    themeName: string
-    title: IWidgetTitle,
-    chips: ISelectionWidgetChipsStyle,
-    rows: IWidgetRowsStyle,
-    padding: IWidgetPaddingStyle,
-    borders: IWidgetBordersStyle,
-    shadows: IWidgetShadowsStyle,
+    themeId: number | null
+    title: IWidgetTitle
+    chips: ISelectionWidgetChipsStyle
+    rows: IWidgetRowsStyle
+    padding: IWidgetPaddingStyle
+    borders: IWidgetBordersStyle
+    shadows: IWidgetShadowsStyle
     background: IWidgetBackgroundStyle
 }
 
-
 export interface ISelectionWidgetChipsStyle {
-    height: number,
+    height: number
     properties: {
         'font-weight': string
         'font-style': string

@@ -1,9 +1,9 @@
-import { IHTMLWidgetStyle } from "../../interfaces/DashboardHTMLWidget"
+import { IHTMLWidgetStyle } from '../../interfaces/DashboardHTMLWidget'
 import { getFormattedTitleStyle, getFormattedPaddingStyle, getFormattedBorderStyle, getFormattedShadowsStyle, getFormattedBackgroundStyle } from '../common/WidgetStyleHelper'
 
 export const getFormattedStyle = (widget: any) => {
     return {
-        themeName: '',
+        themeId: null,
         title: getFormattedTitleStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),

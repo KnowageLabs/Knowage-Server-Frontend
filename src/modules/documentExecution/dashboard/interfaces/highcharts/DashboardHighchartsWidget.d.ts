@@ -78,7 +78,7 @@ export interface IHighchartsSerieLabelSettings {
 }
 
 export interface IHighchartsWidgetStyle {
-    themeName: string
+    themeId: number | null
     title: IWidgetTitle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle
