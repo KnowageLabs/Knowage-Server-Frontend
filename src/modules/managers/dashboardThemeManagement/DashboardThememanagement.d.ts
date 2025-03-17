@@ -5,7 +5,7 @@ import { ISelectorWidgetStyle } from '@/modules/documentExecution/dashboard/inte
 import { ITextWidgetStyle as IGenericStyle } from '@/modules/documentExecution/dashboard/interfaces/DashboardTextWidget'
 
 export interface IDashboardTheme {
-    id?: string
+    themeId: number | null
     themeName: string
     config: IDashboardThemeConfig
 }

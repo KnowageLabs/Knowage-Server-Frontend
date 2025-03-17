@@ -17,7 +17,7 @@ export const createNewTextWidgetSettings = () => {
             preview: widgetCommonDefaultValues.getDefaultPreview()
         },
         style: {
-            themeName: '',
+            themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

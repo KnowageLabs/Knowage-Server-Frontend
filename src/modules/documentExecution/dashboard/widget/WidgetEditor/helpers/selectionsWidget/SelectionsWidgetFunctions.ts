@@ -14,7 +14,7 @@ export const createNewSelectionsWidgetSettings = () => {
             exports: { showExcelExport: true }
         },
         style: {
-            themeName: '',
+            themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             chips: selectionsWidgetDefaultValues.getDefaultChipsStyle(),
             rows: selectionsWidgetDefaultValues.getDefaultRowsStyle(),

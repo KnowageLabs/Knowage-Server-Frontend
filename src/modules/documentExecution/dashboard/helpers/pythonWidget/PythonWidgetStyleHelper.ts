@@ -1,10 +1,9 @@
-import { IPythonWidgetStyle } from "../../interfaces/DashboardPythonWidget"
-import { getFormattedBackgroundStyle, getFormattedBorderStyle, getFormattedPaddingStyle, getFormattedShadowsStyle, getFormattedTitleStyle } from "../common/WidgetStyleHelper"
-
+import { IPythonWidgetStyle } from '../../interfaces/DashboardPythonWidget'
+import { getFormattedBackgroundStyle, getFormattedBorderStyle, getFormattedPaddingStyle, getFormattedShadowsStyle, getFormattedTitleStyle } from '../common/WidgetStyleHelper'
 
 export const getFormattedStyle = (widget: any) => {
     return {
-        themeName: '',
+        themeId: null,
         title: getFormattedTitleStyle(widget),
         padding: getFormattedPaddingStyle(widget),
         borders: getFormattedBorderStyle(widget),

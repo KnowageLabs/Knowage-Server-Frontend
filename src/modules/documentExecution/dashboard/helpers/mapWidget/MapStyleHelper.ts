@@ -1,13 +1,13 @@
-import { IMapWidgetStyle } from './../../interfaces/mapWidget/DashboardMapWidget.d';
-import { getFormattedTitleStyle, getFormattedBorderStyle, getFormattedBackgroundStyle, getFormattedPaddingStyle, getFormattedShadowsStyle } from './../common/WidgetStyleHelper';
+import { IMapWidgetStyle } from './../../interfaces/mapWidget/DashboardMapWidget.d'
+import { getFormattedTitleStyle, getFormattedBorderStyle, getFormattedBackgroundStyle, getFormattedPaddingStyle, getFormattedShadowsStyle } from './../common/WidgetStyleHelper'
 
 export const getFormattedStyle = (widget: any) => {
     return {
-        themeName: '',
+        themeId: null,
         title: getFormattedTitleStyle(widget),
         borders: getFormattedBorderStyle(widget),
         background: getFormattedBackgroundStyle(widget),
         padding: getFormattedPaddingStyle(widget),
-        shadows: getFormattedShadowsStyle(widget),
+        shadows: getFormattedShadowsStyle(widget)
     } as IMapWidgetStyle
 }

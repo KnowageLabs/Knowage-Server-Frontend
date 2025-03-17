@@ -1,7 +1,7 @@
 <template>
     <div class="dashboardEditor">
         <Toolbar class="kn-toolbar kn-toolbar--primary">
-            <template #start> {{ $t('dashboard.generalSettings.title') }} </template>
+            <template #start>{{ $t('dashboard.generalSettings.title') }}</template>
             <template #end>
                 <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="saveGeneralSettings" />
                 <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="$emit('closeGeneralSettings')" />
@@ -142,8 +142,8 @@ export default defineComponent({
             }
 
             this.dashboardModel.configuration.variables = this.variables
-            if (this.dashboardModel.configuration.theme?.themeName) {
-                const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.themeName)
+            if (this.dashboardModel.configuration.theme?.themeId) {
+                const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.themeId)
                 if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
                 applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
             }
@@ -152,9 +152,9 @@ export default defineComponent({
             if (refreshWidgets) emitter.emit('refreshAfterGeneralSettingsChange')
             this.$emit('closeGeneralSettings')
         },
-        getSelectedTheme(themeName: string) {
+        getSelectedTheme(themeId: number | null) {
             const allThemes = this.getAllThemes()
-            return allThemes.find((theme: IDashboardTheme) => theme.themeName === themeName)
+            return allThemes.find((theme: IDashboardTheme) => theme.themeId === themeId)
         },
         onCustomHeaderSaved(customHeader: IWidget) {
             this.dashboardModel.configuration.customHeader = deepcopy(customHeader)

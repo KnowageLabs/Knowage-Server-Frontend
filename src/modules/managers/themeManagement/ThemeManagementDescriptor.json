@@ -2,6 +2,7 @@
     "emptyTheme": {
         "active": false,
         "config": {},
+        "themeId": null,
         "themeName": "New Custom Theme"
     },
     "examples": {

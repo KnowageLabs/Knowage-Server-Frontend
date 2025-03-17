@@ -33,7 +33,7 @@
             <div class="p-p-2 p-mt-2 p-d-flex p-ai-center">
                 <span class="p-float-label kn-flex">
                     <InputText id="themeName" v-model="themeToSend.themeName" class="kn-material-input" type="text" />
-                    <label for="themeName" class="kn-material-input-label"> Theme name </label>
+                    <label for="themeName" class="kn-material-input-label">Theme name</label>
                 </span>
                 <InputSwitch v-model="themeToSend.active" v-tooltip="'active'"></InputSwitch>
             </div>
@@ -46,12 +46,12 @@
                                 <div class="p-field">
                                     <span v-if="property.type === 'text'" class="p-float-label">
                                         <InputText id="exampleTextInput" v-model="selectedTheme.config[property.key]" class="kn-material-input p-inputtext-sm" type="text" @change="updateModelToSend(property.key)" />
-                                        <label for="exampleTextInput" class="kn-material-input-label"> {{ property.label }} </label>
+                                        <label for="exampleTextInput" class="kn-material-input-label">{{ property.label }}</label>
                                     </span>
                                     <span v-if="property.type === 'color'" class="p-float-label">
                                         <InputText id="exampleTextInput" v-model="selectedTheme.config[property.key]" class="kn-material-input p-inputtext-sm" type="text" @change="updateModelToSend(property.key)" />
                                         <input v-model="selectedTheme.config[property.key]" type="color" @change="updateModelToSend(property.key)" />
-                                        <label for="exampleTextInput" class="kn-material-input-label"> {{ property.label }} </label>
+                                        <label for="exampleTextInput" class="kn-material-input-label">{{ property.label }}</label>
                                     </span>
                                 </div>
                             </div>
@@ -184,7 +184,7 @@ export default defineComponent({
             // no default theme
             if (newValues) {
                 this.themeToSend = { ...newValues }
-                this.selectedTheme.id = newValues.id
+                this.selectedTheme.themeId = newValues.themeId
                 this.selectedTheme.themeName = newValues.themeName
                 this.selectedTheme.active = newValues.active
                 this.selectedTheme.config = { ...this.currentTheme, ...newValues.config }
@@ -216,7 +216,7 @@ export default defineComponent({
             json.active = false
             this.importWidget(json)
         },
-        importWidget(json: JSON) {
+        importWidget(json: any) {
             if (this.availableThemes.find((i) => i.themeName === json.themeName)) json.themeName = json.themeName + '_copy'
             this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/thememanagement', json).then(() => {
                 this.setInfo({ title: this.$t('managers.themeManagement.uploadTheme'), msg: this.$t('managers.themeManagement.themeSuccessfullyUploaded') })

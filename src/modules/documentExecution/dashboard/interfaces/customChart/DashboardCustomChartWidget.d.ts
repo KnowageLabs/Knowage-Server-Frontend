@@ -1,4 +1,4 @@
-import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from "../../Dashboard"
+import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from '../../Dashboard'
 
 export interface ICustomChartWidgetSettings {
     updatable: boolean
@@ -10,10 +10,9 @@ export interface ICustomChartWidgetSettings {
     responsive: IWidgetResponsive
 }
 
-
 export interface ICustomChartWidgetEditor {
-    css: string,
-    html: string,
+    css: string
+    html: string
     js: string
 }
 
@@ -21,9 +20,8 @@ export interface ICustomChartWidgetConfiguration {
     exports: IWidgetExports
 }
 
-
 export interface ICustomChartStyle {
-    themeName: string
+    themeId: number | null
     title: IWidgetTitle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle

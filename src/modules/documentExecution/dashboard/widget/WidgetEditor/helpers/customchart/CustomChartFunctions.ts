@@ -14,7 +14,7 @@ export const createNewCustomChartSettings = () => {
             iframe: widgetCommonDefaultValues.getDefaultIFrameInteraction()
         },
         style: {
-            themeName: '',
+            themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

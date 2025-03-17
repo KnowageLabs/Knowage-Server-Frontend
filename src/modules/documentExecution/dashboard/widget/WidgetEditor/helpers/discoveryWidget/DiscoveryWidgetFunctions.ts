@@ -23,7 +23,7 @@ export const createNewDiscoveryWidgetSettings = () => {
             selection: { enabled: true }
         },
         style: {
-            themeName: '',
+            themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             headers: tableWidgetDefaultValues.getDefaultHeadersStyle(),

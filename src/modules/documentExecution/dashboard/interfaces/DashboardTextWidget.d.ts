@@ -21,7 +21,7 @@ export interface ITextWidgetConfiguration {
 }
 
 export interface ITextWidgetStyle {
-    themeName: string
+    themeId: number | null
     title: IWidgetTitle
     padding: IWidgetPaddingStyle
     borders: IWidgetBordersStyle

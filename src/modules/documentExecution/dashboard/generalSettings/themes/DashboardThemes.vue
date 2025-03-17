@@ -1,14 +1,14 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
     <div class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
-        <label class="kn-material-input-label p-m-3"> {{ $t('common.themes') }}</label>
+        <label class="kn-material-input-label p-m-3">{{ $t('common.themes') }}</label>
 
         <form class="p-fluid p-formgrid p-grid p-m-1">
             <Message class="p-m-2" severity="info" :closable="false">
                 {{ $t('dashboard.generalSettings.themes.info') }}
             </Message>
             <span class="p-col-12 p-grid p-mt-2">
-                <q-select v-model="dashboardModelProp.configuration.theme.themeName" clearable emit-value class="p-col-8" outlined :options="availableThemes" option-value="themeName" option-label="themeName" :label="$t('dashboard.generalSettings.themes.dashboardTheme')" />
+                <q-select v-model="dashboardModelProp.configuration.theme.themeName" clearable emit-value class="p-col-8" outlined :options="availableThemes" option-value="themeName" option-label="themeName" :label="$t('dashboard.generalSettings.themes.dashboardTheme')" @change="onThemeSelected" />
                 <q-btn color="primary" class="kn-flex" :label="$t('dashboard.generalSettings.themes.editTheme')" />
             </span>
         </form>
@@ -59,6 +59,9 @@ export default defineComponent({
             this.availableThemes = this.getAllThemes()
             this.dashboardModel = this.dashboardModelProp
             this.document = this.dashboardModelProp.document
+        },
+        onThemeSelected(event: any) {
+            console.log('------- THEME SELECTED: ', event)
         }
     }
 })
