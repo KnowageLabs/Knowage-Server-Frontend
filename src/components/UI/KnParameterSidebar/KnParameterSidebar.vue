@@ -1,7 +1,10 @@
 <template>
     <div class="kn-parameter-sidebar" :class="positionClass">
-        <div class="p-fluid kn-parameter-sidebar-content kn-alternated-rows">
-            <div v-if="user && (!sessionRole || sessionRole === $t('role.defaultRolePlaceholder')) && (mode === 'execution' || mode === 'qbeView' || (mode === 'workspaceView' && dataset?.drivers?.length > 0)) && availableRolesForExecution.length > 1" class="p-field p-my-1 p-p-2">
+        <div class="p-fluid kn-parameter-sidebar-content kn-param-sidebar-alternated-rows">
+            <div
+                v-if="user && (!sessionRole || sessionRole === $t('role.defaultRolePlaceholder')) && (mode === 'execution' || mode === 'qbeView' || mode === 'datasetManagement' || (mode === 'workspaceView' && dataset?.drivers?.length > 0)) && availableRolesForExecution.length > 1"
+                class="p-field p-my-1 p-p-2"
+            >
                 <div class="p-d-flex">
                     <label class="kn-material-input-label">{{ $t('common.roles') }}</label>
                 </div>
@@ -12,9 +15,9 @@
                 <div v-for="(qbeParameter, index) in qbeParameters" :key="index">
                     <div class="p-field p-m-4">
                         <div class="p-d-flex">
-                            <label class="kn-material-input-label"
-                                >{{ qbeParameter.name }}
-                                <span v-if="mode !== 'datasetManagement'"> *</span>
+                            <label class="kn-material-input-label">
+                                {{ qbeParameter.name }}
+                                <span v-if="mode !== 'datasetManagement'">*</span>
                             </label>
                             <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="qbeParameter.value = qbeParameter.defaultValue"></i>
                         </div>
@@ -41,8 +44,9 @@
                                 'p-text-italic': parameter.dependsOnParameters || parameter.lovDependsOnParameters
                             }"
                             :data-test="'parameter-input-label-' + parameter.id"
-                            >{{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}</label
                         >
+                            {{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}
+                        </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" :data-test="'parameter-input-clear-' + parameter.id" @click="resetParameterValue(parameter)"></i>
                     </div>
                     <InputText
@@ -66,8 +70,9 @@
                                 'p-text-italic': parameter.dependsOnParameters || parameter.lovDependsOnParameters
                             }"
                             :data-test="'parameter-date-label-' + parameter.id"
-                            >{{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}</label
                         >
+                            {{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}
+                        </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" :data-test="'parameter-date-clear-' + parameter.id" @click="resetParameterValue(parameter)"></i>
                     </div>
                     <Calendar
@@ -95,17 +100,16 @@
                                 'p-text-italic': parameter.dependsOnParameters || parameter.lovDependsOnParameters
                             }"
                             :data-test="'parameter-checkbox-label-' + parameter.id"
-                            >{{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}</label
                         >
+                            {{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}
+                        </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" :data-test="'parameter-checkbox-clear-' + parameter.id" @click="resetParameterValue(parameter)"></i>
                     </div>
-                    <ScrollPanel class="inputScrollPanel">
-                        <div v-for="(option, index) in parameter.data" :key="index" class="p-field-radiobutton" :data-test="'parameter-list-' + parameter.id">
-                            <RadioButton v-if="!parameter.multivalue && parameter.parameterValue" v-model="parameter.parameterValue[0].value" :value="option.value" @change="setRadioButtonValue(parameter)" />
-                            <Checkbox v-if="parameter.multivalue && parameter.parameterValue" v-model="selectedParameterCheckbox[parameter.id]" :value="option.value" @change="setCheckboxValue(parameter)" />
-                            <label>{{ option.description }}</label>
-                        </div>
-                    </ScrollPanel>
+                    <div v-for="(option, index) in parameter.data" :key="index" class="p-field-radiobutton" :data-test="'parameter-list-' + parameter.id">
+                        <RadioButton v-if="!parameter.multivalue && parameter.parameterValue" v-model="parameter.parameterValue[0].value" :value="option.value" @change="setRadioButtonValue(parameter)" />
+                        <Checkbox v-if="parameter.multivalue && parameter.parameterValue" v-model="selectedParameterCheckbox[parameter.id]" :value="option.value" @change="setCheckboxValue(parameter)" />
+                        <label>{{ option.description }}</label>
+                    </div>
                 </div>
                 <div v-if="parameter.selectionType === 'COMBOBOX' && parameter.showOnPanel === 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
                     <div class="p-d-flex">
@@ -115,8 +119,9 @@
                                 'kn-required-alert': parameter.mandatory && ((!parameter.multivalue && parameter.parameterValue && !parameter.parameterValue[0]?.value) || (parameter.multivalue && parameter.parameterValue?.length === 0)),
                                 'p-text-italic': parameter.dependsOnParameters || parameter.lovDependsOnParameters
                             }"
-                            >{{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}</label
                         >
+                            {{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}
+                        </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
                     <Dropdown v-if="!parameter.multivalue && parameter.parameterValue[0]" v-model="parameter.parameterValue[0].value" class="kn-material-input" :options="parameter.data" option-value="value" option-label="description" @change="onDropdownChange(parameter)" />
@@ -131,15 +136,14 @@
                                 'kn-required-alert': parameter.mandatory && ((!parameter.multivalue && parameter.parameterValue && !parameter.parameterValue[0]?.value) || (parameter.multivalue && parameter.parameterValue?.length === 0)),
                                 'p-text-italic': parameter.dependsOnParameters || parameter.lovDependsOnParameters
                             }"
-                            >{{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}</label
                         >
+                            {{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}
+                        </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
                     <div class="p-d-flex p-flex-row">
                         <i class="pi pi-external-link kn-cursor-pointer p-mr-2" @click="openPopupDialog(parameter)"></i>
-                        <ScrollPanel class="lookupScrollPanel">
-                            <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
-                        </ScrollPanel>
+                        <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index" class="parameterValueChip">{{ parameterValue.description ?? parameterValue.value }}</Chip>
                     </div>
                 </div>
                 <div v-if="parameter.selectionType === 'TREE' && parameter.showOnPanel === 'true' && parameter.visible" class="p-field p-my-1 p-p-2">
@@ -150,26 +154,27 @@
                                 'kn-required-alert': parameter.mandatory && ((!parameter.multivalue && parameter.parameterValue && !parameter.parameterValue[0]?.value) || (parameter.multivalue && parameter.parameterValue?.length === 0)),
                                 'p-text-italic': parameter.dependsOnParameters || parameter.lovDependsOnParameters
                             }"
-                            >{{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}</label
                         >
+                            {{ parameter.label }} {{ parameter.mandatory ? '*' : '' }}
+                        </label>
                         <i v-tooltip.left="$t('documentExecution.main.parameterClearTooltip')" class="fa fa-eraser parameter-clear-icon kn-cursor-pointer" @click="resetParameterValue(parameter)"></i>
                     </div>
                     <div class="p-d-flex p-flex-row">
                         <i class="pi pi-external-link kn-cursor-pointer p-mr-2" @click="openTreeDialog(parameter)"></i>
                         <div>
-                            <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index">{{ parameterValue.description ?? parameterValue.value }} </Chip>
+                            <Chip v-for="(parameterValue, index) in parameter.parameterValue" :key="index">{{ parameterValue.description ?? parameterValue.value }}</Chip>
                         </div>
                     </div>
                 </div>
             </template>
         </div>
         <div v-if="(parameters && parameters.filterStatus.length > 0) || mode === 'qbeView' || mode === 'workspaceView' || mode === 'datasetManagement'" class="p-fluid p-d-flex p-flex-row p-m-2 kn-parameter-sidebar-buttons">
-            <Button class="kn-button kn-button--primary" :disabled="buttonsDisabled" data-test="execution" @click="$emit('execute', qbeParameters, parameters)"> {{ $t('common.execute') }}</Button>
+            <Button class="kn-button kn-button--primary" :disabled="buttonsDisabled" data-test="execution" @click="$emit('execute', qbeParameters, parameters)">{{ $t('common.execute') }}</Button>
             <Button v-if="mode !== 'qbeView' && mode !== 'workspaceView' && mode !== 'datasetManagement'" class="kn-button kn-button--primary p-ml-1" icon="fa fa-chevron-down" :disabled="buttonsDisabled" @click="toggle($event)" />
             <Menu ref="executeButtonMenu" :model="executeMenuItems" :popup="true" data-test="menu" />
         </div>
         <KnParameterPopupDialog v-if="popupDialogVisible" :visible="popupDialogVisible" :selected-parameter="selectedParameter" :prop-loading="loading" :parameter-pop-up-data="parameterPopUpData" @close="popupDialogVisible = false" @save="onPopupSave"></KnParameterPopupDialog>
-        <KnParameterTreeDialog v-if="treeDialogVisible" :visible="treeDialogVisible" :selected-parameter="selectedParameter" :formated-parameter-values="formatedParameterValues" :document="document" :mode="mode" :selected-role="role" @close="onTreeClose" @save="onTreeSave"> </KnParameterTreeDialog>
+        <KnParameterTreeDialog v-if="treeDialogVisible" :visible="treeDialogVisible" :selected-parameter="selectedParameter" :formated-parameter-values="formatedParameterValues" :document="document" :mode="mode" :selected-role="role" @close="onTreeClose" @save="onTreeSave"></KnParameterTreeDialog>
         <KnParameterSavedParametersDialog :visible="savedParametersDialogVisible" :prop-viewpoints="viewpoints" @close="savedParametersDialogVisible = false" @fillForm="fillParameterForm" @executeViewpoint="executeViewpoint" @deleteViewpoint="deleteViewpoint"></KnParameterSavedParametersDialog>
     </div>
 </template>
@@ -192,14 +197,12 @@ import KnParameterSavedParametersDialog from './dialogs/KnParameterSavedParamete
 import Menu from 'primevue/menu'
 import MultiSelect from 'primevue/multiselect'
 import RadioButton from 'primevue/radiobutton'
-import ScrollPanel from 'primevue/scrollpanel'
 import mainStore from '../../../App.store'
-import { getCorrectRolesForExecutionForType } from '../../../helpers/commons/roleHelper'
 import { parameterSidebarEmitter } from '@/components/UI/KnParameterSidebar/KnParameterSidebarHelper'
 
 export default defineComponent({
     name: 'kn-parameter-sidebar',
-    components: { Calendar, Chip, Chips, Checkbox, Dropdown, KnParameterPopupDialog, KnParameterTreeDialog, KnParameterSavedParametersDialog, Menu, MultiSelect, RadioButton, ScrollPanel },
+    components: { Calendar, Chip, Chips, Checkbox, Dropdown, KnParameterPopupDialog, KnParameterTreeDialog, KnParameterSavedParametersDialog, Menu, MultiSelect, RadioButton },
     props: {
         filtersData: { type: Object },
         propDocument: { type: Object },
@@ -208,7 +211,7 @@ export default defineComponent({
         propQBEParameters: { type: Array },
         dateFormat: { type: String },
         dataset: { type: Object },
-        correctRolesForExecution: { type: Array },
+        correctRolesForExecution: { type: Array as PropType<string[] | null> },
         loadFromDatasetManagement: { type: Boolean, default: false },
         showInDialog: { type: Boolean }
     },
@@ -326,15 +329,6 @@ export default defineComponent({
                 } else if (this.document.type == 'federatedDataset' && this.document.federation_id) {
                     typeCode = 'FEDERATED_DATASET'
                     id = this.document.federation_id
-                }
-
-                if (id || (this.document.label && this.document.label !== 'new-dashboard')) {
-                    getCorrectRolesForExecutionForType(typeCode, id, this.document.label).then((response: any) => {
-                        this.availableRolesForExecution = response
-                        if (!this.role && this.availableRolesForExecution.length == 1) {
-                            this.role = this.availableRolesForExecution[0]
-                        }
-                    })
                 }
             }
         },

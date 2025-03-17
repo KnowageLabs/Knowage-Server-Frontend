@@ -59,6 +59,8 @@
             "python": "python"
         },
         "collapse": "collapse",
+        "lock": "Lock",
+        "unlock": "Unlock",
         "color": "Color",
         "colors": "Colors",
         "column": "Column",
@@ -147,6 +149,7 @@
             "dataLoading": "Loading data. Please wait.",
             "emptySearch": "The search returns no data",
             "info": "Info",
+            "noAvailableItems": "No available items",
             "noDataFound": "No data found",
             "noElementSelected": "No element selected",
             "noImageFound": "No image available"
@@ -168,6 +171,7 @@
         "library": "Library",
         "list": "List",
         "load": "Load",
+        "locale": "Locale",
         "locked": "Locked",
         "loggedUser": "logged user",
         "login": "Login",
@@ -471,6 +475,8 @@
             },
             "css": "CSS Editor",
             "customHeader": "Custom Header",
+            "executionDate": "Execution Date",
+            "executionTime": "Execution Time",
             "menuWidgets": {
                 "enableCaching": "Enable dashboard caching",
                 "enableChartChange": "Enable chart changing",
@@ -487,6 +493,14 @@
                 "dashboardThemeHint": "Work in progress, themes preview will be soon visible here",
                 "editTheme": "Edit Theme",
                 "info": "Theme is a collection of styles that will be applied to all widgets. You can select a one from the available ones or create a new one in Dashboard Theme Manager"
+            },
+            "timeFormats": {
+                "dateTimeFull": "Full Date And Time",
+                "dateTimeMedium": "Medium Date And Time",
+                "mediumDate": "Medium Date",
+                "shortDate": "Short Date",
+                "simpleTime": "Simple Time",
+                "timeWithSeconds": "Time With Seconds"
             },
             "title": "General Settings",
             "variableColumnHint": "If no column is defined the whole dataset will be used.",
@@ -2451,9 +2465,12 @@
                 },
                 "dialect": "Dialect",
                 "driver": "Driver",
+                "driverHint": "The specific JDBC class for the driver. For example: org.postgresql.Driver",
                 "errorTitle": "Connection KO",
+                "jdbcInfo": "A JDBC (Java Database Connectivity) connection is an interface that allows Java applications to interact with relational databases in a standardized way, usually specifying a host and the related connection parameters.",
                 "jndi": "JNDI Name",
-                "jndiInfo": "For the data source configuration you should specify the connection pool configured inside the application server. For example: java:comp/env/jdbc/foodmart",
+                "jndiHint": "For the data source configuration you should specify the connection pool configured inside the application server. For example: java:comp/env/jdbc/foodmart",
+                "jndiInfo": "JNDI (Java Naming and Directory Interface) allows Java to look up and retrieve database connections using a logical name configured in the application server, usually the server.xml. For standard reasons the name should start with java:comp/env/jdbc",
                 "multischema": "Multischema",
                 "notOwner": "You are not the owner of this data source.",
                 "pwd": "Password (Only If Changed)",
@@ -2461,7 +2478,8 @@
                 "readOnly": "Read Only",
                 "schemaAttribute": "Multischema Attribute",
                 "testOk": "Tested parameters are correct!",
-                "urlConnection": "URL",
+                "urlConnection": "Connection URL",
+                "urlConnectionHint": "The connection URL is a string that specifies the address of the database to connect to. It is composed of the protocol, the host, the port, and the database name. Ie: jdbc:mysql://localhost:3306/foodmart",
                 "useForDataprep": "Use for data preparation",
                 "user": "User",
                 "writeDefault": "Use as cache"
@@ -2632,9 +2650,10 @@
             "development": "Development",
             "execution": "Execution",
             "hint": "The functionalities management page allows you to create folders to contain the users reports and documents. It's also possible to set the folders visibility depending on the users roles. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
-            "moveDown ": " Move down",
-            "moveUp": " Move up",
+            "moveDown": "Move down",
+            "moveUp": "Move up",
             "roles": "Roles",
+            "swapParent": "Swap with parent",
             "table": {
                 "creationHeader": "Creation",
                 "developmentHeader": "Development",
@@ -2846,7 +2865,7 @@
             },
             "fileLocation": "File Location",
             "filterTitle": "Filter",
-            "hint": "Change the hint to your liking inside the messages.json.",
+            "hint": "Layers are the main elements of a map. They can be of different types and can be added to the map to show different data. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "layerFilter": "Layer Filter",
             "layerFilterAdded": "Layer Filter Added",
             "layerIdentify": "Layer ID",
@@ -2857,9 +2876,11 @@
             "layerParams": "Params",
             "layerTitle": "Layer",
             "layerTypes": {
+                "geojson": "GeoJSON",
                 "google": "Google",
                 "osm": "OSM",
                 "tms": "TMS",
+                "topojson": "TopoJSON",
                 "wfs": "WFS",
                 "wms": "WMS"
             },
@@ -2918,13 +2939,14 @@
                 "document": "Related document",
                 "externalApplicationUrl": "Application's url",
                 "functionality": "Choose Functionality",
-                "initialPath": "Open workspace on:",
+                "initialPath": "Open {functionality} on:",
+                "initialPathDialog": "Open {functionality} folder selector",
                 "menuNodeContent": "Menu node content",
                 "name": "Name",
                 "objParameters": "Document parameters",
                 "staticPage": "HTML Page"
             },
-            "hint": "Menu configuration allows you to manage menu entries.",
+            "hint": "Menu configuration allows you to manage menu entries. You can create a menu item, set the name, the description and the icon that will be visible in the side menu. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "info": {
                 "createMessage": "Menu item created",
                 "createTitle": "Create menu item",
@@ -2938,6 +2960,7 @@
                 "updateMessage": "Menu item updated",
                 "updateTitle": "Update menu item"
             },
+            "noRoles": "No roles available. Check if the one you are searching for is present in the parent menu object",
             "roles": "Roles",
             "selectDocument": "Select document",
             "title": "List of menus"

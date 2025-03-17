@@ -158,6 +158,7 @@ export default defineComponent({
 
             try {
                 this.highchartsInstance = Highcharts.chart(this.chartID, modelToRender as any)
+                this.addAditionalCSSClasses(modelToRender)
                 this.highchartsInstance.reflow()
             } catch (error: any) {
                 this.setError({
@@ -165,6 +166,15 @@ export default defineComponent({
                     msg: error ? error.message : ''
                 })
             }
+        },
+        addAditionalCSSClasses(modelToRender: IHighchartsChartModel) {
+            if (!modelToRender.plotOptions?.series?.showCheckbox || !modelToRender.legend) return
+            setTimeout(() => {
+                const horizontalAlignment = modelToRender.legend.layout === 'horizontal'
+                document.querySelectorAll('.highcharts-legend-checkbox').forEach((el) => {
+                    el.classList.add(horizontalAlignment ? 'custom-checkbox-style-horizontal' : 'custom-checkbox-style-vertical')
+                })
+            }, 100)
         },
         updateLegendSettings() {
             if (this.chartModel.plotOptions.pie) this.chartModel.plotOptions.pie.showInLegend = true
@@ -216,7 +226,7 @@ export default defineComponent({
                 const tempDataLabelSettings = this.widgetModel.settings.chartModel?.model?.series[0] && this.widgetModel.settings.chartModel.model.series[0].data[0] ? this.widgetModel.settings.chartModel.model.series[0].data[0].dataLabels : null
                 const numberOfAttributeColumns = this.getNumberOfAttributeColumnsFromWidgetModel()
                 if (!event.point || numberOfAttributeColumns - 1 === this.drillLevel) return
-                const dashboardDatasets = this.getDashboardDatasets(this.dashboardId as any)
+                const dashboardDatasets = this.getDashboardDatasets(this.dashboardId)
                 this.drillLevel++
                 const category = this.widgetModel.columns[this.drillLevel - 1]
                 this.likeSelections.push({ [category.columnName]: event.point.name })
@@ -372,3 +382,17 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss">
+.custom-checkbox-style-horizontal {
+    margin-top: 3.3px;
+    margin-left: -10px;
+    vertical-align: middle;
+}
+
+.custom-checkbox-style-vertical {
+    margin-top: 3.5px;
+    margin-left: 5.5px;
+    vertical-align: middle;
+}
+</style>

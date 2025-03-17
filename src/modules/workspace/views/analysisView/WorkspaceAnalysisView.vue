@@ -12,8 +12,8 @@
                 <q-menu data-test="menu">
                     <q-list dense style="min-width: 200px">
                         <q-item v-for="item in creationMenuButtons" :key="item" v-close-popup clickable @click="item.command">
-                            <q-item-section
-                                ><div>
+                            <q-item-section>
+                                <div>
                                     {{ item.label }}
                                     <q-badge v-if="item.beta" rounded color="red" text-color="white" label="Beta" />
                                 </div>
@@ -115,7 +115,6 @@ import { AxiosResponse } from 'axios'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import WorkspaceCockpitDialog from './dialogs/WorkspaceCockpitDialog.vue'
 import mainStore from '../../../../App.store'
-import { getCorrectRolesForExecution } from '../../../../helpers/commons/roleHelper'
 import { mapActions, mapState } from 'pinia'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 import DocumentDetailDossierDesignerDialog from '@/modules/documentExecution/documentDetails/dialogs/dossierDesignerDialog/DocumentDetailDossierDesignerDialog.vue'
@@ -218,9 +217,7 @@ export default defineComponent({
 
         },
         executeAnalysisDocument(document: any) {
-            getCorrectRolesForExecution(document).then(() => {
-                this.$emit('execute', document)
-            })
+            this.$emit('execute', document)
         },
         openKpiDesigner(analysis: any) {
             this.$router.push(`/kpi-edit/${analysis?.id}?from=Workspace`)

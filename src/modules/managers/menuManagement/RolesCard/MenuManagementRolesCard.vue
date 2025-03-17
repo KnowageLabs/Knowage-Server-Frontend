@@ -1,5 +1,5 @@
 <template>
-    <Card class="p-mx-auto">
+    <Card class="q-ma-md q-mt-sm">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--secondary">
                 <template #start>
@@ -8,33 +8,23 @@
             </Toolbar>
         </template>
         <template #content>
-            <DataTable
-                v-model:filters="filters"
-                v-model:selection="selectedRoles"
-                :value="rolesListFiltered"
-                class="p-datatable-sm kn-table"
-                data-key="id"
-                responsive-layout="stack"
-                breakpoint="960px"
-                @rowSelect="onRowSelect"
-                @rowUnselect="onRowUnselect"
-                @rowSelectAll="onAllRowSelectionChange"
-                @rowUnselectAll="onAllRowSelectionChange"
-            >
-                <template #empty>
-                    {{ $t('common.info.noDataFound') }}
+            <div class="row q-mb-sm">
+                <q-input dense outlined square v-model="filter" class="col-4" :placeholder="$t('common.search')" data-test="search-input">
+                    <template v-slot:prepend>
+                        <q-icon name="search" />
+                    </template>
+                </q-input>
+            </div>
+            <q-table flat dense hide-pagination :rows="rolesListFiltered" :filter="filter" :pagination="{ rowsPerPage: 0 }" :columns="columns" row-key="name" selection="multiple" v-model:selected="selectedRoles" @update:selected="$emit('changed', $event)">
+                <template #no-data>
+                    <q-banner rounded dense class="bg-warning q-ma-sm text-center full-width">
+                        <template v-slot:avatar>
+                            <q-icon name="warning" />
+                        </template>
+                        {{ $t('managers.menuManagement.noRoles') }}
+                    </q-banner>
                 </template>
-                <template #header>
-                    <div class="table-header">
-                        <span class="p-input-icon-left">
-                            <i class="pi pi-search" />
-                            <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0" data-test="search-input" />
-                        </span>
-                    </div>
-                </template>
-                <Column selection-mode="multiple" data-key="id" style="width:50px"></Column>
-                <Column field="name" :header="$t('common.name')"></Column>
-            </DataTable>
+            </q-table>
         </template>
     </Card>
 </template>
@@ -44,7 +34,6 @@ import { defineComponent, PropType } from 'vue'
 import Card from 'primevue/card'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
-import { filterDefault } from '@/helpers/commons/filterHelper'
 import { iRole } from '../MenuManagement'
 
 export default defineComponent({
@@ -67,9 +56,8 @@ export default defineComponent({
     data() {
         return {
             selectedRoles: [] as iRole[] | null,
-            filters: {
-                global: [filterDefault]
-            }
+            filter: null as string | null,
+            columns: [{ name: 'name', sortable: true, field: 'name', label: this.$t('managers.functionalitiesManagement.roles'), align: 'left' }]
         }
     },
     computed: {
@@ -82,27 +70,9 @@ export default defineComponent({
             }
         }
     },
-    watch: {
-        selected: {
-            handler: function(selected: iRole[]) {
-                this.selectedRoles = selected
-            }
-        }
-    },
-    created() {
+    updated() {
         if (this.selected) {
             this.selectedRoles = this.selected
-        }
-    },
-    methods: {
-        onRowSelect() {
-            this.$emit('changed', this.selectedRoles)
-        },
-        onRowUnselect() {
-            this.$emit('changed', this.selectedRoles)
-        },
-        onAllRowSelectionChange() {
-            setTimeout(() => this.$emit('changed', this.selectedRoles), 0)
         }
     }
 })

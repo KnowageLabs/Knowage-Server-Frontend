@@ -32,17 +32,18 @@
                 <q-td class="kn-truncated">
                     <div class="row">
                         <div class="kn-truncated" style="max-width: 300px; font-size: 0.8rem">
-                            {{ props.value }}<q-tooltip>{{ props.value }}</q-tooltip>
+                            {{ props.value }}
+                            <q-tooltip>{{ props.value }}</q-tooltip>
                         </div>
                     </div>
                 </q-td>
             </template>
             <template #body-cell-visible="props">
-                <q-td class="text-center"
-                    ><q-icon :name="props.value ? 'visibility' : 'visibility_off'">
+                <q-td class="text-center">
+                    <q-icon :name="props.value ? 'visibility' : 'visibility_off'">
                         <q-tooltip>{{ props.value ? $t('common.visible') : $t('common.notVisible') }}</q-tooltip>
-                    </q-icon></q-td
-                >
+                    </q-icon>
+                </q-td>
             </template>
             <template #body-cell-play="slotProps">
                 <q-td class="text-center">
@@ -105,9 +106,7 @@ export default defineComponent({
             return status ? this.$t(documentBrowserTableDescriptor.status[status] ?? '') : ''
         },
         executeDocument(document: any) {
-            getCorrectRolesForExecution(document).then(() => {
-                this.$emit('itemSelected', { item: document, mode: 'execute' })
-            })
+            this.$emit('itemSelected', { item: document, mode: 'execute' })
         },
         getTranslatedValue(value: string, fieldType: string) {
             if (fieldType !== 'name' && fieldType !== 'label') return value

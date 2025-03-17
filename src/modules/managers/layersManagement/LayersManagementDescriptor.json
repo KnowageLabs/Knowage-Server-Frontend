@@ -24,16 +24,10 @@
         "titleField": "name"
     },
     "newLayer": {
-        "baseLayer": false,
         "category_id": null,
         "descr": "",
         "icon": null,
         "label": null,
-        "layerId2": null,
-        "layerIdentify": null,
-        "layerLabel": null,
-        "layerName": null,
-        "layerOrder": null,
         "name": null,
         "properties": [],
         "roles": [],

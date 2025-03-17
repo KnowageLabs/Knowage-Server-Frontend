@@ -100,9 +100,9 @@ const store = defineStore('dashboardStore', {
                 emitter.emit('selectionsChanged', { dashboardId: dashboardId, selections: this.dashboards[dashboardId].selections })
             }
         },
-        removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string, $http: any) {
+        removeSelection(payload: { datasetId: number; columnName: string }, dashboardId: string, $http: any, forceDelete?: boolean) {
             const index = this.dashboards[dashboardId].selections?.findIndex((selection: ISelection) => selection.datasetId === payload.datasetId && selection.columnName === payload.columnName)
-            if (index !== -1) {
+            if (index !== -1 && (!this.dashboards[dashboardId].selections[index].locked || forceDelete)) {
                 const tempSelection = deepcopy(this.dashboards[dashboardId].selections[index])
                 this.dashboards[dashboardId].selections.splice(index, 1)
                 if (selectionsUseDatasetWithAssociation([tempSelection], this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) {
@@ -117,18 +117,19 @@ const store = defineStore('dashboardStore', {
             const removedSelections = [] as ISelection[]
             selectionsToRemove?.forEach((selection: ISelection) => {
                 const index = this.dashboards[dashboardId].selections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === selection.datasetId && activeSelection.columnName === selection.columnName)
-                if (index !== -1) {
+                if (index !== -1 && !selection.locked) {
                     this.dashboards[dashboardId].selections.splice(index, 1)
                     removedSelections.push(selection)
                 }
             })
             if (removedSelections.length > 0) {
-                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0)
+                    loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
                 else if (this.dashboards[dashboardId].selections.length === 0) this.setAssociations(dashboardId, {})
             }
             emitter.emit('selectionsDeleted', removedSelections)
         },
-        getDashboardDatasets(dashboardId: number) {
+        getDashboardDatasets(dashboardId: string) {
             return this.dashboards[dashboardId]?.configuration?.datasets
         },
         getAllDatasets() {
@@ -200,6 +201,12 @@ const store = defineStore('dashboardStore', {
         },
         setCustomChartGaleryItems(dashboardId: string, customChartGallery: IGalleryItem[]) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].customChartGallery = customChartGallery
+        },
+        getExecutionTime(dashboardId: string) {
+            return this.dashboards[dashboardId] ? this.dashboards[dashboardId].executionTime : null
+        },
+        setExecutionTime(dashboardId: string, executionTime: Date) {
+            if (this.dashboards[dashboardId]) this.dashboards[dashboardId].executionTime = executionTime
         }
     }
 })

@@ -6,7 +6,7 @@
         },
         {
             "label": "managers.layersManagement.layerTypes.geojson",
-            "value": "geojson"
+            "value": "File"
         },
         {
             "label": "managers.layersManagement.layerTypes.topojson",
@@ -25,38 +25,6 @@
             },
             {
                 "fieldName": "name",
-                "validators": [
-                    {
-                        "key": "required"
-                    }
-                ]
-            },
-            {
-                "fieldName": "layerLabel",
-                "validators": [
-                    {
-                        "key": "required"
-                    }
-                ]
-            },
-            {
-                "fieldName": "layerName",
-                "validators": [
-                    {
-                        "key": "required"
-                    }
-                ]
-            },
-            {
-                "fieldName": "layerIdentify",
-                "validators": [
-                    {
-                        "key": "required"
-                    }
-                ]
-            },
-            {
-                "fieldName": "layerOrder",
                 "validators": [
                     {
                         "key": "required"

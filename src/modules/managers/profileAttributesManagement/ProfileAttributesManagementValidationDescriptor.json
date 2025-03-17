@@ -61,14 +61,7 @@
             },
             {
                 "fieldName": "lovId",
-                "validators": [
-                    {
-                        "key": "required",
-                        "validator": {
-                            "type": "custom-required"
-                        }
-                    }
-                ]
+                "validators": []
             },
             {
                 "fieldName": "multivalue",

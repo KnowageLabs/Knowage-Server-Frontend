@@ -1,11 +1,14 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
-        <template #start>{{ selectedFolder.name }}</template>
-        <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="submit-button" @click="handleSubmit" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplate" />
-        </template>
-    </Toolbar>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ selectedFolder.name }}</q-toolbar-title>
+
+        <q-btn flat round dense icon="save" :disable="buttonDisabled" data-test="submit-button" @click="handleSubmit">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeTemplate">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
     <div v-if="!selectedFolder.id || selectedFolder.parentId" class="kn-detail col">
         <Card class="q-ma-md q-mb-sm">
             <template #content>
@@ -33,7 +36,7 @@
                         data-test="name-input"
                     />
                 </div>
-                <q-input class="q-mt-sm" filled type="textarea" v-model="selectedFolder.description" max-length="255" :label="$t('common.description')" @update:model-value="$emit('touched')" data-test="description-input" />
+                <q-input class="q-mt-sm" rows="2" filled type="textarea" v-model="selectedFolder.description" max-length="255" :label="$t('common.description')" @update:model-value="$emit('touched')" data-test="description-input" />
             </template>
         </Card>
         <Card class="q-ma-md q-mt-sm" v-if="!loading">
@@ -45,7 +48,7 @@
                 </Toolbar>
             </template>
             <template #content>
-                <q-table flat dense :rows="roles" :pagination="{ rowsPerPage: 0 }" :columns="columns" row-key="name">
+                <q-table flat dense hide-pagination :rows="roles" :pagination="{ rowsPerPage: 0 }" :columns="columns" row-key="name">
                     <template #body-cell-development="props">
                         <q-td class="text-center no-padding">
                             <q-checkbox size="xs" v-model="props.row[props.col.field]" :disable="!props.row['devRoles'].checkable" />

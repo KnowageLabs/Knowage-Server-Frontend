@@ -1,19 +1,17 @@
 <script setup lang="ts">
-    import mainStore from '@/App.store'
-    import { useQuasar } from 'quasar'
+import mainStore from '@/App.store'
+import { useQuasar } from 'quasar'
+import { watch } from 'vue'
 
-    const $q = useQuasar()
+const $q = useQuasar()
 
+const store = mainStore()
 
-    const store = mainStore()
-    store.$subscribe(
-        (mutation,state) => {
-            if(mutation.events?.key === 'loading'){
-                if (state.loading && state.loading > 0) $q.loading.show()
-                else $q.loading.hide()
-            }
-        }
-    )
-
+watch(
+    () => store.loading,
+    (loading) => {
+        if (loading && loading > 0) $q.loading.show()
+        else $q.loading.hide()
+    }
+)
 </script>
-

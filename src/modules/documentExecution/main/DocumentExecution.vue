@@ -34,15 +34,6 @@
                         :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
                         @click="refresh"
                     ></Button>
-                    <Button
-                        v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters"
-                        v-tooltip.left="$t('common.parameters')"
-                        icon="fa fa-filter"
-                        class="p-button-text p-button-rounded p-button-plain p-mx-2"
-                        :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
-                        data-test="parameter-sidebar-icon"
-                        @click="parameterSidebarVisible = !parameterSidebarVisible"
-                    ></Button>
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
                     <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode != 'document-execution-cross-navigation-popup'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
@@ -109,12 +100,22 @@
 
             <DocumentExecutionSchedulationsTable v-if="schedulationsTableVisible" id="document-execution-schedulations-table" :prop-schedulations="schedulations" @deleteSchedulation="onDeleteSchedulation" @close="schedulationsTableVisible = false"></DocumentExecutionSchedulationsTable>
 
+            <Button
+                v-if="isParameterSidebarVisible && !newDashboardMode && !$route.query.hideParameters"
+                class="kn-param-sidebar-toggle-button"
+                :class="parameterSidebarVisible ? 'kn-param-sidebar-visible' : 'kn-param-sidebar-hidden'"
+                :icon="paramSidebarIcon"
+                v-tooltip.left="$t('common.parameters')"
+                data-test="parameter-sidebar-icon"
+                @click="toggleParamSidebar()"
+            ></Button>
             <KnParameterSidebar
                 v-show="parameterSidebarVisible"
                 class="document-execution-parameter-sidebar kn-overflow-y"
                 :filters-data="filtersData"
                 :prop-document="document"
                 :user-role="userRole"
+                :correctRolesForExecution="correctRolesForExecution"
                 :session-enabled="sessionEnabled"
                 :date-format="dateFormat"
                 :show-in-dialog="true"
@@ -304,6 +305,7 @@ export default defineComponent({
             embed: false,
             olapCustomViewVisible: false,
             userRole: null as string | null,
+            correctRolesForExecution: null as string[] | null,
             loading: false,
             olapDesignerMode: false,
             sessionEnabled: false,
@@ -344,7 +346,9 @@ export default defineComponent({
     computed: {
         ...mapState(mainStore, {
             user: 'user',
-            configurations: 'configurations'
+            configurations: 'configurations',
+            theme: 'theme',
+            defaultTheme: 'defaultTheme'
         }),
         ...mapState(dashboardStore, {
             dashboards: 'dashboards'
@@ -394,6 +398,11 @@ export default defineComponent({
         },
         isMobileDevice() {
             return /Android|iPhone/i.test(navigator.userAgent)
+        },
+        paramSidebarIcon() {
+            const expandedIcon = getComputedStyle(document.documentElement).getPropertyValue('--kn-param-sidebar-expanded-icon')
+            const collapsedIcon = getComputedStyle(document.documentElement).getPropertyValue('--kn-param-sidebar-collapsed-icon')
+            return this.parameterSidebarVisible ? expandedIcon : collapsedIcon
         }
     },
     watch: {
@@ -428,6 +437,7 @@ export default defineComponent({
         }, 200)
     },
     unmounted() {
+        if (this.initializePolling) clearInterval(this.initializePolling)
         this.removeEventListeners()
     },
     methods: {
@@ -477,17 +487,17 @@ export default defineComponent({
 
             let invalidRole = false
             getCorrectRolesForExecution(this.document).then(async (response: any) => {
-                const correctRolesForExecution = response
+                this.correctRolesForExecution = response
 
                 if (!this.userRole) {
-                    if (correctRolesForExecution.length == 1) {
-                        this.userRole = correctRolesForExecution[0]
+                    if (this.correctRolesForExecution?.length == 1) {
+                        this.userRole = this.correctRolesForExecution[0]
                     } else {
                         this.parameterSidebarVisible = true
                     }
                 } else if (this.userRole) {
-                    if (correctRolesForExecution.length == 1) {
-                        const correctRole = correctRolesForExecution[0]
+                    if (this.correctRolesForExecution?.length == 1) {
+                        const correctRole = this.correctRolesForExecution[0]
                         if (this.userRole !== correctRole) {
                             this.setError({
                                 title: this.$t('common.error.generic'),
@@ -1436,6 +1446,9 @@ export default defineComponent({
                 })
             }
             this.seeAsFinalUser = !this.seeAsFinalUser
+        },
+        toggleParamSidebar() {
+            this.parameterSidebarVisible = !this.parameterSidebarVisible
         }
     }
 })

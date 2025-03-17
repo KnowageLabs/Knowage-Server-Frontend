@@ -40,7 +40,7 @@
             <Divider class="p-my-2" />
             <div class="p-p-2 kn-page-content">
                 <div>
-                    <template v-for="(value, key) in themeHelper.descriptor" :key="key">
+                    <template v-for="(value, key, index) in themeHelper.descriptor" :key="key">
                         <Fieldset :legend="value.label" :toggleable="true" :collapsed="true">
                             <div v-for="property in value.properties" :key="property.key">
                                 <div class="p-field">
@@ -60,6 +60,7 @@
                 </div>
             </div>
         </div>
+        <kn-icon-picker v-if="iconPickerVisible" :enable-base64="true" :current-icon="selectedTheme.config[currentIconProp]" @save="onChoosenIcon" @close="closeIconPicker()"></kn-icon-picker>
     </div>
 </template>
 
@@ -80,10 +81,11 @@ import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
 import KnHint from '@/components/UI/KnHint.vue'
 import { mapActions, mapState } from 'pinia'
 import mainStore from '../../../App.store'
+import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
 
 export default defineComponent({
     name: 'theme-management',
-    components: { Divider, FabButton, Fieldset, InputSwitch, Menu, KnHint, KnInputFile, KnListBox, ThemeManagementExamples },
+    components: { Divider, FabButton, Fieldset, InputSwitch, Menu, KnHint, KnInputFile, KnListBox, ThemeManagementExamples, KnIconPicker },
     data() {
         return {
             descriptor: ThemeManagementDescriptor,
@@ -94,7 +96,12 @@ export default defineComponent({
             triggerInput: false,
             loading: false,
             themeHelper: new themeHelper(),
-            addMenuItems: [] as any[]
+            addMenuItems: [] as any[],
+            iconPickerVisible: null,
+            /**
+             * @param currentIconProp Defines which icon property in theme management is being edited, for some reason when dialogs render in v-for, they dont catch the index correctly so this is a roundabout way of fixing that issue.
+             */
+            currentIconProp: ''
         }
     },
     mounted() {
@@ -228,6 +235,18 @@ export default defineComponent({
             const themeToDownload = { ...this.selectedTheme }
             if (themeToDownload.id) delete themeToDownload.id
             downloadDirect(JSON.stringify(themeToDownload), themeToDownload.themeName, 'application/json')
+        },
+        openIconPicker(index, currentProp) {
+            this.currentIconProp = currentProp
+            this.iconPickerVisible = index + 1
+        },
+        closeIconPicker() {
+            this.iconPickerVisible = null
+        },
+        onChoosenIcon(choosenIcon) {
+            this.selectedTheme.config[this.currentIconProp] = choosenIcon.className
+            this.updateModelToSend(this.currentIconProp)
+            this.closeIconPicker()
         }
     }
 })
@@ -243,6 +262,15 @@ export default defineComponent({
         .kn-material-input {
             flex: 1;
         }
+    }
+    .icon-picker-button {
+        border: 1px solid #727272;
+        border-radius: 10%;
+        align-self: center;
+        min-height: 27px !important;
+        max-height: 27px !important;
+        width: 50px;
+        background: #f0f0f0;
     }
 }
 </style>

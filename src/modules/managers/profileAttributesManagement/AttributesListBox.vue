@@ -1,7 +1,7 @@
 <template>
     <Listbox
         v-if="!load"
-        class="kn-list--column"
+        class="kn-list--column overflow-auto"
         :options="attributes"
         :filter="true"
         :filter-placeholder="$t('common.search')"
@@ -51,12 +51,12 @@ export default defineComponent({
     },
     watch: {
         attributes: {
-            handler: function(attr) {
+            handler: function (attr) {
                 this.listAttributes = attr
             }
         },
         loading: {
-            handler: function(l) {
+            handler: function (l) {
                 this.load = l
             }
         }
