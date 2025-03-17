@@ -191,7 +191,7 @@ export default defineComponent({
             // no default theme
             if (newValues) {
                 this.themeToSend = { ...newValues }
-                this.selectedTheme.themeId = newValues.themeId
+                this.selectedTheme.themeId = newValues.id
                 this.selectedTheme.themeName = newValues.themeName
                 this.selectedTheme.active = newValues.active
                 this.selectedTheme.config = { ...this.currentTheme, ...newValues.config }

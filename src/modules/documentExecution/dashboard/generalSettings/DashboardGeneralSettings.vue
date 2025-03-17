@@ -142,8 +142,8 @@ export default defineComponent({
             }
 
             this.dashboardModel.configuration.variables = this.variables
-            if (this.dashboardModel.configuration.theme?.themeId) {
-                const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.themeId)
+            if (this.dashboardModel.configuration.theme?.id != null) {
+                const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.id)
                 if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
                 applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
             }
@@ -154,7 +154,7 @@ export default defineComponent({
         },
         getSelectedTheme(themeId: number | null) {
             const allThemes = this.getAllThemes()
-            return allThemes.find((theme: IDashboardTheme) => theme.themeId === themeId)
+            return allThemes.find((theme: IDashboardTheme) => theme.id === themeId)
         },
         onCustomHeaderSaved(customHeader: IWidget) {
             this.dashboardModel.configuration.customHeader = deepcopy(customHeader)

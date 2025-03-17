@@ -8,7 +8,19 @@
                 {{ $t('dashboard.generalSettings.themes.info') }}
             </Message>
             <span class="p-col-12 p-grid p-mt-2">
-                <q-select v-model="dashboardModelProp.configuration.theme.themeName" clearable emit-value class="p-col-8" outlined :options="availableThemes" option-value="themeName" option-label="themeName" :label="$t('dashboard.generalSettings.themes.dashboardTheme')" @change="onThemeSelected" />
+                <q-select
+                    v-model="dashboardModelProp.configuration.theme.id"
+                    clearable
+                    emit-value
+                    class="p-col-8"
+                    outlined
+                    :options="availableThemes"
+                    option-value="id"
+                    option-label="themeName"
+                    map-options
+                    :label="$t('dashboard.generalSettings.themes.dashboardTheme')"
+                    @update:model-value="onThemeSelected"
+                />
                 <q-btn color="primary" class="kn-flex" :label="$t('dashboard.generalSettings.themes.editTheme')" />
             </span>
         </form>
@@ -29,6 +41,7 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import { mapActions } from 'pinia'
 import ThemeExamples from '@/modules/managers/dashboardThemeManagement/dashboardThemeManagementExamples/DashboardThemeManagementExamples.vue'
 import KnHint from '@/components/UI/KnHint.vue'
+import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 
 export default defineComponent({
     name: 'dashboard-variables',
@@ -60,8 +73,9 @@ export default defineComponent({
             this.dashboardModel = this.dashboardModelProp
             this.document = this.dashboardModelProp.document
         },
-        onThemeSelected(event: any) {
-            console.log('------- THEME SELECTED: ', event)
+        onThemeSelected(selectedThemeId: number | null) {
+            const theme = this.availableThemes.find((theme: IDashboardTheme) => theme.id === selectedThemeId)
+            if (this.dashboardModelProp.configuration.theme) this.dashboardModelProp.configuration.theme.themeName = theme ? theme.themeName : ''
         }
     }
 })
