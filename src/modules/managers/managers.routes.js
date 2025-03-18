@@ -74,7 +74,6 @@ const routes = baseRoutes
     .concat(layersManagementRoutes)
     .concat(timespanRoutes)
     .concat(calendarManagementRoutes)
-    .concat(hierarchyManagementRoutes)
     .concat(scorecardsRoutes)
     .concat(eventsManagementRoutes)
     .concat(dashboardRoutes)

@@ -16,7 +16,6 @@ import { formatCustomChartWidget } from './customChart/CustomChartWidgetCompatib
 import { formatPivotTabletWidget } from './pivotWidget/PivotTableCompatibilityHelper'
 import { formatDiscoveryWidget } from './discoveryWidget/DiscoveryWidgetCompatibilityHelper'
 import { formatPythonWidget } from './pythonWidget/PythonWidgetCompatibilityHelper'
-import { formatRWidget } from './rWidget/RWidgetCompatibilityHelper'
 import { addWidgetMenuConfig } from '../DashboardHelpers'
 import { formatCEPivotTabletWidget } from './cePivotWidget/cePivotTableCompatibilityHelper'
 
@@ -271,8 +270,6 @@ export const formatWidget = (widget: any, formattedModel: IDashboard, user: any,
         case 'python':
             formattedWidget = formatPythonWidget(widget)
             break
-        case 'r':
-            formattedWidget = formatRWidget(widget)
     }
 
     return formattedWidget

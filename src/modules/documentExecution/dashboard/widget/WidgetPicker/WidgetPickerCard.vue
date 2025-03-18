@@ -1,7 +1,9 @@
 <template>
-    <div id="widget-card" :title="$t(widget.description)">
-        <div id="widget-card-icon-container" class="p-d-flex p-ai-center p-jc-center">
-            <div class="innerIcon" :style="documentImageSource()"></div>
+    <div id="widget-card">
+        <div id="widget-card-icon-container" class="p-d-flex p-ai-center p-jc-center relative-position">
+            <div class="innerIcon" :style="documentImageSource()">
+                <q-tooltip :delay="500">{{ $t(widget.description) }}</q-tooltip>
+            </div>
         </div>
         <span class="widgetTitle">{{ $t(widget.name) }}</span>
     </div>

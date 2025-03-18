@@ -12,7 +12,7 @@
                         {{ $t('common.info.noDataFound') }}
                     </div>
                 </template>
-                <Column v-for="col of descriptor.columns" :key="col.field" class="kn-truncated" :style="col.style" :field="col.field" :header="$t(col.header)" :sortable="true"> </Column>
+                <Column v-for="col of descriptor.columns" :key="col.field" class="kn-truncated" :style="col.style" :field="col.field" :header="$t(col.header)" :sortable="true"></Column>
             </DataTable>
         </div>
     </div>
@@ -58,9 +58,8 @@ export default defineComponent({
         },
         async loadEnvironments() {
             this.setLoading(true)
-            const configuration = this.widget?.type === 'r' ? 'R_CONFIGURATION' : 'PYTHON_CONFIGURATION'
             await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/category/${configuration}`)
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/category/PYTHON_CONFIGURATION`)
                 .then((response: AxiosResponse<any>) => (this.environments = response.data))
                 .catch(() => {})
             this.setLoading(false)
@@ -68,19 +67,12 @@ export default defineComponent({
         async onEnvironmentSelected() {
             if (this.widget?.settings.editor) this.widget.settings.editor.environment = this.selectedEnvironment
             this.setLoading(true)
-            const envUrlType = this.widget?.type === 'r' ? 'RWidget' : 'python'
+            const envUrlType = 'python'
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/${envUrlType}/libraries/${this.selectedEnvironment}`)
-                .then((response: AxiosResponse<any>) => (this.environmentLibraries = envUrlType === 'RWidget' && response.data.result ? this.getFormattedRLibraries(JSON.parse(response.data.result)) : JSON.parse(response.data.result)))
+                .then((response: AxiosResponse<any>) => (this.environmentLibraries = JSON.parse(response.data.result)))
                 .catch(() => {})
             this.setLoading(false)
-        },
-        getFormattedRLibraries(librariesFromBackend: string[][] | null) {
-            if (!librariesFromBackend) return []
-            const formattedLibraries = librariesFromBackend.map((tempLibrary: string[]) => {
-                return { name: tempLibrary[0], version: tempLibrary[1] }
-            })
-            return formattedLibraries
         }
     }
 })

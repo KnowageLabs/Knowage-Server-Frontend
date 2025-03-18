@@ -22,9 +22,9 @@
                             }"
                             @change="updateValueFromLabel(datasetTypes, 'value', $event.value)"
                         />
-                        <label for="pythonEnvironment" class="kn-material-input-label"> {{ $t('managers.datasetManagement.environment') }} * </label>
+                        <label for="pythonEnvironment" class="kn-material-input-label">{{ $t('managers.datasetManagement.environment') }} *</label>
                     </span>
-                    <small v-if="!dataset.pythonEnvironment.label || dataset.pythonEnvironment.label === ''" for="pythonEnvironment" class="p-error p-mt-2"> {{ $t('managers.datasetManagement.envIsRequired') }} </small>
+                    <small v-if="!dataset.pythonEnvironment.label || dataset.pythonEnvironment.label === ''" for="pythonEnvironment" class="p-error p-mt-2">{{ $t('managers.datasetManagement.envIsRequired') }}</small>
                 </div>
                 <div class="p-field p-col-6">
                     <span class="p-float-label">
@@ -39,7 +39,7 @@
                             @blur="v$.dataset.dataframeName.$touch()"
                             @change="$emit('touched')"
                         />
-                        <label for="dataframeName" class="kn-material-input-label"> {{ $t('managers.datasetManagement.dataframeName') }} * </label>
+                        <label for="dataframeName" class="kn-material-input-label">{{ $t('managers.datasetManagement.dataframeName') }} *</label>
                     </span>
                     <KnValidationMessages class="p-mt-1" :v-comp="v$.dataset.dataframeName" :additional-translate-params="{ fieldName: $t('managers.datasetManagement.dataframeName') }" />
                 </div>
@@ -53,15 +53,25 @@
                 <div class="p-mt-3">
                     <DataTable class="p-datatable-sm kn-table" :value="pythonEnvLibs" :scrollable="true" responsive-layout="stack" breakpoint="960px">
                         <Column field="name" :header="$t('kpi.alert.name')" :sortable="true">
-                            <template #body="{ data }"> <span v-if="dataset.pythonDatasetType == 'python'"></span> {{ data.name }} <span v-if="dataset.pythonDatasetType == 'r'"></span> {{ data[0] }} </template>
+                            <template #body="{ data }">
+                                <span v-if="dataset.pythonDatasetType == 'python'"></span>
+                                {{ data.name }}
+                                <span v-if="dataset.pythonDatasetType == 'r'"></span>
+                                {{ data[0] }}
+                            </template>
                         </Column>
                         <Column field="version" :header="$t('common.version')" :sortable="true">
-                            <template #body="{ data }"> <span v-if="dataset.pythonDatasetType == 'python'"></span> {{ data.version }} <span v-if="dataset.pythonDatasetType == 'r'"></span> {{ data[1] }} </template>
+                            <template #body="{ data }">
+                                <span v-if="dataset.pythonDatasetType == 'python'"></span>
+                                {{ data.version }}
+                                <span v-if="dataset.pythonDatasetType == 'r'"></span>
+                                {{ data[1] }}
+                            </template>
                         </Column>
                     </DataTable>
                 </div>
                 <template #footer>
-                    <Button class="kn-button kn-button--primary" @click="libListVisible = false"> {{ $t('common.close') }}</Button>
+                    <Button class="kn-button kn-button--primary" @click="libListVisible = false">{{ $t('common.close') }}</Button>
                 </template>
             </Dialog>
         </template>
