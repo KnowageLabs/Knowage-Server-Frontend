@@ -61,7 +61,7 @@
                 <LinkCard :selected-dataset="selectedDataset" :meta-source-resource="metaSourceResource" :active-tab="activeTab" @addTables="onAddLinkedTables" @removeTables="onRemoveLinkedTables" />
             </TabPanel>
 
-            <TabPanel v-if="selectedDataset.dsTypeCd != 'Prepared'">
+            <TabPanel v-if="selectedDataset.dsTypeCd != 'Prepared' && selectedDataset.dsTypeCd != 'Flat'">
                 <template #header>
                     <span>{{ $t('cron.advanced') }}</span>
                 </template>
