@@ -44,13 +44,6 @@
         "avatar": {
             "property": "type",
             "values": {
-                "SbiCkanDataSet": {
-                    "icon": "fas fa-database",
-                    "style": {
-                        "background-color": "#ffc107",
-                        "color": "white"
-                    }
-                },
                 "SbiCustomDataSet": {
                     "icon": "fas fa-database",
                     "style": {
