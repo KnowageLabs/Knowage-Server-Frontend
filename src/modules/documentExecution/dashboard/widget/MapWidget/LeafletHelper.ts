@@ -1,17 +1,18 @@
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { ILayerFeature, IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
+import { IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import L from 'leaflet'
-import italy from './italy.json'
-import { IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
-import { addBaloonMarkers, addClusters, addGeography, addMarkers, createChoropleth } from './visualization/MapVisualizationHelper'
 import { getLayerData, getMapWidgetData } from './MapWidgetDataProxy'
-import targetDatasetDataMock from './target-dataset-data-mock.json'
-import { createDialogFromDataset } from './visualization/MapDialogHelper'
 import wktMock from './wkt-mock.json'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { feature, mesh } from 'topojson-client'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
+import { addMarkers } from './visualization/MapMarkersVizualizationHelper'
+import { addBaloonMarkers } from './visualization/MapBaloonsVizualizationHelper'
+import { addClusters } from './visualization/MapClustersVizualizationHelper'
+import { addGeography } from './visualization/MapGeographyVizualizationHelper'
+import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
+import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
 
 const dashStore = dashboardStore()
 
@@ -229,21 +230,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         }
 
         if (layerVisualizationSettings.type === 'heatmap') {
-            const values = { data: [] } as any
-            for (const row of data[target.name].rows) {
-                values.data.push({ lat: row.column_1.split(' ')[0], lon: row.column_1.split(' ')[1], value: row.column_2 })
-                markerBounds.push({ lat: row.column_1.split(' ')[0], lng: row.column_1.split(' ')[1] })
-            }
-            const heatmapLayer = new HeatmapOverlay({
-                radius: 0.05,
-                maxOpacity: 0.5,
-                scaleRadius: true,
-                latField: 'lat',
-                lngField: 'lon',
-                value: 'count'
-            })
-            heatmapLayer.setData(values)
-            layerGroup.addLayer(heatmapLayer)
+            createHeatmapVisualization(map, data, target, markerBounds, layerGroup)
         }
 
         if (layerVisualizationSettings.type === 'choropleth') {
@@ -257,8 +244,6 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
     if (model.settings.configuration.map.autoCentering && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
 }
-
-const getTargetDatasetData = () => {}
 
 export function filterLayers(map: L.Map, layers): void {
     layers.forEach((layer) => {

@@ -106,7 +106,6 @@ export default defineComponent({
         },
         executeDocument(document: any) {
             getCorrectRolesForExecution(document).then(() => {
-                console.log('------------- ROLE - DOCUMENT BROWSER TABLE!')
                 this.$emit('itemSelected', { item: document, mode: 'execute' })
             })
         },
