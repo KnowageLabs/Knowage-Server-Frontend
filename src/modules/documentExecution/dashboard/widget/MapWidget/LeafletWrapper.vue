@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import L from 'leaflet'
 import './leaflet-layervisibility'
 import 'leaflet.markercluster'
@@ -14,6 +14,7 @@ import './Leaflet-heatmap.js'
 import { filterLayers, initializeLayers, switchLayerVisibility } from './LeafletHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 const appStore = useAppStore()
 const { t } = i18n.global
@@ -27,17 +28,27 @@ const props = defineProps<{
 
 const mapId = 'map_' + Math.random().toString(36).slice(2, 7)
 let map: L.map
-let tile
+let tile: string
 
-async function getCoords() {
-    const pos = await new Promise((resolve, reject) => {
+const getCoords = async () => {
+    const pos = (await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject)
-    })
+    })) as any
 
     return [pos.coords.latitude, pos.coords.longitude]
 }
 
+const resizeMap = () => {
+    if (map) {
+        setTimeout(() => {
+            map.invalidateSize()
+        }, 200)
+    }
+}
+
 onMounted(async () => {
+    emitter.on('widgetResized', resizeMap)
+
     map = L.map(mapId, {
         center: navigator && !props.widgetModel.settings?.configuration?.map?.autoCentering ? await getCoords() : [0, 0],
         zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10
@@ -60,6 +71,10 @@ onMounted(async () => {
     }
 })
 
+onUnmounted(() => {
+    emitter.off('widgetResized', resizeMap)
+})
+
 watch(props.layerVisibility, (newModel) => {
     switchLayerVisibility(map, newModel)
 })
@@ -73,5 +88,6 @@ watch(props.widgetModel.layers, (newModel) => {
 .mapContainer {
     width: 100%;
     height: 100%;
+    z-index: 0;
 }
 </style>
