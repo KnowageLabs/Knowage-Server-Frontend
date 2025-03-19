@@ -104,6 +104,7 @@ export interface IMapWidgetVisualizationTypeCluster {
 export interface IMapWidgetVisualizationTypeHeatmap {
     radius: number
     blur: number
+    maxZoom: number
 }
 
 export interface IMapWidgetVisualizationTypeChoropleth {

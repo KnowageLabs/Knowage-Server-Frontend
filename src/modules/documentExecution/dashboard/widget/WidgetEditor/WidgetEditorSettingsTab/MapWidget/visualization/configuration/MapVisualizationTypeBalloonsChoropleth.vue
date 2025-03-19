@@ -28,7 +28,7 @@
             <WidgetEditorColorPicker :initial-value="visualizationTypeConfiguration.style.color" :label="$t('common.color')" @change="onSelectionColorChanged($event, 'color')"></WidgetEditorColorPicker>
         </div>
 
-        <div v-if="!classifyByRanges" class="p-col-12" :class="{ 'p-lg-4': type === 'choropleth', 'p-lg-3': type === 'balloons' }">
+        <div v-if="!classifyByRanges && type !== 'balloons'" class="p-col-12" :class="{ 'p-lg-4': type === 'choropleth', 'p-lg-3': type === 'balloons' }">
             <WidgetEditorColorPicker :initial-value="(visualizationTypeConfiguration as IMapWidgetVisualizationTypeChoropleth).style.toColor" :label="$t('dashboard.widgetEditor.map.toColor')" @change="onSelectionColorChanged($event, 'toColor')"></WidgetEditorColorPicker>
         </div>
 

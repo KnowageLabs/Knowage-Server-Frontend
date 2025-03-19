@@ -89,13 +89,15 @@ export function getCoordinates(spatialAttribute: any, input: string, coord?: str
 }
 
 const getCoordinatesFromString = (spatialAttribute: any, input: string, coord?: string | null) => {
-    const [lat, lon] = input.split(' ')
+    console.log('---------- INPUT: ', input)
+    const [firstCoord, secondCoord] = input.split(' ')
     const isLatLon = spatialAttribute.properties.coordFormat === 'lat lon'
+    console.log('---------- isLatLon: ', isLatLon)
 
-    if (coord === 'lat') return isLatLon ? lat : lon
-    if (coord === 'lon') return isLatLon ? lon : lat
+    if (coord === 'lat') return isLatLon ? secondCoord : firstCoord
+    if (coord === 'lon') return isLatLon ? firstCoord : secondCoord
 
-    return isLatLon ? [lat, lon] : [lon, lat]
+    return isLatLon ? [secondCoord, firstCoord] : [firstCoord, secondCoord]
 }
 
 const getCoordinatesFromJSONCoordType = (input: string) => {
@@ -230,7 +232,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         }
 
         if (layerVisualizationSettings.type === 'heatmap') {
-            createHeatmapVisualization(map, data, target, markerBounds, layerGroup)
+            createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'choropleth') {

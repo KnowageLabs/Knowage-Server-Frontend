@@ -1187,6 +1187,7 @@
                     "pies": "Pies"
                 }
             },
+            "maxZoom": "Max Zoom",
             "menuConfiguration": "Menu Configuration",
             "noData": {
                 "title": "No data"

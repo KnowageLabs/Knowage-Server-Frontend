@@ -122,7 +122,8 @@
     },
     "defaultVisualizationHeatmapConfiguration": {
         "blur": 15,
-        "radius": 8
+        "maxZoom": 1,
+        "radius": 25
     },
     "defaultVisualizationMarkerConfiguration": {
         "size": 10,
