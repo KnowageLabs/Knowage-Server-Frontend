@@ -92,44 +92,22 @@ export default defineComponent({
     watch: {
         selectedDataset() {
             this.dataset = this.selectedDataset
-            this.isDatasetTransformable()
         }
     },
     created() {
         this.dataset = this.selectedDataset
-        this.isDatasetTransformable()
     },
     validations() {
-        const transformationFieldsRequired = (value) => {
-            return !this.isTransformable || value
-        }
         const persistFieldsRequired = (value) => {
             return !this.dataset.isPersisted || value
         }
         const customValidators: ICustomValidatorMap = {
-            'transformable-field-required': transformationFieldsRequired,
             'persist-field-required': persistFieldsRequired
         }
         const validationObject = {
             dataset: createValidations('dataset', advancedCardDescriptor.validations.advancedTab, customValidators)
         }
         return validationObject
-    },
-    methods: {
-        isDatasetTransformable() {
-            if (this.dataset.trasfTypeCd && this.dataset.trasfTypeCd == this.transformationDataset.VALUE_CD) {
-                this.isTransformable = true
-            } else {
-                this.isTransformable = false
-            }
-        },
-        setTransformationType() {
-            if (this.isTransformable) {
-                this.dataset.trasfTypeCd = this.transformationDataset.VALUE_CD
-            } else {
-                this.dataset.trasfTypeCd ? (this.dataset.trasfTypeCd = '') : null
-            }
-        }
     }
 })
 </script>
