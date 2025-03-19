@@ -6,26 +6,22 @@ import 'leaflet.heat'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 
 export const createHeatmapVisualization = (map: any, data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, layersData: any, visualizationDataType: VisualizationDataType, targetDatasetData: any) => {
-    const bounds = L.latLngBounds()
     if (!layerVisualizationSettings.heatmapConf) return
 
     if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
-        createHeatmapVisualizationLayers(map, layersData, layerVisualizationSettings, bounds)
+        createHeatmapVisualizationLayers(map, layersData, layerVisualizationSettings)
     } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
-        createHeatmapVisualizationLayers(map, layersData, layerVisualizationSettings, bounds, targetDatasetData, dataColumn)
+        createHeatmapVisualizationLayers(map, layersData, layerVisualizationSettings, targetDatasetData, dataColumn)
     } else {
         createHeatmapVisualizationFromData(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings)
     }
-
-    if (bounds.isValid()) map.fitBounds(bounds)
 }
 
-const createHeatmapVisualizationLayers = (map: any, layersData: any, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, targetDatasetData?: any, dataColumn?: string) => {
+const createHeatmapVisualizationLayers = (map: any, layersData: any, layerVisualizationSettings: IMapWidgetVisualizationType, targetDatasetData?: any, dataColumn?: string) => {
     let max = 0
     const heatmapData = [] as number[][]
     let mappedData: Record<string, number> | null = null
 
-    // TODO - Refactor?
     if (targetDatasetData && dataColumn) {
         if (!layerVisualizationSettings.targetDataset) return
 
