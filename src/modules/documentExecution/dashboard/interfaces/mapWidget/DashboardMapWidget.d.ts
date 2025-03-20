@@ -37,6 +37,7 @@ export interface IMapWidgetVisualizationType {
     targetDataset?: string
     targetMeasure?: any
     targetProperty?: any
+    visible: boolean
     type: string
     markerConf?: IMapWidgetVisualizationTypeMarker
     balloonConf?: IMapWidgetVisualizationTypeBalloons

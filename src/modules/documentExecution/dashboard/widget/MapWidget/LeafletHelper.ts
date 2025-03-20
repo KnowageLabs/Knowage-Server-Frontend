@@ -16,6 +16,8 @@ import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizat
 
 const dashStore = dashboardStore()
 
+const heatmapLayersCache = {} as Record<string, { layer: any; heatMapData: number[][]; heatMapOptions: any }>
+
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
 export enum VisualizationDataType {
@@ -89,10 +91,8 @@ export function getCoordinates(spatialAttribute: any, input: string, coord?: str
 }
 
 const getCoordinatesFromString = (spatialAttribute: any, input: string, coord?: string | null) => {
-    console.log('---------- INPUT: ', input)
     const [firstCoord, secondCoord] = input.split(' ')
     const isLatLon = spatialAttribute.properties.coordFormat === 'lat lon'
-    console.log('---------- isLatLon: ', isLatLon)
 
     if (coord === 'lat') return isLatLon ? secondCoord : firstCoord
     if (coord === 'lon') return isLatLon ? firstCoord : secondCoord
@@ -260,7 +260,7 @@ export function filterLayers(map: L.Map, layers): void {
     })
 }
 
-export function switchLayerVisibility(map: L.Map, visibleLayers): void {
+export const switchLayerVisibility = (map: L.Map, visibleLayers: any): void => {
     map.eachLayer((layer) => {
         if (layer.knProperties?.layerGroup) {
             if (!visibleLayers[layer.knProperties.layerId]) layer.hide()
@@ -270,5 +270,37 @@ export function switchLayerVisibility(map: L.Map, visibleLayers): void {
             if (!visibleLayers[layer.knProperties.layerId]) layer.removeLayer()
             else layer.show()
         }
+
+        if (layer.knProperties?.heatmap || heatmapLayersCache[layer.knProperties?.layerId]?.layer) {
+            changeHeatmapLayerVisibility(layer, visibleLayers, map)
+        }
+    })
+}
+
+const changeHeatmapLayerVisibility = (layer: any, visibleLayers: any, map: any) => {
+    if (!visibleLayers[layer.knProperties?.layerId] && !heatmapLayersCache[layer.knProperties.layerId]?.layer) {
+        heatmapLayersCache[layer.knProperties.layerId] = { layer: layer, heatMapData: deepcopy(layer._latlngs), heatMapOptions: deepcopy(layer.options) }
+
+        map.removeLayer(layer)
+    } else if (visibleLayers[layer.knProperties?.layerId] && heatmapLayersCache[layer.knProperties.layerId]?.layer != null) {
+        const heatMapData = heatmapLayersCache[layer.knProperties.layerId].heatMapData
+        const heatMapOptions = heatmapLayersCache[layer.knProperties.layerId].heatMapOptions
+
+        heatmapLayersCache[layer.knProperties.layerId].layer = L.heatLayer(heatMapData ?? [], {
+            radius: heatMapOptions.radius,
+            blur: heatMapOptions.blur,
+            maxZoom: heatMapOptions.maxZoom,
+            max: heatMapOptions.max
+        })
+
+        heatmapLayersCache[layer.knProperties.layerId].layer.knProperties = { heatmap: true, layerId: layer.knProperties.layerId }
+        heatmapLayersCache[layer.knProperties.layerId].layer.addTo(map)
+        heatmapLayersCache[layer.knProperties.layerId] = { layer: null, heatMapData: [], heatMapOptions: {} }
+    }
+}
+
+export const clearHeatmapLayersCache = () => {
+    Object.keys(heatmapLayersCache).forEach((key) => {
+        delete heatmapLayersCache[key]
     })
 }

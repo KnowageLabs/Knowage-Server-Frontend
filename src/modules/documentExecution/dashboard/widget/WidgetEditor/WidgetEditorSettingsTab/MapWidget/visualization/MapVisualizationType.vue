@@ -60,6 +60,10 @@
                 :label="$t('common.property')"
             ></q-select>
 
+            <span class="p-d-flex p-flex-row p-ai-center p-pl-2">
+                {{ $t('common.show') }}
+                <q-toggle v-model="visType.visible" color="primary" />
+            </span>
             <Button v-if="visTypeIndex === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
             <Button v-if="visTypeIndex !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeVisualizationType(visTypeIndex)" />
         </div>
@@ -212,16 +216,7 @@ export default defineComponent({
             else this.visualizationTypeModel.splice(index, 1)
         },
         createDefaultVisualizationType() {
-            return {
-                target: '',
-                type: 'markers',
-                markerConf: mapWidgetDefaultValues.getDefaultVisualizationMarkerConfiguration(),
-                balloonConf: mapWidgetDefaultValues.getDefaultVisualizationBalloonsConfiguration(),
-                pieConf: mapWidgetDefaultValues.getDefaultVisualizationPieConfiguration(),
-                clusterConf: mapWidgetDefaultValues.getDefaultVisualizationClusterConfiguration(),
-                heatmapConf: mapWidgetDefaultValues.getDefaultVisualizationHeatmapConfiguration(),
-                analysisConf: mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
-            }
+            return mapWidgetDefaultValues.getDefaultVisualizationSettings()[0]
         }
     }
 })

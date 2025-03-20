@@ -20,6 +20,7 @@ export const addBaloonMarkers = (
     targetDatasetData: any
 ) => {
     if (!layerVisualizationSettings.balloonConf) return
+    console.log('------- CAAAAAAAAAALED')
     switch (layerVisualizationSettings.balloonConf.method) {
         case 'CLASSIFY_BY_RANGES':
             // We use user defined value ranges to determine what size (depending also on number of ranges) and color should each balloon value have

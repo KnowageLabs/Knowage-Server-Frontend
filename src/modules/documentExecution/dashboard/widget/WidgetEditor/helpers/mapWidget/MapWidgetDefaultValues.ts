@@ -45,6 +45,7 @@ export const getDefaultVisualizationSettings = () => {
         {
             target: '',
             type: 'markers',
+            visible: true,
             markerConf: getDefaultVisualizationMarkerConfiguration(),
             balloonConf: getDefaultVisualizationBalloonsConfiguration(),
             pieConf: getDefaultVisualizationPieConfiguration(),

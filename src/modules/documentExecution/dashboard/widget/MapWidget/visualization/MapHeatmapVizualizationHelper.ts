@@ -9,15 +9,15 @@ export const createHeatmapVisualization = (map: any, data: any, target: IMapWidg
     if (!layerVisualizationSettings.heatmapConf) return
 
     if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
-        createHeatmapVisualizationLayers(map, layersData, layerVisualizationSettings)
+        createHeatmapVisualizationLayers(map, layersData, target, layerVisualizationSettings)
     } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
-        createHeatmapVisualizationLayers(map, layersData, layerVisualizationSettings, targetDatasetData, dataColumn)
+        createHeatmapVisualizationLayers(map, layersData, target, layerVisualizationSettings, targetDatasetData, dataColumn)
     } else {
         createHeatmapVisualizationFromData(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings)
     }
 }
 
-const createHeatmapVisualizationLayers = (map: any, layersData: any, layerVisualizationSettings: IMapWidgetVisualizationType, targetDatasetData?: any, dataColumn?: string) => {
+const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, targetDatasetData?: any, dataColumn?: string) => {
     let max = 0
     const heatmapData = [] as number[][]
     let mappedData: Record<string, number> | null = null
@@ -46,7 +46,7 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, layerVisual
         }
     })
 
-    createHeatLayer(map, heatmapData, layerVisualizationSettings, max)
+    createHeatLayer(map, heatmapData, layerVisualizationSettings, max, target.layerId)
     fitBoundsForMapCentering(map, heatmapData)
 }
 
@@ -70,18 +70,19 @@ const createHeatmapVisualizationFromData = (map: any, data: any, target: IMapWid
         if (coordinates?.length === 2) heatmapData.push([...coordinates, value])
     })
 
-    createHeatLayer(map, heatmapData, layerVisualizationSettings, max)
+    createHeatLayer(map, heatmapData, layerVisualizationSettings, max, target.layerId)
     fitBoundsForMapCentering(map, heatmapData)
 }
 
-const createHeatLayer = (map: any, heatmapData: number[][], layerVisualizationSettings: IMapWidgetVisualizationType, max: number) => {
+const createHeatLayer = (map: any, heatmapData: number[][], layerVisualizationSettings: IMapWidgetVisualizationType, max: number, layerId: string) => {
     const defaultVisualizationHeatmapConfiguration = mapWidgetDefaultValues.getDefaultVisualizationHeatmapConfiguration()
-    L.heatLayer(heatmapData, {
+    const heatLayer = L.heatLayer(heatmapData, {
         radius: layerVisualizationSettings.heatmapConf?.radius ?? defaultVisualizationHeatmapConfiguration.radius,
         blur: layerVisualizationSettings.heatmapConf?.blur ?? defaultVisualizationHeatmapConfiguration.blur,
         maxZoom: layerVisualizationSettings.heatmapConf?.maxZoom ?? defaultVisualizationHeatmapConfiguration.maxZoom,
         max: max
     }).addTo(map)
+    heatLayer.knProperties = { heatmap: true, layerId: layerId }
 }
 
 const fitBoundsForMapCentering = (map: any, heatmapData: number[][]) => {

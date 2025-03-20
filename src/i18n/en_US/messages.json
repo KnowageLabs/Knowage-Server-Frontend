@@ -2875,6 +2875,10 @@
                 "shp": "SHAPEFILE"
             },
             "fileLocation": "File Location",
+            "filterTitle": "Properties",
+            "hint": "Change the hint to your liking inside the messages.json.",
+            "layerFilter": "Layer Properties",
+            "layerFilterAdded": "Layer Properties Added",
             "layerIdentify": "Layer ID",
             "layerLabel": "Layer label",
             "layerName": "Layer name",

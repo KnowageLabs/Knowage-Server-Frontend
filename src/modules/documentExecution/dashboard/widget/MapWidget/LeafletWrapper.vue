@@ -9,9 +9,8 @@ import './leaflet-layervisibility'
 import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet/dist/leaflet.css'
-import * as h337 from 'heatmap.js'
 import './Leaflet-heatmap.js'
-import { filterLayers, initializeLayers, switchLayerVisibility } from './LeafletHelper'
+import { clearHeatmapLayersCache, filterLayers, initializeLayers, switchLayerVisibility } from './LeafletHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
@@ -62,6 +61,7 @@ onMounted(async () => {
 
     try {
         await initializeLayers(map, props.widgetModel, props.data, props.dashboardId)
+        switchLayerVisibility(map, props.layerVisibility)
     } catch (error: any) {
         console.log('------- ERROR: ', error)
         appStore.setError({
@@ -73,6 +73,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
     emitter.off('widgetResized', resizeMap)
+    clearHeatmapLayersCache()
 })
 
 watch(props.layerVisibility, (newModel) => {

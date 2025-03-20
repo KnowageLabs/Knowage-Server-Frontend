@@ -1,5 +1,5 @@
 <template>
-    <LeafletWrapper :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId"></LeafletWrapper>
+    <LeafletWrapper v-if="layerVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId"></LeafletWrapper>
     <q-btn round push class="kn-parameter-sidebar-showLegend" color="white" text-color="black" size="sm" icon="settings" @click="showPanel = true">
         <q-tooltip :delay="500">{{ $t('common.open') }}</q-tooltip>
     </q-btn>
@@ -20,8 +20,8 @@
                                     {{ item.name }}
                                 </div>
                             </template>
-                        </div></q-expansion-item
-                    >
+                        </div>
+                    </q-expansion-item>
                     <q-expansion-item :label="$t('common.filters')" icon="filter_list">
                         <div v-for="item in widgetModel.layers" :key="item.layerId" class="kn-map-sidebar-layer">
                             <template v-if="isLayerSet(item)">
@@ -53,9 +53,9 @@ import { IDashboardDataset, ISelection, IWidget } from '@/modules/documentExecut
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
-import { MapLayerManager } from './MapLayerManagerCreator'
-import { MapManagerCreator } from './MapManagerCreator'
 import LeafletWrapper from './LeafletWrapper.vue'
+import { IMapWidgetLayer, IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'map-widget',
@@ -73,9 +73,8 @@ export default defineComponent({
         return {
             widgetModel: {} as any,
             activeSelections: [] as ISelection[],
-            layerManagers: [] as MapLayerManager[],
             mapManager: null as any,
-            layerVisibilityState: {},
+            layerVisibilityState: null as Record<string, boolean> | null,
             showPanel: false as Boolean
         }
     },
@@ -100,8 +99,16 @@ export default defineComponent({
         },
         loadWidgetModel() {
             this.widgetModel = this.propWidget
-            this.widgetModel.layers.forEach((i) => (this.layerVisibilityState[i.layerId] = true))
             this.showPanel = this.widgetModel.settings.configuration.controlPanel.alwaysShow
+            this.updateLayerVisibilityState()
+        },
+        updateLayerVisibilityState() {
+            const newState: Record<string, boolean> = {}
+            this.widgetModel.layers.forEach((layer: IMapWidgetLayer) => (newState[layer.layerId] = false))
+
+            const vizualizations = this.widgetModel.settings?.visualizations ? deepcopy(this.widgetModel.settings.visualizations) : []
+            vizualizations.reverse().forEach((vizualization: IMapWidgetVisualizationType) => (newState[vizualization.target] = vizualization.visible))
+            this.layerVisibilityState = newState
         },
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
@@ -112,6 +119,7 @@ export default defineComponent({
             //this.mapManager.applyFilter(item)
         },
         switchLayerVisibility(layer: any) {
+            if (!this.layerVisibilityState) this.layerVisibilityState = {}
             this.layerVisibilityState[layer.layerId] = !this.layerVisibilityState[layer.layerId]
         },
         toggleFilter(item) {
