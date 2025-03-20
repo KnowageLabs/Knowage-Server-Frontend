@@ -19,7 +19,7 @@ export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDash
             widget.settings.pagination = pagination
         }
 
-        url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${widget.settings.pagination.properties.offset}&size=${widget.settings.pagination.properties.itemsNumber}&nearRealtime=true`
+        url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${widget.settings.pagination.properties.offset}&size=${widget.settings.pagination.properties.itemsNumber}&nearRealtime=${!selectedDataset.cache}`
 
         const postData = formatDiscoveryModelForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
