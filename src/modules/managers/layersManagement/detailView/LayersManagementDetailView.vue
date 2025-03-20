@@ -1,14 +1,17 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
-        <template #start>{{ selectedLayer.label }}</template>
-        <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="submit-button" @click="saveLayer" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplateConfirm" />
-        </template>
-    </Toolbar>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ selectedLayer.label }}</q-toolbar-title>
+
+        <q-btn flat round dense icon="save" :disable="buttonDisabled" data-test="submit-button" @click="saveLayer">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeTemplateConfirm">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
 
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-    <TabView v-model:activeIndex="activeIndex" class="kn-overflow" @tab-change="onTabChange">
+    <TabView v-model:activeIndex="activeIndex" class="kn-overflow">
         <TabPanel>
             <template #header>
                 <span>{{ $t('managers.layersManagement.layerTitle') }}</span>
@@ -20,7 +23,7 @@
             <template #header>
                 <span>{{ $t('managers.layersManagement.filterTitle') }}</span>
             </template>
-            <FilterTab :selected-layer="selectedLayer" :prop-filters="filters" />
+            <FilterTab :selected-layer="selectedLayer" />
         </TabPanel>
     </TabView>
     <Toast position="top-left" group="tl" />
@@ -52,8 +55,7 @@ export default defineComponent({
             touched: false,
             layer: {} as any,
             loading: false,
-            activeIndex: 0,
-            filters: [] as iFilter[]
+            activeIndex: 0
         }
     },
     computed: {
@@ -105,18 +107,6 @@ export default defineComponent({
         closeTemplate() {
             this.$router.push('/layers-management')
             this.$emit('closed')
-        },
-        onTabChange() {
-            if (this.activeIndex === 1) {
-                this.loadFilters()
-            }
-        },
-        async loadFilters() {
-            if (this.layer) {
-                this.loading = true
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?id=${this.layer.layerId}`).then((response: AxiosResponse<any>) => (this.filters = response.data))
-                this.loading = false
-            }
         },
         saveOrUpdateMessage(layer) {
             let toSend = layer

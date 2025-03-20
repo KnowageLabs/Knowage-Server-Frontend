@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import PrimeVue from 'primevue/config'
-import router from './App.routes.js'
 import store from './App.store.js'
 import { createPinia } from 'pinia'
-import { Quasar, Notify, Loading, Dialog } from 'quasar'
+import { Quasar, Notify, Loading, Dialog, TouchPan } from 'quasar'
+import router from './App.routes.js'
 
 import VueAxios from 'vue-axios'
 import interceptor from './axios.js'
@@ -68,6 +68,9 @@ app.use(VueAxios, interceptor)
             Dialog,
             Notify,
             Loading
+        },
+        directives: {
+            TouchPan
         }
     })
 
@@ -84,7 +87,9 @@ app.use(VueAxios, interceptor)
     .component('GridItem', GridItem)
     .component('AgGridVue', AgGridVue)
 
-    .mount('#app')
+router.isReady().then(() => {
+    app.mount('#app')
+})
 
 const updateSW = registerSW({
     onNeedRefresh() {

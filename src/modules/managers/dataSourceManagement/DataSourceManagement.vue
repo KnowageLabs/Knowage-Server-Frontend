@@ -42,7 +42,7 @@
                 </template>
             </Listbox>
         </div>
-        <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 p-d-flex p-flex-column kn-height-full-vertical">
+        <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 p-d-flex column window-height">
             <router-view :selected-datasource="selDatasource" :databases="listOfAvailableDatabases" :user="user" @touched="touched = true" @closed="onFormClose" @inserted="reloadPage" />
         </div>
     </div>
@@ -57,6 +57,7 @@ import FabButton from '@/components/UI/KnFabButton.vue'
 import Listbox from 'primevue/listbox'
 import Avatar from 'primevue/avatar'
 import mainStore from '../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'datasources-management',
@@ -64,10 +65,6 @@ export default defineComponent({
         FabButton,
         Listbox,
         Avatar
-    },
-    setup() {
-        const store = mainStore()
-        return { store }
     },
     data() {
         return {
@@ -86,6 +83,7 @@ export default defineComponent({
         await this.getCurrentUser()
     },
     methods: {
+        ...mapActions(mainStore, ['setError', 'setInfo']),
         async getAllDatabases() {
             return this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/databases`)
@@ -111,6 +109,12 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => {
                     this.datasources = response.data
                     this.convertToSeconds(this.datasources)
+                    if (this.$route?.params?.id) {
+                        const datasource = this.datasources.find((ds) => ds.dsId === parseInt(this.$route.params.id))
+                        if (datasource) {
+                            this.selDatasource = datasource
+                        }
+                    }
                 })
                 .finally(() => (this.loading = false))
         },
@@ -158,7 +162,7 @@ export default defineComponent({
             await this.$http
                 .delete(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasources/' + datasourceId)
                 .then(() => {
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
                         msg: this.$t('common.toast.deleteSuccess')
                     })
@@ -166,7 +170,7 @@ export default defineComponent({
                     this.getAllDatasources()
                 })
                 .catch((error) => {
-                    this.store.setError({ title: 'Delete error', msg: error.message })
+                    this.setError({ title: 'Delete error', msg: error.message })
                 })
         },
 

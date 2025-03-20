@@ -64,6 +64,8 @@ import { defineComponent, PropType } from 'vue'
 import { iFilter, iLayer } from '../../LayersManagement'
 import layersManagementFilterTabDescriptor from './LayersManagementFilterTabDescriptor.json'
 import Listbox from 'primevue/listbox'
+import { mapActions } from 'pinia'
+import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'layers-management-filter-tab',
@@ -91,15 +93,22 @@ export default defineComponent({
         this.loadFilters()
     },
     methods: {
+        ...mapActions(mainStore, ['setLoading']),
         loadLayer() {
             this.layer = this.selectedLayer
         },
-        loadFilters() {
-            this.filters = []
-            this.propFilters?.forEach((filter: iFilter) => {
-                const index = this.layer?.properties.findIndex((property: iFilter) => property.property === filter.property)
-                if (index === -1) this.filters.push(filter)
-            })
+        async loadFilters() {
+            if (this.layer) {
+                this.setLoading(true)
+                this.filters = []
+                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?id=${this.layer.layerId}`).then((response: AxiosResponse<any>) => {
+                    response.data?.forEach((filter: iFilter) => {
+                        const index = this.layer?.properties.findIndex((property: iFilter) => property.property === filter.property)
+                        if (index === -1) this.filters.push(filter)
+                    })
+                })
+                this.setLoading(false)
+            }
         },
         addProperty(filter: iFilter) {
             this.moveProperty(filter, this.filters, this.layer?.properties)

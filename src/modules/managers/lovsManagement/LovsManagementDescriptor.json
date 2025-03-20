@@ -3,7 +3,6 @@
     "iconTypesMap": {
         "DATASET": "fas fa-database",
         "FIX_LOV": "fas fa-list",
-        "JAVA_CLASS": "fab fa-java",
         "QUERY": "fas fa-table",
         "SCRIPT": "fab fa-js-square"
     },
@@ -20,13 +19,6 @@
                 },
                 "FIX_LOV": {
                     "icon": "fas fa-list",
-                    "style": {
-                        "background-color": "#4caf50",
-                        "color": "white"
-                    }
-                },
-                "JAVA_CLASS": {
-                    "icon": "fab fa-java",
                     "style": {
                         "background-color": "#4caf50",
                         "color": "white"

@@ -1,30 +1,23 @@
 <template>
     <Card class="p-m-2">
         <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start>
-                    {{ $t('managers.cacheManagement.addRemoveDataset') }}
-                </template>
-                <template #end>
-                    <Button class="kn-button p-button-text p-button-rounded" :disabled="cleanAllDisabled" data-test="clean-all-button" @click="cleanAllConfirm">{{ $t('managers.cacheManagement.cleanAll') }}</Button>
-                </template>
-            </Toolbar>
+            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                <q-toolbar-title>{{ $t('managers.cacheManagement.addRemoveDataset') }}</q-toolbar-title>
+
+                <q-btn flat round dense icon="clear_all" data-test="reset-button" @click="cleanAllConfirm">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('managers.cacheManagement.cleanAll') }}</q-tooltip>
+                </q-btn>
+            </q-toolbar>
         </template>
         <template #content>
-            <DataTable :value="datasets" :loading="loading" class="p-datatable-sm kn-table" data-key="signature" responsive-layout="stack" breakpoint="960px" data-test="dataset-table">
-                <template #empty>
-                    {{ $t('managers.cacheManagement.metadataUnavailable') }}
+            <q-table dense flat hide-pagination :rows="datasets" :columns="datasetTableCardDescriptor.columns" row-key="label">
+                <template #header-cell="props">
+                    <q-th style="text-align: start">{{ $t(props.col.label) }}</q-th>
                 </template>
-                <template #loading>
-                    {{ $t('common.info.dataLoading') }}
+                <template #body-cell-button="props">
+                    <q-btn flat round dense icon="delete" data-test="delete-button" @click="deleteDatasetConfirm(props.row.signature)"></q-btn>
                 </template>
-                <Column v-for="col of datasetTableCardDescriptor.columns" :key="col.field" :field="col.field" :header="$t(col.header)" :style="col.style" class="kn-truncated"> </Column>
-                <Column :style="datasetTableCardDescriptor.table.iconColumn.style">
-                    <template #body="slotProps">
-                        <Button icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="deleteDatasetConfirm(slotProps.data.signature)" />
-                    </template>
-                </Column>
-            </DataTable>
+            </q-table>
         </template>
     </Card>
 </template>

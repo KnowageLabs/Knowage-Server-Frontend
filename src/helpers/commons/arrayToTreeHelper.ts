@@ -27,7 +27,7 @@ const defaultConfig: Config = {
     nestedIds: true
 }
 
-export function arrayToTree(items: Item[], config: Partial<Config> = {}): TreeItem[] {
+export async function arrayToTree(items: Item[], config: Partial<Config> = {}): TreeItem[] {
     const conf: Config = { ...defaultConfig, ...config }
 
     const rootItems: TreeItem[] = []
@@ -36,7 +36,7 @@ export function arrayToTree(items: Item[], config: Partial<Config> = {}): TreeIt
 
     const orphanIds: null | Set<string | number> = config.throwIfOrphans ? new Set() : null
 
-    for (const item of items) {
+    for await (const item of items) {
         const itemId = conf.nestedIds ? getNestedProperty(item, conf.id) : item[conf.id]
         const parentId = conf.nestedIds ? getNestedProperty(item, conf.parentId) : item[conf.parentId]
 

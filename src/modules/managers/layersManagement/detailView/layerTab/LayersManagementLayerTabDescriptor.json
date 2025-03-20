@@ -6,7 +6,7 @@
         },
         {
             "label": "managers.layersManagement.layerTypes.geojson",
-            "value": "geojson"
+            "value": "File"
         },
         {
             "label": "managers.layersManagement.layerTypes.topojson",

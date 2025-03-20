@@ -2,7 +2,7 @@
     <div class="widget-editor-card p-d-flex p-flex-column">
         <div class="p-d-flex p-flex-column">
             <label v-if="settings.label" class="kn-material-input-label">{{ $t(settings.label) }}</label>
-            <small v-if="settings.hint"> {{ $t(settings.hint) }}</small>
+            <small v-if="settings.hint">{{ $t(settings.hint) }}</small>
         </div>
 
         <div class="p-d-flex p-flex-column kn-flex" :class="{ 'dropzone-active': settings.dropIsActive }" @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
@@ -22,7 +22,7 @@
                                 v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)"
                                 v-model="slotProps.data[column.field]"
                                 class="kn-material-input column-aggregation-dropdown"
-                                :options="commonDescriptor.columnAggregationOptions"
+                                :options="descriptor.columnAggregationOptions"
                                 option-label="label"
                                 option-value="value"
                                 @change="$emit('itemUpdated', slotProps.data)"
@@ -57,6 +57,7 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Dropdown from 'primevue/dropdown'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
+import descriptor from './PivotTableDataContainerDescriptor.json'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
@@ -65,6 +66,7 @@ export default defineComponent({
     emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {
+            descriptor,
             commonDescriptor,
             rows: [] as IWidgetColumn[],
             filters: {} as any,
@@ -155,8 +157,10 @@ export default defineComponent({
             emitter.emit('editCalculatedField', column)
         },
         onCalcFieldAdded(field) {
-            this.rows.push(field as IWidgetColumn)
-            this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings, fieldType: this.fieldType })
+            if (this.settings.label === 'dashboard.widgetEditor.pivotData') {
+                this.rows.push(field as IWidgetColumn)
+                this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings, fieldType: this.fieldType })
+            }
         },
         getColumnSortIcon(column: IWidgetColumn) {
             switch (column.sort) {

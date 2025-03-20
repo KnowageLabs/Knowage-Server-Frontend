@@ -55,11 +55,13 @@ class WidgetWebComponent extends HTMLElement {
             selectionElements.forEach((el: any) => {
                 el.addEventListener(
                     'click',
-                    (event: any) => {
-                        const eventTarget = event.target as any
-                        if (eventTarget.attributes) {
-                            const selectionColumn = eventTarget.attributes['kn-selection-column'].value
-                            const selectionValue = eventTarget.attributes['kn-selection-value'].value
+                    (event: PointerEvent) => {
+                        const eventTarget = event.target as HTMLElement
+                        const targetElement = this.findParentWithAttribute(eventTarget, 'kn-selection-column')
+
+                        if (targetElement) {
+                            const selectionColumn = targetElement.getAttribute('kn-selection-column')
+                            const selectionValue = targetElement.getAttribute('kn-selection-value')
                             this.dispatchEvent(
                                 new CustomEvent('selectEvent', {
                                     bubbles: true,
@@ -81,10 +83,12 @@ class WidgetWebComponent extends HTMLElement {
             previewElements.forEach((el: any) => {
                 el.addEventListener(
                     'click',
-                    (event: any) => {
-                        const eventTarget = event.target as any
-                        if (eventTarget.attributes) {
-                            const datasetLabel = eventTarget.attributes['kn-preview'].value
+                    (event: PointerEvent) => {
+                        const eventTarget = event.target as HTMLElement
+                        const targetElement = this.findParentWithAttribute(eventTarget, 'kn-preview')
+
+                        if (targetElement) {
+                            const datasetLabel = targetElement.getAttribute('kn-preview')
                             this.dispatchEvent(
                                 new CustomEvent('previewEvent', {
                                     bubbles: true,
@@ -106,10 +110,12 @@ class WidgetWebComponent extends HTMLElement {
             crossNavElements.forEach((el: any) => {
                 el.addEventListener(
                     'click',
-                    (event: any) => {
-                        const eventTarget = event.target as any
-                        if (eventTarget.attributes) {
-                            const crossValue = this.widgetType === 'html' ? eventTarget.attributes['kn-cross'].value : eventTarget.innerHTML
+                    (event: PointerEvent) => {
+                        const eventTarget = event.target as HTMLElement
+                        const targetElement = this.findParentWithAttribute(eventTarget, 'kn-cross')
+
+                        if (targetElement) {
+                            const crossValue = this.widgetType === 'html' ? targetElement.getAttribute('kn-cross') : targetElement.innerHTML
                             this.dispatchEvent(
                                 new CustomEvent('crossNavEvent', {
                                     bubbles: true,
@@ -132,9 +138,11 @@ class WidgetWebComponent extends HTMLElement {
                 el.addEventListener(
                     'click',
                     (event: any) => {
-                        const eventTarget = event.target as any
-                        if (eventTarget.attributes) {
-                            const iframeMessage = eventTarget.attributes['kn-message'].value
+                        const eventTarget = event.target as HTMLElement
+                        const targetElement = this.findParentWithAttribute(eventTarget, 'kn-message')
+
+                        if (targetElement) {
+                            const iframeMessage = targetElement.getAttribute('kn-message')
                             this.dispatchEvent(
                                 new CustomEvent('iframeInteractionEvent', {
                                     bubbles: true,
@@ -149,8 +157,18 @@ class WidgetWebComponent extends HTMLElement {
                 )
             })
     }
+
+    findParentWithAttribute = (element: HTMLElement, attribute: string): HTMLElement | null => {
+        while (element) {
+            if (element.hasAttribute(attribute)) {
+                return element
+            }
+            element = element.parentElement as HTMLElement
+        }
+        return null
+    }
 }
 
 customElements.define('widget-web-component', WidgetWebComponent)
 
-export { }
+export {}

@@ -1,43 +1,43 @@
-import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from "../Dashboard";
+import { IWidgetBackgroundStyle, IWidgetBordersStyle, IWidgetExports, IWidgetInteractions, IWidgetPaddingStyle, IWidgetResponsive, IWidgetShadowsStyle, IWidgetTitle } from '../Dashboard'
 
 export interface IImageWidgetSettings {
-    updatable: boolean,
-    clickable: boolean,
+    updatable: boolean
+    clickable: boolean
     configuration: IImageWidgetConfiguration
-    style: IImageWidgetStyle,
-    interactions: IWidgetInteractions,
+    style: IImageWidgetStyle
+    interactions: IWidgetInteractions
     responsive: IWidgetResponsive
 }
 
 export interface IImageWidgetConfiguration {
-    image: IImageWidgetImageSettings,
+    image: IImageWidgetImageSettings
     exports: IWidgetExports
 }
 
 export interface IImageWidgetImageSettings {
-    id: number,
+    id: number
     style: {
-        height: string,
-        width: string,
-        "background-position-x": "left" | "center" | "right",
-        "background-position-y": "top" | "center" | "bottom"
-    },
+        height: string
+        width: string
+        'background-position-x': 'left' | 'center' | 'right'
+        'background-position-y': 'top' | 'center' | 'bottom'
+    }
 }
 
 export interface IImageWidgetStyle {
-    themeName: string,
-    title: IWidgetTitle,
-    padding: IWidgetPaddingStyle,
-    borders: IWidgetBordersStyle,
-    shadows: IWidgetShadowsStyle,
+    themeId: number | null
+    title: IWidgetTitle
+    padding: IWidgetPaddingStyle
+    borders: IWidgetBordersStyle
+    shadows: IWidgetShadowsStyle
     background: IWidgetBackgroundStyle
 }
 
 export interface IImage {
-    imgId: number,
-    lastmod: string,
-    name: string,
-    size: number,
-    url: string,
+    imgId: number
+    lastmod: string
+    name: string
+    size: number
+    url: string
     urlPreview: string
 }

@@ -102,20 +102,23 @@ export default defineComponent({
         },
         onPreview(event: any) {
             if (this.editorMode || !event.detail) return
-            const datasetLabel = event.detail.datasetLabel
             const previewConfiguration = this.propWidget.settings.interactions.preview
+            if (!previewConfiguration?.enabled) return
+            const datasetLabel = event.detail.datasetLabel
             this.$emit('datasetInteractionPreview', { datasetLabel: datasetLabel, previewSettings: previewConfiguration })
         },
         onCrossNavigation(event: any) {
             if (this.editorMode || !event.detail || !this.propWidget) return
-            const crossValue = event.detail.crossValue
             const crossNavigationConfiguration = this.propWidget.settings.interactions.crossNavigation
+            if (!crossNavigationConfiguration?.enabled) return
+            const crossValue = event.detail.crossValue
             executeHTMLandTextWidgetCrossNavigation(crossValue, crossNavigationConfiguration, this.dashboardId)
         },
         onIframeInteraction(event: any) {
             if (this.editorMode || !event.detail || !this.propWidget) return
-            const iframeMessageValue = event.detail.iframeMessage
             const iframeInteractionSettings = this.propWidget.settings.interactions.iframe
+            if (!iframeInteractionSettings?.enabled) return
+            const iframeMessageValue = event.detail.iframeMessage
             startHTMLAndCustomChartIFrameInteractions(iframeMessageValue, iframeInteractionSettings, this.dashboardId, this.variables, window)
         }
     }

@@ -213,7 +213,7 @@ export interface IMapTooltipSettingsLayer {
 }
 
 export interface IMapWidgetStyle {
-    themeName: string
+    themeId: number | null
     title: IWidgetTitle
     borders: IWidgetBordersStyle
     background: IWidgetBackgroundStyle

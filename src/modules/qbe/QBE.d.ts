@@ -21,10 +21,6 @@ export interface iQBE {
     owner: string
     pars: any[]
     persistTableName: string
-    pivotColName: string | null
-    pivotColValue: string | null
-    pivotIsNumRows: boolean
-    pivotRowName: string | null
     qbeDataSource: string
     qbeDataSourceId: number
     qbeDatamarts: string
@@ -34,7 +30,6 @@ export interface iQBE {
     scopeId: number
     startDate: string | Date | null
     tags: any[]
-    trasfTypeCd: any
     usedByNDocs: number
     userIn: string
     versNum: number

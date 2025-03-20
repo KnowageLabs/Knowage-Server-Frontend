@@ -21,18 +21,27 @@ export const loadAssociativeSelections = async (dashboardId: string, model: IDas
 }
 
 export const updateStoreSelections = (newSelection: ISelection, currentActiveSelections: ISelection[], dashboardId: string, updateSelectionFunction: Function, $http: any) => {
-    updateActiveSelections(newSelection, currentActiveSelections)
-    updateSelectionFunction(dashboardId, currentActiveSelections, $http)
+    const isUpdated = updateActiveSelections(newSelection, currentActiveSelections)
+    if (isUpdated) updateSelectionFunction(dashboardId, currentActiveSelections, $http)
 }
 
 export const updateAllStoreSelections = (newSelections: ISelection[], currentActiveSelections: ISelection[], dashboardId: string, updateSelectionFunction: Function, $http: any) => {
-    newSelections.forEach((newSelection: ISelection) => updateActiveSelections(newSelection, currentActiveSelections))
-    updateSelectionFunction(dashboardId, currentActiveSelections, $http)
+    let isUpdated = false
+    newSelections.forEach((newSelection: ISelection) => {
+        if (updateActiveSelections(newSelection, currentActiveSelections)) isUpdated = true // update selection if values are different
+    })
+    if (isUpdated) updateSelectionFunction(dashboardId, currentActiveSelections, $http)
 }
 
 const updateActiveSelections = (newSelection: ISelection, currentActiveSelections: ISelection[]) => {
     const index = currentActiveSelections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === newSelection.datasetId && activeSelection.columnName === newSelection.columnName)
-    index !== -1 ? (currentActiveSelections[index] = newSelection) : currentActiveSelections.push(newSelection)
+    if (index !== -1 && areSelectionValuesEqual(currentActiveSelections[index].value, newSelection.value)) return false // dont update selection if values are the same
+    index !== -1 ? (currentActiveSelections[index] = newSelection) : currentActiveSelections.push(newSelection) // update selection if values are different
+    return true
+}
+const areSelectionValuesEqual = (array1, array2) => {
+    if (array1.length !== array2.length) return false
+    return array1.sort().every((item, index) => item === array2.sort()[index])
 }
 
 export const executeCrossNavigation = (documentCrossNavigationOutputParameters: ICrossNavigationParameter[], crossNavigationName: string | undefined) => {

@@ -1,114 +1,78 @@
 <template>
     <Card class="p-m-2">
         <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary p-toolbar-group-right">
-                <template #start>
-                    {{ $t('managers.cacheManagement.generalSettings') }}
-                </template>
-                <template #end>
-                    <Button class="kn-button p-button-text p-button-rounded" data-test="save-button" data-test="save-button" @click="save">{{ $t('common.save') }}</Button>
-                    <Button class="kn-button p-button-text p-button-rounded" data-test="reset-button" @click="discardChanges">{{ $t('managers.cacheManagement.discard') }}</Button>
-                </template>
-            </Toolbar>
+            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                <q-toolbar-title>{{ $t('managers.cacheManagement.generalSettings') }}</q-toolbar-title>
+
+                <q-btn flat round dense icon="save" data-test="save-button" @click="save">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense icon="backspace" data-test="reset-button" @click="discardChanges">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.clear') }}</q-tooltip>
+                </q-btn>
+            </q-toolbar>
         </template>
         <template #content>
-            <form class="p-fluid p-m-2">
-                <div class="p-fluid p-formgrid p-grid">
-                    <div class="p-col-6">
-                        <div id="prefix-input-container" class="p-field">
-                            <span class="p-float-label field-container">
-                                <InputText id="prefixForCacheTablesName" v-model.trim="settings.prefixForCacheTablesName" class="kn-material-input" type="text" data-test="prefix-input" />
-                                <label for="prefixForCacheTablesName" class="kn-material-input-label"> {{ $t('managers.cacheManagement.prefixForCacheTablesName') }}</label>
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="limitForClean" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.maximumPercentOfCacheCleaningQuota') }}</label>
-                                <InputNumber id="limitForClean" v-model="settings.limitForClean" input-class="kn-material-input" :min="0" :max="100" :use-grouping="false" data-test="clean-limit-input" @input="onInputNumberChange('limitForClean', $event.value)" />
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="schedulingFullClean" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.frequencyOfCleaningDaemon') }}</label>
-                                <Dropdown id="schedulingFullClean" v-model="settings.schedulingFullClean" class="kn-material-input" :options="generalSettingsCardDescriptor.schedulingTypes">
-                                    <template #value="slotProps">
-                                        <div v-if="slotProps.value">
-                                            <span>{{ slotProps.value.value }}</span>
-                                        </div>
-                                    </template>
-                                    <template #option="slotProps">
-                                        <div>
-                                            <span>{{ $t(slotProps.option.label) }}</span>
-                                        </div>
-                                    </template></Dropdown
-                                >
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="lastAccessTtl" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.ttlForCachedDataset') }}</label>
-                                <InputNumber id="lastAccessTtl" v-model="settings.lastAccessTtl" input-class="kn-material-input" :use-grouping="false" data-test="last-access-ttl-input" @input="onInputNumberChange('lastAccessTtl', $event.value)" />
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="createAndPersistTimeout" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.timeToCreateTempTable') }}</label>
-                                <InputNumber id="createAndPersistTimeout" v-model="settings.createAndPersistTimeout" input-class="kn-material-input" :use-grouping="false" data-test="timeout-input" @input="onInputNumberChange('createAndPersistTimeout', $event.value)" />
-                            </span>
-                        </div>
-                    </div>
-                    <div class="p-col-6">
-                        <div class="p-field">
-                            <span>
-                                <label for="spaceAvailable" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.totalBytesAvailableForCache') }}</label>
-                                <InputNumber id="spaceAvailable" v-model="settings.spaceAvailable" input-class="kn-material-input" :min="0" :use-grouping="false" data-test="space-available-input" @input="onInputNumberChange('spaceAvailable', $event.value)" />
-                                <small id="spaceAvailable-hint">{{ formatCacheDimension(settings.spaceAvailable) }}</small>
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="cacheLimitForStore" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.cacheDimensionSingleDataset') }}</label>
-                                <InputNumber id="cacheLimitForStore" v-model="settings.cacheLimitForStore" input-class="kn-material-input" :min="0" :max="100" :use-grouping="false" data-test="cache-limit-input" @input="onInputNumberChange('cacheLimitForStore', $event.value)" />
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="datasource" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.targetDatasource') }}</label>
-                                <Dropdown id="datasource" v-model="datasource" class="kn-material-input" :options="datasourceOptions">
-                                    <template #value="slotProps">
-                                        <div v-if="slotProps.value">
-                                            <span>{{ slotProps.value.label }}</span>
-                                        </div>
-                                    </template>
-                                    <template #option="slotProps">
-                                        <div>
-                                            <span>{{ slotProps.option.label }}</span>
-                                        </div>
-                                    </template></Dropdown
-                                >
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="sqldbCacheTimeout" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.timeToLock') }}</label>
-                                <InputNumber id="sqldbCacheTimeout" v-model="settings.sqldbCacheTimeout" input-class="kn-material-input" :use-grouping="false" data-test="sqldb-timeout-input" @input="onInputNumberChange('sqldbCacheTimeout', $event.value)" />
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="hazelcastTimeout" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.hazelcastTimeToLock') }}</label>
-                                <InputNumber id="hazelcastTimeout" v-model="settings.hazelcastTimeout" input-class="kn-material-input" :use-grouping="false" data-test="hazelcast-timeout-input" @input="onInputNumberChange('hazelcastTimeout', $event.value)" />
-                            </span>
-                        </div>
-                        <div class="p-field">
-                            <span>
-                                <label for="hazelcastLeaseTime" class="kn-material-input-label small-label"> {{ $t('managers.cacheManagement.hazelcastTimeToReleaseLock') }}</label>
-                                <InputNumber id="hazelcastLeaseTime" v-model="settings.hazelcastLeaseTime" input-class="kn-material-input" :use-grouping="false" data-test="hazelcast-lease-time-input" @input="onInputNumberChange('hazelcastLeaseTime', $event.value)" />
-                            </span>
-                        </div>
-                    </div>
+            <q-expansion-item default-opened dense icon="fas fa-database" :label="$t('common.data')" class="q-mt-sm bg-grey-2">
+                <q-btn-toggle
+                    v-model="settings.scheduledModality"
+                    class="q-ma-sm"
+                    toggle-color="primary"
+                    :options="[
+                        { label: $t('common.update'), value: true },
+                        { label: $t('common.delete'), value: false }
+                    ]"
+                />
+                <div class="row q-col-gutter-sm q-px-sm q-pt-sm">
+                    <q-select
+                        class="col-6"
+                        filled
+                        map-options
+                        options-dense
+                        v-model="settings.schedulingFullClean"
+                        :options="generalSettingsCardDescriptor.schedulingTypes"
+                        :option-label="(item) => $t(item.label)"
+                        option-value="value"
+                        :label="settings.scheduledModality ? $t('managers.cacheManagement.frequencyOfUpdatingDaemon') : $t('managers.cacheManagement.frequencyOfCleaningDaemon')"
+                    />
+                    <q-select class="col-6" filled emit-value map-options options-dense v-model="datasource" :options="datasourceOptions" option-label="label" option-value="value" :label="$t('managers.cacheManagement.targetDatasource')" />
+                    <q-input filled class="col-4 col-lg-3" v-model.trim="settings.prefixForCacheTablesName" :label="$t('managers.cacheManagement.prefixForCacheTablesName')" data-test="prefix-input" />
+                    <q-input filled class="col-4 col-lg-3" type="number" v-model.trim="settings.limitForClean" :min="0" :maxlength="100" suffix="%" :label="$t('managers.cacheManagement.maximumPercentOfCacheCleaningQuota')" data-test="clean-limit-input" />
+                    <q-input
+                        filled
+                        class="col-4 col-lg-3"
+                        type="number"
+                        v-model.trim="settings.spaceAvailable"
+                        :min="0"
+                        :suffix="formatCacheDimension(settings.spaceAvailable)"
+                        :label="$t('managers.cacheManagement.totalBytesAvailableForCache')"
+                        data-test="space-available-input"
+                        @update:model-value="(value) => onInputNumberChange('spaceAvailable', value)"
+                    />
+                    <q-input
+                        filled
+                        class="col-4 col-lg-3"
+                        type="number"
+                        v-model.trim="settings.cacheLimitForStore"
+                        :min="0"
+                        :maxlength="100"
+                        suffix="%"
+                        :label="$t('managers.cacheManagement.cacheDimensionSingleDataset')"
+                        data-test="cache-limit-input"
+                        @update:model-value="(value) => onInputNumberChange('cacheLimitForStore', value)"
+                    />
                 </div>
-            </form>
+            </q-expansion-item>
+
+            <q-expansion-item dense icon="timer" :label="$t('managers.scheduler.timing')" class="q-mt-sm bg-grey-2">
+                <div class="row q-col-gutter-sm q-px-sm q-pt-sm">
+                    <q-input dense class="col-4" v-model.trim="settings.lastAccessTtl" type="number" filled :label="$t('managers.cacheManagement.ttlForCachedDataset')" @update:model-value="(value) => onInputNumberChange('lastAccessTtl', value)"></q-input>
+                    <q-input dense class="col-4" v-model.trim="settings.createAndPersistTimeout" type="number" filled :label="$t('managers.cacheManagement.timeToCreateTempTable')" @update:model-value="(value) => onInputNumberChange('createAndPersistTimeout', value)"></q-input>
+                    <q-input dense class="col-4" v-model.trim="settings.sqldbCacheTimeout" type="number" filled :label="$t('managers.cacheManagement.timeToLock')" @update:model-value="(value) => onInputNumberChange('sqldbCacheTimeout', value)"></q-input>
+                    <q-input dense class="col-4" v-model.trim="settings.hazelcastTimeout" type="number" filled :label="$t('managers.cacheManagement.hazelcastTimeToLock')" @update:model-value="(value) => onInputNumberChange('hazelcastTimeout', value)"></q-input>
+                    <q-input dense class="col-4" v-model.trim="settings.hazelcastLeaseTime" type="number" filled :label="$t('managers.cacheManagement.hazelcastTimeToReleaseLock')" @update:model-value="(value) => onInputNumberChange('hazelcastLeaseTime', value)"></q-input>
+                </div>
+            </q-expansion-item>
         </template>
     </Card>
 </template>
@@ -116,17 +80,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { iSettings } from '../../CacheManagement'
-import Dropdown from 'primevue/dropdown'
-import InputNumber from 'primevue/inputnumber'
 import generalSettingsCardDescriptor from './GeneralSettingsCardDescriptor.json'
 import mainStore from '../../../../../App.store'
 
 export default defineComponent({
     name: 'general-settings-card',
-    components: {
-        Dropdown,
-        InputNumber
-    },
     props: {
         item: {
             type: Object,
@@ -173,6 +131,7 @@ export default defineComponent({
     methods: {
         loadSettings() {
             this.settings = { ...this.item } as iSettings
+            if (typeof this.settings.scheduledModality === 'undefined') this.settings.scheduledModality = false
         },
         loadDatasources() {
             this.datasourceOptions = this.datasources as []
@@ -181,7 +140,6 @@ export default defineComponent({
             this.datasource = { ...(this.selectedDatasource as Object) }
         },
         async save() {
-            await this.removeCache()
             await this.saveDatasource()
             await this.saveConfigurationOptions()
 
@@ -202,7 +160,8 @@ export default defineComponent({
                 { label: 'SPAGOBI.CACHE.CREATE_AND_PERSIST_TABLE.TIMEOUT', value: this.settings.createAndPersistTimeout },
                 { label: 'SPAGOBI.WORKMANAGER.SQLDBCACHE.TIMEOUT', value: this.settings.sqldbCacheTimeout },
                 { label: 'SPAGOBI.CACHE.HAZELCAST.TIMEOUT', value: this.settings.hazelcastTimeout },
-                { label: 'SPAGOBI.CACHE.HAZELCAST.LEASETIME', value: this.settings.hazelcastLeaseTime }
+                { label: 'SPAGOBI.CACHE.HAZELCAST.LEASETIME', value: this.settings.hazelcastLeaseTime },
+                { label: 'SPAGOBI.CACHE.REFRESH', value: this.settings.scheduledModality }
             ]
 
             await this.$http
@@ -214,9 +173,6 @@ export default defineComponent({
         },
         async saveDatasource() {
             await this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasources', { ...this.datasource, writeDefault: true })
-        },
-        async removeCache() {
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/cacheee/remove')
         },
         onInputNumberChange(field: string, value: number) {
             this.settings[field] = value

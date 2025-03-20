@@ -280,7 +280,7 @@ export interface ITableWidgetPagination {
 }
 
 export interface ITableWidgetStyle {
-    themeName: string
+    themeId: number | null
     columns: ITableWidgetColumnStyles
     columnGroups: ITableWidgetColumnStyles
     headers: ITableWidgetHeadersStyle
@@ -679,6 +679,12 @@ export interface IVariable {
     attribute?: string
     driver?: string
     pivotedValues?: any
+    executionTime?: string | null
+    executionDate?: string | null
+    dateTimeFormat?: string | null
+    locale?: string
+    activeSelectionDataset?: number | null
+    activeSelectionColumn?: string | null
 }
 
 export interface IWidgetTitle {
@@ -712,6 +718,7 @@ export interface ISelection {
     value: (string | number)[]
     aggregated: boolean
     timestamp: number
+    locked?: boolean
 }
 
 export interface IDashboardDriver {

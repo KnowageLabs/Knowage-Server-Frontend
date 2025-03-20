@@ -7,7 +7,7 @@ import * as selectorWidgetDefaultValues from '../../widget/WidgetEditor/helpers/
 
 export const getFormattedStyle = (widget: any) => {
     return {
-        themeName: '',
+        themeId: null,
         title: getFormattedTitleStyle(widget),
         label: getFormattedLabelStyle(widget),
         padding: getFormattedPaddingStyle(widget),

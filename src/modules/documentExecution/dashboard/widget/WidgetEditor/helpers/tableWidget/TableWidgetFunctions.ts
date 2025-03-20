@@ -44,7 +44,7 @@ export const createNewTableWidgetSettings = () => {
         },
         pagination: tableWidgetDefaultValues.getDefaultPagination(),
         style: {
-            themeName: '',
+            themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),
             columns: tableWidgetDefaultValues.getDefaultColumnStyles(),

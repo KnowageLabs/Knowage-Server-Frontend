@@ -24,7 +24,7 @@ export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
-    dashboardModel.configuration.theme = { config: getDefaultDashboardThemeConfig() }
+    dashboardModel.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     dashboardModel.configuration.id = crypto.randomUUID()
 
     return dashboardModel
@@ -205,8 +205,11 @@ export const formatDashboardForSave = (dashboard: IDashboard) => {
         dashboard.widgets[i] = formatWidgetForSave(dashboard.widgets[i]) as IWidget
     }
     formatVariablesForSave(dashboard.configuration)
+
     const propertiesForDelete = ['allDatasetsLoaded', 'htmlGallery', 'pythonGallery', 'customChartGallery', 'currentView', 'associations', 'drivers', 'crossNavigations', 'document', 'outputParameters']
     propertiesForDelete.forEach((property: string) => delete dashboard[property])
+
+    if (dashboard.configuration.theme) delete dashboard.configuration.theme.config
 }
 
 const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration) => {
@@ -225,7 +228,7 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
         if (dashboard.widgets[i].settings.configuration.updateFromSelections === undefined) dashboard.widgets[i].settings.configuration.updateFromSelections = true
     }
 
-    if (!dashboard.configuration.theme || !dashboard.configuration.theme.config) dashboard.configuration.theme = { config: getDefaultDashboardThemeConfig() }
+    if (!dashboard.configuration.theme || !dashboard.configuration.theme.id) dashboard.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     addMissingMenuWidgetsConfiguration(dashboard)
     return dashboard
 }
@@ -259,6 +262,8 @@ const formatWidget = (widget: IWidget) => {
         case 'vega':
             formatVegaWidget(widget)
     }
+
+    if (widget.settings?.style?.themeName) delete widget.settings.style.themeName
 }
 
 const addColumnIdsToWidgetColumns = (widget: IWidget) => {

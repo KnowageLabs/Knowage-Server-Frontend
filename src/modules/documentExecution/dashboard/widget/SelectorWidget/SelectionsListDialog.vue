@@ -60,7 +60,8 @@ export default defineComponent({
                 suppressRowGroupHidesColumns: true,
                 rowHeight: 36,
                 headerHeight: 30,
-                onGridReady: this.onGridReady
+                onGridReady: this.onGridReady,
+                getRowStyle: this.getRowStyle
             } as any,
             context: null as any,
             activeSelections: [] as ISelection[],
@@ -99,12 +100,33 @@ export default defineComponent({
                 this.gridApi.setGridOption('rowData', this.activeSelections)
             }
         },
+        toggleSelectionLock(selection: ISelection) {
+            const index = this.activeSelections.findIndex((tempSelection: ISelection) => tempSelection.datasetId === selection.datasetId && tempSelection.columnName === selection.columnName)
+            if (index !== -1) {
+                this.activeSelections[index].locked = !this.activeSelections[index].locked
+                this.gridApi?.redrawRows()
+            }
+        },
+        saveSelectionLocks() {
+            const storeSelections = this.getSelections(this.dashboardId)
+
+            this.activeSelections.forEach((selection) => {
+                if (selection.hasOwnProperty('locked')) {
+                    const storeSelection = storeSelections.find((storeItem) => storeItem.datasetId === selection.datasetId && storeItem.columnName === selection.columnName)
+                    if (storeSelection) storeSelection.locked = selection.locked
+                }
+            })
+        },
+        getRowStyle(params) {
+            if (params.node.data.locked) return { opacity: '0.7', background: '#00000020' }
+        },
         closeDialog() {
             this.activeSelections = []
             this.selectionsToRemove = []
             this.$emit('close')
         },
         onSave() {
+            this.saveSelectionLocks()
             this.$emit('save', this.selectionsToRemove)
         }
     }

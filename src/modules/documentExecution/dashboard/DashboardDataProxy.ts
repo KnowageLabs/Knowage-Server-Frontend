@@ -24,7 +24,6 @@ import { getHighchartsBarData } from './widget/ChartWidget/Highcharts/dataProxy/
 import { getChartJSWidgetData } from './widget/ChartWidget/ChartJS/ChartJSDataProxy'
 import { getCePivotData } from './widget/cePivotWidget/cePivotWidgetDataProxy'
 import { getPythonData } from './widget/PythonWidget/PythonWidgetDataProxy'
-import { getRData } from './widget/RWidget/RWidgetDataProxy'
 import { indexedDB } from '@/idb'
 
 const { t } = i18n.global
@@ -64,8 +63,6 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getHighchartsWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'python':
             return await getPythonData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
-        case 'r':
-            return await getRData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'map':
             return await getMapWidgetData(dashboardId, dashboardConfig, widget, datasets, initialCall, selections, associativeResponseSelections)
         default:

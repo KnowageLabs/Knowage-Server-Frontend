@@ -1,13 +1,13 @@
 <template>
     <div v-if="(selectionIsLocked || playSelectionButtonVisible) && inFocus" class="lockButtonContainer" @mouseover="$emit('changeFocus', true)" @mouseleave="$emit('changeFocus', false)">
-        <i v-if="selectionIsLocked" class="fas fa-lock kn-cursor-pointer" @click="$emit('unlockSelection')" />
-        <i v-if="playSelectionButtonVisible" class="fas fa-play kn-cursor-pointer" @click="$emit('launchSelection')" />
+        <i v-if="selectionIsLocked" class="fas fa-lock kn-cursor-pointer click-icon" @click="$emit('unlockSelection')" />
+        <i v-if="playSelectionButtonVisible" class="fas fa-play kn-cursor-pointer click-icon" @click="$emit('launchSelection')" />
     </div>
 
     <div v-if="helpConfig.enabled" class="infoButtonContainer" :class="[helpConfig.iconPosition]" @mouseover="$emit('changeFocus', true)" @mouseleave="$emit('changeFocus', false)">
         <i :class="helpConfig.icon" data-test="hint" @click="handleHelpClick()" />
-        <q-tooltip v-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'free-text'"> {{ helpConfig.text }} </q-tooltip>
-        <q-tooltip v-else-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'link'"> {{ helpConfig.url }} </q-tooltip>
+        <q-tooltip v-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'free-text'">{{ helpConfig.text }}</q-tooltip>
+        <q-tooltip v-else-if="helpConfig.visualizationType === 'tooltip' && helpConfig.type === 'link'">{{ helpConfig.url }}</q-tooltip>
     </div>
 
     <div class="widgetButtonBarContainer">
@@ -192,5 +192,12 @@ export default defineComponent({
             font-size: 1.5rem !important;
         }
     }
+}
+.click-icon {
+    width: 100%;
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>

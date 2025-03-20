@@ -21,7 +21,7 @@ export const createNewChartJSSettings = () => {
         },
         chart: { colors: descriptor.defaultColors },
         style: {
-            themeName: '',
+            themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

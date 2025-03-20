@@ -12,7 +12,7 @@ export const createNewPythonWidgetSettings = () => {
         },
         editor: pythonWidgetDefaultValues.getDefaultEditorSettings(),
         style: {
-            themeName: '',
+            themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             padding: widgetCommonDefaultValues.getDefaultPaddingStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

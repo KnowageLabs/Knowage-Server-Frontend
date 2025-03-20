@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     height: 100%;
 }
 
@@ -212,5 +213,61 @@ html, body {
     .p-progress-spinner-svg {
         width: 100px;
         height: 100px;
+    }
+}
+
+.kn-param-sidebar-toggle-button {
+    position: absolute;
+    top: 100px;
+    z-index: 99;
+    height: 50px;
+    width: var(--kn-param-sidebar-icon-width) !important;
+    border: none !important;
+    right: -5px;
+    border-top-left-radius: var(--kn-param-sidebar-icon-radius);
+    border-bottom-left-radius: var(--kn-param-sidebar-icon-radius);
+    background: var(--kn-param-sidebar-icon-background-color);
+    &.kn-param-sidebar-visible {
+        color: var(--kn-param-sidebar-icon-text-color-expanded);
+        background: var(--kn-param-sidebar-icon-background-color-expanded);
+    }
+    &.kn-param-sidebar-hidden {
+        color: var(--kn-param-sidebar-icon-text-color-collapsed);
+        background: var(--kn-param-sidebar-icon-background-color-collapsed);
+    }
+    &:hover {
+        background: var(--kn-param-sidebar-icon-hover-background-color) !important;
+        color: var(--kn-param-sidebar-icon-hover-text-color) !important;
+    }
+    &:hover {
+        opacity: 100% !important;
+    }
+}
+.kn-param-sidebar-visible {
+    right: 345px;
+}
+.kn-param-sidebar-hidden {
+    right: -5px;
+    opacity: var(--kn-param-sidebar-icon-opacity) !important;
+}
+.kn-param-sidebar-alternated-rows {
+    & > div {
+        &:nth-child(even) {
+            background-color: var(--kn-param-sidebar-even-alternate-rows);
+        }
+        &:nth-child(odd) {
+            background-color: var(--kn-param-sidebar-odd-alternate-rows);
+        }
+    }
+
+    .p-scrollpanel-content {
+        .p-field {
+            &:nth-child(even) {
+                background-color: var(--kn-param-sidebar-even-alternate-rows);
+            }
+            &:nth-child(odd) {
+                background-color: var(--kn-param-sidebar-odd-alternate-rows);
+            }
+        }
     }
 }

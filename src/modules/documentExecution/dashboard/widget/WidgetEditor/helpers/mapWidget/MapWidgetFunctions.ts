@@ -23,7 +23,7 @@ export const createNewMapWidgetSettings = () => {
             selection: { enabled: true }
         },
         style: {
-            themeName: '',
+            themeId: null,
             title: widgetCommonDefaultValues.getDefaultTitleStyle(),
             background: widgetCommonDefaultValues.getDefaultBackgroundStyle(),
             borders: widgetCommonDefaultValues.getDefaultBordersStyle(),

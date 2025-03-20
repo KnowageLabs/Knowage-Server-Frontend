@@ -1,7 +1,7 @@
 <template>
     <div class="kn-page">
-        <div class="kn-page-content p-grid p-m-0">
-            <div class="kn-list--column p-col-4 p-sm-4 p-md-3 p-p-0 p-d-flex p-flex-column">
+        <div class="p-grid p-m-0">
+            <div class="p-col-4 p-sm-4 p-md-3 p-p-0 column window-height">
                 <Toolbar class="kn-toolbar kn-toolbar--primary">
                     <template #start>
                         {{ $t('managers.menuManagement.title') }}
@@ -14,7 +14,7 @@
                 <MenuNodesTree :elements="menuNodes" :loading="loading" data-test="menu-nodes-tree" @deleteMenuNode="onNodeDelete" @selectedMenuNode="onNodeSelect" @unselectedMenuNode="onNodeUnselect" @changeWithFather="onChangeWithFather" @moveUp="onMoveUp" @moveDown="onMoveDown"></MenuNodesTree>
             </div>
 
-            <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
+            <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 column window-height">
                 <KnHint v-if="hideForm" :title="'managers.menuManagement.title'" :hint="'managers.menuManagement.hint'"></KnHint>
                 <MenuElementsDetail
                     v-if="!hideForm"

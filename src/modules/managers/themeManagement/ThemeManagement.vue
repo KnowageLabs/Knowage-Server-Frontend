@@ -33,25 +33,25 @@
             <div class="p-p-2 p-mt-2 p-d-flex p-ai-center">
                 <span class="p-float-label kn-flex">
                     <InputText id="themeName" v-model="themeToSend.themeName" class="kn-material-input" type="text" />
-                    <label for="themeName" class="kn-material-input-label"> Theme name </label>
+                    <label for="themeName" class="kn-material-input-label">Theme name</label>
                 </span>
                 <InputSwitch v-model="themeToSend.active" v-tooltip="'active'"></InputSwitch>
             </div>
             <Divider class="p-my-2" />
             <div class="p-p-2 kn-page-content">
                 <div>
-                    <template v-for="(value, key) in themeHelper.descriptor" :key="key">
+                    <template v-for="(value, key, index) in themeHelper.descriptor" :key="key">
                         <Fieldset :legend="value.label" :toggleable="true" :collapsed="true">
                             <div v-for="property in value.properties" :key="property.key">
                                 <div class="p-field">
                                     <span v-if="property.type === 'text'" class="p-float-label">
                                         <InputText id="exampleTextInput" v-model="selectedTheme.config[property.key]" class="kn-material-input p-inputtext-sm" type="text" @change="updateModelToSend(property.key)" />
-                                        <label for="exampleTextInput" class="kn-material-input-label"> {{ property.label }} </label>
+                                        <label for="exampleTextInput" class="kn-material-input-label">{{ property.label }}</label>
                                     </span>
                                     <span v-if="property.type === 'color'" class="p-float-label">
                                         <InputText id="exampleTextInput" v-model="selectedTheme.config[property.key]" class="kn-material-input p-inputtext-sm" type="text" @change="updateModelToSend(property.key)" />
                                         <input v-model="selectedTheme.config[property.key]" type="color" @change="updateModelToSend(property.key)" />
-                                        <label for="exampleTextInput" class="kn-material-input-label"> {{ property.label }} </label>
+                                        <label for="exampleTextInput" class="kn-material-input-label">{{ property.label }}</label>
                                     </span>
                                 </div>
                             </div>
@@ -60,6 +60,7 @@
                 </div>
             </div>
         </div>
+        <kn-icon-picker v-if="iconPickerVisible" :enable-base64="true" :current-icon="selectedTheme.config[currentIconProp]" @save="onChoosenIcon" @close="closeIconPicker()"></kn-icon-picker>
     </div>
 </template>
 
@@ -80,10 +81,11 @@ import KnListBox from '@/components/UI/KnListBox/KnListBox.vue'
 import KnHint from '@/components/UI/KnHint.vue'
 import { mapActions, mapState } from 'pinia'
 import mainStore from '../../../App.store'
+import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
 
 export default defineComponent({
     name: 'theme-management',
-    components: { Divider, FabButton, Fieldset, InputSwitch, Menu, KnHint, KnInputFile, KnListBox, ThemeManagementExamples },
+    components: { Divider, FabButton, Fieldset, InputSwitch, Menu, KnHint, KnInputFile, KnListBox, ThemeManagementExamples, KnIconPicker },
     data() {
         return {
             descriptor: ThemeManagementDescriptor,
@@ -94,7 +96,12 @@ export default defineComponent({
             triggerInput: false,
             loading: false,
             themeHelper: new themeHelper(),
-            addMenuItems: [] as any[]
+            addMenuItems: [] as any[],
+            iconPickerVisible: null,
+            /**
+             * @param currentIconProp Defines which icon property in theme management is being edited, for some reason when dialogs render in v-for, they dont catch the index correctly so this is a roundabout way of fixing that issue.
+             */
+            currentIconProp: ''
         }
     },
     mounted() {
@@ -184,7 +191,7 @@ export default defineComponent({
             // no default theme
             if (newValues) {
                 this.themeToSend = { ...newValues }
-                this.selectedTheme.id = newValues.id
+                this.selectedTheme.themeId = newValues.id
                 this.selectedTheme.themeName = newValues.themeName
                 this.selectedTheme.active = newValues.active
                 this.selectedTheme.config = { ...this.currentTheme, ...newValues.config }
@@ -216,7 +223,7 @@ export default defineComponent({
             json.active = false
             this.importWidget(json)
         },
-        importWidget(json: JSON) {
+        importWidget(json: any) {
             if (this.availableThemes.find((i) => i.themeName === json.themeName)) json.themeName = json.themeName + '_copy'
             this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/thememanagement', json).then(() => {
                 this.setInfo({ title: this.$t('managers.themeManagement.uploadTheme'), msg: this.$t('managers.themeManagement.themeSuccessfullyUploaded') })
@@ -228,6 +235,18 @@ export default defineComponent({
             const themeToDownload = { ...this.selectedTheme }
             if (themeToDownload.id) delete themeToDownload.id
             downloadDirect(JSON.stringify(themeToDownload), themeToDownload.themeName, 'application/json')
+        },
+        openIconPicker(index, currentProp) {
+            this.currentIconProp = currentProp
+            this.iconPickerVisible = index + 1
+        },
+        closeIconPicker() {
+            this.iconPickerVisible = null
+        },
+        onChoosenIcon(choosenIcon) {
+            this.selectedTheme.config[this.currentIconProp] = choosenIcon.className
+            this.updateModelToSend(this.currentIconProp)
+            this.closeIconPicker()
         }
     }
 })
@@ -243,6 +262,15 @@ export default defineComponent({
         .kn-material-input {
             flex: 1;
         }
+    }
+    .icon-picker-button {
+        border: 1px solid #727272;
+        border-radius: 10%;
+        align-self: center;
+        min-height: 27px !important;
+        max-height: 27px !important;
+        width: 50px;
+        background: #f0f0f0;
     }
 }
 </style>

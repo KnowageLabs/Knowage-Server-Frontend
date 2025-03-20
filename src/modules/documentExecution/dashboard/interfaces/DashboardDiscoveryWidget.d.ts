@@ -31,7 +31,7 @@ export interface IDiscoveryWidgetSettings {
 }
 
 export interface IDiscoveryWidgetStyle {
-    themeName: string
+    themeId: number | null
     title: IWidgetTitle
     borders: IWidgetBordersStyle
     columns: ITableWidgetColumnStyles

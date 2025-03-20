@@ -3,7 +3,7 @@ import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashbo
 import { updateBubbleChartModel } from './updater/KnowageHighchartsBubbleChartUpdater'
 import deepcopy from 'deepcopy'
 import { getAllColumnsOfSpecificAxisTypeFromDataResponse, getAllColumnsOfSpecificTypeFromDataResponse, getColumnConditionalStyles } from './helpers/setData/HighchartsSetDataHelpers'
-import { updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
+import { getColumnAlias, updateSeriesLabelSettingsWhenAllOptionIsAvailable } from './helpers/dataLabels/HighchartsDataLabelsHelpers'
 import * as highchartsDefaultValues from '../../../WidgetEditor/helpers/chartWidget/highcharts/HighchartsDefaultValues'
 
 export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
@@ -133,9 +133,10 @@ export class KnowageHighchartsBubbleChart extends KnowageHighcharts {
         const XColumn = XAxisColumns[0]
         const ZColumn = ZAxisColumns[0]
         const series = [] as any[]
+        const columnAliases = widgetModel.settings?.series?.aliases ?? []
 
         YAxisColumns.forEach((yAxisColumn: any, index: number) => {
-            const tempSerie = { id: index, name: yAxisColumn.column.columnName, data: [] as any[], connectNulls: true }
+            const tempSerie = { id: index, name: getColumnAlias(yAxisColumn.column, columnAliases), data: [] as any[], connectNulls: true }
             data.rows.forEach((row: any) => {
                 tempSerie.data.push({
                     x: row[XColumn.metadata.dataIndex],

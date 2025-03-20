@@ -18,7 +18,6 @@
         }
     ],
     "datasetTypes": {
-        "SbiCkanDataSet": "Ckan",
         "SbiCustomDataSet": "Custom",
         "SbiFederatedDataSet": "Federated",
         "SbiFileDataSet": "File",
@@ -35,18 +34,18 @@
     },
     "responsiveLayout": "stack",
     "rows": 15,
+    "style": {
+        "datasetListDialog": {
+            "max-width": "1200px",
+            "min-width": "600px",
+            "width": "60%"
+        }
+    },
     "table": {
         "iconColumn": {
             "style": {
                 "text-align": "end"
             }
-        }
-    },
-    "style": {
-        "datasetListDialog": {
-            "min-width": "600px",
-            "width": "60%",
-            "max-width": "1200px"
         }
     }
 }

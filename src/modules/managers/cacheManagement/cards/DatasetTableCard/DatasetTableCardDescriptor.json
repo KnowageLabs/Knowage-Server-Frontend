@@ -1,39 +1,34 @@
 {
     "columns": [
         {
+            "align": "left",
             "field": "name",
-            "header": "managers.cacheManagement.name",
-            "style": {
-                "width": "30%"
-            }
+            "label": "managers.cacheManagement.name",
+            "name": "managers.cacheManagement.name"
         },
         {
+            "align": "left",
             "field": "signature",
-            "header": "managers.cacheManagement.signature",
-            "style": {
-                "width": "30%"
-            }
+            "label": "managers.cacheManagement.signature",
+            "name": "managers.cacheManagement.signature"
         },
         {
+            "align": "left",
             "field": "table",
-            "header": "managers.cacheManagement.table",
-            "style": {
-                "width": "20%"
-            }
+            "label": "managers.cacheManagement.table",
+            "name": "managers.cacheManagement.table"
         },
         {
+            "align": "left",
             "field": "dimension",
-            "header": "managers.cacheManagement.dimension",
-            "style": {
-                "width": "140px"
-            }
+            "label": "managers.cacheManagement.dimension",
+            "name": "managers.cacheManagement.dimension"
+        },
+        {
+            "align": "left",
+            "field": "",
+            "label": "",
+            "name": "button"
         }
-    ],
-    "table": {
-        "iconColumn": {
-            "style": {
-                "text-align": "end"
-            }
-        }
-    }
+    ]
 }

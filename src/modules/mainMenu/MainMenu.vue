@@ -8,20 +8,19 @@
         <LicenseDialog v-if="user && user.isSuperadmin && isEnterprise" v-model:visibility="licenseDisplay"></LicenseDialog>
         <AccountDialog :visible="accountDisplay" @closed="accountManagement"></AccountDialog>
         <MainMenuAdmin v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" :opened-panel-event="adminMenuOpened" :model="technicalUserFunctionalities" @click="itemClick"></MainMenuAdmin>
-        <q-menu ref="menu" :target="menuTargetElem" anchor="top right" self="top left" data-test="menu">
+        <q-menu ref="menu" :target="menuTargetElem" :anchor="anchorPosition" self="top left" data-test="menu">
             <MainMenuTieredMenu :items="selectedCustomMenu" @link="itemClick"></MainMenuTieredMenu>
         </q-menu>
-
-        <div class="menu-scroll-content">
-            <div ref="menuProfile" class="profile">
-                <button v-tooltip="user && user.fullName" class="p-link" @click="toggleProfile">
-                    <img alt="Profile" class="profile-image" :src="getProfileImage(user)" />
-                    <span v-if="user" class="profile-name">{{ user.fullName }}</span>
-                    <i class="pi pi-fw pi-chevron-down"></i>
-                    <span class="profile-role">Marketing</span>
-                </button>
-            </div>
-            <transition name="slide-down">
+        <div ref="menuProfile" class="profile">
+            <button v-tooltip="user && user.fullName" class="p-link" @click="toggleProfile">
+                <img alt="Profile" class="profile-image" :src="getProfileImage(user)" />
+                <span v-if="user" class="profile-name">{{ user.fullName }}</span>
+                <i class="pi pi-fw pi-chevron-down"></i>
+                <span class="profile-role">Marketing</span>
+            </button>
+        </div>
+        <div ref="menuScroll" class="menu-scroll-content">
+            <transition :name="transitionType">
                 <ul v-show="showProfileMenu" ref="menuProfileSlide" class="layout-menu profile-menu">
                     <template v-for="(item, i) of commonUserFunctionalities" :key="i">
                         <template v-if="item">
@@ -30,19 +29,17 @@
                     </template>
                 </ul>
             </transition>
-            <ScrollPanel :style="{ height: menuDimensions }">
-                <ul class="layout-menu">
-                    <li v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" role="menu" @click="toggleAdminMenu">
-                        <span :class="['p-menuitem-icon', 'fas fa-cog']"></span>
-                    </li>
-                    <template v-for="(item, i) of allowedUserFunctionalities" :key="i">
-                        <MainMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem>
-                    </template>
-                    <template v-for="(item, i) of dynamicUserFunctionalities" :key="i">
-                        <MainMenuItem :item="item" :internationalize="true" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem>
-                    </template>
-                </ul>
-            </ScrollPanel>
+            <ul class="layout-menu">
+                <li v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" role="menu" @click="toggleAdminMenu">
+                    <span :class="['p-menuitem-icon', 'fas fa-cog']"></span>
+                </li>
+                <template v-for="(item, i) of allowedUserFunctionalities" :key="i">
+                    <MainMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem>
+                </template>
+                <template v-for="(item, i) of dynamicUserFunctionalities" :key="i">
+                    <MainMenuItem :item="item" :internationalize="true" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem>
+                </template>
+            </ul>
         </div>
     </div>
 </template>
@@ -86,7 +83,6 @@ export default defineComponent({
     data() {
         return {
             adminMenuOpened: false,
-            menuDimensions: 0,
             showProfileMenu: false,
             dynamicUserFunctionalities: new Array<IMenuItem>(),
             allowedUserFunctionalities: new Array<IMenuItem>(),
@@ -103,7 +99,9 @@ export default defineComponent({
             hoverTimer: false as any,
             menuTargetElem: '' as any,
             accountDisplay: false,
-            publicPath: import.meta.env.VITE_PUBLIC_PATH
+            publicPath: import.meta.env.VITE_PUBLIC_PATH,
+            windowWidth: 0,
+            anchorPosition: 'bottom right'
         }
     },
     computed: {
@@ -116,7 +114,14 @@ export default defineComponent({
             stateHomePage: 'homePage',
             isEnterprise: 'isEnterprise',
             licenses: 'licenses'
-        })
+        }),
+        isPortrait(): boolean | undefined {
+            return this.windowWidth <= 1025
+        },
+        transitionType(): string | undefined {
+            if (this.isPortrait) return 'slide-right'
+            else return 'slide-down'
+        }
     },
     watch: {
         news() {
@@ -126,13 +131,22 @@ export default defineComponent({
         closeMenu(newProp) {
             // @ts-ignore
             if (newProp) this.$refs.menu.hide()
+        },
+        isPortrait() {
+            if (this.isPortrait) this.anchorPosition = 'bottom left'
+            else this.anchorPosition = 'top right'
         }
     },
     async mounted() {
         await this.loadMenu()
+        this.windowWidth = window.innerWidth
+        this.$nextTick(() => {
+            window.addEventListener('resize', this.updateWindowWidth)
+        })
     },
-    unmounted() {
-        window.removeEventListener('resize', this.getDimensions)
+
+    beforeDestroy() {
+        window.removeEventListener('resize', this.updateWindowWidth)
     },
     methods: {
         ...mapActions(mainStore, ['setHomePage', 'setLoading', 'getConfigurations']),
@@ -269,16 +283,10 @@ export default defineComponent({
             // @ts-ignore
             this.$refs.menu.hide()
         },
-        getDimensions() {
-            if (this.$refs && this.$refs.mainMenu)
-                //@ts-ignore
-                this.menuDimensions = this.$refs.mainMenu.getBoundingClientRect().height - this.$refs.menuProfile.getBoundingClientRect().height - this.$refs.menuProfileSlide.getBoundingClientRect().height + 'px'
-        },
         cleanTo(item): any {
             return item.to.replace(/\\\//g, '/')
         },
         async loadMenu(recursive = false) {
-            window.addEventListener('resize', this.getDimensions)
             this.setLoading(true)
             let localObject = { locale: this.$i18n.fallbackLocale.toString() }
             if (Object.keys(this.locale).length !== 0) localObject = { locale: this.locale }
@@ -322,7 +330,6 @@ export default defineComponent({
                 })
                 .finally(() => {
                     this.setLoading(false)
-                    this.getDimensions()
                 })
         },
         setConditionedVisibility(responseAllowedUserFunctionalities) {
@@ -332,6 +339,9 @@ export default defineComponent({
                 item.visible = this.isItemToDisplay(item)
                 this.allowedUserFunctionalities.push(item)
             }
+        },
+        updateWindowWidth() {
+            this.windowWidth = window.innerWidth
         }
     }
 })
@@ -339,15 +349,20 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .slide-down-enter-active,
-.slide-down-leave-active {
-    overflow: hidden;
-    transition: max-height 0.6s ease-in-out;
-    max-height: 500px;
+.slide-down-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+    transition: transform 0.3s ease-in-out;
 }
 .slide-down-enter-from,
 .slide-down-leave-to {
-    max-height: 0;
+    transform: translateY(-100%);
 }
+.slide-right-enter-from,
+.slide-right-leave-to {
+    transform: translateX(-100%);
+}
+
 .p-scrollpanel:deep(.p-scrollpanel-content) {
     padding: 0 0 18px 0;
 }
@@ -357,14 +372,25 @@ export default defineComponent({
 .layout-menu-container {
     z-index: 9000;
     width: var(--kn-mainmenu-width);
-    top: 0;
-    background-color: var(--kn-mainmenu-background-color);
     height: 100%;
+    background-color: var(--kn-mainmenu-background-color);
     position: fixed;
+    display: flex;
+    flex-direction: column;
     .menu-scroll-content {
         height: 100%;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
+
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+        ::-webkit-scrollbar-thumb {
+            border-radius: 10rem;
+            border: 1px solid var(--kn-mainmenu-hover-background-color);
+            background: var(--kn-mainmenu-hover-background-color);
+        }
     }
     .profile {
         height: 60px;
@@ -393,11 +419,13 @@ export default defineComponent({
     }
     .profile-menu {
         border-bottom: 1px solid var(--kn-mainmenu-hover-background-color);
+        overflow: unset !important;
     }
     .layout-menu {
         margin: 0;
         padding: 0;
         list-style: none;
+        overflow-y: scroll;
         li {
             &:first-child {
                 padding-top: 10px;
@@ -452,6 +480,44 @@ export default defineComponent({
         }
     }
 }
+
+@media screen and (max-width: 1025px) {
+    .layout-menu-container {
+        width: 100%;
+        height: var(--kn-mainmenu-width);
+        flex-direction: row;
+
+        .profile {
+            width: 60px;
+            box-shadow: none;
+        }
+        .menu-scroll-content {
+            flex-direction: row;
+            align-items: center;
+            ::-webkit-scrollbar {
+                height: 2px;
+                width: 0px;
+            }
+        }
+        .layout-menu {
+            padding: 0;
+            display: grid;
+            grid-auto-flow: column;
+            align-items: center;
+            overflow-x: scroll;
+            li {
+                &:first-child {
+                    padding-top: 3px;
+                }
+            }
+        }
+        .profile-menu {
+            border-bottom: none;
+            border-right: 1px solid var(--kn-mainmenu-hover-background-color);
+        }
+    }
+}
+
 @supports (-moz-appearance: none) {
     .layout-menu-container {
         .layout-menu {

@@ -244,6 +244,76 @@
             }
         ]
     },
+    "parameterSidebar": {
+        "label": "parameter sidebar",
+        "properties": [
+            {
+                "key": "--kn-param-sidebar-expanded-icon",
+                "label": "Sidebar Expanded Icon",
+                "type": "icon"
+            },
+            {
+                "key": "--kn-param-sidebar-collapsed-icon",
+                "label": "Sidebar Collapsed Icon",
+                "type": "icon"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-background-color-expanded",
+                "label": "Expanded Sidebar Button Background",
+                "type": "color"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-text-color-expanded",
+                "label": "Expanded Sidebar Button Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-background-color-collapsed",
+                "label": "Collapsed Sidebar Button Background",
+                "type": "color"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-text-color-collapsed",
+                "label": "Collapsed Sidebar Button Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-hover-background-color",
+                "label": "Hover Sidebar Button Background",
+                "type": "color"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-hover-text-color",
+                "label": "Hover Sidebar Button Text Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-opacity",
+                "label": "Sidebar Button Opacity",
+                "type": "text"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-width",
+                "label": "Sidebar Button Width",
+                "type": "text"
+            },
+            {
+                "key": "--kn-param-sidebar-icon-radius",
+                "label": "Sidebar Button Radius",
+                "type": "text"
+            },
+            {
+                "key": "--kn-param-sidebar-even-alternate-rows",
+                "label": "Sidebar Even Alternate Rows",
+                "type": "color"
+            },
+            {
+                "key": "--kn-param-sidebar-odd-alternate-rows",
+                "label": "Sidebar Odd Alternate Rows",
+                "type": "color"
+            }
+        ]
+    },
     "toolbars": {
         "label": "toolbars",
         "properties": [

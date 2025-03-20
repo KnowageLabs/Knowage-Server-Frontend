@@ -36,7 +36,7 @@
             @dataset-interaction-preview="previewInteractionDataset"
         ></WidgetRenderer>
         <WidgetButtonBar
-            v-if="items.filter((i) => i.visible).length > 0"
+            v-if="items.filter((i) => i.visible).length > 0 || playSelectionButtonVisible"
             :document="document"
             :widget="widget"
             :play-selection-button-visible="playSelectionButtonVisible"
@@ -248,9 +248,9 @@ export default defineComponent({
         loadMenuItems() {
             this.items = [
                 { label: this.$t('dashboard.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
-                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: this.document.seeAsFinalUser || canEditDashboard(this.document) || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: (this.document.seeAsFinalUser || canEditDashboard(this.document)) && ['highcharts', 'vega'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: ['highcharts', 'vega'].includes(this.widget?.type) },
                 { label: this.$t('dashboard.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
                 { label: this.$t('dashboard.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
                 {
@@ -338,8 +338,9 @@ export default defineComponent({
         },
         async widgetExportExcel() {
             this.setLoading(true)
+            let body = { ...this.widgetModel, selections: this.dashStore.$state.dashboards[this.dashboardId].selections, drivers: this.dashStore.$state.dashboards[this.dashboardId].drivers }
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/spreadsheet`, this.widgetModel, {
+                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/spreadsheet`, body, {
                     responseType: 'blob',
                     headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
                 })
@@ -410,7 +411,7 @@ export default defineComponent({
                 columnName: this.widgetModel.columns[0].columnName
             }
             emitter.emit('widgetUnlocked', this.widgetModel.id)
-            this.removeSelection(payload, this.dashboardId, this.$http)
+            this.removeSelection(payload, this.dashboardId, this.$http, true)
         },
         launchSelection() {
             this.setSelections(this.dashboardId, this.activeSelections, this.$http)

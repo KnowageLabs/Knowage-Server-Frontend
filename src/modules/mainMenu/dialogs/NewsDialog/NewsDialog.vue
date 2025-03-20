@@ -11,8 +11,8 @@
                                     <div class="kn-list-item-text">
                                         <span>{{ slotProps.option.title }}</span>
                                     </div>
-                                    <span v-if="slotProps.option.read"> <Avatar :icon="typeDescriptor.icons.read.icon" shape="circle" size="medium" :style="typeDescriptor.icons.read.style" /></span
-                                    ><span v-else><Avatar :icon="typeDescriptor.icons.unread.icon" shape="circle" size="medium" :style="typeDescriptor.icons.unread.style" /></span>
+                                    <span v-if="slotProps.option.read"><Avatar :icon="typeDescriptor.icons.read.icon" shape="circle" size="medium" :style="typeDescriptor.icons.read.style" /></span>
+                                    <span v-else><Avatar :icon="typeDescriptor.icons.unread.icon" shape="circle" size="medium" :style="typeDescriptor.icons.unread.style" /></span>
                                 </div>
                             </template>
                         </Listbox>
@@ -21,10 +21,12 @@
                         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
                         <h4>
                             <div class="p-col">
-                                {{ $t('newsDialog.description') }}: <span class="h4-text">{{ selectedNews.description }}</span>
+                                {{ $t('newsDialog.description') }}:
+                                <span class="h4-text">{{ selectedNews.description }}</span>
                             </div>
                             <div class="p-col">
-                                {{ $t('newsDialog.expirationDate') }} : <span class="h4-text">{{ getDate() }}</span>
+                                {{ $t('newsDialog.expirationDate') }} :
+                                <span class="h4-text">{{ getDate() }}</span>
                             </div>
                         </h4>
                         <div class="p-col">
@@ -36,7 +38,10 @@
             </TabPanel>
         </TabView>
         <template #footer>
-            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog"><ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" /> {{ $t('common.close') }}</Button>
+            <Button class="kn-button kn-button--primary" data-test="close-button" @click="closeDialog">
+                <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
+                {{ $t('common.close') }}
+            </Button>
         </template>
     </Dialog>
 </template>
@@ -46,7 +51,7 @@ import { defineComponent } from 'vue'
 import Avatar from 'primevue/avatar'
 import Dialog from 'primevue/dialog'
 import Listbox from 'primevue/listbox'
-import { mapState } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { AxiosResponse } from 'axios'
 import newsDialogDescriptor from './NewsDialogDescriptor.json'
 import TabView from 'primevue/tabview'
@@ -72,10 +77,6 @@ export default defineComponent({
         visibility: Boolean
     },
     emits: ['update:visibility'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             typeDescriptor: newsDialogDescriptor,
@@ -85,8 +86,8 @@ export default defineComponent({
             newsReadArray: Array<number>()
         }
     },
-    created() {},
     methods: {
+        ...mapActions(mainStore, ['setError']),
         emptySelectedNews() {
             this.selectedNews = {} as SingleNews
         },
@@ -102,7 +103,7 @@ export default defineComponent({
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/news/' + id + '?isTechnical=false').then(
                     (response: AxiosResponse<any>) => {
                         if (response.data.errors) {
-                            this.store.setError({ title: this.$t('common.error.news'), msg: this.$t('news.errorGettingSelectedNews') })
+                            this.setError({ title: this.$t('common.error.news'), msg: this.$t('news.errorGettingSelectedNews') })
                         } else {
                             this.selectedNews = response.data
                             this.loading = false

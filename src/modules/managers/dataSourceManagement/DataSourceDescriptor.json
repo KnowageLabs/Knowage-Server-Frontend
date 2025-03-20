@@ -1,16 +1,4 @@
 {
-    "card": {
-        "style": {
-            "margin-bottom": "2em",
-            "width": "100%"
-        }
-    },
-    "checkboxLabel": {
-        "style": {
-            "margin-left": "15px",
-            "width": "100px"
-        }
-    },
     "column": {
         "header": {
             "style": {
@@ -214,9 +202,9 @@
         "readOnly": true,
         "schemaAttribute": "",
         "urlConnection": "",
+        "useForDataprep": false,
         "user": "",
-        "writeDefault": false,
-        "useForDataprep": false
+        "writeDefault": false
     },
     "operation": {
         "insert": {
