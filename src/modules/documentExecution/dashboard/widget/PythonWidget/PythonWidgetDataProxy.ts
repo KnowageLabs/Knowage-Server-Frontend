@@ -30,13 +30,11 @@ export const getPythonData = async (dashboardId: any, dashboardConfig: IDashboar
 
         if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
-            tempResponse.initialCall = initialCall
         } else {
             dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             try {
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
-                tempResponse.initialCall = initialCall
 
                 if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
             } catch (error) {
@@ -62,7 +60,6 @@ export const getPythonData = async (dashboardId: any, dashboardConfig: IDashboar
             .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/python/edit/${widget.settings.editor.outputType == 'image' ? 'img' : 'html'}`, imgPostData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
-                tempResponse.initialCall = initialCall
             })
             .catch((error: any) => {
                 showGetDataError(error, selectedDataset.dsLabel)

@@ -118,11 +118,9 @@ export const addVariablesToFormula = (column, dashboardConfig) => {
 }
 
 export const addSelectionsToData = (dataToSend: any, propWidget: IWidget, datasetLabel: string | undefined, initialCall: boolean, selections: ISelection[], associativeResponseSelections: any) => {
-    if (associativeResponseSelections) {
-        dataToSend.selections = associativeResponseSelections
-    } else if (!initialCall) {
-        dataToSend.selections = getFormattedSelections(selections)
-    }
+    if (associativeResponseSelections) dataToSend.selections = associativeResponseSelections
+    else dataToSend.selections = getFormattedSelections(selections)
+
     if (datasetLabel) addFiltersToPostData(propWidget, dataToSend.selections, datasetLabel)
 }
 

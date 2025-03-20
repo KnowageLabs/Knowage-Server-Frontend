@@ -12,7 +12,7 @@
         :static="widget?.settings?.locked"
         drag-allow-from=".drag-handle"
         :class="{ canEdit: canEditDashboard(document) && !widget?.settings?.locked, 'full-grid-widget': widget?.settings.responsive.fullGrid }"
-        @resized="resizedEvent"
+        @resized="onWidgetResize"
     >
         <div v-if="initialized" class="drag-handle"></div>
         <q-spinner-grid v-if="loading || customChartLoading || widgetLoading" color="primary" size="3rem" class="widgetSpinner" />
@@ -202,6 +202,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
+        //#region ===================== EventListeners/Emitters & Store  ============================================
         ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'createNewWidget', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget', 'cloneWidget', 'getAssociations']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
@@ -224,6 +225,30 @@ export default defineComponent({
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
             emitter.off('refreshAfterGeneralSettingsChange', this.loadInitialData)
         },
+        //#endregion ================================================================================================
+
+        //#region ===================== Menu Functions  ============================================
+        loadMenuItems() {
+            this.items = [
+                { label: this.$t('dashboard.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
+                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: ['highcharts', 'vega'].includes(this.widget?.type) },
+                { label: this.$t('dashboard.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
+                { label: this.$t('dashboard.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
+                {
+                    label: this.$t(this.widget.settings.locked ? 'dashboard.qMenu.unlock' : 'dashboard.qMenu.lock'),
+                    icon: this.widget.settings.locked ? 'fas fa-lock-open' : 'fas fa-lock',
+                    command: () => this.toggleWidgetLock(),
+                    visible: canEditDashboard(this.document)
+                },
+                { label: this.$t('dashboard.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
+                { label: this.$t('dashboard.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
+                { label: this.$t('dashboard.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: this.quickWidgetChangeEnabled() },
+                { label: this.$t('dashboard.qMenu.xlsExport'), icon: 'fa-solid fa-file-excel', command: () => this.widgetExportExcel(), visible: canEditDashboard(this.document) },
+                { label: this.$t('dashboard.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidgetConfirm(), visible: canEditDashboard(this.document) }
+            ]
+        },
         captureScreenshot(widget) {
             let targetElement = document.getElementById(`widget${widget.id}`)
             const escapedSelector = `#widget${widget.id} iframe`.replace('+', '\\+')
@@ -245,26 +270,44 @@ export default defineComponent({
                     })
                 })
         },
-        loadMenuItems() {
-            this.items = [
-                { label: this.$t('dashboard.qMenu.edit'), icon: 'fa-solid fa-pen-to-square', command: () => this.toggleEditMode(), visible: canEditDashboard(this.document) },
-                { label: this.$t('dashboard.qMenu.expand'), icon: 'fa-solid fa-expand', command: () => this.expandWidget(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.screenshot'), icon: 'fa-solid fa-camera-retro', command: () => this.captureScreenshot(this.widget), visible: this.document.seeAsFinalUser || !['html', 'image', 'text', 'selector'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.changeType'), icon: 'fa-solid fa-chart-column', command: () => this.toggleChangeDialog(), visible: ['highcharts', 'vega'].includes(this.widget?.type) },
-                { label: this.$t('dashboard.qMenu.xor'), icon: 'fa-solid fa-arrow-right', command: () => this.searchOnWidget(), visible: this.widget?.type === 'map' },
-                { label: this.$t('dashboard.qMenu.search'), icon: 'fas fa-magnifying-glass', command: () => this.searchOnWidget(), visible: this.widget?.type === 'table' },
-                {
-                    label: this.$t(this.widget.settings.locked ? 'dashboard.qMenu.unlock' : 'dashboard.qMenu.lock'),
-                    icon: this.widget.settings.locked ? 'fas fa-lock-open' : 'fas fa-lock',
-                    command: () => this.toggleWidgetLock(),
-                    visible: canEditDashboard(this.document)
-                },
-                { label: this.$t('dashboard.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
-                { label: this.$t('dashboard.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
-                { label: this.$t('dashboard.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: this.quickWidgetChangeEnabled() },
-                { label: this.$t('dashboard.qMenu.xlsExport'), icon: 'fa-solid fa-file-excel', command: () => this.widgetExportExcel(), visible: canEditDashboard(this.document) },
-                { label: this.$t('dashboard.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidgetConfirm(), visible: canEditDashboard(this.document) }
-            ]
+        toggleEditMode() {
+            emitter.emit('openWidgetEditor', { widget: this.widget, dashboardId: this.dashboardId })
+        },
+        expandWidget(widget) {
+            const widgetElement = this.$refs[`widget${widget.id}`] as any
+            widgetElement.$el.requestFullscreen()
+        },
+        toggleChangeDialog() {
+            this.showChangeDialog = !this.showChangeDialog
+        },
+        searchOnWidget() {
+            this.searchDialogVisible = true
+        },
+        toggleWidgetLock() {
+            this.widgetModel.settings.locked = !this.widgetModel.settings.locked
+        },
+        onCloneWidgetClicked() {
+            this.cloneWidget(this.dashboardId, this.widgetModel, this.activeSheet)
+        },
+        moveWidgetToAnotherSheet() {
+            this.sheetPickerDialogVisible = true
+        },
+        toggleQuickDialog() {
+            if (this.widgetModel.type === 'table') this.showQuickDialog = !this.showQuickDialog
+            else quickWidgetCreateTableFromChart(this.widgetModel, this.dashboardId)
+        },
+        async widgetExportExcel() {
+            this.setLoading(true)
+            let body = { ...this.widgetModel, selections: this.dashStore.$state.dashboards[this.dashboardId].selections, drivers: this.dashStore.$state.dashboards[this.dashboardId].drivers }
+            await this.$http
+                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/spreadsheet`, body, {
+                    responseType: 'blob',
+                    headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
+                })
+                .then((response) => {
+                    downloadDirectFromResponse(response)
+                })
+                .finally(() => this.setLoading(false))
         },
         deleteWidgetConfirm() {
             this.$confirm.require({
@@ -291,9 +334,10 @@ export default defineComponent({
             }
             return false
         },
-        onChartSelectedForQuickWidgetChange(chartType: string) {
-            this.showQuickDialog = false
-            quickWidgetCreateChartFromTable(chartType, this.widgetModel, this.dashboardId)
+        //#endregion ================================================================================================
+
+        setWidgetLoading(loading: any) {
+            this.loading = loading
         },
         loadWidget(widget: IWidget | null) {
             this.widgetModel = widget
@@ -307,22 +351,29 @@ export default defineComponent({
             }
             delete this.widgetModel.search
         },
-        setWidgetLoading(loading: any) {
-            this.loading = loading
-        },
         onWidgetUpdated(widget: any) {
             if (this.widget.id !== widget.id) return
             this.loadWidget(widget)
             this.loadInitialData()
         },
-        async loadInitialData() {
-            if (!this.widgetModel || this.widgetModel.type === 'selection') return
-
-            this.setWidgetLoading(true)
-
+        async loadSelectorInitialData() {
             this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
             this.widgetData = this.widgetInitialData
-            if (this.updateFromSelections) await this.loadActiveSelections()
+        },
+        async loadInitialData() {
+            if (!this.widgetModel || this.widgetModel.type === 'selection') return
+            this.setWidgetLoading(true)
+            let isInitialCall = true
+            if (this.widgetModel.type === 'selector') {
+                await this.loadSelectorInitialData()
+                isInitialCall = false
+            }
+
+            if (this.updateFromSelections) {
+                this.getSelectionsFromStore()
+                const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
+                this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeSelectionsFromStore)
+            } else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
 
             this.setWidgetLoading(false)
         },
@@ -332,22 +383,6 @@ export default defineComponent({
             if (this.widgetModel.type === 'selection') return
             const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             if (this.widgetUsesSelections(this.activeSelections) || associativeSelectionsFromStore) await this.reloadWidgetData(associativeSelectionsFromStore ?? null)
-        },
-        toggleWidgetLock() {
-            this.widgetModel.settings.locked = !this.widgetModel.settings.locked
-        },
-        async widgetExportExcel() {
-            this.setLoading(true)
-            let body = { ...this.widgetModel, selections: this.dashStore.$state.dashboards[this.dashboardId].selections, drivers: this.dashStore.$state.dashboards[this.dashboardId].drivers }
-            await this.$http
-                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/spreadsheet`, body, {
-                    responseType: 'blob',
-                    headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
-                })
-                .then((response) => {
-                    downloadDirectFromResponse(response)
-                })
-                .finally(() => this.setLoading(false))
         },
         getSelectionsFromStore() {
             if (!this.updateFromSelections) {
@@ -397,24 +432,10 @@ export default defineComponent({
 
             return widgetUsesSelection
         },
-        toggleEditMode() {
-            emitter.emit('openWidgetEditor', { widget: this.widget, dashboardId: this.dashboardId })
-        },
         checkIfSelectionIsLocked() {
             if (this.widgetModel.type !== 'selector' || (this.widgetModel.settings as ISelectorWidgetSettings).configuration.valuesManagement.enableAll) return false
             const index = this.activeSelections.findIndex((selection: ISelection) => selection.datasetId === this.widgetModel.dataset && selection.columnName === this.widgetModel.columns[0].columnName)
             this.selectionIsLocked = index !== -1
-        },
-        unlockSelection() {
-            const payload = {
-                datasetId: this.widgetModel.dataset as number,
-                columnName: this.widgetModel.columns[0].columnName
-            }
-            emitter.emit('widgetUnlocked', this.widgetModel.id)
-            this.removeSelection(payload, this.dashboardId, this.$http, true)
-        },
-        launchSelection() {
-            this.setSelections(this.dashboardId, this.activeSelections, this.$http)
         },
         getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation() {
             const associativeSelections = this.getAssociations(this.dashboardId)
@@ -438,11 +459,12 @@ export default defineComponent({
                 await this.reloadWidgetData(null)
             }
         },
-        startUnfocusTimer(milliseconds: number) {
-            this.playDisabledButtonTimeout = setTimeout(() => {
-                this.inFocus = false
-            }, milliseconds)
+
+        //#region ===================== onEvent Handlers  ============================================
+        onWidgetResize: function (newHPx) {
+            emitter.emit('widgetResized', newHPx)
         },
+
         toggleFocus() {
             clearTimeout(this.playDisabledButtonTimeout)
             this.inFocus = true
@@ -456,34 +478,35 @@ export default defineComponent({
                 this.inFocus = false
             }
         },
-        resizedEvent: function (newHPx) {
-            emitter.emit('widgetResized', newHPx)
+        startUnfocusTimer(milliseconds: number) {
+            this.playDisabledButtonTimeout = setTimeout(() => {
+                this.inFocus = false
+            }, milliseconds)
         },
-        expandWidget(widget) {
-            const widgetElement = this.$refs[`widget${widget.id}`] as any
-            widgetElement.$el.requestFullscreen()
+
+        launchSelection() {
+            this.setSelections(this.dashboardId, this.activeSelections, this.$http)
         },
-        toggleQuickDialog() {
-            if (this.widgetModel.type === 'table') this.showQuickDialog = !this.showQuickDialog
-            else quickWidgetCreateTableFromChart(this.widgetModel, this.dashboardId)
+        unlockSelection() {
+            const payload = {
+                datasetId: this.widgetModel.dataset as number,
+                columnName: this.widgetModel.columns[0].columnName
+            }
+            emitter.emit('widgetUnlocked', this.widgetModel.id)
+            this.removeSelection(payload, this.dashboardId, this.$http, true)
         },
-        toggleChangeDialog() {
-            this.showChangeDialog = !this.showChangeDialog
+
+        onChartSelectedForQuickWidgetChange(chartType: string) {
+            this.showQuickDialog = false
+            quickWidgetCreateChartFromTable(chartType, this.widgetModel, this.dashboardId)
         },
-        searchOnWidget() {
-            this.searchDialogVisible = true
-        },
-        moveWidgetToAnotherSheet() {
-            this.sheetPickerDialogVisible = true
-        },
-        onCloneWidgetClicked() {
-            this.cloneWidget(this.dashboardId, this.widgetModel, this.activeSheet)
-        },
+
         onSearch(payload: { searchText: string; searchColumns: string[] }) {
             this.search = payload
             this.searchDialogVisible = false
             const currentState = this.getCurrentDashboardView(this.dashboardId)
             if (currentState && this.widgetModel.id) currentState.settings.states[this.widgetModel.id] = { type: this.widgetModel.type, search: this.search }
+
             this.reloadWidgetData(null)
         },
         onSheetSelected(sheet: IDashboardSheet | null) {
@@ -492,7 +515,9 @@ export default defineComponent({
 
             this.moveWidget(this.dashboardId, this.widgetModel, sheet, this.activeSheet)
         },
+        //#endregion ================================================================================================
 
+        //#region ===================== DatasetPreview  ============================================
         async previewInteractionDataset(event: any) {
             const previewSettings = event.previewSettings as IWidgetPreview
 
@@ -562,6 +587,8 @@ export default defineComponent({
                 .then(() => this.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('workspace.myData.exportSuccess') }))
                 .catch(() => {})
         }
+
+        //#endregion ================================================================================================
     }
 })
 </script>

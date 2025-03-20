@@ -4,7 +4,7 @@
             <p v-if="showDataset">{{ selection.datasetLabel }}</p>
             <p v-if="showColumn">{{ selection.columnName }}</p>
             <p>{{ formatSelectionForDisplay(selection) }}</p>
-            <Button v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" :disabled="editorMode || selection.locked" data-test="delete-button" @click="deleteSelection(selection)" />
+            <Button v-show="!selection.locked" v-tooltip.left="$t('common.delete')" icon="fas fa-trash-alt" class="p-button-text p-button-rounded p-button-plain" :disabled="editorMode" data-test="delete-button" @click="deleteSelection(selection)" />
         </li>
     </ul>
 </template>
