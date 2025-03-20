@@ -20,12 +20,18 @@
                     </div>
 
                     <div class="imageContainer p-d-flex p-jc-center p-ai-center">
+                        <div class="row q-gutter-xs buttonsBar">
+                            <q-file ref="avatarPicker" v-model="tenant.TENANT_IMAGE" label="Standard" class="hidden" @update:model-value="(value) => uploadFile(value, 'TENANT_IMAGE')" />
+                            <q-btn round outline color="primary" icon="file_upload" @click="triggerUpload('avatarPicker')">
+                                <q-tooltip :delay="500">{{ $t('common.upload') }}</q-tooltip>
+                            </q-btn>
+                            <q-btn v-if="tenant.TENANT_IMAGE" round outline color="primary" icon="delete" @click="clear('TENANT_IMAGE')">
+                                <q-tooltip :delay="500">{{ $t('common.clear') }}</q-tooltip>
+                            </q-btn>
+                        </div>
+
                         <i v-if="!tenant.TENANT_IMAGE" class="far fa-image fa-5x icon" />
                         <img v-if="tenant.TENANT_IMAGE" :src="tenant.TENANT_IMAGE" class="kn-no-select" />
-                        <input id="organizationImage" type="file" accept="image/png, image/jpeg" data-test="upload" @change="uploadFile" />
-                        <label v-tooltip.bottom="$t('common.upload')" for="organizationImage">
-                            <i class="pi pi-upload"></i>
-                        </label>
                     </div>
                 </div>
                 <div class="p-col-12 kn-height-full">
@@ -35,12 +41,17 @@
                     </div>
 
                     <div class="imageContainerExtended p-d-flex p-jc-center p-ai-center">
+                        <div class="row q-gutter-xs buttonsBar">
+                            <q-file ref="widePicker" v-model="tenant.TENANT_IMAGE_WIDE" label="Standard" class="hidden" @update:model-value="(value) => uploadFile(value, 'TENANT_IMAGE_WIDE')" />
+                            <q-btn round outline color="primary" icon="file_upload" @click="triggerUpload('widePicker')">
+                                <q-tooltip :delay="500">{{ $t('common.upload') }}</q-tooltip>
+                            </q-btn>
+                            <q-btn v-if="tenant.TENANT_IMAGE_WIDE" round outline color="primary" icon="delete" @click="clear('TENANT_IMAGE_WIDE')">
+                                <q-tooltip :delay="500">{{ $t('common.clear') }}</q-tooltip>
+                            </q-btn>
+                        </div>
                         <i v-if="!tenant.TENANT_IMAGE_WIDE" class="far fa-image fa-5x icon" />
                         <img v-if="tenant.TENANT_IMAGE_WIDE" :src="tenant.TENANT_IMAGE_WIDE" class="kn-no-select" />
-                        <input id="organizationImageExtended" type="file" accept="image/png, image/jpeg" @change="uploadExtendedFile" />
-                        <label v-tooltip.bottom="$t('common.upload')" for="organizationImageExtended">
-                            <i class="pi pi-upload"></i>
-                        </label>
                     </div>
                 </div>
             </form>
@@ -50,7 +61,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Button from 'primevue/button'
 import Card from 'primevue/card'
 import tabViewDescriptor from '../TenantManagementTabViewDescriptor.json'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
@@ -62,7 +72,6 @@ import { mapActions } from 'pinia'
 export default defineComponent({
     name: 'detail-tab',
     components: {
-        Button,
         Card,
         KnValidationMessages
     },
@@ -113,37 +122,28 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(mainStore, ['setError']),
+        clear(type) {
+            this.tenant[type] = ''
+        },
         onFieldChange(fieldName: string, value: any) {
             this.$emit('fieldChanged', { fieldName, value })
         },
-        uploadFile(event): void {
+        uploadFile(file, imgType): void {
             const reader = new FileReader()
             reader.addEventListener(
                 'load',
                 () => {
-                    this.tenant.TENANT_IMAGE = reader.result || ''
-                    this.onFieldChange('TENANT_IMAGE', this.tenant.TENANT_IMAGE)
+                    this.tenant[imgType] = reader.result || ''
+                    this.onFieldChange('TENANT_IMAGE', this.tenant[imgType])
                 },
                 false
             )
-            if (event.srcElement.files[0] && event.srcElement.files[0].size < import.meta.env.VITE_MAX_UPLOAD_IMAGE_SIZE) {
-                reader.readAsDataURL(event.srcElement.files[0])
+            if (file && file.size < import.meta.env.VITE_MAX_UPLOAD_IMAGE_SIZE) {
+                reader.readAsDataURL(file)
             } else this.setError({ title: this.$t('common.error.uploading'), msg: this.$t('common.error.exceededSize', { size: '(200KB)' }) })
         },
-
-        uploadExtendedFile(event): void {
-            const reader = new FileReader()
-            reader.addEventListener(
-                'load',
-                () => {
-                    this.tenant.TENANT_IMAGE_WIDE = reader.result || ''
-                    this.onFieldChange('TENANT_IMAGE_WIDE', this.tenant.TENANT_IMAGE_WIDE)
-                },
-                false
-            )
-            if (event.srcElement.files[0] && event.srcElement.files[0].size < import.meta.env.VITE_MAX_UPLOAD_IMAGE_SIZE) {
-                reader.readAsDataURL(event.srcElement.files[0])
-            } else this.setError({ title: this.$t('common.error.uploading'), msg: this.$t('common.error.exceededSize', { size: '(200KB)' }) })
+        triggerUpload(imgRef: string): void {
+            this.$refs[imgRef].pickFiles()
         }
     }
 })
@@ -182,7 +182,7 @@ label[for='organizationImageExtended'] {
 .imageContainer,
 .imageContainerExtended {
     height: 90px;
-    width: 300px;
+    width: 90px;
     position: relative;
     margin: 16px 0;
     border: 1px solid #aaa;
@@ -192,8 +192,8 @@ label[for='organizationImageExtended'] {
     }
     img {
         height: auto;
-        max-height: 80px;
-        max-width: 80px;
+        max-height: 98%;
+        max-width: 98%;
     }
 }
 
@@ -205,5 +205,11 @@ label[for='organizationImageExtended'] {
         max-height: 98%;
         max-width: 98%;
     }
+}
+
+.buttonsBar {
+    position: absolute;
+    top: 0;
+    left: 102%;
 }
 </style>
