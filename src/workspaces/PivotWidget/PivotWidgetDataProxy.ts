@@ -12,7 +12,7 @@ export const getPivotData = async (dashboardId: any, dashboardConfig: IDashboard
     const selectedDataset = datasets[datasetIndex]
 
     if (selectedDataset && hasFields(widget)) {
-        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}`
 
         const postData = formatPivotModelForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
