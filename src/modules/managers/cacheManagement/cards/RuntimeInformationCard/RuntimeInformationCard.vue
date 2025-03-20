@@ -1,28 +1,30 @@
 <template>
     <Card class="p-m-2">
         <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start>
-                    {{ $t('managers.cacheManagement.runtimeInformationTitle') }}
-                </template>
-                <template #end>
-                    <Button icon="pi pi-refresh" class="p-button-text p-button-rounded p-button-plain" @click="refresh" />
-                </template>
-            </Toolbar>
+            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                <q-toolbar-title>{{ $t('managers.cacheManagement.runtimeInformationTitle') }}</q-toolbar-title>
+
+                <q-btn flat round dense icon="refresh" data-test="refresh-button" @click="refresh">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.refresh') }}</q-tooltip>
+                </q-btn>
+            </q-toolbar>
         </template>
         <template #content>
             <div class="p-d-flex p-flex-column">
-                <div class="kn-flex">                    
-                    <p>{{ $t('managers.cacheManagement.cacheEnabled') }}: {{ cache.cleaningEnabled }}</p>
-                    <p>{{ $t('managers.cacheManagement.totalMemory') }}: {{ totalMemory }}</p>
-                    <p>{{ $t('managers.cacheManagement.availableMemory') }}: {{ availableMemory }}</p>
-                    <p>{{ $t('managers.cacheManagement.numberOfCachedObjects') }}: {{ cache.cachedObjectsCount }}</p>
-                    <p>{{ $t('managers.cacheManagement.availableMemoryPercentage') }}: {{ cache.availableMemoryPercentage }}%</p>
-                </div>
+                <q-table dense flat hide-pagination hide-header :rows="rows" :columns="columns" row-key="label">
+                    <template #body-cell-value="props">
+                        <q-td v-if="typeof props.row.value === 'boolean'">
+                            <q-icon :name="props.value ? 'thumb_up' : 'remove_circle'">
+                                <q-tooltip>{{ $t(props.value ? 'common.enabled' : 'common.disabled') }}</q-tooltip>
+                            </q-icon>
+                        </q-td>
+                        <q-td v-else>{{ props.value }}</q-td>
+                    </template>
+                </q-table>
                 <div class="kn-flex p-d-flex p-flex-row p-justify-center">
-                <div style="position: relative; height:20rem; width:20rem">
-                    <Chart type="pie"  :data="cacheData" data-test="chart" />
-                </div>
+                    <div style="position: relative; height: 20rem; width: 20rem">
+                        <Chart type="pie" :data="cacheData" data-test="chart" />
+                    </div>
                 </div>
             </div>
         </template>
@@ -55,7 +57,12 @@ export default defineComponent({
     data() {
         return {
             cache: {} as iCache,
-            cacheData: this.loadChart()
+            cacheData: this.loadChart(),
+            columns: [
+                { name: 'label', label: 'label', field: 'label', align: 'left' },
+                { name: 'value', label: 'value', field: 'value', align: 'left' }
+            ] as any,
+            rows: [] as any
         }
     },
     computed: {
@@ -80,6 +87,7 @@ export default defineComponent({
     methods: {
         loadCache() {
             this.cache = { ...this.item } as iCache
+            this.updateRows()
         },
         loadChart() {
             this.cacheData = {
@@ -92,8 +100,18 @@ export default defineComponent({
                 ]
             }
         },
+        updateRows() {
+            this.rows = [
+                { label: this.$t('managers.cacheManagement.cacheEnabled'), value: this.cache.cleaningEnabled },
+                { label: this.$t('managers.cacheManagement.totalMemory'), value: this.totalMemory },
+                { label: this.$t('managers.cacheManagement.availableMemory'), value: this.availableMemory },
+                { label: this.$t('managers.cacheManagement.numberOfCachedObjects'), value: this.cache.cachedObjectsCount },
+                { label: this.$t('managers.cacheManagement.availableMemoryPercentage'), value: this.cache.availableMemoryPercentage }
+            ]
+        },
         refresh() {
             this.$emit('refresh')
+            this.updateRows()
         }
     }
 })

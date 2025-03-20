@@ -2,7 +2,7 @@
     <div class="kn-page--row p-grid p-m-0 kn-theme-management">
         <div class="kn-list--column kn-page p-col-2 p-sm-2 p-md-3 p-p-0">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start> Dashboard {{ $t('managers.themeManagement.title') }} </template>
+                <template #start>Dashboard {{ $t('managers.themeManagement.title') }}</template>
                 <template #end>
                     <FabButton icon="fas fa-plus" data-test="new-button" @click="toggleAddThemeMenu" />
                     <Menu ref="menu" :model="addMenuItems" :popup="true" style="width: 240px" data-test="menu"></Menu>
@@ -16,7 +16,7 @@
         <div class="p-col p-p-0 p-m-0 kn-page form-container">
             <KnHint v-if="selectedTheme.themeName == null" :title="$t('managers.themeManagement.title')" :hint="$t('managers.themeManagement.hint')"></KnHint>
             <Toolbar v-if="selectedTheme.themeName != null" class="kn-toolbar kn-toolbar--secondary">
-                <template #start> {{ selectedTheme.themeName }} </template>
+                <template #start>{{ selectedTheme.themeName }}</template>
                 <template #end>
                     <Button v-if="selectedTheme.id" icon="pi pi-download" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.download')" data-test="download" @click="downloadTheme" />
                     <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :title="$t('managers.themeManagement.save')" data-test="save-button" @click="handleSave" />
@@ -157,7 +157,7 @@ export default defineComponent({
         },
         downloadTheme(): void {
             const themeToDownload = { ...this.selectedTheme }
-            if (themeToDownload.id) delete themeToDownload.id
+            if (themeToDownload.id) themeToDownload.id = null
             downloadDirect(JSON.stringify(themeToDownload), themeToDownload.themeName, 'application/json')
         }
     }

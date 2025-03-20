@@ -170,9 +170,12 @@ export default defineComponent({
         addAditionalCSSClasses(modelToRender: IHighchartsChartModel) {
             if (!modelToRender.plotOptions?.series?.showCheckbox || !modelToRender.legend) return
             setTimeout(() => {
+                const container = document.getElementById(this.chartID)
+                if (!container) return
                 const horizontalAlignment = modelToRender.legend.layout === 'horizontal'
-                document.querySelectorAll('.highcharts-legend-checkbox').forEach((el) => {
+                container.querySelectorAll('.highcharts-legend-checkbox').forEach((el) => {
                     el.classList.add(horizontalAlignment ? 'custom-checkbox-style-horizontal' : 'custom-checkbox-style-vertical')
+                    el.classList.remove(horizontalAlignment ? 'custom-checkbox-style-vertical' : 'custom-checkbox-style-horizontal')
                 })
             }, 100)
         },

@@ -1,15 +1,16 @@
-import { IWidget, IWidgetColumn } from "../Dashboard"
-import { createNewWidget } from "./WidgetEditor/helpers/WidgetEditorHelpers"
-import { KnowageHighchartsBarChart } from "./ChartWidget/classes/highcharts/KnowageHighchartsBarChart"
-import { KnowageHighchartsPieChart } from "./ChartWidget/classes/highcharts/KnowageHighchartsPieChart"
-import { KnowageHighchartsLineChart } from "./ChartWidget/classes/highcharts/KnowageHighchartsLineChart"
-import deepcopy from "deepcopy"
+import { IWidget, IWidgetColumn } from '../Dashboard'
+import { createNewWidget } from './WidgetEditor/helpers/WidgetEditorHelpers'
+import { KnowageHighchartsBarChart } from './ChartWidget/classes/highcharts/KnowageHighchartsBarChart'
+import { KnowageHighchartsPieChart } from './ChartWidget/classes/highcharts/KnowageHighchartsPieChart'
+import { KnowageHighchartsLineChart } from './ChartWidget/classes/highcharts/KnowageHighchartsLineChart'
+import deepcopy from 'deepcopy'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 const dashStore = dashboardStore()
 
 export const quickWidgetCreateChartFromTable = (chartType: string, currentWidget: IWidget, dashboardId: string) => {
-    const newWidget = createNewWidget('highcharts')
+    const dashboard = dashStore.dashboards[dashboardId]
+    const newWidget = createNewWidget('highcharts', dashboard)
     newWidget.dataset = currentWidget.dataset
     const attributeColumn = currentWidget.columns.find((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE')
     const measureColumn = currentWidget.columns.find((column: IWidgetColumn) => column.fieldType === 'MEASURE')
@@ -31,7 +32,8 @@ export const quickWidgetCreateChartFromTable = (chartType: string, currentWidget
 }
 
 export const quickWidgetCreateTableFromChart = (currentWidget: IWidget, dashboardId: string) => {
-    const newWidget = createNewWidget('table')
+    const dashboard = dashStore.dashboards[dashboardId]
+    const newWidget = createNewWidget('table', dashboard)
     newWidget.dataset = currentWidget.dataset
     newWidget.columns = deepcopy(currentWidget.columns)
     newWidget.new = false
@@ -39,8 +41,8 @@ export const quickWidgetCreateTableFromChart = (currentWidget: IWidget, dashboar
     dashStore.createNewWidget(dashboardId, newWidget, currentWidget)
 }
 
-const copyGenericWidgetStyle = (newWidget: IWidget, currentWidget: IWidget,) => {
-    newWidget.settings.style.themeName = currentWidget.settings.style.themeName
+const copyGenericWidgetStyle = (newWidget: IWidget, currentWidget: IWidget) => {
+    newWidget.settings.style.themeId = currentWidget.settings.style.themeId
     newWidget.settings.style.title = currentWidget.settings.style.title
     newWidget.settings.style.background = currentWidget.settings.style.background
     newWidget.settings.style.borders = currentWidget.settings.style.borders

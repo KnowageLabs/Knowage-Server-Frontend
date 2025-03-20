@@ -1,11 +1,11 @@
-import { IWidgetRowsStyle, ITableWidgetStyle } from "../../Dashboard"
+import { IWidgetRowsStyle, ITableWidgetStyle } from '../../Dashboard'
 import { convertColorFromHSLtoRGB } from '../FormattingHelpers'
 import { getFormattedPaddingStyle, getFormattedBorderStyle, getFormattedShadowsStyle, getFormattedBackgroundStyle, getFormattedTitleStyle } from '../common/WidgetStyleHelper'
-import * as  tableWidgetDefaultValues from '../../widget/WidgetEditor/helpers/tableWidget/TableWidgetDefaultValues'
+import * as tableWidgetDefaultValues from '../../widget/WidgetEditor/helpers/tableWidget/TableWidgetDefaultValues'
 
 export const getFormattedStyle = (widget: any) => {
     return {
-        themeName: '',
+        themeId: null,
         title: getFormattedTitleStyle(widget),
         borders: getFormattedBorderStyle(widget),
         columns: tableWidgetDefaultValues.getDefaultColumnStyles(),
@@ -20,32 +20,33 @@ export const getFormattedStyle = (widget: any) => {
     } as ITableWidgetStyle
 }
 
-
 const getDefaultColumnGroupsStyle = (widget: any) => {
     const formattedColumnGroupsStyles = tableWidgetDefaultValues.getDefaultColumnStyles()
     if (!widget.groups) return formattedColumnGroupsStyles
-    let fields = ['background-color', 'color', "justify-content", "font-size", "font-family", "font-style", "font-weight"]
+    let fields = ['background-color', 'color', 'justify-content', 'font-size', 'font-family', 'font-style', 'font-weight']
     for (let i = 0; i < widget.groups.length; i++) {
         const tempGroup = widget.groups[i]
-        let hasStyle = false;
+        let hasStyle = false
         for (let j = 0; j < fields.length; j++) {
             if (tempGroup.hasOwnProperty(fields[j])) {
-                hasStyle = true;
+                hasStyle = true
                 break
             }
         }
-        if (hasStyle) formattedColumnGroupsStyles.styles.push({
-            target: [tempGroup.id], properties: {
-                width: 0,
-                "background-color": tempGroup['background-color'] ?? "rgb(0, 0, 0)",
-                color: tempGroup.color ?? 'rgb(255, 255, 255)',
-                "justify-content": tempGroup['justify-content'] ?? '',
-                "font-size": tempGroup['font-size'] ?? "",
-                "font-family": tempGroup['font-family'] ?? '',
-                "font-style": tempGroup['font-style'] ?? '',
-                "font-weight": tempGroup['font-weight'] ?? '',
-            }
-        })
+        if (hasStyle)
+            formattedColumnGroupsStyles.styles.push({
+                target: [tempGroup.id],
+                properties: {
+                    width: 0,
+                    'background-color': tempGroup['background-color'] ?? 'rgb(0, 0, 0)',
+                    color: tempGroup.color ?? 'rgb(255, 255, 255)',
+                    'justify-content': tempGroup['justify-content'] ?? '',
+                    'font-size': tempGroup['font-size'] ?? '',
+                    'font-family': tempGroup['font-family'] ?? '',
+                    'font-style': tempGroup['font-style'] ?? '',
+                    'font-weight': tempGroup['font-weight'] ?? ''
+                }
+            })
     }
     return formattedColumnGroupsStyles
 }
@@ -56,13 +57,13 @@ const getFormattedHeadersStyle = (widget: any) => {
     return {
         height: widget.style.th.height ?? 25,
         properties: {
-            "background-color": widget.style.th['background-color'] ?? "rgb(137, 158, 175)",
+            'background-color': widget.style.th['background-color'] ?? 'rgb(137, 158, 175)',
             color: widget.style.th.color ?? 'rgb(255, 255, 255)',
-            "justify-content": widget.style.th['justify-content'] ?? 'center',
-            "font-size": widget.style.th['font-size'] ?? "14px",
-            "font-family": widget.style.th['font-family'] ?? '',
-            "font-style": widget.style.th['font-style'] ?? 'normal',
-            "font-weight": widget.style.th['font-weight'] ?? '',
+            'justify-content': widget.style.th['justify-content'] ?? 'center',
+            'font-size': widget.style.th['font-size'] ?? '14px',
+            'font-family': widget.style.th['font-family'] ?? '',
+            'font-style': widget.style.th['font-style'] ?? 'normal',
+            'font-weight': widget.style.th['font-weight'] ?? ''
         }
     }
 }
@@ -76,7 +77,6 @@ const getFormattedRowsStyle = (widget: any) => {
             enabled: widget.settings.alternateRows?.enabled ?? false,
             evenBackgroundColor: widget.settings.alternateRows?.evenRowsColor ?? 'rgb(228, 232, 236)',
             oddBackgroundColor: widget.settings.alternateRows?.oddRowsColor ?? ''
-
         }
     }
     return formattedRowsStyle as IWidgetRowsStyle
@@ -91,12 +91,12 @@ const getFormattedSummaryStyle = (widget: any) => {
     if (!widget.settings.summary || !widget.settings.summary.style) return tableWidgetDefaultValues.getDefualtSummryStyle()
 
     return {
-        "background-color": convertColorFromHSLtoRGB(widget.settings.summary.style['background-color']),
-        "color": convertColorFromHSLtoRGB(widget.settings.summary.style.color),
-        "font-family": widget.settings.summary.style['font-family'] ?? '',
-        "font-size": widget.settings.summary.style['font-size'] ?? '',
-        "font-style": widget.settings.summary.style['font-style'] ?? '',
-        "font-weight": widget.settings.summary.style['font-weight'] ?? '',
-        "justify-content": ""
+        'background-color': convertColorFromHSLtoRGB(widget.settings.summary.style['background-color']),
+        color: convertColorFromHSLtoRGB(widget.settings.summary.style.color),
+        'font-family': widget.settings.summary.style['font-family'] ?? '',
+        'font-size': widget.settings.summary.style['font-size'] ?? '',
+        'font-style': widget.settings.summary.style['font-style'] ?? '',
+        'font-weight': widget.settings.summary.style['font-weight'] ?? '',
+        'justify-content': ''
     }
 }

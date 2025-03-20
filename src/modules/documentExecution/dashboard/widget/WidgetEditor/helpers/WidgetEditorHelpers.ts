@@ -20,7 +20,6 @@ import useStore from '@/App.store'
 import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
 import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
 import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
-import { createNewRWidgetSettings } from './rWidget/RWidgetFunctions'
 import { addWidgetMenuConfig } from '../../../DashboardHelpers'
 
 const store = useStore()
@@ -105,8 +104,6 @@ export const createNewWidgetSettings = (widget: IWidget, dashboardModel: any) =>
         case 'python':
             widget.settings = createNewPythonWidgetSettings()
             break
-        case 'r':
-            widget.settings = createNewRWidgetSettings()
     }
     widget.settings = addDefaultTheme(widget.settings, dashboardModel)
 }

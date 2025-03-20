@@ -13,7 +13,6 @@
         }
     ],
     "datasetTypes": {
-        "SbiCkanDataSet": "Ckan",
         "SbiCustomDataSet": "Custom",
         "SbiFederatedDataSet": "Federated",
         "SbiFileDataSet": "File",

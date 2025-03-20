@@ -1,19 +1,17 @@
 <template>
     <div class="cache-management kn-page">
-        <Toolbar class="kn-toolbar kn-toolbar--primary">
-            <template #start>
-                {{ $t('managers.cacheManagement.title') }}
-            </template>
-        </Toolbar>
+        <q-toolbar class="kn-toolbar kn-toolbar--primary">
+            <q-toolbar-title>{{ $t('managers.cacheManagement.title') }}</q-toolbar-title>
+        </q-toolbar>
         <ProgressBar v-if="showProgressBar" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-        <div class="p-d-flex p-flex-wrap kn-page-content">
-            <div class="p-col-4 p-sm-12 p-md-4 p-p-0">
+        <div class="row q-col-gutter-sm overflow-auto">
+            <div class="col-12 col-md-4">
                 <RuntimeInformationCard v-if="selectedDatasource" :item="cache" :chart-data="chartData" @refresh="onRefresh"></RuntimeInformationCard>
             </div>
-            <div class="p-col-8 p-sm-12 p-md-8 p-p-0">
+            <div class="col-12 col-md-8">
                 <GeneralSettingsCard v-if="settingsPendingCount == 0" :item="settings" :datasources="datasources" :selected-datasource="selectedDatasource" @inserted="pageReload"></GeneralSettingsCard>
             </div>
-            <div class="p-col-12 p-sm-12 p-p-0">
+            <div class="col-12">
                 <DatasetTableCard :dataset-metadata-list="datasetMetadataList" :loading="datasetMetadataLoading" @deleted="loadDatasetsMetadata"></DatasetTableCard>
             </div>
         </div>

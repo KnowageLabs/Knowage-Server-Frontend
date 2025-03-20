@@ -62,8 +62,7 @@
             :variables="variables"
             :dashboard-id="dashboardId"
             :descriptor="descriptor"
-        >
-        </HighchartsWidgetSettingsContainer>
+        ></HighchartsWidgetSettingsContainer>
         <ChartJSWidgetSettingsContainer
             v-else-if="selectedSetting && propWidget.type === 'chartJS'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
@@ -73,8 +72,7 @@
             :selected-datasets="selectedDatasets"
             :variables="variables"
             :dashboard-id="dashboardId"
-        >
-        </ChartJSWidgetSettingsContainer>
+        ></ChartJSWidgetSettingsContainer>
         <ImageWidgetSettingsContainer
             v-else-if="selectedSetting && propWidget.type === 'image'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
@@ -85,8 +83,7 @@
             :variables="variables"
             :dashboard-id="dashboardId"
             @settingSelected="$emit('settingChanged', $event)"
-        >
-        </ImageWidgetSettingsContainer>
+        ></ImageWidgetSettingsContainer>
         <CustomChartWidgetSettingsContainer
             v-else-if="selectedSetting && propWidget.type === 'customchart'"
             class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
@@ -161,15 +158,6 @@
             :prop-gallery-items="galleryItems"
             @galleryItemSelected="onGalleryItemSelected"
         ></PythonWidgetSettingsContainer>
-        <RWidgetSettingsContainer
-            v-else-if="selectedSetting && propWidget.type === 'r'"
-            class="model-div kn-flex kn-overflow p-py-3 p-pr-3"
-            :widget-model="propWidget"
-            :selected-setting="selectedSetting"
-            :datasets="datasets"
-            :selected-datasets="selectedDatasets"
-            :dashboard-id="dashboardId"
-        ></RWidgetSettingsContainer>
     </div>
 </template>
 
@@ -193,7 +181,6 @@ import DiscoveryWidgetSettingsContainer from './DiscoveryWidget/DiscoveryWidgetS
 import MapWidgetSettingsContainer from './MapWidget/MapWidgetSettingsContainer.vue'
 import VegaChartsSettingsContainer from './ChartWidget/vega/VegaChartsSettingsContainer.vue'
 import PythonWidgetSettingsContainer from './PythonWidget/PythonWidgetSettingsContainer.vue'
-import RWidgetSettingsContainer from './RWidget/RWidgetSettingsContainer.vue'
 import selectorDescriptor from './SelectorWidget/SelectorWidgetSettingsDescriptor.json'
 import selectionsDescriptor from './SelectionsWidget/SelectionsWidgetSettingsDescriptor.json'
 import WidgetEditorSettingsList from './WidgetEditorSettingsList.vue'
@@ -230,7 +217,6 @@ import discoveryDescriptor from './DiscoveryWidget/DiscoveryWidgetSettingsDescri
 import mapWidgetDescriptor from './MapWidget/MapSettingsDescriptor.json'
 import vegaChartsDescriptor from './ChartWidget/vega/VegaChartsSettingsDescriptor.json'
 import pythonWidgetDescriptor from './PythonWidget/PythonWidgetSettingsDescriptor.json'
-import rWidgetDescriptor from './RWidget/RWidgetSettingsDescriptor.json'
 import { mapState, mapActions } from 'pinia'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -256,8 +242,7 @@ export default defineComponent({
         MapWidgetSettingsContainer,
         VegaChartsSettingsContainer,
         cePivotTableWidgetSettingsContainer,
-        PythonWidgetSettingsContainer,
-        RWidgetSettingsContainer
+        PythonWidgetSettingsContainer
     },
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
@@ -345,8 +330,6 @@ export default defineComponent({
                 case 'python':
                     this.descriptor = pythonWidgetDescriptor
                     break
-                case 'r':
-                    this.descriptor = rWidgetDescriptor
             }
         },
         getHighchartsDescriptor() {

@@ -2,7 +2,7 @@
     <div v-if="widget?.settings?.style" class="p-grid p-p-4">
         <div class="p-col-12 p-d-flex p-flex-column p-pb-2">
             <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.widgetTheme') }}</label>
-            <Dropdown v-model="widget.settings.style.themeName" class="kn-material-input kn-full-width" :options="themes" option-label="themeName" option-value="themeName" show-clear @change="onThemeSelected"> </Dropdown>
+            <Dropdown v-model="widget.settings.style.themeId" class="kn-material-input kn-full-width" :options="themes" option-label="themeName" option-value="id" show-clear @change="onThemeSelected"></Dropdown>
         </div>
     </div>
 </template>
@@ -45,12 +45,13 @@ export default defineComponent({
         },
         loadWidgetStyle() {
             this.widget = this.widgetModel
+            if (this.widget?.settings.style?.themeName) delete this.widget.settings.style.themeName
         },
-        onThemeSelected(event: { value: string }) {
-            const selectedTheme = this.themes.find((theme: IDashboardTheme) => theme.themeName === event.value)
+        onThemeSelected(event: { value: number | null }) {
+            const selectedTheme = this.themes.find((theme: IDashboardTheme) => theme.id === event.value)
             if (!selectedTheme || !this.widget) return
             const widgetTypeForThemes = this.getWidgetTypeForThemes()
-            applyStylesToWidget(this.widget.settings.style, selectedTheme.themeName, selectedTheme.config[widgetTypeForThemes])
+            applyStylesToWidget(this.widget.settings.style, selectedTheme, selectedTheme.config[widgetTypeForThemes])
             emitter.emit('themeSelected')
             this.$emit('themeSelected', selectedTheme.themeName)
         },

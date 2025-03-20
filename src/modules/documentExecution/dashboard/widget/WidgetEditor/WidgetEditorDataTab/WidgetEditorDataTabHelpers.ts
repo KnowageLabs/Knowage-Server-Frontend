@@ -11,7 +11,7 @@ import descriptor from '../WidgetEditorSettingsTab/ChartWidget/common/ChartColor
 const dashStore = dashboardStore()
 
 export const changeChartType = (chartType: string, widget: IWidget, isEnterprise: boolean) => {
-    const selectedThemeName = widget.settings?.style?.themeName ?? ''
+    const selectedThemeId = widget.settings?.style?.themeId ?? null
     delete widget.invalid
     const tempWidgetColors = widget.settings.chartModel?.model?.colors ? [...widget.settings.chartModel.model.colors] : [...descriptor.defaultColors]
     const originalChartStyle = widget.settings.style
@@ -36,17 +36,17 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
         widget.settings.chartModel = createChartJSModel(chartType)
     }
 
-    widget.settings.style.themeName = selectedThemeName
+    widget.settings.style.themeId = selectedThemeId
     widget.settings.style = originalChartStyle
-    reapplyThemeToChartWidget(widget, selectedThemeName)
+    reapplyThemeToChartWidget(widget, selectedThemeId)
 
     emitter.emit('chartTypeChanged', widget)
     emitter.emit('refreshWidgetWithData', widget.id)
 }
 
-const reapplyThemeToChartWidget = (widget: IWidget, selectedThemeName: string) => {
+const reapplyThemeToChartWidget = (widget: IWidget, selectedThemeId: number | null) => {
     const themes = dashStore.getAllThemes()
-    const selectedTheme = themes.find((theme: IDashboardTheme) => theme.themeName === selectedThemeName)
+    const selectedTheme = themes.find((theme: IDashboardTheme) => theme.id === selectedThemeId)
     if (!selectedTheme) return
-    applyStylesToWidget(widget.settings.style, selectedThemeName, selectedTheme.config['chart'])
+    applyStylesToWidget(widget.settings.style, selectedTheme, selectedTheme.config['chart'])
 }

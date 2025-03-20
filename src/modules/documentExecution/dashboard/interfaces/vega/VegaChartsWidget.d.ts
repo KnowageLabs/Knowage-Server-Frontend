@@ -1,60 +1,60 @@
-import { IWidgetExports, IWidgetInteractions, IWidgetTitle, IWidgetPaddingStyle, IWidgetBordersStyle, IWidgetShadowsStyle, IWidgetBackgroundStyle, IWidgetResponsive } from './../../Dashboard.d';
+import { IWidgetExports, IWidgetInteractions, IWidgetTitle, IWidgetPaddingStyle, IWidgetBordersStyle, IWidgetShadowsStyle, IWidgetBackgroundStyle, IWidgetResponsive } from './../../Dashboard.d'
 
 export interface IVegaChartsSettings {
-    updatable: boolean,
-    clickable: boolean,
-    chartModel: IVegaChartsModel | null,
-    configuration: IVegaChartsConfiguration,
-    interactions: IWidgetInteractions,
-    chart: IVegaChartSettings,
-    style: IVegaChartsStyle,
-    tooltip: IVegaChartsTooltipSettings,
+    updatable: boolean
+    clickable: boolean
+    chartModel: IVegaChartsModel | null
+    configuration: IVegaChartsConfiguration
+    interactions: IWidgetInteractions
+    chart: IVegaChartSettings
+    style: IVegaChartsStyle
+    tooltip: IVegaChartsTooltipSettings
     responsive: IWidgetResponsive
 }
 
 export interface IVegaChartsModel {
-    "$schema": string,
-    chart: { type: string },
-    description: string,
-    padding: number,
+    $schema: string
+    chart: { type: string }
+    description: string
+    padding: number
     autosize: {
-        type: string,
+        type: string
         contains: string
-    },
-    signals: IVegaChartsSignal[],
-    data: IVegaChartsData[],
-    scales: IVegaChartsScale[],
+    }
+    signals: IVegaChartsSignal[]
+    data: IVegaChartsData[]
+    scales: IVegaChartsScale[]
     marks: IVegaChartsMark[]
 }
 
 export interface IVegaChartsData {
-    name: string,
-    values: { text: string, count: number }[],
-    transform: { type: string, as: string, expr: string }[]
+    name: string
+    values: { text: string; count: number }[]
+    transform: { type: string; as: string; expr: string }[]
 }
 
 export interface IVegaChartsSignal {
-    name: string,
-    init: string,
-    on: { events: string, update: string }[]
+    name: string
+    init: string
+    on: { events: string; update: string }[]
 }
 
 export interface IVegaChartsScale {
-    name: string,
-    type: string,
+    name: string
+    type: string
     domain: {
-        data: string,
+        data: string
         field: string
-    },
+    }
     range: string[]
 }
 
 export interface IVegaChartsMark {
-    type: string,
+    type: string
     from: {
         data: string
-    },
-    encode: IVegaChartsMarkEncode,
+    }
+    encode: IVegaChartsMarkEncode
     transform: IVegaChartsMarkTransform[]
 }
 
@@ -62,26 +62,26 @@ export interface IVegaChartsMarkEncode {
     enter: {
         text: {
             field: string
-        },
+        }
         align: {
             value: string
-        },
+        }
         baseline: {
             value: string
-        },
+        }
         fill: {
-            scale: string,
+            scale: string
             field: string
-        },
+        }
         tooltip: {
             signal: string
         }
-    },
+    }
     update: {
         fillOpacity: {
             value: number
         }
-    },
+    }
     hover: {
         fillOpacity: {
             value: number
@@ -90,40 +90,40 @@ export interface IVegaChartsMarkEncode {
 }
 
 export interface IVegaChartsMarkTransform {
-    type: string,
+    type: string
     text: {
         field: string
-    },
-    rotate: number,
-    font: string,
+    }
+    rotate: number
+    font: string
     fontSize: {
         field: string
-    },
-    fontSizeRange: [number, number],
+    }
+    fontSizeRange: [number, number]
     padding: number
 }
 
 export interface IVegaChartsConfiguration {
-    textConfiguration: IVegaChartsTextConfiguration,
+    textConfiguration: IVegaChartsTextConfiguration
     noDataConfiguration: IVegaChartsNoDataConfiguration
     exports: IWidgetExports
 }
 
 export interface IVegaChartsTextConfiguration {
-    font: string,
-    minimumFontSize: number,
-    maximumFontSize: number,
-    wordPadding: number,
-    wordAngle: number,
+    font: string
+    minimumFontSize: number
+    maximumFontSize: number
+    wordPadding: number
+    wordAngle: number
     maxNumberOfWords: number
 }
 
 export interface IVegaChartsNoDataConfiguration {
-    text: '',
+    text: ''
     position: {
-        align: string,
+        align: string
         verticalAlign: string
-    },
+    }
     style: {
         'font-family': string
         'font-size': string
@@ -138,24 +138,24 @@ export interface IVegaChartSettings {
 }
 
 export interface IVegaChartsTooltipSettings {
-    prefix: string,
-    suffix: string,
+    prefix: string
+    suffix: string
     precision: number
 }
 
 export interface IVegaChartsStyle {
-    themeName: string
-    title: IWidgetTitle,
-    padding: IWidgetPaddingStyle,
-    borders: IWidgetBordersStyle,
-    shadows: IWidgetShadowsStyle,
+    themeId: number | null
+    title: IWidgetTitle
+    padding: IWidgetPaddingStyle
+    borders: IWidgetBordersStyle
+    shadows: IWidgetShadowsStyle
     background: IWidgetBackgroundStyle
 }
 
 export interface IChartInteractionValues {
-    serieName: string,
-    serieValue: string,
-    categoryName: string,
-    categoryValue: string,
+    serieName: string
+    serieValue: string
+    categoryName: string
+    categoryValue: string
     categoryId: string
 }

@@ -586,7 +586,7 @@
                     "font-weight": "",
                     "justify-content": ""
                 },
-                "themeName": "",
+                "themeId": null,
                 "title": {
                     "enabled": false,
                     "height": 25,

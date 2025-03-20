@@ -82,10 +82,6 @@
         "owner": "demo_admin",
         "pars": [],
         "persistTableName": "dbtest",
-        "pivotColName": null,
-        "pivotColValue": null,
-        "pivotIsNumRows": false,
-        "pivotRowName": null,
         "recalculateMetadata": true,
         "schedulingCronLine": "0 0,2,4 * * * ?",
         "scopeCd": "USER",
@@ -100,7 +96,6 @@
             }
         ],
         "timestampFormat": "",
-        "trasfTypeCd": null,
         "usedByNDocs": 0,
         "userIn": "demo_admin",
         "versNum": 3,
@@ -156,7 +151,6 @@
         "sparqlExecutionTimeout": 30,
         "sparqlQuery": "",
         "tags": [],
-        "trasfTypeCd": "",
         "usedByNDocs": "",
         "userIn": "",
         "versNum": ""

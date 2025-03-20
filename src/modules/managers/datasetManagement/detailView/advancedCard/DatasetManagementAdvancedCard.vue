@@ -1,73 +1,4 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary">
-        <template #start>
-            <InputSwitch v-model="isTransformable" class="p-mr-2" @change="setTransformationType" />
-            <span>{{ $t('managers.datasetManagement.pivotTransformer') }}</span>
-        </template>
-    </Toolbar>
-    <Card v-if="isTransformable">
-        <template #content>
-            <form class="p-fluid p-formgrid p-grid">
-                <div class="p-field p-col-3">
-                    <span class="p-float-label">
-                        <InputText
-                            id="pivotColName"
-                            v-model.trim="v$.dataset.pivotColName.$model"
-                            class="kn-material-input"
-                            type="text"
-                            :class="{
-                                'p-invalid': v$.dataset.pivotColName.$invalid && v$.dataset.pivotColName.$dirty
-                            }"
-                            @blur="v$.dataset.pivotColName.$touch()"
-                            @change="$emit('touched')"
-                        />
-                        <label for="pivotColName" class="kn-material-input-label"> {{ $t('managers.datasetManagement.pivotColName') }} * </label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.dataset.pivotColName" :additional-translate-params="{ fieldName: $t('managers.datasetManagement.pivotColName') }" />
-                </div>
-                <div class="p-field p-col-3">
-                    <span class="p-float-label">
-                        <InputText
-                            id="pivotColValue"
-                            v-model="dataset.pivotColValue"
-                            class="kn-material-input"
-                            type="text"
-                            :class="{
-                                'p-invalid': v$.dataset.pivotColValue.$invalid && v$.dataset.pivotColValue.$dirty
-                            }"
-                            @blur="v$.dataset.pivotColValue.$touch()"
-                            @change="$emit('touched')"
-                        />
-                        <label for="pivotColValue" class="kn-material-input-label"> {{ $t('managers.datasetManagement.pivotColValue') }} * </label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.dataset.pivotColValue" :additional-translate-params="{ fieldName: $t('managers.datasetManagement.pivotColValue') }" />
-                </div>
-                <div class="p-field p-col-3">
-                    <span class="p-float-label">
-                        <InputText
-                            id="pivotRowName"
-                            v-model="dataset.pivotRowName"
-                            class="kn-material-input"
-                            type="text"
-                            :class="{
-                                'p-invalid': v$.dataset.pivotRowName.$invalid && v$.dataset.pivotRowName.$dirty
-                            }"
-                            @blur="v$.dataset.pivotRowName.$touch()"
-                            @change="$emit('touched')"
-                        />
-                        <label for="pivotRowName" class="kn-material-input-label"> {{ $t('managers.datasetManagement.pivotRowName') }} *</label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.dataset.pivotRowName" :additional-translate-params="{ fieldName: $t('managers.datasetManagement.pivotRowName') }" />
-                </div>
-
-                <span class="p-field-checkbox p-col-3">
-                    <label for="pivotIsNumRows">{{ $t('managers.datasetManagement.pivotIsNumRows') }}</label>
-                    <Checkbox id="pivotIsNumRows" v-model="dataset.pivotIsNumRows" class="p-ml-2" :binary="true" @change="$emit('touched')" />
-                </span>
-            </form>
-        </template>
-    </Card>
-
     <div v-if="dataset.dsTypeCd != 'Flat'">
         <Toolbar class="kn-toolbar kn-toolbar--secondary p-mt-3">
             <template #start>
@@ -91,7 +22,7 @@
                                 @blur="v$.dataset.persistTableName.$touch()"
                                 @change="$emit('touched')"
                             />
-                            <label for="persistTableName" class="kn-material-input-label"> {{ $t('managers.datasetManagement.persistTableName') }} *</label>
+                            <label for="persistTableName" class="kn-material-input-label">{{ $t('managers.datasetManagement.persistTableName') }} *</label>
                         </span>
                         <KnValidationMessages class="p-mt-1" :v-comp="v$.dataset.persistTableName" :additional-translate-params="{ fieldName: $t('managers.datasetManagement.persistTableName') }" />
                     </div>
@@ -161,48 +92,22 @@ export default defineComponent({
     watch: {
         selectedDataset() {
             this.dataset = this.selectedDataset
-            this.isDatasetTransformable()
         }
     },
     created() {
         this.dataset = this.selectedDataset
-        this.isDatasetTransformable()
     },
     validations() {
-        const transformationFieldsRequired = (value) => {
-            return !this.isTransformable || value
-        }
         const persistFieldsRequired = (value) => {
             return !this.dataset.isPersisted || value
         }
         const customValidators: ICustomValidatorMap = {
-            'transformable-field-required': transformationFieldsRequired,
             'persist-field-required': persistFieldsRequired
         }
         const validationObject = {
             dataset: createValidations('dataset', advancedCardDescriptor.validations.advancedTab, customValidators)
         }
         return validationObject
-    },
-    methods: {
-        isDatasetTransformable() {
-            if (this.dataset.trasfTypeCd && this.dataset.trasfTypeCd == this.transformationDataset.VALUE_CD) {
-                this.isTransformable = true
-            } else {
-                this.isTransformable = false
-            }
-        },
-        setTransformationType() {
-            if (this.isTransformable) {
-                this.dataset.trasfTypeCd = this.transformationDataset.VALUE_CD
-            } else {
-                this.dataset.trasfTypeCd ? (this.dataset.trasfTypeCd = '') : null
-                this.dataset.pivotColName ? (this.dataset.pivotColName = '') : null
-                this.dataset.pivotColValue ? (this.dataset.pivotColValue = '') : null
-                this.dataset.pivotIsNumRows ? (this.dataset.pivotIsNumRows = '') : null
-                this.dataset.pivotRowName ? (this.dataset.pivotRowName = '') : null
-            }
-        }
     }
 })
 </script>
