@@ -1,60 +1,58 @@
 <template>
     <Card :style="tabViewDescriptor.card.style">
         <template #content>
-            <form class="p-fluid q-ma-md">
-                <q-input
-                    filled
-                    class="q-mb-md"
-                    v-model="tenant.TENANT_NAME"
-                    :label="$t('managers.tenantManagement.detail.name')"
-                    :disable="disableField"
-                    reactive-rules
-                    ref="tenantName"
-                    :rules="[(val) => val.match(/^[a-zA-Z0-9_]+$/) || $t('common.validation.regex'), (val) => !!val || $t('common.validation.required', { fieldName: $t('managers.tenantManagement.detail.name') })]"
-                    @update:model-value="(value) => onFieldChange('TENANT_NAME', value)"
-                />
-                <div class="p-col-12 kn-height-full">
-                    <label class="kn-material-input-label">{{ $t('managers.tenantManagement.detail.logo') }}</label>
-                    <div>
-                        <small>{{ $t('managers.tenantManagement.detail.logoHint') }}</small>
-                    </div>
-
-                    <div class="imageContainer p-d-flex p-jc-center p-ai-center">
-                        <div class="row q-gutter-xs buttonsBar">
-                            <q-file ref="avatarPicker" v-model="tenant.TENANT_IMAGE" label="Standard" class="hidden" @update:model-value="(value) => uploadFile(value, 'TENANT_IMAGE')" />
-                            <q-btn round outline color="primary" icon="file_upload" @click="triggerUpload('avatarPicker')">
-                                <q-tooltip :delay="500">{{ $t('common.upload') }}</q-tooltip>
-                            </q-btn>
-                            <q-btn v-if="tenant.TENANT_IMAGE" round outline color="primary" icon="delete" @click="clear('TENANT_IMAGE')">
-                                <q-tooltip :delay="500">{{ $t('common.clear') }}</q-tooltip>
-                            </q-btn>
-                        </div>
-
-                        <i v-if="!tenant.TENANT_IMAGE" class="far fa-image fa-5x icon" />
-                        <img v-if="tenant.TENANT_IMAGE" :src="tenant.TENANT_IMAGE" class="kn-no-select" />
-                    </div>
+            <q-input
+                filled
+                class="q-mb-md"
+                v-model="tenant.TENANT_NAME"
+                :label="$t('managers.tenantManagement.detail.name')"
+                :disable="disableField"
+                reactive-rules
+                ref="tenantName"
+                :rules="[(val) => val.match(/^[a-zA-Z0-9_]+$/) || $t('common.validation.regex'), (val) => !!val || $t('common.validation.required', { fieldName: $t('managers.tenantManagement.detail.name') })]"
+                @update:model-value="(value) => onFieldChange('TENANT_NAME', value)"
+            />
+            <div class="p-col-12 kn-height-full">
+                <label class="kn-material-input-label">{{ $t('managers.tenantManagement.detail.logo') }}</label>
+                <div>
+                    <small>{{ $t('managers.tenantManagement.detail.logoHint') }}</small>
                 </div>
-                <div class="p-col-12 kn-height-full">
-                    <label class="kn-material-input-label">{{ $t('managers.tenantManagement.detail.logoWide') }}</label>
-                    <div>
-                        <small>{{ $t('managers.tenantManagement.detail.logoWideHint') }}</small>
+
+                <div class="imageContainer p-d-flex p-jc-center p-ai-center">
+                    <div class="row q-gutter-xs buttonsBar q-ml-xs">
+                        <q-file ref="avatarPicker" v-model="tenant.TENANT_IMAGE" label="Standard" class="hidden" @update:model-value="(value) => uploadFile(value, 'TENANT_IMAGE')" />
+                        <q-btn round outline color="primary" icon="file_upload" @click="triggerUpload('avatarPicker')">
+                            <q-tooltip :delay="500">{{ $t('common.upload') }}</q-tooltip>
+                        </q-btn>
+                        <q-btn v-if="tenant.TENANT_IMAGE" round outline color="primary" icon="delete" @click="clear('TENANT_IMAGE')">
+                            <q-tooltip :delay="500">{{ $t('common.clear') }}</q-tooltip>
+                        </q-btn>
                     </div>
 
-                    <div class="imageContainerExtended p-d-flex p-jc-center p-ai-center">
-                        <div class="row q-gutter-xs buttonsBar">
-                            <q-file ref="widePicker" v-model="tenant.TENANT_IMAGE_WIDE" label="Standard" class="hidden" @update:model-value="(value) => uploadFile(value, 'TENANT_IMAGE_WIDE')" />
-                            <q-btn round outline color="primary" icon="file_upload" @click="triggerUpload('widePicker')">
-                                <q-tooltip :delay="500">{{ $t('common.upload') }}</q-tooltip>
-                            </q-btn>
-                            <q-btn v-if="tenant.TENANT_IMAGE_WIDE" round outline color="primary" icon="delete" @click="clear('TENANT_IMAGE_WIDE')">
-                                <q-tooltip :delay="500">{{ $t('common.clear') }}</q-tooltip>
-                            </q-btn>
-                        </div>
-                        <i v-if="!tenant.TENANT_IMAGE_WIDE" class="far fa-image fa-5x icon" />
-                        <img v-if="tenant.TENANT_IMAGE_WIDE" :src="tenant.TENANT_IMAGE_WIDE" class="kn-no-select" />
-                    </div>
+                    <i v-if="!tenant.TENANT_IMAGE" class="far fa-image fa-5x icon" />
+                    <img v-if="tenant.TENANT_IMAGE" :src="tenant.TENANT_IMAGE" class="kn-no-select" />
                 </div>
-            </form>
+            </div>
+            <div class="p-col-12 kn-height-full">
+                <label class="kn-material-input-label">{{ $t('managers.tenantManagement.detail.logoWide') }}</label>
+                <div>
+                    <small>{{ $t('managers.tenantManagement.detail.logoWideHint') }}</small>
+                </div>
+
+                <div class="imageContainerExtended p-d-flex p-jc-center p-ai-center">
+                    <div class="row q-gutter-xs buttonsBar q-ml-xs">
+                        <q-file ref="widePicker" v-model="tenant.TENANT_IMAGE_WIDE" label="Standard" class="hidden" @update:model-value="(value) => uploadFile(value, 'TENANT_IMAGE_WIDE')" />
+                        <q-btn round outline color="primary" icon="file_upload" @click="triggerUpload('widePicker')">
+                            <q-tooltip :delay="500">{{ $t('common.upload') }}</q-tooltip>
+                        </q-btn>
+                        <q-btn v-if="tenant.TENANT_IMAGE_WIDE" round outline color="primary" icon="delete" @click="clear('TENANT_IMAGE_WIDE')">
+                            <q-tooltip :delay="500">{{ $t('common.clear') }}</q-tooltip>
+                        </q-btn>
+                    </div>
+                    <i v-if="!tenant.TENANT_IMAGE_WIDE" class="far fa-image fa-5x icon" />
+                    <img v-if="tenant.TENANT_IMAGE_WIDE" :src="tenant.TENANT_IMAGE_WIDE" class="kn-no-select" />
+                </div>
+            </div>
         </template>
     </Card>
 </template>
@@ -210,6 +208,6 @@ label[for='organizationImageExtended'] {
 .buttonsBar {
     position: absolute;
     top: 0;
-    left: 102%;
+    left: 100%;
 }
 </style>

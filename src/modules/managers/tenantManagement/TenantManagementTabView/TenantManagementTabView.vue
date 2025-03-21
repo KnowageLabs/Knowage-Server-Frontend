@@ -1,11 +1,14 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
-        <template #start>{{ tenant.TENANT_NAME }}</template>
-        <template #end>
-            <Button v-tooltip.bottom="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="submit-button" :disabled="buttonDisabled" @click="handleSubmit" />
-            <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplateConfirm" />
-        </template>
-    </Toolbar>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ tenant.TENANT_NAME }}</q-toolbar-title>
+
+        <q-btn flat round dense icon="save" :disable="buttonDisabled" data-test="submit-button" @click="handleSubmit">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeTemplateConfirm">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
     <div class="card">
         <TabView class="tabview-custom" data-test="tab-view">
