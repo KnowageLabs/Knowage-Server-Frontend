@@ -47,7 +47,6 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMa
     })
 
     createHeatLayer(map, heatmapData, layerVisualizationSettings, max, target.layerId)
-    fitBoundsForMapCentering(map, heatmapData)
 }
 
 const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, heatmapData: number[][], coord: any[] | null) => {
@@ -71,18 +70,39 @@ const createHeatmapVisualizationFromData = (map: any, data: any, target: IMapWid
     })
 
     createHeatLayer(map, heatmapData, layerVisualizationSettings, max, target.layerId)
-    fitBoundsForMapCentering(map, heatmapData)
 }
 
 const createHeatLayer = (map: any, heatmapData: number[][], layerVisualizationSettings: IMapWidgetVisualizationType, max: number, layerId: string) => {
     const defaultVisualizationHeatmapConfiguration = mapWidgetDefaultValues.getDefaultVisualizationHeatmapConfiguration()
-    const heatLayer = L.heatLayer(heatmapData, {
-        radius: layerVisualizationSettings.heatmapConf?.radius ?? defaultVisualizationHeatmapConfiguration.radius,
-        blur: layerVisualizationSettings.heatmapConf?.blur ?? defaultVisualizationHeatmapConfiguration.blur,
-        maxZoom: layerVisualizationSettings.heatmapConf?.maxZoom ?? defaultVisualizationHeatmapConfiguration.maxZoom,
-        max: max
-    }).addTo(map)
-    heatLayer.knProperties = { heatmap: true, layerId: layerId }
+    map.whenReady(() => {
+        setTimeout(() => {
+            map.invalidateSize()
+
+            if (!heatmapData || heatmapData.length === 0) {
+                throw Error('Heatmap data is empty, skipping heatmap creation.')
+                return
+            }
+
+            const heatLayer = L.heatLayer(heatmapData, {
+                radius: layerVisualizationSettings.heatmapConf?.radius ?? defaultVisualizationHeatmapConfiguration.radius,
+                blur: layerVisualizationSettings.heatmapConf?.blur ?? defaultVisualizationHeatmapConfiguration.blur,
+                maxZoom: layerVisualizationSettings.heatmapConf?.maxZoom ?? defaultVisualizationHeatmapConfiguration.maxZoom,
+                max: max
+            }).addTo(map)
+
+            // Assign properties
+            heatLayer.knProperties = { heatmap: true, layerId: layerId }
+
+            setTimeout(() => {
+                heatLayer.redraw()
+            }, 300)
+
+            map.once('resize', () => {
+                heatLayer.redraw()
+            })
+            fitBoundsForMapCentering(map, heatmapData)
+        }, 500)
+    })
 }
 
 const fitBoundsForMapCentering = (map: any, heatmapData: number[][]) => {

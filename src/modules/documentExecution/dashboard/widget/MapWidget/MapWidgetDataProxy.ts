@@ -71,8 +71,9 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
 
 export const getLayerData = async (layer: IMapWidgetLayer) => {
     let tempResponse = null as any
+    const type = layer.layerType === 'wkt' ? 'wkt' : 'file'
     await axios
-        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/${layer.id}/download/file`, { headers: { 'X-Disable-Errors': 'true' } })
+        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/${layer.id}/download/${type}`, { headers: { 'X-Disable-Errors': 'true' } })
         .then((response: AxiosResponse<any>) => (tempResponse = response.data))
         .catch((error: any) => {
             showGetDataError(error, '' + layer.id)

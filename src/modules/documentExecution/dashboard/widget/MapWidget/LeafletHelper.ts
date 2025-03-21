@@ -111,33 +111,10 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 
         if (!parsedInput) return []
 
-        if (parsedInput.arcs) return getCoordinatesFromTopoJSONCoordType(parsedInput)
-
         return parsedInput?.geometry?.coordinates ?? []
     } catch (error) {
         throw Error('Spatial attribute coordinates are not a valid JSON!')
     }
-}
-
-// TODO - Need working example
-const getCoordinatesFromTopoJSONCoordType = (parsedInput: any) => {
-    const topojsonWithObjects = {
-        type: 'Topology',
-        arcs: parsedInput.arcs,
-        transform: { scale: [1, 1], translate: [0, 0] },
-        objects: {
-            region: {
-                type: 'Polygon',
-                properties: parsedInput.properties ?? {},
-                arcs: [parsedInput.arcs.map((_, i) => i)]
-            }
-        }
-    } as any
-
-    const geojsonFeatures = feature(topojsonWithObjects, topojsonWithObjects.objects.region)
-    const geojsonMesh = mesh(topojsonWithObjects, topojsonWithObjects.objects.region)
-
-    return geojsonFeatures?.geometry?.coordinates ? geojsonFeatures.geometry.coordinates : []
 }
 
 // Starting point for the data/layers logic
@@ -170,9 +147,6 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             layersData = await getLayerData(target)
 
             if (!layersData) return
-
-            // TODO - Remove mock
-            // layersData = wktMock
 
             if (layersData.wkt) {
                 const wktData = wktMock.wkt

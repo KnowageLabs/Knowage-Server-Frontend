@@ -61,9 +61,10 @@ onMounted(async () => {
 
     try {
         await initializeLayers(map, props.widgetModel, props.data, props.dashboardId)
-        switchLayerVisibility(map, props.layerVisibility)
+        setTimeout(() => {
+            switchLayerVisibility(map, props.layerVisibility)
+        }, 250)
     } catch (error: any) {
-        console.log('------- ERROR: ', error)
         appStore.setError({
             title: t('common.toast.errorTitle'),
             msg: error ? error.message : ''
