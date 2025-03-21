@@ -13,7 +13,7 @@ export const getCePivotData = async (dashboardId: any, dashboardConfig: IDashboa
     const selectedDataset = datasets[datasetIndex]
 
     if (selectedDataset && hasFields(widget)) {
-        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}`
 
         const postData = formatPivotModelForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
@@ -29,13 +29,11 @@ export const getCePivotData = async (dashboardId: any, dashboardConfig: IDashboa
 
         if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
-            tempResponse.initialCall = initialCall
         } else {
             dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             try {
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
-                tempResponse.initialCall = initialCall
 
                 if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
             } catch (error) {
@@ -121,7 +119,6 @@ export const getCePivotData = async (dashboardId: any, dashboardConfig: IDashboa
             .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + '/api/1.0/crosstab/update', formattedPivotData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
                 tempResponse = response.data
-                tempResponse.initialCall = initialCall
             })
             .catch((error: any) => {
                 showGetDataError(error, selectedDataset.dsLabel)

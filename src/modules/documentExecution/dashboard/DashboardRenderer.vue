@@ -121,6 +121,9 @@ export default defineComponent({
     mounted() {
         this.loadDashboardModel()
     },
+    created() {
+        this.currentScreenSize = this.currentBreakpoint()
+    },
     methods: {
         ...mapActions(dashboardStore, ['setSelectedSheetIndex', 'setDashboardSheet', 'getDashboard']),
         loadDashboardModel() {
@@ -174,6 +177,13 @@ export default defineComponent({
         },
         addWidget() {
             emitter.emit('openNewWidgetPicker', this.dashboardId)
+        },
+        currentBreakpoint() {
+            if (window.innerWidth >= 1200) return 'lg'
+            else if (window.innerWidth >= 996) return 'md'
+            else if (window.innerWidth >= 768) return 'sm'
+            else if (window.innerWidth >= 480) return 'xs'
+            else return 'xxs'
         }
     }
 })

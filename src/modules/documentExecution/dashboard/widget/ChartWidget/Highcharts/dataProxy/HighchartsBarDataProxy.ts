@@ -15,7 +15,7 @@ export const getHighchartsBarData = async (dashboardId, dashboardConfig: IDashbo
 
     if (selectedDataset) {
         const itemsLimit = widget.settings.configuration.limit
-        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=${itemsLimit && itemsLimit.enabled && itemsLimit.itemsNumber ? itemsLimit.itemsNumber : '-1'}&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=${itemsLimit && itemsLimit.enabled && itemsLimit.itemsNumber ? itemsLimit.itemsNumber : '-1'}&nearRealtime=${!selectedDataset.cache}`
 
         const postData = formatChartWidgetForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, sortingColumn, associativeResponseSelections)
         let tempResponse = null as any
@@ -34,13 +34,11 @@ export const getHighchartsBarData = async (dashboardId, dashboardConfig: IDashbo
 
         if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
-            tempResponse.initialCall = initialCall
         } else {
             dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             try {
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
-                tempResponse.initialCall = initialCall
 
                 if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
             } catch (error) {

@@ -1,13 +1,22 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--primary" :style="mainDescriptor.style.maxWidth">
-        <template #start> {{ $t('workspace.federationDefinition.title') }}</template>
-        <template #end>
-            <Button class="kn-button p-button-text p-button-rounded federation-button" @click="changeSteps"> {{ step === 0 ? $t('common.next') : $t('common.back') }}</Button>
-            <Button v-if="step === 1" class="kn-button p-button-text p-button-rounded federation-button p-mr-2" @click="saveFederation"> {{ $t('workspace.federationDefinition.saveFederation') }}</Button>
-            <Button class="kn-button p-button-text p-button-rounded" @click="closeFederationDefinition"> {{ $t('common.close') }}</Button></template
-        >
-    </Toolbar>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ $t('workspace.federationDefinition.title') }}</q-toolbar-title>
+
+        <q-btn flat :label="step === 0 ? $t('common.next') : $t('common.back')" data-test="submit-button" @click="changeSteps" />
+        <q-btn flat v-if="step === 1" :label="$t('workspace.federationDefinition.saveFederation')" data-test="submit-button" @click="saveFederation" />
+        <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeFederationDefinition">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.close') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
+    <div class="row q-ma-sm w-100">
+        <q-banner rounded class="bg-warning col">
+            <template v-slot:avatar>
+                <q-icon name="warning" />
+            </template>
+            {{ $t('common.error.deprecated') }}
+        </q-banner>
+    </div>
 
     <div class="kn-overflow-y kn-flex p-d-flex p-flex-column">
         <div v-if="step === 0" class="p-d-flex p-flex-row p-flex-wrap kn-flex">

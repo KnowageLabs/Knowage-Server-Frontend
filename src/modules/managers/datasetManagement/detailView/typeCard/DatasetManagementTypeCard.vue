@@ -1,6 +1,7 @@
 <template>
     <div v-if="dataset.dsTypeCd == 'Federated'">
-        <label>{{ $t('managers.datasetManagement.selectDatasetType') }}: </label> <b>{{ dataset.dsTypeCd }}</b>
+        <label>{{ $t('managers.datasetManagement.selectDatasetType') }}:</label>
+        <b>{{ dataset.dsTypeCd }}</b>
     </div>
     <div v-else id="is-not-federated">
         <Card class="p-m-2">
@@ -22,7 +23,7 @@
                             @before-show="v$.dataset.dsTypeCd.$touch()"
                             @change="handleTypeChange"
                         />
-                        <label for="scope" class="kn-material-input-label"> {{ $t('managers.datasetManagement.selectDatasetType') }} * </label>
+                        <label for="scope" class="kn-material-input-label">{{ $t('managers.datasetManagement.selectDatasetType') }} *</label>
                     </span>
                     <KnValidationMessages
                         :v-comp="v$.dataset.dsTypeCd"
@@ -42,7 +43,6 @@
     <DerivedDataset v-else-if="dataset.dsTypeCd == 'Derived'" :selected-dataset="selectedDataset" :parent-valid="parentValid" />
     <FlatDataset v-else-if="dataset.dsTypeCd == 'Flat'" :selected-dataset="selectedDataset" :data-sources="dataSources" />
     <RestDataset v-else-if="dataset.dsTypeCd == 'REST'" :selected-dataset="selectedDataset" />
-    <SparqlDataset v-else-if="dataset.dsTypeCd == 'SPARQL'" :selected-dataset="selectedDataset" />
     <SolrDataset v-else-if="dataset.dsTypeCd == 'Solr'" :selected-dataset="selectedDataset" />
     <PythonDataset v-else-if="dataset.dsTypeCd == 'Python/R'" :selected-dataset="selectedDataset" :python-environments="pythonEnvironments" :r-environments="rEnvironments" />
 
@@ -65,13 +65,12 @@ import ScriptDataset from './scriptDataset/DatasetManagementScriptDataset.vue'
 import QbeDataset from './qbeDataset/DatasetManagementQbeDataset.vue'
 import FlatDataset from './flatDataset/DatasetManagementFlatDataset.vue'
 import RestDataset from './restDataset/DatasetManagementRestDataset.vue'
-import SparqlDataset from './sparqlDataset/DatasetManagementSparqlDataset.vue'
 import SolrDataset from './solrDataset/DatasetManagementSolrDataset.vue'
 import PythonDataset from './pythonDataset/DatasetManagementPythonDataset.vue'
 import DerivedDataset from './derivedDataset/DatasetManagementDerivedDataset.vue'
 
 export default defineComponent({
-    components: { Card, Dropdown, KnValidationMessages, ParamTable, QbeDataset, RestDataset, JavaDataset, FlatDataset, SolrDataset, QueryDataset, ScriptDataset, SparqlDataset, PythonDataset, FileDataset, DerivedDataset },
+    components: { Card, Dropdown, KnValidationMessages, ParamTable, QbeDataset, RestDataset, JavaDataset, FlatDataset, SolrDataset, QueryDataset, ScriptDataset, PythonDataset, FileDataset, DerivedDataset },
     props: {
         parentValid: { type: Boolean },
         selectedDataset: { type: Object as any },

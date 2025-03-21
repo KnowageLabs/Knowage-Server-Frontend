@@ -12,7 +12,7 @@ export const getChartJSBarData = async (dashboardId, dashboardConfig: IDashboard
     const selectedDataset = datasets[datasetIndex]
 
     if (selectedDataset) {
-        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=true`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}`
 
         const postData = formatChartWidgetForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
@@ -28,13 +28,11 @@ export const getChartJSBarData = async (dashboardId, dashboardConfig: IDashboard
 
         if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
             tempResponse = cachedData.data
-            tempResponse.initialCall = initialCall
         } else {
             dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             try {
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
-                tempResponse.initialCall = initialCall
 
                 if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
             } catch (error) {
