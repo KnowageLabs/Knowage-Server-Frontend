@@ -52,6 +52,7 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend)
+
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any

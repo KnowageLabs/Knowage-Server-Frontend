@@ -42,7 +42,6 @@
         },
         {
             "description": "dashboard.widgets.map.description",
-            "functionality": "MapWidgetUse",
             "name": "Map",
             "type": "map"
         },
