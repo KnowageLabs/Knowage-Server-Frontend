@@ -50,7 +50,6 @@
             :olap="olap"
             :olap-designer-mode="olapDesignerMode"
             :prop-buttons="buttons"
-            :what-if-mode="whatIfMode"
             :olap-has-scenario="olapHasScenario"
             @openCustomViewDialog="customViewSaveDialogVisible = true"
             @drillTypeChanged="onDrillTypeChanged"
@@ -68,19 +67,11 @@
             @saveOlapDesigner="saveOlapDesigner"
             @showOutputWizard="outputWizardVisible = true"
             @showScenarioWizard="scenarioWizardVisible = true"
-            @showSaveAsNewVersion="saveVersionDialogVisible = true"
             @showAlgorithmDialog="algorithmDialogVisible = true"
             @undo="undo"
-            @showDeleteVersions="deleteVersionDialogVisible = true"
             @exportExcel="exportExcel"
             @loading="loading = $event"
         />
-    </div>
-
-    <div id="whatif-input" ref="whatifInput" class="p-inputgroup">
-        <InputText v-model="whatifInputNewValue" @keyup.enter="onWhatifInput" />
-        <InputText v-model="whatifInputOldValue" :disabled="true" />
-        <Button icon="pi pi-times" class="kn-button--secondary" @click="closeWhatifInput" />
     </div>
 
     <!-- DIALOGS -->
@@ -105,8 +96,6 @@
         @close="closeFilterDialog"
         @applyFilters="applyFilters"
     ></OlapFilterDialog>
-    <OlapSaveNewVersionDialog :id="id" :visible="saveVersionDialogVisible" @close="saveVersionDialogVisible = false" @newVersionSaved="onNewVersionSaved"></OlapSaveNewVersionDialog>
-    <OlapDeleteVersionsDialog :id="id" :visible="deleteVersionDialogVisible" :prop-olap-versions="olapVersions" :olap="olap" @close="deleteVersionDialogVisible = false"></OlapDeleteVersionsDialog>
 </template>
 
 <script lang="ts">
@@ -131,9 +120,7 @@ import DrillTruDialog from './drillThroughDialog/OlapDrillThroughDialog.vue'
 import OutputWizard from './outputWizard/OlapOutputWizard.vue'
 import ScenarioWizard from './scenarioWizard/OlapScenarioWizard.vue'
 import OlapFilterDialog from './filterDialog/OlapFilterDialog.vue'
-import OlapSaveNewVersionDialog from './newVersionDialog/OlapSaveNewVersionDialog.vue'
 import AlgorithmDialog from './algorithmDialog/OlapAlgorithmDialog.vue'
-import OlapDeleteVersionsDialog from './deleteVersionsDialog/OlapDeleteVersionsDialog.vue'
 import mainStore from '../../../App.store'
 
 export default defineComponent({
@@ -155,9 +142,7 @@ export default defineComponent({
         MultiHierarchyDialog,
         OlapFilterDialog,
         ScenarioWizard,
-        OlapSaveNewVersionDialog,
-        AlgorithmDialog,
-        OlapDeleteVersionsDialog
+        AlgorithmDialog
     },
     props: { id: { type: String }, olapId: { type: String }, olapName: { type: String }, reloadTrigger: { type: Boolean }, olapCustomViewVisible: { type: Boolean }, hiddenFormDataProp: { type: Object, required: true } },
     emits: ['closeOlapCustomView', 'applyCustomView', 'executeCrossNavigation'],
@@ -205,11 +190,6 @@ export default defineComponent({
             filterDialogVisible: false,
             parameters: [] as iParameter[],
             profileAttributes: [] as iProfileAttribute[],
-            saveVersionDialogVisible: false,
-            deleteVersionDialogVisible: false,
-            whatifInputNewValue: 0 as number,
-            whatifInputOldValue: 0 as number,
-            whatifInputOrdinal: 0 as number,
             noTemplate: '' as string,
             reference: '' as string,
             olapEngine: '' as any,
@@ -221,11 +201,6 @@ export default defineComponent({
     computed: {
         olapHasScenario() {
             if (this.olapDesigner?.template?.wrappedObject?.olap?.SCENARIO) {
-                return true
-            } else return false
-        },
-        whatIfMode() {
-            if (this.olapDesigner?.ENGINE === 'knowagewhatifengine') {
                 return true
             } else return false
         }
@@ -324,7 +299,6 @@ export default defineComponent({
                     await this.loadOlapButtons()
                     this.setClickedButtons()
                     await this.loadModelConfig()
-                    if (this.olap?.modelConfig?.whatIfScenario) await this.loadVersions()
                 })
                 .catch(() => {})
             this.loading = false
@@ -1061,28 +1035,6 @@ export default defineComponent({
             if (!this.olapHasScenario) return
             if (!event.target.attributes.cell) return
             const clickLocation = event.target.getBoundingClientRect()
-
-            if (!this.checkIfVersionIsSet()) {
-                return this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.olap.sliceVersionError') })
-            } else if (this.checkIfModelIsLocked()) {
-                return this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.olap.editErrorLocked') })
-            } else if (!this.checkIfMeasureIsEditable(event.target.getAttribute('measurename'))) {
-                return this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.olap.notEditable') })
-            } else {
-                // @ts-ignore
-                this.$refs.whatifInput.style.top = `${clickLocation.top}px`
-                // @ts-ignore
-                this.$refs.whatifInput.style.left = `${clickLocation.left}px`
-                // @ts-ignore
-                this.$refs.whatifInput.style.display = 'flex'
-
-                const locale = localStorage.getItem('locale') as any
-                const cutLocalString = locale.split('_')
-
-                this.whatifInputNewValue = this.parseLocaleNumber(event.target.attributes.value.value, cutLocalString[0])
-                this.whatifInputOldValue = event.target.attributes.value.value
-                this.whatifInputOrdinal = event.target.attributes.ordinal.value
-            }
         },
         parseLocaleNumber(stringNumber, locale) {
             const num = 123456.789,
@@ -1133,31 +1085,10 @@ export default defineComponent({
                 return false
             }
         },
-        closeWhatifInput() {
-            // @ts-ignore
-            this.$refs.whatifInput.style.display = 'none'
-        },
-        async onWhatifInput() {
-            if (this.whatifInputNewValue != this.whatifInputOldValue) {
-                const postData = { expression: this.whatifInputNewValue }
-                this.loading = true
-                await this.$http
-                    .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/model/setValue/${this.whatifInputOrdinal}?SBI_EXECUTION_ID=${this.id}`, postData)
-                    .then((response: AxiosResponse<any>) => {
-                        this.olap = response.data
-                        this.closeWhatifInput()
-                        this.formatOlapTable()
-                    })
-                    .catch(() => {})
-                    .finally(() => (this.loading = false))
-            }
-            this.closeWhatifInput()
-        },
         onNewVersionSaved(olap: iOlap) {
             this.olap = olap
             this.formatOlapTable()
             this.loadVersions()
-            this.saveVersionDialogVisible = false
         },
         updateOlapDesignerWithMDXFromOlap() {
             this.olapDesigner.template.wrappedObject.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
@@ -1326,13 +1257,5 @@ export default defineComponent({
             }
         }
     }
-}
-
-#whatif-input {
-    width: 358px;
-    height: 22px;
-    position: absolute;
-    display: none;
-    z-index: 99999;
 }
 </style>

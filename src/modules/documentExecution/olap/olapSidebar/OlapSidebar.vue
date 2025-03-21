@@ -78,48 +78,6 @@
                 </div>
             </div>
 
-            <div v-if="olapHasScenario && !olapDesignerMode" id="whatif-container" class="kn-flex">
-                <label class="kn-material-input-label">{{ $t('documentExecution.olap.sidebar.whatIfTitle') }}</label>
-                <div class="p-grid p-mt-1">
-                    <div v-if="olapLocked" class="p-col-4">
-                        <Button v-tooltip.top="olapLocked ? $t('documentExecution.olap.sidebar.unlockSchema') : $t('documentExecution.olap.sidebar.lockSchema')" :icon="olapLocked ? 'fas fa-lock-open' : 'fas fa-lock'" class="p-button-plain kn-button--secondary" @click="changeLock" />
-                    </div>
-                    <div v-if="olapLocked" class="p-col-4">
-                        <Button v-if="isButtonVisible('BUTTON_SAVE_SUBOBJECT')" v-tooltip.top="$t('documentExecution.olap.sidebar.saveAsNewVersion')" icon="fa-solid fa-floppy-disk" class="p-button-plain kn-button--secondary" @click="$emit('showSaveAsNewVersion')" />
-                    </div>
-                    <div v-if="olapLocked" class="p-col-4">
-                        <Button v-if="isButtonVisible('BUTTON_UNDO')" v-tooltip.top="$t('documentExecution.olap.sidebar.undo')" icon="fa-solid fa-rotate-left" class="p-button-plain kn-button--secondary" @click="$emit('undo')" />
-                    </div>
-                    <div v-if="olapLocked" class="p-col-4">
-                        <Button v-if="isButtonVisible('BUTTON_VERSION_MANAGER')" v-tooltip.top="$t('documentExecution.olap.sidebar.deleteVersions')" icon="fa-solid fa-trash" class="p-button-plain kn-button--secondary" @click="$emit('showDeleteVersions')" />
-                    </div>
-                    <div class="p-col-4">
-                        <Button v-if="isButtonVisible('BUTTON_EXPORT_OUTPUT')" v-tooltip.top="$t('documentExecution.olap.sidebar.outputWizard')" icon="fa-solid fa-share-from-square" class="p-button-plain kn-button--secondary" @click="$emit('showOutputWizard')" />
-                    </div>
-                    <div v-if="olapLocked" class="p-col-4">
-                        <Button v-if="isButtonVisible('BUTTON_ALGORITHMS')" v-tooltip.top="$t('documentExecution.olap.sidebar.alg')" icon="fa-solid fa-network-wired" class="p-button-plain kn-button--secondary" @click="$emit('showAlgorithmDialog')" />
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="olapDesignerMode" class="kn-flex p-mt-3">
-                <label class="kn-material-input-label">{{ $t('documentExecution.olap.sidebar.templateEditing') }}</label>
-                <div class="p-grid p-mt-1">
-                    <div class="p-col-4">
-                        <Button v-tooltip.top="$t('documentExecution.olap.sidebar.mdxQuery')" icon="far fa-eye" class="p-button-plain kn-button--secondary" @click="$emit('openMdxQueryDialog')" />
-                    </div>
-                    <div v-if="whatIfMode" class="p-col-4">
-                        <Button v-tooltip.top="$t('documentExecution.olap.sidebar.scenario')" icon="fa-solid fa-note-sticky" class="p-button-plain kn-button--secondary" @click="$emit('showScenarioWizard')" />
-                    </div>
-                    <div class="p-col-4">
-                        <Button v-tooltip.top="$t('documentExecution.olap.sidebar.defineCrossNavigation')" icon="fas fa-arrow-right" class="p-button-plain kn-button--secondary" :class="{ 'olap-sidebar-button-active': crossNavigation }" @click="$emit('openCrossNavigationDefinitionDialog')" />
-                    </div>
-                    <div class="p-col-4">
-                        <Button v-tooltip.top="$t('documentExecution.olap.sidebar.configureButtonsVisiblity')" icon="far fa-check-square" class="p-button-plain kn-button--secondary" @click="$emit('openButtonWizardDialog')" />
-                    </div>
-                </div>
-            </div>
-
             <div v-if="olapDesignerMode" class="p-fluid">
                 <Button :label="$t('documentExecution.olap.sidebar.closeDesigner')" class="p-button-plain kn-button--secondary" @click="closeOlapDesigner" />
                 <Button :label="$t('documentExecution.olap.sidebar.saveTemplate')" class="p-button-plain kn-button--primary p-mt-2" @click="$emit('saveOlapDesigner')" />
@@ -141,9 +99,7 @@ export default defineComponent({
     props: {
         olap: { type: Object },
         olapDesignerMode: { type: Boolean },
-        propButtons: { type: Array },
-        whatIfMode: { type: Boolean },
-        olapHasScenario: { type: Boolean }
+        propButtons: { type: Array }
     },
     emits: [
         'openCustomViewDialog',
@@ -162,10 +118,8 @@ export default defineComponent({
         'saveOlapDesigner',
         'showOutputWizard',
         'showScenarioWizard',
-        'showSaveAsNewVersion',
         'undo',
         'showAlgorithmDialog',
-        'showDeleteVersions',
         'loading',
         'exportExcel'
     ],
