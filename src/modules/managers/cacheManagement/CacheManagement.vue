@@ -68,7 +68,7 @@ export default defineComponent({
         },
         loadSettings() {
             this.settings = {} as iSettings
-            this.settingsPendingCount = 10
+            this.settingsPendingCount = 11
             this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/configs/label/SPAGOBI.CACHE.NAMEPREFIX')
                 .then((response: AxiosResponse<any>) => (this.settings.prefixForCacheTablesName = response.data.valueCheck))
@@ -108,6 +108,10 @@ export default defineComponent({
             this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/configs/label/SPAGOBI.CACHE.HAZELCAST.LEASETIME')
                 .then((response: AxiosResponse<any>) => (this.settings.hazelcastLeaseTime = +response.data.valueCheck))
+                .finally(() => this.settingsPendingCount--)
+            this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/configs/label/SPAGOBI.CACHE.REFRESH')
+                .then((response: AxiosResponse<any>) => (this.settings.scheduledModality = response.data.valueCheck))
                 .finally(() => this.settingsPendingCount--)
         },
         async loadDataSources() {
