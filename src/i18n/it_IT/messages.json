@@ -79,6 +79,7 @@
         "error": {
             "allowedFileTypes": "i file permessi sono {types}",
             "deleting": "errore durante la cancellazione. Controlla le associazioni o i parametri degli elementi e prova ancora.",
+            "deprecated": "Questo elemento è deprecato e verrà rimosso nelle prossime versioni",
             "downloading": "errore durante il download",
             "exceededSize": "il file caricato supera la dimensione massima di {size}",
             "generic": "errore generico",
