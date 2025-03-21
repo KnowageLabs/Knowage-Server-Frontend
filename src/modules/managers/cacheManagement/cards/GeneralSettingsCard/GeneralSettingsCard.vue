@@ -130,6 +130,7 @@ export default defineComponent({
         loadSettings() {
             this.settings = { ...this.item } as iSettings
             if (typeof this.settings.scheduledModality === 'undefined') this.settings.scheduledModality = false
+            else this.settings.scheduledModality = this.settings.scheduledModality === 'true'
         },
         loadDatasources() {
             this.datasourceOptions = this.datasources as []
