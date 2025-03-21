@@ -1,5 +1,5 @@
 <template>
-    <Card class="p-mb-3">
+    <Card class="q-ma-sm">
         <template #content>
             <form class="p-fluid p-m-3">
                 <div class="p-field p-mb-3">
@@ -17,7 +17,7 @@
                             @blur="v$.schema.name.$touch()"
                             @input="onFieldChange('name', $event.target.value)"
                         />
-                        <label for="name" class="kn-material-input-label"> {{ $t('common.name') }} * </label>
+                        <label for="name" class="kn-material-input-label">{{ $t('common.name') }} *</label>
                     </span>
                     <KnValidationMessages :v-comp="v$.schema.name" :additional-translate-params="{ fieldName: $t('common.name') }" />
                 </div>
@@ -50,7 +50,7 @@
             </form>
         </template>
     </Card>
-    <Card>
+    <Card class="q-ma-sm">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--secondary">
                 <template #start>
@@ -92,7 +92,7 @@
                             <InputText v-model="filterModel.value" type="text" class="p-column-filter"></InputText>
                         </template>
                         <Column selection-mode="single" :header="$t('managers.mondrianSchemasManagement.headers.active')" header-style="width: 3em"></Column>
-                        <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)" :sortable="true" :style="detailDescriptor.table.column.style"> </Column>
+                        <Column v-for="col of columns" :key="col.field" :field="col.field" :header="$t(col.header)" :sortable="true" :style="detailDescriptor.table.column.style"></Column>
                         <Column field="creationDate" :header="$t('managers.mondrianSchemasManagement.headers.creationDate')" data-type="date">
                             <template #body="{ data }">
                                 {{ formatDate(data.creationDate) }}

@@ -1,28 +1,17 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
-        <template #start>{{ selectedSchema.name }} </template>
-        <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="submit-button" :disabled="buttonDisabled" @click="handleSubmit" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplateConfirm" />
-        </template>
-    </Toolbar>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ attribute?.attributeName }}</q-toolbar-title>
+
+        <q-btn flat round dense icon="save" :disable="buttonDisabled" data-test="submit-button" @click="handleSubmit">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeTemplateConfirm">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
     <div class="kn-page-content">
-        <TabView class="kn-tab kn-tab-overflow-visible" data-test="tab-view">
-            <TabPanel>
-                <template #header>
-                    <span>{{ $t('managers.mondrianSchemasManagement.detail.title') }}</span>
-                </template>
-                <MondrianSchemasDetailTab :selected-schema="selectedSchema" :reload-table="reloadVersionTable" @fieldChanged="onFieldChange" @activeVersionChanged="onVersionChange" @versionUploaded="versionToSave = $event" @versionsReloaded="reloadVersionTable = false" />
-            </TabPanel>
-
-            <TabPanel>
-                <template #header>
-                    <span>{{ $t('managers.mondrianSchemasManagement.workFlow.title') }}</span>
-                </template>
-                <MondrianSchemasWorkflowTab :is-changed="isWorkflowChanged" :selected-schema="selectedSchema" :users-list="availableUsersList" @selectedUsersChanged="onSelectedUsersChange" @changed="emitTouched" />
-            </TabPanel>
-        </TabView>
+        <MondrianSchemasDetailTab :selected-schema="selectedSchema" :reload-table="reloadVersionTable" @fieldChanged="onFieldChange" @activeVersionChanged="onVersionChange" @versionUploaded="versionToSave = $event" @versionsReloaded="reloadVersionTable = false" />
     </div>
 </template>
 
@@ -32,18 +21,13 @@ import { iSchema } from './MondrianSchemas'
 import { AxiosResponse } from 'axios'
 import tabViewDescriptor from './MondrianSchemasTabViewDescriptor.json'
 import useValidate from '@vuelidate/core'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
 import MondrianSchemasDetailTab from './MondrianSchemasDetailTab/MondrianSchemasDetailTab.vue'
-import MondrianSchemasWorkflowTab from './MondrianSchemasWorkflowTab/MondrianSchemasWorkflowTab.vue'
 import mainStore from '../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     components: {
-        TabView,
-        TabPanel,
-        MondrianSchemasDetailTab,
-        MondrianSchemasWorkflowTab
+        MondrianSchemasDetailTab
     },
     props: {
         id: {
@@ -52,23 +36,15 @@ export default defineComponent({
         }
     },
     emits: ['touched', 'closed', 'inserted'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             loading: false,
             tabViewDescriptor: tabViewDescriptor,
             selectedSchema: {} as iSchema,
             v$: useValidate() as any,
-            allUsers: [] as any,
-            wfSelectedUserList: [] as any,
-            availableUsersList: [] as any,
             versionToSave: null as any,
             reloadVersionTable: false,
-            touched: false,
-            isWorkflowChanged: false
+            touched: false
         }
     },
     computed: {
@@ -90,20 +66,13 @@ export default defineComponent({
             this.v$.$reset()
             this.loadSelectedSchema()
             this.touched = false
-            this.isWorkflowChanged = false
         }
     },
     async created() {
-        await this.loadAllUsers()
         this.loadSelectedSchema()
-        this.clearAvailableUsersList()
     },
     methods: {
-        emitTouched() {
-            this.touched = true
-            this.isWorkflowChanged = true
-            this.$emit('touched')
-        },
+        ...mapActions(mainStore, ['setError', 'setInfo']),
         closeTemplate() {
             this.$router.push('/mondrian-schemas-management')
             this.$emit('closed')
@@ -115,11 +84,6 @@ export default defineComponent({
         },
         onVersionChange(event) {
             this.selectedSchema.currentContentId = event
-            this.touched = true
-            this.$emit('touched')
-        },
-        onSelectedUsersChange(event) {
-            this.availableUsersList[1] = event
             this.touched = true
             this.$emit('touched')
         },
@@ -138,34 +102,16 @@ export default defineComponent({
                 })
             }
         },
-        async loadAllUsers() {
-            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/users`).then((response: AxiosResponse<any>) => (this.allUsers = response.data))
-        },
         async loadSelectedSchema() {
             this.loading = true
             if (this.id) {
                 await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/mondrianSchemasResource/${this.id}`).then((response: AxiosResponse<any>) => (this.selectedSchema = response.data))
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/workflow/${this.id}`).then((response: any) => (this.wfSelectedUserList = response.data.errors ? [] : response.data))
             } else {
                 this.selectedSchema = {} as iSchema
-                this.wfSelectedUserList = []
             }
-            this.createAvailableUsersList()
             this.loading = false
         },
-        createAvailableUsersList() {
-            const listOfSelectedUsers = this.wfSelectedUserList.map((userId) => this.allUsers.find((user) => user.id === userId))
-            const listOfAvailableUsers = [
-                ...this.allUsers.filter((user) => {
-                    const ind = this.wfSelectedUserList.findIndex((userId) => user.id === userId)
-                    return ind < 0
-                })
-            ]
-            this.availableUsersList = [listOfAvailableUsers, listOfSelectedUsers]
-        },
-        clearAvailableUsersList() {
-            this.availableUsersList = [[...this.allUsers], []]
-        },
+
         async handleSubmit() {
             if (this.v$.$invalid) {
                 return
@@ -177,12 +123,12 @@ export default defineComponent({
             }
             await this.createOrUpdate(url).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
-                    this.store.setError({
+                    this.setError({
                         title: this.$t('managers.mondrianSchemasManagement.toast.schema.error'),
                         msg: response.data.errors
                     })
                 } else {
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t(this.tabViewDescriptor.operation[this.operation].toastTitle),
                         msg: this.$t(this.tabViewDescriptor.operation.success)
                     })
@@ -198,9 +144,6 @@ export default defineComponent({
                 this.selectedSchema.id = response.data.id
             }
             await this.uploadFile()
-            if (this.isWorkflowChanged === true) {
-                await this.updateWorkflow(this.selectedSchema.id)
-            }
 
             this.versionToSave = null
             if (this.operation === 'insert') {
@@ -208,19 +151,10 @@ export default defineComponent({
             } else {
                 this.reloadVersionTable = true
             }
-            this.isWorkflowChanged = false
             this.$emit('inserted')
             this.touched = false
         },
-        async updateWorkflow(schemaId) {
-            const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/workflow/update`
-            await this.$http.put(url, { modelId: schemaId, workflowArr: this.availableUsersList[1] }).then(() => {
-                this.store.setInfo({
-                    title: this.$t('managers.mondrianSchemasManagement.toast.workflow.updated'),
-                    msg: this.$t('managers.mondrianSchemasManagement.toast.workflow.ok')
-                })
-            })
-        },
+
         async uploadFile() {
             if (!this.versionToSave) {
                 return
@@ -230,12 +164,12 @@ export default defineComponent({
             const url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/mondrianSchemasResource/${this.selectedSchema.id}` + '/versions'
             await this.$http.post(url, formData).then((response: AxiosResponse<any>) => {
                 if (response.data.errors) {
-                    this.store.setError({
+                    this.setError({
                         title: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.error'),
                         msg: response.data.errors
                     })
                 } else {
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.uploaded'),
                         msg: this.$t('managers.mondrianSchemasManagement.toast.uploadFile.ok')
                     })
