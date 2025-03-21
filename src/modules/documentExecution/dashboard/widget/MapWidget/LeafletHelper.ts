@@ -12,7 +12,7 @@ import { addBaloonMarkers } from './visualization/MapBaloonsVizualizationHelper'
 import { addClusters } from './visualization/MapClustersVizualizationHelper'
 import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
-import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
+import { centerAndRedrawTheLayerOnMap, createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
 
 const dashStore = dashboardStore()
 
@@ -239,37 +239,41 @@ export const switchLayerVisibility = (map: L.Map, visibleLayers: any): void => {
         if (layer.knProperties?.layerGroup) {
             if (!visibleLayers[layer.knProperties.layerId]) layer.hide()
             else layer.show()
+            return
         }
         if (layer.knProperties?.cluster) {
             if (!visibleLayers[layer.knProperties.layerId]) layer.removeLayer()
             else layer.show()
+            return
         }
 
-        if (layer.knProperties?.heatmap || heatmapLayersCache[layer.knProperties?.layerId]?.layer) {
-            changeHeatmapLayerVisibility(layer, visibleLayers, map)
-        }
+        changeHeatmapLayerVisibility(layer, visibleLayers, map)
     })
 }
 
 const changeHeatmapLayerVisibility = (layer: any, visibleLayers: any, map: any) => {
-    if (!visibleLayers[layer.knProperties?.layerId] && !heatmapLayersCache[layer.knProperties.layerId]?.layer) {
+    if (!visibleLayers[layer.knProperties?.layerId] && !heatmapLayersCache[layer.knProperties?.layerId]?.layer) {
         heatmapLayersCache[layer.knProperties.layerId] = { layer: layer, heatMapData: deepcopy(layer._latlngs), heatMapOptions: deepcopy(layer.options) }
 
         map.removeLayer(layer)
     } else if (visibleLayers[layer.knProperties?.layerId] && heatmapLayersCache[layer.knProperties.layerId]?.layer != null) {
-        const heatMapData = heatmapLayersCache[layer.knProperties.layerId].heatMapData
-        const heatMapOptions = heatmapLayersCache[layer.knProperties.layerId].heatMapOptions
+        map.whenReady(() => {
+            const heatMapData = heatmapLayersCache[layer.knProperties.layerId].heatMapData
+            const heatMapOptions = heatmapLayersCache[layer.knProperties.layerId].heatMapOptions
 
-        heatmapLayersCache[layer.knProperties.layerId].layer = L.heatLayer(heatMapData ?? [], {
-            radius: heatMapOptions.radius,
-            blur: heatMapOptions.blur,
-            maxZoom: heatMapOptions.maxZoom,
-            max: heatMapOptions.max
+            heatmapLayersCache[layer.knProperties.layerId].layer = L.heatLayer(heatMapData ?? [], {
+                radius: heatMapOptions.radius,
+                blur: heatMapOptions.blur,
+                maxZoom: heatMapOptions.maxZoom,
+                max: heatMapOptions.max
+            })
+            heatmapLayersCache[layer.knProperties.layerId].layer.knProperties = { heatmap: true, layerId: layer.knProperties.layerId }
+            heatmapLayersCache[layer.knProperties.layerId].layer.addTo(map)
+
+            centerAndRedrawTheLayerOnMap(map, heatmapLayersCache[layer.knProperties.layerId].layer, heatMapData)
+
+            heatmapLayersCache[layer.knProperties.layerId] = { layer: null, heatMapData: [], heatMapOptions: {} }
         })
-
-        heatmapLayersCache[layer.knProperties.layerId].layer.knProperties = { heatmap: true, layerId: layer.knProperties.layerId }
-        heatmapLayersCache[layer.knProperties.layerId].layer.addTo(map)
-        heatmapLayersCache[layer.knProperties.layerId] = { layer: null, heatMapData: [], heatMapOptions: {} }
     }
 }
 

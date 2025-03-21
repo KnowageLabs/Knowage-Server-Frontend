@@ -19,7 +19,7 @@ export const createHeatmapVisualization = (map: any, data: any, target: IMapWidg
 
 const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, targetDatasetData?: any, dataColumn?: string) => {
     let max = 0
-    const heatmapData = [] as number[][]
+    const heatMapData = [] as number[][]
     let mappedData: Record<string, number> | null = null
 
     if (targetDatasetData && dataColumn) {
@@ -38,76 +38,79 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMa
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addHeatmapPointUsingLayers(feature, layerVisualizationSettings, mappedData, heatmapData, null)
+            addHeatmapPointUsingLayers(feature, layerVisualizationSettings, mappedData, heatMapData, null)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addHeatmapPointUsingLayers(feature, layerVisualizationSettings, mappedData, heatmapData, coord)
+                addHeatmapPointUsingLayers(feature, layerVisualizationSettings, mappedData, heatMapData, coord)
             })
         }
     })
 
-    createHeatLayer(map, heatmapData, layerVisualizationSettings, max, target.layerId)
+    createHeatLayer(map, heatMapData, layerVisualizationSettings, max, target.layerId)
 }
 
-const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, heatmapData: number[][], coord: any[] | null) => {
+const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, heatMapData: number[][], coord: any[] | null) => {
     const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
     const value = mappedData ? mappedData[valueKey] : feature.properties[layerVisualizationSettings.targetProperty]
     validateNumber(value)
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
-    if (coordinates?.length === 2) heatmapData.push([...coordinates.reverse(), value])
+    if (coordinates?.length === 2) heatMapData.push([...coordinates.reverse(), value])
 }
 
 const createHeatmapVisualizationFromData = (map: any, data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType) => {
     let max = 0
-    const heatmapData = [] as number[][]
+    const heatMapData = [] as number[][]
 
     data[target.name].rows.forEach((row: any) => {
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
         const value = row[dataColumn]
         if (value > max) max = value
-        if (coordinates?.length === 2) heatmapData.push([...coordinates, value])
+        if (coordinates?.length === 2) heatMapData.push([...coordinates, value])
     })
 
-    createHeatLayer(map, heatmapData, layerVisualizationSettings, max, target.layerId)
+    createHeatLayer(map, heatMapData, layerVisualizationSettings, max, target.layerId)
 }
 
-const createHeatLayer = (map: any, heatmapData: number[][], layerVisualizationSettings: IMapWidgetVisualizationType, max: number, layerId: string) => {
+const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSettings: IMapWidgetVisualizationType, max: number, layerId: string) => {
     const defaultVisualizationHeatmapConfiguration = mapWidgetDefaultValues.getDefaultVisualizationHeatmapConfiguration()
     map.whenReady(() => {
         setTimeout(() => {
             map.invalidateSize()
 
-            if (!heatmapData || heatmapData.length === 0) {
+            if (!heatMapData || heatMapData.length === 0) {
                 throw Error('Heatmap data is empty, skipping heatmap creation.')
-                return
             }
 
-            const heatLayer = L.heatLayer(heatmapData, {
+            const heatLayer = L.heatLayer(heatMapData, {
                 radius: layerVisualizationSettings.heatmapConf?.radius ?? defaultVisualizationHeatmapConfiguration.radius,
                 blur: layerVisualizationSettings.heatmapConf?.blur ?? defaultVisualizationHeatmapConfiguration.blur,
                 maxZoom: layerVisualizationSettings.heatmapConf?.maxZoom ?? defaultVisualizationHeatmapConfiguration.maxZoom,
-                max: max
+                max: max,
+                knProperties: { heatmap: true, layerId: layerId }
             }).addTo(map)
 
-            // Assign properties
             heatLayer.knProperties = { heatmap: true, layerId: layerId }
 
-            setTimeout(() => {
-                heatLayer.redraw()
-            }, 300)
-
-            map.once('resize', () => {
-                heatLayer.redraw()
-            })
-            fitBoundsForMapCentering(map, heatmapData)
+            centerAndRedrawTheLayerOnMap(map, heatLayer, heatMapData)
         }, 500)
     })
 }
 
-const fitBoundsForMapCentering = (map: any, heatmapData: number[][]) => {
-    if (heatmapData.length > 0) {
-        const bounds = L.latLngBounds(heatmapData.map((point) => [point[0], point[1]]))
+export const centerAndRedrawTheLayerOnMap = (map: any, heatLayer: any, heatMapData: number[][]) => {
+    setTimeout(() => {
+        heatLayer.redraw()
+    }, 300)
+
+    map.once('resize', () => {
+        heatLayer.redraw()
+    })
+    fitBoundsForMapCentering(map, heatMapData)
+}
+
+const fitBoundsForMapCentering = (map: any, heatMapData: number[][]) => {
+    if (heatMapData.length > 0) {
+        const bounds = L.latLngBounds(heatMapData.map((point) => [point[0], point[1]]))
         map.fitBounds(bounds)
     }
 }
