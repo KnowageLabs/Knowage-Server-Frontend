@@ -13,6 +13,7 @@ import { addClusters } from './visualization/MapClustersVizualizationHelper'
 import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
 import { centerAndRedrawTheLayerOnMap, createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
+import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
 
 const dashStore = dashboardStore()
 
@@ -201,6 +202,10 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             addBaloonMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData)
         }
 
+        if (layerVisualizationSettings.type === 'pies') {
+            addMapCharts(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData)
+        }
+
         if (layerVisualizationSettings.type === 'clusters') {
             addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
         }
@@ -247,7 +252,8 @@ export const switchLayerVisibility = (map: L.Map, visibleLayers: any): void => {
             return
         }
 
-        changeHeatmapLayerVisibility(layer, visibleLayers, map)
+        // TODO
+        // changeHeatmapLayerVisibility(layer, visibleLayers, map)
     })
 }
 

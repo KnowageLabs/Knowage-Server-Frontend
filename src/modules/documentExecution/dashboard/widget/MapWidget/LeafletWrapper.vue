@@ -65,6 +65,7 @@ onMounted(async () => {
             switchLayerVisibility(map, props.layerVisibility)
         }, 3000)
     } catch (error: any) {
+        console.log('------- ERRPR"', error)
         appStore.setError({
             title: t('common.toast.errorTitle'),
             msg: error ? error.message : ''
