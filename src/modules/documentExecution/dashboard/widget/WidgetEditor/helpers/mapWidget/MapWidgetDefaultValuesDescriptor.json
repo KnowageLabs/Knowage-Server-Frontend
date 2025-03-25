@@ -133,12 +133,8 @@
         "type": "default"
     },
     "defaultVisualizationPieConfiguration": {
-        "borderColor": "",
-        "categorizeBy": "ID",
-        "fromColor": "rgba(209, 209, 209, 1)",
-        "maxSize": 100,
-        "minSize": 1,
-        "toColor": "rgba(91, 91, 91, 1)",
+        "categorizeBy": "",
+        "colors": ["#042d57", "#0753a0", "#0a79e9"],
         "type": "pie"
     }
 }

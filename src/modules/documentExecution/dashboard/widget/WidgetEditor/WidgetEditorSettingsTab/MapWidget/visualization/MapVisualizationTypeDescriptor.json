@@ -29,14 +29,6 @@
             "value": "pie"
         },
         {
-            "label": "dashboard.widgetEditor.map.pieTypeOptions.pies3d",
-            "value": "pie3D"
-        },
-        {
-            "label": "dashboard.widgetEditor.map.pieTypeOptions.donuts",
-            "value": "donut"
-        },
-        {
             "label": "dashboard.widgetEditor.map.pieTypeOptions.bars",
             "value": "bar"
         }

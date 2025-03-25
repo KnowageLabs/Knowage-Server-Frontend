@@ -45,8 +45,9 @@
                 options-dense
                 :label="$t('common.measure')"
             ></q-select>
+
             <q-select
-                v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'"
+                v-if="visType && getTargetLayerType(visType) === 'layer' && !['pies', 'geography'].includes(visType.type)"
                 filled
                 dense
                 class="col q-ml-sm"
@@ -57,7 +58,22 @@
                 option-value="property"
                 option-label="property"
                 options-dense
-                :label="$t('common.property')"
+                :label="$t('common.properties')"
+            ></q-select>
+            <q-select
+                v-else-if="visType && getTargetLayerType(visType) === 'layer' && visType.type === 'pies'"
+                filled
+                dense
+                multiple
+                class="col q-ml-sm"
+                v-model="visType.chartMeasures"
+                :options="availableChartMeasures(visType.targetDataset || visType.target)"
+                emit-value
+                map-options
+                option-value="property"
+                option-label="property"
+                options-dense
+                :label="$t('common.measures')"
             ></q-select>
 
             <span class="p-d-flex p-flex-row p-ai-center p-pl-2">
@@ -76,7 +92,7 @@
 
         <hr class="kn-width-full p-my-2" />
 
-        <VisTypeConfig :vis-type-prop="visType" />
+        <VisTypeConfig :widget-model="widgetModel" :vis-type-prop="visType" />
     </div>
 </template>
 
@@ -154,6 +170,17 @@ export default defineComponent({
             this.setLoading(false)
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties
+
+            return visualization.properties
+        },
+        availableChartMeasures(id: string) {
+            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => id === layer.name || id === layer.layerId)
+            if (targetDataset) return targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE')
+
+            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => id === layer.layerId)
+            if (targetLayer && this.propertiesCache.has(targetLayer.layerId)) return this.propertiesCache.get(targetLayer.layerId)
+
+            return []
         },
         async onTargetChange(id: string, visualization: IMapWidgetVisualizationType) {
             ;['targetDataset', 'targetMeasure', 'targetProperty', 'targetType'].forEach((property: string) => delete visualization[property])

@@ -13,7 +13,7 @@
                     </div>
                 </template>
             </Dropdown>
-            <label for="attributes" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.map.classesMethodOptions.title') }} </label>
+            <label for="attributes" class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.classesMethodOptions.title') }}</label>
         </div>
 
         <div v-if="classifyByRanges" class="p-col-12 p-lg-6">
@@ -68,7 +68,7 @@ import * as mapWidgetDefaultValues from '../../../../helpers/mapWidget/MapWidget
 export default defineComponent({
     name: 'map-visualization-type-choropleth',
     components: { Dropdown, InputNumber, WidgetEditorColorPicker, MapVisualizationRangesDialog, Slider },
-    props: { propVisualizationTypeConfiguration: { type: Object as PropType<IMapWidgetVisualizationTypeChoropleth | null>, required: true }, type: { type: String, required: true } },
+    props: { propVisualizationTypeConfiguration: { type: Object as PropType<IMapWidgetVisualizationTypeBalloons | IMapWidgetVisualizationTypeChoropleth | null>, required: true }, type: { type: String, required: true } },
     emits: [],
     data() {
         return {

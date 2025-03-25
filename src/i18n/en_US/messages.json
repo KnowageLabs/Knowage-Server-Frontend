@@ -178,6 +178,7 @@
         "low": "Low",
         "max": "Max",
         "measure": "measure",
+        "measures": "measures",
         "medium": "Medium",
         "menu": "Menu",
         "message": "Message",
@@ -1137,6 +1138,7 @@
                     "title": "Control Panel"
                 },
                 "crossNavigationLabelHint": "This is the label of the link. If empty it will be \"Go to detail\"",
+                "customColor": "Custom color",
                 "dialogHint": "The selected elements will be visible when clicking on the map",
                 "fromColor": "From color",
                 "fromThreshold": "From (>=)",

@@ -37,6 +37,7 @@ export interface IMapWidgetVisualizationType {
     targetDataset?: string
     targetMeasure?: any
     targetProperty?: any
+    chartMeasures?: string[]
     visible: boolean
     type: string
     markerConf?: IMapWidgetVisualizationTypeMarker
@@ -84,11 +85,7 @@ export interface IMapWidgetVisualizationThreshold {
 export interface IMapWidgetVisualizationTypePie {
     categorizeBy: string
     type: string
-    borderColor: string
-    fromColor: string
-    toColor: string
-    minSize: number
-    maxSize: number
+    colors: string[]
 }
 
 export interface IMapWidgetVisualizationTypeCluster {
