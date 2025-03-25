@@ -83,7 +83,6 @@ export interface IMapWidgetVisualizationThreshold {
 }
 
 export interface IMapWidgetVisualizationTypePie {
-    categorizeBy: string
     type: string
     colors: string[]
 }

@@ -1,123 +1,180 @@
 import { IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { addMarker, getColumnName, VisualizationDataType } from '../LeafletHelper'
-import { addDialogToMarkerForLayerData, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, incrementColumnName, transformDataUsingForeginKey, validateNumber } from './MapVisualizationHelper'
+import { getColumnName, getCoordinates } from '../LeafletHelper'
+import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
+import { getCoordinatesFromWktPointFeature } from './MapVisualizationHelper'
 import L from 'leaflet'
-import Chart from 'chart.js/auto'
 import vegaEmbed from 'vega-embed'
 
-export const addMapCharts = (
-    map: any,
-    data: any,
-    model: IWidget,
-    target: IMapWidgetLayer,
-    dataColumn: string,
-    spatialAttribute: any,
-    geoColumn: string,
-    layerGroup: any,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    markerBounds: any[],
-    layersData: any,
-    visualizationDataType: VisualizationDataType,
-    targetDatasetData: any
-) => {
-    console.log('---------- layerVisualizationSettings: ', layerVisualizationSettings)
-    console.log('---------- layersData: ', layersData)
-
-    addMapChartsUsingLayer(map, layersData, layerGroup, layerVisualizationSettings, markerBounds, model, spatialAttribute, targetDatasetData, dataColumn)
+interface IChartValuesRecord {
+    value: number | string
+    measureName: string
 }
 
-const addMapChartsUsingLayer = (map: any, layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, spatialAttribute: any, targetDatasetData?: any, dataColumn?: string) => {
-    let minValue = Number.MIN_SAFE_INTEGER
-    let maxValue = Number.MAX_SAFE_INTEGER
+type ChartValuesRecord = Record<string, IChartValuesRecord>
+
+export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any) => {
+    console.log('---------- layerVisualizationSettings: ', layerVisualizationSettings)
+    console.log('---------- layersData: ', layersData)
+    console.log('---------- targetDatasetData: ', targetDatasetData)
+    if (data && data[target.name] && !targetDatasetData) {
+        addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
+    } else {
+        addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, targetDatasetData)
+    }
+}
+
+const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
+    const fieldMetadata = getFieldMapFromMetadata(data[target.name])
+
+    const id = 'id-' + performance.now().toString(36) + Math.random().toString(36)
+    for (const row of data[target.name].rows) {
+        const chartValuesRecord = {} as ChartValuesRecord
+
+        layerVisualizationSettings.chartMeasures?.forEach((chartMeasure: string) => {
+            const value = row[fieldMetadata[chartMeasure]]
+            chartValuesRecord[chartMeasure] = { value: value, measureName: chartMeasure }
+        })
+
+        const customIcon = L.divIcon({
+            html: `<div id='${id}'></div>`,
+            iconSize: [30, 30],
+            className: 'custom-icon'
+        })
+        const marker = L.marker(getCoordinates(spatialAttribute, row[geoColumn], null), { icon: customIcon }).addTo(layerGroup)
+
+        createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon)
+
+        addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
+        addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
+        markerBounds.push(marker.getLatLng())
+    }
+}
+
+const getFieldMapFromMetadata = (data: any) => {
+    return Object.fromEntries(data.metaData?.fields?.filter((field: any) => typeof field === 'object' && field.header && field.name).map((field: any) => [field.header, field.name]))
+}
+
+const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, targetDatasetData?: any) => {
     let mappedData: Record<string, number> | null = null
-
-    if (targetDatasetData && dataColumn) {
+    if (targetDatasetData) {
         if (!layerVisualizationSettings.targetDataset) return
-
-        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
-        minValue = valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER
-        maxValue = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
 
         const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
         if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
 
-        mappedData = transformDataUsingForeginKey(targetDatasetData.rows, foreignKeyColumnName, dataColumn)
-    } else {
-        if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
-            const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
-            minValue = Math.min(...layerPropertyValues) ?? 0
-            maxValue = Math.max(...layerPropertyValues) ?? 0
-        }
+        mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
     }
-
-    const id = 'bojan'
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addBaloonMarkerUsingLayersPointClassifedByEqualIntervals(map, feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, minValue, maxValue, null, id)
+            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addBaloonMarkerUsingLayersPointClassifedByEqualIntervals(map, feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, minValue, maxValue, coord, id)
+                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord)
             })
         }
     })
 }
 
-const addBaloonMarkerUsingLayersPointClassifedByEqualIntervals = (
-    map: any,
-    feature: ILayerFeature,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    mappedData: any,
-    layerGroup: any,
-    spatialAttribute: any,
-    widgetModel: IWidget,
-    markerBounds: any[],
-    minValue: number,
-    maxValue: number,
-    coord: any[] | null,
-    id
-) => {
+const transformDataUsingForeignKeyReturningAllColumns = (rows: any[], pivotColumnIndex: string) => {
+    return rows.reduce((acc: Record<string, any>, row: any) => {
+        acc[row[pivotColumnIndex]] = { ...row } // Store all columns
+        return acc
+    }, {})
+}
+
+const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null) => {
     const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
     const value = mappedData ? mappedData[valueKey] : feature.properties[layerVisualizationSettings.targetProperty]
 
-    validateNumber(value)
+    console.log('-------- MAPPED DATA: ', mappedData)
+
+    const chartValuesRecord = {} as ChartValuesRecord
+
+    layerVisualizationSettings.chartMeasures?.forEach((chartMeasure: string) => {
+        chartValuesRecord[chartMeasure] = { value: feature.properties[chartMeasure], measureName: chartMeasure }
+    })
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
 
-    console.log('---- GENERATED ID: ', id)
-    const data = [10, 20, 30, 40]
+    const id = 'id-' + performance.now().toString(36) + Math.random().toString(36)
 
     const customIcon = L.divIcon({
         html: `<div id='${id}'></div>`,
-        iconSize: [50, 50],
+        iconSize: [30, 30],
         className: 'custom-icon'
     })
-    const marker = L.marker([51.505, -0.09], { icon: customIcon }).addTo(map)
+    const marker = L.marker(coordinates.reverse(), { icon: customIcon }).addTo(layerGroup)
 
-    createVegaPieChart(data, id)
+    createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon)
 
-    // addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, chart)
-    // addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, chart)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+
+    markerBounds.push(marker.getLatLng())
 }
 
-let chartCache = {} // Salviamo le immagini già create
+function createVegaChart(chartValuesRecord: ChartValuesRecord, layerVisualizationSettings: IMapWidgetVisualizationType, element: HTMLElement) {
+    const data = transformChartValuesDataToVegaData(chartValuesRecord) as { category: string; value: number | string }[]
+    const chart = layerVisualizationSettings.pieConf?.type === 'pie' ? createVegaPieChart(data, layerVisualizationSettings) : createVegaBarChart(data, layerVisualizationSettings)
 
-function createVegaPieChart(data, id) {
-    let key = data.join('-') // Chiave per la cache
+    vegaEmbed(element, chart as any, { renderer: 'svg', actions: false })
+}
 
-    const pieSpec = {
+const createVegaPieChart = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType) => {
+    return {
         $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-        width: 100,
-        height: 100,
-        data: { values: data.map((v, i) => ({ category: `Cat${i + 1}`, value: v })) },
+        width: 30,
+        height: 30,
+        data: { values: data.map((item: { category: string; value: number | string }) => ({ category: item.category, value: item.value })) },
         mark: 'arc',
         encoding: {
             theta: { field: 'value', type: 'quantitative' },
-            color: { field: 'category', type: 'nominal', scale: { range: ['red', 'blue', 'green'] } }
+            color: { field: 'category', type: 'nominal', scale: { range: layerVisualizationSettings.pieConf?.colors ?? ['red', 'blue', 'green'] }, legend: null }
+        },
+        config: getVegaChartConfig()
+    }
+}
+
+const createVegaBarChart = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType) => {
+    return {
+        $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+        width: 30,
+        height: 30,
+        data: { values: data.map((item: { category: string; value: number | string }) => ({ category: item.category, value: item.value })) },
+        mark: 'bar',
+        encoding: {
+            x: { field: 'category', type: 'nominal', axis: null },
+            y: { field: 'value', type: 'quantitative', axis: null },
+            color: { field: 'category', type: 'nominal', scale: { range: layerVisualizationSettings.pieConf?.colors ?? ['red', 'blue', 'green'] }, legend: null }
+        },
+        config: getVegaChartConfig()
+    }
+}
+
+const getVegaChartConfig = () => {
+    return {
+        background: null,
+        view: {
+            stroke: null,
+            continuousWidth: false,
+            padding: 0
+        },
+        mark: {
+            tooltip: true // TODO - Set to false
         }
     }
+}
 
-    vegaEmbed('#' + id, pieSpec as any, { renderer: 'svg' })
+const transformChartValuesDataToVegaData = (chartValuesRecord: ChartValuesRecord) => {
+    const result = [] as { category: string; value: number | string }[]
+
+    for (const key in chartValuesRecord) {
+        const { value, measureName } = chartValuesRecord[key]
+
+        result.push({ category: measureName, value })
+    }
+
+    return result
 }

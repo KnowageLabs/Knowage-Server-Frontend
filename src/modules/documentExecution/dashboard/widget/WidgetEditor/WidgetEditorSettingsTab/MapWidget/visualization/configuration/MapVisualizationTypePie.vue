@@ -16,18 +16,13 @@
             <label class="kn-material-input-label">{{ $t('common.type') }}</label>
         </div>
 
-        <div class="p-field p-float-label p-col-12 p-lg-6 p-fluid">
-            <Dropdown v-model="visualizationType.pieConf.categorizeBy" class="kn-material-input" :options="layerProperties ?? availableCategories(visualizationType.target)" option-label="property" option-value="property"></Dropdown>
-            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.categorizeBy') }}</label>
-        </div>
-
         <MapVisualizatonChartsColorPicker :prop-visualization-type="visualizationType.pieConf"></MapVisualizatonChartsColorPicker>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType, IMapWidgetVisualizationTypePie } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../MapVisualizationTypeDescriptor.json'
 import Dropdown from 'primevue/dropdown'

@@ -133,7 +133,6 @@
         "type": "default"
     },
     "defaultVisualizationPieConfiguration": {
-        "categorizeBy": "",
         "colors": ["#042d57", "#0753a0", "#0a79e9"],
         "type": "pie"
     }

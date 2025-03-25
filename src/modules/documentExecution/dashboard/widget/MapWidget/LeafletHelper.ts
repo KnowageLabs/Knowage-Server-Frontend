@@ -5,7 +5,7 @@ import deepcopy from 'deepcopy'
 import { getLayerData, getMapWidgetData } from './MapWidgetDataProxy'
 import wktMock from './wkt-mock.json'
 import { wktToGeoJSON } from '@terraformer/wkt'
-import { feature, mesh } from 'topojson-client'
+import { feature } from 'topojson-client'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { addMarkers } from './visualization/MapMarkersVizualizationHelper'
 import { addBaloonMarkers } from './visualization/MapBaloonsVizualizationHelper'
@@ -14,6 +14,7 @@ import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
 import { centerAndRedrawTheLayerOnMap, createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
 import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
+import mockedDataset from './mockedDataset.json'
 
 const dashStore = dashboardStore()
 
@@ -138,6 +139,10 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         // Here, we need to add a data proxy call for the target dataset.
         // Additionally, if the layer is WKT, there is commented-out code related to it.
         // The backend service for retrieving layers does not work properly for WKT.
+
+        // TODO - Remove mock
+        data[target.name] = mockedDataset
+
         if (target.type === 'dataset') {
             visualizationDataType = VisualizationDataType.DATASET_ONLY
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
@@ -179,6 +184,9 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
             // Use case when we have layer with the external dataset connected with foreign key
             if (layerVisualizationSettings.targetDataset) {
+                // TODO - Remove mock
+                data[layerVisualizationSettings.targetDataset] = mockedDataset
+
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
                 dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
                 // TODO - Remove Mocked
@@ -186,7 +194,10 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
                 const selections = dashStore.getSelections(dashboardId) ?? []
 
-                const targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
+                let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
+
+                // TODO - Remove mock
+                targetDatasetTempData[layerVisualizationSettings.targetDataset] = mockedDataset
                 if (targetDatasetTempData?.[layerVisualizationSettings.targetDataset]) targetDatasetData = targetDatasetTempData[layerVisualizationSettings.targetDataset]
             }
         }
@@ -203,7 +214,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         }
 
         if (layerVisualizationSettings.type === 'pies') {
-            addMapCharts(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData)
+            addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'clusters') {

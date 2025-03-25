@@ -17,18 +17,19 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
         const postData = formatMapModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        await axios
-            .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
-            .then((response: AxiosResponse<any>) => {
-                tempResponse[selectedDataset.dsLabel] = response.data
-            })
-            .catch((error: any) => {
-                showGetDataError(error, selectedDataset.dsLabel)
-            })
-            .finally(() => {
-                // TODO - uncomment when realtime dataset example is ready
-                // resetDatasetInterval(widget)
-            })
+        // TODO - Uncomment
+        // await axios
+        //     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
+        //     .then((response: AxiosResponse<any>) => {
+        //         tempResponse[selectedDataset.dsLabel] = response.data
+        //     })
+        //     .catch((error: any) => {
+        //         showGetDataError(error, selectedDataset.dsLabel)
+        //     })
+        //     .finally(() => {
+        //         // TODO - uncomment when realtime dataset example is ready
+        //         // resetDatasetInterval(widget)
+        //     })
     }
 
     return tempResponse
