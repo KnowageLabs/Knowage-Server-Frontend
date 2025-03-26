@@ -8,13 +8,11 @@ const heatmapLayersCache = {} as Record<string, { layer: any; heatMapData: numbe
 export const switchLayerVisibility = (map: L.Map, visibleLayers: any): void => {
     map?.eachLayer((layer: any) => {
         if (layer.knProperties?.layerGroup) {
-            console.log('------- ENTERED 1 !!!!: ', layer)
             if (!visibleLayers[layer.knProperties.layerId]) {
                 layer.hide()
             } else {
                 layer.show()
             }
-            return
         }
 
         if (layer.knProperties?.cluster && !visibleLayers[layer.knProperties.layerId]) {

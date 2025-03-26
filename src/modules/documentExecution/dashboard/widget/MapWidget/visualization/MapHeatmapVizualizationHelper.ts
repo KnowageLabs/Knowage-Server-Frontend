@@ -93,17 +93,17 @@ const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSe
             heatLayer.knProperties = { heatmap: true, layerId: layerId }
 
             centerAndRedrawTheLayerOnMap(map, heatLayer, heatMapData)
-        }, 500)
+        }, 50)
     })
 }
 
 export const centerAndRedrawTheLayerOnMap = (map: any, heatLayer: any, heatMapData: number[][]) => {
     setTimeout(() => {
-        heatLayer.redraw()
-    }, 300)
+        if (heatLayer && map.hasLayer(heatLayer)) heatLayer.redraw()
+    }, 50)
 
     map.once('resize', () => {
-        heatLayer.redraw()
+        if (heatLayer && map.hasLayer(heatLayer)) heatLayer.redraw()
     })
     fitBoundsForMapCentering(map, heatMapData)
 }

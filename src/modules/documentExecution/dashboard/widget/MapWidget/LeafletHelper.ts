@@ -249,6 +249,6 @@ export function filterLayers(map: L.Map, layers): void {
 export const centerTheMap = (map: any, markerBounds: any[] | null) => {
     setTimeout(() => {
         map.invalidateSize()
-        if (markerBounds) map.fitBounds(L.latLngBounds(markerBounds))
+        if (markerBounds && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
     }, 100)
 }

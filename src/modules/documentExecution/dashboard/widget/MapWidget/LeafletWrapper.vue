@@ -42,7 +42,7 @@ const resizeMap = () => {
     if (map) {
         setTimeout(() => {
             map.invalidateSize()
-        }, 200)
+        }, 100)
     }
 }
 
@@ -64,9 +64,9 @@ onMounted(async () => {
         await initializeLayers(map, props.widgetModel, props.data, props.dashboardId)
         setTimeout(() => {
             switchLayerVisibility(map, props.layerVisibility)
-        }, 3000)
+        }, 200)
     } catch (error: any) {
-        console.log('------- ERRPR"', error)
+        console.log('------- ERROR"', error)
         appStore.setError({
             title: t('common.toast.errorTitle'),
             msg: error ? error.message : ''
