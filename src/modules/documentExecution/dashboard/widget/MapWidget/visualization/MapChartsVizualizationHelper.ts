@@ -14,9 +14,6 @@ interface IChartValuesRecord {
 type ChartValuesRecord = Record<string, IChartValuesRecord>
 
 export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any) => {
-    console.log('---------- layerVisualizationSettings: ', layerVisualizationSettings)
-    console.log('---------- layersData: ', layersData)
-    console.log('---------- targetDatasetData: ', targetDatasetData)
     if (data && data[target.name] && !targetDatasetData) {
         addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
     } else {
@@ -57,6 +54,7 @@ const getFieldMapFromMetadata = (data: any) => {
 
 const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, targetDatasetData?: any) => {
     let mappedData: Record<string, number> | null = null
+    let fieldMetadata: Record<string, string> | null = null
     if (targetDatasetData) {
         if (!layerVisualizationSettings.targetDataset) return
 
@@ -64,14 +62,15 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
         if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
 
         mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
+        fieldMetadata = getFieldMapFromMetadata(targetDatasetData)
     }
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null)
+            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null, fieldMetadata)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord)
+                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord, fieldMetadata)
             })
         }
     })
@@ -79,22 +78,28 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
 
 const transformDataUsingForeignKeyReturningAllColumns = (rows: any[], pivotColumnIndex: string) => {
     return rows.reduce((acc: Record<string, any>, row: any) => {
-        acc[row[pivotColumnIndex]] = { ...row } // Store all columns
+        acc[row[pivotColumnIndex]] = { ...row }
         return acc
     }, {})
 }
 
-const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null) => {
-    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-    const value = mappedData ? mappedData[valueKey] : feature.properties[layerVisualizationSettings.targetProperty]
-
-    console.log('-------- MAPPED DATA: ', mappedData)
-
+const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null) => {
     const chartValuesRecord = {} as ChartValuesRecord
 
-    layerVisualizationSettings.chartMeasures?.forEach((chartMeasure: string) => {
-        chartValuesRecord[chartMeasure] = { value: feature.properties[chartMeasure], measureName: chartMeasure }
-    })
+    if (mappedData && fieldMetadata) {
+        const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+        const mappedRow = mappedData[valueKey]
+
+        layerVisualizationSettings.chartMeasures?.forEach((chartMeasure: string) => {
+            const columnKey = fieldMetadata[chartMeasure]
+            const value = mappedRow[columnKey]
+            chartValuesRecord[chartMeasure] = { value: value, measureName: chartMeasure }
+        })
+    } else {
+        layerVisualizationSettings.chartMeasures?.forEach((chartMeasure: string) => {
+            chartValuesRecord[chartMeasure] = { value: feature.properties[chartMeasure], measureName: chartMeasure }
+        })
+    }
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
 
@@ -109,8 +114,9 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
 
     createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    // TODO - Add Tooltips
+    // addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    // addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
 
     markerBounds.push(marker.getLatLng())
 }
