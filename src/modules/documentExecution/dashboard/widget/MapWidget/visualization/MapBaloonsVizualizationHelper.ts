@@ -1,11 +1,12 @@
 import { IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { addMarker, getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
+import { addMarker, centerTheMap, getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
 import { formatRanges, getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, incrementColumnName, sortRanges, transformDataUsingForeginKey, validateNumber } from './MapVisualizationHelper'
 
 // Showing baloons from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addBaloonMarkers = (
+    map: any,
     data: any,
     model: IWidget,
     target: IMapWidgetLayer,
@@ -20,7 +21,6 @@ export const addBaloonMarkers = (
     targetDatasetData: any
 ) => {
     if (!layerVisualizationSettings.balloonConf) return
-    console.log('------- CAAAAAAAAAALED')
     switch (layerVisualizationSettings.balloonConf.method) {
         case 'CLASSIFY_BY_RANGES':
             // We use user defined value ranges to determine what size (depending also on number of ranges) and color should each balloon value have
@@ -52,6 +52,8 @@ export const addBaloonMarkers = (
                 addBaloonMarkersClassifedByEqualIntervalsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
             }
     }
+
+    centerTheMap(map, markerBounds)
 }
 
 const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, targetDatasetData?: any, dataColumn?: string) => {

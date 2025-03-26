@@ -1,6 +1,6 @@
 import { IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { getColumnName, getCoordinates } from '../LeafletHelper'
+import { centerTheMap, getColumnName, getCoordinates } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
 import { getCoordinatesFromWktPointFeature } from './MapVisualizationHelper'
 import L from 'leaflet'
@@ -13,12 +13,14 @@ interface IChartValuesRecord {
 
 type ChartValuesRecord = Record<string, IChartValuesRecord>
 
-export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any) => {
+export const addMapCharts = (map: any, data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any) => {
     if (data && data[target.name] && !targetDatasetData) {
         addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
     } else {
         addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, targetDatasetData)
     }
+
+    centerTheMap(map, markerBounds)
 }
 
 const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {

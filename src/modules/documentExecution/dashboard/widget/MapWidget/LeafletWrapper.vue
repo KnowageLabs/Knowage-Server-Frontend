@@ -10,10 +10,11 @@ import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet/dist/leaflet.css'
 import './Leaflet-heatmap.js'
-import { clearHeatmapLayersCache, filterLayers, initializeLayers, switchLayerVisibility } from './LeafletHelper'
+import { filterLayers, initializeLayers } from './LeafletHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import { clearLayersCache, switchLayerVisibility } from './visibility/MapVisibilityHelper'
 
 const appStore = useAppStore()
 const { t } = i18n.global
@@ -75,7 +76,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
     emitter.off('widgetResized', resizeMap)
-    clearHeatmapLayersCache()
+    clearLayersCache()
 })
 
 watch(props.layerVisibility, (newModel) => {

@@ -84,14 +84,14 @@
     "defaultVisualizationBalloonsConfiguration": {
         "borderColor": "",
         "classes": 3,
-        "maxSize": 100,
+        "maxSize": 30,
         "method": "CLASSIFY_BY_EQUAL_INTERVALS",
         "minSize": 1,
         "properties": {
             "thresholds": []
         },
         "style": {
-            "color": ""
+            "color": "rgba(51, 0, 255, 1)"
         },
         "type": "default"
     },

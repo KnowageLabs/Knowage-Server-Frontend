@@ -18,8 +18,6 @@ import mockedDataset from './mockedDataset.json'
 
 const dashStore = dashboardStore()
 
-const heatmapLayersCache = {} as Record<string, { layer: any; heatMapData: number[][]; heatMapOptions: any }>
-
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
 export enum VisualizationDataType {
@@ -202,23 +200,23 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
         }
 
-        const layerGroup = L.layerGroup()
+        const layerGroup = L.layerGroup().addTo(map)
         layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
         if (layerVisualizationSettings.type === 'markers') {
-            addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
+            addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'balloons') {
-            addBaloonMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData)
+            addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'pies') {
-            addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
+            addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'clusters') {
-            addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
+            addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
         }
 
         if (layerVisualizationSettings.type === 'heatmap') {
@@ -233,8 +231,6 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map)
         }
     }
-
-    if (model.settings.configuration.map.autoCentering && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
 }
 
 export function filterLayers(map: L.Map, layers): void {
@@ -250,54 +246,9 @@ export function filterLayers(map: L.Map, layers): void {
     })
 }
 
-export const switchLayerVisibility = (map: L.Map, visibleLayers: any): void => {
-    map?.eachLayer((layer: any) => {
-        console.log('------- LAYER VISIBILITY: ', layer)
-        if (layer.knProperties?.layerGroup) {
-            console.log('------- ENTERED 1 !!!!: ', layer)
-            if (!visibleLayers[layer.knProperties.layerId]) layer.hide()
-            else layer.show()
-            return
-        }
-        if (layer.knProperties?.cluster) {
-            if (!visibleLayers[layer.knProperties.layerId]) layer.removeLayer()
-            else layer.show()
-            return
-        }
-
-        // TODO
-        // changeHeatmapLayerVisibility(layer, visibleLayers, map)
-    })
-}
-
-const changeHeatmapLayerVisibility = (layer: any, visibleLayers: any, map: any) => {
-    if (!visibleLayers[layer.knProperties?.layerId] && !heatmapLayersCache[layer.knProperties?.layerId]?.layer) {
-        heatmapLayersCache[layer.knProperties.layerId] = { layer: layer, heatMapData: deepcopy(layer._latlngs), heatMapOptions: deepcopy(layer.options) }
-
-        map.removeLayer(layer)
-    } else if (visibleLayers[layer.knProperties?.layerId] && heatmapLayersCache[layer.knProperties.layerId]?.layer != null) {
-        map.whenReady(() => {
-            const heatMapData = heatmapLayersCache[layer.knProperties.layerId].heatMapData
-            const heatMapOptions = heatmapLayersCache[layer.knProperties.layerId].heatMapOptions
-
-            heatmapLayersCache[layer.knProperties.layerId].layer = L.heatLayer(heatMapData ?? [], {
-                radius: heatMapOptions.radius,
-                blur: heatMapOptions.blur,
-                maxZoom: heatMapOptions.maxZoom,
-                max: heatMapOptions.max
-            })
-            heatmapLayersCache[layer.knProperties.layerId].layer.knProperties = { heatmap: true, layerId: layer.knProperties.layerId }
-            heatmapLayersCache[layer.knProperties.layerId].layer.addTo(map)
-
-            centerAndRedrawTheLayerOnMap(map, heatmapLayersCache[layer.knProperties.layerId].layer, heatMapData)
-
-            heatmapLayersCache[layer.knProperties.layerId] = { layer: null, heatMapData: [], heatMapOptions: {} }
-        })
-    }
-}
-
-export const clearHeatmapLayersCache = () => {
-    Object.keys(heatmapLayersCache).forEach((key) => {
-        delete heatmapLayersCache[key]
-    })
+export const centerTheMap = (map: any, markerBounds: any[] | null) => {
+    setTimeout(() => {
+        map.invalidateSize()
+        if (markerBounds) map.fitBounds(L.latLngBounds(markerBounds))
+    }, 100)
 }

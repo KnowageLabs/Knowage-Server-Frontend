@@ -47,7 +47,7 @@
             ></q-select>
 
             <q-select
-                v-if="visType && getTargetLayerType(visType) === 'layer' && !['geography'].includes(visType.type)"
+                v-if="visType && getTargetLayerType(visType) === 'layer' && !['geography', 'pies'].includes(visType.type)"
                 filled
                 dense
                 class="col q-ml-sm"

@@ -1,5 +1,5 @@
 import { ILayerFeature, IMapWidgetLayer } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { addMarker, getCoordinates } from '../LeafletHelper'
+import { addMarker, centerTheMap, getCoordinates } from '../LeafletHelper'
 import { getCoordinatesFromWktPointFeature } from './MapVisualizationHelper'
 import L from 'leaflet'
 
@@ -47,10 +47,5 @@ const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGr
         }
     })
 
-    layerGroup.addTo(map)
-
-    setTimeout(() => {
-        map.invalidateSize()
-        map.fitBounds(L.latLngBounds(markerBounds))
-    }, 100)
+    centerTheMap(map, markerBounds)
 }
