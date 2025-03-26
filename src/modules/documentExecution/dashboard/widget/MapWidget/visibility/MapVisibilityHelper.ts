@@ -23,52 +23,55 @@ export const switchLayerVisibility = (map: L.Map, visibleLayers: any): void => {
             return
         }
 
-        showLayersFromCache(visibleLayers, map)
+        if (layer.knProperties?.heatmap && !visibleLayers[layer.knProperties.layerId]) {
+            heatmapLayersCache[layer.knProperties.layerId] = { layer: layer, heatMapData: deepcopy(layer._latlngs), heatMapOptions: deepcopy(layer.options) }
+            map.removeLayer(layer)
+            return
+        }
 
-        // TODO
-        // changeHeatmapLayerVisibility(layer, visibleLayers, map)
+        showLayersFromCache(visibleLayers, map)
     })
 }
 
 const showLayersFromCache = (visibleLayers: any, map: any) => {
     showClusterLayersFromCache(visibleLayers, map)
+    showHeatmapLayersFromCache(visibleLayers, map)
 }
 
 const showClusterLayersFromCache = (visibleLayers: any, map: any) => {
-    console.log('------- visibleLayers: ', visibleLayers)
     Object.entries(clusterLayerCache).forEach((cachedLayer: any) => {
         const layerId = cachedLayer[0]
         if (visibleLayers[layerId] && cachedLayer[1]?.layer) {
-            console.log('-------- cached Layer: ', cachedLayer)
             cachedLayer[1].layer.addTo(map)
         }
     })
 }
 
-const changeHeatmapLayerVisibility = (layer: any, visibleLayers: any, map: any) => {
-    if (!visibleLayers[layer.knProperties?.layerId] && !heatmapLayersCache[layer.knProperties?.layerId]?.layer) {
-        heatmapLayersCache[layer.knProperties.layerId] = { layer: layer, heatMapData: deepcopy(layer._latlngs), heatMapOptions: deepcopy(layer.options) }
+const showHeatmapLayersFromCache = (visibleLayers: any, map: any) => {
+    Object.entries(heatmapLayersCache).forEach((cachedLayer: any) => {
+        const layerId = cachedLayer[0]
+        if (visibleLayers[layerId] && cachedLayer[1]?.layer) {
+            const layer = cachedLayer[1].layer
+            map.whenReady(() => {
+                const heatMapData = heatmapLayersCache[layer.knProperties.layerId].heatMapData
+                const heatMapOptions = heatmapLayersCache[layer.knProperties.layerId].heatMapOptions
 
-        map.removeLayer(layer)
-    } else if (visibleLayers[layer.knProperties?.layerId] && heatmapLayersCache[layer.knProperties.layerId]?.layer != null) {
-        map.whenReady(() => {
-            const heatMapData = heatmapLayersCache[layer.knProperties.layerId].heatMapData
-            const heatMapOptions = heatmapLayersCache[layer.knProperties.layerId].heatMapOptions
+                heatmapLayersCache[layer.knProperties.layerId].layer = L.heatLayer(heatMapData ?? [], {
+                    radius: heatMapOptions.radius,
+                    blur: heatMapOptions.blur,
+                    maxZoom: heatMapOptions.maxZoom,
+                    max: heatMapOptions.max
+                })
+                heatmapLayersCache[layer.knProperties.layerId].layer.knProperties = { heatmap: true, layerId: layer.knProperties.layerId }
+                heatmapLayersCache[layer.knProperties.layerId].layer.addTo(map)
 
-            heatmapLayersCache[layer.knProperties.layerId].layer = L.heatLayer(heatMapData ?? [], {
-                radius: heatMapOptions.radius,
-                blur: heatMapOptions.blur,
-                maxZoom: heatMapOptions.maxZoom,
-                max: heatMapOptions.max
+                // TODO
+                // centerAndRedrawTheLayerOnMap(map, heatmapLayersCache[layer.knProperties.layerId].layer, heatMapData)
+
+                heatmapLayersCache[layer.knProperties.layerId] = { layer: null, heatMapData: [], heatMapOptions: {} }
             })
-            heatmapLayersCache[layer.knProperties.layerId].layer.knProperties = { heatmap: true, layerId: layer.knProperties.layerId }
-            heatmapLayersCache[layer.knProperties.layerId].layer.addTo(map)
-
-            centerAndRedrawTheLayerOnMap(map, heatmapLayersCache[layer.knProperties.layerId].layer, heatMapData)
-
-            heatmapLayersCache[layer.knProperties.layerId] = { layer: null, heatMapData: [], heatMapOptions: {} }
-        })
-    }
+        }
+    })
 }
 
 export const clearLayersCache = () => {
