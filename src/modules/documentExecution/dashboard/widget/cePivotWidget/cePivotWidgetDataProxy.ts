@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios'
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, addVariablesToFormula, hasFields, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
-import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IDashboardDataset, IWidget, ISelection, IWidgetColumn, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
@@ -18,7 +17,6 @@ export const getCePivotData = async (dashboardId: any, dashboardConfig: IDashboa
         const postData = formatPivotModelForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
-        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         const dataHash = md5(JSON.stringify(postData))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 
@@ -27,7 +25,7 @@ export const getCePivotData = async (dashboardId: any, dashboardConfig: IDashboa
             return response.data
         }
 
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             tempResponse = cachedData.data
         } else {
             dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })

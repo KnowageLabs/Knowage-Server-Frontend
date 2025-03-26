@@ -1,7 +1,6 @@
 // import { AxiosResponse } from 'axios'
 import { IDashboardDataset, IWidget, IWidgetSearch, ISelection, IDashboardConfiguration } from '../../Dashboard'
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula } from '../../DashboardDataProxy'
-import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { indexedDB } from '@/idb'
 import { md5 } from 'js-md5'
 import deepcopy from 'deepcopy'
@@ -12,6 +11,8 @@ const dashStore = dashboardStore()
 export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex] as IDashboardDataset
+
+    console.log('selectedDataset', selectedDataset)
 
     const datasetLabel = selectedDataset?.dsLabel as string
 
@@ -25,8 +26,6 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
         const formattedSelections = getLikeSelections(searchParams, datasetLabel)
         if (formattedSelections != null) postData.likeSelections = formattedSelections
         let tempResponse = null as any
-
-        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
 
         const postDataForHash = deepcopy(postData) // making a deepcopy so we can delete options which are used for solr datasets only
         delete postDataForHash.options
@@ -46,7 +45,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
         }
 
         //4. in step 2. we checked if indexedDB contained dataHash, if it did
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             //4a. cachedData should be populated, if it is we simply return cachded data form indexedDB
             return cachedData.data
         } else {
