@@ -186,7 +186,7 @@
         "modal": "Modal",
         "modify": "modify",
         "move": "Move",
-        "name": "name",
+        "name": "Name",
         "new": "new",
         "next": "next",
         "no": "No",
@@ -3111,9 +3111,13 @@
         "rolesManagement": {
             "authGroups": {
                 "dashboard": "Dashboard",
+                "dashboardCaption": "Authorization related to dashboard visualization and widget usages",
                 "documentExecutionToolbar": "Document Execution Toolbar",
+                "documentExecutionToolbarCaption": "Authorizations related to document related functionalities",
                 "menuConfiguration": "Menu Configuration",
-                "workspace": "Workspace"
+                "menuConfigurationCaption": "Authorizations related to main menu visualizations and common functionalities",
+                "workspace": "Workspace",
+                "workspaceCaption": "Authorizations related to what functionalities the role can see inside 'My Workspace'"
             },
             "authorizations": {
                 "buildQbe": "Build QbE Queries",

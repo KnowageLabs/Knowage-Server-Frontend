@@ -1,55 +1,20 @@
 <template>
-    <Card class="domainCard" style="height: calc(100vh - 85px)">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ title }}
-                </template>
-            </Toolbar>
-        </template>
-        <template #content>
-            <DataTable
-                v-model:selection="selectedCategories"
-                :value="categoryList"
-                class="p-datatable-sm kn-table"
-                data-key="categoryId"
-                :paginator="true"
-                :rows="20"
-                responsive-layout="stack"
-                breakpoint="960px"
-                :scrollable="true"
-                scroll-height="flex"
-                data-test="data-table"
-                @rowSelect="setDirty"
-                @rowUnselect="setDirty"
-                @rowSelectAll="onSelectAll"
-                @rowUnselectAll="onUnselectAll"
-            >
-                <template #empty>
-                    {{ $t('common.info.noDataFound') }}
-                </template>
-                <Column class="kn-column-checkbox" selection-mode="multiple" data-key="categoryId"></Column>
-                <Column field="categoryName" :header="$t('common.name')" :style="domainCategoryTabDescriptor.column.header.style"></Column>
-            </DataTable>
-        </template>
-    </Card>
+    <q-card class="q-ma-sm">
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>{{ title }}</q-toolbar-title>
+        </q-toolbar>
+        <q-card-section>
+            <q-table flat dense hide-pagination :rows="categoryList" :columns="[{ name: 'categoryName', label: $t('common.name'), field: 'categoryName', align: 'left' }]" row-key="categoryId" selection="multiple" v-model:selected="selectedCategories" @update:selected="setDirty" />
+        </q-card-section>
+    </q-card>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { iCategory } from './../../RolesManagement'
-import Card from 'primevue/card'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import domainCategoryTabDescriptor from './DomainCategoryTabDescriptor.json'
 
 export default defineComponent({
     name: 'domain-category-tab',
-    components: {
-        Card,
-        Column,
-        DataTable
-    },
     props: {
         title: String,
         categoryList: Array,
@@ -58,7 +23,6 @@ export default defineComponent({
     emits: ['changed'],
     data() {
         return {
-            domainCategoryTabDescriptor,
             selectedCategories: [] as iCategory[]
         }
     },

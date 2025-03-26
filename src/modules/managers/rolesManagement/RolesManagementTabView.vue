@@ -1,11 +1,14 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
-        <template #start>{{ selectedRole.name }} </template>
-        <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="submit-button" :disabled="buttonDisabled" @click="handleSubmit" />
-            <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplate" />
-        </template>
-    </Toolbar>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ selectedRole.name }}</q-toolbar-title>
+
+        <q-btn flat round dense icon="save" :disable="buttonDisabled" data-test="submit-button" @click="handleSubmit">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeTemplate">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
     <TabView class="roles-tabview" data-test="tab-view">
         <TabPanel>
@@ -16,7 +19,7 @@
             <RoleDetailTab :selected-role="selectedRole" :public-role="publicRole" @fieldChanged="onFieldChange" @roleTypeChanged="onRoleTypeChange" />
         </TabPanel>
 
-        <TabPanel>
+        <TabPanel class="column">
             <template #header>
                 <span>{{ $t('managers.rolesManagement.authorizations.title') }}</span>
             </template>
@@ -49,7 +52,7 @@
         </TabPanel>
 
         <TabPanel>
-            <template #header> Usage </template>
+            <template #header>Usage</template>
 
             <RolesManagementUsageTab :id="id" />
         </TabPanel>

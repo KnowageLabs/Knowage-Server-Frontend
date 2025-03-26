@@ -1,43 +1,47 @@
 <template>
-    <div id="informations-content" class="kn-flex kn-relative kn-height-full">
-        <div class="roles-absolute-scroll">
-            <Card class="kn-card no-padding">
-                <template #content>
-                    <div v-for="(category, index) of rolesManagementTabViewDescriptor.categories" :key="index">
-                        <template v-if="authorizationCBs[category.categoryName] && authorizationCBs[category.categoryName].length">
-                            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                                <template #start>
-                                    {{ $t(category.name) }}
-                                </template>
-                            </Toolbar>
-                            <div class="p-grid">
-                                <div v-for="(authCBInfo, ind) of authorizationCBs[category.categoryName]" :key="ind" class="p-xl-3 p-lg-4 p-md-6 p-sm-12">
-                                    <div class="p-field-checkbox p-m-3">
-                                        <InputSwitch :id="'cb-' + index + '-' + ind" v-model="role[authCBInfo.fieldName]" :disabled="authCBInfo.enableForRole && role.roleTypeCD === 'ADMIN'" @change="authChanged(authCBInfo.fieldName, role[authCBInfo.fieldName])" />
-                                        <label :for="'cb-' + index + '-' + ind">{{ $t(authCBInfo.label) }}</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </template>
-            </Card>
-        </div>
+    <div class="q-ma-sm">
+        <q-input v-model="filter" :label="$t('common.search')" dense filled class="q-mb-sm" :debounce="200" />
+        <q-card>
+            <q-list bordered class="rounded-borders" separator>
+                <q-expansion-item v-for="(category, index) of rolesManagementTabViewDescriptor.categories" :key="index" expand-separator header-class="bg-grey-1">
+                    <template v-slot:header>
+                        <q-item-section avatar>
+                            <q-icon :name="category.icon" />
+                        </q-item-section>
+
+                        <q-item-section>
+                            <q-item-label>{{ $t(category.name) }}</q-item-label>
+                            <q-item-label caption>{{ $t(category.caption) }}</q-item-label>
+                        </q-item-section>
+
+                        <q-item-section side>
+                            <q-badge v-if="authorizationCBs[category.categoryName]" color="primary" :label="badgeNumber(category.categoryName)" />
+                        </q-item-section>
+                    </template>
+                    <q-card v-if="authorizationCBs[category.categoryName] && filteredAuthList(category.categoryName) && filteredAuthList(category.categoryName).length > 0">
+                        <q-list color="grey" dense separator>
+                            <q-item v-for="(authCBInfo, ind) of filteredAuthList(category.categoryName)" :key="ind">
+                                <q-item-section>
+                                    <q-item-label>{{ $t(authCBInfo.label) }}</q-item-label>
+                                </q-item-section>
+                                <q-item-section side top>
+                                    <q-toggle v-model="role[authCBInfo.fieldName]" :disabled="authCBInfo.enableForRole && role.roleTypeCD === 'ADMIN'" @update:model-value="authChanged(authCBInfo.fieldName, role[authCBInfo.fieldName])" />
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-card>
+                </q-expansion-item>
+            </q-list>
+        </q-card>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Card from 'primevue/card'
-import InputSwitch from 'primevue/inputswitch'
 import rolesManagementTabViewDescriptor from '../../RolesManagementTabViewDescriptor.json'
 
 export default defineComponent({
     name: 'authorizations-tab',
-    components: {
-        Card,
-        InputSwitch
-    },
     props: {
         selectedRole: {
             type: Object,
@@ -49,6 +53,7 @@ export default defineComponent({
     emits: ['authChanged'],
     data() {
         return {
+            filter: '' as string,
             rolesManagementTabViewDescriptor,
             role: {} as any,
             authorizationList: [] as any,
@@ -57,7 +62,7 @@ export default defineComponent({
     },
     watch: {
         selectedRole: {
-            handler: function(value) {
+            handler: function (value) {
                 this.role = { ...value } as any
             },
             deep: true
@@ -71,6 +76,12 @@ export default defineComponent({
     methods: {
         authChanged(fieldName: string, value: any) {
             this.$emit('authChanged', { fieldName, value })
+        },
+        filteredAuthList(categoryName: string) {
+            return this.authorizationCBs[categoryName].filter((auth) => auth.label.toLowerCase().includes(this.filter.toLowerCase()))
+        },
+        badgeNumber(categoryName) {
+            return `${this.filteredAuthList(categoryName).filter((item) => this.role[item.fieldName]).length} / ${this.filteredAuthList(categoryName).length}`
         }
     }
 })
