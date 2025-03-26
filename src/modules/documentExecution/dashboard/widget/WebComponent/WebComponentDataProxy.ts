@@ -39,7 +39,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
                     const response = await dashStore.dataProxyQueue[dataHash]
                     aggregationDataset = response.data
 
-                    if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, aggregationDataset)
+                    if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, aggregationDataset)
                 } catch (error) {
                     console.error(error)
                     showGetDataError(error, selectedDataset.dsLabel)
@@ -68,7 +68,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
 
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             } catch (error) {
                 console.error(error)
                 showGetDataError(error, selectedDataset.dsLabel)

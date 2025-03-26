@@ -36,7 +36,7 @@ export const getHighchartsScatterData = async (dashboardId, dashboardConfig: IDa
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
 
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             } catch (error) {
                 console.error(error)
                 showGetDataError(error, selectedDataset.dsLabel)

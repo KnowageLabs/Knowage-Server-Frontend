@@ -12,8 +12,6 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex] as IDashboardDataset
 
-    console.log('selectedDataset', selectedDataset)
-
     const datasetLabel = selectedDataset?.dsLabel as string
 
     if (selectedDataset) {
@@ -56,7 +54,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
                 tempResponse = response.data
 
                 // 6. after getting said data, we add it to indexedDB cache using defined dataHash
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
                 if (pagination && pagination?.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             } catch (error) {
                 console.error(error)
@@ -79,7 +77,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
             //     .finally(async () => {
             //         // TODO - uncomment when realtime dataset example is ready
             //         // resetDatasetInterval(widget)
-            //         if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+            //         if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             //     })
         }
 

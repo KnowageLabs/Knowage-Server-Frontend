@@ -36,7 +36,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
 
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             } catch (error) {
                 console.error(error)
                 showGetDataError(error, selectedDataset.dsLabel)

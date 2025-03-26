@@ -43,7 +43,7 @@ export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDash
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
 
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
                 if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             } catch (error) {
                 console.error(error)
