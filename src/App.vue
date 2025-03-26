@@ -4,6 +4,7 @@
     <KnOverlaySpinnerPanel />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
         <MainMenu v-if="showMenu && mainMenuVisibility" @menuItemSelected="setSelectedMenuItem" :closeMenu="closedMenu" @openMenu="openMenu"></MainMenu>
+        <KnChatbot v-if="user" />
 
         <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }" @click="closeMenu" @blur="closeMenu">
             <router-view :selected-menu-item="selectedMenuItem" :menu-item-clicked-trigger="menuItemClickedTrigger" @click="closeMenu" />
@@ -16,6 +17,7 @@
 import ConfirmDialog from 'primevue/confirmdialog'
 import KnOverlaySpinnerPanel from '@/components/UI/KnOverlaySpinnerPanel.vue'
 import KnRotate from '@/components/UI/KnRotate.vue'
+import KnChatbot from '@/components/UI/KnChatbot/KnChatbot.vue'
 import MainMenu from '@/modules/mainMenu/MainMenu'
 import Toast from 'primevue/toast'
 import { defineComponent } from 'vue'
@@ -28,7 +30,7 @@ import { loadLanguageAsync } from '@/App.i18n.js'
 import auth from '@/helpers/commons/authHelper'
 
 export default defineComponent({
-    components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast },
+    components: { ConfirmDialog, KnOverlaySpinnerPanel, KnRotate, MainMenu, Toast, KnChatbot },
 
     data() {
         return {
