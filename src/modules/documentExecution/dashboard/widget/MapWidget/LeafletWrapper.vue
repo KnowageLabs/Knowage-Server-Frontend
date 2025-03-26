@@ -93,4 +93,8 @@ watch(props.widgetModel.layers, (newModel) => {
     height: 100%;
     z-index: 0;
 }
+
+.leaflet-marker-shadow {
+    display: none;
+}
 </style>

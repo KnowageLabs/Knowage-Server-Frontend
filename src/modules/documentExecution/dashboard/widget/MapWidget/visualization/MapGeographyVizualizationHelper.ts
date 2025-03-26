@@ -29,12 +29,12 @@ const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGr
             markerBounds.push(marker.getLatLng())
         } else if (type === 'MultiPoint') {
             const multiPointCoords = (feature.geometry.coordinates as any).map(([x, y]: [number, number]) => [y, x])
-            L.layerGroup(multiPointCoords.map((coord) => L.marker(coord).addTo(map))).addTo(map)
+            L.layerGroup(multiPointCoords.map((coord: number[]) => L.marker(coord).addTo(layerGroup))).addTo(layerGroup)
         } else if (type === 'LineString') {
-            L.polyline(feature.geometry.coordinates.reverse(), { color: 'blue' }).addTo(map)
+            L.polyline(feature.geometry.coordinates.reverse(), { color: 'blue' }).addTo(layerGroup)
         } else if (type === 'MultiLineString') {
             const multiLineCoords = (feature.geometry.coordinates as any).map((line: any) => line.map(([x, y]: [number, number]) => [y, x]))
-            L.layerGroup(multiLineCoords.map((coords: number[]) => L.polyline(coords, { color: 'blue' }).addTo(map))).addTo(map)
+            L.layerGroup(multiLineCoords.map((coords: number[]) => L.polyline(coords, { color: 'blue' }).addTo(layerGroup))).addTo(layerGroup)
         } else if (type === 'Polygon' || type === 'MultiPolygon') {
             let polygonCoords: any
             if (type === 'Polygon') {
@@ -43,7 +43,14 @@ const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGr
                 polygonCoords = (feature.geometry.coordinates as any).map((polygon: any) => polygon.map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x])))
             }
 
-            L.polygon(polygonCoords).addTo(map)
+            L.polygon(polygonCoords).addTo(layerGroup)
         }
     })
+
+    layerGroup.addTo(map)
+
+    setTimeout(() => {
+        map.invalidateSize()
+        map.fitBounds(L.latLngBounds(markerBounds))
+    }, 100)
 }

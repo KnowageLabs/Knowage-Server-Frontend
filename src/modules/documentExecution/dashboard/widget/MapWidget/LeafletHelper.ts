@@ -141,7 +141,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         // The backend service for retrieving layers does not work properly for WKT.
 
         // TODO - Remove mock
-        data[target.name] = mockedDataset
+        // data[target.name] = mockedDataset
 
         if (target.type === 'dataset') {
             visualizationDataType = VisualizationDataType.DATASET_ONLY
@@ -185,7 +185,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             // Use case when we have layer with the external dataset connected with foreign key
             if (layerVisualizationSettings.targetDataset) {
                 // TODO - Remove mock
-                data[layerVisualizationSettings.targetDataset] = mockedDataset
+                // data[layerVisualizationSettings.targetDataset] = mockedDataset
 
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
                 dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
@@ -197,12 +197,12 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
 
                 // TODO - Remove mock
-                targetDatasetTempData[layerVisualizationSettings.targetDataset] = mockedDataset
+                // targetDatasetTempData[layerVisualizationSettings.targetDataset] = mockedDataset
                 if (targetDatasetTempData?.[layerVisualizationSettings.targetDataset]) targetDatasetData = targetDatasetTempData[layerVisualizationSettings.targetDataset]
             }
         }
 
-        const layerGroup = L.layerGroup().addTo(map)
+        const layerGroup = L.layerGroup()
         layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
         if (layerVisualizationSettings.type === 'markers') {
@@ -251,8 +251,10 @@ export function filterLayers(map: L.Map, layers): void {
 }
 
 export const switchLayerVisibility = (map: L.Map, visibleLayers: any): void => {
-    map.eachLayer((layer) => {
+    map?.eachLayer((layer: any) => {
+        console.log('------- LAYER VISIBILITY: ', layer)
         if (layer.knProperties?.layerGroup) {
+            console.log('------- ENTERED 1 !!!!: ', layer)
             if (!visibleLayers[layer.knProperties.layerId]) layer.hide()
             else layer.show()
             return
