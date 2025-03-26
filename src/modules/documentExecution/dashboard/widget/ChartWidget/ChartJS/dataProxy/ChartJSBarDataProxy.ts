@@ -1,4 +1,3 @@
-import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, addVariablesToFormula, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 import { md5 } from 'js-md5'
@@ -17,7 +16,6 @@ export const getChartJSBarData = async (dashboardId, dashboardConfig: IDashboard
         const postData = formatChartWidgetForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
-        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
         const dataHash = md5(JSON.stringify(postData))
 
         const cachedData = await indexedDB.widgetData.get(dataHash)
@@ -26,7 +24,7 @@ export const getChartJSBarData = async (dashboardId, dashboardConfig: IDashboard
             return response.data
         }
 
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             tempResponse = cachedData.data
         } else {
             dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
@@ -34,7 +32,7 @@ export const getChartJSBarData = async (dashboardId, dashboardConfig: IDashboard
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
 
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             } catch (error) {
                 console.error(error)
                 showGetDataError(error, selectedDataset.dsLabel)

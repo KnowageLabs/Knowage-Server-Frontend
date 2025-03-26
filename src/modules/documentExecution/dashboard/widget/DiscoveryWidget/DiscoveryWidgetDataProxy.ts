@@ -1,5 +1,4 @@
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
-import { clearDatasetInterval } from '@/modules/documentExecution/dashboard/helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
@@ -24,8 +23,6 @@ export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDash
         const postData = formatDiscoveryModelForGet(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
-        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-
         const postDataForHash = deepcopy(postData) // making a deepcopy so we can delete options which are used for solr datasets only
         delete postDataForHash.options
         if (widget.settings.pagination.enabled) postDataForHash.pagination = deepcopy(widget.settings.pagination) // adding pagination in case its being used so we save data for each page
@@ -37,7 +34,7 @@ export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDash
             return response.data
         }
 
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             tempResponse = cachedData.data
             if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = tempResponse.results
         } else {
@@ -46,7 +43,7 @@ export const getDiscoveryWidgetData = async (dashboardId, dashboardConfig: IDash
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
 
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
                 if (widget.settings.pagination.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             } catch (error) {
                 console.error(error)

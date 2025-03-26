@@ -435,6 +435,7 @@ export default defineComponent({
         closeDatasetEditor() {
             this.datasetEditorVisible = false
             emitter.emit('datasetManagementClosed')
+            setDatasetIntervals(this.model.configuration.datasets, this.datasets)
         },
         async onSaveDashboardClicked(event: any) {
             if (!this.document || event !== this.dashboardId) return
@@ -493,6 +494,7 @@ export default defineComponent({
             if (event.dashboardId !== this.dashboardId) return
             this.generalSettingsVisible = true
             this.generalSettingsMode = event.mode ?? 'General'
+            clearAllDatasetIntervals()
 
             this.customHeaderVisible = false
         },
@@ -500,6 +502,7 @@ export default defineComponent({
             this.generalSettingsVisible = false
             this.generalSettingsMode = 'General'
             emitter.emit('dashboardGeneralSettingsClosed')
+            setDatasetIntervals(this.model.configuration.datasets, this.datasets)
 
             this.customHeaderVisible = true
         },

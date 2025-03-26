@@ -1,7 +1,6 @@
 // import { AxiosResponse } from 'axios'
 import { IDashboardDataset, IWidget, IWidgetSearch, ISelection, IDashboardConfiguration } from '../../Dashboard'
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula } from '../../DashboardDataProxy'
-import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { indexedDB } from '@/idb'
 import { md5 } from 'js-md5'
 import deepcopy from 'deepcopy'
@@ -26,8 +25,6 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
         if (formattedSelections != null) postData.likeSelections = formattedSelections
         let tempResponse = null as any
 
-        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-
         const postDataForHash = deepcopy(postData) // making a deepcopy so we can delete options which are used for solr datasets only
         delete postDataForHash.options
         if (pagination?.enabled) postDataForHash.pagination = deepcopy(pagination) // adding pagination in case its being used so we save data for each page
@@ -46,7 +43,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
         }
 
         //4. in step 2. we checked if indexedDB contained dataHash, if it did
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             //4a. cachedData should be populated, if it is we simply return cachded data form indexedDB
             return cachedData.data
         } else {
@@ -57,7 +54,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
                 tempResponse = response.data
 
                 // 6. after getting said data, we add it to indexedDB cache using defined dataHash
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
                 if (pagination && pagination?.enabled) widget.settings.pagination.properties.totalItems = response.data.results
             } catch (error) {
                 console.error(error)
@@ -80,7 +77,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
             //     .finally(async () => {
             //         // TODO - uncomment when realtime dataset example is ready
             //         // resetDatasetInterval(widget)
-            //         if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+            //         if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             //     })
         }
 
