@@ -17,7 +17,8 @@ export function createToolbarMenuItems(document: any, functions: any, exporters:
             label: $t('common.settings'),
             items: [
                 { icon: 'pi pi-cog', label: $t('common.general'), command: () => functions.openDashboardGeneralSettings('General') },
-                { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') }
+                { icon: 'fa-brands fa-diaspora', label: $t('common.variables'), command: () => functions.openDashboardGeneralSettings('Variables') },
+                { icon: 'fa-solid fa-heading', label: $t('dashboard.generalSettings.customHeader'), command: () => functions.openDashboardGeneralSettings('Custom Header') }
             ]
         })
         if (mainStore.isEnterprise) toolbarMenuItems[0].items.push({ icon: 'fas fa-paint-roller', label: $t('common.themes'), command: () => functions.openDashboardGeneralSettings('Themes') })
@@ -141,7 +142,7 @@ export const getValidDate = (value: string, serverDateFormat: string) => {
 }
 
 const convertToMomentFormat = (format: string) => {
-    return format.replace(/yyyy/g, 'YYYY').replace(/dd/g, 'DD').replace(/mm/g, 'MM');
+    return format.replace(/yyyy/g, 'YYYY').replace(/dd/g, 'DD').replace(/mm/g, 'MM')
 }
 
 const extractDatePart = (dateString: string) => {
