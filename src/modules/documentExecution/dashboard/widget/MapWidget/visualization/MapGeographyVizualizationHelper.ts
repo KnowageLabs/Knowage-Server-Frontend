@@ -5,10 +5,23 @@ import L from 'leaflet'
 
 // Showing only the defined data, no measures, no extra logic. It will show all Point, LineString and Polygon from WKT.
 export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], layersData: any, map: any) => {
+    const bounds = L.latLngBounds()
+
     if (data && data[target.name]) {
         addGeograhyFromData(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds)
     } else {
-        addGeographyUsingLayers(layersData, spatialAttribute, layerGroup, markerBounds, map)
+        addGeographyUsingLayers(layersData, spatialAttribute, layerGroup, markerBounds, bounds)
+    }
+
+    if (markerBounds?.length > 0) {
+        centerTheMap(map, markerBounds)
+    } else {
+        setTimeout(() => {
+            if (bounds.isValid()) {
+                map.invalidateSize()
+                map.fitBounds(bounds)
+            }
+        }, 100)
     }
 }
 
@@ -19,7 +32,7 @@ const addGeograhyFromData = (data: any, target: IMapWidgetLayer, dataColumn: str
     }
 }
 
-const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, markerBounds: any[], map: any) => {
+const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, markerBounds: any[], bounds: any) => {
     layersData.features.forEach((feature: ILayerFeature) => {
         const type = feature.geometry?.type
         if (!type) return
@@ -29,6 +42,7 @@ const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGr
             markerBounds.push(marker.getLatLng())
         } else if (type === 'MultiPoint') {
             const multiPointCoords = (feature.geometry.coordinates as any).map(([x, y]: [number, number]) => [y, x])
+            multiPointCoords.forEach((coord: number[]) => markerBounds.push(L.latLng(coord)))
             L.layerGroup(multiPointCoords.map((coord: number[]) => L.marker(coord).addTo(layerGroup))).addTo(layerGroup)
         } else if (type === 'LineString') {
             L.polyline(feature.geometry.coordinates.reverse(), { color: 'blue' }).addTo(layerGroup)
@@ -43,9 +57,8 @@ const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGr
                 polygonCoords = (feature.geometry.coordinates as any).map((polygon: any) => polygon.map((ring: any) => ring.map(([x, y]: [number, number]) => [y, x])))
             }
 
-            L.polygon(polygonCoords).addTo(layerGroup)
+            const polygon = L.polygon(polygonCoords).addTo(layerGroup)
+            bounds.extend(polygon.getBounds())
         }
     })
-
-    centerTheMap(map, markerBounds)
 }

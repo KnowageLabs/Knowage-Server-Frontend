@@ -1,6 +1,6 @@
 <template>
     <div v-if="dialogSettings" class="p-m-3">
-        <WidgetEditorStyleToolbar class="p-my-3" :options="descriptor.toolbarStyleOptions" :prop-model="dialogSettings.style" :disabled="dialogSettingsDisabled" @change="onStyleToolbarChange"> </WidgetEditorStyleToolbar>
+        <WidgetEditorStyleToolbar class="p-my-3" :options="descriptor.toolbarStyleOptions" :prop-model="dialogSettings.style" :disabled="dialogSettingsDisabled" @change="onStyleToolbarChange"></WidgetEditorStyleToolbar>
 
         <Message class="kn-width-full p-d-flex p-jc-center p-m-0 p-mx-2" severity="info" :closable="false">
             {{ $t('dashboard.widgetEditor.map.dialogHint') }}
@@ -21,12 +21,12 @@
                 <i class="pi pi-th-large kn-cursor-pointer"></i>
                 <div class="kn-flex p-mx-2 p-d-flex p-flex-row" style="gap: 0.5em">
                     <span class="p-float-label kn-flex">
-                        <Dropdown v-model="dialogProperty.name" :disabled="dialogSettingsDisabled" class="kn-material-input kn-width-full" :options="widgetModel.layers" option-value="layerId" option-label="name" show-clear @change="onLayerChange(dialogProperty)"> </Dropdown>
+                        <Dropdown v-model="dialogProperty.name" :disabled="dialogSettingsDisabled" class="kn-material-input kn-width-full" :options="widgetModel.layers" option-value="layerId" option-label="name" show-clear @change="onLayerChange(dialogProperty)"></Dropdown>
                         <label class="kn-material-input-label">{{ $t('common.layer') }}</label>
                     </span>
                     <span class="p-float-label kn-flex">
-                        <MultiSelect v-model="dialogProperty.columns" :disabled="dialogSettingsDisabled" class="kn-material-input kn-width-full" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name"> </MultiSelect>
-                        <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
+                        <MultiSelect v-model="dialogProperty.columns" :disabled="dialogSettingsDisabled" class="kn-material-input kn-width-full" :options="getColumnOptionsFromLayer(dialogProperty)" option-label="alias" option-value="name"></MultiSelect>
+                        <label class="kn-material-input-label">{{ $t('common.columns') }}</label>
                     </span>
                 </div>
                 <div class="p-d-flex p-flex-row p-jc-center p-ai-center">
@@ -83,6 +83,7 @@ export default defineComponent({
     },
     async mounted() {
         this.loadDialogSettings()
+        await this.loadPropertiesForDialogSettings()
     },
     methods: {
         ...mapActions(appStore, ['setLoading']),
@@ -134,8 +135,11 @@ export default defineComponent({
             position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
         },
         getColumnOptionsFromLayer(dialogProperty: IMapDialogSettingsProperty) {
-            const index = this.widgetModel.layers.findIndex((layer: any) => layer.name === dialogProperty.name)
-            return index !== -1 ? this.widgetModel.layers[index].columns : []
+            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === dialogProperty.name)
+            console.log('-------- LAYER: ', layer)
+            if (!layer) return []
+            else if (layer.type === 'dataset') return layer.columns
+            else return this.propertiesCache.get(layer.layerId) ?? []
         },
         async onLayerChange(dialogProperty: IMapDialogSettingsProperty) {
             dialogProperty.columns = []
@@ -164,7 +168,7 @@ export default defineComponent({
             this.dialogSettings.style['font-weight'] = model['font-weight'] ?? defaultDialogSettings.style['font-weight']
             this.dialogSettings.style['justify-content'] = model['justify-content'] ?? defaultDialogSettings.style['justify-content']
             this.dialogSettings.style.color = model.color ?? defaultDialogSettings.style.color
-            this.dialogSettings.style['background-color'] = model['justify-content'] ?? defaultDialogSettings.style['background-color']
+            this.dialogSettings.style['background-color'] = model['background-color'] ?? defaultDialogSettings.style['background-color']
         }
     }
 })

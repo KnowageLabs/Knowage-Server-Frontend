@@ -11,7 +11,7 @@ interface IChartValuesRecord {
     measureName: string
 }
 
-type ChartValuesRecord = Record<string, IChartValuesRecord>
+export type ChartValuesRecord = Record<string, IChartValuesRecord>
 
 export const addMapCharts = (map: any, data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any) => {
     if (data && data[target.name] && !targetDatasetData) {
@@ -116,9 +116,8 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
 
     createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon)
 
-    // TODO - Add Tooltips
-    // addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-    // addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker)
 
     markerBounds.push(marker.getLatLng())
 }
@@ -170,7 +169,7 @@ const getVegaChartConfig = () => {
             padding: 0
         },
         mark: {
-            tooltip: true // TODO - Set to false
+            tooltip: false
         }
     }
 }
