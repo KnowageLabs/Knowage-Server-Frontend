@@ -1,5 +1,5 @@
 <template>
-    <LeafletWrapper v-if="layerVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId"></LeafletWrapper>
+    <LeafletWrapper v-if="layerVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId" :filtersReloadTrigger="filtersReloadTrigger"></LeafletWrapper>
     <q-btn round push class="kn-parameter-sidebar-showLegend" color="white" text-color="black" size="sm" icon="settings" @click="showPanel = true">
         <q-tooltip :delay="500">{{ $t('common.open') }}</q-tooltip>
     </q-btn>
@@ -16,25 +16,40 @@
                         <div v-for="item in widgetModel.layers" :key="item.layerId" class="kn-map-sidebar-layer q-mb-sm">
                             <template v-if="isLayerSet(item)">
                                 <div class="row items-center">
-                                    <q-btn flat round class="q-mr-xs option-button" color="black" size="xs" :icon="layerVisibilityState[item.layerId] ? 'visibility' : 'visibility_off'" @click="switchLayerVisibility(item)" />
+                                    <q-btn flat round class="q-mr-xs option-button" color="black" size="xs" :icon="layerVisibilityState && layerVisibilityState[item.layerId] ? 'visibility' : 'visibility_off'" @click="switchLayerVisibility(item)" />
                                     {{ item.name }}
                                 </div>
                             </template>
                         </div>
                     </q-expansion-item>
                     <q-expansion-item :label="$t('common.filters')" icon="filter_list">
-                        <div v-for="item in widgetModel.layers" :key="item.layerId" class="kn-map-sidebar-layer">
-                            <template v-if="isLayerSet(item)">
+                        <div v-for="visualization in widgetModel?.settings?.visualizations" :key="visualization.layerId" class="kn-map-sidebar-layer">
+                            <template v-if="isVisualizationSet(visualization)">
                                 <div class="row items-center">
-                                    <q-btn flat round class="q-mr-xs" color="black" size="xs" :icon="item.filter?.enabled ? 'filter_alt_off' : 'filter_alt'" @click="toggleFilter(item)">
+                                    <q-btn flat round class="q-mr-xs" color="black" size="xs" :icon="visualization.filter?.enabled ? 'filter_alt_off' : 'filter_alt'" @click="toggleFilter(visualization)">
                                         <q-tooltip :delay="500">{{ $t('common.close') }}</q-tooltip>
                                     </q-btn>
-                                    <span class="col">{{ item.name }}</span>
+                                    <span class="col">{{ visualization.layerName }}</span>
                                 </div>
-                                <div class="row items-center" v-if="item.filter?.enabled">
-                                    <q-select filled class="col-4 q-mr-xs" v-model="item.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" />
-                                    <q-input filled class="col" v-model="item.filter.value" dense options-dense stack-label :label="$t('common.value')" />
-                                    <q-btn v-if="item.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(item)">
+                                <div class="row items-center" v-if="visualization.filter?.enabled">
+                                    <q-select
+                                        filled
+                                        class="col-4 q-mr-xs"
+                                        v-model="visualization.filter.column"
+                                        :options="getColumnOptionsFromLayer(visualization)"
+                                        dense
+                                        options-dense
+                                        stack-label
+                                        emit-value
+                                        map-options
+                                        option-label="alias"
+                                        option-value="name"
+                                        :label="$t('common.column')"
+                                        @update:modelValue="onFilterColumnChanged($event, visualization)"
+                                    />
+                                    <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" />
+                                    <q-input filled class="col" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" />
+                                    <q-btn v-if="visualization.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(item)">
                                         <q-tooltip :delay="500">{{ $t('common.reset') }}</q-tooltip>
                                     </q-btn>
                                 </div>
@@ -54,8 +69,9 @@ import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import LeafletWrapper from './LeafletWrapper.vue'
-import { IMapWidgetLayer, IMapWidgetVisualizationType } from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer, IMapWidgetVisualizationType, IMapWidgetLayerProperty } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
+import { getPropertiesByLayerId } from './MapWidgetDataProxy'
 
 export default defineComponent({
     name: 'map-widget',
@@ -75,12 +91,17 @@ export default defineComponent({
             activeSelections: [] as ISelection[],
             mapManager: null as any,
             layerVisibilityState: null as Record<string, boolean> | null,
-            showPanel: false as Boolean
+            showPanel: false as Boolean,
+            propertiesCache: new Map<string, { name: string; alias: string }[]>(),
+            filtersReloadTrigger: false
         }
     },
-    created() {
+    async created() {
         this.loadWidgetModel()
         this.loadActiveSelections()
+        this.loadVisualizationTypeNames()
+        await this.loadPropertiesForLayers()
+        console.log('------------------- WIDGET: ', this.widgetModel)
     },
     mounted() {
         /*this.mapManager = MapManagerCreator.create(this.$refs.map, this.widgetModel, this.layerVisibilityState)
@@ -92,15 +113,34 @@ export default defineComponent({
     },
     unmounted() {},
     methods: {
-        ...mapActions(mainStore, ['setSelections']),
+        ...mapActions(mainStore, ['setSelections', 'setLoading']),
         ...mapActions(dashboardStore, ['getDashboardDrivers']),
         isLayerSet(layer) {
             return this.widgetModel.settings.visualizations.filter((vis) => vis.target === layer.layerId)[0]
+        },
+        isVisualizationSet(visualization: IMapWidgetVisualizationType): boolean {
+            return this.widgetModel.settings.visualizations.some((tempVisualization: IMapWidgetVisualizationType) => tempVisualization.target === visualization.target)
+        },
+        loadVisualizationTypeNames() {
+            this.widgetModel.settings?.visualizations?.forEach((tempVisualization: IMapWidgetVisualizationType) => {
+                const layer = this.widgetModel.layers.find((tempLayer: IMapWidgetLayer) => tempLayer.layerId === tempVisualization.target)
+                tempVisualization.layerName = layer ? layer.name : ''
+            })
         },
         loadWidgetModel() {
             this.widgetModel = this.propWidget
             this.showPanel = this.widgetModel.settings.configuration.controlPanel.alwaysShow
             this.updateLayerVisibilityState()
+        },
+        async loadPropertiesForLayers() {
+            if (!this.widgetModel) return
+            await Promise.all(this.widgetModel.layers.map((layer: IMapWidgetLayer) => this.loadAvailableProperties(layer)))
+        },
+        async loadAvailableProperties(layer: IMapWidgetLayer | null) {
+            if (!layer) return
+
+            const targetLayer = this.widgetModel.layers.find((tempLayer: IMapWidgetLayer) => tempLayer.layerId === layer.layerId)
+            if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer)
         },
         updateLayerVisibilityState() {
             const newState: Record<string, boolean> = {}
@@ -126,6 +166,31 @@ export default defineComponent({
             if (item.filter) item.filter.enabled = !item.filter.enabled
             else item.filter = { enabled: true }
             //this.mapManager.applyFilter(item)
+        },
+        getColumnOptionsFromLayer(visualization: IMapWidgetVisualizationType) {
+            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === visualization.target)
+            if (!layer) return []
+            else if (layer.type === 'dataset') return layer.columns
+            else return this.propertiesCache.get(layer.layerId) ?? []
+        },
+        async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
+            this.setLoading(true)
+            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
+            this.propertiesCache.set(targetLayer.layerId, formattedProperties)
+            this.setLoading(false)
+        },
+        getPropertiesFormattedForDropdownOptions(properties: IMapWidgetLayerProperty[]) {
+            return properties.map((property: IMapWidgetLayerProperty) => {
+                return { name: property.property, alias: property.property }
+            })
+        },
+        onFilterColumnChanged(columnName: string, visualization: IMapWidgetVisualizationType) {
+            console.log('-------- EVENT: ', columnName)
+            console.log('-------- visualization: ', visualization)
+            if (visualization.filter) visualization.filter.reloaded = false
+
+            this.filtersReloadTrigger = !this.filtersReloadTrigger
         }
     }
 })

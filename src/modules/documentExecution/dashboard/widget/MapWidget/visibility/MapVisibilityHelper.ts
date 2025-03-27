@@ -63,7 +63,7 @@ const showHeatmapLayersFromCache = (visibleLayers: any, map: any) => {
                 heatmapLayersCache[layer.knProperties.layerId].layer.knProperties = { heatmap: true, layerId: layer.knProperties.layerId }
                 heatmapLayersCache[layer.knProperties.layerId].layer.addTo(map)
 
-                // TODO
+                // TODO - Remove?
                 // centerAndRedrawTheLayerOnMap(map, heatmapLayersCache[layer.knProperties.layerId].layer, heatMapData)
 
                 heatmapLayersCache[layer.knProperties.layerId] = { layer: null, heatMapData: [], heatMapOptions: {} }

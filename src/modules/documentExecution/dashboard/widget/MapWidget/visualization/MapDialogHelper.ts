@@ -59,7 +59,7 @@ const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, laye
         const targetDatasetList = document.createElement('ul')
         targetDatasetList.classList.add('customLeafletPopup')
         targetDatasetList.append(createTooltipListHeader(layerVisualizationSettings.targetDataset))
-        targetDatasetList.append(createTooltipListItem(`${layerVisualizationSettings.targetProperty}: ${getTooltipHeaderValue(value, targetProperty)}`, (settings as IMapDialogSettings).style))
+        targetDatasetList.append(createTooltipListItem(`${layerVisualizationSettings.targetProperty}: ${getTooltipHeaderValue(value, layerVisualizationSettings.targetProperty)}`, (settings as IMapDialogSettings).style))
         container.appendChild(targetDatasetList)
     }
 

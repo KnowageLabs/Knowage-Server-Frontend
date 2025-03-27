@@ -1,5 +1,5 @@
 <template>
-    <div :id="mapId" ref="map" class="mapContainer"></div>
+    <div :id="mapId" class="mapContainer"></div>
 </template>
 
 <script lang="ts" setup>
@@ -24,6 +24,7 @@ const props = defineProps<{
     data: any
     layerVisibility: any
     dashboardId: string
+    filtersReloadTrigger: boolean
 }>()
 
 const mapId = 'map_' + Math.random().toString(36).slice(2, 7)
@@ -61,6 +62,7 @@ onMounted(async () => {
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
     try {
+        console.log('-------- map 1: ', map)
         await initializeLayers(map, props.widgetModel, props.data, props.dashboardId)
         setTimeout(() => {
             switchLayerVisibility(map, props.layerVisibility)
@@ -86,6 +88,15 @@ watch(props.layerVisibility, (newModel) => {
 watch(props.widgetModel.layers, (newModel) => {
     filterLayers(map, newModel)
 })
+
+watch(
+    () => props.filtersReloadTrigger,
+    async () => {
+        console.log('-------- !!!!!!!! FILTER RELOAD TRIGGERED: ', props.widgetModel)
+
+        await initializeLayers(map, props.widgetModel, props.data, props.dashboardId)
+    }
+)
 </script>
 
 <style lang="scss">

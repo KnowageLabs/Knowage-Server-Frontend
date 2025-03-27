@@ -47,6 +47,8 @@ export interface IMapWidgetVisualizationType {
     heatmapConf?: IMapWidgetVisualizationTypeHeatmap
     analysisConf?: IMapWidgetVisualizationTypeChoropleth
     properties?: IMapWidgetLayerProperty[]
+    filter?: IMapWidgetLayerFilter
+    layerName?: string
 }
 
 export interface IMapWidgetVisualizationTypeMarker {
@@ -253,6 +255,14 @@ export interface IMapWidgetLayer {
     datasetColumnLink?: number
     catalogLayerPropertyLink?: number
     properties?: IMapWidgetLayerProperty[]
+}
+
+export interface IMapWidgetLayerFilter {
+    enabled?: boolean
+    column?: string | null
+    operator?: string
+    value?: string
+    reloaded?: false
 }
 
 export interface IMapWidgetLayerProperty {

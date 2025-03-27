@@ -122,6 +122,12 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
     const markerBounds = [] as any
     for (const layer of model.settings.visualizations) {
         const layerVisualizationSettings = deepcopy(layer)
+
+        console.log('--------------- initializeLayers - layerVisualizationSettings: ', layerVisualizationSettings)
+        if (layerVisualizationSettings?.filter?.enabled && layerVisualizationSettings?.filter?.reloaded) return
+        if (layerVisualizationSettings?.filter && !layerVisualizationSettings.filter.reloaded) layerVisualizationSettings.filter.reloaded = true
+
+        console.log('--------------- GOT HERE!: ')
         let spatialAttribute = undefined as any
         let geoColumn: any = undefined
         let dataColumn: any = undefined
@@ -145,7 +151,10 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             visualizationDataType = VisualizationDataType.DATASET_ONLY
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
             geoColumn = getColumnName(spatialAttribute.name, data[target.name])
-            dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
+            const targetName = layerVisualizationSettings.filter?.enabled && layerVisualizationSettings.filter?.column ? layerVisualizationSettings.filter.column : target.name
+            console.log('-------------- targetName: ', targetName)
+            dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[targetName])
+            console.log('-------------- DATA COLUMN: ', dataColumn)
         } else {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
             layersData = await getLayerData(target)
@@ -186,7 +195,8 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 // data[layerVisualizationSettings.targetDataset] = mockedDataset
 
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
-                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
+                const targetName = layerVisualizationSettings.filter?.enabled && layerVisualizationSettings.filter?.column ? layerVisualizationSettings.filter.column : layerVisualizationSettings.targetDataset
+                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[targetName])
                 // TODO - Remove Mocked
                 // targetDatasetData = deepcopy(targetDatasetDataMock)
                 const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration

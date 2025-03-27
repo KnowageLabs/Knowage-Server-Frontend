@@ -47,6 +47,9 @@ const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, d
 
 const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null) => {
     const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    console.log('-------------- layerVisualizationSettings.targetProperty: ', layerVisualizationSettings.targetProperty)
+    console.log('-------------- mappedData: ', mappedData)
+    console.log('-------------- layerVisualizationSettings: ', layerVisualizationSettings)
     const value = mappedData ? mappedData[valueKey] : valueKey
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
