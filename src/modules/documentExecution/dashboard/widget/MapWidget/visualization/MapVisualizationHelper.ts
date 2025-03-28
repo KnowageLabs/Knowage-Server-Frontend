@@ -1,4 +1,8 @@
-import { ILayerFeature, IMapWidgetVisualizationThreshold } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import deepcopy from 'deepcopy'
+import { IVariable, IWidget } from '../../../Dashboard'
+import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { isConditionMet } from '../../PivotWidget/PivotWidgetConditionalHelper'
+import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 
 export const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
     return rows.reduce((acc: number, row: any) => {
@@ -113,4 +117,27 @@ export const sortRanges = (ranges: IMapWidgetVisualizationThreshold[]): IMapWidg
         }
         return a.to - b.to
     })
+}
+
+export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: string, targetProperty: string, valueToCompare: any, variables: IVariable[], targetDataset?: string | undefined) => {
+    const conditionalStyles = widgetModel.settings?.conditionalStyles
+    console.log('!!!!!!!!!!!!!! widgetModel: ', widgetModel)
+    console.log('!!!!!!!!!!!!!! conditionalStyles: ', conditionalStyles)
+    console.log('!!!!!!!!!!!!!! target: ', target)
+    console.log('!!!!!!!!!!!!!! targetProperty: ', targetProperty)
+    console.log('!!!!!!!!!!!!!! targetDataset: ', targetDataset)
+    if (!conditionalStyles || !conditionalStyles.enabled) return null
+    let style = null as any
+
+    const conditionalStyle = conditionalStyles.conditions?.find((tempConditionalStyle: IMapWidgetConditionalStyle) => (tempConditionalStyle.targetLayer === target || tempConditionalStyle.targetLayer === targetDataset) && tempConditionalStyle.targetColumn === targetProperty)
+    console.log('!!!!!!!!!!!!! conditionalStyle: ', conditionalStyle)
+
+    if (conditionalStyle) {
+        const tempConditionalStyle = deepcopy(conditionalStyle)
+        if (tempConditionalStyle.condition.value) tempConditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(tempConditionalStyle.condition.value, variables)
+        if (tempConditionalStyle.condition.value != null) tempConditionalStyle.condition.value = +tempConditionalStyle.condition.value
+        if (isConditionMet(tempConditionalStyle.condition, valueToCompare)) style = tempConditionalStyle.properties
+    }
+
+    return style
 }

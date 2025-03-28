@@ -141,6 +141,7 @@ export interface IMapWidgetConditionalStyle {
     }
     properties: {
         'background-color': string
+        icon: string
     }
 }
 

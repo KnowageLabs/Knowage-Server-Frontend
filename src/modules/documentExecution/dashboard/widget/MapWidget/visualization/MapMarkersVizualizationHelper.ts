@@ -1,31 +1,47 @@
-import { IWidget } from '../../../Dashboard'
+import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { addMarker, centerTheMap, getColumnName, getCoordinates } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { getCoordinatesFromWktPointFeature, transformDataUsingForeginKey } from './MapVisualizationHelper'
-import L from 'leaflet'
+import { getCoordinatesFromWktPointFeature, getVizualizationConditionalStyles, transformDataUsingForeginKey } from './MapVisualizationHelper'
 
 // Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
-export const addMarkers = (map: any, data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any) => {
+export const addMarkers = (
+    map: any,
+    data: any,
+    model: IWidget,
+    target: IMapWidgetLayer,
+    dataColumn: string,
+    spatialAttribute: any,
+    geoColumn: string,
+    layerGroup: any,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    markerBounds: any[],
+    layersData: any,
+    targetDatasetData: any,
+    variables: IVariable[]
+) => {
     if (data && data[target.name]) {
-        addMarkersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds)
+        addMarkersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
     } else {
-        addMarkersUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model)
+        addMarkersUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables)
     }
 
     centerTheMap(map, markerBounds)
 }
 
-const addMarkersFromData = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[]) => {
+const addMarkersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {
     for (const row of data[target.name].rows) {
-        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.markerConf ?? null, row[dataColumn], spatialAttribute)
-        addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
-        addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
+        const value = row[dataColumn]
+
+        const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetMeasure, value, variables)
+        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.markerConf ?? null, row[dataColumn], spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
+        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
+        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
         markerBounds.push(marker.getLatLng())
     }
 }
 
-const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget) => {
+const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[]) => {
     let mappedData: Record<string, number> | null = null
 
     if (targetDatasetData && dataColumn) {
@@ -36,23 +52,29 @@ const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, d
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, null)
+            addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, null, variables)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord)
+                addMarkerUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables)
             })
         }
     })
 }
 
-const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null) => {
+const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[]) => {
     const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
-    console.log('-------------- layerVisualizationSettings.targetProperty: ', layerVisualizationSettings.targetProperty)
-    console.log('-------------- mappedData: ', mappedData)
-    console.log('-------------- layerVisualizationSettings: ', layerVisualizationSettings)
     const value = mappedData ? mappedData[valueKey] : valueKey
+    const targetProperty = mappedData ? layerVisualizationSettings.targetMeasure : layerVisualizationSettings.targetProperty
+
+    let targetDataset = null as IMapWidgetLayer | null
+    if (layerVisualizationSettings.targetDataset) {
+        targetDataset = widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === layerVisualizationSettings.targetDataset)
+    }
+
+    const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, targetProperty, value, variables, targetDataset?.layerId)
+
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
-    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute)
+    const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.markerConf ?? null, value as any, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
     markerBounds.push(marker.getLatLng())

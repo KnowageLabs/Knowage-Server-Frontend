@@ -6,7 +6,8 @@
             "value": ""
         },
         "properties": {
-            "background-color": ""
+            "background-color": "",
+            "icon": ""
         },
         "targetColumn": "",
         "targetLayer": ""

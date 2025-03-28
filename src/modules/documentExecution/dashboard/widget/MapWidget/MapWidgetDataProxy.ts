@@ -4,6 +4,7 @@ import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IMapWidgetLayer } from '../../interfaces/mapWidget/DashboardMapWidget'
 import axios from 'axios'
+import mockedDataset from './mockedDataset.json'
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {}
@@ -17,7 +18,7 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
         const postData = formatMapModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
 
         if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-        // TODO - Uncomment
+        // TODO - Remove mock and uncomment BE call
         // await axios
         //     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
         //     .then((response: AxiosResponse<any>) => {
@@ -30,6 +31,7 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
         //         // TODO - uncomment when realtime dataset example is ready
         //         // resetDatasetInterval(widget)
         //     })
+        if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = mockedDataset
     }
 
     return tempResponse

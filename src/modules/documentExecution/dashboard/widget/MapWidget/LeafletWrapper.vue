@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
 import './leaflet-layervisibility'
 import 'leaflet.markercluster'
@@ -15,6 +15,7 @@ import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { clearLayersCache, switchLayerVisibility } from './visibility/MapVisibilityHelper'
+import { IVariable } from '../../Dashboard'
 
 const appStore = useAppStore()
 const { t } = i18n.global
@@ -25,11 +26,17 @@ const props = defineProps<{
     layerVisibility: any
     dashboardId: string
     filtersReloadTrigger: boolean
+    propVariables: IVariable[]
 }>()
 
 const mapId = 'map_' + Math.random().toString(36).slice(2, 7)
 let map: L.map
 let tile: string
+let variables: IVariable[] = []
+
+const loadVariables = () => {
+    variables = props.propVariables
+}
 
 const getCoords = async () => {
     const pos = (await new Promise((resolve, reject) => {
@@ -50,6 +57,8 @@ const resizeMap = () => {
 onMounted(async () => {
     emitter.on('widgetResized', resizeMap)
 
+    loadVariables()
+
     map = L.map(mapId, {
         center: navigator && !props.widgetModel.settings?.configuration?.map?.autoCentering ? await getCoords() : [0, 0],
         zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10
@@ -62,8 +71,7 @@ onMounted(async () => {
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
     try {
-        console.log('-------- map 1: ', map)
-        await initializeLayers(map, props.widgetModel, props.data, props.dashboardId)
+        await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
         setTimeout(() => {
             switchLayerVisibility(map, props.layerVisibility)
         }, 200)
@@ -93,8 +101,14 @@ watch(
     () => props.filtersReloadTrigger,
     async () => {
         console.log('-------- !!!!!!!! FILTER RELOAD TRIGGERED: ', props.widgetModel)
+        await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+    }
+)
 
-        await initializeLayers(map, props.widgetModel, props.data, props.dashboardId)
+watch(
+    () => props.propVariables,
+    () => {
+        loadVariables()
     }
 )
 </script>

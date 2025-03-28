@@ -1,4 +1,4 @@
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import L from 'leaflet'
 import deepcopy from 'deepcopy'
@@ -14,7 +14,6 @@ import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
 import { centerAndRedrawTheLayerOnMap, createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
 import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
-import mockedDataset from './mockedDataset.json'
 
 const dashStore = dashboardStore()
 
@@ -39,8 +38,12 @@ function isConditionValid(operator: string, measureValue: any, value: any): bool
 
 // Used for adding a marker to Leaflet. If there is no MEASURE data (e.g., when only Geography is needed),
 // the settings passed will be null, and the default ones from the first line will be used.
-function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null) {
-    const defaultMarkerSettings = { color: settings?.style?.color ?? '', fillColor: settings?.style?.color ?? '', radius: settings?.size || 10 }
+const createMarker = (position: number[] | string, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, colorFromConditionalStyles?: string | undefined, iconFromConditionalStyles?: string | undefined) => {
+    console.log('---------- CREATE MARKER - color: ', colorFromConditionalStyles)
+    console.log('---------- CREATE MARKER - icon: ', iconFromConditionalStyles)
+    const markerColor = colorFromConditionalStyles ?? settings?.style?.color
+    const markerIcon = iconFromConditionalStyles ?? (settings as IMapWidgetVisualizationTypeMarker)?.icon?.className
+    const defaultMarkerSettings = { color: markerColor ?? '', fillColor: markerColor ?? '', radius: settings?.size || 10 }
     if (!settings) return L.marker(position, defaultMarkerSettings)
 
     let icon
@@ -50,7 +53,7 @@ function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IM
     }
     if (settings.type === 'icon') {
         icon = L.divIcon({
-            html: `<i ${settings.style?.color ? 'style="color:' + settings.style.color + '"' : ''} class="${settings.icon?.className || 'fa fa-map-marker'} fa-2x"></i>`,
+            html: `<i ${markerColor ? 'style="color:' + markerColor + '"' : ''} class="${markerIcon || 'fa fa-map-marker'} fa-2x"></i>`,
             shadowUrl: '',
             shadowSize: [1, 1],
             className: 'customLeafletIcon'
@@ -62,15 +65,15 @@ function createMarker(position, settings: IMapWidgetVisualizationTypeMarker | IM
 }
 
 // Used for creating marker object
-export function addMarker(position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, value: number, spatialAttribute: any) {
+export const addMarker = (position: number[] | string, container: any, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, value: number, spatialAttribute: any, colorFromConditionalStyles?: string | undefined, iconFromConditionalStyles?: string | undefined) => {
     let marker
     if (spatialAttribute?.properties?.coordType === 'json')
         L.geoJSON(JSON.parse(position as string), {
             pointToLayer: function (feature, latlng) {
-                return (marker = createMarker(latlng, settings).addTo(container))
+                return (marker = createMarker(latlng, settings, colorFromConditionalStyles, iconFromConditionalStyles).addTo(container))
             }
         })
-    else marker = createMarker(position, settings).addTo(container)
+    else marker = createMarker(position, settings, colorFromConditionalStyles, iconFromConditionalStyles).addTo(container)
     marker.knProperties = { measureValue: value, layerId: container.knProperties.layerId }
     return marker
 }
@@ -118,7 +121,7 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 }
 
 // Starting point for the data/layers logic
-export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string) {
+export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[]) {
     const markerBounds = [] as any
     for (const layer of model.settings.visualizations) {
         const layerVisualizationSettings = deepcopy(layer)
@@ -127,7 +130,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         if (layerVisualizationSettings?.filter?.enabled && layerVisualizationSettings?.filter?.reloaded) return
         if (layerVisualizationSettings?.filter && !layerVisualizationSettings.filter.reloaded) layerVisualizationSettings.filter.reloaded = true
 
-        console.log('--------------- GOT HERE!: ')
+        console.log('--------------- GOT HERE FOR LOADING!: ')
         let spatialAttribute = undefined as any
         let geoColumn: any = undefined
         let dataColumn: any = undefined
@@ -143,18 +146,12 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         // Here, we need to add a data proxy call for the target dataset.
         // Additionally, if the layer is WKT, there is commented-out code related to it.
         // The backend service for retrieving layers does not work properly for WKT.
-
-        // TODO - Remove mock
-        // data[target.name] = mockedDataset
-
         if (target.type === 'dataset') {
             visualizationDataType = VisualizationDataType.DATASET_ONLY
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
             geoColumn = getColumnName(spatialAttribute.name, data[target.name])
             const targetName = layerVisualizationSettings.filter?.enabled && layerVisualizationSettings.filter?.column ? layerVisualizationSettings.filter.column : target.name
-            console.log('-------------- targetName: ', targetName)
             dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[targetName])
-            console.log('-------------- DATA COLUMN: ', dataColumn)
         } else {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
             layersData = await getLayerData(target)
@@ -191,21 +188,15 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
             // Use case when we have layer with the external dataset connected with foreign key
             if (layerVisualizationSettings.targetDataset) {
-                // TODO - Remove mock
-                // data[layerVisualizationSettings.targetDataset] = mockedDataset
-
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
                 const targetName = layerVisualizationSettings.filter?.enabled && layerVisualizationSettings.filter?.column ? layerVisualizationSettings.filter.column : layerVisualizationSettings.targetDataset
                 dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[targetName])
-                // TODO - Remove Mocked
-                // targetDatasetData = deepcopy(targetDatasetDataMock)
+
                 const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
                 const selections = dashStore.getSelections(dashboardId) ?? []
 
                 let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
 
-                // TODO - Remove mock
-                // targetDatasetTempData[layerVisualizationSettings.targetDataset] = mockedDataset
                 if (targetDatasetTempData?.[layerVisualizationSettings.targetDataset]) targetDatasetData = targetDatasetTempData[layerVisualizationSettings.targetDataset]
             }
         }
@@ -214,7 +205,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
         if (layerVisualizationSettings.type === 'markers') {
-            addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
+            addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
         }
 
         if (layerVisualizationSettings.type === 'balloons') {
