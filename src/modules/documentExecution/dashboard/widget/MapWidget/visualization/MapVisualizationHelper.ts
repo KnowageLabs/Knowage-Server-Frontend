@@ -1,7 +1,6 @@
 import deepcopy from 'deepcopy'
 import { IVariable, IWidget } from '../../../Dashboard'
-import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { isConditionMet } from '../../PivotWidget/PivotWidgetConditionalHelper'
+import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetLayerFilter, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 
 export const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
@@ -121,12 +120,12 @@ export const sortRanges = (ranges: IMapWidgetVisualizationThreshold[]): IMapWidg
 
 export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: string, targetProperty: string, valueToCompare: any, variables: IVariable[], targetDataset?: string | undefined) => {
     const conditionalStyles = widgetModel.settings?.conditionalStyles
+    if (!conditionalStyles || !conditionalStyles.enabled) return null
     console.log('!!!!!!!!!!!!!! widgetModel: ', widgetModel)
     console.log('!!!!!!!!!!!!!! conditionalStyles: ', conditionalStyles)
     console.log('!!!!!!!!!!!!!! target: ', target)
     console.log('!!!!!!!!!!!!!! targetProperty: ', targetProperty)
     console.log('!!!!!!!!!!!!!! targetDataset: ', targetDataset)
-    if (!conditionalStyles || !conditionalStyles.enabled) return null
     let style = null as any
 
     const conditionalStyle = conditionalStyles.conditions?.find((tempConditionalStyle: IMapWidgetConditionalStyle) => (tempConditionalStyle.targetLayer === target || tempConditionalStyle.targetLayer === targetDataset) && tempConditionalStyle.targetColumn === targetProperty)
@@ -140,4 +139,37 @@ export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: 
     }
 
     return style
+}
+
+export const isConditionMet = (condition: any, valueToCompare: string) => {
+    let fullfilledCondition = false
+    console.log('---- CONDITION: ', condition)
+    console.log('---- valueToCompare: ', valueToCompare)
+    if (!condition) return fullfilledCondition
+
+    switch (condition.operator) {
+        case '=':
+        case '==':
+            fullfilledCondition = valueToCompare == condition.value
+            break
+        case '>=':
+            fullfilledCondition = valueToCompare >= condition.value
+            break
+        case '<=':
+            fullfilledCondition = valueToCompare <= condition.value
+            break
+        case 'IN':
+            fullfilledCondition = condition.value.split(',').indexOf(valueToCompare) != -1
+            break
+        case '>':
+            fullfilledCondition = valueToCompare > condition.value
+            break
+        case '<':
+            fullfilledCondition = valueToCompare < condition.value
+            break
+        case '!=':
+            fullfilledCondition = valueToCompare != condition.value
+            break
+    }
+    return fullfilledCondition
 }

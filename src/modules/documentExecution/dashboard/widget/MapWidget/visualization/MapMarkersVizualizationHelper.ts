@@ -2,7 +2,7 @@ import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { addMarker, centerTheMap, getColumnName, getCoordinates } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { getCoordinatesFromWktPointFeature, getVizualizationConditionalStyles, transformDataUsingForeginKey } from './MapVisualizationHelper'
+import { getCoordinatesFromWktPointFeature, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeginKey } from './MapVisualizationHelper'
 
 // Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addMarkers = (
@@ -59,12 +59,26 @@ const addMarkersUsingLayers = (targetDatasetData: any | null, layersData: any, d
             })
         }
     })
+
+    console.log('--- MARKER BOUNDS: ', markerBounds)
 }
 
 const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[]) => {
-    const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    console.log('%c------- layerVisualizationSettings: ', 'color: red; font-weight: bold; font-size: 16px;', layerVisualizationSettings)
+    console.log('%c------- feature: ', 'color: red; font-weight: bold; font-size: 16px;', feature)
+
+    const layerTargetProperty = getTargetProperty(layerVisualizationSettings)
+    const filter = layerVisualizationSettings.filter
+    console.log('%c------- layerTargetProperty: ', 'color: green; font-weight: bold; font-size: 16px;', layerTargetProperty)
+    const valueKey = feature.properties[layerTargetProperty]
     const value = mappedData ? mappedData[valueKey] : valueKey
-    const targetProperty = mappedData ? layerVisualizationSettings.targetMeasure : layerVisualizationSettings.targetProperty
+
+    console.log('---------------- !isConditionMet(filter, value): ', !isConditionMet(filter, value))
+    console.log('-------- VALUE: ', value)
+    if (filter?.enabled && !isConditionMet(filter, value)) return
+    const targetProperty = mappedData ? layerVisualizationSettings.targetMeasure : layerTargetProperty
+
+    console.log('---- GOT HERE!')
 
     let targetDataset = null as IMapWidgetLayer | null
     if (layerVisualizationSettings.targetDataset) {
@@ -78,4 +92,13 @@ const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
     markerBounds.push(marker.getLatLng())
+}
+
+const getTargetProperty = (layerVisualizationSettings: IMapWidgetVisualizationType) => {
+    const filter = layerVisualizationSettings.filter
+    console.log('%c------- layerVisualizationSettings: ', 'color: blue; font-weight: bold; font-size: 16px;', filter)
+    let targetProperty = layerVisualizationSettings.targetProperty
+    if (filter?.enabled) targetProperty = filter.column
+
+    return targetProperty
 }

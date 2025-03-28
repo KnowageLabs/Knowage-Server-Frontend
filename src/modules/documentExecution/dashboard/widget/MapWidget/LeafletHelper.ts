@@ -39,8 +39,6 @@ function isConditionValid(operator: string, measureValue: any, value: any): bool
 // Used for adding a marker to Leaflet. If there is no MEASURE data (e.g., when only Geography is needed),
 // the settings passed will be null, and the default ones from the first line will be used.
 const createMarker = (position: number[] | string, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, colorFromConditionalStyles?: string | undefined, iconFromConditionalStyles?: string | undefined) => {
-    console.log('---------- CREATE MARKER - color: ', colorFromConditionalStyles)
-    console.log('---------- CREATE MARKER - icon: ', iconFromConditionalStyles)
     const markerColor = colorFromConditionalStyles ?? settings?.style?.color
     const markerIcon = iconFromConditionalStyles ?? (settings as IMapWidgetVisualizationTypeMarker)?.icon?.className
     const defaultMarkerSettings = { color: markerColor ?? '', fillColor: markerColor ?? '', radius: settings?.size || 10 }
@@ -128,7 +126,10 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
         console.log('--------------- initializeLayers - layerVisualizationSettings: ', layerVisualizationSettings)
         if (layerVisualizationSettings?.filter?.enabled && layerVisualizationSettings?.filter?.reloaded) return
-        if (layerVisualizationSettings?.filter && !layerVisualizationSettings.filter.reloaded) layerVisualizationSettings.filter.reloaded = true
+        if (layerVisualizationSettings?.filter && !layerVisualizationSettings.filter.reloaded) {
+            removeLayerFromMap(map, layerVisualizationSettings.target)
+            layerVisualizationSettings.filter.reloaded = true
+        }
 
         console.log('--------------- GOT HERE FOR LOADING!: ')
         let spatialAttribute = undefined as any
@@ -252,4 +253,12 @@ export const centerTheMap = (map: any, markerBounds: any[] | null) => {
         map.invalidateSize()
         if (markerBounds && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
     }, 100)
+}
+
+const removeLayerFromMap = (map: L.Map, layerId: string): void => {
+    map?.eachLayer((layer: any) => {
+        console.log('------- removeLayerFromMap - layer: ', layer)
+        console.log('------- removeLayerFromMap - layerId: ', layerId)
+        if (layer.knProperties?.layerId === layerId) layer.remove()
+    })
 }

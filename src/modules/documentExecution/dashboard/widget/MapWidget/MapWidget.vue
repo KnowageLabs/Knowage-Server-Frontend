@@ -47,9 +47,9 @@
                                         :label="$t('common.column')"
                                         @update:modelValue="onFilterColumnChanged($event, visualization)"
                                     />
-                                    <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" />
-                                    <q-input filled class="col" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" />
-                                    <q-btn v-if="visualization.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(item)">
+                                    <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" @update:modelValue="onFilterUpdated(visualization)" />
+                                    <q-input filled class="col" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" @blur="onFilterUpdated(visualization)" />
+                                    <q-btn v-if="visualization.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(visualization)">
                                         <q-tooltip :delay="500">{{ $t('common.reset') }}</q-tooltip>
                                     </q-btn>
                                 </div>
@@ -89,7 +89,6 @@ export default defineComponent({
         return {
             widgetModel: {} as any,
             activeSelections: [] as ISelection[],
-            mapManager: null as any,
             layerVisibilityState: null as Record<string, boolean> | null,
             showPanel: false as Boolean,
             propertiesCache: new Map<string, { name: string; alias: string }[]>(),
@@ -101,15 +100,6 @@ export default defineComponent({
         this.loadActiveSelections()
         this.loadVisualizationTypeNames()
         await this.loadPropertiesForLayers()
-        console.log('------------------- WIDGET: ', this.widgetModel)
-    },
-    mounted() {
-        /*this.mapManager = MapManagerCreator.create(this.$refs.map, this.widgetModel, this.layerVisibilityState)
-        this.mapManager.init()
-        this.mapManager.showData(this.dataToShow)*/
-    },
-    updated() {
-        //this.mapManager.invalidateSize()
     },
     unmounted() {},
     methods: {
@@ -153,19 +143,28 @@ export default defineComponent({
         loadActiveSelections() {
             this.activeSelections = this.propActiveSelections
         },
-        resetFilter(item) {
-            item.filter.operator = ''
-            item.filter.value = null
-            //this.mapManager.applyFilter(item)
+        resetFilter(visualization: IMapWidgetVisualizationType) {
+            if (!visualization.filter) return
+            visualization.filter.column = ''
+            visualization.filter.operator = ''
+            visualization.filter.value = ''
+            visualization.filter.reloaded = false
+            this.filtersReloadTrigger = !this.filtersReloadTrigger
         },
         switchLayerVisibility(layer: any) {
             if (!this.layerVisibilityState) this.layerVisibilityState = {}
             this.layerVisibilityState[layer.layerId] = !this.layerVisibilityState[layer.layerId]
         },
-        toggleFilter(item) {
-            if (item.filter) item.filter.enabled = !item.filter.enabled
-            else item.filter = { enabled: true }
-            //this.mapManager.applyFilter(item)
+        toggleFilter(visualization: IMapWidgetVisualizationType) {
+            console.log('---------- visualization: ', visualization)
+            if (visualization.filter) visualization.filter.enabled = !visualization.filter.enabled
+            else visualization.filter = { enabled: true }
+            visualization.filter.reloaded = false
+            this.filtersReloadTrigger = !this.filtersReloadTrigger
+        },
+        onFilterUpdated(visualization: IMapWidgetVisualizationType) {
+            console.log('---------- onFilterUpdated: ', visualization)
+            this.toggleFilter(visualization)
         },
         getColumnOptionsFromLayer(visualization: IMapWidgetVisualizationType) {
             const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === visualization.target)
