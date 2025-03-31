@@ -45,7 +45,8 @@ const addMarkersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetL
     }
 }
 
-const getTargetDataColumn = (data: any, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string) => {
+// TODO - Move function and rename it?
+export const getTargetDataColumn = (data: any, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string) => {
     const filter = layerVisualizationSettings.filter
 
     let tempDataColumn = dataColumn
@@ -102,7 +103,8 @@ const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     markerBounds.push(marker.getLatLng())
 }
 
-const getTargetProperty = (layerVisualizationSettings: IMapWidgetVisualizationType) => {
+// TODO - Move function and rename it?
+export const getTargetProperty = (layerVisualizationSettings: IMapWidgetVisualizationType) => {
     const filter = layerVisualizationSettings.filter
 
     let targetProperty = layerVisualizationSettings.targetProperty
