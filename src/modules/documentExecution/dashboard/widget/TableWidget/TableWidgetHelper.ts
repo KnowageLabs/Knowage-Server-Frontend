@@ -44,8 +44,24 @@ export const getCellConditionalStyles = (cellParams: any) => {
     const cellConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => condition.target.includes(cellParams.colId)) as ITableWidgetConditionalStyle[]
     const brotherConditionalStyles = cellParams.columnsWithConditionalStyles.filter((condition) => !condition.target.includes(cellParams.colId)) as ITableWidgetConditionalStyle[]
 
+    // console.group(`----- ${cellParams.colDef.columnName} : ${cellParams.value} -----`)
+    // console.log('%c cellConditionalStyles', 'background: #222; color: #bada55', cellConditionalStyles)
+    // console.log('%c brotherConditionalStyles', 'background: #222; color: #bada55', brotherConditionalStyles)
+    // console.groupEnd()
+
     if (cellConditionalStyles.length > 0) conditionalStypeProps = getCellConditionalStyle(cellConditionalStyles, cellParams)
+    console.group(`----- ${cellParams.colDef.columnName} : ${cellParams.value} -----`)
+    // console.log('%c getCellConditionalStyle', 'background: #222; color: #bada55', conditionalStypeProps)
+    // console.log('%c brotherConditionalStyles', 'background: #222; color: #bada55', brotherConditionalStyles)
+    // console.groupEnd()
+
+    // console.log('%c BREAK ==========================', 'background: #222; color: #bada55')
+
     if (brotherConditionalStyles.length > 0 && conditionalStypeProps == null) conditionalStypeProps = getBrotherConditionalStyle(brotherConditionalStyles, cellParams)
+    // console.group(`----- ${cellParams.colDef.columnName} : ${cellParams.value} -----`)
+    // console.log('%c brotherConditionalStyles', 'background: #222; color: #bada55', getBrotherConditionalStyle(brotherConditionalStyles, cellParams))
+    // console.log('%c brotherConditionalStyles', 'background: #222; color: #bada55', brotherConditionalStyles)
+    console.groupEnd()
 
     return conditionalStypeProps
 }
@@ -71,9 +87,15 @@ const getBrotherConditionalStyle = (brotherConditionalStyles: ITableWidgetCondit
 
 const isBrotherConditionMet = (cellConditionalStyle: ITableWidgetConditionalStyle, cellParams: any) => {
     const columnDataMap = cellParams.columnDataMap
-
+    console.log('%c cellConditionalStyle.condition', 'background: #222; color: #bada55', cellConditionalStyle.condition)
+    console.log('%c cellParams', 'background: #222; color: #bada55', cellParams)
+    console.log('%c columnDataMap', 'background: #222; color: #bada55', columnDataMap)
+    console.log('%c cellConditionalStyle.target', 'background: #222; color: #bada55', cellConditionalStyle.target)
+    console.log('%c mapTarget', 'background: #222; color: #bada55', [columnDataMap[cellConditionalStyle.target]])
+    console.log('%c value', 'background: #222; color: #bada55', cellParams.data[columnDataMap[cellConditionalStyle.target]])
+    // console.log('%c isConditionMet', 'background: #222; color:rgb(85, 169, 218)', isConditionMet(cellConditionalStyle.condition, cellParams.data[columnDataMap[cellConditionalStyle.target]], cellParams.variables, cellParams.drivers))
     if (cellConditionalStyle.condition.formula) return cellConditionalStyle.applyToWholeRow && eval(replacePlaceholders(cellParams, cellConditionalStyle.condition.formula, cellParams.dashboardVariables, cellParams.dashboardDrivers, false))
-    else return cellConditionalStyle.applyToWholeRow && !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.data[columnDataMap[cellConditionalStyle.target]], cellParams.variables, cellParams.drivers)
+    else return cellConditionalStyle.applyToWholeRow && !cellConditionalStyle.condition.formula && isConditionMet(cellConditionalStyle.condition, cellParams.data[columnDataMap[cellConditionalStyle.target]], cellParams.variables, cellParams.drivers, cellParams)
 }
 
 const replacePlaceholders = (cellParams, formula, variables: IVariable[], drivers: IDashboardDriver[], skipAdapting: boolean) => {
@@ -105,11 +127,16 @@ const replacePlaceholders = (cellParams, formula, variables: IVariable[], driver
     return formula
 }
 
-export const isConditionMet = (condition, valueToCompare, variables?, drivers?) => {
+export const isConditionMet = (condition, valueToCompare, variables?, drivers?, cellParams?) => {
+    // console.log('%c cellParams', 'background: #222; color:rgb(85, 169, 218)', cellParams)
     let fullfilledCondition = false
     let comparer = condition.value
     if (condition.type == 'variable' && variables) comparer = variables.find((i) => i.name === condition.variable).value
     if (condition.type == 'parameter' && drivers) comparer = drivers.find((i) => i.name === condition.variable).value
+
+    // console.log('%c condition', 'background: #222; color:rgb(89, 218, 85)', comparer)
+    // console.log('%c valueToCompare', 'background: #222; color:rgb(218, 85, 85)', valueToCompare, condition)
+
     switch (condition.operator) {
         case '==':
             fullfilledCondition = valueToCompare == comparer
@@ -133,6 +160,7 @@ export const isConditionMet = (condition, valueToCompare, variables?, drivers?) 
             fullfilledCondition = valueToCompare != comparer
             break
     }
+    // console.log('%c fullfilledCondition', 'background: #222; color:rgb(167, 218, 85)', fullfilledCondition)
     return fullfilledCondition
 }
 

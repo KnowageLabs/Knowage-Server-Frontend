@@ -4,7 +4,7 @@
             <i class="fas fa-bolt" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
-        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context" :theme="themeBalham"> </ag-grid-vue>
+        <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context" :theme="themeBalham"></ag-grid-vue>
         <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
 
         <PaginatorRenderer v-if="showPaginator" :prop-widget="propWidget" :prop-widget-pagination="widgetModel.settings.pagination" @page-changed="$emit('pageChanged')" />
@@ -234,6 +234,10 @@ export default defineComponent({
 
             const conditionalStyles = this.getFormattedConditionalStyles(this.propWidget.settings.conditionalStyles)
             const columnDataMap = Object.fromEntries(this.propWidget.columns.map((column, index) => [column.id, `column_${index + 1}`]))
+
+            console.log('%c columns', 'background: #222; color: rgb(218, 85, 85)', this.propWidget.columns)
+            console.log('%c columnDataMap', 'background: #222; color: rgb(218, 85, 85)', columnDataMap)
+
             // const selectedColumnsIds = this.propWidget.columns.map((currElement) => {
             //     return currElement.id
             // })
