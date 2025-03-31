@@ -16,7 +16,7 @@
             <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
             <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
-            <div v-if="selectedOption === 'Custom Header' && customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
+            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
                 <span class="p-p-3">
                     <InputSwitch v-model="menuWidgetsConfig.enableCustomHeader" />
                     <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.generalSettings.menuWidgets.enableCustomHeader') }}</label>
@@ -124,6 +124,9 @@ export default defineComponent({
             if (option === 'Custom Header') {
                 if (!this.customHeaderWidget) this.customHeaderWidget = createCustomHeaderWidget()
                 this.customHeaderWidgetEditorVisible = true
+            } else {
+                this.saveCustomHeader()
+                this.customHeaderWidgetEditorVisible = false
             }
             this.selectedOption = option
         },
@@ -158,7 +161,8 @@ export default defineComponent({
             return allThemes.find((theme: IDashboardTheme) => theme.id === themeId)
         },
         saveCustomHeader() {
-            this.dashboardModel.configuration.customHeader = deepcopy((this.$refs.widgetEditor as any).widget)
+            const customHeaderRef = this.$refs.widgetEditor as any
+            if (customHeaderRef) this.dashboardModel.configuration.customHeader = deepcopy(customHeaderRef.widget)
         },
         updateWidgetMenuSettings() {
             this.dashboardModel.configuration.menuWidgets = this.menuWidgetsConfig
