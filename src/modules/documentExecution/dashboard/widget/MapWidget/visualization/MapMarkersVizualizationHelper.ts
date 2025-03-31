@@ -18,7 +18,8 @@ export const addMarkers = (
     markerBounds: any[],
     layersData: any,
     targetDatasetData: any,
-    variables: IVariable[]
+    variables: IVariable[],
+    centerMap: boolean = true
 ) => {
     if (data && data[target.name]) {
         addMarkersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
@@ -26,7 +27,7 @@ export const addMarkers = (
         addMarkersUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables)
     }
 
-    centerTheMap(map, markerBounds)
+    if (centerMap) centerTheMap(map, markerBounds)
 }
 
 const addMarkersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {

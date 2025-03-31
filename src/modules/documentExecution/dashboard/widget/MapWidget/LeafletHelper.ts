@@ -123,11 +123,13 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
     const markerBounds = [] as any
     for (const layer of model.settings.visualizations) {
         const layerVisualizationSettings = deepcopy(layer)
+        let reloadWithFilters = false
 
         console.log('--------------- initializeLayers - layerVisualizationSettings: ', layerVisualizationSettings)
         if (layerVisualizationSettings?.filter?.enabled && layerVisualizationSettings?.filter?.reloaded) return
         if (layerVisualizationSettings?.filter && !layerVisualizationSettings.filter.reloaded) {
             removeLayerFromMap(map, layerVisualizationSettings.target)
+            reloadWithFilters = true
             layerVisualizationSettings.filter.reloaded = true
         }
 
@@ -206,7 +208,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
         if (layerVisualizationSettings.type === 'markers') {
-            addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+            addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
         }
 
         if (layerVisualizationSettings.type === 'balloons') {
@@ -257,8 +259,6 @@ export const centerTheMap = (map: any, markerBounds: any[] | null) => {
 
 const removeLayerFromMap = (map: L.Map, layerId: string): void => {
     map?.eachLayer((layer: any) => {
-        console.log('------- removeLayerFromMap - layer: ', layer)
-        console.log('------- removeLayerFromMap - layerId: ', layerId)
         if (layer.knProperties?.layerId === layerId) layer.remove()
     })
 }

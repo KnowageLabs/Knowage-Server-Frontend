@@ -143,9 +143,7 @@ export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: 
 
 export const isConditionMet = (condition: any, valueToCompare: string) => {
     let fullfilledCondition = false
-    console.log('---- CONDITION: ', condition)
-    console.log('---- valueToCompare: ', valueToCompare)
-    if (!condition) return fullfilledCondition
+    if (!condition || !condition.operator) return true
 
     switch (condition.operator) {
         case '=':
