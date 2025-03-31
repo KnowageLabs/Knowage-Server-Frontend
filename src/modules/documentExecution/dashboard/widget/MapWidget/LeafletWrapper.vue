@@ -100,7 +100,6 @@ watch(props.widgetModel.layers, (newModel) => {
 watch(
     () => props.filtersReloadTrigger,
     async () => {
-        console.log('-------- !!!!!!!! FILTER RELOAD TRIGGERED: ', props.widgetModel)
         await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
     }
 )

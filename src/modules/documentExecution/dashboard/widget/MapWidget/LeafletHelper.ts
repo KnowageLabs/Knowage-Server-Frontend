@@ -26,7 +26,7 @@ export enum VisualizationDataType {
 }
 
 export function getColumnName(column, data) {
-    return data.metaData.fields.find((field) => field.header === column).name
+    return data?.metaData?.fields?.find((field) => field.header === column).name
 }
 
 function isConditionValid(operator: string, measureValue: any, value: any): boolean {
@@ -125,7 +125,6 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         const layerVisualizationSettings = deepcopy(layer)
         let reloadWithFilters = false
 
-        console.log('--------------- initializeLayers - layerVisualizationSettings: ', layerVisualizationSettings)
         if (layerVisualizationSettings?.filter?.enabled && layerVisualizationSettings?.filter?.reloaded) return
         if (layerVisualizationSettings?.filter && !layerVisualizationSettings.filter.reloaded) {
             removeLayerFromMap(map, layerVisualizationSettings.target)
@@ -133,7 +132,6 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             layerVisualizationSettings.filter.reloaded = true
         }
 
-        console.log('--------------- GOT HERE FOR LOADING!: ')
         let spatialAttribute = undefined as any
         let geoColumn: any = undefined
         let dataColumn: any = undefined
@@ -153,8 +151,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             visualizationDataType = VisualizationDataType.DATASET_ONLY
             spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
             geoColumn = getColumnName(spatialAttribute.name, data[target.name])
-            const targetName = layerVisualizationSettings.filter?.enabled && layerVisualizationSettings.filter?.column ? layerVisualizationSettings.filter.column : target.name
-            dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[targetName])
+            dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
         } else {
             visualizationDataType = VisualizationDataType.LAYER_ONLY
             layersData = await getLayerData(target)
@@ -192,8 +189,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             // Use case when we have layer with the external dataset connected with foreign key
             if (layerVisualizationSettings.targetDataset) {
                 visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
-                const targetName = layerVisualizationSettings.filter?.enabled && layerVisualizationSettings.filter?.column ? layerVisualizationSettings.filter.column : layerVisualizationSettings.targetDataset
-                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[targetName])
+                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
 
                 const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
                 const selections = dashStore.getSelections(dashboardId) ?? []

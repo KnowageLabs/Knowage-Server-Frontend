@@ -2,7 +2,7 @@ import { IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { centerTheMap, getColumnName, getCoordinates } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { getCoordinatesFromWktPointFeature } from './MapVisualizationHelper'
+import { getCoordinatesFromWktPointFeature, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 import L from 'leaflet'
 import vegaEmbed from 'vega-embed'
 
@@ -76,13 +76,6 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
             })
         }
     })
-}
-
-const transformDataUsingForeignKeyReturningAllColumns = (rows: any[], pivotColumnIndex: string) => {
-    return rows.reduce((acc: Record<string, any>, row: any) => {
-        acc[row[pivotColumnIndex]] = { ...row }
-        return acc
-    }, {})
 }
 
 const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null) => {

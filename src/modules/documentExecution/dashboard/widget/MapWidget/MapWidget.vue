@@ -45,7 +45,7 @@
                                         option-label="alias"
                                         option-value="name"
                                         :label="$t('common.column')"
-                                        @update:modelValue="onFilterColumnChanged($event, visualization)"
+                                        @update:modelValue="onFilterColumnChanged(visualization)"
                                     />
                                     <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" @update:modelValue="onFilterUpdated(visualization)" />
                                     <q-input filled class="col" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" @blur="onFilterUpdated(visualization)" />
@@ -148,29 +148,33 @@ export default defineComponent({
             visualization.filter.column = ''
             visualization.filter.operator = ''
             visualization.filter.value = ''
-            visualization.filter.reloaded = false
-            this.filtersReloadTrigger = !this.filtersReloadTrigger
+            this.reloadFilters(visualization)
         },
         switchLayerVisibility(layer: any) {
             if (!this.layerVisibilityState) this.layerVisibilityState = {}
             this.layerVisibilityState[layer.layerId] = !this.layerVisibilityState[layer.layerId]
         },
         toggleFilter(visualization: IMapWidgetVisualizationType) {
-            console.log('---------- visualization: ', visualization)
             if (visualization.filter) visualization.filter.enabled = !visualization.filter.enabled
             else visualization.filter = { enabled: true }
-            visualization.filter.reloaded = false
-            this.filtersReloadTrigger = !this.filtersReloadTrigger
+            this.reloadFilters(visualization)
         },
         onFilterUpdated(visualization: IMapWidgetVisualizationType) {
-            console.log('---------- onFilterUpdated: ', visualization)
-            this.toggleFilter(visualization)
+            console.log('%c------- onFilterUpdated: ', 'color: yellow; font-weight: bold; font-size: 16px;', visualization)
+            this.reloadFilters(visualization)
         },
         getColumnOptionsFromLayer(visualization: IMapWidgetVisualizationType) {
-            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === visualization.target)
-            if (!layer) return []
-            else if (layer.type === 'dataset') return layer.columns
-            else return this.propertiesCache.get(layer.layerId) ?? []
+            if (visualization.targetDataset) return this.getColumnOptionsFromTargetDataset(visualization)
+            else {
+                const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === visualization.target)
+                if (!layer) return []
+                else if (layer.type === 'dataset') return layer.columns
+                else return this.propertiesCache.get(layer.layerId) ?? []
+            }
+        },
+        getColumnOptionsFromTargetDataset(visualization: IMapWidgetVisualizationType) {
+            const targetDataset = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === visualization.targetDataset)
+            return targetDataset ? targetDataset.columns : []
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
@@ -184,11 +188,11 @@ export default defineComponent({
                 return { name: property.property, alias: property.property }
             })
         },
-        onFilterColumnChanged(columnName: string, visualization: IMapWidgetVisualizationType) {
-            console.log('-------- EVENT: ', columnName)
-            console.log('-------- visualization: ', visualization)
+        onFilterColumnChanged(visualization: IMapWidgetVisualizationType) {
+            this.reloadFilters(visualization)
+        },
+        reloadFilters(visualization: IMapWidgetVisualizationType) {
             if (visualization.filter) visualization.filter.reloaded = false
-
             this.filtersReloadTrigger = !this.filtersReloadTrigger
         }
     }

@@ -121,15 +121,9 @@ export const sortRanges = (ranges: IMapWidgetVisualizationThreshold[]): IMapWidg
 export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: string, targetProperty: string, valueToCompare: any, variables: IVariable[], targetDataset?: string | undefined) => {
     const conditionalStyles = widgetModel.settings?.conditionalStyles
     if (!conditionalStyles || !conditionalStyles.enabled) return null
-    console.log('!!!!!!!!!!!!!! widgetModel: ', widgetModel)
-    console.log('!!!!!!!!!!!!!! conditionalStyles: ', conditionalStyles)
-    console.log('!!!!!!!!!!!!!! target: ', target)
-    console.log('!!!!!!!!!!!!!! targetProperty: ', targetProperty)
-    console.log('!!!!!!!!!!!!!! targetDataset: ', targetDataset)
     let style = null as any
 
     const conditionalStyle = conditionalStyles.conditions?.find((tempConditionalStyle: IMapWidgetConditionalStyle) => (tempConditionalStyle.targetLayer === target || tempConditionalStyle.targetLayer === targetDataset) && tempConditionalStyle.targetColumn === targetProperty)
-    console.log('!!!!!!!!!!!!! conditionalStyle: ', conditionalStyle)
 
     if (conditionalStyle) {
         const tempConditionalStyle = deepcopy(conditionalStyle)
@@ -170,4 +164,11 @@ export const isConditionMet = (condition: any, valueToCompare: string) => {
             break
     }
     return fullfilledCondition
+}
+
+export const transformDataUsingForeignKeyReturningAllColumns = (rows: any[], pivotColumnIndex: string) => {
+    return rows.reduce((acc: Record<string, any>, row: any) => {
+        acc[row[pivotColumnIndex]] = { ...row }
+        return acc
+    }, {})
 }
