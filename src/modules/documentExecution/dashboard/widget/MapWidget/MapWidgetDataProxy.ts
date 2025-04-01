@@ -33,8 +33,8 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
         //         // resetDatasetInterval(widget)
         //     })
 
-        // if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = mockedDataset
-        if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = mockedPolygonDataset
+        if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = mockedDataset
+        // if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = mockedPolygonDataset
     }
 
     return tempResponse
