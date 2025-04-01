@@ -224,7 +224,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         }
 
         if (layerVisualizationSettings.type === 'choropleth') {
-            createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData)
+            createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, !reloadWithFilters)
         }
 
         if (layerVisualizationSettings.type === 'geography') {
