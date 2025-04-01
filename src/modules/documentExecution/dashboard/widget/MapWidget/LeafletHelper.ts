@@ -208,7 +208,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         }
 
         if (layerVisualizationSettings.type === 'balloons') {
-            addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData)
+            addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, !reloadWithFilters)
         }
 
         if (layerVisualizationSettings.type === 'pies') {
