@@ -2,9 +2,9 @@
     <div v-if="conditionalStylesModel" class="p-grid p-jc-center p-ai-center p-p-4">
         <div v-for="(conditionalStyle, index) in conditionalStylesModel.conditions" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center p-pt-2">
             <div class="dynamic-form-item p-grid p-col-12 p-ai-center">
-                <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
+                <div v-show="dropzoneTopVisible[index]" class="p-col-12" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
                 <div
-                    class="p-col-12 form-list-item-dropzone p-p-0"
+                    class="p-col-12 form-list-item-dropzone p-m-1"
                     :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }"
                     @drop.stop="onDropComplete($event, 'before', index)"
                     @dragover.prevent
@@ -81,14 +81,14 @@
                 </div>
 
                 <div
-                    class="p-col-12 form-list-item-dropzone p-p-0"
+                    class="p-col-12 form-list-item-dropzone p-m-1"
                     :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }"
                     @drop.stop="onDropComplete($event, 'after', index)"
                     @dragover.prevent
                     @dragenter.prevent="displayDropzone('bottom', index)"
                     @dragleave.prevent="hideDropzone('bottom', index)"
                 ></div>
-                <div v-show="dropzoneBottomVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
+                <div v-show="dropzoneBottomVisible[index]" class="p-col-12" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
             </div>
         </div>
     </div>
@@ -300,10 +300,14 @@ export default defineComponent({
     height: 20px;
     width: 100%;
     background-color: white;
+    opacity: 0;
+    visibility: visible;
+    transition: opacity 0.2s, visibility 0.2s;
 }
 
 .form-list-item-dropzone-active {
-    height: 10px;
+    opacity: 1;
+    visibility: visible;
     background-color: #aec1d3;
 }
 
