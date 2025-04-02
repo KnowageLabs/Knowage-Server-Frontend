@@ -212,7 +212,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         }
 
         if (layerVisualizationSettings.type === 'pies') {
-            addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData)
+            addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
         }
 
         if (layerVisualizationSettings.type === 'clusters') {

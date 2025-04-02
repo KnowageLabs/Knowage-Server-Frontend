@@ -126,9 +126,9 @@ export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: 
     const conditionalStyle = conditionalStyles.conditions?.find((tempConditionalStyle: IMapWidgetConditionalStyle) => (tempConditionalStyle.targetLayer === target || tempConditionalStyle.targetLayer === targetDataset) && tempConditionalStyle.targetColumn === targetProperty)
 
     // TODO
-    // console.log('------- conditionalStyles: ', conditionalStyles)
-    // console.log('------- targetProperty: ', targetProperty)
-    // console.log('------- conditionalStyle: ', conditionalStyle)
+    console.log('------- conditionalStyles: ', conditionalStyles)
+    console.log('------- targetProperty: ', targetProperty)
+    console.log('------- conditionalStyle: ', conditionalStyle)
     if (conditionalStyle) {
         const tempConditionalStyle = deepcopy(conditionalStyle)
         if (tempConditionalStyle.condition.value) tempConditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(tempConditionalStyle.condition.value, variables)
