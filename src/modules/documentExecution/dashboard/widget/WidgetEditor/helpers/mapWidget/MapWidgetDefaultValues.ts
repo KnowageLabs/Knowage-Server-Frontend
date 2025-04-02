@@ -3,6 +3,7 @@ import {
     IMapTooltipSettings,
     IMapWidgetConditionalStyle,
     IMapWidgetControlPanel,
+    IMapWidgetLayerFilter,
     IMapWidgetLegend,
     IMapWidgetMapSettings,
     IMapWidgetVisualizationType,
@@ -78,5 +79,10 @@ export const getDefaultVisualizationHeatmapConfiguration = () => {
 }
 
 export const getDefaultVisualizationChoroplethConfiguration = () => {
-    return deepcopy(descriptor.defaultVisualizationChoroplethConfiguration) as IMapWidgetVisualizationTypeChoropleth
+    const defaultFilter = getDefaultVisualizationMapFilter()
+    return deepcopy({ ...descriptor.defaultVisualizationChoroplethConfiguration, filter: defaultFilter }) as IMapWidgetVisualizationTypeChoropleth
+}
+
+export const getDefaultVisualizationMapFilter = () => {
+    return deepcopy(descriptor.defaultMapFilter) as IMapWidgetLayerFilter
 }

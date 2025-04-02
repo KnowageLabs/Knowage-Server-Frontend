@@ -67,6 +67,13 @@
         },
         "visualizationType": "Linear Gradient"
     },
+    "defaultMapFilter": {
+        "column": null,
+        "enabled": false,
+        "operator": "",
+        "reloaded": true,
+        "value": ""
+    },
     "defaultMapLayerSettings": {
         "autoCentering": true,
         "enabled": true,

@@ -49,7 +49,7 @@
                                     />
                                     <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" @update:modelValue="onFilterUpdated(visualization)" />
                                     <q-input type="number" filled class="col" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" @blur="onFilterUpdated(visualization)" />
-                                    <q-btn v-if="visualization.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(visualization)">
+                                    <q-btn v-if="visualization.filter.column || visualization.filter.operator || visualization.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(visualization)">
                                         <q-tooltip :delay="500">{{ $t('common.reset') }}</q-tooltip>
                                     </q-btn>
                                 </div>

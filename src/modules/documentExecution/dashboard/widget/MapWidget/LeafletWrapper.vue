@@ -122,4 +122,26 @@ watch(
 .leaflet-marker-shadow {
     display: none;
 }
+
+.leaflet-popup-content-wrapper {
+    padding: 0px;
+}
+
+.leaflet-popup-content {
+    margin: 0;
+}
+
+.customLeafletPopup {
+    margin: 0px 0px;
+    padding: 0px 0px;
+    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: white;
+    max-width: 180px;
+    white-space: nowrap;
+}
+
+.leaflet-popup-tip {
+    display: none;
+}
 </style>

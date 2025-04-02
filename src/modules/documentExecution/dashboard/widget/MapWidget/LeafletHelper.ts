@@ -12,10 +12,14 @@ import { addBaloonMarkers } from './visualization/MapBaloonsVizualizationHelper'
 import { addClusters } from './visualization/MapClustersVizualizationHelper'
 import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
-import { centerAndRedrawTheLayerOnMap, createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
+import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
 import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
+import useAppStore from '@/App.store'
+import i18n from '@/App.i18n'
 
 const dashStore = dashboardStore()
+const appStore = useAppStore()
+const { t } = i18n.global
 
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
@@ -120,116 +124,124 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 
 // Starting point for the data/layers logic
 export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[]) {
-    const markerBounds = [] as any
-    for (const layer of model.settings.visualizations) {
-        const layerVisualizationSettings = deepcopy(layer)
-        let reloadWithFilters = false
+    try {
+        const markerBounds = [] as any
+        for (const layer of model.settings.visualizations) {
+            const layerVisualizationSettings = deepcopy(layer)
+            let reloadWithFilters = false
 
-        if (layerVisualizationSettings?.filter?.enabled && layerVisualizationSettings?.filter?.reloaded) return
-        if (layerVisualizationSettings?.filter && !layerVisualizationSettings.filter.reloaded) {
-            removeLayerFromMap(map, layerVisualizationSettings.target)
-            reloadWithFilters = true
-            layerVisualizationSettings.filter.reloaded = true
-        }
+            if (layerVisualizationSettings?.filter?.enabled && layerVisualizationSettings?.filter?.reloaded) return
+            if (layerVisualizationSettings?.filter && !layerVisualizationSettings.filter.reloaded) {
+                removeLayerFromMap(map, layerVisualizationSettings.target)
+                reloadWithFilters = true
+                layerVisualizationSettings.filter.reloaded = true
+            }
 
-        let spatialAttribute = undefined as any
-        let geoColumn: any = undefined
-        let dataColumn: any = undefined
-        let layersData = null as any
-        let visualizationDataType = VisualizationDataType.DATASET_ONLY
-        let targetDatasetData = null as any
+            let spatialAttribute = undefined as any
+            let geoColumn: any = undefined
+            let dataColumn: any = undefined
+            let layersData = null as any
+            let visualizationDataType = VisualizationDataType.DATASET_ONLY
+            let targetDatasetData = null as any
 
-        const target = model.layers.find((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.target)
+            const target = model.layers.find((widgetLayer: IMapWidgetLayer) => widgetLayer.layerId === layerVisualizationSettings.target)
 
-        // This section handles data loading. In the first case, the user selects a dataset as the target;
-        // in the else case, the target is a layer.
-        // There are two use cases: layer only and layer with a target dataset.
-        // Here, we need to add a data proxy call for the target dataset.
-        // Additionally, if the layer is WKT, there is commented-out code related to it.
-        // The backend service for retrieving layers does not work properly for WKT.
-        if (target.type === 'dataset') {
-            visualizationDataType = VisualizationDataType.DATASET_ONLY
-            spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
-            geoColumn = getColumnName(spatialAttribute.name, data[target.name])
-            dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
-        } else {
-            visualizationDataType = VisualizationDataType.LAYER_ONLY
-            layersData = await getLayerData(target)
+            // This section handles data loading. In the first case, the user selects a dataset as the target;
+            // in the else case, the target is a layer.
+            // There are two use cases: layer only and layer with a target dataset.
+            // Here, we need to add a data proxy call for the target dataset.
+            // Additionally, if the layer is WKT, there is commented-out code related to it.
+            // The backend service for retrieving layers does not work properly for WKT.
+            if (target.type === 'dataset') {
+                visualizationDataType = VisualizationDataType.DATASET_ONLY
+                spatialAttribute = target.columns.filter((i) => i.fieldType === 'SPATIAL_ATTRIBUTE')[0]
+                geoColumn = getColumnName(spatialAttribute.name, data[target.name])
+                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[target.name])
+            } else {
+                visualizationDataType = VisualizationDataType.LAYER_ONLY
+                layersData = await getLayerData(target)
 
-            if (!layersData) return
+                if (!layersData) return
 
-            if (layersData.wkt) {
-                const wktData = wktMock.wkt
-                const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
-                const wktArray = wktData.match(wktRegex) || []
+                if (layersData.wkt) {
+                    const wktData = wktMock.wkt
+                    const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
+                    const wktArray = wktData.match(wktRegex) || []
 
-                const geojsonGeometries = wktArray.map((wkt: string) => wktToGeoJSON(wkt))
+                    const geojsonGeometries = wktArray.map((wkt: string) => wktToGeoJSON(wkt))
 
-                const geojsonFeatures = {
-                    type: 'FeatureCollection',
-                    features: geojsonGeometries.map((geometry) => ({
-                        type: 'Feature',
-                        geometry: geometry,
-                        properties: {}
-                    }))
+                    const geojsonFeatures = {
+                        type: 'FeatureCollection',
+                        features: geojsonGeometries.map((geometry) => ({
+                            type: 'Feature',
+                            geometry: geometry,
+                            properties: {}
+                        }))
+                    }
+
+                    layersData = geojsonFeatures
                 }
 
-                layersData = geojsonFeatures
-            }
+                if (layersData.type === 'Topology') {
+                    const geojsonFeatures: any[] = Object.values(layersData.objects).flatMap((obj: any) => (feature(layersData, obj) as any).features ?? [])
 
-            if (layersData.type === 'Topology') {
-                const geojsonFeatures: any[] = Object.values(layersData.objects).flatMap((obj: any) => (feature(layersData, obj) as any).features ?? [])
+                    layersData = {
+                        type: 'FeatureCollection',
+                        features: geojsonFeatures
+                    }
+                }
 
-                layersData = {
-                    type: 'FeatureCollection',
-                    features: geojsonFeatures
+                // Use case when we have layer with the external dataset connected with foreign key
+                if (layerVisualizationSettings.targetDataset) {
+                    visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
+                    dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
+
+                    const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
+                    const selections = dashStore.getSelections(dashboardId) ?? []
+
+                    let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
+
+                    if (targetDatasetTempData?.[layerVisualizationSettings.targetDataset]) targetDatasetData = targetDatasetTempData[layerVisualizationSettings.targetDataset]
                 }
             }
 
-            // Use case when we have layer with the external dataset connected with foreign key
-            if (layerVisualizationSettings.targetDataset) {
-                visualizationDataType = VisualizationDataType.DATASET_AND_LAYER
-                dataColumn = getColumnName(layerVisualizationSettings.targetMeasure, data[layerVisualizationSettings.targetDataset])
+            const layerGroup = L.layerGroup().addTo(map)
+            layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
-                const dashboardConfig = dashStore.dashboards[dashboardId]?.configuration
-                const selections = dashStore.getSelections(dashboardId) ?? []
+            if (layerVisualizationSettings.type === 'markers') {
+                addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
+            }
 
-                let targetDatasetTempData = await getMapWidgetData(dashboardId, dashboardConfig, model, dashboardConfig.datasets, false, selections)
+            if (layerVisualizationSettings.type === 'balloons') {
+                addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, !reloadWithFilters)
+            }
 
-                if (targetDatasetTempData?.[layerVisualizationSettings.targetDataset]) targetDatasetData = targetDatasetTempData[layerVisualizationSettings.targetDataset]
+            if (layerVisualizationSettings.type === 'pies') {
+                addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
+            }
+
+            if (layerVisualizationSettings.type === 'clusters') {
+                addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
+            }
+
+            if (layerVisualizationSettings.type === 'heatmap') {
+                createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, !reloadWithFilters)
+            }
+
+            if (layerVisualizationSettings.type === 'choropleth') {
+                createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, !reloadWithFilters)
+            }
+
+            if (layerVisualizationSettings.type === 'geography') {
+                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map)
             }
         }
-
-        const layerGroup = L.layerGroup().addTo(map)
-        layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
-
-        if (layerVisualizationSettings.type === 'markers') {
-            addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
-        }
-
-        if (layerVisualizationSettings.type === 'balloons') {
-            addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, !reloadWithFilters)
-        }
-
-        if (layerVisualizationSettings.type === 'pies') {
-            addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
-        }
-
-        if (layerVisualizationSettings.type === 'clusters') {
-            addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
-        }
-
-        if (layerVisualizationSettings.type === 'heatmap') {
-            createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, !reloadWithFilters)
-        }
-
-        if (layerVisualizationSettings.type === 'choropleth') {
-            createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, !reloadWithFilters)
-        }
-
-        if (layerVisualizationSettings.type === 'geography') {
-            addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map)
-        }
+    } catch (error: any) {
+        console.log('------- ERROR - initializeLayers:', error)
+        appStore.setError({
+            title: t('common.toast.errorTitle'),
+            msg: error ? error.message : ''
+        })
     }
 }
 

@@ -222,6 +222,8 @@ export default defineComponent({
         },
         async onTargetChange(id: string, visualization: IMapWidgetVisualizationType) {
             ;['targetDataset', 'targetMeasure', 'targetProperty', 'targetType'].forEach((property: string) => delete visualization[property])
+            visualization.filter = mapWidgetDefaultValues.getDefaultVisualizationMapFilter()
+
             if (visualization.chartMeasures && visualization.chartMeasures.length > 0) visualization.chartMeasures = []
 
             const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => id === layer.layerId)
