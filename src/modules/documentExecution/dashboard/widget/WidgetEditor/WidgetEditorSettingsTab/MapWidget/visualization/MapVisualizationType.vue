@@ -1,98 +1,134 @@
 <template>
-    <div v-for="(visType, visTypeIndex) in visualizationTypeModel" :key="visTypeIndex" class="p-d-flex p-flex-column p-m-3 widget-editor-card p-p-3">
-        <div class="row items-center q-mb-sm">
-            <q-select filled dense class="col" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
-            <q-select
-                v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'"
-                filled
-                dense
-                class="col q-ml-sm"
-                v-model="visType.targetType"
-                :options="['column', 'property']"
-                emit-value
-                map-options
-                option-value="name"
-                option-label="name"
-                options-dense
-                label="Data Link"
-                @update:modelValue="onDataLinkChange($event, visType)"
-            ></q-select>
-            <q-select
-                v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column' && visType.type !== 'geography'"
-                filled
-                dense
-                class="col q-ml-sm"
-                v-model="visType.targetDataset"
-                :options="availableDatasets"
-                emit-value
-                map-options
-                option-value="name"
-                option-label="name"
-                options-dense
-                :label="$t('common.dataset')"
-            ></q-select>
-            <q-select
-                v-if="visType.type !== 'geography' && visType.type !== 'pies' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
-                filled
-                dense
-                class="col q-ml-sm"
-                v-model="visType.targetMeasure"
-                :options="availableMeasures(visType.targetDataset || visType.target)"
-                emit-value
-                map-options
-                option-value="name"
-                option-label="name"
-                options-dense
-                :label="$t('common.measure')"
-            ></q-select>
+    <div v-for="(visType, visTypeIndex) in visualizationTypeModel" :key="visTypeIndex" class="p-d-flex p-flex-column p-m-3 widget-editor-card">
+        <div class="dynamic-form-item p-grid p-col-12 p-ai-center">
+            <div v-show="dropzoneTopVisible[visTypeIndex]" class="p-col-12 p-px-3" @drop.stop="onDropComplete($event, 'before', visTypeIndex)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
+            <div
+                class="p-col-12 form-list-item-dropzone p-m-1"
+                :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[visTypeIndex] }"
+                @drop.stop="onDropComplete($event, 'before', visTypeIndex)"
+                @dragover.prevent
+                @dragenter.prevent="displayDropzone('top', visTypeIndex)"
+                @dragleave.prevent="hideDropzone('top', visTypeIndex)"
+            ></div>
 
-            <q-select
-                v-if="visType && getTargetLayerType(visType) === 'layer' && !['geography', 'pies'].includes(visType.type)"
-                filled
-                dense
-                class="col q-ml-sm"
-                v-model="visType.targetProperty"
-                :options="visType.properties || []"
-                emit-value
-                map-options
-                option-value="property"
-                option-label="property"
-                options-dense
-                :label="$t('common.properties')"
-            ></q-select>
-            <q-select
-                v-if="visType && visType.type === 'pies'"
-                filled
-                dense
-                multiple
-                class="col q-ml-sm"
-                v-model="visType.chartMeasures"
-                :options="availableChartMeasures(visType.targetDataset || visType.target)"
-                emit-value
-                map-options
-                :option-value="getTargetLayerType(visType) === 'layer' && visType.targetType !== 'column' ? 'property' : 'name'"
-                :option-label="getTargetLayerType(visType) === 'layer' && visType.targetType !== 'column' ? 'property' : 'name'"
-                options-dense
-                :label="$t('common.measures')"
-            ></q-select>
+            <div class="p-col-12 p-grid p-p-0" @dragstart.stop="onDragStart($event, visTypeIndex)">
+                <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center">
+                    <i class="pi pi-th-large kn-cursor-pointer"></i>
+                </div>
+                <div class="p-col-11 p-d-flex p-flex-column">
+                    <div class="row items-center q-mb-sm">
+                        <q-select filled dense class="col" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
+                        <q-select
+                            v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'"
+                            filled
+                            dense
+                            class="col q-ml-sm"
+                            v-model="visType.targetType"
+                            :options="['column', 'property']"
+                            emit-value
+                            map-options
+                            option-value="name"
+                            option-label="name"
+                            options-dense
+                            label="Data Link"
+                            @update:modelValue="onDataLinkChange($event, visType)"
+                        ></q-select>
+                        <q-select
+                            v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column' && visType.type !== 'geography'"
+                            filled
+                            dense
+                            class="col q-ml-sm"
+                            v-model="visType.targetDataset"
+                            :options="availableDatasets"
+                            emit-value
+                            map-options
+                            option-value="name"
+                            option-label="name"
+                            options-dense
+                            :label="$t('common.dataset')"
+                        ></q-select>
+                        <q-select
+                            v-if="visType.type !== 'geography' && visType.type !== 'pies' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
+                            filled
+                            dense
+                            class="col q-ml-sm"
+                            v-model="visType.targetMeasure"
+                            :options="availableMeasures(visType.targetDataset || visType.target)"
+                            emit-value
+                            map-options
+                            option-value="name"
+                            option-label="name"
+                            options-dense
+                            :label="$t('common.measure')"
+                        ></q-select>
 
-            <span class="p-d-flex p-flex-row p-ai-center p-pl-2">
-                {{ $t('common.show') }}
-                <q-toggle v-model="visType.visible" color="primary" />
-            </span>
-            <Button v-if="visTypeIndex === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
-            <Button v-if="visTypeIndex !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeVisualizationType(visTypeIndex)" />
-        </div>
+                        <q-select
+                            v-if="visType && getTargetLayerType(visType) === 'layer' && !['geography', 'pies'].includes(visType.type)"
+                            filled
+                            dense
+                            class="col q-ml-sm"
+                            v-model="visType.targetProperty"
+                            :options="visType.properties || []"
+                            emit-value
+                            map-options
+                            option-value="property"
+                            option-label="property"
+                            options-dense
+                            :label="$t('common.properties')"
+                        ></q-select>
+                        <q-select
+                            v-if="visType && visType.type === 'pies'"
+                            filled
+                            dense
+                            multiple
+                            class="col q-ml-sm"
+                            v-model="visType.chartMeasures"
+                            :options="availableChartMeasures(visType.targetDataset || visType.target)"
+                            emit-value
+                            map-options
+                            :option-value="getTargetLayerType(visType) === 'layer' && visType.targetType !== 'column' ? 'property' : 'name'"
+                            :option-label="getTargetLayerType(visType) === 'layer' && visType.targetType !== 'column' ? 'property' : 'name'"
+                            options-dense
+                            :label="$t('common.measures')"
+                        ></q-select>
 
-        <div class="p-grid gap-1 p-m-0" style="column-gap: 0.5em; row-gap: 0.5em">
-            <div v-for="(visTypeConfig, visTypeConfigIndex) in descriptor.visTypes" :key="visTypeConfigIndex" v-tooltip.bottom="$t(visTypeConfig.tooltip)" class="visTypeCards" :class="{ selected: visType.type === visTypeConfig.name }" @click="selectVisTypeConfig(visTypeIndex, visTypeConfig.name)">
-                <img class="kn-width-full kn-height-full" :src="getImageSource(visTypeConfig.name)" />
+                        <span class="p-d-flex p-flex-row p-ai-center p-pl-2">
+                            {{ $t('common.show') }}
+                            <q-toggle v-model="visType.visible" color="primary" />
+                        </span>
+                        <Button v-if="visTypeIndex === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addVisualizationType" />
+                        <Button v-if="visTypeIndex !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeVisualizationType(visTypeIndex)" />
+                    </div>
+
+                    <div class="p-grid gap-1 p-m-0" style="column-gap: 0.5em; row-gap: 0.5em">
+                        <div
+                            v-for="(visTypeConfig, visTypeConfigIndex) in descriptor.visTypes"
+                            :key="visTypeConfigIndex"
+                            v-tooltip.bottom="$t(visTypeConfig.tooltip)"
+                            class="visTypeCards"
+                            :class="{ selected: visType.type === visTypeConfig.name }"
+                            @click="selectVisTypeConfig(visTypeIndex, visTypeConfig.name)"
+                        >
+                            <img class="kn-width-full kn-height-full" :src="getImageSource(visTypeConfig.name)" />
+                        </div>
+                    </div>
+
+                    <hr class="kn-width-full p-my-2" />
+
+                    <VisTypeConfig :widget-model="widgetModel" :vis-type-prop="visType" />
+                </div>
             </div>
+
+            <div
+                class="p-col-12 form-list-item-dropzone p-m-1"
+                :class="dropzoneBottomVisible[visTypeIndex] ? 'form-list-item-dropzone-active' : ''"
+                @drop.stop="onDropComplete($event, 'after', visTypeIndex)"
+                @dragover.prevent
+                @dragenter.prevent="displayDropzone('bottom', visTypeIndex)"
+                @dragleave.prevent="hideDropzone('bottom', visTypeIndex)"
+            ></div>
+            <div v-show="dropzoneBottomVisible[visTypeIndex]" class="p-col-12" @drop.stop="onDropComplete($event, 'after', visTypeIndex)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
         </div>
-
-        <hr class="kn-width-full p-my-2" />
-
-        <VisTypeConfig :widget-model="widgetModel" :vis-type-prop="visType" />
     </div>
 </template>
 
@@ -121,7 +157,9 @@ export default defineComponent({
                 name: string
             }[],
             widgetLayersNameMap: {} as any,
-            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>()
+            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>(),
+            dropzoneTopVisible: {},
+            dropzoneBottomVisible: {}
         }
     },
     computed: {
@@ -245,6 +283,34 @@ export default defineComponent({
         },
         createDefaultVisualizationType() {
             return mapWidgetDefaultValues.getDefaultVisualizationSettings()[0]
+        },
+        onDragStart(event: any, index: number) {
+            if (!this.visualizationTypeModel) return
+            event.dataTransfer.setData('text/plain', JSON.stringify(index))
+            event.dataTransfer.dropEffect = 'move'
+            event.dataTransfer.effectAllowed = 'move'
+        },
+        onDropComplete(event: any, position: 'before' | 'after', index: number) {
+            if (!this.visualizationTypeModel) return
+            this.hideDropzone('bottom', index)
+            this.hideDropzone('top', index)
+            const eventData = JSON.parse(event.dataTransfer.getData('text/plain'))
+            this.onRowsMove(eventData, index, position)
+        },
+        displayDropzone(position: string, index: number) {
+            if (!this.visualizationTypeModel) return
+            position === 'top' ? (this.dropzoneTopVisible[index] = true) : (this.dropzoneBottomVisible[index] = true)
+        },
+        hideDropzone(position: string, index: number) {
+            if (!this.visualizationTypeModel) return
+            position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
+        },
+        onRowsMove(sourceRowIndex: number, targetRowIndex: number, position: string) {
+            if (sourceRowIndex === targetRowIndex) return
+            if (this.visualizationTypeModel) {
+                const newIndex = sourceRowIndex > targetRowIndex && position === 'after' ? targetRowIndex + 1 : targetRowIndex
+                this.visualizationTypeModel.splice(newIndex, 0, this.visualizationTypeModel.splice(sourceRowIndex, 1)[0])
+            }
         }
     }
 })
@@ -268,5 +334,20 @@ export default defineComponent({
             background-color: #deecf8;
         }
     }
+}
+
+.form-list-item-dropzone {
+    height: 20px;
+    width: 100%;
+    background-color: white;
+    opacity: 0;
+    visibility: visible;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+.form-list-item-dropzone-active {
+    opacity: 1;
+    visibility: visible;
+    background-color: #aec1d3;
 }
 </style>
