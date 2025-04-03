@@ -1,10 +1,16 @@
 import { getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, incrementColumnName, isConditionMet, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
+import { getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, getTargetDataColumn, getTargetProperty, incrementColumnName, isConditionMet, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
+import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import L from 'leaflet'
 import 'leaflet.heat'
-import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
-import { getTargetDataColumn, getTargetProperty } from './MapMarkersVizualizationHelper'
+
+// TODO - Remove mock
+const generateMockedHeatmapData = (length: number): number[][] => {
+    return Array.from({ length }, () => [parseFloat((Math.random() * 359 + 1).toFixed(4)), parseFloat((Math.random() * 359 + 1).toFixed(4)), Math.floor(Math.random() * 89) + 1])
+}
+
+const mockedHeatMapData = generateMockedHeatmapData(10000)
 
 export const createHeatmapVisualization = (
     map: any,
@@ -101,6 +107,10 @@ const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSe
             map.invalidateSize()
 
             let tempHeatMapData = heatMapData
+            // TODO  - Remove Mock
+            tempHeatMapData = mockedHeatMapData
+            console.log('---- TEMP HEATMAP DATA: ', tempHeatMapData)
+
             const filter = layerVisualizationSettings.filter
             if (filter?.enabled && filter.operator && filter.value != null) {
                 tempHeatMapData = filterHeatmapData(tempHeatMapData, filter.operator, filter.value)

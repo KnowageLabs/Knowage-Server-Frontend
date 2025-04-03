@@ -1,6 +1,6 @@
 import deepcopy from 'deepcopy'
 import { IVariable, IWidget } from '../../../Dashboard'
-import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetLayerFilter, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { ILayerFeature, IMapWidgetConditionalStyle, IMapWidgetLayer, IMapWidgetLayerFilter, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { replaceVariablesPlaceholdersByVariableName } from '../../interactionsHelpers/InteractionsParserHelper'
 
 export const transformDataUsingForeginKey = (rows: any, pivotColumnIndex: string, valueColumnIndex: string) => {
@@ -118,6 +118,16 @@ export const sortRanges = (ranges: IMapWidgetVisualizationThreshold[]): IMapWidg
     })
 }
 
+export const getConditionalStyleUsingTargetDataset = (layerVisualizationSettings: IMapWidgetVisualizationType, widgetModel: IWidget, originalVisualizationTypeValue: any, variables: IVariable[]) => {
+    let targetDataset: IMapWidgetLayer | null = null
+
+    if (layerVisualizationSettings.targetDataset) {
+        targetDataset = widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === layerVisualizationSettings.targetDataset)
+    }
+
+    return getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetProperty, originalVisualizationTypeValue, variables, targetDataset?.layerId)
+}
+
 export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: string, targetProperty: string, valueToCompare: any, variables: IVariable[], targetDataset?: string | undefined) => {
     const conditionalStyles = widgetModel.settings?.conditionalStyles
     if (!conditionalStyles || !conditionalStyles.enabled) return null
@@ -126,9 +136,9 @@ export const getVizualizationConditionalStyles = (widgetModel: IWidget, target: 
     const conditionalStyle = conditionalStyles.conditions?.find((tempConditionalStyle: IMapWidgetConditionalStyle) => (tempConditionalStyle.targetLayer === target || tempConditionalStyle.targetLayer === targetDataset) && tempConditionalStyle.targetColumn === targetProperty)
 
     // TODO
-    console.log('------- conditionalStyles: ', conditionalStyles)
-    console.log('------- targetProperty: ', targetProperty)
-    console.log('------- conditionalStyle: ', conditionalStyle)
+    // console.log('------- conditionalStyles: ', conditionalStyles)
+    // console.log('------- targetProperty: ', targetProperty)
+    // console.log('------- conditionalStyle: ', conditionalStyle)
     if (conditionalStyle) {
         const tempConditionalStyle = deepcopy(conditionalStyle)
         if (tempConditionalStyle.condition.value) tempConditionalStyle.condition.value = replaceVariablesPlaceholdersByVariableName(tempConditionalStyle.condition.value, variables)
@@ -175,4 +185,44 @@ export const transformDataUsingForeignKeyReturningAllColumns = (rows: any[], piv
         acc[row[pivotColumnIndex]] = { ...row }
         return acc
     }, {})
+}
+
+export const getTargetDataColumn = (data: any, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string) => {
+    const filter = layerVisualizationSettings.filter
+
+    let tempDataColumn = dataColumn
+    if (filter?.enabled) {
+        const columnMetadata = data?.metaData?.fields?.find((field: any) => field?.header === filter.column)
+        if (columnMetadata) tempDataColumn = columnMetadata.dataIndex
+    }
+
+    return tempDataColumn
+}
+
+export const getTargetProperty = (layerVisualizationSettings: IMapWidgetVisualizationType) => {
+    const filter = layerVisualizationSettings.filter
+
+    let targetProperty = layerVisualizationSettings.targetProperty
+    if (filter?.enabled) targetProperty = filter.column
+
+    return targetProperty
+}
+
+export const getRowValues = (row: any, dataColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, targetDataset: any): { value: any; originalValue: any } => {
+    const dataColumnIndex = getTargetDataColumn(targetDataset, layerVisualizationSettings, dataColumn)
+    const value = row[dataColumnIndex]
+    const originalValue = row[dataColumn]
+
+    return { value, originalValue }
+}
+
+export const getFeatureValues = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, dataColumnIndex: string | null | undefined): { value: any; originalVisualizationTypeValue: any } => {
+    const layerTargetProperty = mappedData ? layerVisualizationSettings.targetProperty : getTargetProperty(layerVisualizationSettings)
+    const valueKey = feature.properties[layerTargetProperty]
+    const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
+
+    const originalVisualizationTypeValueKey = feature.properties[layerVisualizationSettings.targetProperty]
+    const originalVisualizationTypeValue = mappedData && dataColumnIndex ? mappedData[originalVisualizationTypeValueKey][dataColumnIndex] : feature.properties[layerVisualizationSettings.targetProperty]
+
+    return { value, originalVisualizationTypeValue }
 }

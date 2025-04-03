@@ -238,10 +238,11 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         }
     } catch (error: any) {
         console.log('------- ERROR - initializeLayers:', error)
-        appStore.setError({
-            title: t('common.toast.errorTitle'),
-            msg: error ? error.message : ''
-        })
+        // TODO - add if needed for user
+        // appStore.setError({
+        //     title: t('common.toast.errorTitle'),
+        //     msg: error ? error.message : ''
+        // })
     }
 }
 

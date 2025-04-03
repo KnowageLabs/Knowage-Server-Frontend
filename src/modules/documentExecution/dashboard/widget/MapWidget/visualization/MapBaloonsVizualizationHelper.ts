@@ -2,19 +2,20 @@ import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { addMarker, centerTheMap, getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { getTargetDataColumn, getTargetProperty } from './MapMarkersVizualizationHelper'
+import { getMappedDataAndColumnIndex } from './MapMarkersVizualizationHelper'
 import {
     formatRanges,
+    getConditionalStyleUsingTargetDataset,
     getCoordinatesFromWktPointFeature,
+    getFeatureValues,
     getMinMaxByName,
     getNumericPropertyValues,
     getQuantiles,
     getQuantilesFromLayersData,
+    getRowValues,
     getVizualizationConditionalStyles,
-    incrementColumnName,
     isConditionMet,
     sortRanges,
-    transformDataUsingForeignKeyReturningAllColumns,
     validateNumber
 } from './MapVisualizationHelper'
 
@@ -73,25 +74,7 @@ export const addBaloonMarkers = (
 }
 
 const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], targetDatasetData?: any, dataColumn?: string) => {
-    let minValue = 0,
-        maxValue = 0,
-        mappedData: any = null
-
-    let dataColumnIndex = dataColumn
-
-    if (targetDatasetData && dataColumn) {
-        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
-        minValue = valueColumnMinMaxValues?.min ?? 0
-        maxValue = valueColumnMinMaxValues?.max ?? 0
-        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
-        if (!foreignKeyColumnName) throw Error('Foreign key column ' + layerVisualizationSettings.targetProperty + ' is not present in the dataset')
-        mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
-        dataColumnIndex = getTargetDataColumn(targetDatasetData, layerVisualizationSettings, dataColumn)
-    } else if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
-        const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
-        minValue = Math.min(...layerPropertyValues) ?? 0
-        maxValue = Math.max(...layerPropertyValues) ?? 0
-    }
+    const { mappedData, dataColumnIndex, minValue, maxValue } = getMappedDataMinMax(targetDatasetData, layersData, dataColumn, layerVisualizationSettings)
 
     const ranges = layerVisualizationSettings.balloonConf?.properties?.thresholds ?? []
     const formattedRanges = formatRanges(ranges, minValue, maxValue)
@@ -109,6 +92,25 @@ const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAt
     })
 }
 
+const getMappedDataMinMax = (targetDatasetData: any, layersData: any, dataColumn: string | undefined, layerVisualizationSettings: IMapWidgetVisualizationType): { mappedData: Record<string, number> | null; dataColumnIndex: string | null; minValue: number; maxValue: number } => {
+    let minValue = 0
+    let maxValue = 0
+
+    const { mappedData, dataColumnIndex } = getMappedDataAndColumnIndex(targetDatasetData, dataColumn ?? null, layerVisualizationSettings)
+
+    if (targetDatasetData && dataColumnIndex) {
+        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, dataColumnIndex)
+        minValue = valueColumnMinMaxValues?.min ?? 0
+        maxValue = valueColumnMinMaxValues?.max ?? 0
+    } else if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+        const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
+        minValue = Math.min(...layerPropertyValues) ?? 0
+        maxValue = Math.max(...layerPropertyValues) ?? 0
+    }
+
+    return { mappedData, dataColumnIndex, minValue, maxValue }
+}
+
 const addBaloonMarkerUsingLayersPointClassifedByRanges = (
     feature: ILayerFeature,
     layerVisualizationSettings: IMapWidgetVisualizationType,
@@ -123,15 +125,11 @@ const addBaloonMarkerUsingLayersPointClassifedByRanges = (
     variables: IVariable[],
     dataColumnIndex: string | null | undefined
 ) => {
-    const layerTargetProperty = mappedData ? layerVisualizationSettings.targetProperty : getTargetProperty(layerVisualizationSettings)
-    const filter = layerVisualizationSettings.filter
-    const valueKey = feature.properties[layerTargetProperty]
-    const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
-
-    const originalVisualizationTypeValueKey = feature.properties[layerVisualizationSettings.targetProperty]
-    const originalVisualizationTypeValue = mappedData ? mappedData[originalVisualizationTypeValueKey] : feature.properties[layerVisualizationSettings.targetProperty]
+    const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
     if (value != null) validateNumber(value)
+
+    const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
 
     if (!layerVisualizationSettings.balloonConf) return
@@ -140,11 +138,7 @@ const addBaloonMarkerUsingLayersPointClassifedByRanges = (
     layerVisualizationSettings.balloonConf.size = sizeAndColor.size
     layerVisualizationSettings.balloonConf.style.color = sizeAndColor.color
 
-    let targetDataset = null as IMapWidgetLayer | null
-    if (layerVisualizationSettings.targetDataset) {
-        targetDataset = widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === layerVisualizationSettings.targetDataset)
-    }
-    const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetProperty, originalVisualizationTypeValue, variables, targetDataset?.layerId)
+    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables)
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
     markerBounds.push(marker.getLatLng())
@@ -154,7 +148,7 @@ const addBaloonMarkerUsingLayersPointClassifedByRanges = (
 }
 
 const addBaloonMarkersClassifedByRangesFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {
-    const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, incrementColumnName(dataColumn))
+    const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, dataColumn)
     const ranges = layerVisualizationSettings.balloonConf?.properties?.thresholds ?? []
     const minValue = valueColumnMinMaxValues?.min ?? 0
     const maxValue = valueColumnMinMaxValues?.max ?? 0
@@ -163,9 +157,7 @@ const addBaloonMarkersClassifedByRangesFromData = (data: any, widgetModel: IWidg
     const defaultColor = layerVisualizationSettings.balloonConf?.style?.color ?? ''
 
     data[target.name].rows.forEach((row: any) => {
-        const dataColumnIndex = getTargetDataColumn(data[target.name], layerVisualizationSettings, dataColumn)
-        const value = row[dataColumnIndex]
-        const originalValue = row[dataColumn]
+        const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
 
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -207,22 +199,7 @@ const getSizeAndColorFromRanges = (value: number, minSize: number, maxSize: numb
 }
 
 const addBaloonMarkersClassifedByQuantilsUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[]) => {
-    if (!layerVisualizationSettings.balloonConf) return
-
-    let quantiles: number[]
-    let mappedData: Record<string, number> | null = null
-    let dataColumnIndex = dataColumn
-
-    if (targetDatasetData && dataColumn) {
-        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
-        if (!foreignKeyColumnName) throw new Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
-        mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
-        quantiles = getQuantiles(targetDatasetData.rows, layerVisualizationSettings.balloonConf.classes, dataColumn)
-    } else {
-        const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
-        quantiles = getQuantilesFromLayersData(layerPropertyValues, layerVisualizationSettings.balloonConf.classes)
-        dataColumnIndex = dataColumn ? getTargetDataColumn(targetDatasetData, layerVisualizationSettings, dataColumn) : null
-    }
+    const { mappedData, dataColumnIndex, quantiles } = getMappedDataAndQuantiles(targetDatasetData, layersData, dataColumn, layerVisualizationSettings)
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
@@ -233,6 +210,21 @@ const addBaloonMarkersClassifedByQuantilsUsingLayers = (targetDatasetData: any |
             })
         }
     })
+}
+
+export const getMappedDataAndQuantiles = (targetDatasetData: any, layersData: any, dataColumn: string | null, layerVisualizationSettings: IMapWidgetVisualizationType): { mappedData: Record<string, number> | null; dataColumnIndex: string | null; quantiles: number[] } => {
+    let quantiles: number[] = []
+
+    const { mappedData, dataColumnIndex } = getMappedDataAndColumnIndex(targetDatasetData, dataColumn, layerVisualizationSettings)
+
+    if (targetDatasetData && dataColumnIndex) {
+        quantiles = layerVisualizationSettings.balloonConf ? getQuantiles(targetDatasetData.rows, layerVisualizationSettings.balloonConf.classes, dataColumnIndex) : []
+    } else {
+        const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
+        quantiles = layerVisualizationSettings.balloonConf ? getQuantilesFromLayersData(layerPropertyValues, layerVisualizationSettings.balloonConf.classes) : []
+    }
+
+    return { mappedData, dataColumnIndex, quantiles }
 }
 
 const addBaloonMarkerUsingLayersPointClassifedByQuantils = (
@@ -248,27 +240,17 @@ const addBaloonMarkerUsingLayersPointClassifedByQuantils = (
     variables: IVariable[],
     dataColumnIndex: string | null | undefined
 ) => {
-    const layerTargetProperty = mappedData ? layerVisualizationSettings.targetProperty : getTargetProperty(layerVisualizationSettings)
-    const filter = layerVisualizationSettings.filter
-    const valueKey = feature.properties[layerTargetProperty]
-    const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
-
-    const originalVisualizationTypeValueKey = feature.properties[layerVisualizationSettings.targetProperty]
-    const originalVisualizationTypeValue = mappedData ? mappedData[originalVisualizationTypeValueKey] : feature.properties[layerVisualizationSettings.targetProperty]
+    const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
     if (value != null) validateNumber(value)
 
+    const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
 
     if (!layerVisualizationSettings.balloonConf) return
     layerVisualizationSettings.balloonConf.size = getSizeFromQuantiles(quantiles, originalVisualizationTypeValue as number, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
 
-    let targetDataset = null as IMapWidgetLayer | null
-    if (layerVisualizationSettings.targetDataset) {
-        targetDataset = widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === layerVisualizationSettings.targetDataset)
-    }
-
-    const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetProperty, originalVisualizationTypeValue, variables, targetDataset?.layerId)
+    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables)
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
     markerBounds.push(marker.getLatLng())
@@ -282,9 +264,7 @@ const addBaloonMarkersClassifedByQuantilsFromData = (data: any, widgetModel: IWi
     const quantiles = getQuantiles(data[target.name].rows, layerVisualizationSettings.balloonConf.classes, dataColumn)
 
     data[target.name].rows.forEach((row: any) => {
-        const dataColumnIndex = getTargetDataColumn(data[target.name], layerVisualizationSettings, dataColumn)
-        const value = row[dataColumnIndex]
-        const originalValue = row[dataColumn]
+        const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
 
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -312,30 +292,7 @@ const getSizeFromQuantiles = (quantiles: number[], value: number, numQuantiles: 
 }
 
 const addBaloonMarkersClassifiedByEqualIntervalsUsingLayers = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, spatialAttribute: any, variables: IVariable[], targetDatasetData?: any, dataColumn?: string) => {
-    let minValue = Number.MIN_SAFE_INTEGER
-    let maxValue = Number.MAX_SAFE_INTEGER
-    let mappedData: Record<string, number> | null = null
-    let dataColumnIndex = dataColumn
-
-    if (targetDatasetData && dataColumn) {
-        if (!layerVisualizationSettings.targetDataset) return
-
-        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
-        minValue = valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER
-        maxValue = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
-
-        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
-        if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
-
-        mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
-        dataColumnIndex = getTargetDataColumn(targetDatasetData, layerVisualizationSettings, dataColumn)
-    } else {
-        if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
-            const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
-            minValue = Math.min(...layerPropertyValues) ?? 0
-            maxValue = Math.max(...layerPropertyValues) ?? 0
-        }
-    }
+    const { mappedData, dataColumnIndex, minValue, maxValue } = getMappedDataAndMinMaxValues(targetDatasetData, layersData, dataColumn ?? null, layerVisualizationSettings)
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
@@ -346,6 +303,27 @@ const addBaloonMarkersClassifiedByEqualIntervalsUsingLayers = (layersData: any, 
             })
         }
     })
+}
+
+const getMappedDataAndMinMaxValues = (targetDatasetData: any, layersData: any, dataColumn: string | null, layerVisualizationSettings: IMapWidgetVisualizationType): { mappedData: Record<string, number> | null; dataColumnIndex: string | null; minValue: number; maxValue: number } => {
+    let minValue = Number.MIN_SAFE_INTEGER
+    let maxValue = Number.MAX_SAFE_INTEGER
+
+    const { mappedData, dataColumnIndex } = getMappedDataAndColumnIndex(targetDatasetData, dataColumn, layerVisualizationSettings)
+
+    if (targetDatasetData && dataColumnIndex) {
+        if (!layerVisualizationSettings.targetDataset) return { mappedData, dataColumnIndex, minValue, maxValue }
+
+        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, dataColumnIndex)
+        minValue = valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER
+        maxValue = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
+    } else if (layersData && layerVisualizationSettings.targetType === 'property' && layerVisualizationSettings.targetProperty) {
+        const layerPropertyValues = getNumericPropertyValues(layersData, layerVisualizationSettings.targetProperty)
+        minValue = Math.min(...layerPropertyValues) ?? 0
+        maxValue = Math.max(...layerPropertyValues) ?? 0
+    }
+
+    return { mappedData, dataColumnIndex, minValue, maxValue }
 }
 
 const addBaloonMarkerUsingLayersPointClassifedByEqualIntervals = (
@@ -362,28 +340,19 @@ const addBaloonMarkerUsingLayersPointClassifedByEqualIntervals = (
     variables: IVariable[],
     dataColumnIndex: string | null | undefined
 ) => {
-    const layerTargetProperty = mappedData ? layerVisualizationSettings.targetProperty : getTargetProperty(layerVisualizationSettings)
-    const filter = layerVisualizationSettings.filter
-    const valueKey = feature.properties[layerTargetProperty]
-    const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
-
-    const originalVisualizationTypeValueKey = feature.properties[layerVisualizationSettings.targetProperty]
-    const originalVisualizationTypeValue = mappedData ? mappedData[originalVisualizationTypeValueKey] : feature.properties[layerVisualizationSettings.targetProperty]
+    const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
     if (value != null) validateNumber(value)
 
+    const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
 
     if (layerVisualizationSettings.balloonConf) {
         layerVisualizationSettings.balloonConf.size = getSizeFromEqualIntervals(originalVisualizationTypeValue as number, minValue, maxValue, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
     }
 
-    let targetDataset = null as IMapWidgetLayer | null
-    if (layerVisualizationSettings.targetDataset) {
-        targetDataset = widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === layerVisualizationSettings.targetDataset)
-    }
+    const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
 
-    const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetProperty, originalVisualizationTypeValue, variables, targetDataset?.layerId)
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf ?? null, value as number, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
     markerBounds.push(marker.getLatLng())
@@ -404,12 +373,13 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (
     markerBounds: any[],
     variables: IVariable[]
 ) => {
-    const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, incrementColumnName(dataColumn))
+    const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, dataColumn)
 
     data[target.name].rows.forEach((row: any) => {
-        const dataColumnIndex = getTargetDataColumn(data[target.name], layerVisualizationSettings, dataColumn)
-        const value = row[dataColumnIndex]
-        const originalValue = row[dataColumn]
+        const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
+
+        const filter = layerVisualizationSettings.filter
+        if (filter?.enabled && !isConditionMet(filter, value)) return
 
         if (layerVisualizationSettings.balloonConf)
             layerVisualizationSettings.balloonConf.size = getSizeFromEqualIntervals(
@@ -421,7 +391,7 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (
                 layerVisualizationSettings.balloonConf.maxSize
             )
 
-        const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetMeasure, originalValue, variables)
+        const conditionalStyle = getVizualizationConditionalStyles(widgetModel, layerVisualizationSettings.target, layerVisualizationSettings.targetMeasure, value, variables)
         const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, layerVisualizationSettings.balloonConf ?? null, value, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
         markerBounds.push(marker.getLatLng())
         addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
@@ -431,6 +401,7 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (
 
 const getSizeFromEqualIntervals = (value: number, min: number, max: number, classes: number, minSize: number, maxSize: number) => {
     let range = (max - min) / classes
+
     let step = (maxSize - minSize) / (classes - 1)
 
     for (let i = 0; i < classes; i++) {

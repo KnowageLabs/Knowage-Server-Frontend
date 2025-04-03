@@ -138,6 +138,7 @@ const createVegaChart = (chartValuesRecord: ChartValuesRecord, layerVisualizatio
 
 const createVegaPieChart = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
     const { chartData, chartColors, chartDomains } = formatChartColorsAndData(data, layerVisualizationSettings, variables, widgetModel)
+    const { filteredChartData, filteredChartColors, filteredChartDomains } = getFilteredChartColorsAndData(chartData, layerVisualizationSettings, chartColors, chartDomains)
 
     const vegaPieChart = {
         $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
@@ -147,7 +148,7 @@ const createVegaPieChart = (data: { category: string; value: number | string }[]
         mark: 'arc',
         encoding: {
             theta: { field: 'value', type: 'quantitative' },
-            color: { field: 'category', type: 'nominal', scale: { domain: chartDomains, range: chartColors }, legend: null }
+            color: { field: 'category', type: 'nominal', scale: { domain: filteredChartDomains ?? chartDomains, range: filteredChartColors ?? chartColors }, legend: null }
         },
         config: getVegaChartConfig()
     }
