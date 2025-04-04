@@ -222,7 +222,6 @@ export default defineComponent({
             conditionalStyle.condition.value = conditionalStyle.condition.variableKey ? conditionalStyle.condition.variablePivotDatasetOptions[conditionalStyle.condition.variableKey] : ''
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, conditionalStyle: IMapWidgetConditionalStyle) {
-            console.log('-------- MODWEL! ', model)
             conditionalStyle.properties['background-color'] = model['background-color'] ?? 'rgb(137, 158, 175)'
             conditionalStyle.properties['icon'] = model['icon'] ?? ''
         },

@@ -160,7 +160,6 @@ export default defineComponent({
             this.reloadFilters(visualization)
         },
         onFilterUpdated(visualization: IMapWidgetVisualizationType) {
-            console.log('%c------- onFilterUpdated: ', 'color: yellow; font-weight: bold; font-size: 16px;', visualization)
             this.reloadFilters(visualization)
         },
         getColumnOptionsFromLayer(visualization: IMapWidgetVisualizationType) {

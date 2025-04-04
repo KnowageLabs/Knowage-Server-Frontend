@@ -5,13 +5,6 @@ import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/Ma
 import L from 'leaflet'
 import 'leaflet.heat'
 
-// TODO - Remove mock
-const generateMockedHeatmapData = (length: number): number[][] => {
-    return Array.from({ length }, () => [parseFloat((Math.random() * 359 + 1).toFixed(4)), parseFloat((Math.random() * 359 + 1).toFixed(4)), Math.floor(Math.random() * 89) + 1])
-}
-
-const mockedHeatMapData = generateMockedHeatmapData(10000)
-
 export const createHeatmapVisualization = (
     map: any,
     data: any,
@@ -107,9 +100,6 @@ const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSe
             map.invalidateSize()
 
             let tempHeatMapData = heatMapData
-            // TODO  - Remove Mock
-            // tempHeatMapData = mockedHeatMapData
-            // console.log('---- TEMP HEATMAP DATA: ', tempHeatMapData)
 
             const filter = layerVisualizationSettings.filter
             if (filter?.enabled && filter.operator && filter.value != null) {

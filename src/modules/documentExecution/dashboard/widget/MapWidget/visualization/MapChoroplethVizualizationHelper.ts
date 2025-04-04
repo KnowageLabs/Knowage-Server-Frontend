@@ -160,7 +160,7 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
     if (!layerVisualizationSettings.analysisConf) return
     const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
 
-    // TODO - Check getMinMaxByName
+    // TODO - Check getMinMaxByName for the dataColumn after the test on Master with real dataset service
     const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, dataColumn)
     const numberOfClasses = layerVisualizationSettings.analysisConf?.classes ?? defaultChoroplethValues.classes
     const colorGradients = generateColorGradient(layerVisualizationSettings.analysisConf?.style.color ?? defaultChoroplethValues.style.color, layerVisualizationSettings.analysisConf?.style.toColor ?? defaultChoroplethValues.style.toColor, numberOfClasses)

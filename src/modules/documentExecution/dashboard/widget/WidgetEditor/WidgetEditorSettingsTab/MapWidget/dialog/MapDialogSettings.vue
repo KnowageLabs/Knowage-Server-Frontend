@@ -136,7 +136,6 @@ export default defineComponent({
         },
         getColumnOptionsFromLayer(dialogProperty: IMapDialogSettingsProperty) {
             const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === dialogProperty.name)
-            console.log('-------- LAYER: ', layer)
             if (!layer) return []
             else if (layer.type === 'dataset') return layer.columns
             else return this.propertiesCache.get(layer.layerId) ?? []

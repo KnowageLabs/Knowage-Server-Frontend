@@ -244,23 +244,6 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         //     msg: error ? error.message : ''
         // })
     }
-
-    // TODO - Remove mock
-    // const randomFeatures = getRandomFeatures(10000)
-    // const geojson = {
-    //     type: 'FeatureCollection',
-    //     features: randomFeatures
-    // }
-
-    // const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' })
-    // const url = URL.createObjectURL(blob)
-
-    // const link = document.createElement('a')
-    // link.href = url
-    // link.download = 'random-features.json'
-    // link.click()
-
-    // URL.revokeObjectURL(url)
 }
 
 export const centerTheMap = (map: any, markerBounds: any[] | null) => {
