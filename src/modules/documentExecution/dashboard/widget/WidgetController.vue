@@ -98,7 +98,7 @@ import { quickWidgetCreateChartFromTable, quickWidgetCreateTableFromChart } from
 export default defineComponent({
     name: 'widget-manager',
     components: { ContextMenu, WidgetButtonBar, WidgetRenderer, QuickWidgetDialog, WidgetSearchDialog, ChangeWidgetDialog, SheetPickerDialog, DatasetEditorPreview },
-    inject: ['dHash'],
+    inject: ['dHash', 'selectorWidgetsInitialData'],
     props: {
         model: { type: Object },
         item: { required: true, type: Object },
@@ -357,7 +357,7 @@ export default defineComponent({
             this.loadInitialData()
         },
         async loadSelectorInitialData() {
-            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
+            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, [], this.search, this.dashboards[this.dashboardId].configuration)
             this.widgetData = this.widgetInitialData
         },
         async loadInitialData() {
