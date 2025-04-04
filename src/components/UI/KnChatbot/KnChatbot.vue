@@ -2,11 +2,11 @@
     <q-dialog allow-focus-outside persistent seamless v-model="showAlert" transition-show="slide-up" transition-hide="slide-down">
         <div class="kn-chatbot q-pa-sm column shadow-1 bg-white">
             <div class="text-h6">AI assistant</div>
-            <div class="text-caption text-grey-8">The KNOWAGE helper you were waiting for</div>
+            <div class="text-caption text-grey-8">The KNOWAGE consultant you were waiting for</div>
 
             <div class="column col">
                 <div class="col q-ma-sm overflow-auto">
-                    <q-chat-message name="AI" avatar="https://cdn.quasar.dev/img/avatar2.jpg" :text="['doing fine, how r you?']" />
+                    <q-chat-message name="AI" :avatar="avatarImg" :text="['Hello, how can I help you?']" />
                 </div>
                 <div class="row q-gutter-sm">
                     <q-input outlined dense square placeholder="type your message" class="col" />
@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import avatarImg from '@/assets/images/chatbot/chatty.webp'
 
 const showAlert = ref(false)
 
