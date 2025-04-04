@@ -132,7 +132,7 @@ export default defineComponent({
                 'load',
                 () => {
                     this.tenant[imgType] = reader.result || ''
-                    this.onFieldChange('TENANT_IMAGE', this.tenant[imgType])
+                    this.onFieldChange(imgType, this.tenant[imgType])
                 },
                 false
             )

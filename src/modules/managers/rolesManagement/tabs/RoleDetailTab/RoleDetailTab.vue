@@ -1,136 +1,31 @@
 <template>
-    <div id="informations-content" class="kn-flex kn-relative kn-height-full">
-        <div class="roles-absolute-scroll">
-            <Card :style="rolesManagementTabViewDescriptor.card.style">
-                <template #content>
-                    <form class="p-fluid p-m-5">
-                        <div class="p-field">
-                            <span class="p-float-label">
-                                <InputText
-                                    id="name"
-                                    v-model.trim="v$.role.name.$model"
-                                    class="kn-material-input"
-                                    type="text"
-                                    :class="{
-                                        'p-invalid': v$.role.name.$invalid && v$.role.name.$dirty
-                                    }"
-                                    max-length="100"
-                                    data-test="name-input"
-                                    @blur="v$.role.name.$touch()"
-                                    @input="onFieldChange('name', $event.target.value)"
-                                />
-                                <label for="name" class="kn-material-input-label"> {{ $t('common.name') }} * </label>
-                            </span>
-                            <KnValidationMessages
-                                :v-comp="v$.role.name"
-                                :additional-translate-params="{
-                                    fieldName: $t('common.name')
-                                }"
-                            />
-                        </div>
-
-                        <div class="p-field">
-                            <span class="p-float-label">
-                                <InputText
-                                    id="code"
-                                    v-model.trim="v$.role.code.$model"
-                                    class="kn-material-input"
-                                    type="text"
-                                    :class="{
-                                        'p-invalid': v$.role.code.$invalid && v$.role.code.$dirty
-                                    }"
-                                    max-length="20"
-                                    data-test="code-input"
-                                    @blur="v$.role.code.$touch()"
-                                    @input="onFieldChange('code', $event.target.value)"
-                                />
-                                <label for="code" class="kn-material-input-label">
-                                    {{ $t('managers.rolesManagement.detail.code') }}
-                                </label>
-                            </span>
-                            <KnValidationMessages
-                                :v-comp="v$.role.code"
-                                :additional-translate-params="{
-                                    fieldName: $t('managers.rolesManagement.detail.code')
-                                }"
-                            />
-                        </div>
-
-                        <div class="p-field">
-                            <span class="p-float-label">
-                                <InputText
-                                    id="description"
-                                    v-model.trim="v$.role.description.$model"
-                                    class="kn-material-input"
-                                    type="text"
-                                    :class="{
-                                        'p-invalid': v$.role.description.$invalid && v$.role.description.$dirty
-                                    }"
-                                    max-length="150"
-                                    data-test="description-input"
-                                    @blur="v$.role.description.$touch()"
-                                    @input="onFieldChange('description', $event.target.value)"
-                                />
-                                <label for="description" class="kn-material-input-label">
-                                    {{ $t('common.description') }}
-                                </label>
-                            </span>
-                            <KnValidationMessages
-                                :v-comp="v$.role.description"
-                                :additional-translate-params="{
-                                    fieldName: $t('common.description')
-                                }"
-                            />
-                        </div>
-
-                        <div class="p-field">
-                            <span class="p-float-label">
-                                <Dropdown
-                                    id="roleTypeID"
-                                    v-model="v$.role.roleTypeID.$model"
-                                    class="kn-material-input"
-                                    :options="translatedRoleTypes"
-                                    option-label="VALUE_CD"
-                                    option-value="VALUE_ID"
-                                    :class="{
-                                        'p-invalid': v$.role.roleTypeID.$invalid && v$.role.roleTypeID.$dirty
-                                    }"
-                                    @before-show="v$.role.roleTypeID.$touch()"
-                                    @change="onRoleTypeChange('roleTypeID', 'roleTypeCD', $event)"
-                                >
-                                </Dropdown>
-                                <label for="roleTypeID" class="kn-material-input-label"> {{ $t('managers.rolesManagement.detail.roleTypeID') }} * </label>
-                            </span>
-                            <KnValidationMessages
-                                :v-comp="v$.role.roleTypeID"
-                                :additional-translate-params="{
-                                    fieldName: $t('managers.rolesManagement.detail.roleTypeID')
-                                }"
-                            />
-                        </div>
-
-                        <div class="p-field">
-                            <span class="p-field-checkbox">
-                                <Checkbox id="isPublic" v-model="role.isPublic" name="isPublic" :binary="true" data-test="is-public-checkbox" @change="onPublicChange" />
-                                <label for="isPublic">
-                                    {{ $t('managers.rolesManagement.detail.isPublic') }}
-                                </label>
-                            </span>
-                        </div>
-                    </form>
-                </template>
-            </Card>
-        </div>
-    </div>
+    <q-card class="q-ma-sm">
+        <q-card-section class="row q-col-gutter-sm">
+            <q-input class="col-4" v-model.trim="v$.role.name.$model" :label="$t('common.name') + '*'" filled @update:model-value="(value) => onFieldChange('name', value)" maxlength="100" data-test="name-input" />
+            <q-input class="col-4" v-model.trim="v$.role.code.$model" :label="$t('managers.rolesManagement.detail.code') + '*'" filled @update:model-value="(value) => onFieldChange('code', value)" maxlength="20" data-test="code-input" />
+            <q-select
+                class="col-4"
+                v-model.trim="v$.role.roleTypeID.$model"
+                :options="translatedRoleTypes"
+                emit-value
+                map-options
+                option-label="VALUE_CD"
+                option-value="VALUE_ID"
+                :label="$t('managers.rolesManagement.detail.roleTypeID') + '*'"
+                filled
+                @update:model-value="(value) => onRoleTypeChange('roleTypeID', 'roleTypeCD', value)"
+                data-test="name-input"
+            />
+            <q-input class="col-12" type="textarea" rows="2" v-model.trim="v$.role.description.$model" :label="$t('common.description')" filled @update:model-value="(value) => onFieldChange('description', value)" maxlength="150" data-test="description-input" />
+            <q-toggle v-model="role.isPublic" :label="$t('managers.rolesManagement.detail.isPublic')" @update:model-value="onPublicChange" />
+        </q-card-section>
+    </q-card>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { createValidations } from '@/helpers/commons/validationHelper'
 import { AxiosResponse } from 'axios'
-import Card from 'primevue/card'
-import Dropdown from 'primevue/dropdown'
-import Checkbox from 'primevue/checkbox'
 import useValidate from '@vuelidate/core'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import rolesManagementTabViewDescriptor from '../../RolesManagementTabViewDescriptor.json'
@@ -139,9 +34,6 @@ import roleDetailValidationDescriptor from './RoleDetailValidationDescriptor.jso
 export default defineComponent({
     name: 'detail-tab',
     components: {
-        Card,
-        Dropdown,
-        Checkbox,
         KnValidationMessages
     },
     props: {
@@ -174,11 +66,13 @@ export default defineComponent({
         selectedRole() {
             this.v$.$reset()
             this.role = { ...this.selectedRole } as any
+            if (!this.role.isPublic) this.role.isPublic = false
         }
     },
     async created() {
         if (this.selectedRole) {
             this.role = { ...this.selectedRole } as any
+            if (!this.role.isPublic) this.role.isPublic = false
         }
         await this.loadRoleTypes()
     },
@@ -201,11 +95,11 @@ export default defineComponent({
             return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/domains/listValueDescriptionByType?DOMAIN_TYPE=${type}`)
         },
         onRoleTypeChange(roleTypeIDField: string, roleTypeCDField: string, event) {
-            const selRoleType = this.roleTypes.find((roleType) => roleType.VALUE_ID === event.value)
+            const selRoleType = this.roleTypes.find((roleType) => roleType.VALUE_ID === event)
             if (selRoleType) {
                 this.role.roleTypeCD = selRoleType.VALUE_CD
             }
-            const ID = event.value
+            const ID = event
             const CD = this.role.roleTypeCD
             this.$emit('roleTypeChanged', { roleTypeIDField, roleTypeCDField, ID, CD })
         },

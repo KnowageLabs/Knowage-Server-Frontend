@@ -12,7 +12,7 @@
         <template #content>
             <q-table dense flat hide-pagination :rows="datasets" :columns="datasetTableCardDescriptor.columns" row-key="label">
                 <template #header-cell="props">
-                    <q-th style="text-align: start">{{ $t(props.col.label) }}</q-th>
+                    <q-th style="text-align: start" v-if="props.col.label">{{ $t(props.col.label) }}</q-th>
                 </template>
                 <template #body-cell-button="props">
                     <q-btn flat round dense icon="delete" data-test="delete-button" @click="deleteDatasetConfirm(props.row.signature)"></q-btn>

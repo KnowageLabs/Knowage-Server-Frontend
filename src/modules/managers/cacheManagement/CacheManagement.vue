@@ -3,7 +3,6 @@
         <q-toolbar class="kn-toolbar kn-toolbar--primary">
             <q-toolbar-title>{{ $t('managers.cacheManagement.title') }}</q-toolbar-title>
         </q-toolbar>
-        <ProgressBar v-if="showProgressBar" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
         <div class="row q-col-gutter-sm overflow-auto">
             <div class="col-12 col-md-4">
                 <RuntimeInformationCard v-if="selectedDatasource" :item="cache" :chart-data="chartData" @refresh="onRefresh"></RuntimeInformationCard>
@@ -26,6 +25,7 @@ import DatasetTableCard from './cards/DatasetTableCard/DatasetTableCard.vue'
 import GeneralSettingsCard from './cards/GeneralSettingsCard/GeneralSettingsCard.vue'
 import RuntimeInformationCard from './cards/RuntimeInformationCard/RuntimeInformationCard.vue'
 import mainStore from '../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'cache-management',
@@ -34,14 +34,9 @@ export default defineComponent({
         GeneralSettingsCard,
         RuntimeInformationCard
     },
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             cache: {} as iCache,
-            loading: false,
             datasetMetadataLoading: true,
             settingsPendingCount: 10,
             chartData: [] as any,
@@ -51,15 +46,11 @@ export default defineComponent({
             datasources: [] as any
         }
     },
-    computed: {
-        showProgressBar(): boolean {
-            return this.loading || this.settingsPendingCount != 0
-        }
-    },
     async created() {
         this.loadPage()
     },
     methods: {
+        ...mapActions(mainStore, ['setError', 'setLoading']),
         loadCache() {
             this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/cacheee').then((response: AxiosResponse<any>) => {
                 this.cache = response.data
@@ -68,7 +59,7 @@ export default defineComponent({
         },
         loadSettings() {
             this.settings = {} as iSettings
-            this.settingsPendingCount = 10
+            this.settingsPendingCount = 11
             this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/configs/label/SPAGOBI.CACHE.NAMEPREFIX')
                 .then((response: AxiosResponse<any>) => (this.settings.prefixForCacheTablesName = response.data.valueCheck))
@@ -109,9 +100,13 @@ export default defineComponent({
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/configs/label/SPAGOBI.CACHE.HAZELCAST.LEASETIME')
                 .then((response: AxiosResponse<any>) => (this.settings.hazelcastLeaseTime = +response.data.valueCheck))
                 .finally(() => this.settingsPendingCount--)
+            this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/configs/label/SPAGOBI.CACHE.REFRESH')
+                .then((response: AxiosResponse<any>) => (this.settings.scheduledModality = response.data.valueCheck))
+                .finally(() => this.settingsPendingCount--)
         },
         async loadDataSources() {
-            this.loading = true
+            this.setLoading(true)
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/datasources/?type=cache')
                 .then((response: AxiosResponse<any>) => {
@@ -125,10 +120,10 @@ export default defineComponent({
                         }
                     })
                 })
-                .finally(() => (this.loading = false))
+                .finally(() => this.setLoading(false))
 
             if (this.selectedDatasource === null) {
-                this.store.setError({
+                this.setError({
                     title: this.$t('managers.cacheManagement.noDefaultDatasetTitle'),
                     msg: this.$t('managers.cacheManagement.noDefaultDataset')
                 })
@@ -150,9 +145,11 @@ export default defineComponent({
         pageReload() {
             this.loadPage()
         },
-        onRefresh() {
-            this.loadCache()
-            this.loadDatasetsMetadata()
+        async onRefresh() {
+            this.setLoading(true)
+            await this.loadCache()
+            await this.loadDatasetsMetadata()
+            this.setLoading(false)
         }
     }
 })

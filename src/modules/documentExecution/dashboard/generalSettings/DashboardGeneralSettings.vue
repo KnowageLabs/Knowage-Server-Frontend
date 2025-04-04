@@ -16,15 +16,13 @@
             <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
             <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
-            <WidgetEditor
-                v-if="selectedOption === 'Custom Header' && customHeaderWidgetEditorVisible && customHeaderWidget"
-                :dashboard-id="dashboardId"
-                :datasets="datasets"
-                :variables="variables"
-                :prop-widget="customHeaderWidget"
-                @widgetSaved="onCustomHeaderSaved"
-                @close="onCustomHeaderCancel"
-            ></WidgetEditor>
+            <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
+                <span class="p-p-3">
+                    <InputSwitch v-model="menuWidgetsConfig.enableCustomHeader" />
+                    <label class="kn-material-input-label p-ml-3">{{ $t('dashboard.generalSettings.menuWidgets.enableCustomHeader') }}</label>
+                </span>
+                <WidgetEditor ref="widgetEditor" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" :class="{ 'editor-disabled': !menuWidgetsConfig.enableCustomHeader }"></WidgetEditor>
+            </div>
         </div>
     </div>
 </template>
@@ -50,10 +48,11 @@ import { createCustomHeaderWidget } from './DashboardGeneralSettingsHelper'
 import { IMenuAndWidgets } from '../Dashboard'
 import { addMissingMenuWidgetsConfiguration } from '../DashboardHelpers'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
+import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, InputSwitch },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
@@ -76,8 +75,8 @@ export default defineComponent({
     computed: {},
     watch: {},
     created() {
-        this.setSelectedOption(this.generalSettingsMode)
         this.loadDashboardModel()
+        this.setSelectedOption(this.generalSettingsMode)
         this.loadVariables()
         this.loadSelectedDatasets()
         this.loadSelectedDatasetColumnNames()
@@ -125,6 +124,9 @@ export default defineComponent({
             if (option === 'Custom Header') {
                 if (!this.customHeaderWidget) this.customHeaderWidget = createCustomHeaderWidget()
                 this.customHeaderWidgetEditorVisible = true
+            } else {
+                this.saveCustomHeader()
+                this.customHeaderWidgetEditorVisible = false
             }
             this.selectedOption = option
         },
@@ -134,6 +136,8 @@ export default defineComponent({
         },
         async saveGeneralSettings() {
             let refreshWidgets = false
+            this.saveCustomHeader()
+
             for (let i = 0; i < this.variables.length; i++) {
                 if (this.variables[i].type === 'dataset') {
                     await setVariableValueFromDataset(this.variables[i], this.datasets, this.$http)
@@ -156,12 +160,9 @@ export default defineComponent({
             const allThemes = this.getAllThemes()
             return allThemes.find((theme: IDashboardTheme) => theme.id === themeId)
         },
-        onCustomHeaderSaved(customHeader: IWidget) {
-            this.dashboardModel.configuration.customHeader = deepcopy(customHeader)
-            this.customHeaderWidgetEditorVisible = false
-        },
-        onCustomHeaderCancel() {
-            this.customHeaderWidgetEditorVisible = false
+        saveCustomHeader() {
+            const customHeaderRef = this.$refs.widgetEditor as any
+            if (customHeaderRef) this.dashboardModel.configuration.customHeader = deepcopy(customHeaderRef.widget)
         },
         updateWidgetMenuSettings() {
             this.dashboardModel.configuration.menuWidgets = this.menuWidgetsConfig
@@ -169,3 +170,9 @@ export default defineComponent({
     }
 })
 </script>
+<style lang="scss">
+.editor-disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}
+</style>

@@ -1,6 +1,5 @@
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
 import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError } from '../../DashboardDataProxy'
-import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -19,8 +18,6 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
         const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
 
-        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
-
         const dataHash = md5(JSON.stringify(postData))
         const cachedData = await indexedDB.widgetData.get(dataHash)
 
@@ -29,7 +26,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
             return response.data
         }
 
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             tempResponse = cachedData.data
             tempResponse.initialCall = initialCall
         } else {
@@ -39,7 +36,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
                 tempResponse = response.data
                 tempResponse.initialCall = initialCall
 
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             } catch (error) {
                 console.error(error)
                 showGetDataError(error, selectedDataset.dsLabel)

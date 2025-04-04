@@ -1,7 +1,7 @@
 <template>
-    <div class="dashboardEditor">
-        <Toolbar class="kn-toolbar kn-toolbar--primary">
-            <template #start> {{ widgetTitle }} Widget Editor</template>
+    <div class="dashboardEditor" :style="isDashboardHeader ? 'display: flex; flex-direction: column; position: relative' : ''">
+        <Toolbar v-if="!isDashboardHeader" class="kn-toolbar kn-toolbar--primary">
+            <template #start>{{ widgetTitle }} Widget Editor</template>
             <template #end>
                 <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="widgetIsInvalid" data-test="save-button" @click="save" />
                 <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="close" />
@@ -10,10 +10,8 @@
         <div class="datasetEditor-container kn-overflow">
             <WidgetEditorTabs class="dashboardEditor-tabs" :prop-widget="widget" :datasets="datasets" :selected-datasets="selectedDatasets" :variables="variables" :dashboard-id="dashboardId" :selected-setting-prop="selectedSetting" @settingChanged="onSettingChanged" />
 
-            <div v-if="selectedSetting != 'Gallery'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px">
-                <q-btn icon="preview" size="sm" round flat @click="togglePreview">
-                    <q-tooltip :delay="500">{{ $t('common.preview') }}</q-tooltip>
-                </q-btn>
+            <div v-if="selectedSetting != 'Gallery'" class="preview-buttons-container p-d-flex" style="position: absolute; top: 38px; right: 10px" :style="{ top: isDashboardHeader ? '0px' : '' }">
+                <Button icon="fas fa-magnifying-glass" class="p-button-rounded p-button-text p-button-plain expand-button" @click="togglePreview" />
             </div>
 
             <WidgetEditorPreview v-if="widget.type != 'static-pivot-table' && selectedSetting != 'Gallery' && !chartPickerVisible && showPreview" :prop-widget="widget" :dashboard-id="dashboardId" :datasets="selectedModelDatasets" :variables="variables" />
@@ -65,6 +63,9 @@ export default defineComponent({
         }
     },
     computed: {
+        isDashboardHeader() {
+            return this.widget.settings?.isCustomDashboardHeader
+        },
         widgetTitle() {
             return this.widget.settings?.isCustomDashboardHeader ? this.$t('dashboard.generalSettings.customHeader') : this.widget.type
         },

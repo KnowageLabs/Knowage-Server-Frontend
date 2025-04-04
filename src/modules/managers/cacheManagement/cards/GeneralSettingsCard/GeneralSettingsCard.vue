@@ -82,6 +82,7 @@ import { defineComponent } from 'vue'
 import { iSettings } from '../../CacheManagement'
 import generalSettingsCardDescriptor from './GeneralSettingsCardDescriptor.json'
 import mainStore from '../../../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'general-settings-card',
@@ -100,10 +101,6 @@ export default defineComponent({
         }
     },
     emits: ['inserted'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             generalSettingsCardDescriptor,
@@ -129,9 +126,11 @@ export default defineComponent({
         this.loadDatasource()
     },
     methods: {
+        ...mapActions(mainStore, ['setInfo']),
         loadSettings() {
             this.settings = { ...this.item } as iSettings
             if (typeof this.settings.scheduledModality === 'undefined') this.settings.scheduledModality = false
+            else this.settings.scheduledModality = this.settings.scheduledModality === 'true'
         },
         loadDatasources() {
             this.datasourceOptions = this.datasources as []
@@ -143,7 +142,7 @@ export default defineComponent({
             await this.saveDatasource()
             await this.saveConfigurationOptions()
 
-            this.store.setInfo({
+            this.setInfo({
                 title: this.$t('common.toast.success'),
                 msg: this.$t('common.toast.updateTitle')
             })

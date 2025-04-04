@@ -2,7 +2,7 @@
     <Teleport to=".dashboard-container">
         <div class="dashboardEditor">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start> {{ $t('dashboard.datasetEditor.title') }} </template>
+                <template #start>{{ $t('dashboard.datasetEditor.title') }}</template>
                 <template #end>
                     <Button :disabled="modelHasEmptyAssociations" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" data-test="save-button" @click="saveDatasetsToModel" />
                     <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeDatasetEditor" />
@@ -118,6 +118,7 @@ export default defineComponent({
                         responseDataset.modelDrivers = dashboardDataset.drivers ? dashboardDataset.drivers : []
                         responseDataset.modelCache = dashboardDataset.cache
                         responseDataset.modelIndexes = dashboardDataset.indexes
+                        responseDataset.frequency = dashboardDataset.frequency
 
                         return responseDataset
                     }

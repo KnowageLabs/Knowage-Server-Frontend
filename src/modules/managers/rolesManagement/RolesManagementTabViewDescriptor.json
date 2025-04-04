@@ -375,19 +375,27 @@
     },
     "categories": [
         {
+            "caption": "managers.rolesManagement.authGroups.documentExecutionToolbarCaption",
             "categoryName": "documentExecutionMenu",
+            "icon": "more_horiz",
             "name": "managers.rolesManagement.authGroups.documentExecutionToolbar"
         },
         {
+            "caption": "managers.rolesManagement.authGroups.menuConfigurationCaption",
             "categoryName": "menuConfiguration",
+            "icon": "menu",
             "name": "managers.rolesManagement.authGroups.menuConfiguration"
         },
         {
+            "caption": "managers.rolesManagement.authGroups.workspaceCaption",
             "categoryName": "myWorskpace",
+            "icon": "business_center",
             "name": "managers.rolesManagement.authGroups.workspace"
         },
         {
+            "caption": "managers.rolesManagement.authGroups.dashboardCaption",
             "categoryName": "cockpitWidgets",
+            "icon": "dashboard",
             "name": "managers.rolesManagement.authGroups.dashboard"
         }
     ],

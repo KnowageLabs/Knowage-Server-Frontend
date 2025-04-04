@@ -1,10 +1,11 @@
 import GisRoutes from '@/modules/workspace/gisDocumentDesigner/GisDocumentDesigner.routes.js'
+import constants from '@/UserFunctionalitiesConstants.json'
 
 const baseRoutes = [
     {
         path: '/workspace',
         name: 'workspace',
-        meta: { functionality: 'WorkspaceManagement' },
+        meta: { functionality: constants.SEE_MY_WORKSPACE },
         component: () => import('@/modules/workspace/Workspace.vue'),
         children: [
             {
@@ -13,7 +14,7 @@ const baseRoutes = [
             },
             {
                 path: 'recent',
-                meta: { functionality: 'HotLinkManagement' },
+                meta: { functionality: constants.HOT_LINK_MANAGEMENT },
                 component: () => import('@/modules/workspace/views/recentView/WorkspaceRecentView.vue')
             },
             {
@@ -23,12 +24,12 @@ const baseRoutes = [
             },
             {
                 path: 'data',
-                meta: { functionality: 'SelfServiceDatasetManagement' },
+                meta: { functionality: constants.SELF_SERVICE_DATASET_MANAGEMENT },
                 component: () => import('@/modules/workspace/views/dataView/WorkspaceDataView.vue')
             },
             {
                 path: 'models',
-                meta: { functionality: 'SelfServiceMetaModelManagement' },
+                meta: { functionality: constants.SELF_SERVICE_META_MODEL_MANAGEMENT },
                 component: () => import('@/modules/workspace/views/modelsView/WorkspaceModelsView.vue')
             },
             {
