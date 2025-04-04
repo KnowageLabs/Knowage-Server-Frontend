@@ -8,11 +8,11 @@ export const createNewMapWidgetSettings = () => {
         updatable: true,
         clickable: true,
         configuration: {
-            baseLayer: mapWidgetDefaultValues.getDefaultBaseLayerSettings(),
+            map: mapWidgetDefaultValues.getDefaultMapLayerSettings(),
             controlPanel: mapWidgetDefaultValues.getDefaultControlPanelSettings(),
             exports: { showExcelExport: false, showScreenshot: false }
         },
-        visualization: mapWidgetDefaultValues.getDefaultVisualizationSettings(),
+        visualizations: mapWidgetDefaultValues.getDefaultVisualizationSettings(),
         conditionalStyles: { enabled: false, conditions: [] },
         legend: mapWidgetDefaultValues.getDefaultLegendSettings(),
         dialog: mapWidgetDefaultValues.getDefaultDialogSettings(),

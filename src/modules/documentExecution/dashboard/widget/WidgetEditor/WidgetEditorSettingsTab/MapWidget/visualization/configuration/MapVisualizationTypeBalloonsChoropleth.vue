@@ -13,7 +13,7 @@
                     </div>
                 </template>
             </Dropdown>
-            <label for="attributes" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.map.classesMethodOptions.title') }} </label>
+            <label for="attributes" class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.classesMethodOptions.title') }}</label>
         </div>
 
         <div v-if="classifyByRanges" class="p-col-12 p-lg-6">
@@ -24,19 +24,22 @@
             <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.classesNumber') }}</label>
         </div>
 
-        <div v-if="!classifyByRanges || type === 'balloons'" class="p-col-12" :class="{ 'p-lg-4': type === 'choropleth', 'p-lg-3': type === 'balloons' }">
-            <WidgetEditorColorPicker :initial-value="visualizationTypeConfiguration.fromColor" :label="$t('dashboard.widgetEditor.map.fromColor')" @change="onSelectionColorChanged($event, 'fromColor')"></WidgetEditorColorPicker>
-        </div>
-        <div v-if="!classifyByRanges || type === 'balloons'" class="p-col-12" :class="{ 'p-lg-4': type === 'choropleth', 'p-lg-3': type === 'balloons' }">
-            <WidgetEditorColorPicker :initial-value="visualizationTypeConfiguration.toColor" :label="$t('dashboard.widgetEditor.map.toColor')" @change="onSelectionColorChanged($event, 'toColor')"></WidgetEditorColorPicker>
-        </div>
-        <div v-if="!classifyByRanges || type === 'balloons'" class="p-col-12" :class="{ 'p-lg-4': type === 'choropleth', 'p-lg-3': type === 'balloons' }">
-            <WidgetEditorColorPicker :initial-value="visualizationTypeConfiguration.borderColor" :label="$t('dashboard.widgetEditor.iconTooltips.borderColor')" @change="onSelectionColorChanged($event, 'borderColor')"></WidgetEditorColorPicker>
+        <div class="p-col-12" :class="{ 'p-lg-4': type === 'choropleth', 'p-lg-3': type === 'balloons' }">
+            <WidgetEditorColorPicker :initial-value="visualizationTypeConfiguration.style.color" :label="$t('common.color')" @change="onSelectionColorChanged($event, 'color')"></WidgetEditorColorPicker>
         </div>
 
-        <div v-if="type === 'balloons'" class="p-col-12 p-lg-3">
+        <div v-if="!classifyByRanges && type !== 'balloons'" class="p-col-12" :class="{ 'p-lg-4': type === 'choropleth', 'p-lg-3': type === 'balloons' }">
+            <WidgetEditorColorPicker :initial-value="(visualizationTypeConfiguration as IMapWidgetVisualizationTypeChoropleth).style.toColor" :label="$t('dashboard.widgetEditor.map.toColor')" @change="onSelectionColorChanged($event, 'toColor')"></WidgetEditorColorPicker>
+        </div>
+
+        <div v-if="type === 'balloons'" class="p-pl-5 p-col-12 p-lg-3">
             <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.rangeLabel') }}</label>
-            <Slider v-model="rangeValue" class="p-my-2 p-mr-2" range :min="1" :max="100" @change="onRangeSizeChange" />
+            <q-range v-model="rangeValue" :min="1" :max="100" label-always @change="onRangeSizeChange" />
+        </div>
+
+        <div v-if="type !== 'balloons'" class="p-float-label p-col-12 p-lg-3 p-fluid">
+            <InputNumber v-model="(visualizationTypeConfiguration as IMapWidgetVisualizationTypeChoropleth).style.borderWidth" class="kn-material-input" />
+            <label class="kn-material-input-label">{{ $t('common.width') }}</label>
         </div>
 
         <MapVisualizationRangesDialog
@@ -60,18 +63,19 @@ import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue
 import MapVisualizationRangesDialog from './MapVisualizationRangesDialog.vue'
 import deepcopy from 'deepcopy'
 import Slider from 'primevue/slider'
+import * as mapWidgetDefaultValues from '../../../../helpers/mapWidget/MapWidgetDefaultValues'
 
 export default defineComponent({
     name: 'map-visualization-type-choropleth',
     components: { Dropdown, InputNumber, WidgetEditorColorPicker, MapVisualizationRangesDialog, Slider },
-    props: { propVisualizationTypeConfiguration: { type: Object as PropType<IMapWidgetVisualizationTypeChoropleth | null>, required: true }, type: { type: String, required: true } },
+    props: { propVisualizationTypeConfiguration: { type: Object as PropType<IMapWidgetVisualizationTypeBalloons | IMapWidgetVisualizationTypeChoropleth | null>, required: true }, type: { type: String, required: true } },
     emits: [],
     data() {
         return {
             descriptor,
             visualizationTypeConfiguration: null as IMapWidgetVisualizationTypeChoropleth | IMapWidgetVisualizationTypeBalloons | null,
             rangesDialogVisible: false,
-            rangeValue: [1, 100] as number[],
+            rangeValue: { min: 1, max: 100 } as { min: number; max: number },
             getTranslatedLabel
         }
     },
@@ -91,22 +95,22 @@ export default defineComponent({
     methods: {
         loadChoroplethConfiguration() {
             this.visualizationTypeConfiguration = this.propVisualizationTypeConfiguration
+            if (this.visualizationTypeConfiguration && !this.visualizationTypeConfiguration.style) this.visualizationTypeConfiguration.style = { color: mapWidgetDefaultValues.getDefaultVisualizationBalloonsConfiguration().style.color }
             if (this.type === 'balloons') this.loadRangeValue()
         },
         loadRangeValue() {
             if (!this.visualizationTypeConfiguration) return
             const configuration = this.visualizationTypeConfiguration as IMapWidgetVisualizationTypeBalloons
-            this.rangeValue = [configuration.minSize, configuration.maxSize]
+            this.rangeValue = { min: configuration.minSize ?? 1, max: configuration.maxSize ?? 100 }
         },
-
-        onSelectionColorChanged(event: string | null, property: 'fromColor' | 'toColor' | 'borderColor') {
-            if (this.visualizationTypeConfiguration && event) this.visualizationTypeConfiguration[property] = event
+        onSelectionColorChanged(event: string | null, property: 'color' | 'toColor') {
+            if (this.visualizationTypeConfiguration && event) this.visualizationTypeConfiguration.style[property] = event
         },
-        onRangeSizeChange(event: any) {
+        onRangeSizeChange(event: { min: number; max: number }) {
             if (!this.visualizationTypeConfiguration) return
             const configuration = this.visualizationTypeConfiguration as IMapWidgetVisualizationTypeBalloons
-            configuration.minSize = event[0]
-            configuration.maxSize = event[1]
+            configuration.minSize = event.min
+            configuration.maxSize = event.max
         },
         onManageRangesClicked() {
             this.rangesDialogVisible = true

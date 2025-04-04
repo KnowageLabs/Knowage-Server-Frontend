@@ -7,7 +7,6 @@
     "settings": {
         "prettier.semi": false,
         "prettier.useEditorConfig": false,
-        "prettier.htmlWhitespaceSensitivity": "ignore",
         "scss.lint.float": "warning",
         "vetur.format.defaultFormatter.css": "prettier",
         "scss.lint.important": "warning",

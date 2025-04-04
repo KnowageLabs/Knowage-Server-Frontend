@@ -9,7 +9,7 @@
         "Configuration": [
             {
                 "title": "dashboard.widgetEditor.map.baseLayer.title",
-                "type": "BaseLayer"
+                "type": "Map"
             },
             {
                 "title": "dashboard.widgetEditor.map.controlPanel.title",
@@ -120,12 +120,12 @@
             "value": "Interactions"
         },
         {
-            "icon": "fa fa-hand-pointer",
+            "icon": "fa-solid fa-list",
             "label": "dashboard.widgetEditor.legend.title",
             "value": "Legend"
         },
         {
-            "icon": "fa fa-hand-pointer",
+            "icon": "fa-regular fa-window-restore",
             "label": "common.dialog",
             "value": "Dialog"
         },

@@ -1,9 +1,24 @@
-import { IMapDialogSettings, IMapTooltipSettings, IMapWidgetBaseLayer, IMapWidgetConditionalStyle, IMapWidgetControlPanel, IMapWidgetLegend, IMapWidgetVisualizationSettings, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeChoropleth, IMapWidgetVisualizationTypeCluster, IMapWidgetVisualizationTypeHeatmap, IMapWidgetVisualizationTypeMarker, IMapWidgetVisualizationTypePie } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import {
+    IMapDialogSettings,
+    IMapTooltipSettings,
+    IMapWidgetConditionalStyle,
+    IMapWidgetControlPanel,
+    IMapWidgetLayerFilter,
+    IMapWidgetLegend,
+    IMapWidgetMapSettings,
+    IMapWidgetVisualizationType,
+    IMapWidgetVisualizationTypeBalloons,
+    IMapWidgetVisualizationTypeChoropleth,
+    IMapWidgetVisualizationTypeCluster,
+    IMapWidgetVisualizationTypeHeatmap,
+    IMapWidgetVisualizationTypeMarker,
+    IMapWidgetVisualizationTypePie
+} from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import descriptor from './MapWidgetDefaultValuesDescriptor.json'
 import deepcopy from 'deepcopy'
 
 export const getDefaultMapTooltips = () => {
-    return deepcopy(descriptor.defaultTooltips) as IMapTooltipSettings
+    return deepcopy(descriptor.defaultTooltip) as IMapTooltipSettings
 }
 
 export const getDefaultDialogSettings = () => {
@@ -14,8 +29,8 @@ export const getDefaultLegendSettings = () => {
     return deepcopy(descriptor.defaultLegendSettings) as IMapWidgetLegend
 }
 
-export const getDefaultBaseLayerSettings = () => {
-    return deepcopy(descriptor.defaultBaseLayerSettings) as IMapWidgetBaseLayer
+export const getDefaultMapLayerSettings = () => {
+    return deepcopy(descriptor.defaultMapLayerSettings) as IMapWidgetMapSettings
 }
 
 export const getDefaultControlPanelSettings = () => {
@@ -27,18 +42,19 @@ export const getDefaultConditionalStyle = () => {
 }
 
 export const getDefaultVisualizationSettings = () => {
-    const visualizationSettings = {
-        types: [{
-            target: [],
+    const visualizationSettings = [
+        {
+            target: '',
             type: 'markers',
+            visible: true,
             markerConf: getDefaultVisualizationMarkerConfiguration(),
             balloonConf: getDefaultVisualizationBalloonsConfiguration(),
             pieConf: getDefaultVisualizationPieConfiguration(),
             clusterConf: getDefaultVisualizationClusterConfiguration(),
             heatmapConf: getDefaultVisualizationHeatmapConfiguration(),
             analysisConf: getDefaultVisualizationChoroplethConfiguration()
-        }]
-    } as IMapWidgetVisualizationSettings
+        }
+    ] as Array<IMapWidgetVisualizationType>
     return deepcopy(visualizationSettings)
 }
 
@@ -63,5 +79,10 @@ export const getDefaultVisualizationHeatmapConfiguration = () => {
 }
 
 export const getDefaultVisualizationChoroplethConfiguration = () => {
-    return deepcopy(descriptor.defaultVisualizationChoroplethConfiguration) as IMapWidgetVisualizationTypeChoropleth
+    const defaultFilter = getDefaultVisualizationMapFilter()
+    return deepcopy({ ...descriptor.defaultVisualizationChoroplethConfiguration, filter: defaultFilter }) as IMapWidgetVisualizationTypeChoropleth
+}
+
+export const getDefaultVisualizationMapFilter = () => {
+    return deepcopy(descriptor.defaultMapFilter) as IMapWidgetLayerFilter
 }

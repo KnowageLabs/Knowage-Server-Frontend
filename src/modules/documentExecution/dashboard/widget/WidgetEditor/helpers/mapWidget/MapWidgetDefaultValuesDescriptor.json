@@ -1,11 +1,4 @@
 {
-    "defaultBaseLayerSettings": {
-        "autoCentering": false,
-        "backgroundLayerId": null,
-        "enabled": true,
-        "showScale": false,
-        "zoomFactor": null
-    },
     "defaultConditionalStyle": {
         "condition": {
             "operator": "",
@@ -13,7 +6,8 @@
             "value": ""
         },
         "properties": {
-            "background-color": ""
+            "background-color": "",
+            "icon": ""
         },
         "targetColumn": "",
         "targetLayer": ""
@@ -23,12 +17,11 @@
         "dimension": ""
     },
     "defaultDialogSettings": {
-        "enabled": true,
-        "height": "200px",
-        "properties": [
+        "enabled": false,
+        "layers": [
             {
                 "columns": [],
-                "layer": ""
+                "name": ""
             }
         ],
         "style": {
@@ -39,8 +32,7 @@
             "font-style": "",
             "font-weight": "",
             "justify-content": "center"
-        },
-        "width": "200px"
+        }
     },
     "defaultLegendSettings": {
         "alignment": "center",
@@ -75,8 +67,21 @@
         },
         "visualizationType": "Linear Gradient"
     },
-    "defaultTooltips": {
+    "defaultMapFilter": {
+        "column": null,
+        "enabled": false,
+        "operator": "",
+        "reloaded": true,
+        "value": ""
+    },
+    "defaultMapLayerSettings": {
+        "autoCentering": true,
         "enabled": true,
+        "showScale": false,
+        "zoom": 10
+    },
+    "defaultTooltip": {
+        "enabled": false,
         "layers": [
             {
                 "columns": [],
@@ -87,50 +92,56 @@
     "defaultVisualizationBalloonsConfiguration": {
         "borderColor": "",
         "classes": 3,
-        "fromColor": "rgba(209, 209, 209, 1)",
+        "maxSize": 30,
+        "method": "CLASSIFY_BY_EQUAL_INTERVALS",
+        "minSize": 1,
+        "properties": {
+            "thresholds": []
+        },
+        "style": {
+            "color": "rgba(51, 0, 255, 1)"
+        },
+        "type": "default"
+    },
+    "defaultVisualizationChoroplethConfiguration": {
+        "borderColor": "",
+        "classes": 3,
         "maxSize": 100,
         "method": "CLASSIFY_BY_EQUAL_INTERVALS",
         "minSize": 1,
         "properties": {
             "thresholds": []
         },
-        "toColor": "rgba(91, 91, 91, 1)"
-    },
-    "defaultVisualizationChoroplethConfiguration": {
-        "borderColor": "",
-        "classes": 3,
-        "fromColor": "#rgba(209, 209, 209, 1)",
-        "method": "CLASSIFY_BY_EQUAL_INTERVALS",
-        "properties": {
-            "thresholds": []
-        },
-        "toColor": "rgba(91, 91, 91, 1)"
+        "style": {
+            "borderWidth": 2,
+            "color": "rgba(51, 0, 255, 1)",
+            "toColor": "rgba(255, 6, 0, 1)"
+        }
     },
     "defaultVisualizationClusterConfiguration": {
         "enabled": false,
-        "radiusSize": 10,
+        "maxClusterRadius": 30,
+        "radiusSize": 30,
         "style": {
+            "background-color": "rgba(0, 146, 255, 1)",
+            "color": "rgba(0, 0, 0, 1)",
             "font-size": "12px"
         }
     },
     "defaultVisualizationHeatmapConfiguration": {
         "blur": 15,
-        "radius": 8
+        "maxZoom": 1,
+        "radius": 25
     },
     "defaultVisualizationMarkerConfiguration": {
+        "size": 10,
         "style": {
-            "borderColor": "",
             "color": ""
         },
         "type": "default"
     },
     "defaultVisualizationPieConfiguration": {
-        "borderColor": "",
-        "categorizeBy": "ID",
-        "fromColor": "rgba(209, 209, 209, 1)",
-        "maxSize": 100,
-        "minSize": 1,
-        "toColor": "rgba(91, 91, 91, 1)",
+        "colors": ["#042d57", "#0753a0", "#0a79e9"],
         "type": "pie"
     }
 }

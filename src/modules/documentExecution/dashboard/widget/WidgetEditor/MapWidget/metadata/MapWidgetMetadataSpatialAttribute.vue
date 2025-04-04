@@ -1,51 +1,40 @@
 <template>
-    <div v-if="spatialAttribute" class="p-formgrid p-grid p-p-3">
-        <div class="p-col-12 p-mb-4">
-            <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.map.metadata.spatialAttribute') }}</label>
+    <div v-if="spatialAttribute">
+        <h5 class="q-mx-md q-my-xs">{{ $t('dashboard.widgetEditor.map.metadata.spatialAttribute') }}</h5>
+
+        <div class="row q-gutter-sm q-mx-xs q-mb-sm">
+            <q-input dense class="col" filled v-model="spatialAttribute.alias" :label="$t('common.column')" :disable="true" />
+            <q-select
+                dense
+                class="col"
+                filled
+                v-model="spatialAttribute.properties.coordType"
+                :options="descriptor.coordTypes"
+                option-value="value"
+                :option-label="(option) => (option.label ? $t(option.label) : '')"
+                emit-value
+                map-options
+                :label="$t('dashboard.widgetEditor.map.metadata.coordType')"
+            />
+            <q-select
+                v-if="spatialAttribute.properties.coordType === 'string'"
+                dense
+                class="col"
+                filled
+                v-model="spatialAttribute.properties.coordFormat"
+                :options="descriptor.coordFormats"
+                option-value="value"
+                :option-label="(option) => (option.label ? $t(option.label) : '')"
+                emit-value
+                map-options
+                :label="$t('dashboard.widgetEditor.map.metadata.coordFormat')"
+            />
         </div>
-
-        <div class="p-field p-float-label p-col-12 p-lg-4 kn-flex">
-            <InputText v-model="spatialAttribute.alias" class="kn-material-input kn-width-full" :disabled="true" />
-            <label class="kn-material-input-label">{{ $t('common.column') }}</label>
-        </div>
-
-        <span class="p-field p-float-label p-col-12 p-lg-4 p-fluid">
-            <Dropdown v-model="spatialAttribute.properties.coordType" class="kn-material-input" :options="descriptor.coordTypes" option-value="value">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.coordTypes, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
-            <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.map.metadata.coordType') }} </label>
-        </span>
-
-        <span class="p-field p-float-label p-col-12 p-lg-4 p-fluid">
-            <Dropdown v-model="spatialAttribute.properties.coordFormat" class="kn-material-input" :options="descriptor.coordFormats" option-value="value">
-                <template #value="slotProps">
-                    <div>
-                        <span>{{ getTranslatedLabel(slotProps.value, descriptor.coordFormats, $t) }}</span>
-                    </div>
-                </template>
-                <template #option="slotProps">
-                    <div>
-                        <span>{{ $t(slotProps.option.label) }}</span>
-                    </div>
-                </template>
-            </Dropdown>
-            <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.map.metadata.coordFormat') }} </label>
-        </span>
     </div>
 </template>
 
 <script lang="ts">
 import { PropType, defineComponent } from 'vue'
-import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { IWidgetMapLayerColumn } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import descriptor from './MapWidgetMetadataDescriptor.json'
 import Dropdown from 'primevue/dropdown'
@@ -57,8 +46,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
-            spatialAttribute: null as IWidgetMapLayerColumn | null,
-            getTranslatedLabel
+            spatialAttribute: null as IWidgetMapLayerColumn | null
         }
     },
     watch: {

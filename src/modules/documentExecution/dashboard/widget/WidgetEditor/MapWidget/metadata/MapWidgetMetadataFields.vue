@@ -9,52 +9,20 @@
             <div class="p-grid p-ai-center p-mt-3 kn-width-full">
                 <div class="p-col-12 p-d-flex p-flex-row">
                     <div class="p-float-label kn-flex">
-                        <InputText v-model="field.alias" class="kn-material-input kn-width-full" />
+                        <InputText v-model="field.alias" class="kn-material-input kn-width-full" :disabled="true" />
                         <label class="kn-material-input-label">{{ $t('common.column') }}</label>
                     </div>
                     <div class="p-field p-float-label p-fluid kn-flex p-ml-2">
-                        <Dropdown v-model="field.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" :disabled="true"> </Dropdown>
+                        <Dropdown v-model="field.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" :disabled="true"></Dropdown>
                         <label class="kn-material-input-label">{{ $t('common.type') }}</label>
                     </div>
                     <div v-if="field.fieldType === 'MEASURE'" class="p-field p-float-label p-fluid kn-flex p-ml-2">
-                        <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label"> </Dropdown>
+                        <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label"></Dropdown>
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
                     </div>
                     <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-center p-ai-center p-ml-3 p-mb-2">
                         <i class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeField(field)"></i>
                     </div>
-                </div>
-
-                <div class="p-col-12 p-d-flex p-flex-row p-jc-between">
-                    <span class="">
-                        <InputSwitch v-model="field.properties.aggregateBy" @change="onAggregateByChanged(field)" />
-                        <label class="kn-material-input-label p-ml-3">
-                            {{ $t('dashboard.widgetEditor.map.metadata.aggregateBy') }}
-                        </label>
-                        <i v-tooltip.top="$t('dashboard.widgetEditor.map.metadata.aggregateByHint')" class="pi pi-question-circle kn-cursor-pointer p-mx-3"></i>
-                    </span>
-
-                    <span v-if="field.fieldType === 'MEASURE'" class="">
-                        <InputSwitch v-model="field.properties.showMap" />
-                        <label class="kn-material-i47nput-label p-ml-3">
-                            {{ $t('dashboard.widgetEditor.map.metadata.showOnMap') }}
-                        </label>
-                    </span>
-
-                    <span v-if="field.fieldType === 'ATTRIBUTE'" class="">
-                        <InputSwitch v-model="field.properties.showFilter" :disabled="!field.properties.aggregateBy" />
-                        <label class="kn-material-input-label p-ml-3">
-                            {{ $t('dashboard.widgetEditor.map.metadata.showOnFilters') }}
-                        </label>
-                    </span>
-
-                    <span class="">
-                        <InputSwitch v-model="field.properties.modal" :disabled="!field.properties.aggregateBy" />
-                        <label class="kn-material-input-label p-ml-3">
-                            {{ $t('common.modal') }}
-                        </label>
-                        <i v-tooltip.top="$t('dashboard.widgetEditor.map.metadata.modalHint')" class="pi pi-question-circle kn-cursor-pointer p-mx-3"></i>
-                    </span>
                 </div>
             </div>
         </div>
@@ -103,12 +71,6 @@ export default defineComponent({
     methods: {
         loadFields() {
             this.fields = this.propFields
-        },
-        onAggregateByChanged(field: IWidgetMapLayerColumn) {
-            if (!field.properties.aggregateBy) {
-                field.properties.modal = false
-                field.properties.showFilter = false
-            }
         },
         addField() {
             this.addNewFieldDialogVisible = true

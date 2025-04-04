@@ -1,7 +1,10 @@
 <template>
-    <div class="p-d-flex p-flex-column kn-flex">
+    <div v-if="layer" class="p-d-flex p-flex-column kn-flex">
         <MapWidgetLayerInfo :selected-layer="layer" :layers="layers"></MapWidgetLayerInfo>
         <MapWidgetMetadata class="p-mt-2" :selected-layer="layer"></MapWidgetMetadata>
+    </div>
+    <div v-else>
+        <KnHint class="kn-hint-sm" :title="'dashboard.widgetEditor.map.layerHintTitle'" :hint="'dashboard.widgetEditor.map.layerHintText'" data-test="hint"></KnHint>
     </div>
 </template>
 
@@ -10,10 +13,11 @@ import { PropType, defineComponent } from 'vue'
 import { ILayer, IMapWidgetLayer } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import MapWidgetLayerInfo from './layerInfo/MapWidgetLayerInfo.vue'
 import MapWidgetMetadata from './metadata/MapWidgetMetadata.vue'
+import KnHint from '@/components/UI/KnHint.vue'
 
 export default defineComponent({
     name: 'map-widget-layer-detail',
-    components: { MapWidgetLayerInfo, MapWidgetMetadata },
+    components: { KnHint, MapWidgetLayerInfo, MapWidgetMetadata },
     props: { selectedLayer: { type: Object as PropType<IMapWidgetLayer | null>, required: true }, layers: { type: Array as PropType<ILayer[]>, required: true } },
     data() {
         return {
