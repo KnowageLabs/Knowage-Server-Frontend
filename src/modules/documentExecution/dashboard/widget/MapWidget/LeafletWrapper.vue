@@ -10,7 +10,7 @@ import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet/dist/leaflet.css'
 import './Leaflet-heatmap.js'
-import { filterLayers, initializeLayers } from './LeafletHelper'
+import { initializeLayers } from './LeafletHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
@@ -91,10 +91,6 @@ onUnmounted(() => {
 
 watch(props.layerVisibility, (newModel) => {
     switchLayerVisibility(map, newModel)
-})
-
-watch(props.widgetModel.layers, (newModel) => {
-    filterLayers(map, newModel)
 })
 
 watch(

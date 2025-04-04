@@ -108,8 +108,8 @@ const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSe
 
             let tempHeatMapData = heatMapData
             // TODO  - Remove Mock
-            tempHeatMapData = mockedHeatMapData
-            console.log('---- TEMP HEATMAP DATA: ', tempHeatMapData)
+            // tempHeatMapData = mockedHeatMapData
+            // console.log('---- TEMP HEATMAP DATA: ', tempHeatMapData)
 
             const filter = layerVisualizationSettings.filter
             if (filter?.enabled && filter.operator && filter.value != null) {
