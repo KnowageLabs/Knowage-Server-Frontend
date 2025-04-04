@@ -492,7 +492,7 @@ export default defineComponent({
                 datasetId: this.widgetModel.dataset as number,
                 columnName: this.widgetModel.columns[0].columnName
             }
-            emitter.emit('widgetUnlocked', this.widgetModel.id)
+            emitter.emit('widgetUnlocked', [payload])
             this.removeSelection(payload, this.dashboardId, this.$http, true)
         },
 

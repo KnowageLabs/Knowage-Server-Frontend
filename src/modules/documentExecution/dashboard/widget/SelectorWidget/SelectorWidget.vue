@@ -146,11 +146,11 @@ export default defineComponent({
     methods: {
         ...mapActions(store, ['setSelections']),
         setEventListeners() {
-            emitter.on('widgetUnlocked', this.removeDeafultValues)
+            emitter.on('widgetUnlocked', this.onSelectionsDeleted)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
         },
         removeEventListeners() {
-            emitter.off('widgetUnlocked', this.removeDeafultValues)
+            emitter.off('widgetUnlocked', this.onSelectionsDeleted)
             emitter.off('selectionsDeleted', this.onSelectionsDeleted)
         },
         loadInitialValues() {
