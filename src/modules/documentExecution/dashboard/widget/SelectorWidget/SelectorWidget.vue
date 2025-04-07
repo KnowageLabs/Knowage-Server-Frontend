@@ -126,8 +126,6 @@ export default defineComponent({
         },
         dataToShow() {
             this.loadOptions()
-            const hasActiveSelectionValue = this.loadActiveSelectionValue()
-            if (this.dataToShow?.initialCall && !hasActiveSelectionValue) this.updateSelectedValue()
         },
         widgetInitialData() {
             this.loadInitialValues()
@@ -148,25 +146,21 @@ export default defineComponent({
     methods: {
         ...mapActions(store, ['setSelections']),
         setEventListeners() {
-            emitter.on('defaultValuesChanged', this.onDefaultValuesChanged)
-            emitter.on('valuesManagementChanged', this.onDefaultValuesChanged)
-            emitter.on('widgetUnlocked', this.removeDeafultValues)
+            emitter.on('widgetUnlocked', this.onSelectionsDeleted)
             emitter.on('selectionsDeleted', this.onSelectionsDeleted)
         },
         removeEventListeners() {
-            emitter.off('defaultValuesChanged', this.onDefaultValuesChanged)
-            emitter.off('valuesManagementChanged', this.onDefaultValuesChanged)
-            emitter.off('widgetUnlocked', this.removeDeafultValues)
+            emitter.off('widgetUnlocked', this.onSelectionsDeleted)
             emitter.off('selectionsDeleted', this.onSelectionsDeleted)
         },
         loadInitialValues() {
             this.initialOptions = deepcopy(this.widgetInitialData)
             this.loadOptions()
-            this.updateSelectedValue()
         },
         loadOptions() {
             this.loadAvailableOptions(this.dataToShow)
         },
+        //note - checks initialOptions and dataToShow, merges them into one array of options, disabling fields that were not in dataToShow
         loadAvailableOptions(dataToShow: any) {
             this.options = { rows: [] }
             if (!dataToShow || !dataToShow.rows) return
@@ -212,15 +206,9 @@ export default defineComponent({
             this.startDate = minDateAsMilliseconds ? new Date(minDateAsMilliseconds) : this.startDate
             this.endDate = maxDateAsMilliseconds ? new Date(maxDateAsMilliseconds) : this.endDate
         },
-        onDefaultValuesChanged(widgetId: any) {
-            if (this.propWidget.id !== widgetId || !this.editorMode) return
-            this.updateDefaultValues()
-        },
         updateDefaultValues() {
             if (!this.propWidget.settings.configuration.defaultValues.enabled) {
                 this.removeDeafultValues()
-            } else {
-                this.updateSelectedValue()
             }
         },
         removeDeafultValues() {
@@ -229,60 +217,6 @@ export default defineComponent({
             this.selectedDate = null
             this.startDate = null
             this.endDate = null
-        },
-        updateSelectedValue() {
-            const defaultMode = this.propWidget.settings.configuration.defaultValues.valueType
-            switch (this.widgetType) {
-                case 'singleValue':
-                case 'dropdown':
-                    this.selectDefaultValue(defaultMode, false)
-                    break
-                case 'multiValue':
-                case 'multiDropdown':
-                    this.selectDefaultValue(defaultMode, true)
-                    break
-                case 'date':
-                    this.updateDateSelectedValue(false)
-                    break
-                case 'dateRange':
-                    this.updateDateSelectedValue(true)
-            }
-        },
-        selectDefaultValue(defaultMode: string, multivalue: boolean) {
-            if (!this.options || !this.options.rows || !defaultMode) {
-                this.removeDeafultValues()
-                return
-            }
-            switch (defaultMode) {
-                case 'FIRST': {
-                    const firstValue = this.findFirstAvailableValue()
-                    if (multivalue) {
-                        this.selectedValues = firstValue != null ? [firstValue.column_1] : []
-                    } else {
-                        this.selectedValue = firstValue != null ? firstValue.column_1 : null
-                    }
-                    break
-                }
-                case 'LAST': {
-                    const lastValue = this.findLastAvailableValue()
-                    if (multivalue) {
-                        this.selectedValues = lastValue != null ? [lastValue.column_1] : []
-                    } else {
-                        this.selectedValue = lastValue != null ? lastValue.column_1 : null
-                    }
-                    break
-                }
-                case 'STATIC':
-                    this.setDefaultStaticValue(multivalue)
-                    break
-                default:
-                    this.removeDeafultValues()
-            }
-            this.updateSelectionsAfterDefaultValuesAreSet(multivalue)
-        },
-        updateSelectionsAfterDefaultValuesAreSet(multivalue: boolean) {
-            if (multivalue && this.selectedValues.length > 0) this.multiValueSelectionChanged()
-            else if (!multivalue && this.selectedValue) this.singleValueSelectionChanged()
         },
         findFirstAvailableValue() {
             if (this.showMode === 'enableAll') return this.options.rows[0]
@@ -324,16 +258,6 @@ export default defineComponent({
             } else {
                 this.selectedValues = []
             }
-        },
-        updateDateSelectedValue(multivalue: boolean) {
-            const minDate = this.propWidget.settings.configuration.defaultValues?.startDate ?? null
-            const maxDate = this.propWidget.settings.configuration.defaultValues?.endDate ?? null
-            const datesProperties = multivalue ? ['startDate', 'endDate'] : ['selectedDate']
-            datesProperties.forEach((property: string) => {
-                if (this[property]?.getTime() < minDate?.getTime() || this[property]?.getTime() > maxDate?.getTime()) {
-                    this[property] = null
-                }
-            })
         },
         getLayoutStyle() {
             const selectorType = this.propWidget.settings.configuration.selectorType
