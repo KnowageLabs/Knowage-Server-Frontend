@@ -208,28 +208,30 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             const layerGroup = L.layerGroup().addTo(map)
             layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
+            const zoomMap = !reloadWithFilters && model.settings?.configuration?.map?.autoCentering
+
             if (layerVisualizationSettings.type === 'markers') {
-                addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
+                addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
             }
 
             if (layerVisualizationSettings.type === 'balloons') {
-                addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, !reloadWithFilters)
+                addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, zoomMap)
             }
 
             if (layerVisualizationSettings.type === 'pies') {
-                addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
+                addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
             }
 
             if (layerVisualizationSettings.type === 'clusters') {
-                addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, !reloadWithFilters)
+                addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
             }
 
             if (layerVisualizationSettings.type === 'heatmap') {
-                createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, !reloadWithFilters)
+                createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, zoomMap)
             }
 
             if (layerVisualizationSettings.type === 'choropleth') {
-                createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, !reloadWithFilters)
+                createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, zoomMap)
             }
 
             if (layerVisualizationSettings.type === 'geography') {
