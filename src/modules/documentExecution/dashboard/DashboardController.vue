@@ -325,9 +325,9 @@ export default defineComponent({
                 emitter.emit('loadPivotStates', this.selectedViewForExecution)
             }
 
-            await this.fetchAllSelectorDefaultValues()
-
             this.store.setDashboard(this.dashboardId, this.model)
+
+            await this.fetchAllSelectorDefaultValues()
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
             this.store.setExecutionTime(this.dashboardId, new Date())
@@ -338,29 +338,26 @@ export default defineComponent({
             return new Promise((resolve) => setTimeout(resolve, time))
         },
         async fetchAllSelectorDefaultValues() {
-            const widgets = this.model.widgets
+            const widgets = this.model.widgets.filter((widget) => widget.type === 'selector' && widget.settings.configuration?.defaultValues?.enabled === true)
             const promises = widgets.map(async (widget) => {
                 const selectorDefaultValues = widget.settings.configuration?.defaultValues
 
-                if (widget.type === 'selector' && selectorDefaultValues.enabled === true) {
-                    this.initializeWidgetData(widget)
-                    this.selectorWidgetsData[widget.id].initialData = await this.fetchInitialWidgetData(widget)
-                    if (widget.settings?.configuration?.updateFromSelections) {
-                        this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithSelections(widget)
-                    }
+                this.initializeWidgetData(widget)
+                this.selectorWidgetsData[widget.id].initialData = await this.fetchInitialWidgetData(widget)
+                if (widget.settings?.configuration?.updateFromSelections) {
+                    this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithSelections(widget)
+                }
 
-                    this.updateSelectorOptions(widget)
-                    const enabledOptions = this.selectorWidgetsData[widget.id].selectorOptions.filter((item) => !item.disabled)
-                    const selectionValue = this.getSelectionValue(selectorDefaultValues, enabledOptions)
-                    if (selectionValue) {
-                        this.createDynamicSelection(widget, selectionValue, selectorDefaultValues)
-                    }
+                this.updateSelectorOptions(widget)
+                const enabledOptions = this.selectorWidgetsData[widget.id].selectorOptions.filter((item) => !item.disabled)
+                const selectionValue = this.getSelectionValue(selectorDefaultValues, enabledOptions)
+                if (selectionValue) {
+                    this.createDynamicSelection(widget, selectionValue, selectorDefaultValues)
                 }
             })
 
             await Promise.all(promises)
         },
-
         initializeWidgetData(widget: any) {
             this.selectorWidgetsData[widget.id] = {
                 widgetData: [],
