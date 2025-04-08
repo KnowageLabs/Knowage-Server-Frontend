@@ -9,7 +9,7 @@
                     </template>
 
                     <input v-if="index === sheetToRenameIndex" v-model="tempLabel" :ref="`input_${index}`" type="text" @click.stop="" @blur="saveRename(index, $event)" @keyup.enter="saveRename(index, $event)" />
-                    <span v-else class="kn-truncated sheet-label-text" :title="sheet.label" :class="{ hasIcon: sheet.icon }">{{ sheet.label }} </span>
+                    <span v-else class="kn-truncated sheet-label-text" :title="sheet.label" :class="{ hasIcon: sheet.icon }">{{ sheet.label }}</span>
                     <Button v-if="edit" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
                     <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`" data-test="menu">
                         <q-list style="min-width: 100px" dense>
@@ -75,6 +75,7 @@ import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import type { ISheet } from '@/modules/documentExecution/dashboard/Dashboard'
 import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'kn-dashboard-tabs-panel',
@@ -90,7 +91,7 @@ export default defineComponent({
             default: 'bottom'
         }
     },
-    emits: ['sheetChange', 'update:sheets'],
+    emits: ['sheetChange', 'update:sheets', 'sheetDeleted'],
     data() {
         return {
             currentPage: 0,
@@ -151,8 +152,11 @@ export default defineComponent({
                 icon: 'pi pi-exclamation-triangle',
                 accept: () => {
                     const tempSheet = [...this.sheets]
+                    const sheetForDelete = deepcopy(tempSheet[index])
                     tempSheet.splice(index, 1)
+                    this.prev()
                     this.$emit('update:sheets', tempSheet)
+                    this.$emit('sheetDeleted', sheetForDelete)
                 }
             })
         },
