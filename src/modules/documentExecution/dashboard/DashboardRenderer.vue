@@ -1,5 +1,5 @@
 <template>
-    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
+    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted">
         <div id="dashboard-css" v-html="dashboardCss" />
 
         <div v-if="activeDashboardSheet" class="sheet-container">
@@ -184,6 +184,14 @@ export default defineComponent({
             else if (window.innerWidth >= 768) return 'sm'
             else if (window.innerWidth >= 480) return 'xs'
             else return 'xxs'
+        },
+        onSheetDeleted(sheet: IDashboardSheet) {
+            if (this.activeDashboardSheet?.id !== sheet.id) return
+
+            let index = (this.dashboardModel.sheets?.length ?? 0) - 1
+            if (index < 0) index = 0
+
+            this.sheetChange(index)
         }
     }
 })
