@@ -126,6 +126,7 @@ export default defineComponent({
         },
         async saveLayer() {
             this.layer.roles === null ? (this.layer.roles = []) : ''
+            if (this.layer.type === 'geojson') this.layer.type = 'File'
             await this.saveOrUpdateMessage(this.layer)
                 .then((response: AxiosResponse<any>) => {
                     this.store.setInfo({

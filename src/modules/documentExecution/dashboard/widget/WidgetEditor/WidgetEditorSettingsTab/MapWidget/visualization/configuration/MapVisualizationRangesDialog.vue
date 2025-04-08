@@ -7,7 +7,8 @@
                 </template>
             </Toolbar>
         </template>
-        <div v-for="(range, index) in ranges" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
+
+        <div v-for="(range, index) in ranges" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center p-pt-5">
             <div class="p-col-6 p-lg-4 p-p-2">
                 <WidgetEditorColorPicker :initial-value="range.color" :label="$t('common.color')" @change="onSelectionColorChanged($event, range)"></WidgetEditorColorPicker>
             </div>
@@ -40,6 +41,7 @@ import descriptor from '../MapVisualizationTypeDescriptor.json'
 import deepcopy from 'deepcopy'
 import InputNumber from 'primevue/inputnumber'
 import WidgetEditorColorPicker from '../../../common/WidgetEditorColorPicker.vue'
+import { IMapWidgetVisualizationThreshold } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 
 export default defineComponent({
     name: 'map-visualization-type-choropleth-ranges-dialog',
@@ -64,7 +66,7 @@ export default defineComponent({
         loadRanges() {
             this.ranges = deepcopy(this.propRanges)
         },
-        onSelectionColorChanged(event: string | null, range: { color: string; from: number; to: number }) {
+        onSelectionColorChanged(event: string | null, range: IMapWidgetVisualizationThreshold) {
             if (event) range.color = event
         },
         addRange() {
@@ -87,6 +89,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 #add-range-button {
-    font-size: 0.8rem;
+    font-size: 0.6rem;
 }
 </style>

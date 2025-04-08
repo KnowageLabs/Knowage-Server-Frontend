@@ -9,13 +9,12 @@ export const setDatasetIntervals = (modelDatasets: IDashboardDataset[], datasets
     for (let i = 0; i < modelDatasets.length; i++) {
         if (modelDatasets[i].frequency && modelDatasets[i].frequency != 0) setDatasetInterval(modelDatasets[i].id, modelDatasets[i].frequency)
     }
-
     removeUnusedDatasetIntervals(modelDatasets)
 }
 
 export const setDatasetInterval = (modelDatasetId: number, interval: number) => {
     if (dataSetIntervals[modelDatasetId]) clearInterval(dataSetIntervals[modelDatasetId])
-    dataSetIntervals[modelDatasetId] = setInterval(() => emittDatasetRefresh(modelDatasetId), interval)
+    dataSetIntervals[modelDatasetId] = setInterval(() => emittDatasetRefresh(modelDatasetId), Number(interval) * 1000)
 }
 
 const removeUnusedDatasetIntervals = (modelDatasets: IDashboardDataset[]) => {

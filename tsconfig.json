@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "allowJs": true,
         "target": "ESNext",
         "module": "esnext",
         "strict": true,
@@ -21,6 +22,6 @@
         "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
         "isolatedModules": true
     },
-    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "tests/**/*.ts", "tests/**/*.tsx", "src/App.store.js", "src/services/webSocket.js"],
+    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "tests/**/*.ts", "tests/**/*.tsx", "src/App.store.js", "src/services/webSocket.js", "src/modules/documentExecution/dashboard/widget/MapWidget/LeafletExtension.js"],
     "exclude": ["node_modules"]
 }

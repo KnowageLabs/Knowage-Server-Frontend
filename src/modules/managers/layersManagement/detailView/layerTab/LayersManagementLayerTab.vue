@@ -132,10 +132,12 @@ export default defineComponent({
     watch: {
         selectedLayer() {
             this.layer = this.selectedLayer
+            if (this.layer.type === 'File') this.layer.type = 'geojson'
         }
     },
     async created() {
         this.layer = this.selectedLayer
+        if (this.layer.type === 'File') this.layer.type = 'geojson'
     },
     validations() {
         const urlRequried = (value) => {

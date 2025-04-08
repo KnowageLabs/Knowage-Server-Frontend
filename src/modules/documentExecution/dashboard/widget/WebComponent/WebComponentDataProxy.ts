@@ -1,6 +1,5 @@
 import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
 import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, showGetDataError, getAggregationsModel, addDataToCache, addVariablesToFormula } from '../../DashboardDataProxy'
-import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import deepcopy from 'deepcopy'
@@ -32,7 +31,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
                 return response.data
             }
 
-            if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
+            if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
                 aggregationDataset = cachedData.data
             } else {
                 dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, aggregationsPostData, { headers: { 'X-Disable-Errors': 'true' } })
@@ -40,7 +39,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
                     const response = await dashStore.dataProxyQueue[dataHash]
                     aggregationDataset = response.data
 
-                    if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, aggregationDataset)
+                    if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, aggregationDataset)
                 } catch (error) {
                     console.error(error)
                     showGetDataError(error, selectedDataset.dsLabel)
@@ -52,7 +51,6 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
 
         const postData = formatWebComponentModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
-        if (widget.dataset || widget.dataset === 0) clearDatasetInterval(widget.dataset)
 
         const dataHash = md5(JSON.stringify(postData))
         const cachedData = await indexedDB.widgetData.get(dataHash)
@@ -62,7 +60,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
             return response.data
         }
 
-        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data) {
+        if (dashboardConfig.menuWidgets?.enableCaching && cachedData && cachedData.data && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) {
             tempResponse = cachedData.data
         } else {
             dashStore.dataProxyQueue[dataHash] = $http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
@@ -70,7 +68,7 @@ export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', das
                 const response = await dashStore.dataProxyQueue[dataHash]
                 tempResponse = response.data
 
-                if (dashboardConfig.menuWidgets?.enableCaching) addDataToCache(dataHash, tempResponse)
+                if (dashboardConfig.menuWidgets?.enableCaching && (Number(selectedDataset.frequency) === 0 || !selectedDataset.frequency)) addDataToCache(dataHash, tempResponse)
             } catch (error) {
                 console.error(error)
                 showGetDataError(error, selectedDataset.dsLabel)

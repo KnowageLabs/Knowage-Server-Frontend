@@ -1,9 +1,9 @@
 <template>
-    <div v-if="tooltips" class="p-grid p-jc-center p-ai-center p-m-3">
+    <div v-if="tooltip" class="p-grid p-jc-center p-ai-center p-m-3">
         <Message class="kn-width-full p-d-flex p-jc-center p-m-0 p-mx-2" severity="info" :closable="false">
             {{ $t('dashboard.widgetEditor.map.tooltipHint') }}
         </Message>
-        <div v-for="(tooltip, index) in tooltips.layers" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
+        <div v-for="(tool, index) in tooltip.layers" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
             <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
             <div
                 class="p-col-12 form-list-item-dropzone"
@@ -13,16 +13,15 @@
                 @dragenter.prevent="displayDropzone('top', index)"
                 @dragleave.prevent="hideDropzone('top', index)"
             ></div>
-
             <div class="p-d-flex kn-flex p-ai-center" :draggable="true" @dragstart.stop="onDragStart($event, index)">
                 <i class="pi pi-th-large kn-cursor-pointer"></i>
                 <div class="kn-flex p-mx-2 p-d-flex p-flex-row" style="gap: 0.5em">
                     <span class="p-float-label kn-flex">
-                        <Dropdown v-model="tooltip.name" :disabled="tooltipsDisabled" class="kn-material-input kn-width-full" :options="widgetModel.layers" option-value="name" option-label="name" show-clear @change="onLayerChange(tooltip)"> </Dropdown>
+                        <Dropdown v-model="tool.name" :disabled="tooltipsDisabled" class="kn-material-input kn-width-full" :options="widgetModel.layers" option-value="layerId" option-label="name" show-clear @change="onLayerChange(tool)"> </Dropdown>
                         <label class="kn-material-input-label">{{ $t('common.layer') }}</label>
                     </span>
                     <span class="p-float-label kn-flex">
-                        <MultiSelect v-model="tooltip.columns" :disabled="tooltipsDisabled" :options="getColumnOptionsFromLayer(tooltip)" class="kn-material-input kn-width-full" option-label="alias" option-value="name"> </MultiSelect>
+                        <MultiSelect v-model="tool.columns" :disabled="tooltipsDisabled" :options="getColumnOptionsFromLayer(tool)" class="kn-material-input kn-width-full" option-label="alias" option-value="name"> </MultiSelect>
                         <label class="kn-material-input-label"> {{ $t('common.columns') }}</label>
                     </span>
                 </div>
@@ -48,11 +47,14 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapTooltipSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { mapActions } from 'pinia'
+import appStore from '@/App.store'
 import Dropdown from 'primevue/dropdown'
 import MultiSelect from 'primevue/multiselect'
 import Message from 'primevue/message'
 import defaultsDescriptor from '../../../helpers/mapWidget/MapWidgetDefaultValuesDescriptor.json'
+import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
 
 export default defineComponent({
     name: 'map-tooltips',
@@ -61,9 +63,10 @@ export default defineComponent({
     data() {
         return {
             defaultsDescriptor,
-            tooltips: null as IMapTooltipSettings | null,
+            tooltip: null as IMapTooltipSettings | null,
             dropzoneTopVisible: {},
-            dropzoneBottomVisible: {}
+            dropzoneBottomVisible: {},
+            propertiesCache: new Map<string, { name: string; alias: string }[]>()
         }
     },
     computed: {
@@ -71,28 +74,33 @@ export default defineComponent({
             return !this.widgetModel || !this.widgetModel.settings.tooltips.enabled
         }
     },
-    created() {
-        this.setEventListeners()
+    async mounted() {
         this.loadTooltips()
-    },
-
-    unmounted() {
-        this.removeEventListeners()
+        await this.loadPropertiesForTooltips()
     },
     methods: {
-        setEventListeners() {},
-        removeEventListeners() {},
+        ...mapActions(appStore, ['setLoading']),
         loadTooltips() {
-            if (this.widgetModel?.settings?.tooltips) this.tooltips = this.widgetModel.settings.tooltips
-            else this.tooltips = defaultsDescriptor.defaultTooltips
+            if (this.widgetModel?.settings?.tooltips) this.tooltip = this.widgetModel.settings.tooltips
+            else this.tooltip = defaultsDescriptor.defaultTooltip
+        },
+        async loadPropertiesForTooltips() {
+            if (!this.tooltip?.layers) return
+            await Promise.all(this.tooltip.layers.map((layer: IMapTooltipSettingsLayer) => this.loadAvailableProperties(layer)))
+        },
+        async loadAvailableProperties(layer: IMapTooltipSettingsLayer | null) {
+            if (!layer) return
+
+            const targetLayer = this.widgetModel.layers.find((tempLayer: IMapWidgetLayer) => tempLayer.layerId === layer.name)
+            if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer)
         },
         addTooltip() {
-            this.tooltips?.layers.push({ name: '', columns: [] })
+            this.tooltip?.layers.push({ name: '', columns: [] })
         },
         removeTooltip(index: number) {
-            if (!this.tooltips || !this.tooltips.layers) return
+            if (!this.tooltip || !this.tooltip.layers) return
 
-            this.tooltips.layers.splice(index, 1)
+            this.tooltip.layers.splice(index, 1)
         },
         onDragStart(event: any, index: number) {
             event.dataTransfer.setData('text/plain', JSON.stringify(index))
@@ -108,7 +116,7 @@ export default defineComponent({
         onRowsMove(sourceRowIndex: number, targetRowIndex: number, position: string) {
             if (sourceRowIndex === targetRowIndex) return
             const newIndex = sourceRowIndex > targetRowIndex && position === 'after' ? targetRowIndex + 1 : targetRowIndex
-            this.tooltips?.layers.splice(newIndex, 0, this.tooltips.layers.splice(sourceRowIndex, 1)[0])
+            this.tooltip?.layers.splice(newIndex, 0, this.tooltip.layers.splice(sourceRowIndex, 1)[0])
         },
         displayDropzone(position: string, index: number) {
             position === 'top' ? (this.dropzoneTopVisible[index] = true) : (this.dropzoneBottomVisible[index] = true)
@@ -116,12 +124,29 @@ export default defineComponent({
         hideDropzone(position: string, index: number) {
             position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
         },
-        getColumnOptionsFromLayer(tooltip: { name: string; columns: string[] }) {
-            const index = this.widgetModel.layers.findIndex((layer: any) => layer.name === tooltip.name)
-            return index !== -1 ? this.widgetModel.layers[index].content.columnSelectedOfDataset : []
+        getColumnOptionsFromLayer(tooltip: IMapTooltipSettingsLayer) {
+            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === tooltip.name)
+            if (!layer) return []
+            else if (layer.type === 'dataset') return layer.columns
+            else return this.propertiesCache.get(layer.layerId) ?? []
         },
-        onLayerChange(tooltip: { name: string; columns: string[] }) {
+        async onLayerChange(tooltip: IMapTooltipSettingsLayer) {
             tooltip.columns = []
+            const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => tooltip.name === layer.layerId)
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(tooltip.name)) return
+            await this.loadAvailablePropertiesInTooltipSettingsForLayer(target)
+        },
+        async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
+            this.setLoading(true)
+            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
+            this.propertiesCache.set(targetLayer.layerId, formattedProperties)
+            this.setLoading(false)
+        },
+        getPropertiesFormattedForDropdownOptions(properties: IMapWidgetLayerProperty[]) {
+            return properties.map((property: IMapWidgetLayerProperty) => {
+                return { name: property.property, alias: property.property }
+            })
         }
     }
 })

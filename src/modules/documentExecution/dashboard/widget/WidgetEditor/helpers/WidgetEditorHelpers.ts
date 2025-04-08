@@ -21,6 +21,7 @@ import { createNewMapWidgetSettings } from './mapWidget/MapWidgetFunctions'
 import { createCeNewPivotTableWidgetSettings } from './cePivotTableWidget/cePivotTableFunctions'
 import { createNewPythonWidgetSettings } from './pythonWidget/PythonWidgetFunctions'
 import { addWidgetMenuConfig } from '../../../DashboardHelpers'
+import { formatMapForSave } from '../../MapWidget/utils/MapWidgetBackendSaveHelper'
 
 const store = useStore()
 
@@ -130,6 +131,9 @@ export function formatWidgetForSave(tempWidget: IWidget) {
             break
         case 'vega':
             formatVegaForSave(widget)
+            break
+        case 'map':
+            formatMapForSave(widget)
     }
     ;['state', 'search', 'invalid'].forEach((property: string) => delete widget[property])
     return widget

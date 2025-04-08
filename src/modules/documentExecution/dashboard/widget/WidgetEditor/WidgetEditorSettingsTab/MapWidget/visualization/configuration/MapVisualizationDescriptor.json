@@ -1,0 +1,15 @@
+{
+    "colorPaletteStyle": {
+        "column": {
+            "border": "none !important",
+            "padding": "0 !important",
+            "width": "25px"
+        },
+        "columnMain": {
+            "border": "none !important",
+            "display": "flex",
+            "padding": "0 !important"
+        }
+    },
+    "defaultColors": ["#042d57", "#0753a0", "#0a79e9"]
+}

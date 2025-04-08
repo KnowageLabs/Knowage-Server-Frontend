@@ -1,0 +1,120 @@
+{
+    "metaData": {
+        "totalProperty": "results",
+        "root": "rows",
+        "id": "id",
+        "fields": [
+            "recNo",
+            {
+                "name": "column_1",
+                "header": "quarter",
+                "dataIndex": "column_1",
+                "type": "string",
+                "multiValue": false
+            },
+            {
+                "name": "column_2",
+                "header": "position",
+                "dataIndex": "column_2",
+                "type": "string",
+                "multiValue": false
+            },
+            {
+                "name": "column_3",
+                "header": "measure",
+                "dataIndex": "column_3",
+                "type": "int",
+                "precision": 0,
+                "scale": 0,
+                "multiValue": false
+            }
+        ],
+        "cacheDate": "2025-02-14 10:18:37.000"
+    },
+    "results": 5,
+    "rows": [
+        {
+            "id": 1,
+            "column_1": "Q2",
+            "column_2": "45.37512766 11.97121229",
+            "column_3": 70
+        },
+        {
+            "id": 2,
+            "column_1": "Q4",
+            "column_2": "45.26543502 11.95957217",
+            "column_3": 3
+        },
+        {
+            "id": 3,
+            "column_1": "Q1",
+            "column_2": "45.38317618 11.66686171",
+            "column_3": 98
+        },
+        {
+            "id": 4,
+            "column_1": "Q3",
+            "column_2": "45.2887663 11.84776482",
+            "column_3": 38
+        },
+        {
+            "id": 5,
+            "column_1": "Q2",
+            "column_2": "45.40022984 12.03557277",
+            "column_3": 43
+        }
+    ],
+    "stats": {
+        "1": {
+            "name": "column_1",
+            "max": 5,
+            "min": 1,
+            "distinct": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "cardinality": 5
+        },
+        "2": {
+            "name": "column_2",
+            "max": "Q4",
+            "min": "Q1",
+            "distinct": [
+                "Q1",
+                "Q2",
+                "Q3",
+                "Q4"
+            ],
+            "cardinality": 4
+        },
+        "3": {
+            "name": "column_3",
+            "max": "45.40022984 12.03557277",
+            "min": "45.26543502 11.95957217",
+            "distinct": [
+                "45.26543502 11.95957217",
+                "45.2887663 11.84776482",
+                "45.37512766 11.97121229",
+                "45.38317618 11.66686171",
+                "45.40022984 12.03557277"
+            ],
+            "cardinality": 5
+        },
+        "4": {
+            "name": "column_4",
+            "max": 98,
+            "min": 3,
+            "distinct": [
+                3,
+                38,
+                43,
+                70,
+                98
+            ],
+            "cardinality": 5
+        }
+    }
+}

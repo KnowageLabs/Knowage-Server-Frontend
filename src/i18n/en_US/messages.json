@@ -177,6 +177,8 @@
         "login": "Login",
         "low": "Low",
         "max": "Max",
+        "measure": "measure",
+        "measures": "measures",
         "medium": "Medium",
         "menu": "Menu",
         "message": "Message",
@@ -216,12 +218,14 @@
         "print": "Print",
         "private": "Private",
         "properties": "properties",
+        "property": "Property",
         "public": "Public",
         "rank": "Rank",
         "refresh": "Refresh",
         "released": "Released",
         "replyTo": "Reply To",
         "required": "Required",
+        "reset": "Reset",
         "restore": "restore",
         "reused": "Reused",
         "right": "Right",
@@ -244,7 +248,7 @@
         "share": "Share",
         "shortcuts": "Shortcuts",
         "show": "Show",
-        "size": "Size",
+        "size": "Size {format}",
         "small": "Small",
         "snapshot": "Snapshot",
         "sort": "sort",
@@ -456,6 +460,7 @@
             "indexHint": "Indexes will be created on single selected columns.",
             "indexPresentMsg": "Index already exists!",
             "indexesTitle": "Indexes",
+            "noDatasetsFound": "No datasets found",
             "pendingChanges": "You have unsaved changes, are you sure you want to exit the editor?",
             "selectDatasets": "Select Datasets",
             "static": "Static",
@@ -1041,6 +1046,7 @@
                 "backgroundColor": "Background color",
                 "bold": "Bold",
                 "borderColor": "Border color",
+                "color": "Color",
                 "fontColor": "Font color",
                 "fontFamily": "Font family",
                 "fontSize": "Font size",
@@ -1111,8 +1117,8 @@
                     "autoCentering": "Auto centering",
                     "selectBackgroundLayer": "Select Background Layer",
                     "showScale": "Show scale",
-                    "title": "Enable Base Layer",
-                    "zoomFactor": "Zoom factor"
+                    "title": "Map",
+                    "zoom": "Zoom"
                 },
                 "categorizeBy": "Categorize By",
                 "categorizeByOptions": {
@@ -1133,17 +1139,20 @@
                     "title": "Control Panel"
                 },
                 "crossNavigationLabelHint": "This is the label of the link. If empty it will be \"Go to detail\"",
+                "customColor": "Custom color",
                 "dialogHint": "The selected elements will be visible when clicking on the map",
                 "fromColor": "From color",
                 "fromThreshold": "From (>=)",
                 "imagesGallery": "Images Gallery",
+                "layerHintText": "Layers are the map 'levels' and data connection definition. Layers can be common geo layers (like geoJSON) or dataset with geographical informations. Select one layer from the list or click on 'add layer' to add one.",
+                "layerHintTitle": "Layers Definition",
                 "layerInfo": {
                     "catalogLayer": "Catalog Layer",
-                    "catalogLayerColumn": "Catalog Layer Column",
+                    "catalogLayerColumn": "Layer Property",
                     "datasetColumn": "Dataset column",
                     "defaultVisible": "Default visible",
                     "defaultVisibleHint": "Default visible hint",
-                    "linkHint": "Catalog type layer will link a dataset Column value to a catalog Column one. Select them for the dataset join",
+                    "noProperties": "No properties available for the selected layer. Check the layer content or the layer filters visible.",
                     "staticHint": "Static hint",
                     "target": "Target",
                     "targetHint": "Target hint"
@@ -1160,6 +1169,7 @@
                     "scale%": "Scale %",
                     "web": "Web Image Marker"
                 },
+                "maxClusterRadius": "Max Cluster Radius",
                 "metadata": {
                     "addField": "Add Field",
                     "aggregateBy": "Aggregate by",
@@ -1174,6 +1184,7 @@
                     "spatialAttribute": "Spatial Attribute",
                     "wktFormat": "WKT Format"
                 },
+                "noLayerAvailable": "No Layer Available",
                 "north": "North",
                 "pieTypeOptions": {
                     "bars": "Bars",
@@ -1182,7 +1193,7 @@
                     "pies3d": "Pies 3D"
                 },
                 "range": "Range",
-                "rangeLabel": "Min size (%)/Max size (%)",
+                "rangeLabel": "Min size/Max size",
                 "south": "South",
                 "toColor": "To color",
                 "toThreshold": "To (<)",
@@ -1191,11 +1202,13 @@
                     "balloons": "Balloons",
                     "choropleth": "Choropleth",
                     "clusters": "Clusters",
+                    "geography": "Geography",
                     "heatmap": "Heatmap",
                     "markers": "Markers",
                     "pies": "Pies"
                 }
             },
+            "maxZoom": "Max Zoom",
             "menuConfiguration": "Menu Configuration",
             "noData": {
                 "title": "No data"
@@ -2866,10 +2879,10 @@
                 "shp": "SHAPEFILE"
             },
             "fileLocation": "File Location",
-            "filterTitle": "Filter",
-            "hint": "Layers are the main elements of a map. They can be of different types and can be added to the map to show different data. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
-            "layerFilter": "Layer Filter",
-            "layerFilterAdded": "Layer Filter Added",
+            "filterTitle": "Properties",
+            "hint": "Change the hint to your liking inside the messages.json.",
+            "layerFilter": "Layer Properties",
+            "layerFilterAdded": "Layer Properties Added",
             "layerIdentify": "Layer ID",
             "layerLabel": "Layer label",
             "layerName": "Layer name",
@@ -2884,6 +2897,7 @@
                 "tms": "TMS",
                 "topojson": "TopoJSON",
                 "wfs": "WFS",
+                "wkt": "WKT",
                 "wms": "WMS"
             },
             "layerURL": "URL",

@@ -2,9 +2,9 @@
     <div v-if="conditionalStylesModel" class="p-grid p-jc-center p-ai-center p-p-4">
         <div v-for="(conditionalStyle, index) in conditionalStylesModel.conditions" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center p-pt-2">
             <div class="dynamic-form-item p-grid p-col-12 p-ai-center">
-                <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
+                <div v-show="dropzoneTopVisible[index]" class="p-col-12" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
                 <div
-                    class="p-col-12 form-list-item-dropzone p-p-0"
+                    class="p-col-12 form-list-item-dropzone p-m-1"
                     :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }"
                     @drop.stop="onDropComplete($event, 'before', index)"
                     @dragover.prevent
@@ -19,21 +19,21 @@
                     <div class="p-col-10 p-d-flex p-flex-column">
                         <div class="p-d-flex p-flex-row">
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
-                                <label class="kn-material-input-label"> {{ $t('common.layer') }}</label>
-                                <Dropdown v-model="conditionalStyle.targetLayer" class="kn-material-input" :options="widgetModel.layers" option-value="name" option-label="name" :disabled="conditionalStylesDisabled" @change="onLayerChange(conditionalStyle)"> </Dropdown>
+                                <label class="kn-material-input-label">{{ $t('common.layer') }}</label>
+                                <Dropdown v-model="conditionalStyle.targetLayer" class="kn-material-input" :options="widgetModel.layers" option-value="layerId" option-label="name" :disabled="conditionalStylesDisabled" @change="onLayerChange(conditionalStyle)"></Dropdown>
                             </div>
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
-                                <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                                <Dropdown v-model="conditionalStyle.targetColumn" class="kn-material-input" :options="getColumnOptionsFromLayer(conditionalStyle)" option-label="alias" option-value="name" :disabled="conditionalStylesDisabled"> </Dropdown>
+                                <label class="kn-material-input-label">{{ $t('common.column') }}</label>
+                                <Dropdown v-model="conditionalStyle.targetColumn" class="kn-material-input" :options="getColumnOptionsFromLayer(conditionalStyle)" option-label="alias" option-value="name" :disabled="conditionalStylesDisabled"></Dropdown>
                             </div>
                         </div>
                         <div class="p-d-flex p-flex-row p-ai-center">
                             <div class="p-d-flex p-flex-column p-p-2 operator-dropdown-container kn-flex">
-                                <label class="kn-material-input-label"> {{ $t('common.operator') }}</label>
-                                <Dropdown v-model="conditionalStyle.condition.operator" class="kn-material-input" :options="descriptor.columnConditionOptions" option-label="label" option-value="value" :disabled="conditionalStylesDisabled"> </Dropdown>
+                                <label class="kn-material-input-label">{{ $t('common.operator') }}</label>
+                                <Dropdown v-model="conditionalStyle.condition.operator" class="kn-material-input" :options="descriptor.columnConditionOptions" option-label="label" option-value="value" :disabled="conditionalStylesDisabled"></Dropdown>
                             </div>
                             <div class="p-d-flex p-flex-column p-p-2 kn-flex">
-                                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.conditions.compareValueType') }}</label>
+                                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.conditions.compareValueType') }}</label>
                                 <Dropdown v-model="conditionalStyle.condition.type" class="kn-material-input" :options="descriptor.conditionCompareValueTypes" option-value="value" :disabled="conditionalStylesDisabled" @change="onCompareValueTypeChanged(conditionalStyle)">
                                     <template #value="slotProps">
                                         <div>
@@ -53,11 +53,11 @@
                             </div>
                             <div v-else-if="conditionalStyle.condition.type === 'parameter'" class="p-d-flex p-flex-column kn-flex p-pl-1">
                                 <label class="kn-material-input-label">{{ $t('common.value') }}</label>
-                                <Dropdown v-model="conditionalStyle.condition.parameter" class="kn-material-input" :options="drivers" option-label="name" option-value="urlName" :disabled="conditionalStylesDisabled" @change="onDriverChanged(conditionalStyle)"> </Dropdown>
+                                <Dropdown v-model="conditionalStyle.condition.parameter" class="kn-material-input" :options="drivers" option-label="name" option-value="urlName" :disabled="conditionalStylesDisabled" @change="onDriverChanged(conditionalStyle)"></Dropdown>
                             </div>
                             <div v-else-if="conditionalStyle.condition.type === 'variable'" class="p-d-flex p-flex-column kn-flex p-pl-1">
                                 <label class="kn-material-input-label">{{ $t('common.value') }}</label>
-                                <Dropdown v-model="conditionalStyle.condition.variable" class="kn-material-input" :options="variables" option-label="name" option-value="name" :disabled="conditionalStylesDisabled" @change="onVariableChanged(conditionalStyle)"> </Dropdown>
+                                <Dropdown v-model="conditionalStyle.condition.variable" class="kn-material-input" :options="variables" option-label="name" option-value="name" :disabled="conditionalStylesDisabled" @change="onVariableChanged(conditionalStyle)"></Dropdown>
                             </div>
                             <div v-if="conditionalStyle.condition.type === 'variable' && conditionalStyle.condition.variablePivotDatasetOptions" class="p-d-flex p-flex-column kn-flex">
                                 <label class="kn-material-input-label p-mr-2">{{ $t('common.key') }}</label>
@@ -67,11 +67,10 @@
                                     :options="conditionalStyle.condition.variablePivotDatasetOptions ? Object.keys(conditionalStyle.condition.variablePivotDatasetOptions) : []"
                                     :disabled="conditionalStylesDisabled"
                                     @change="onVariableKeyChanged(conditionalStyle)"
-                                >
-                                </Dropdown>
+                                ></Dropdown>
                             </div>
-                            <div class="icon-style-container p-pl-2 p-mt-3">
-                                <WidgetEditorStyleToolbar :options="descriptor.conditionsToolbarStyleOptions" :prop-model="conditionalStyle.properties" :disabled="conditionalStylesDisabled" @change="onStyleToolbarChange($event, conditionalStyle)"> </WidgetEditorStyleToolbar>
+                            <div class="icon-style-container p-pl-2 p-mt-4">
+                                <WidgetEditorStyleToolbar :options="descriptor.conditionsToolbarStyleOptions" :prop-model="conditionalStyle.properties" :disabled="conditionalStylesDisabled" @change="onStyleToolbarChange($event, conditionalStyle)"></WidgetEditorStyleToolbar>
                             </div>
                         </div>
                     </div>
@@ -82,14 +81,14 @@
                 </div>
 
                 <div
-                    class="p-col-12 form-list-item-dropzone p-p-0"
+                    class="p-col-12 form-list-item-dropzone p-m-1"
                     :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }"
                     @drop.stop="onDropComplete($event, 'after', index)"
                     @dragover.prevent
                     @dragenter.prevent="displayDropzone('bottom', index)"
                     @dragleave.prevent="hideDropzone('bottom', index)"
                 ></div>
-                <div v-show="dropzoneBottomVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
+                <div v-show="dropzoneBottomVisible[index]" class="p-col-12" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
             </div>
         </div>
     </div>
@@ -98,7 +97,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetStyleToolbarModel, IVariable, IDashboardDriver } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapWidgetConditionalStyle, IMapWidgetConditionalStyles } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetConditionalStyle, IMapWidgetConditionalStyles, IMapWidgetLayer, IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { getSelectedVariable } from '@/modules/documentExecution/dashboard/generalSettings/VariablesHelper'
 import { mapActions } from 'pinia'
@@ -107,6 +106,8 @@ import descriptor from './MapConditionalStylesDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
+import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import appStore from '@/App.store'
 
 export default defineComponent({
     name: 'map-conditional-styles',
@@ -121,6 +122,7 @@ export default defineComponent({
             dropzoneTopVisible: {},
             dropzoneBottomVisible: {},
             drivers: [] as IDashboardDriver[],
+            propertiesCache: new Map<string, { name: string; alias: string }[]>(),
             getTranslatedLabel
         }
     },
@@ -134,13 +136,15 @@ export default defineComponent({
             this.onConditionalStylesEnabledChange()
         }
     },
-    created() {
+    async created() {
         this.loadDrivers()
         this.loadParameterValuesMap()
         this.loadVariableValuesMap()
         this.loadConditionalStyles()
+        await this.loadPropertiesForConditionalStyles()
     },
     methods: {
+        ...mapActions(appStore, ['setLoading']),
         ...mapActions(dashboardStore, ['getDashboardDrivers']),
         loadDrivers() {
             this.drivers = this.getDashboardDrivers(this.dashboardId)
@@ -152,6 +156,16 @@ export default defineComponent({
                     if (conditionalStyle.condition.type === 'variable' && conditionalStyle.condition.variableKey) this.setVisibilityConditionPivotedValues(conditionalStyle)
                 })
             }
+        },
+        async loadPropertiesForConditionalStyles() {
+            if (!this.conditionalStylesModel?.conditions) return
+            await Promise.all(this.conditionalStylesModel.conditions.map((conditionalStyle: IMapWidgetConditionalStyle) => this.loadAvailableProperties(conditionalStyle)))
+        },
+        async loadAvailableProperties(conditionalStyle: IMapWidgetConditionalStyle | null) {
+            if (!conditionalStyle) return
+
+            const targetLayer = this.widgetModel.layers.find((tempLayer: IMapWidgetLayer) => tempLayer.layerId === conditionalStyle.targetLayer)
+            if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInConditionalStylesSettingsForLayer(targetLayer)
         },
         setVisibilityConditionPivotedValues(conditionalStyle: IMapWidgetConditionalStyle) {
             const index = this.variables.findIndex((variable: IVariable) => variable.name === conditionalStyle.condition.variable)
@@ -208,7 +222,8 @@ export default defineComponent({
             conditionalStyle.condition.value = conditionalStyle.condition.variableKey ? conditionalStyle.condition.variablePivotDatasetOptions[conditionalStyle.condition.variableKey] : ''
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, conditionalStyle: IMapWidgetConditionalStyle) {
-            conditionalStyle.properties = { 'background-color': model['background-color'] ?? 'rgb(137, 158, 175)' }
+            conditionalStyle.properties['background-color'] = model['background-color'] ?? 'rgb(137, 158, 175)'
+            conditionalStyle.properties['icon'] = model['icon'] ?? ''
         },
         addConditionalStyle() {
             if (!this.conditionalStylesModel || this.conditionalStylesDisabled) return
@@ -246,12 +261,29 @@ export default defineComponent({
             if (!this.conditionalStylesModel || this.conditionalStylesDisabled) return
             position === 'top' ? (this.dropzoneTopVisible[index] = false) : (this.dropzoneBottomVisible[index] = false)
         },
-        onLayerChange(conditionalStyle: IMapWidgetConditionalStyle) {
-            conditionalStyle.targetColumn = ''
-        },
         getColumnOptionsFromLayer(conditionalStyle: IMapWidgetConditionalStyle) {
-            const index = this.widgetModel.layers.findIndex((layer: any) => layer.name === conditionalStyle.targetLayer)
-            return index !== -1 ? this.widgetModel.layers[index].content.columnSelectedOfDataset : []
+            const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === conditionalStyle.targetLayer)
+            if (!layer) return []
+            else if (layer.type === 'dataset') return layer.columns
+            else return this.propertiesCache.get(layer.layerId) ?? []
+        },
+        async onLayerChange(conditionalStyle: IMapWidgetConditionalStyle) {
+            conditionalStyle.targetColumn = ''
+            const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => conditionalStyle.targetLayer === layer.layerId)
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(conditionalStyle.targetLayer)) return
+            await this.loadAvailablePropertiesInConditionalStylesSettingsForLayer(target)
+        },
+        async loadAvailablePropertiesInConditionalStylesSettingsForLayer(targetLayer: IMapWidgetLayer) {
+            this.setLoading(true)
+            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
+            this.propertiesCache.set(targetLayer.layerId, formattedProperties)
+            this.setLoading(false)
+        },
+        getPropertiesFormattedForDropdownOptions(properties: IMapWidgetLayerProperty[]) {
+            return properties.map((property: IMapWidgetLayerProperty) => {
+                return { name: property.property, alias: property.property }
+            })
         }
     }
 })
@@ -267,10 +299,14 @@ export default defineComponent({
     height: 20px;
     width: 100%;
     background-color: white;
+    opacity: 0;
+    visibility: visible;
+    transition: opacity 0.2s, visibility 0.2s;
 }
 
 .form-list-item-dropzone-active {
-    height: 10px;
+    opacity: 1;
+    visibility: visible;
     background-color: #aec1d3;
 }
 

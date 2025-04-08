@@ -4,26 +4,24 @@ export interface IMapWidgetSettings {
     updatable: boolean
     clickable: boolean
     configuration: IMapWidgetConfiguration
-    visualization: IMapWidgetVisualizationSettings
+    visualizations: IMapWidgetVisualizationType[]
     conditionalStyles: IMapWidgetConditionalStyles
     legend: IMapWidgetLegend
     dialog: IMapDialogSettings
-    tooltips: IMapTooltipSettings
+    tooltip: IMapTooltipSettings
     interactions: IWidgetInteractions
     style: IMapWidgetStyle
     responsive: IWidgetResponsive
 }
 
 export interface IMapWidgetConfiguration {
-    baseLayer: IMapWidgetBaseLayer
+    map: IMapWidgetMapSettings
     controlPanel: IMapWidgetControlPanel
     exports: IWidgetExports
 }
 
-export interface IMapWidgetBaseLayer {
-    enabled: boolean
-    backgroundLayerId: number | null
-    zoomFactor: number | null
+export interface IMapWidgetMapSettings {
+    zoom: number | null
     showScale: boolean
     autoCentering: boolean
 }
@@ -33,12 +31,14 @@ export interface IMapWidgetControlPanel {
     dimension: string
 }
 
-export interface IMapWidgetVisualizationSettings {
-    types: IMapWidgetVisualizationType[]
-}
-
 export interface IMapWidgetVisualizationType {
-    target: string[]
+    target: string
+    targetType?: string
+    targetDataset?: string
+    targetMeasure?: any
+    targetProperty?: any
+    chartMeasures?: string[]
+    visible: boolean
     type: string
     markerConf?: IMapWidgetVisualizationTypeMarker
     balloonConf?: IMapWidgetVisualizationTypeBalloons
@@ -46,13 +46,15 @@ export interface IMapWidgetVisualizationType {
     clusterConf?: IMapWidgetVisualizationTypeCluster
     heatmapConf?: IMapWidgetVisualizationTypeHeatmap
     analysisConf?: IMapWidgetVisualizationTypeChoropleth
+    properties?: IMapWidgetLayerProperty[]
+    filter?: IMapWidgetLayerFilter
+    layerName?: string
 }
 
 export interface IMapWidgetVisualizationTypeMarker {
     type: string
     style: {
         color?: string
-        borderColor?: string
     }
     size?: number
     icon?: IIcon
@@ -62,31 +64,35 @@ export interface IMapWidgetVisualizationTypeMarker {
 }
 
 export interface IMapWidgetVisualizationTypeBalloons {
-    borderColor: string
-    fromColor: string
-    toColor: string
     minSize: number
     maxSize: number
     method: string
     classes: number
+    size?: number
+    type: 'default'
+    style: {
+        color?: string
+    }
     properties?: {
-        thresholds: { color: string; from: number; to: number }[]
+        thresholds: IMapWidgetVisualizationThreshold[]
     }
 }
 
+export interface IMapWidgetVisualizationThreshold {
+    color: string
+    from: number
+    to: number
+}
+
 export interface IMapWidgetVisualizationTypePie {
-    categorizeBy: string
     type: string
-    borderColor: string
-    fromColor: string
-    toColor: string
-    minSize: number
-    maxSize: number
+    colors: string[]
 }
 
 export interface IMapWidgetVisualizationTypeCluster {
     enabled: boolean
     radiusSize: number
+    maxClusterRadius: number
     style: {
         'font-size'?: string
         color?: string
@@ -97,16 +103,22 @@ export interface IMapWidgetVisualizationTypeCluster {
 export interface IMapWidgetVisualizationTypeHeatmap {
     radius: number
     blur: number
+    maxZoom: number
 }
 
 export interface IMapWidgetVisualizationTypeChoropleth {
     method: string
     classes: number
-    fromColor: string
-    toColor: string
     borderColor: string
+    minSize: number
+    maxSize: number
+    style: {
+        color?: string
+        toColor?: string
+        borderWidth?: number
+    }
     properties?: {
-        thresholds: { color: string; from: number; to: number }[]
+        thresholds: IMapWidgetVisualizationThreshold[]
     }
 }
 
@@ -129,6 +141,7 @@ export interface IMapWidgetConditionalStyle {
     }
     properties: {
         'background-color': string
+        icon: string
     }
 }
 
@@ -172,8 +185,6 @@ export interface IMapWidgetLegendText {
 
 export interface IMapDialogSettings {
     enabled: boolean
-    width: string
-    height: string
     style: {
         'justify-content': string
         'font-family': string
@@ -183,17 +194,22 @@ export interface IMapDialogSettings {
         color: string
         'background-color': string
     }
-    properties: IMapDialogSettingsProperty[]
+    layers: IMapDialogSettingsProperty[]
 }
 
 export interface IMapDialogSettingsProperty {
-    layer: string
+    name: string
     columns: string[]
 }
 
 export interface IMapTooltipSettings {
     enabled: boolean
-    layers: { name: string; columns: string[] }[]
+    layers: IMapTooltipSettingsLayer[]
+}
+
+export interface IMapTooltipSettingsLayer {
+    name: string
+    columns: string[]
 }
 
 export interface IMapWidgetStyle {
@@ -230,32 +246,28 @@ export interface ILayer {
 
 export interface IMapWidgetLayer {
     type: string
-    dsId: number
-    alias: string
+    id: number
     name: string
-    defaultVisible: boolean
-    dataset: IDataset | any
-    content: {
-        columnSelectedOfDataset: IWidgetMapLayerColumn[]
-    }
-    order: number
-    targetDefault: boolean
-    hasShownDetails: boolean
-    defaultIndicator: string
-    layerID: string
-    isStatic: boolean
-    showTooltip: boolean
-    tooltipColumn: string
-    visualizationType: string
-    markerConf: any
-    clusterConf: any
-    heatmapConf: any
-    analysisConf: any
-    modalSelectionColumn: string
+    columns?: IWidgetMapLayerColumn[]
+    order?: number
+    layerId: string
+    layerType: string
     datasetLink?: number
     datasetColumnLink?: number
-    catalogLayerLink?: number
-    catalogLayerColumnLink?: number
+    catalogLayerPropertyLink?: number
+    properties?: IMapWidgetLayerProperty[]
+}
+
+export interface IMapWidgetLayerFilter {
+    enabled?: boolean
+    column?: string | null
+    operator?: string
+    value?: string
+    reloaded?: false
+}
+
+export interface IMapWidgetLayerProperty {
+    property: string
 }
 
 export interface IWidgetMapLayerColumn {
@@ -281,4 +293,15 @@ export interface IWidgetMapLayerColumn {
     aliasToShow: string
     aggregationSelected?: string
     deleted?: boolean
+}
+
+export interface ILayerFeature {
+    type: string
+    geometry: {
+        type: string
+        coordinates: [number, number]
+    }
+    properties: {
+        [key: string]: string | number
+    }
 }

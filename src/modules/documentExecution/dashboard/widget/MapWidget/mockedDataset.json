@@ -1,0 +1,132 @@
+{
+    "metaData": {
+        "cacheDate": "2025-03-25 13:45:01.650",
+        "fields": [
+            "recNo",
+            {
+                "dataIndex": "column_1",
+                "header": "position",
+                "multiValue": false,
+                "name": "column_1",
+                "type": "string"
+            },
+            {
+                "dataIndex": "column_2",
+                "header": "quarter",
+                "multiValue": false,
+                "name": "column_2",
+                "type": "string"
+            },
+            {
+                "dataIndex": "column_3",
+                "header": "measure",
+                "multiValue": false,
+                "name": "column_3",
+                "precision": 0,
+                "scale": 0,
+                "type": "float"
+            },
+            {
+                "dataIndex": "column_4",
+                "header": "unit_sales",
+                "multiValue": false,
+                "name": "column_4",
+                "precision": 0,
+                "scale": 0,
+                "type": "float"
+            },
+            {
+                "dataIndex": "column_5",
+                "header": "unit_orders",
+                "multiValue": false,
+                "name": "column_5",
+                "precision": 0,
+                "scale": 0,
+                "type": "float"
+            }
+        ],
+        "id": "id",
+        "root": "rows",
+        "totalProperty": "results"
+    },
+    "results": 5,
+    "rows": [
+        {
+            "column_1": "45.26543502 11.95957217",
+            "column_2": "Q2",
+            "column_3": 3,
+            "column_4": 20,
+            "column_5": 37,
+            "id": 1
+        },
+        {
+            "column_1": "45.2887663 11.84776482",
+            "column_2": "Q4",
+            "column_3": 38,
+            "column_4": 40,
+            "column_5": 23,
+            "id": 2
+        },
+        {
+            "column_1": "45.37512766 11.97121229",
+            "column_2": "Q1",
+            "column_3": 70,
+            "column_4": 10,
+            "column_5": 13,
+            "id": 3
+        },
+        {
+            "column_1": "45.38317618 11.66686171",
+            "column_2": "Q3",
+            "column_3": 98,
+            "column_4": 30,
+            "column_5": 91,
+            "id": 4
+        },
+        {
+            "column_1": "45.40022984 12.03557277",
+            "column_2": "Q1",
+            "column_3": 43,
+            "column_4": 50,
+            "column_5": 45,
+            "id": 5
+        }
+    ],
+    "stats": {
+        "1": {
+            "cardinality": 5,
+            "distinct": ["45.26543502 11.95957217", "45.2887663 11.84776482", "45.37512766 11.97121229", "45.38317618 11.66686171", "45.40022984 12.03557277"],
+            "max": "45.40022984 12.03557277",
+            "min": "45.26543502 11.95957217",
+            "name": "column_1"
+        },
+        "2": {
+            "cardinality": 4,
+            "distinct": ["Q1", "Q2", "Q3", "Q4"],
+            "max": "Q4",
+            "min": "Q1",
+            "name": "column_2"
+        },
+        "3": {
+            "cardinality": 5,
+            "distinct": [3, 38, 43, 70, 98],
+            "max": 98,
+            "min": 3,
+            "name": "column_3"
+        },
+        "4": {
+            "cardinality": 5,
+            "distinct": [10, 20, 30, 40, 50],
+            "max": 50,
+            "min": 10,
+            "name": "column_4"
+        },
+        "5": {
+            "cardinality": 5,
+            "distinct": [13, 23, 37, 45, 91],
+            "max": 91,
+            "min": 13,
+            "name": "column_5"
+        }
+    }
+}

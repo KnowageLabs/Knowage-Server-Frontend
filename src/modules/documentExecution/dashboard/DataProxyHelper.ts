@@ -48,6 +48,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
             return await getDiscoveryChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'vega':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        case 'map':
+            return await getMapWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
