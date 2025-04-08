@@ -33,7 +33,7 @@
     <q-dialog v-model="helpDialogVisible">
         <q-card style="overflow: hidden" :style="{ width: `${helpConfig.popupWidth}px`, height: `${helpConfig.popupHeight}px`, 'max-width': 'none' }">
             <q-card-section class="q-pt-none kn-height-full p-m-0 p-px-0 p-py-0">
-                <p v-if="helpConfig.type === 'free-text'" style="word-wrap: break-word">{{ helpConfig.text }}</p>
+                <p v-if="helpConfig.type === 'free-text'" style="word-wrap: break-word" v-html="helpConfig.text" class="q-ma-sm"></p>
                 <iframe v-else-if="helpConfig.type === 'link'" class="kn-width-full kn-height-full" ref="iframe" :src="helpConfig.url"></iframe>
             </q-card-section>
         </q-card>
