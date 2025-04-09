@@ -40,6 +40,8 @@ export function createNewWidget(type: string, dashboardModel: any) {
     addWidgetMenuConfig(widget)
     widget.settings.configuration.updateFromSelections = true
 
+    if (!widget.settings.style.themeId) widget.settings.style.themeId = dashboardModel.configuration.theme?.id ?? null
+
     return widget
 }
 
@@ -106,12 +108,6 @@ export const createNewWidgetSettings = (widget: IWidget, dashboardModel: any) =>
             widget.settings = createNewPythonWidgetSettings()
             break
     }
-    widget.settings = addDefaultTheme(widget.settings, dashboardModel)
-}
-
-export function addDefaultTheme(widget: any, dashboardModel: any) {
-    if (dashboardModel?.configuration?.theme?.themeName) widget.style.themeName = dashboardModel.configuration.theme.themeName
-    return widget
 }
 
 export function formatWidgetForSave(tempWidget: IWidget) {
