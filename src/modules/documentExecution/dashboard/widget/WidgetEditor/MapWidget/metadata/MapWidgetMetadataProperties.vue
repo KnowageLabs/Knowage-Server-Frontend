@@ -2,7 +2,7 @@
     <template v-if="props.properties.length > 0">
         <q-list dense bordered separator>
             <q-item v-for="prop in props.properties">
-                <q-item-section>{{ prop }}</q-item-section>
+                <q-item-section>{{ prop.property }}</q-item-section>
             </q-item>
         </q-list>
     </template>
