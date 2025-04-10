@@ -314,7 +314,7 @@ export default defineComponent({
         },
         setHeaderHeight() {
             const headerConfig = this.propWidget.settings.style.headers
-            this.gridApi?.setHeaderHeight(headerConfig.height)
+            this.gridApi.headerHeight = headerConfig.height
         },
         getRowHeight() {
             const rowsConfiguration = this.propWidget.settings.style.rows
