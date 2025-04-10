@@ -1,6 +1,9 @@
 <template>
     <div v-if="shadowsStyleModel" class="kn-flex p-p-4">
-        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2"> {{ $t('common.enabled') }} <q-toggle v-model="shadowsStyleModel.enabled" color="black" /> </span>
+        <span v-if="themeStyle" class="p-d-flex p-flex-row p-ai-center p-mb-2">
+            {{ $t('common.enabled') }}
+            <q-toggle v-model="shadowsStyleModel.enabled" color="black" />
+        </span>
 
         <form class="p-fluid p-formgrid p-grid">
             <div class="p-field p-col-12 p-lg-8">
@@ -75,6 +78,8 @@ export default defineComponent({
         loadShadowsStyle() {
             if (this.widgetModel?.settings?.style?.shadows) this.shadowsStyleModel = this.widgetModel.settings.style.shadows
             else if (this.themeStyle) this.shadowsStyleModel = this.themeStyle
+
+            if (this.shadowsStyleModel && !this.shadowsStyleModel.properties['box-shadow']) this.shadowsStyleModel.properties['box-shadow'] = '0px 2px 3px'
             this.getShadowSize()
         },
         shadowStyleChanged() {
