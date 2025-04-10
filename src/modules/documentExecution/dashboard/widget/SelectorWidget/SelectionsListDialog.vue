@@ -1,6 +1,7 @@
 <template>
     <Dialog class="kn-dialog--toolbar--secondary selectionsDialog" :visible="visible" style="width: 60%" :header="$t('dashboard.selectionsList')" :closable="false" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }">
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine selectionGrid p-m-2" :grid-options="gridOptions" :context="context"></ag-grid-vue>
+        {{ document?.seeAsFinalUser }}
         <template #footer>
             <Button class="kn-button kn-button--secondary p-mb-2" :label="$t('common.close')" data-test="close-button" @click="closeDialog" />
             <Button class="kn-button kn-button p-mb-2" :label="$t('common.save')" data-test="save-button" @click="onSave" />
@@ -22,7 +23,8 @@ export default defineComponent({
     components: { Dialog },
     props: {
         visible: { type: Boolean },
-        dashboardId: { type: String, required: true }
+        dashboardId: { type: String, required: true },
+        document: { type: Object }
     },
     emits: ['close', 'save'],
     data() {
@@ -38,6 +40,7 @@ export default defineComponent({
                     {
                         headerName: '',
                         cellRenderer: buttonRenderer,
+                        cellRendererParams: { isFinalUser: this.document?.seeAsFinalUser },
                         field: 'id',
                         cellStyle: {
                             'text-align': 'right',
