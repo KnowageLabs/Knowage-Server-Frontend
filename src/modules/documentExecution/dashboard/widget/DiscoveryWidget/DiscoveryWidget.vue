@@ -154,10 +154,8 @@ export default defineComponent({
         },
         prepareWidget() {
             this.getRowId = (params) => params.data.id
-            this.loadResponseData()
-            this.createColumnDefinitions()
-            this.setEventListeners()
             this.setupDatatableOptions()
+            this.setEventListeners()
             this.loadSearchValue()
             this.loadActiveSelections()
         },
@@ -309,8 +307,9 @@ export default defineComponent({
             this.gridApi = params.api
             this.columnApi = params.columnApi
 
-            this.setGridData()
             this.setHeaderHeight()
+            this.reloadWidgetData()
+            this.setGridData()
         },
         setHeaderHeight() {
             const headerConfig = this.propWidget.settings.style.headers
