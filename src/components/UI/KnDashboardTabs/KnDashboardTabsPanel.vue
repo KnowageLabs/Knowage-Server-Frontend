@@ -154,9 +154,11 @@ export default defineComponent({
                     const tempSheet = [...this.sheets]
                     const sheetForDelete = deepcopy(tempSheet[index])
                     tempSheet.splice(index, 1)
-                    this.prev()
+
+                    if (index <= this.currentPage && this.currentPage > 0) this.prev()
+
                     this.$emit('update:sheets', tempSheet)
-                    this.$emit('sheetDeleted', sheetForDelete)
+                    this.$emit('sheetDeleted', { sheetForDelete: sheetForDelete, currentPage: this.currentPage })
                 }
             })
         },
