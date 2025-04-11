@@ -34,8 +34,7 @@ export const addBaloonMarkers = (
     layersData: any,
     visualizationDataType: VisualizationDataType,
     targetDatasetData: any,
-    variables: IVariable[],
-    centerMap: boolean = true
+    variables: IVariable[]
 ) => {
     if (!layerVisualizationSettings.balloonConf) return
     switch (layerVisualizationSettings.balloonConf.method) {
@@ -69,8 +68,6 @@ export const addBaloonMarkers = (
                 addBaloonMarkersClassifedByEqualIntervalsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
             }
     }
-
-    if (centerMap) centerTheMap(map, markerBounds)
 }
 
 const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], targetDatasetData?: any, dataColumn?: string) => {

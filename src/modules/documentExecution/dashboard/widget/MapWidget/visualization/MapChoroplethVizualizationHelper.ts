@@ -13,8 +13,6 @@ import {
     getQuantilesFromLayersData,
     getRowValues,
     getTargetDataColumn,
-    getTargetProperty,
-    getVizualizationConditionalStyles,
     incrementColumnName,
     isConditionMet,
     sortRanges,
@@ -38,11 +36,9 @@ export const createChoropleth = (
     visualizationDataType: VisualizationDataType,
     targetDatasetData: any,
     variables: IVariable[],
-    centerMap: boolean = true
+    bounds: any
 ) => {
     if (!layerVisualizationSettings.analysisConf) return
-
-    const bounds = L.latLngBounds()
 
     switch (layerVisualizationSettings.analysisConf.method) {
         case 'CLASSIFY_BY_RANGES':
@@ -71,15 +67,6 @@ export const createChoropleth = (
             } else {
                 createChoroplethClassifiedByEqualIntervalsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, bounds, variables)
             }
-    }
-
-    if (centerMap) {
-        setTimeout(() => {
-            if (bounds.isValid()) {
-                map.invalidateSize()
-                map.fitBounds(bounds)
-            }
-        }, 100)
     }
 }
 
