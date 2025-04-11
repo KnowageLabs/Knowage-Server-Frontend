@@ -43,7 +43,7 @@
         </Toolbar>
         <ProgressBar v-if="loading || loadingCrossNavigationDocument" class="kn-progress-bar" mode="indeterminate" />
         <div ref="document-execution-view" class="p-d-flex p-flex-row document-execution-view myDivToPrint">
-            <Button id="scheduledExcelExportButton" class="hidden-button" @click="hiddenExport('XLSX')"></Button>
+            <Button v-if="isScheduledExport" id="scheduledExcelExportButton" @click="hiddenExport('XLSX')"></Button>
             <div v-if="parameterSidebarVisible" :class="propMode === 'document-execution-cross-navigation-popup' ? 'document-execution-backdrop-popup-dialog' : 'document-execution-backdrop'" @click="parameterSidebarVisible = false"></div>
             <div v-show="downloadMode" class="downloadingBox">{{ $t('dashboard.warning.downloading') }}</div>
             <div v-show="!downloadMode && (showExecutedDocument || newDashboardMode)" class="kn-flex">
@@ -396,6 +396,9 @@ export default defineComponent({
         isInWorkspace() {
             return this.$route.query?.fromWorkspace
         },
+        isScheduledExport() {
+            return this.$route.query?.scheduledexport
+        },
         isMobileDevice() {
             return /Android|iPhone/i.test(navigator.userAgent)
         },
@@ -711,7 +714,7 @@ export default defineComponent({
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`, body, {
                     responseType: 'blob',
-                    headers: headers
+                    // headers: headers
                 })
                 .then((response) => {
                     downloadDirectFromResponse(response)

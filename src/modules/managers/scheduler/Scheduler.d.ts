@@ -12,6 +12,7 @@ export interface iPackage {
     documents: any[],
     triggers: iTrigger[],
     edit?: boolean
+    role?: string,
     numberOfDocuments?: number
 }
 

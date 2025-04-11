@@ -31,7 +31,7 @@ export default defineComponent({
     computed: {},
     watch: {
         styleChangedFlag() {
-            if (this.widget) this.widget.settings.style.themeName = null
+            if (this.widget) this.widget.settings.style.themeId = null
         }
     },
     created() {
@@ -46,6 +46,7 @@ export default defineComponent({
         loadWidgetStyle() {
             this.widget = this.widgetModel
             if (this.widget?.settings.style?.themeName) delete this.widget.settings.style.themeName
+            if (this.widget.settings.style.themeId) this.onThemeSelected({ value: this.widget.settings.style.themeId })
         },
         onThemeSelected(event: { value: number | null }) {
             const selectedTheme = this.themes.find((theme: IDashboardTheme) => theme.id === event.value)

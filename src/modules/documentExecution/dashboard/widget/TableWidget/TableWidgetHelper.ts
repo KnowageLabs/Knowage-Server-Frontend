@@ -17,11 +17,32 @@ export const getColumnGroup = (propWidget: IWidget, col: ITableWidgetColumnGroup
 export const getWidgetStyleByType = (propWidget: IWidget, styleType: string) => {
     const styleSettings = propWidget?.settings.style[styleType]
     if (styleSettings?.enabled) {
-        const styleString = Object.entries(styleSettings.properties ?? styleSettings)
+        let styleString = Object.entries(styleSettings.properties ?? styleSettings)
             .map(([k, v]) => `${k}:${v}`)
             .join(';')
+
+        if (styleType === 'shadows') styleString = transformStringForBackgroundProperty(styleString)
         return styleString + ';'
     } else return ''
+}
+
+const transformStringForBackgroundProperty = (input: string) => {
+    const properties = input.split(';').filter(Boolean)
+
+    const parsedProperties = {}
+
+    properties.forEach((property) => {
+        const [key, value] = property.split(':')
+        parsedProperties[key.trim()] = value.trim()
+    })
+
+    let boxShadow = parsedProperties['box-shadow']
+    if (!boxShadow) boxShadow = '0px 2px 3px'
+
+    const color = parsedProperties['color']
+    const transformedString = `box-shadow:${boxShadow} ${color}`
+
+    return transformedString
 }
 
 export const stringifyStyleProperties = (properties: object) => {

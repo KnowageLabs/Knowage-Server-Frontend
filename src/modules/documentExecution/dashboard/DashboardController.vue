@@ -55,7 +55,7 @@
             <WidgetPickerDialog v-if="widgetPickerVisible" :visible="widgetPickerVisible" @open-new-widget-editor="openNewWidgetEditor" @close-widget-picker="onWidgetPickerClosed" />
         </Transition>
         <DashboardControllerSaveDialog v-if="saveDialogVisible" :visible="saveDialogVisible" @save="saveNewDashboard" @close="saveDialogVisible = false"></DashboardControllerSaveDialog>
-        <SelectionsListDialog v-if="selectionsDialogVisible" :visible="selectionsDialogVisible" :dashboard-id="dashboardId" @close="selectionsDialogVisible = false" @save="onSelectionsRemove" />
+        <SelectionsListDialog v-if="selectionsDialogVisible" :visible="selectionsDialogVisible" :document="document" :dashboard-id="dashboardId" @close="selectionsDialogVisible = false" @save="onSelectionsRemove" />
     </div>
 
     <WidgetEditor
@@ -105,6 +105,7 @@ import DashboardSavedViewsDialog from './DashboardViews/DashboardSavedViewsDialo
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
 import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
+import { getWidgetData } from './DashboardDataProxy'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -135,6 +136,11 @@ export default defineComponent({
         propView: { type: Object as PropType<IDashboardView | null> }
     },
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
+    provide() {
+        return {
+            selectorWidgetsInitialData: this.selectorWidgetsData
+        }
+    },
     setup() {
         const store = dashboardStore()
         const appStore = mainStore()
@@ -179,7 +185,8 @@ export default defineComponent({
                 profileAttributesLoaded: false,
                 dashboardModelLoaded: false,
                 crossNavigationsLoaded: false
-            }
+            },
+            selectorWidgetsData: {}
         }
     },
     computed: {
@@ -230,6 +237,7 @@ export default defineComponent({
         clearAllDatasetIntervals()
     },
     methods: {
+        ...mapState(dashboardStore, ['dashboards']),
         ...mapActions(dashboardStore, [
             'getDashboardDrivers',
             'removeSelections',
@@ -318,11 +326,102 @@ export default defineComponent({
             }
 
             this.store.setDashboard(this.dashboardId, this.model)
+
+            await this.fetchAllSelectorDefaultValues()
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
             this.store.setDashboardDocument(this.dashboardId, this.document)
             this.store.setExecutionTime(this.dashboardId, new Date())
 
             this.updateVariableValuesWithDriverValuesAfterExecution()
+        },
+        async sleep(time) {
+            return new Promise((resolve) => setTimeout(resolve, time))
+        },
+        async fetchAllSelectorDefaultValues() {
+            const widgets = this.model.widgets.filter((widget) => widget.type === 'selector' && widget.settings.configuration?.defaultValues?.enabled === true)
+            const promises = widgets.map(async (widget) => {
+                const selectorDefaultValues = widget.settings.configuration?.defaultValues
+
+                this.initializeWidgetData(widget)
+                this.selectorWidgetsData[widget.id].initialData = await this.fetchInitialWidgetData(widget)
+                if (widget.settings?.configuration?.updateFromSelections) {
+                    this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithSelections(widget)
+                }
+
+                this.updateSelectorOptions(widget)
+                const enabledOptions = this.selectorWidgetsData[widget.id].selectorOptions.filter((item) => !item.disabled)
+                const selectionValue = this.getSelectionValue(selectorDefaultValues, enabledOptions)
+                if (selectionValue) {
+                    this.createDynamicSelection(widget, selectionValue, selectorDefaultValues)
+                }
+            })
+
+            await Promise.all(promises)
+        },
+        initializeWidgetData(widget: any) {
+            this.selectorWidgetsData[widget.id] = {
+                widgetData: [],
+                selectorOptions: []
+            }
+        },
+        async fetchInitialWidgetData(widget: any) {
+            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, true, [], { searchText: '', searchColumns: [] }, this.model.configuration)
+        },
+        async fetchWidgetDataWithSelections(widget: any) {
+            const nonDynamicSelections = this.model.configuration.selections.filter((selection) => !selection.dynamic)
+            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, nonDynamicSelections, { searchText: '', searchColumns: [] }, this.model.configuration)
+        },
+        updateSelectorOptions(widget: any) {
+            this.selectorWidgetsData[widget.id].initialData.rows.forEach((initialOption: any) => {
+                const index = this.selectorWidgetsData[widget.id].widgetData.rows.findIndex((row: any) => row.column_1 === initialOption.column_1)
+                this.selectorWidgetsData[widget.id].selectorOptions.push({
+                    ...initialOption,
+                    disabled: index === -1
+                })
+            })
+        },
+        getSelectionValue(selectorDefaultValues: any, enabledOptions: any[]) {
+            let selectionValue = null as any
+            switch (selectorDefaultValues.valueType) {
+                case 'FIRST':
+                    selectionValue = enabledOptions[0] || null
+                    break
+                case 'LAST':
+                    selectionValue = enabledOptions[enabledOptions.length - 1] || null
+                    break
+                case 'STATIC':
+                    selectionValue = selectorDefaultValues.value
+                    break
+                default:
+                    break
+            }
+            return selectionValue
+        },
+        createDynamicSelection(widget: any, selectionValue: any, selectorDefaultValues: any) {
+            const dynamicSelection = {
+                datasetId: widget.dataset as number,
+                datasetLabel: this.getDatasetLabel(widget.dataset as number),
+                columnName: widget.columns[0]?.columnName ?? '',
+                value: [selectorDefaultValues.valueType === 'STATIC' ? selectionValue : selectionValue?.column_1],
+                aggregated: false,
+                timestamp: new Date().getTime(),
+                dynamic: true
+            } as ISelection
+
+            const existingSelection = this.model.configuration.selections[this.model.configuration.selections.findIndex((modelSelection: ISelection) => modelSelection.datasetId === dynamicSelection.datasetId && modelSelection.columnName === dynamicSelection.columnName)]
+
+            if (existingSelection) {
+                if (existingSelection.dynamic && existingSelection.value.toString() !== dynamicSelection.value.toString()) {
+                    existingSelection.value = dynamicSelection.value
+                } else return
+            } else {
+                this.model.configuration.selections.push(dynamicSelection)
+            }
+        },
+
+        getDatasetLabel(datasetId: number) {
+            const index = this.datasets.findIndex((dataset: IDataset) => dataset.id.dsId == datasetId)
+            return index !== -1 ? this.datasets[index].label : ''
         },
         updateVariableValuesWithDriverValuesAfterExecution() {
             if (!this.model?.configuration) return

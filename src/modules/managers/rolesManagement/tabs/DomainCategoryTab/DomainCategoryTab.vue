@@ -4,7 +4,7 @@
             <q-toolbar-title>{{ title }}</q-toolbar-title>
         </q-toolbar>
         <q-card-section>
-            <q-table flat dense hide-pagination :rows="categoryList" :columns="[{ name: 'categoryName', label: $t('common.name'), field: 'categoryName', align: 'left' }]" row-key="categoryId" selection="multiple" v-model:selected="selectedCategories" @update:selected="setDirty" />
+            <q-table flat dense hide-pagination :rows="availableCategories" :columns="[{ name: 'categoryName', label: $t('common.name'), field: 'categoryName', align: 'left' }]" row-key="categoryId" selection="multiple" v-model:selected="selectedCategories" @update:selected="setDirty" />
         </q-card-section>
     </q-card>
 </template>
@@ -23,16 +23,13 @@ export default defineComponent({
     emits: ['changed'],
     data() {
         return {
-            selectedCategories: [] as iCategory[]
+            selectedCategories: [] as iCategory[],
+            availableCategories: [] as iCategory[]
         }
     },
-    watch: {
-        selected() {
-            this.selectedCategories = this.selected as iCategory[]
-        }
-    },
-    created() {
+    updated() {
         this.selectedCategories = this.selected as iCategory[]
+        this.availableCategories = this.categoryList as iCategory[]
     },
     methods: {
         setDirty() {
