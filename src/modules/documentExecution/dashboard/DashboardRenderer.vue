@@ -52,7 +52,7 @@
  * ! this component will be in charge of creating the dashboard visualizazion, specifically to manage responsive structure and sheets.
  */
 import { defineComponent, PropType } from 'vue'
-import { IBackground, IDashboardSheet, IDataset, IVariable } from './Dashboard'
+import { IBackground, IDashboardSheet, IDataset, IVariable, IWidgetSheetItem } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { emitter } from './DashboardHelpers'
@@ -185,13 +185,8 @@ export default defineComponent({
             else if (window.innerWidth >= 480) return 'xs'
             else return 'xxs'
         },
-        onSheetDeleted(sheet: IDashboardSheet) {
-            if (this.activeDashboardSheet?.id !== sheet.id) return
-
-            let index = (this.dashboardModel.sheets?.length ?? 0) - 1
-            if (index < 0) index = 0
-
-            this.sheetChange(index)
+        onSheetDeleted(payload: { sheetForDelete: IWidgetSheetItem; currentPage: number }) {
+            this.sheetChange(payload.currentPage)
         }
     }
 })
