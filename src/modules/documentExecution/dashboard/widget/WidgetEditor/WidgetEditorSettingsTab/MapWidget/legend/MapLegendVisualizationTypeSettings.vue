@@ -1,15 +1,9 @@
 <template>
-    <div v-if="vizualizationTypeLegendSettings">
-        {{ vizualizationTypeLegendSettings }}
-        <div class="p-formgrid p-grid p-p-4">
-            <q-input dense class="col" filled v-model="vizualizationTypeLegendSettings.title" :label="$t('dashboard.widgetEditor.map.legendTitle')" />
-        </div>
+    <div v-if="vizualizationTypeLegendSettings && vizualizationTypeLegendSettings.visualizationType" class="p-formgrid p-grid p-col-12">
+        <q-input dense class="p-lg-6" filled v-model="vizualizationTypeLegendSettings.visualizationType.layerName" :label="$t('common.name')" disable />
+        <q-input dense class="p-lg-6" filled v-model="vizualizationTypeLegendSettings.visualizationType.type" :label="$t('common.type')" disable />
 
-        <hr />
-
-        <div class="p-formgrid p-grid p-p-4">
-            <q-input filled class="col" v-model="vizualizationTypeLegendSettings.text" type="textarea" :label="t('dashboard.widgetEditor.map.legendText')" :rows="4" maxlength="500" counter />
-        </div>
+        <q-input filled class="p-lg-12" v-model="vizualizationTypeLegendSettings.text" type="textarea" :label="$t('common.text')" :rows="4" maxlength="500" counter />
     </div>
 </template>
 

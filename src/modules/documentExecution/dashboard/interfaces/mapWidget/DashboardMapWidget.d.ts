@@ -150,12 +150,12 @@ export interface IMapWidgetLegend {
     enabled: boolean
     position: string
     alignment: string
+    title: string
     visualizationTypes: IMapWidgetVisualizationTypeLegendSettings[]
 }
 
 export interface IMapWidgetVisualizationTypeLegendSettings {
     visualizationType: IMapWidgetVisualizationType | null
-    title: string
     text: string
 }
 

@@ -1140,7 +1140,9 @@
                 },
                 "crossNavigationLabelHint": "This is the label of the link. If empty it will be \"Go to detail\"",
                 "customColor": "Custom color",
+                "detached": "Detached",
                 "dialogHint": "The selected elements will be visible when clicking on the map",
+                "east": "East",
                 "fromColor": "From color",
                 "fromThreshold": "From (>=)",
                 "imagesGallery": "Images Gallery",
@@ -1206,7 +1208,8 @@
                     "heatmap": "Heatmap",
                     "markers": "Markers",
                     "pies": "Pies"
-                }
+                },
+                "west": "West"
             },
             "maxZoom": "Max Zoom",
             "menuConfiguration": "Menu Configuration",

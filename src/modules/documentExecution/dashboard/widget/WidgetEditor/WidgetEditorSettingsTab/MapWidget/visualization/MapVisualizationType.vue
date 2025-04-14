@@ -257,12 +257,9 @@ export default defineComponent({
         updateMapWidgetLegend() {
             this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
                 const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
-                if (!mapLegend) return
-                if (mapLegend.visualizationTypes.some((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)) return
-                const defaultVisualizationTypeLegendSettings = mapWidgetDefaultValues.getDefaultVisualizationTypeLegendSettings()
-                mapLegend.visualizationTypes.push({ ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType })
+                if (mapLegend?.visualizationTypes.some((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)) return
+                this.addVisualizationTypeLegendOption(visualizationType)
             })
-            console.log('--------- MAP LEGEND: ', this.widgetModel?.settings?.legend)
         },
         loadLayersOptions() {
             this.availableLayersOptions = this.widgetModel.layers
@@ -294,11 +291,25 @@ export default defineComponent({
             this.visualizationTypeModel[visTypeIndex].type = visTypeConfigName
         },
         addVisualizationType() {
-            this.visualizationTypeModel.push(this.createDefaultVisualizationType())
+            const visualizationType = this.createDefaultVisualizationType()
+            this.visualizationTypeModel.push(visualizationType)
+            this.addVisualizationTypeLegendOption(visualizationType)
+        },
+        addVisualizationTypeLegendOption(visualizationType: IMapWidgetVisualizationType) {
+            const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
+            if (!mapLegend) return
+            const defaultVisualizationTypeLegendSettings = mapWidgetDefaultValues.getDefaultVisualizationTypeLegendSettings()
+            mapLegend.visualizationTypes.push({ ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType })
         },
         removeVisualizationType(index: number) {
             if (index === 0) this.visualizationTypeModel[0] = this.createDefaultVisualizationType()
             else this.visualizationTypeModel.splice(index, 1)
+        },
+        removeVisualizationTypeLegendOption(visualizationType: IMapWidgetVisualizationType) {
+            const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
+            if (!mapLegend) return
+            const index = mapLegend.visualizationTypes.findIndex((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)
+            if (index !== -1) mapLegend.visualizationTypes.splice(index, 1)
         },
         createDefaultVisualizationType() {
             return mapWidgetDefaultValues.getDefaultVisualizationSettings()[0]

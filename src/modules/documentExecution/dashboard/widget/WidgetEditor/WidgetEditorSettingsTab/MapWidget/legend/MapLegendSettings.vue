@@ -1,6 +1,8 @@
 <template>
     <div v-if="legendSettings">
         <div class="p-formgrid p-grid p-p-3">
+            <q-input dense class="p-lg-4" filled v-model="legendSettings.title" :label="$t('common.title')" />
+
             <span class="p-field p-float-label p-col-12 p-lg-4 p-fluid">
                 <Dropdown v-model="legendSettings.position" class="kn-material-input" :options="descriptor.positionOptions" option-value="value" :disabled="legendSettingsDisabled">
                     <template #value="slotProps">
@@ -14,8 +16,9 @@
                         </div>
                     </template>
                 </Dropdown>
-                <label for="attributes" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.visualizationType.alignment') }} </label>
+                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.position') }} </label>
             </span>
+
             <span class="p-field p-float-label p-col-12 p-lg-4 p-fluid">
                 <Dropdown v-model="legendSettings.alignment" class="kn-material-input" :options="descriptor.alignmentOptions" option-value="value" :disabled="legendSettingsDisabled">
                     <template #value="slotProps">
@@ -29,14 +32,16 @@
                         </div>
                     </template>
                 </Dropdown>
-                <label for="attributes" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.position') }} </label>
+                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.visualizationType.alignment') }} </label>
             </span>
         </div>
 
         <hr />
 
-        <div class="p-formgrid p-grid p-p-4">
-            <MapLegendVisualizationTypeSettings v-for="(vizualizationTypeLegendSettings, index) in legendSettings.visualizationTypes" :key="index" :prop-visualization-type-legend-settings="vizualizationTypeLegendSettings" :disabled="legendSettingsDisabled"></MapLegendVisualizationTypeSettings>
+        <div class="p-formgrid p-grid p-col-12 p-p-4" v-for="(vizualizationTypeLegendSettings, index) in legendSettings.visualizationTypes" :key="index">
+            <MapLegendVisualizationTypeSettings :prop-visualization-type-legend-settings="vizualizationTypeLegendSettings" :disabled="legendSettingsDisabled"></MapLegendVisualizationTypeSettings>
+
+            <hr class="kn-width-full p-my-2" />
         </div>
     </div>
 </template>
@@ -74,7 +79,7 @@ export default defineComponent({
     methods: {
         loadLegendSettings() {
             if (this.widgetModel?.settings?.legend) this.legendSettings = this.widgetModel.settings.legend
-            console.log('------- LOADED SETTINGS: ', this.legendSettings)
+            console.log('------- LOADED legendSettings: ', this.legendSettings)
         }
     }
 })
