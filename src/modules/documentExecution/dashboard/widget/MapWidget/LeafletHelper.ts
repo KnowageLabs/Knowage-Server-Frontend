@@ -126,6 +126,8 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[]) {
     try {
         const markerBounds = [] as any
+        const bounds = L.latLngBounds()
+        let centerMap = model.settings?.configuration?.map?.autoCentering
         for (const layer of model.settings.visualizations) {
             const layerVisualizationSettings = deepcopy(layer)
             let reloadWithFilters = false
@@ -208,35 +210,50 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             const layerGroup = L.layerGroup().addTo(map)
             layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
-            const zoomMap = !reloadWithFilters && model.settings?.configuration?.map?.autoCentering
+            if (reloadWithFilters) centerMap = false
 
             if (layerVisualizationSettings.type === 'markers') {
-                addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
+                addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'balloons') {
-                addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, zoomMap)
+                addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'pies') {
-                addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
+                addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'clusters') {
-                addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
+                addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'heatmap') {
-                createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, zoomMap)
+                createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, centerMap)
             }
 
             if (layerVisualizationSettings.type === 'choropleth') {
-                createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, zoomMap)
+                createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds)
             }
 
             if (layerVisualizationSettings.type === 'geography') {
                 addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map)
             }
+        }
+
+        if (centerMap) {
+            setTimeout(() => {
+                map.invalidateSize()
+
+                if (markerBounds && markerBounds.length > 0) {
+                    map.fitBounds(L.latLngBounds(markerBounds))
+                }
+
+                if (bounds.isValid()) {
+                    map.invalidateSize() // optional — may not be needed twice
+                    map.fitBounds(bounds)
+                }
+            }, 100)
         }
     } catch (error: any) {
         console.log('------- ERROR - initializeLayers:', error)
@@ -248,6 +265,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
     }
 }
 
+// TODO - Remove/refactor
 export const centerTheMap = (map: any, markerBounds: any[] | null) => {
     setTimeout(() => {
         map.invalidateSize()

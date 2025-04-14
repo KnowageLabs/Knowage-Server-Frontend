@@ -38,34 +38,7 @@
         "alignment": "center",
         "enabled": true,
         "position": "north",
-        "precision": 2,
-        "prefix": "",
-        "suffix": "",
-        "text": {
-            "style": {
-                "background-color": "",
-                "color": "",
-                "font-family": "",
-                "font-size": "16px",
-                "font-style": "",
-                "font-weight": "",
-                "justify-content": "center"
-            },
-            "text": ""
-        },
-        "title": {
-            "style": {
-                "background-color": "",
-                "color": "",
-                "font-family": "",
-                "font-size": "16px",
-                "font-style": "",
-                "font-weight": "",
-                "justify-content": "center"
-            },
-            "text": ""
-        },
-        "visualizationType": "Linear Gradient"
+        "visualizationTypes": []
     },
     "defaultMapFilter": {
         "column": null,
@@ -143,5 +116,10 @@
     "defaultVisualizationPieConfiguration": {
         "colors": ["#042d57", "#0753a0", "#0a79e9"],
         "type": "pie"
+    },
+    "defaultVisualizationTypeLegendSettings": {
+        "text": "",
+        "title": "",
+        "visualizationType": null
     }
 }

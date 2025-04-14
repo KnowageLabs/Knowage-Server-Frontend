@@ -19,8 +19,7 @@ export const addClusters = (
     markerBounds: any[],
     layersData: any,
     targetDatasetData: any,
-    variables: IVariable[],
-    centerMap: boolean = true
+    variables: IVariable[]
 ) => {
     const clusters = createClusterGroup(layerVisualizationSettings, target)
     if (data && data[target.name]) {
@@ -28,8 +27,6 @@ export const addClusters = (
     } else {
         addClustersUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, clusters, variables)
     }
-
-    if (centerMap) centerTheMap(map, markerBounds)
 }
 
 const createClusterGroup = (layerVisualizationSettings: IMapWidgetVisualizationType, target: IMapWidgetLayer) => {

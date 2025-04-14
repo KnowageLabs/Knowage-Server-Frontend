@@ -134,7 +134,7 @@
 
 <script lang="ts">
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetLegend, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeLegendSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { defineComponent, PropType } from 'vue'
 import { mapActions } from 'pinia'
 import appStore from '@/App.store'
@@ -246,6 +246,23 @@ export default defineComponent({
             this.loadWidgetLayersMaps()
             this.removelayersFromAvailableOptions()
             await this.loadPropertiesForVisualizationTypes()
+            this.updateVisualizationTypesId()
+            this.updateMapWidgetLegend()
+        },
+        updateVisualizationTypesId() {
+            this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
+                if (!visualizationType?.id) visualizationType.id = crypto.randomUUID()
+            })
+        },
+        updateMapWidgetLegend() {
+            this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
+                const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
+                if (!mapLegend) return
+                if (mapLegend.visualizationTypes.some((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)) return
+                const defaultVisualizationTypeLegendSettings = mapWidgetDefaultValues.getDefaultVisualizationTypeLegendSettings()
+                mapLegend.visualizationTypes.push({ ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType })
+            })
+            console.log('--------- MAP LEGEND: ', this.widgetModel?.settings?.legend)
         },
         loadLayersOptions() {
             this.availableLayersOptions = this.widgetModel.layers

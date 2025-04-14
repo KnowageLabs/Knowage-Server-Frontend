@@ -13,28 +13,12 @@ interface IChartValuesRecord {
 
 export type ChartValuesRecord = Record<string, IChartValuesRecord>
 
-export const addMapCharts = (
-    map: any,
-    data: any,
-    model: IWidget,
-    target: IMapWidgetLayer,
-    spatialAttribute: any,
-    geoColumn: string,
-    layerGroup: any,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    markerBounds: any[],
-    layersData: any,
-    targetDatasetData: any,
-    variables: IVariable[],
-    centerMap: boolean = true
-) => {
+export const addMapCharts = (map: any, data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[]) => {
     if (data && data[target.name] && !targetDatasetData) {
         addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
     } else {
         addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, variables, targetDatasetData)
     }
-
-    if (centerMap) centerTheMap(map, markerBounds)
 }
 
 const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {

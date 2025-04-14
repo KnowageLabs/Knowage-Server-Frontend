@@ -104,6 +104,7 @@ export default defineComponent({
             })
 
             this.layers = Array.from(uniqueObjects.values())
+            this.widgetModel.layers = this.layers
 
             this.closeLayersDialog()
         },
