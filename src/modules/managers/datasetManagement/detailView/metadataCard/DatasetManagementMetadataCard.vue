@@ -12,7 +12,7 @@
                 </template>
                 <template v-slot:body-cell-description="props">
                     <q-td :props="props">
-                        <q-btn :flat="!props.row.description || props.row.description == ''" round color="primary" icon="info" @click="openDescriptionDialog(props.rowIndex)">
+                        <q-btn size="sm" :flat="!props.row.description || props.row.description == ''" round color="primary" icon="info" @click="openDescriptionDialog(props.rowIndex)">
                             <q-tooltip v-if="props.row.description && props.row.description !== ''" anchor="top middle" self="bottom middle" :offset="[0, 10]">
                                 {{ props.row.description }}
                             </q-tooltip>
