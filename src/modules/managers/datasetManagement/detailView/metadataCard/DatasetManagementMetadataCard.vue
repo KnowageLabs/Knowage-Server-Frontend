@@ -1,64 +1,73 @@
 <template>
-    <Card class="p-m-2">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ $t('managers.datasetManagement.fieldsMetadata') }}
+    <q-card class="q-ma-sm">
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>{{ $t('managers.datasetManagement.fieldsMetadata') }}</q-toolbar-title>
+        </q-toolbar>
+        <q-card-section>
+            <q-table v-if="dataset.meta && (dataset.meta.ccolumns || dataset.meta.dataset)" flat dense :columns="columns" :rows="fieldsMetadata" row-key="fieldAlias" hide-pagination class="metadataTable">
+                <template v-slot:body-cell-fieldType="props">
+                    <q-td :props="props">
+                        <q-select dense borderless v-model="props.row.fieldType" :options="fieldMetadataTypes" option-label="value" option-value="value" @update:model-value="saveFieldsMetadata('fieldType')" />
+                    </q-td>
                 </template>
-            </Toolbar>
-        </template>
-        <template #content>
-            <DataTable v-if="dataset.meta && (dataset.meta.ccolumns || dataset.meta.dataset)" class="p-datatable-sm kn-table kn-table-small-input" :auto-layout="true" :value="fieldsMetadata" responsive-layout="stack" breakpoint="960px">
-                <Column field="fieldAlias" :header="$t('managers.datasetManagement.fieldAlias')" :sortable="true">
-                    <template #body="{ data }"> {{ data.fieldAlias }} </template>
-                </Column>
-                <Column field="Type" :header="$t('importExport.catalogFunction.column.type')" :sortable="true">
-                    <template #body="{ data }">
-                        <Dropdown v-model="data.Type" class="kn-material-input" :style="linkTabDescriptor.style.maxwidth" :options="valueTypes" option-disabled="disabled" option-label="value" option-value="name" :disabled="true" @change="saveFieldsMetadata" />
-                    </template>
-                </Column>
-                <Column field="fieldType" :header="$t('managers.datasetManagement.fieldType')" :sortable="true">
-                    <template #body="{ data }">
-                        <Dropdown v-model="data.fieldType" class="kn-material-input" :style="linkTabDescriptor.style.maxwidth" :options="fieldMetadataTypes" option-label="value" option-value="value" @change="saveFieldsMetadata('fieldType')" />
-                    </template>
-                </Column>
-                <Column field="personal" :header="$t('managers.datasetManagement.personal')" :sortable="true">
-                    <template #body="{ data }">
-                        <Checkbox id="personal" v-model="data.personal" :binary="true" @change="saveFieldsMetadata('personal')" />
-                    </template>
-                </Column>
-                <Column field="decrypt" :header="$t('managers.datasetManagement.decrypt')" :sortable="true">
-                    <template #body="{ data }">
-                        <Checkbox id="decrypt" v-model="data.decrypt" :binary="true" @change="saveFieldsMetadata('decrypt')" />
-                    </template>
-                </Column>
-                <Column field="subjectId" :header="$t('managers.datasetManagement.subjectId')" :sortable="true">
-                    <template #body="{ data }">
-                        <Checkbox id="subjectId" v-model="data.subjectId" :binary="true" @change="saveFieldsMetadata('subjectId')" />
-                    </template>
-                </Column>
-            </DataTable>
+                <template v-slot:body-cell-description="props">
+                    <q-td :props="props">
+                        <q-btn :flat="!props.row.description || props.row.description == ''" round color="primary" icon="info" @click="openDescriptionDialog(props.rowIndex)">
+                            <q-tooltip v-if="props.row.description && props.row.description !== ''" anchor="top middle" self="bottom middle" :offset="[0, 10]">
+                                {{ props.row.description }}
+                            </q-tooltip>
+                        </q-btn>
+                    </q-td>
+                </template>
+                <template v-slot:body-cell-personal="props">
+                    <q-td :props="props">
+                        <q-checkbox size="xs" id="personal" v-model="props.row.personal" @update:model-value="saveFieldsMetadata('personal')" />
+                    </q-td>
+                </template>
+                <template v-slot:body-cell-decrypt="props">
+                    <q-td :props="props">
+                        <q-checkbox size="xs" id="decrypt" v-model="props.row.decrypt" @update:model-value="saveFieldsMetadata('decrypt')" />
+                    </q-td>
+                </template>
+                <template v-slot:body-cell-subjectId="props">
+                    <q-td :props="props">
+                        <q-checkbox size="xs" id="subjectId" v-model="props.row.subjectId" @update:model-value="saveFieldsMetadata('subjectId')" />
+                    </q-td>
+                </template>
+            </q-table>
             <div v-if="!dataset.meta || dataset.meta.length == 0">
-                <Message severity="info" :closable="false">{{ $t('managers.datasetManagement.metadataInfo') }}</Message>
+                <q-banner rounded dense class="bg-info col-6 text-center">
+                    <template v-slot:avatar>
+                        <q-icon name="info" />
+                    </template>
+                    {{ $t('managers.datasetManagement.metadataInfo') }}
+                </q-banner>
             </div>
-        </template>
-    </Card>
+        </q-card-section>
+    </q-card>
+    <q-dialog v-model="descriptionDialog">
+        <q-card style="min-width: 350px">
+            <q-card-section>
+                <div class="text-h6">{{ `${fieldsMetadata[rowIndex].fieldAlias} - ${$t('common.description')}` }}</div>
+            </q-card-section>
+            <q-card-section class="q-pt-none">
+                <q-input filled v-if="fieldsMetadata[rowIndex]" type="textarea" rows="3" v-model="fieldsMetadata[rowIndex].description" autofocus />
+            </q-card-section>
+
+            <q-card-actions align="right">
+                <q-btn flat :label="$t('common.close')" v-close-popup />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import linkTabDescriptor from './DatasetManagementMetadataCardDescriptor.json'
-import Card from 'primevue/card'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Message from 'primevue/message'
-import Dropdown from 'primevue/dropdown'
-import Checkbox from 'primevue/checkbox'
 import mainStore from '../../../../../App.store'
 import { mapActions } from 'pinia'
 
 export default defineComponent({
-    components: { Card, Column, DataTable, Message, Dropdown, Checkbox },
     props: {
         selectedDataset: { type: Object as any }
     },
@@ -69,10 +78,20 @@ export default defineComponent({
             fieldMetadataTypes: linkTabDescriptor.fieldsMetadataTypes,
             valueTypes: linkTabDescriptor.valueTypes,
             dataset: {} as any,
-            fieldsMetadata: [] as any
+            fieldsMetadata: [] as any,
+            descriptionDialog: false as boolean,
+            rowIndex: 0 as number,
+            columns: [
+                { name: 'fieldAlias', label: this.$t('managers.datasetManagement.fieldAlias'), align: 'left', field: 'fieldAlias', sortable: true },
+                { name: 'type', label: this.$t('common.type'), align: 'left', field: 'Type', sortable: true, format: (val) => this.valueTypes.find((item) => item.name === val).value },
+                { name: 'fieldType', label: this.$t('managers.datasetManagement.fieldType'), align: 'left', field: 'fieldType', sortable: true, style: 'width: 400px' },
+                { name: 'description', label: this.$t('common.description'), align: 'center', field: 'description', style: 'width: 100px' },
+                { name: 'personal', label: this.$t('managers.datasetManagement.personal'), align: 'center', field: 'fieldType', style: 'width: 100px' },
+                { name: 'decrypt', label: this.$t('managers.datasetManagement.decrypt'), align: 'center', field: 'decrypt', style: 'width: 100px' },
+                { name: 'subjectId', label: this.$t('managers.datasetManagement.subjectId'), align: 'center', field: 'subjectId', style: 'width: 100px' }
+            ] as any
         }
     },
-    computed: {},
     watch: {
         selectedDataset() {
             this.dataset = this.selectedDataset
@@ -131,7 +150,25 @@ export default defineComponent({
                     }
                 }
             }
+        },
+        openDescriptionDialog(rowIndex) {
+            this.rowIndex = rowIndex
+            this.descriptionDialog = true
         }
     }
 })
 </script>
+<style lang="scss">
+.metadataTable {
+    .q-field--auto-height.q-field--dense .q-field__control,
+    .q-field--auto-height.q-field--dense .q-field__native {
+        min-height: 30px;
+        height: 30px;
+    }
+    .q-field--dense .q-field__control,
+    .q-field--dense .q-field__marginal {
+        min-height: 30px;
+        height: 30px;
+    }
+}
+</style>

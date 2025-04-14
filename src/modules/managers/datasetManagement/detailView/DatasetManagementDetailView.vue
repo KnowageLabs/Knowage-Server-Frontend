@@ -381,7 +381,7 @@ export default defineComponent({
                 columnsNames = this.removeDuplicates(columnsNames)
 
                 for (let i = 0; i < columnsNames.length; i++) {
-                    const columnObject = { displayedName: '', name: '', fieldType: '', type: '', personal: false, decrypt: false, subjectId: false }
+                    const columnObject = { displayedName: '', name: '', fieldType: '', type: '', personal: false, decrypt: false, subjectId: false, description: '' }
                     const currentColumnName = columnsNames[i]
 
                     //remove the part before the double dot if the column is in the format ex: it.eng.spagobi.Customer:customerId
@@ -406,6 +406,8 @@ export default defineComponent({
                                 columnObject.decrypt = element.pvalue
                             } else if (element.pname.toUpperCase() == 'subjectId'.toUpperCase()) {
                                 columnObject.subjectId = element.pvalue
+                            } else if (element.pname.toUpperCase() == 'description'.toUpperCase()) {
+                                columnObject.description = element.pvalue
                             }
                         }
                     }
