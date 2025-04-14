@@ -117,8 +117,9 @@ export default defineComponent({
             this.markerConfig.icon = icon
             this.iconPickerDialogVisible = false
         },
-        onSetImage(image: IImage) {
-            this.markerConfig.img = import.meta.env.VITE_KNOWAGE_CONTEXT + image.url
+        onSetImage(image: IImage | undefined) {
+            if (!image) return
+            this.markerConfig.img = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services` + image.url
             this.imagePickerDialogVisible = false
         }
     }

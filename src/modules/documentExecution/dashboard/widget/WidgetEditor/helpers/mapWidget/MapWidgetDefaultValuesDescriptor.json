@@ -37,7 +37,7 @@
     "defaultLegendSettings": {
         "alignment": "center",
         "enabled": true,
-        "position": "north",
+        "position": "east",
         "title": "",
         "visualizationTypes": []
     },

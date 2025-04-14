@@ -33,7 +33,6 @@ export default defineComponent({
     methods: {
         loadLegendSettings() {
             this.vizualizationTypeLegendSettings = this.propVisualizationTypeLegendSettings
-            console.log('------- LOADED: ', this.vizualizationTypeLegendSettings)
         }
     }
 })

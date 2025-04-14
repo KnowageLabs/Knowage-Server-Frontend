@@ -46,6 +46,7 @@
                             option-label="name"
                             options-dense
                             :label="$t('common.dataset')"
+                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
                         ></q-select>
                         <q-select
                             v-if="visType.type !== 'geography' && visType.type !== 'pies' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
@@ -60,6 +61,7 @@
                             option-label="name"
                             options-dense
                             :label="$t('common.measure')"
+                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
                         ></q-select>
 
                         <q-select
@@ -75,6 +77,7 @@
                             option-label="property"
                             options-dense
                             :label="$t('common.properties')"
+                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
                         ></q-select>
                         <q-select
                             v-if="visType && visType.type === 'pies'"
@@ -90,6 +93,7 @@
                             :option-label="getTargetLayerType(visType) === 'layer' && visType.targetType !== 'column' ? 'property' : 'name'"
                             options-dense
                             :label="$t('common.measures')"
+                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
                         ></q-select>
 
                         <span class="p-d-flex p-flex-row p-ai-center p-pl-2">
@@ -232,10 +236,12 @@ export default defineComponent({
                 return
             }
             await this.loadAvailablePropertiesInVisualizationTypeForLayer(target, visualization)
+            this.updateMapWidgetLegendWithSepecificModel(visualization)
         },
         onDataLinkChange(dataLinkType: 'column' | 'property', visualization: IMapWidgetVisualizationType) {
             visualization.targetProperty = null
             if (dataLinkType === 'property') delete visualization.targetDataset
+            this.updateMapWidgetLegendWithSepecificModel(visualization)
         },
         getTargetLayerType(visualization: IMapWidgetVisualizationType) {
             return this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId) ? this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId).type : 'dataset'
@@ -247,19 +253,28 @@ export default defineComponent({
             this.removelayersFromAvailableOptions()
             await this.loadPropertiesForVisualizationTypes()
             this.updateVisualizationTypesId()
-            this.updateMapWidgetLegend()
+            this.updateMapWidgetLegendWithExistentVisualizationModels()
         },
         updateVisualizationTypesId() {
             this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
                 if (!visualizationType?.id) visualizationType.id = crypto.randomUUID()
             })
         },
-        updateMapWidgetLegend() {
+        updateMapWidgetLegendWithExistentVisualizationModels() {
             this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
                 const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
                 if (mapLegend?.visualizationTypes.some((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)) return
                 this.addVisualizationTypeLegendOption(visualizationType)
             })
+        },
+        updateMapWidgetLegendWithSepecificModel(visualizationType: IMapWidgetVisualizationType) {
+            const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
+            if (!mapLegend) return
+            const index = mapLegend.visualizationTypes.findIndex((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)
+            if (index !== 0) {
+                const defaultVisualizationTypeLegendSettings = mapWidgetDefaultValues.getDefaultVisualizationTypeLegendSettings()
+                mapLegend.visualizationTypes[index] = { ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType }
+            }
         },
         loadLayersOptions() {
             this.availableLayersOptions = this.widgetModel.layers
@@ -289,6 +304,7 @@ export default defineComponent({
         },
         selectVisTypeConfig(visTypeIndex, visTypeConfigName) {
             this.visualizationTypeModel[visTypeIndex].type = visTypeConfigName
+            this.updateMapWidgetLegendWithSepecificModel(this.visualizationTypeModel[visTypeIndex])
         },
         addVisualizationType() {
             const visualizationType = this.createDefaultVisualizationType()
