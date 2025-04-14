@@ -51,7 +51,7 @@
                 <div class="text-h6">{{ `${fieldsMetadata[rowIndex].fieldAlias} - ${$t('common.description')}` }}</div>
             </q-card-section>
             <q-card-section class="q-pt-none">
-                <q-input filled v-if="fieldsMetadata[rowIndex]" type="textarea" rows="3" v-model="fieldsMetadata[rowIndex].description" autofocus />
+                <q-input filled v-if="fieldsMetadata[rowIndex]" :debounce="300" type="textarea" rows="3" v-model="fieldsMetadata[rowIndex].description" autofocus @update:model-value="saveFieldsMetadata('description')" />
             </q-card-section>
 
             <q-card-actions align="right">

@@ -183,6 +183,14 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => {
                     this.selectedDataset = response.data[0] ? { ...response.data[0] } : {}
 
+                    const columns = [...new Set(this.selectedDataset.meta?.columns.map((e) => e.column))]
+                    columns.forEach((col) => {
+                        const hasDescription = this.selectedDataset.meta?.columns.some((item) => item.pname === 'description' && item.column === col)
+                        if (!hasDescription) {
+                            this.selectedDataset.meta?.columns.push({ column: col, pname: 'description', pvalue: '' })
+                        }
+                    })
+
                     this.selectedDataset.restJsonPathAttributes ? (this.selectedDataset.restJsonPathAttributes = JSON.parse(this.selectedDataset.restJsonPathAttributes ? this.selectedDataset.restJsonPathAttributes : '[]')) : []
                     this.selectedDataset.restRequestHeaders ? (this.selectedDataset.restRequestHeaders = JSON.parse(this.selectedDataset.restRequestHeaders ? this.selectedDataset.restRequestHeaders : '{}')) : {}
 
