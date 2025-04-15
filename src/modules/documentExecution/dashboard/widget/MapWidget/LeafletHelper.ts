@@ -22,7 +22,10 @@ const appStore = useAppStore()
 const { t } = i18n.global
 
 export enum LEGEND_DATA_TYPE {
-    BALOONS_INTERVALS = 'BALOONS_INTERVALS'
+    BALLOONS_INTERVALS = 'BALLOONS_INTERVALS',
+    BALLOONS_QUANTILES = 'BALLOONS_QUANTILES',
+    BALLOONS_RANGES = 'BALLOONS_RANGES',
+    CHARTS = 'CHARTS'
 }
 
 const legendData = {} as Record<string, any>
@@ -224,12 +227,12 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
             if (layerVisualizationSettings.type === 'balloons') {
                 const baloonsData = addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables)
-                console.log('-------- BALOONS DATA: ', baloonsData)
                 legendData[layerVisualizationSettings.id] = baloonsData
             }
 
             if (layerVisualizationSettings.type === 'pies') {
-                addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                legendData[layerVisualizationSettings.id] = chartsData
             }
 
             if (layerVisualizationSettings.type === 'clusters') {

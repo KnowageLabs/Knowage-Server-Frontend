@@ -26,6 +26,19 @@ interface IntervalSize {
     size: number
 }
 
+interface QuantileSizeRange {
+    min: number
+    max: number
+    size: number
+}
+
+interface IRangeInfo {
+    min: number
+    max: number
+    size: number
+    color: string
+}
+
 // Showing baloons from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addBaloonMarkers = (
     map: any,
@@ -94,6 +107,8 @@ const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAt
             })
         }
     })
+
+    return { ranges: getSizeAndColorRangesForLegend(minValue, maxValue, ranges, defaultColor), type: LEGEND_DATA_TYPE.BALLOONS_RANGES }
 }
 
 const getMappedDataMinMax = (targetDatasetData: any, layersData: any, dataColumn: string | undefined, layerVisualizationSettings: IMapWidgetVisualizationType): { mappedData: Record<string, number> | null; dataColumnIndex: string | null; minValue: number; maxValue: number } => {
@@ -180,6 +195,8 @@ const addBaloonMarkersClassifedByRangesFromData = (data: any, widgetModel: IWidg
         addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
         addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
     })
+
+    return { ranges: getSizeAndColorRangesForLegend(minValue, maxValue, ranges, defaultColor), type: LEGEND_DATA_TYPE.BALLOONS_RANGES }
 }
 
 const getSizeAndColorFromRanges = (value: number, minSize: number, maxSize: number, ranges: IMapWidgetVisualizationThreshold[], defaultColor: string): { size: number; color: string } | null => {
@@ -202,7 +219,20 @@ const getSizeAndColorFromRanges = (value: number, minSize: number, maxSize: numb
     }
 }
 
+const getSizeAndColorRangesForLegend = (minSize: number, maxSize: number, ranges: IMapWidgetVisualizationThreshold[], defaultColor: string): IRangeInfo[] => {
+    const step = (maxSize - minSize) / (ranges.length - 1)
+
+    return ranges.map((range, index) => ({
+        min: range.from,
+        max: range.to,
+        size: minSize + index * step,
+        color: range.color ?? defaultColor
+    }))
+}
+
 const addBaloonMarkersClassifedByQuantilsUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[]) => {
+    if (!layerVisualizationSettings.balloonConf) return
+
     const { mappedData, dataColumnIndex, quantiles } = getMappedDataAndQuantiles(targetDatasetData, layersData, dataColumn, layerVisualizationSettings)
 
     layersData.features.forEach((feature: ILayerFeature) => {
@@ -214,6 +244,8 @@ const addBaloonMarkersClassifedByQuantilsUsingLayers = (targetDatasetData: any |
             })
         }
     })
+
+    return { qunatileMappings: getQuantileSizeMappings(quantiles, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize), type: LEGEND_DATA_TYPE.BALLOONS_QUANTILES }
 }
 
 export const getMappedDataAndQuantiles = (targetDatasetData: any, layersData: any, dataColumn: string | null, layerVisualizationSettings: IMapWidgetVisualizationType): { mappedData: Record<string, number> | null; dataColumnIndex: string | null; quantiles: number[] } => {
@@ -281,6 +313,8 @@ const addBaloonMarkersClassifedByQuantilsFromData = (data: any, widgetModel: IWi
         addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
         addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
     })
+
+    return { qunatileMappings: getQuantileSizeMappings(quantiles, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize), type: LEGEND_DATA_TYPE.BALLOONS_QUANTILES }
 }
 
 const getSizeFromQuantiles = (quantiles: number[], value: number, numQuantiles: number, minSize: number, maxSize: number) => {
@@ -293,6 +327,29 @@ const getSizeFromQuantiles = (quantiles: number[], value: number, numQuantiles: 
     }
 
     return maxSize
+}
+
+export const getQuantileSizeMappings = (quantiles: number[], numQuantiles: number, minSize: number, maxSize: number): QuantileSizeRange[] => {
+    const step = (maxSize - minSize) / (numQuantiles - 1)
+    const mappings: QuantileSizeRange[] = []
+
+    let prev = -Infinity
+    for (let i = 0; i < quantiles.length; i++) {
+        mappings.push({
+            min: prev,
+            max: quantiles[i],
+            size: minSize + i * step
+        })
+        prev = quantiles[i]
+    }
+
+    mappings.push({
+        min: prev,
+        max: Infinity,
+        size: maxSize
+    })
+
+    return mappings
 }
 
 const addBaloonMarkersClassifiedByEqualIntervalsUsingLayers = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, spatialAttribute: any, variables: IVariable[], targetDatasetData?: any, dataColumn?: string) => {
@@ -310,7 +367,7 @@ const addBaloonMarkersClassifiedByEqualIntervalsUsingLayers = (layersData: any, 
         }
     })
 
-    return computeEqualIntervals(minValue ?? Number.MIN_SAFE_INTEGER, maxValue ?? Number.MAX_SAFE_INTEGER, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
+    return getEqualIntervalsForLegend(minValue ?? Number.MIN_SAFE_INTEGER, maxValue ?? Number.MAX_SAFE_INTEGER, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
 }
 
 const getMappedDataAndMinMaxValues = (targetDatasetData: any, layersData: any, dataColumn: string | null, layerVisualizationSettings: IMapWidgetVisualizationType): { mappedData: Record<string, number> | null; dataColumnIndex: string | null; minValue: number; maxValue: number } => {
@@ -407,7 +464,7 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (
         addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
     })
 
-    return computeEqualIntervals(valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
+    return getEqualIntervalsForLegend(valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)
 }
 
 const getSizeFromEqualIntervals = (value: number, min: number, max: number, classes: number, minSize: number, maxSize: number) => {
@@ -423,7 +480,7 @@ const getSizeFromEqualIntervals = (value: number, min: number, max: number, clas
     return maxSize
 }
 
-const computeEqualIntervals = (
+const getEqualIntervalsForLegend = (
     min: number,
     max: number,
     classes: number,
@@ -455,6 +512,6 @@ const computeEqualIntervals = (
     return {
         numberOfClasses: classes,
         intervals,
-        type: LEGEND_DATA_TYPE.BALOONS_INTERVALS
+        type: LEGEND_DATA_TYPE.BALLOONS_INTERVALS
     }
 }

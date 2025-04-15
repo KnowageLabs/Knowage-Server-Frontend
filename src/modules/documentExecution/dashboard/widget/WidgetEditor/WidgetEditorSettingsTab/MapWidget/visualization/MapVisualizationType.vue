@@ -271,7 +271,7 @@ export default defineComponent({
             const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
             if (!mapLegend) return
             const index = mapLegend.visualizationTypes.findIndex((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)
-            if (index !== 0) {
+            if (index !== -1) {
                 const defaultVisualizationTypeLegendSettings = mapWidgetDefaultValues.getDefaultVisualizationTypeLegendSettings()
                 mapLegend.visualizationTypes[index] = { ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType }
             }

@@ -13,6 +13,7 @@
         </div>
 
         <MapLegendBalloonsContent v-if="legendVizualizationSettings.visualizationType?.type === 'balloons'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendBalloonsContent>
+        <MapLegendChartsContent v-else-if="legendVizualizationSettings.visualizationType?.type === 'pies'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendChartsContent>
     </div>
 </template>
 
@@ -22,10 +23,11 @@ import { IMapWidgetVisualizationTypeLegendSettings } from '../../../interfaces/m
 import { LEGEND_DATA_TYPE } from '../LeafletHelper'
 import MapLegendMarkerContent from './content/MapLegendMarkerContent.vue'
 import MapLegendBalloonsContent from './content/MapLegendBalloonsContent.vue'
+import MapLegendChartsContent from './content/MapLegendChartsContent.vue'
 
 export default {
     name: 'map-legend-visualization',
-    components: { MapLegendMarkerContent, MapLegendBalloonsContent },
+    components: { MapLegendMarkerContent, MapLegendBalloonsContent, MapLegendChartsContent },
     props: {
         propMapWidgetLegendVisualization: { type: Object as PropType<IMapWidgetVisualizationTypeLegendSettings>, required: true },
         legendData: { type: Object as PropType<Record<string, any> | null | undefined>, required: true }

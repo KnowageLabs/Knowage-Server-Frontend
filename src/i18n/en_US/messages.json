@@ -1163,7 +1163,9 @@
                     "intervalSize": "Interval Size",
                     "maxValue": "Max Value",
                     "minValue": "Min Value",
-                    "numberOfClasses": "Number of classes"
+                    "numberOfClasses": "Number of classes",
+                    "numberOfRanges": "Number Of Ranges",
+                    "quantileSize": "Quantile Size"
                 },
                 "legendText": "Legend Text",
                 "legendTitle": "Legend Title",
