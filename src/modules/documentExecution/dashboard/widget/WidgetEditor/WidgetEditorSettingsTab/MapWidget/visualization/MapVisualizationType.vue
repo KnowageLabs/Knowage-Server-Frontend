@@ -318,6 +318,7 @@ export default defineComponent({
             mapLegend.visualizationTypes.push({ ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType })
         },
         removeVisualizationType(index: number) {
+            this.removeVisualizationTypeLegendOption(this.visualizationTypeModel[index])
             if (index === 0) this.visualizationTypeModel[0] = this.createDefaultVisualizationType()
             else this.visualizationTypeModel.splice(index, 1)
         },

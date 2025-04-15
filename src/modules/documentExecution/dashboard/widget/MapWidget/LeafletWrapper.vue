@@ -128,7 +128,8 @@ onMounted(async () => {
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
     try {
-        await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+        handleLegendUpdated(legendData)
         setTimeout(() => {
             switchLayerVisibility(map, props.layerVisibility)
         }, 200)
@@ -153,7 +154,8 @@ watch(props.layerVisibility, (newModel) => {
 watch(
     () => props.filtersReloadTrigger,
     async () => {
-        await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+        handleLegendUpdated(legendData)
     }
 )
 
@@ -163,6 +165,14 @@ watch(
         loadVariables()
     }
 )
+
+const emit = defineEmits<{
+    (e: 'legend-updated', legendData: Record<string, any> | undefined): void
+}>()
+
+const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
+    emit('legend-updated', legendData)
+}
 </script>
 
 <style lang="scss">

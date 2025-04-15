@@ -7,36 +7,42 @@
 
             <div class="p-col-12 p-d-flex p-flex-row p-jc-around p-ai-center">
                 <p class="target-property kn-flex">{{ legendVizualizationSettings.visualizationType.targetProperty }}</p>
-                <div class="config-preview kn-flex" v-if="legendVizualizationSettings.visualizationType.type === 'markers' && legendVizualizationSettings.visualizationType.markerConf" :style="getPreviewStyle(legendVizualizationSettings.visualizationType.markerConf)">
-                    <i v-if="legendVizualizationSettings.visualizationType.markerConf.type === 'default' || legendVizualizationSettings.visualizationType.markerConf.type === 'icon'" :class="getIconClass(legendVizualizationSettings.visualizationType.markerConf)" />
-                    <img
-                        v-if="legendVizualizationSettings.visualizationType.markerConf.type === 'img' || legendVizualizationSettings.visualizationType.markerConf.type === 'url'"
-                        :src="legendVizualizationSettings.visualizationType.markerConf.type === 'img' ? legendVizualizationSettings.visualizationType.markerConf.img : legendVizualizationSettings.visualizationType.markerConf.url"
-                        class="image-preview"
-                    />
-                </div>
+
+                <MapLegendMarkerContent class="kn-flex" v-if="legendVizualizationSettings.visualizationType.type === 'markers'" :prop-map-widget-legend-visualization="legendVizualizationSettings"></MapLegendMarkerContent>
             </div>
         </div>
+
+        <MapLegendBalloonsContent v-if="legendVizualizationSettings.visualizationType?.type === 'balloons'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendBalloonsContent>
     </div>
 </template>
 
 <script lang="ts">
 import { PropType } from 'vue'
-import { IMapWidgetVisualizationTypeLegendSettings, IMapWidgetVisualizationTypeMarker } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetVisualizationTypeLegendSettings } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { LEGEND_DATA_TYPE } from '../LeafletHelper'
+import MapLegendMarkerContent from './content/MapLegendMarkerContent.vue'
+import MapLegendBalloonsContent from './content/MapLegendBalloonsContent.vue'
 
 export default {
-    name: 'map-legend-visualzation',
+    name: 'map-legend-visualization',
+    components: { MapLegendMarkerContent, MapLegendBalloonsContent },
     props: {
-        propMapWidgetLegendVisualization: { type: Object as PropType<IMapWidgetVisualizationTypeLegendSettings>, required: true }
+        propMapWidgetLegendVisualization: { type: Object as PropType<IMapWidgetVisualizationTypeLegendSettings>, required: true },
+        legendData: { type: Object as PropType<Record<string, any> | null | undefined>, required: true }
     },
     data() {
         return {
-            legendVizualizationSettings: null as IMapWidgetVisualizationTypeLegendSettings | null
+            LEGEND_DATA_TYPE,
+            legendVizualizationSettings: null as IMapWidgetVisualizationTypeLegendSettings | null,
+            layerLegendData: null as any
         }
     },
     computed: {},
     watch: {
         propMapWidgetLegendVisualization() {
+            this.loadLegendVisualizationSettings()
+        },
+        legendData() {
             this.loadLegendVisualizationSettings()
         }
     },
@@ -46,21 +52,14 @@ export default {
     methods: {
         loadLegendVisualizationSettings() {
             this.legendVizualizationSettings = this.propMapWidgetLegendVisualization
+            this.loadLegendForTheLayer()
             console.log('----------- LOADED legendVizualizationSettings: ', this.legendVizualizationSettings)
+            console.log('----------- LOADED LEGEND DATA FINAL!: ', this.legendData)
         },
-        getPreviewStyle(markerConfig: IMapWidgetVisualizationTypeMarker | undefined) {
-            return markerConfig ? `color:${markerConfig.style.color}; font-size: 1.2rem;` : ''
-        },
-        getIconClass(markerConfig: IMapWidgetVisualizationTypeMarker | undefined) {
-            if (!markerConfig) return ''
-            switch (markerConfig.type) {
-                case 'default':
-                    return `fas fa-circle`
-                case 'icon':
-                    return markerConfig.icon?.className
-                default:
-                    return 'fas fa-cross'
-            }
+        loadLegendForTheLayer() {
+            if (!this.legendData || !this.legendVizualizationSettings?.visualizationType?.id) return
+            this.layerLegendData = this.legendData[this.legendVizualizationSettings.visualizationType.id]
+            console.log('_______________ LOADED    this.layerLegendData : ', this.layerLegendData)
         }
     }
 }
@@ -70,31 +69,5 @@ export default {
 .target-property {
     margin: 0;
     padding: 0;
-}
-
-.config-preview {
-    padding-right: 3rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 100px;
-    overflow: hidden;
-    .i {
-        overflow: clip;
-    }
-}
-
-.image-preview {
-    max-height: 50px;
-    max-width: 50px;
-}
-
-.customColorPreview {
-    width: 50px;
-    height: 30px;
-    display: block;
-    cursor: pointer;
-    border: 1px solid #ccc;
 }
 </style>

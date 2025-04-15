@@ -3,7 +3,7 @@
         <h2 v-if="legend.title">{{ legend.title }}</h2>
 
         <div class="p-formgrid p-grid">
-            <MapLegendVisualization class="p-col-12" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes" :key="index" :prop-map-widget-legend-visualization="legendVizualizationSettings"></MapLegendVisualization>
+            <MapLegendVisualization class="p-col-12" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes" :key="index" :prop-map-widget-legend-visualization="legendVizualizationSettings" :legend-data="legendData"></MapLegendVisualization>
         </div>
     </div>
 </template>
@@ -17,7 +17,8 @@ export default {
     name: 'map-legend',
     components: { MapLegendVisualization },
     props: {
-        propMapWidgetLegend: { type: Object as PropType<IMapWidgetLegend>, required: true }
+        propMapWidgetLegend: { type: Object as PropType<IMapWidgetLegend>, required: true },
+        legendData: { type: Object as PropType<Record<string, any> | null | undefined>, required: true }
     },
     data() {
         return {
@@ -54,7 +55,6 @@ export default {
     methods: {
         loadLegend() {
             this.legend = this.propMapWidgetLegend
-            console.log('----------- LOADED LEGEND: ', this.legend)
         }
     }
 }
@@ -68,31 +68,34 @@ export default {
     padding: 8px;
     border-radius: 4px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+    overflow-y: auto;
+    max-height: 100%;
 }
 
 .legend-vertical {
-    max-height: 150px;
+    max-height: 300px;
     width: 100%;
 }
 
 .legend-horizontal {
     height: 100%;
-    max-width: 150px;
+    max-width: 300px;
 }
 
 .legend-top {
-    top: -150px;
+    top: -300px;
 }
 
 .legend-bottom {
-    bottom: -150px;
+    bottom: -300px;
 }
 
 .legend-east {
-    right: -150px;
+    right: -300px;
 }
 
 .legend-west {
-    left: -150px;
+    left: -300px;
 }
 </style>

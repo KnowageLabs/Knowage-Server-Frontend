@@ -1159,6 +1159,12 @@
                     "target": "Target",
                     "targetHint": "Target hint"
                 },
+                "legend": {
+                    "intervalSize": "Interval Size",
+                    "maxValue": "Max Value",
+                    "minValue": "Min Value",
+                    "numberOfClasses": "Number of classes"
+                },
                 "legendText": "Legend Text",
                 "legendTitle": "Legend Title",
                 "linearGradient": "Linear Gradient",

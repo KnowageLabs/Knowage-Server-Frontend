@@ -79,7 +79,6 @@ export default defineComponent({
     methods: {
         loadLegendSettings() {
             if (this.widgetModel?.settings?.legend) this.legendSettings = this.widgetModel.settings.legend
-            console.log('------- LOADED legendSettings: ', this.legendSettings)
         }
     }
 })

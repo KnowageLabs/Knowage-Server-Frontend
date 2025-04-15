@@ -1,8 +1,8 @@
 <template>
     <div class="map-container">
-        <MapLegend :propMapWidgetLegend="widgetModel?.settings?.legend"> </MapLegend>
+        <MapLegend :propMapWidgetLegend="widgetModel?.settings?.legend" :legend-data="legendData"> </MapLegend>
 
-        <LeafletWrapper v-if="layerVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId" :filtersReloadTrigger="filtersReloadTrigger" :propVariables="variables"></LeafletWrapper>
+        <LeafletWrapper v-if="layerVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId" :filtersReloadTrigger="filtersReloadTrigger" :propVariables="variables" @legend-updated="onLegendUpdated"></LeafletWrapper>
 
         <q-btn round push class="kn-parameter-sidebar-showLegend" color="white" text-color="black" size="sm" icon="settings" @click="showPanel = true">
             <q-tooltip :delay="500">{{ $t('common.open') }}</q-tooltip>
@@ -100,7 +100,8 @@ export default defineComponent({
             showPanel: false as Boolean,
             propertiesCache: new Map<string, { name: string; alias: string }[]>(),
             filtersReloadTrigger: false,
-            variables: [] as IVariable[]
+            variables: [] as IVariable[],
+            legendData: null as Record<string, any> | null | undefined
         }
     },
     watch: {
@@ -210,6 +211,9 @@ export default defineComponent({
         reloadFilters(visualization: IMapWidgetVisualizationType) {
             if (visualization.filter) visualization.filter.reloaded = false
             this.filtersReloadTrigger = !this.filtersReloadTrigger
+        },
+        onLegendUpdated(updatedLegendData: Record<string, any> | null | undefined) {
+            this.legendData = updatedLegendData
         }
     }
 })

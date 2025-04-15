@@ -21,6 +21,12 @@ const dashStore = dashboardStore()
 const appStore = useAppStore()
 const { t } = i18n.global
 
+export enum LEGEND_DATA_TYPE {
+    BALOONS_INTERVALS = 'BALOONS_INTERVALS'
+}
+
+const legendData = {} as Record<string, any>
+
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
 export enum VisualizationDataType {
@@ -217,7 +223,9 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'balloons') {
-                addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables)
+                const baloonsData = addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables)
+                console.log('-------- BALOONS DATA: ', baloonsData)
+                legendData[layerVisualizationSettings.id] = baloonsData
             }
 
             if (layerVisualizationSettings.type === 'pies') {
@@ -262,6 +270,8 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         //     title: t('common.toast.errorTitle'),
         //     msg: error ? error.message : ''
         // })
+    } finally {
+        return legendData
     }
 }
 
