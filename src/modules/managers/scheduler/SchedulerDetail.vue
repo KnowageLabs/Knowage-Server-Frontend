@@ -161,7 +161,6 @@ export default defineComponent({
       const rolesOptions = this.store.user.roles
       if (this.job && !this.job.role) {
         this.job.role = this.job?.jobParameters?.find(param => param.name === 'userRoles')?.value || this.job?.role
-        // this.jobRoleInvalid = this.job.role === this.$t('role.defaultRolePlaceholder') || this.job.role === '' || this.job.role === undefined
       }
       if (rolesOptions[0] !== this.$t('role.defaultRolePlaceholder')) rolesOptions.unshift(this.$t('role.defaultRolePlaceholder'))
       return rolesOptions
