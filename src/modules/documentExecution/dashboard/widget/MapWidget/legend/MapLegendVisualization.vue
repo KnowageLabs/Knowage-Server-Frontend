@@ -3,7 +3,10 @@
         <textarea v-if="legendVizualizationSettings.text"> {{ legendVizualizationSettings.text }} </textarea>
 
         <div class="p-formgrid p-grid" v-if="legendVizualizationSettings.visualizationType">
-            <q-input dense class="p-lg-12" filled v-model="legendVizualizationSettings.visualizationType.layerName" :label="$t('common.name')" disable />
+            <div class="p-d-flex p-flex-column p-m-2">
+                <label class="p-text-bold">{{ $t('common.name') }}</label>
+                <h5 class="p-my-1">{{ legendVizualizationSettings.visualizationType.layerName }}</h5>
+            </div>
 
             <div class="p-col-12 p-d-flex p-flex-row p-jc-around p-ai-center">
                 <p class="target-property kn-flex">{{ legendVizualizationSettings.visualizationType.targetProperty }}</p>
@@ -15,6 +18,7 @@
         <MapLegendBalloonsContent v-if="legendVizualizationSettings.visualizationType?.type === 'balloons'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendBalloonsContent>
         <MapLegendChartsContent v-else-if="legendVizualizationSettings.visualizationType?.type === 'pies'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendChartsContent>
         <MapLegendHeatmapContent v-else-if="legendVizualizationSettings.visualizationType?.type === 'heatmap'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendHeatmapContent>
+        <MapLegendChoroplethContent v-else-if="legendVizualizationSettings.visualizationType?.type === 'choropleth'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendChoroplethContent>
     </div>
 </template>
 
@@ -26,10 +30,11 @@ import MapLegendMarkerContent from './content/MapLegendMarkerContent.vue'
 import MapLegendBalloonsContent from './content/MapLegendBalloonsContent.vue'
 import MapLegendChartsContent from './content/MapLegendChartsContent.vue'
 import MapLegendHeatmapContent from './content/MapLegendHeatmapContent.vue'
+import MapLegendChoroplethContent from './content/MapLegendChoroplethContent.vue'
 
 export default {
     name: 'map-legend-visualization',
-    components: { MapLegendMarkerContent, MapLegendBalloonsContent, MapLegendChartsContent, MapLegendHeatmapContent },
+    components: { MapLegendMarkerContent, MapLegendBalloonsContent, MapLegendChartsContent, MapLegendHeatmapContent, MapLegendChoroplethContent },
     props: {
         propMapWidgetLegendVisualization: { type: Object as PropType<IMapWidgetVisualizationTypeLegendSettings>, required: true },
         legendData: { type: Object as PropType<Record<string, any> | null | undefined>, required: true }
@@ -57,7 +62,6 @@ export default {
         loadLegendVisualizationSettings() {
             this.legendVizualizationSettings = this.propMapWidgetLegendVisualization
             this.loadLegendForTheLayer()
-            console.log('----------- LOADED legendVizualizationSettings: ', this.legendVizualizationSettings)
             console.log('----------- LOADED LEGEND DATA FINAL!: ', this.legendData)
         },
         loadLegendForTheLayer() {

@@ -219,7 +219,7 @@ const getSizeAndColorFromRanges = (value: number, minSize: number, maxSize: numb
     }
 }
 
-const getSizeAndColorRangesForLegend = (minSize: number, maxSize: number, ranges: IMapWidgetVisualizationThreshold[], defaultColor: string): IRangeInfo[] => {
+export const getSizeAndColorRangesForLegend = (minSize: number, maxSize: number, ranges: IMapWidgetVisualizationThreshold[], defaultColor: string): IRangeInfo[] => {
     const step = (maxSize - minSize) / (ranges.length - 1)
 
     return ranges.map((range, index) => ({

@@ -26,7 +26,10 @@ export enum LEGEND_DATA_TYPE {
     BALLOONS_QUANTILES = 'BALLOONS_QUANTILES',
     BALLOONS_RANGES = 'BALLOONS_RANGES',
     CHARTS = 'CHARTS',
-    HEATMAP = 'HEATMAP'
+    HEATMAP = 'HEATMAP',
+    CHOROPLETH_INTERVALS = ' CHOROPLETH_INTERVALS',
+    CHOROPLETH_QUANTILES = ' CHOROPLETH_QUANTILES',
+    CHOROPLETH_RANGES = ' CHOROPLETH_RANGES'
 }
 
 const legendData = {} as Record<string, any>
@@ -246,7 +249,8 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'choropleth') {
-                createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds)
+                const choroplethData = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds)
+                legendData[layerVisualizationSettings.id] = choroplethData
             }
 
             if (layerVisualizationSettings.type === 'geography') {

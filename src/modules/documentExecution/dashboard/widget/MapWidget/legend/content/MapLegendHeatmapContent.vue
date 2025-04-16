@@ -1,5 +1,16 @@
 <template>
     <div v-if="legendVizualizationSettings?.visualizationType && legendVizualizationSettings.visualizationType.type === 'heatmap' && legendVizualizationSettings.visualizationType.heatmapConf">
+        <div>
+            <div class="heatmap-legend-row heatmap-legend-title-row">
+                <span>{{ $t('dashboard.widgetEditor.map.legend.minValue') }}</span>
+                <span>{{ $t('dashboard.widgetEditor.map.legend.maxValue') }}</span>
+            </div>
+            <div class="heatmap-legend-row">
+                <span>{{ formatValue(minValue) }}</span>
+                <span>{{ formatValue(maxValue) }}</span>
+            </div>
+        </div>
+
         <div id="gradient-container"></div>
         <div id="gradient-labels">
             <span>{{ $t('common.low') }}</span
@@ -23,11 +34,26 @@ export default {
             legendVizualizationSettings: null as IMapWidgetVisualizationTypeLegendSettings | null
         }
     },
-    computed: {},
+    computed: {
+        minValue() {
+            if (!this.layerLegendData || !this.layerLegendData.heatMapData) return null
+            const minValue = Math.min(...this.layerLegendData.heatMapData.map((item) => item[2]))
+
+            return minValue
+        },
+        maxValue() {
+            if (!this.layerLegendData || !this.layerLegendData.heatMapData) return null
+            const maxValue = Math.max(...this.layerLegendData.heatMapData.map((item) => item[2]))
+
+            return maxValue
+        }
+    },
     watch: {
         propMapWidgetLegendVisualization() {
             this.loadLegendVisualizationSettings()
-        }
+        },
+
+        maxValue() {}
     },
     mounted() {
         this.loadLegendVisualizationSettings()
@@ -35,12 +61,39 @@ export default {
     methods: {
         loadLegendVisualizationSettings() {
             this.legendVizualizationSettings = this.propMapWidgetLegendVisualization
+        },
+        formatValue(value: number | null): string {
+            if (!value || !isFinite(value)) return 'N/A'
+            return value.toFixed(2)
         }
     }
 }
 </script>
 
 <style scoped>
+.heatmap-legend-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-top: 1px solid #eee;
+    word-break: break-word;
+    gap: 1rem;
+}
+
+.heatmap-legend-row span,
+.heatmap-legend-row div {
+    flex: 1;
+    min-width: 0;
+}
+
+.heatmap-legend-title-row {
+    font-weight: bold;
+    background-color: #f0f0f0;
+    border-top: none;
+}
+
 #gradient-container {
     background: linear-gradient(to right, blue, cyan, lime, yellow, red);
     width: 100%;
