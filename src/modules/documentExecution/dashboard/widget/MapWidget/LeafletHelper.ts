@@ -25,7 +25,8 @@ export enum LEGEND_DATA_TYPE {
     BALLOONS_INTERVALS = 'BALLOONS_INTERVALS',
     BALLOONS_QUANTILES = 'BALLOONS_QUANTILES',
     BALLOONS_RANGES = 'BALLOONS_RANGES',
-    CHARTS = 'CHARTS'
+    CHARTS = 'CHARTS',
+    HEATMAP = 'HEATMAP'
 }
 
 const legendData = {} as Record<string, any>
@@ -222,7 +223,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             if (reloadWithFilters) centerMap = false
 
             if (layerVisualizationSettings.type === 'markers') {
-                addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'balloons') {
@@ -236,11 +237,12 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'clusters') {
-                addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'heatmap') {
-                createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, centerMap)
+                const heatmapData = createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, centerMap)
+                legendData[layerVisualizationSettings.id] = heatmapData
             }
 
             if (layerVisualizationSettings.type === 'choropleth') {

@@ -1,10 +1,11 @@
 <template>
-    <div
-        class="config-preview kn-flex"
-        v-if="legendVizualizationSettings?.visualizationType && legendVizualizationSettings.visualizationType.type === 'markers' && legendVizualizationSettings.visualizationType.markerConf"
-        :style="getPreviewStyle(legendVizualizationSettings.visualizationType.markerConf)"
-    >
+    <div class="config-preview kn-flex" v-if="legendVizualizationSettings?.visualizationType && legendVizualizationSettings.visualizationType.markerConf" :style="getPreviewStyle(legendVizualizationSettings.visualizationType.markerConf)">
+        <div v-if="legendVizualizationSettings.visualizationType.type === 'clusters'" class="clusters-config-preview">
+            <div class="p-d-flex p-flex-row p-jc-center p-ai-center" :style="getClusterPreviewStyle(legendVizualizationSettings.visualizationType.clusterConf)">10</div>
+        </div>
+
         <i v-if="legendVizualizationSettings.visualizationType.markerConf.type === 'default' || legendVizualizationSettings.visualizationType.markerConf.type === 'icon'" :class="getIconClass(legendVizualizationSettings.visualizationType.markerConf)" />
+
         <img
             v-if="legendVizualizationSettings.visualizationType.markerConf.type === 'img' || legendVizualizationSettings.visualizationType.markerConf.type === 'url'"
             :src="legendVizualizationSettings.visualizationType.markerConf.type === 'img' ? legendVizualizationSettings.visualizationType.markerConf.img : legendVizualizationSettings.visualizationType.markerConf.url"
@@ -15,7 +16,7 @@
 
 <script lang="ts">
 import { PropType } from 'vue'
-import { IMapWidgetVisualizationTypeLegendSettings, IMapWidgetVisualizationTypeMarker } from '../../../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetVisualizationTypeCluster, IMapWidgetVisualizationTypeLegendSettings, IMapWidgetVisualizationTypeMarker } from '../../../../interfaces/mapWidget/DashboardMapWidget'
 
 export default {
     name: 'map-legend-marker-content',
@@ -53,6 +54,10 @@ export default {
                 default:
                     return 'fas fa-cross'
             }
+        },
+        getClusterPreviewStyle(clustersConfig: IMapWidgetVisualizationTypeCluster | undefined) {
+            if (!clustersConfig) return ''
+            return `border-radius: 50px; color:${clustersConfig.style.color}; background-color:${clustersConfig.style['background-color']};`
         }
     }
 }
@@ -62,14 +67,12 @@ export default {
 .config-preview {
     padding-right: 3rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    flex: 0 0 100px;
+    justify-content: flex-start;
+    flex: 0 0 auto;
     overflow: hidden;
-    .i {
-        overflow: clip;
-    }
+    gap: 0.5rem;
 }
 
 .image-preview {
@@ -83,5 +86,16 @@ export default {
     display: block;
     cursor: pointer;
     border: 1px solid #ccc;
+}
+
+.clusters-config-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
 }
 </style>

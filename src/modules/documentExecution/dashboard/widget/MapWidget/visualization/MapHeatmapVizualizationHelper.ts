@@ -1,4 +1,4 @@
-import { getColumnName, getCoordinates, VisualizationDataType } from '../LeafletHelper'
+import { getColumnName, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getCoordinatesFromWktPointFeature, getMinMaxByName, getNumericPropertyValues, getTargetDataColumn, getTargetProperty, incrementColumnName, isConditionMet, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
@@ -21,11 +21,11 @@ export const createHeatmapVisualization = (
     if (!layerVisualizationSettings.heatmapConf) return
 
     if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
-        createHeatmapVisualizationLayers(map, layersData, target, layerVisualizationSettings, centerMap)
+        return createHeatmapVisualizationLayers(map, layersData, target, layerVisualizationSettings, centerMap)
     } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
-        createHeatmapVisualizationLayers(map, layersData, target, layerVisualizationSettings, centerMap, targetDatasetData, dataColumn)
+        return createHeatmapVisualizationLayers(map, layersData, target, layerVisualizationSettings, centerMap, targetDatasetData, dataColumn)
     } else {
-        createHeatmapVisualizationFromData(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, centerMap)
+        return createHeatmapVisualizationFromData(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, centerMap)
     }
 }
 
@@ -64,6 +64,8 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMa
     })
 
     createHeatLayer(map, heatMapData, layerVisualizationSettings, max, target.layerId, centerMap)
+
+    return { heatMapData, type: LEGEND_DATA_TYPE.HEATMAP }
 }
 
 const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, heatMapData: number[][], coord: any[] | null, layerTargetProperty: string | null, dataColumnIndex: string | null | undefined) => {
@@ -91,6 +93,8 @@ const createHeatmapVisualizationFromData = (map: any, data: any, target: IMapWid
     })
 
     createHeatLayer(map, heatMapData, layerVisualizationSettings, max, target.layerId, centerMap)
+
+    return { heatMapData, type: LEGEND_DATA_TYPE.HEATMAP }
 }
 
 const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSettings: IMapWidgetVisualizationType, max: number, layerId: string, centerMap: boolean) => {
@@ -115,6 +119,8 @@ const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSe
             }).addTo(map)
 
             heatLayer.knProperties = { heatmap: true, layerId: layerId }
+
+            console.log('--------------- HEAT LAYER: ', heatLayer)
 
             if (centerMap) centerAndRedrawTheLayerOnMap(map, heatLayer, tempHeatMapData)
         }, 50)

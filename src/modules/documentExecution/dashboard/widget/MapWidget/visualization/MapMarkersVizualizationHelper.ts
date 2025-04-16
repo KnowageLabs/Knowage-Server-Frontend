@@ -6,7 +6,6 @@ import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeatur
 
 // Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
 export const addMarkers = (
-    map: any,
     data: any,
     model: IWidget,
     target: IMapWidgetLayer,

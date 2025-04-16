@@ -8,12 +8,13 @@
             <div class="p-col-12 p-d-flex p-flex-row p-jc-around p-ai-center">
                 <p class="target-property kn-flex">{{ legendVizualizationSettings.visualizationType.targetProperty }}</p>
 
-                <MapLegendMarkerContent class="kn-flex" v-if="legendVizualizationSettings.visualizationType.type === 'markers'" :prop-map-widget-legend-visualization="legendVizualizationSettings"></MapLegendMarkerContent>
+                <MapLegendMarkerContent class="kn-flex" v-if="['markers', 'clusters'].includes(legendVizualizationSettings.visualizationType.type)" :prop-map-widget-legend-visualization="legendVizualizationSettings"></MapLegendMarkerContent>
             </div>
         </div>
 
         <MapLegendBalloonsContent v-if="legendVizualizationSettings.visualizationType?.type === 'balloons'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendBalloonsContent>
         <MapLegendChartsContent v-else-if="legendVizualizationSettings.visualizationType?.type === 'pies'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendChartsContent>
+        <MapLegendHeatmapContent v-else-if="legendVizualizationSettings.visualizationType?.type === 'heatmap'" :prop-map-widget-legend-visualization="legendVizualizationSettings" :layer-legend-data="layerLegendData"> </MapLegendHeatmapContent>
     </div>
 </template>
 
@@ -24,10 +25,11 @@ import { LEGEND_DATA_TYPE } from '../LeafletHelper'
 import MapLegendMarkerContent from './content/MapLegendMarkerContent.vue'
 import MapLegendBalloonsContent from './content/MapLegendBalloonsContent.vue'
 import MapLegendChartsContent from './content/MapLegendChartsContent.vue'
+import MapLegendHeatmapContent from './content/MapLegendHeatmapContent.vue'
 
 export default {
     name: 'map-legend-visualization',
-    components: { MapLegendMarkerContent, MapLegendBalloonsContent, MapLegendChartsContent },
+    components: { MapLegendMarkerContent, MapLegendBalloonsContent, MapLegendChartsContent, MapLegendHeatmapContent },
     props: {
         propMapWidgetLegendVisualization: { type: Object as PropType<IMapWidgetVisualizationTypeLegendSettings>, required: true },
         legendData: { type: Object as PropType<Record<string, any> | null | undefined>, required: true }
