@@ -31,11 +31,10 @@
             class="col-6"
             v-model="job.role"
             :options="getRoleOptions()"
-            :error= "jobRoleInvalid"
+            :error= "job.role?.length === 0 || job.role === $t('role.defaultRolePlaceholder')"
             :error-message="$t('common.validation.required', { fieldName: $t('common.role') })"
             :label="$t('common.role')"
             filled
-            @update:model-value="setRoleValidation"
             data-test="role-input"
         />
         <q-input
@@ -79,17 +78,16 @@ export default defineComponent({
       job: null as iPackage | null,
       roleOptions: [] as Array<string>,
       jobNameDirty: false,
-      jobRoleInvalid: true,
       operation: 'create',
       loading: false,
     }
   },
   computed: {
     saveDisabled(): any {
-      return this.job && (!this.job.jobName || this.job.documents?.length === 0 || this.jobRoleInvalid)
+      return this.job && (!this.job.jobName || this.job.documents?.length === 0 || this.job.role === this.$t('role.defaultRolePlaceholder') || this.job.role === '' || this.job.role === undefined)
     },
     testReadonly(): any {
-      return this.job && this.job.edit ? true : false
+      return !!(this.job && this.job.edit)
     }
   },
   watch: {
@@ -103,8 +101,8 @@ export default defineComponent({
   methods: {
     loadJob() {
       this.job = {...this.selectedJob} as iPackage
-      if (this.jo && this.job.jobParameters) {
-        alert('I am in')
+      this.job.jobParameters = this.job.jobParameters || []
+      if (this.job && this.job.jobParameters) {
         this.job.role = this.job.jobParameters.find((param: any) => param.name === 'userRoles')?.value
       }
     },
@@ -138,12 +136,20 @@ export default defineComponent({
       delete this.job?.edit
       delete this.job?.numberOfDocuments
       this.job?.documents.forEach((document: any) => document.parameters?.forEach((parameter: any) => (parameter.value = parameter.value.trim())))
-      this.job?.jobParameters.forEach(param => {
-        if (param.name === 'userRoles' && this.job?.role) {
-          param.value = this.job.role
-          delete this.job?.role
-        }
-      })
+      if (this.job && this.job.jobParameters && this.job.jobParameters.length > 0) {
+        this.job?.jobParameters.forEach(param => {
+          if (param.name === 'userRoles' && this.job?.role) {
+            param.value = this.job.role
+            delete this.job?.role
+          }
+        })
+      } else {
+        let jobParameter = {} as { name: string, value: string }
+        jobParameter.name = 'userRoles'
+        jobParameter.value = this.job?.role || ""
+        this.job?.jobParameters.push(jobParameter)
+        delete this.job?.role
+      }
     },
     closeJobDetail() {
       this.job = null
@@ -151,14 +157,11 @@ export default defineComponent({
       this.$emit('close')
       this.$router.push('/scheduler')
     },
-    setRoleValidation() {
-      this.jobRoleInvalid = this.job?.role === this.$t('role.defaultRolePlaceholder')
-    },
     getRoleOptions(): Array<string> {
       const rolesOptions = this.store.user.roles
       if (this.job && !this.job.role) {
         this.job.role = this.job?.jobParameters?.find(param => param.name === 'userRoles')?.value || this.job?.role
-        this.jobRoleInvalid = this.job.role === this.$t('role.defaultRolePlaceholder')
+        // this.jobRoleInvalid = this.job.role === this.$t('role.defaultRolePlaceholder') || this.job.role === '' || this.job.role === undefined
       }
       if (rolesOptions[0] !== this.$t('role.defaultRolePlaceholder')) rolesOptions.unshift(this.$t('role.defaultRolePlaceholder'))
       return rolesOptions
