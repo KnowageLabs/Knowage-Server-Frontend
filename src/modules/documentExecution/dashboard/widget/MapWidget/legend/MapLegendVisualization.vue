@@ -62,12 +62,10 @@ export default {
         loadLegendVisualizationSettings() {
             this.legendVizualizationSettings = this.propMapWidgetLegendVisualization
             this.loadLegendForTheLayer()
-            console.log('----------- LOADED LEGEND DATA FINAL!: ', this.legendData)
         },
         loadLegendForTheLayer() {
             if (!this.legendData || !this.legendVizualizationSettings?.visualizationType?.id) return
             this.layerLegendData = this.legendData[this.legendVizualizationSettings.visualizationType.id]
-            console.log('_______________ LOADED    this.layerLegendData : ', this.layerLegendData)
         }
     }
 }

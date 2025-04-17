@@ -120,8 +120,6 @@ const createHeatLayer = (map: any, heatMapData: number[][], layerVisualizationSe
 
             heatLayer.knProperties = { heatmap: true, layerId: layerId }
 
-            console.log('--------------- HEAT LAYER: ', heatLayer)
-
             if (centerMap) centerAndRedrawTheLayerOnMap(map, heatLayer, tempHeatMapData)
         }, 50)
     })

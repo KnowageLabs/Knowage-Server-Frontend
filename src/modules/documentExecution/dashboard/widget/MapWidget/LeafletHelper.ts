@@ -254,23 +254,13 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'geography') {
-                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map)
+                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map, bounds)
             }
         }
 
+        console.log('---------- CENTER MAP: ', centerMap)
         if (centerMap) {
-            setTimeout(() => {
-                map.invalidateSize()
-
-                if (markerBounds && markerBounds.length > 0) {
-                    map.fitBounds(L.latLngBounds(markerBounds))
-                }
-
-                if (bounds.isValid()) {
-                    map.invalidateSize() // optional — may not be needed twice
-                    map.fitBounds(bounds)
-                }
-            }, 100)
+            centerTheMap(map, markerBounds, bounds)
         }
     } catch (error: any) {
         console.log('------- ERROR - initializeLayers:', error)
@@ -284,11 +274,25 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
     }
 }
 
-// TODO - Remove/refactor
-export const centerTheMap = (map: any, markerBounds: any[] | null) => {
+const centerTheMap = (map: any, markerBounds: any[] | null, bounds: any) => {
     setTimeout(() => {
         map.invalidateSize()
-        if (markerBounds && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
+
+        const combinedBounds = L.latLngBounds([])
+
+        if (markerBounds && markerBounds.length > 0) {
+            combinedBounds.extend(L.latLngBounds(markerBounds))
+        }
+
+        if (bounds.isValid()) {
+            combinedBounds.extend(bounds)
+        }
+
+        if (combinedBounds.isValid()) {
+            map.fitBounds(combinedBounds)
+        }
+
+        map.invalidateSize()
     }, 100)
 }
 
