@@ -55,6 +55,11 @@ export default {
     methods: {
         loadLegend() {
             this.legend = this.propMapWidgetLegend
+            this.loadPosition()
+        },
+        loadPosition() {
+            if (!this.legend) return
+            this.position = this.legend.position
         }
     }
 }
