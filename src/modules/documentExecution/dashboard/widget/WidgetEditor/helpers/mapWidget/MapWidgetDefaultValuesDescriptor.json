@@ -37,7 +37,8 @@
     "defaultLegendSettings": {
         "alignment": "center",
         "enabled": true,
-        "position": "north",
+        "position": "east",
+        "title": "",
         "visualizationTypes": []
     },
     "defaultMapFilter": {
@@ -119,7 +120,6 @@
     },
     "defaultVisualizationTypeLegendSettings": {
         "text": "",
-        "title": "",
         "visualizationType": null
     }
 }

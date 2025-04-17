@@ -1,27 +1,14 @@
 import { ILayerFeature, IMapWidgetLayer } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { addMarker, centerTheMap, getCoordinates } from '../LeafletHelper'
+import { addMarker, getCoordinates } from '../LeafletHelper'
 import { getCoordinatesFromWktPointFeature } from './MapVisualizationHelper'
 import L from 'leaflet'
 
 // Showing only the defined data, no measures, no extra logic. It will show all Point, LineString and Polygon from WKT.
-export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], layersData: any, map: any) => {
-    const bounds = L.latLngBounds()
-
+export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[], layersData: any, map: any, bounds: any) => {
     if (data && data[target.name]) {
         addGeograhyFromData(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds)
     } else {
         addGeographyUsingLayers(layersData, spatialAttribute, layerGroup, markerBounds, bounds)
-    }
-
-    if (markerBounds?.length > 0) {
-        centerTheMap(map, markerBounds)
-    } else {
-        setTimeout(() => {
-            if (bounds.isValid()) {
-                map.invalidateSize()
-                map.fitBounds(bounds)
-            }
-        }, 100)
     }
 }
 

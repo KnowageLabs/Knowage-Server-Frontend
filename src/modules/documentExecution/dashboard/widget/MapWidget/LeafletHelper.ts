@@ -21,6 +21,19 @@ const dashStore = dashboardStore()
 const appStore = useAppStore()
 const { t } = i18n.global
 
+export enum LEGEND_DATA_TYPE {
+    BALLOONS_INTERVALS = 'BALLOONS_INTERVALS',
+    BALLOONS_QUANTILES = 'BALLOONS_QUANTILES',
+    BALLOONS_RANGES = 'BALLOONS_RANGES',
+    CHARTS = 'CHARTS',
+    HEATMAP = 'HEATMAP',
+    CHOROPLETH_INTERVALS = ' CHOROPLETH_INTERVALS',
+    CHOROPLETH_QUANTILES = ' CHOROPLETH_QUANTILES',
+    CHOROPLETH_RANGES = ' CHOROPLETH_RANGES'
+}
+
+const legendData = {} as Record<string, any>
+
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
 export enum VisualizationDataType {
@@ -213,48 +226,39 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             if (reloadWithFilters) centerMap = false
 
             if (layerVisualizationSettings.type === 'markers') {
-                addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'balloons') {
-                addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables)
+                const baloonsData = addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables)
+                legendData[layerVisualizationSettings.id] = baloonsData
             }
 
             if (layerVisualizationSettings.type === 'pies') {
-                addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                legendData[layerVisualizationSettings.id] = chartsData
             }
 
             if (layerVisualizationSettings.type === 'clusters') {
-                addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'heatmap') {
-                createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, centerMap)
+                const heatmapData = createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, centerMap)
+                legendData[layerVisualizationSettings.id] = heatmapData
             }
 
             if (layerVisualizationSettings.type === 'choropleth') {
-                createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds)
+                const choroplethData = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds)
+                legendData[layerVisualizationSettings.id] = choroplethData
             }
 
             if (layerVisualizationSettings.type === 'geography') {
-                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map)
+                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map, bounds)
             }
         }
 
-        if (centerMap) {
-            setTimeout(() => {
-                map.invalidateSize()
-
-                if (markerBounds && markerBounds.length > 0) {
-                    map.fitBounds(L.latLngBounds(markerBounds))
-                }
-
-                if (bounds.isValid()) {
-                    map.invalidateSize() // optional — may not be needed twice
-                    map.fitBounds(bounds)
-                }
-            }, 100)
-        }
+        if (centerMap) centerTheMap(map, markerBounds, bounds)
     } catch (error: any) {
         console.log('------- ERROR - initializeLayers:', error)
         // TODO - add if needed for user
@@ -262,14 +266,30 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         //     title: t('common.toast.errorTitle'),
         //     msg: error ? error.message : ''
         // })
+    } finally {
+        return legendData
     }
 }
 
-// TODO - Remove/refactor
-export const centerTheMap = (map: any, markerBounds: any[] | null) => {
+const centerTheMap = (map: any, markerBounds: any[] | null, bounds: any) => {
     setTimeout(() => {
         map.invalidateSize()
-        if (markerBounds && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
+
+        const combinedBounds = L.latLngBounds([])
+
+        if (markerBounds && markerBounds.length > 0) {
+            combinedBounds.extend(L.latLngBounds(markerBounds))
+        }
+
+        if (bounds.isValid()) {
+            combinedBounds.extend(bounds)
+        }
+
+        if (combinedBounds.isValid()) {
+            map.fitBounds(combinedBounds)
+        }
+
+        map.invalidateSize()
     }, 100)
 }
 

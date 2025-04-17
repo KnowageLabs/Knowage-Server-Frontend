@@ -1,13 +1,10 @@
 import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { centerTheMap, getColumnName } from '../LeafletHelper'
-import { getTargetDataColumn, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 import { addMarkersOrClustersFromData, createMarkerForVisualization, getMappedDataAndColumnIndex } from './MapMarkersVizualizationHelper'
 import L from 'leaflet'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 
 export const addClusters = (
-    map: any,
     data: any,
     model: IWidget,
     target: IMapWidgetLayer,
