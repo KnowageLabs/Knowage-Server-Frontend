@@ -149,7 +149,6 @@ export interface IMapWidgetConditionalStyle {
 export interface IMapWidgetLegend {
     enabled: boolean
     position: string
-    alignment: string
     title: string
     visualizationTypes: IMapWidgetVisualizationTypeLegendSettings[]
 }

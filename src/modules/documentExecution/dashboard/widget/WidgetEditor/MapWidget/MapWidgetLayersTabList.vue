@@ -44,6 +44,7 @@ import Listbox from 'primevue/listbox'
 import dataListDescriptor from './MapWidgetLayersTabListDescriptor.json'
 
 import deepcopy from 'deepcopy'
+import { removeLayerFromModel } from './MapWidgetLayersTabListHelper'
 
 export default defineComponent({
     name: 'map-widget-layers-list',
@@ -109,7 +110,8 @@ export default defineComponent({
             this.closeLayersDialog()
         },
 
-        deleteLayer(index) {
+        deleteLayer(index: number) {
+            removeLayerFromModel(deepcopy(this.layers[index]), this.widgetModel)
             this.layers.splice(index, 1)
         }
     }

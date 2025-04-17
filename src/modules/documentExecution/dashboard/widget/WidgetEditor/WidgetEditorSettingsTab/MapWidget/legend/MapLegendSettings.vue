@@ -3,7 +3,7 @@
         <div class="p-formgrid p-grid p-p-3">
             <q-input dense class="p-lg-4" filled v-model="legendSettings.title" :label="$t('common.title')" />
 
-            <span class="p-field p-float-label p-col-12 p-lg-4 p-fluid">
+            <span class="p-field p-float-label p-col-12 p-lg-6 p-fluid">
                 <Dropdown v-model="legendSettings.position" class="kn-material-input" :options="descriptor.positionOptions" option-value="value" :disabled="legendSettingsDisabled">
                     <template #value="slotProps">
                         <div>
@@ -17,22 +17,6 @@
                     </template>
                 </Dropdown>
                 <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.position') }} </label>
-            </span>
-
-            <span class="p-field p-float-label p-col-12 p-lg-4 p-fluid">
-                <Dropdown v-model="legendSettings.alignment" class="kn-material-input" :options="descriptor.alignmentOptions" option-value="value" :disabled="legendSettingsDisabled">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ getTranslatedLabel(slotProps.value, descriptor.alignmentOptions, $t) }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.visualizationType.alignment') }} </label>
             </span>
         </div>
 
@@ -71,6 +55,17 @@ export default defineComponent({
     computed: {
         legendSettingsDisabled() {
             return !this.widgetModel || !this.widgetModel.settings.legend.enabled
+        }
+    },
+    watch: {
+        widgetModel: {
+            handler(newVal) {
+                if (newVal?.settings?.legend) {
+                    this.loadLegendSettings()
+                }
+            },
+            deep: true,
+            immediate: true
         }
     },
     created() {

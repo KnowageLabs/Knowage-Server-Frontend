@@ -173,8 +173,14 @@ export default defineComponent({
         }
     },
     watch: {
-        widgetModel() {
-            this.loadVisTypeModel()
+        widgetModel: {
+            handler(newVal) {
+                if (newVal?.settings?.visualizations) {
+                    this.loadVisTypeModel()
+                }
+            },
+            deep: true,
+            immediate: true
         }
     },
     mounted() {
