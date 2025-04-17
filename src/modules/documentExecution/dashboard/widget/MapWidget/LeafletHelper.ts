@@ -258,10 +258,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
         }
 
-        console.log('---------- CENTER MAP: ', centerMap)
-        if (centerMap) {
-            centerTheMap(map, markerBounds, bounds)
-        }
+        if (centerMap) centerTheMap(map, markerBounds, bounds)
     } catch (error: any) {
         console.log('------- ERROR - initializeLayers:', error)
         // TODO - add if needed for user
