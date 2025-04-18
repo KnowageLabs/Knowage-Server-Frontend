@@ -334,7 +334,6 @@ export default defineComponent({
                     this.setInfo({ title: this.$t('common.toast.createTitle'), msg: this.$t('common.toast.success') })
                     this.selectedDataset.id ? this.$emit('updated') : this.$emit('created', response)
                     await this.saveTags(dsToSave, response.data.id)
-                    await this.saveSchedulation(dsToSave, response.data.id)
                     await this.saveLinks(response.data.id)
                     await this.removeLinks(response.data.id)
                     await this.getSelectedDataset()
@@ -349,13 +348,6 @@ export default defineComponent({
             tags.tagsToAdd = dsToSave.tags
 
             await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${id}/dstags/`, tags).catch()
-        },
-        async saveSchedulation(dsToSave, id) {
-            if (dsToSave.isScheduled) {
-                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/id/${id}`, dsToSave).catch()
-            } else {
-                await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/label/${dsToSave.label}`).catch()
-            }
         },
         async saveLinks(id) {
             if (this.tablesToAdd.length > 0) {
