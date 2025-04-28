@@ -3,11 +3,6 @@
         <textarea v-if="legendVizualizationSettings.text"> {{ legendVizualizationSettings.text }} </textarea>
 
         <div class="p-formgrid p-grid" v-if="legendVizualizationSettings.visualizationType">
-            <div class="p-d-flex p-flex-column p-m-2">
-                <label class="p-text-bold">{{ $t('common.name') }}</label>
-                <h5 class="p-my-1">{{ legendVizualizationSettings.visualizationType.layerName }}</h5>
-            </div>
-
             <div class="p-col-12 p-d-flex p-flex-row p-jc-around p-ai-center">
                 <p class="target-property kn-flex">{{ legendVizualizationSettings.visualizationType.targetProperty }}</p>
 
