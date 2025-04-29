@@ -74,17 +74,16 @@ export default defineComponent({
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.titleStyleModel) return
-            ;(this.titleStyleModel.properties = {
-                ...this.titleStyleModel.properties,
-                'background-color': model['background-color'] ?? 'rgb(137, 158, 175)',
-                color: model.color ?? 'rgb(255, 255, 255)',
-                'justify-content': model['justify-content'] ?? 'center',
-                'font-size': model['font-size'] ?? '14px',
-                'font-family': model['font-family'] ?? '',
-                'font-style': model['font-style'] ?? 'normal',
-                'font-weight': model['font-weight'] ?? ''
-            }),
-                this.titleStyleChanged()
+
+            this.titleStyleModel.properties['background-color'] = model['background-color'] ?? 'rgb(137, 158, 175)'
+            this.titleStyleModel.properties.color = model.color ?? 'rgb(255, 255, 255)'
+            this.titleStyleModel.properties['justify-content'] = model['text-align'] ?? 'center'
+            this.titleStyleModel.properties['text-align'] = model['text-align'] ?? 'center'
+            this.titleStyleModel.properties['font-size'] = model['font-size'] ?? '14px'
+            this.titleStyleModel.properties['font-family'] = model['font-family'] ?? ''
+            this.titleStyleModel.properties['font-style'] = model['font-style'] ?? 'normal'
+            this.titleStyleModel.properties['font-weight'] = model['font-weight'] ?? ''
+            this.titleStyleChanged()
         }
     }
 })
