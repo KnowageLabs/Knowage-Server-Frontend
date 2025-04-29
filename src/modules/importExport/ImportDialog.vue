@@ -70,7 +70,7 @@
         <template #footer>
             <Button :visible="visibility" class="p-button-text kn-button thirdButton" :label="$t('common.cancel')" @click="resetAndClose" />
 
-            <Button v-if="step == 0" :visible="visibility" class="kn-button kn-button--primary" :disabled="uploadedFiles && uploadedFiles.length == 0" @click="goToChooseElement(uploadedFiles)">caccapupu</Button>
+            <Button v-if="step == 0" :visible="visibility" class="kn-button kn-button--primary" :disabled="uploadedFiles && uploadedFiles.length == 0" @click="goToChooseElement(uploadedFiles)">{{ $t('common.import') }}</Button>
             <span v-if="step == 1">
                 <Button :label="$t('common.back')" :visible="visibility" class="kn-button kn-button--secondary" @click="resetToFirstStep" />
                 <Button :label="$t('common.import')" :visible="visibility" class="kn-button kn-button--primary" :disabled="isImportDisabled()" @click="startImport" />
@@ -184,16 +184,14 @@ export default defineComponent({
 
                 const formData = new FormData()
                 formData.append('file', uploadedFiles[0])
-                await this.$http
-                    .post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/import/upload', formData)
-                    .then(
-                        (response: AxiosResponse<any>) => {
-                            this.packageItems = response.data.entries
-                            this.token = response.data.token
-                            this.step = 1
-                        },
-                        () => this.store.setError({ title: this.$t('common.error.uploading'), msg: this.$t('importExport.import.completedWithErrors') })
-                    )
+                await this.$http.post(import.meta.env.VITE_KNOWAGE_API_CONTEXT + '/api/1.0/import/upload', formData).then(
+                    (response: AxiosResponse<any>) => {
+                        this.packageItems = response.data.entries
+                        this.token = response.data.token
+                        this.step = 1
+                    },
+                    () => this.store.setError({ title: this.$t('common.error.uploading'), msg: this.$t('importExport.import.completedWithErrors') })
+                )
                 this.loading = false
             } else {
                 this.store.setWarning({ title: this.$t('common.uploading'), msg: this.$t('managers.widgetGallery.noFileProvided') })
