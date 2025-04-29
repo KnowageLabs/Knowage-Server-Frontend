@@ -21,15 +21,23 @@
     >
         <h2 v-if="legend.title">{{ legend.title }}</h2>
 
-        <div class="p-formgrid p-grid">
-            <MapLegendVisualization class="p-col-12" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes" :key="index" :prop-map-widget-legend-visualization="legendVizualizationSettings" :legend-data="legendData" />
+        <div :class="['p-formgrid p-grid', { 'horizontal-layout': isHorizontalLayout }]">
+            <q-expansion-item
+                :class="isHorizontalLayout ? 'kn-flex' : 'p-col-12'"
+                v-for="(legendVizualizationSettings, index) in legend.visualizationTypes.filter((legendVisType: IMapWidgetVisualizationTypeLegendSettings) => legendVisType.visualizationType?.type !== 'geography')"
+                :key="index"
+                :label="legendVizualizationSettings.visualizationType?.layerName ?? ''"
+                default-opened
+            >
+                <MapLegendVisualization :prop-map-widget-legend-visualization="legendVizualizationSettings" :legend-data="legendData" />
+            </q-expansion-item>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IMapWidgetLegend } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLegend, IMapWidgetVisualizationTypeLegendSettings } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import MapLegendVisualization from './MapLegendVisualization.vue'
 
 export default defineComponent({
@@ -73,6 +81,9 @@ export default defineComponent({
                 default:
                     return 'legend-east'
             }
+        },
+        isHorizontalLayout() {
+            return this.position === 'north' || this.position === 'south'
         }
     },
     watch: {
@@ -148,8 +159,28 @@ export default defineComponent({
         },
         onDrag(event: MouseEvent) {
             if (!this.isDragging) return
-            this.positionX = event.clientX - this.offsetX
-            this.positionY = event.clientY - this.offsetY
+
+            const parent = this.$el?.parentElement
+            if (!parent) return
+
+            const parentRect = parent.getBoundingClientRect()
+            const legendRect = (this.$refs.legendRef as HTMLElement)?.getBoundingClientRect()
+
+            if (!legendRect) return
+
+            const parentWidth = parentRect.width
+            const parentHeight = parentRect.height
+            const legendWidth = legendRect.width
+            const legendHeight = legendRect.height
+
+            let newX = event.clientX - this.offsetX
+            let newY = event.clientY - this.offsetY
+
+            newX = Math.max(0, Math.min(newX, parentWidth - legendWidth))
+            newY = Math.max(0, Math.min(newY, parentHeight - legendHeight))
+
+            this.positionX = newX
+            this.positionY = newY
         },
         stopDrag() {
             this.isDragging = false
@@ -182,18 +213,18 @@ export default defineComponent({
 }
 
 .legend-top {
-    top: -300px;
+    top: 0;
 }
 
 .legend-bottom {
-    bottom: -300px;
+    bottom: 0;
 }
 
 .legend-east {
-    right: -300px;
+    right: 0;
 }
 
 .legend-west {
-    left: -300px;
+    left: 0;
 }
 </style>

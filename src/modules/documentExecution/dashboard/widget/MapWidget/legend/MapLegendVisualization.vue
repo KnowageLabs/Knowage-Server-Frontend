@@ -1,13 +1,10 @@
 <template>
     <div v-if="legendVizualizationSettings" class="p-col-12">
-        <textarea v-if="legendVizualizationSettings.text"> {{ legendVizualizationSettings.text }} </textarea>
+        <div v-if="legendVizualizationSettings.text" class="map-legend-text p-mb-1 p-p-2">
+            {{ legendVizualizationSettings.text }}
+        </div>
 
-        <div class="p-formgrid p-grid" v-if="legendVizualizationSettings.visualizationType">
-            <div class="p-d-flex p-flex-column p-m-2">
-                <label class="p-text-bold">{{ $t('common.name') }}</label>
-                <h5 class="p-my-1">{{ legendVizualizationSettings.visualizationType.layerName }}</h5>
-            </div>
-
+        <div class="p-formgrid p-grid p-p-2" v-if="legendVizualizationSettings.visualizationType">
             <div class="p-col-12 p-d-flex p-flex-row p-jc-around p-ai-center">
                 <p class="target-property kn-flex">{{ legendVizualizationSettings.visualizationType.targetProperty }}</p>
 
@@ -72,6 +69,16 @@ export default {
 </script>
 
 <style scoped>
+.map-legend-text {
+    width: 100%;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 600px;
+}
+
 .target-property {
     margin: 0;
     padding: 0;

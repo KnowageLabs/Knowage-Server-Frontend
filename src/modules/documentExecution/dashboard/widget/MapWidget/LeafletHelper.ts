@@ -46,13 +46,6 @@ export function getColumnName(column, data) {
     return data?.metaData?.fields?.find((field) => field.header === column).name
 }
 
-function isConditionValid(operator: string, measureValue: any, value: any): boolean {
-    if (operator === '=') return measureValue == value
-    if (operator === '>') return measureValue > value
-    if (operator === '<') return measureValue < value
-    return false
-}
-
 // Used for adding a marker to Leaflet. If there is no MEASURE data (e.g., when only Geography is needed),
 // the settings passed will be null, and the default ones from the first line will be used.
 const createMarker = (position: number[] | string, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, colorFromConditionalStyles?: string | undefined, iconFromConditionalStyles?: string | undefined) => {
