@@ -1,7 +1,7 @@
 <template>
     <div class="config-preview kn-flex" v-if="legendVizualizationSettings?.visualizationType && legendVizualizationSettings.visualizationType.markerConf" :style="getPreviewStyle(legendVizualizationSettings.visualizationType.markerConf)">
         <div v-if="legendVizualizationSettings.visualizationType.type === 'clusters'" class="clusters-config-preview">
-            <div class="p-d-flex p-flex-row p-jc-center p-ai-center" :style="getClusterPreviewStyle(legendVizualizationSettings.visualizationType.clusterConf)">10</div>
+            <div class="p-d-flex p-flex-row p-jc-center p-ai-center cluster-preview" :style="getClusterPreviewStyle(legendVizualizationSettings.visualizationType.clusterConf)">10</div>
         </div>
 
         <i v-if="legendVizualizationSettings.visualizationType.markerConf.type === 'default' || legendVizualizationSettings.visualizationType.markerConf.type === 'icon'" :class="getIconClass(legendVizualizationSettings.visualizationType.markerConf)" />
@@ -42,7 +42,7 @@ export default {
             this.legendVizualizationSettings = this.propMapWidgetLegendVisualization
         },
         getPreviewStyle(markerConfig: IMapWidgetVisualizationTypeMarker | undefined) {
-            return markerConfig ? `color:${markerConfig.style.color}; font-size: 1.2rem;` : ''
+            return markerConfig ? `color:${markerConfig.style.color};` : ''
         },
         getIconClass(markerConfig: IMapWidgetVisualizationTypeMarker | undefined) {
             if (!markerConfig) return ''
@@ -57,7 +57,7 @@ export default {
         },
         getClusterPreviewStyle(clustersConfig: IMapWidgetVisualizationTypeCluster | undefined) {
             if (!clustersConfig) return ''
-            return `border-radius: 50px; color:${clustersConfig.style.color}; background-color:${clustersConfig.style['background-color']};`
+            return `color:${clustersConfig.style.color}; background-color:${clustersConfig.style['background-color']};`
         }
     }
 }
@@ -97,5 +97,15 @@ export default {
     width: 30px;
     height: 30px;
     overflow: hidden;
+}
+
+i.fas.fa-circle {
+    line-height: 1.5rem;
+}
+
+.cluster-preview {
+    min-width: 25px;
+    border-radius: 50px;
+    font-size: 1.2rem;
 }
 </style>

@@ -10,7 +10,7 @@
             <div v-for="(interval, index) in layerLegendData.intervals" :key="index" class="balloons-legend-row">
                 <span>{{ formatValue(interval.minValue) }}</span>
                 <span>{{ formatValue(interval.maxValue) }}</span>
-                <span>{{ formatValue(interval.size) }}</span>
+                <span>{{ formatValue(interval.size, true) }}</span>
             </div>
         </div>
         <div v-else-if="layerLegendData.type === LEGEND_DATA_TYPE.BALLOONS_QUANTILES" class="balloons-legend-table">
@@ -23,7 +23,7 @@
             <div v-for="(quantileInfo, index) in layerLegendData.qunatileMappings" :key="index" class="balloons-legend-row">
                 <span>{{ formatValue(quantileInfo.min) }}</span>
                 <span>{{ formatValue(quantileInfo.max) }}</span>
-                <span>{{ formatValue(quantileInfo.size) }}</span>
+                <span>{{ formatValue(quantileInfo.size, true) }}</span>
             </div>
         </div>
         <div v-else-if="layerLegendData.type === LEGEND_DATA_TYPE.BALLOONS_RANGES" class="balloons-legend-table">
@@ -37,7 +37,7 @@
             <div v-for="(rangeInfo, index) in layerLegendData.ranges" :key="index" class="balloons-legend-row">
                 <span>{{ formatValue(rangeInfo.min) }}</span>
                 <span>{{ formatValue(rangeInfo.max) }}</span>
-                <span>{{ formatValue(rangeInfo.size) }}</span>
+                <span>{{ formatValue(rangeInfo.size, true) }}</span>
                 <div class="ranges-color-preview" :style="{ backgroundColor: rangeInfo.color }"></div>
             </div>
         </div>
@@ -78,8 +78,9 @@ export default {
         loadLegendVisualizationSettings() {
             this.legendVizualizationSettings = this.propMapWidgetLegendVisualization
         },
-        formatValue(value: number): string {
+        formatValue(value: number, integer: boolean = false): string {
             if (!isFinite(value)) return 'N/A'
+            else if (integer) return Math.round(value).toString()
             return value.toFixed(2)
         }
     }

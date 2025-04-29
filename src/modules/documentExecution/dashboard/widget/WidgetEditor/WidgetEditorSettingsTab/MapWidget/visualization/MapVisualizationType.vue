@@ -259,14 +259,14 @@ export default defineComponent({
             this.removelayersFromAvailableOptions()
             await this.loadPropertiesForVisualizationTypes()
             this.updateVisualizationTypesId()
-            this.updateMapWidgetLegendWithExistentVisualizationModels()
+            this.updateMapWidgetLegendWithExistingVisualizationModels()
         },
         updateVisualizationTypesId() {
             this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
                 if (!visualizationType?.id) visualizationType.id = crypto.randomUUID()
             })
         },
-        updateMapWidgetLegendWithExistentVisualizationModels() {
+        updateMapWidgetLegendWithExistingVisualizationModels() {
             this.visualizationTypeModel?.forEach((visualizationType: IMapWidgetVisualizationType) => {
                 const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
                 if (mapLegend?.visualizationTypes.some((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)) return

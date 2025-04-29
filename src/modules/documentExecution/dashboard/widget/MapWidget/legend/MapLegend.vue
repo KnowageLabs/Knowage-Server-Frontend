@@ -22,7 +22,13 @@
         <h2 v-if="legend.title">{{ legend.title }}</h2>
 
         <div :class="['p-formgrid p-grid', { 'horizontal-layout': isHorizontalLayout }]">
-            <q-expansion-item :class="isHorizontalLayout ? 'p-col-3' : 'p-col-12'" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes" :key="index" :caption="legendVizualizationSettings.visualizationType?.layerName ?? ''" default-opened>
+            <q-expansion-item
+                :class="isHorizontalLayout ? 'kn-flex' : 'p-col-12'"
+                v-for="(legendVizualizationSettings, index) in legend.visualizationTypes.filter((legendVisType: IMapWidgetVisualizationTypeLegendSettings) => legendVisType.visualizationType?.type !== 'geography')"
+                :key="index"
+                :label="legendVizualizationSettings.visualizationType?.layerName ?? ''"
+                default-opened
+            >
                 <MapLegendVisualization :prop-map-widget-legend-visualization="legendVizualizationSettings" :legend-data="legendData" />
             </q-expansion-item>
         </div>
@@ -31,7 +37,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IMapWidgetLegend } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLegend, IMapWidgetVisualizationTypeLegendSettings } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import MapLegendVisualization from './MapLegendVisualization.vue'
 
 export default defineComponent({
