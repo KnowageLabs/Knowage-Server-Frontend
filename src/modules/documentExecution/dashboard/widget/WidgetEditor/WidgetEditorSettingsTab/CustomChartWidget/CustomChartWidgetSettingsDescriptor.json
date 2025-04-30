@@ -12,6 +12,10 @@
             {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
+            },
+            {
+                "title": "dashboard.widgetEditor.libraries.title",
+                "type": "Libraries"
             }
         ],
         "Editor": [

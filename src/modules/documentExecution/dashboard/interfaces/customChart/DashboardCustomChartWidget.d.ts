@@ -18,6 +18,8 @@ export interface ICustomChartWidgetEditor {
 
 export interface ICustomChartWidgetConfiguration {
     exports: IWidgetExports
+    showScreenshot: boolean
+    libraries: string[]
 }
 
 export interface ICustomChartStyle {
