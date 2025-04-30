@@ -62,7 +62,7 @@ export default defineComponent({
         async loadLibraryOptions() {
             await this.loadLibraryOptionsFromTheBEWhitelist()
             this.selectedLibraries.forEach((library: string) => {
-                if (!this.options.includes(library)) this.options.push(library)
+                if (!this.options.includes(library)) this.options.push(library.trim())
             })
             this.loadLibraryOptionsFromOtherCustomChartWidget()
         },
@@ -88,8 +88,10 @@ export default defineComponent({
             })
         },
         addLibrary(newLibrary: string) {
-            if (!this.options.includes(newLibrary)) this.options.push(newLibrary)
-            if (!this.selectedLibraries.includes(newLibrary)) this.selectedLibraries.push(newLibrary)
+            if (!newLibrary) return
+            const newLibraryFormatted = newLibrary.trim()
+            if (!this.options.includes(newLibraryFormatted)) this.options.push(newLibraryFormatted)
+            if (!this.selectedLibraries.includes(newLibraryFormatted)) this.selectedLibraries.push(newLibraryFormatted)
 
             this.model = null
         },
