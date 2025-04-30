@@ -88,6 +88,7 @@ export default defineComponent({
         }
     },
     async created() {
+        this.setReadyPromise()
         const locationParams = new URL(location).searchParams
 
         let userEndpoint = !localStorage.getItem('token') && locationParams.get('public') ? `/restful-services/3.0/public-user` : '/restful-services/2.0/currentuser'
@@ -145,6 +146,7 @@ export default defineComponent({
                 } else {
                     this.showMenu = true
                 }
+                console.log('------ CALLED BLA')
             })
             .catch((error) => {
                 if (error.response.status === 400) {
@@ -190,7 +192,7 @@ export default defineComponent({
     },
 
     methods: {
-        ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization', 'setCSRFToken']),
+        ...mapActions(mainStore, ['setTheme', 'setDefaultTheme', 'setLicenses', 'setConfigurations', 'setLoading', 'setLocale', 'initializeUser', 'setNews', 'setDownloads', 'setInternationalization', 'setCSRFToken', 'setReadyPromise']),
         closeDialog() {
             this.$emit('update:visibility', false)
         },

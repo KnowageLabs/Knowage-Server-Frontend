@@ -24,15 +24,24 @@ const store = defineStore('store', {
             mainMenuVisibility: false,
             documentExecution: {},
             theme: {},
-            defaultTheme: {}
+            defaultTheme: {},
+            isInitialized: false,
+            readyPromise: null
         }
     },
     actions: {
         initializeUser(user) {
             this.setUser(user)
             this.setEnterprise(user.enterprise)
-        },
 
+            // After initialization is done, resolve the promise
+            if (this.pendingResolve) {
+                this.pendingResolve() // Resolve the promise if it was waiting
+                this.pendingResolve = null // Clear the pendingResolve to prevent multiple calls
+            }
+
+            this.isInitialized = true // Mark the store as initialized
+        },
         updateLicense(el) {
             const licenses = this.licenses
 
@@ -122,6 +131,15 @@ const store = defineStore('store', {
         },
         storeClearIndexedDBCache() {
             indexedDB.widgetData.clear()
+        },
+        setReadyPromise() {
+            this.readyPromise = new Promise((resolve) => {
+                if (this.isInitialized) {
+                    resolve()
+                } else {
+                    this.pendingResolve = resolve // Store the resolve function for later use
+                }
+            })
         }
     }
 })
