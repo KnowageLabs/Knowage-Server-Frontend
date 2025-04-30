@@ -12,10 +12,6 @@
             {
                 "title": "dashboard.widgetEditor.export.title",
                 "type": "Export"
-            },
-            {
-                "title": "dashboard.widgetEditor.libraries.title",
-                "type": "Libraries"
             }
         ],
         "Editor": [
@@ -30,6 +26,10 @@
             {
                 "title": "JS",
                 "type": "JS"
+            },
+            {
+                "title": "dashboard.widgetEditor.libraries.title",
+                "type": "Libraries"
             }
         ],
         "Help": [

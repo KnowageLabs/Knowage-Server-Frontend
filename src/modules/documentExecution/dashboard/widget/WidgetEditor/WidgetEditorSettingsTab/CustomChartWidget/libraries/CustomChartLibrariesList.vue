@@ -6,7 +6,11 @@
             <q-list class="p-lg-12" bordered separator>
                 <q-item v-for="(library, index) in selectedLibraries" :key="index" clickable v-ripple>
                     <q-item-section avatar>
-                        <q-img :src="getLibraryIcon(library)" style="width: 32px; height: 32px" spinner-color="grey-5" />
+                        <q-img :id="'library-image_' + library" class="library-image" :src="getLibraryIcon(library)" spinner-color="grey-5">
+                            <template v-slot:error>
+                                <img class="library-image" :src="getDefaultLibraryIcon()"></img>
+                            </template>
+                        </q-img>
                     </q-item-section>
 
                     <q-item-section>
@@ -14,7 +18,7 @@
                     </q-item-section>
 
                     <q-item-section side>
-                        <q-btn flat dense round icon="fa fa-trash" @click.stop="removeLibrary(index)" />
+                        <q-btn class="library-delete-icon" flat dense round icon="fa fa-trash" @click.stop="removeLibrary(index)" />
                     </q-item-section>
                 </q-item>
             </q-list>
@@ -62,7 +66,7 @@ export default defineComponent({
         async loadLibraryOptions() {
             await this.loadLibraryOptionsFromTheBEWhitelist()
             this.selectedLibraries.forEach((library: string) => {
-                if (!this.options.includes(library)) this.options.push(library.trim())
+                if (!this.options.includes(library.trim())) this.options.push(library.trim())
             })
             this.loadLibraryOptionsFromOtherCustomChartWidget()
         },
@@ -74,7 +78,7 @@ export default defineComponent({
             //     .then((response: AxiosResponse<any>) => (libraries = response.data))
             //     .catch(() => {})
             libraries.forEach((library: string) => {
-                if (!this.options.includes(library)) this.options.push(library)
+                if (!this.options.includes(library.trim())) this.options.push(library.trim())
             })
         },
         loadLibraryOptionsFromOtherCustomChartWidget() {
@@ -83,7 +87,7 @@ export default defineComponent({
             widgets.forEach((widget: IWidget) => {
                 if (widget.type !== 'customchart') return
                 widget.settings.configuration?.libraries?.forEach((library: string) => {
-                    if (!this.options.includes(library)) this.options.push(library)
+                    if (!this.options.includes(library.trim())) this.options.push(library.trim())
                 })
             })
         },
@@ -111,7 +115,23 @@ export default defineComponent({
             } catch (e) {
                 return null
             }
+        },
+        getDefaultLibraryIcon() {
+            return import.meta.env.VITE_PUBLIC_PATH + 'images/dashboard/customChart/cdn-48.ico'
         }
     }
 })
 </script>
+
+<style lang="scss" scoped>
+.library-image {
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    min-width: 32px;
+}
+
+.library-delete-icon {
+    font-size: 0.8rem;
+}
+</style>
