@@ -1109,6 +1109,10 @@
             "legend": {
                 "title": "Legend"
             },
+            "libraries": {
+                "select": "Select or add new library",
+                "title": "Libraries"
+            },
             "line": "Line",
             "manualInput": "Manual input",
             "map": {

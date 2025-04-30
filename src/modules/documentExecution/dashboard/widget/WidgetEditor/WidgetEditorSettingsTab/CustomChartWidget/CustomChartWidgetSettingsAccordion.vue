@@ -23,6 +23,7 @@
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
                 <WidgetInteractionsIframe v-else-if="accordion.type === 'IFrameInteraction'" :widget-model="widgetModel" :dashboard-id="dashboardId"></WidgetInteractionsIframe>
                 <WidgetHelpSettings v-else-if="accordion.type === 'HelpSettings'" :widget-model="widgetModel"></WidgetHelpSettings>
+                <CustomChartLibrariesList v-else-if="accordion.type === 'Libraries'" :widget-model="widgetModel" :dashboard-id="dashboardId"></CustomChartLibrariesList>
             </AccordionTab>
         </Accordion>
     </div>
@@ -56,6 +57,7 @@ import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue
 import Message from 'primevue/message'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
+import CustomChartLibrariesList from './libraries/CustomChartLibrariesList.vue'
 
 export default defineComponent({
     name: 'custom-chart-widget-settings-container',
@@ -80,7 +82,8 @@ export default defineComponent({
         Message,
         WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
-        WidgetHelpSettings
+        WidgetHelpSettings,
+        CustomChartLibrariesList
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

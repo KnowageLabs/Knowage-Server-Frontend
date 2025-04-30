@@ -26,6 +26,10 @@
             {
                 "title": "JS",
                 "type": "JS"
+            },
+            {
+                "title": "dashboard.widgetEditor.libraries.title",
+                "type": "Libraries"
             }
         ],
         "Help": [
