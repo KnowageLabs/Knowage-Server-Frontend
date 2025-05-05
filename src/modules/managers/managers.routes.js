@@ -37,6 +37,7 @@ import dashboardRoutes from '@/modules/documentExecution/dashboard/Dashboard.rou
 import categoriesManagementRoutes from '@/modules/managers/categoriesManagement/CategoriesManagement.routes.js'
 import dashboardThemeManagementRoutes from '@/modules/managers/dashboardThemeManagement/DashboardThemeManagement.routes.js'
 import importExportDocumentsRoutes from '@/modules/managers/importExportDocuments/ImportExportDocuments.routes.js'
+import aiManagementRoutes from '@/modules/managers/aiManagement/AiManagement.routes.js'
 
 const baseRoutes = []
 
@@ -80,5 +81,6 @@ const routes = baseRoutes
     .concat(categoriesManagementRoutes)
     .concat(dashboardThemeManagementRoutes)
     .concat(importExportDocumentsRoutes)
+    .concat(aiManagementRoutes)
 
 export default routes

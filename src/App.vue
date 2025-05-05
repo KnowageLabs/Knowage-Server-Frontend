@@ -4,7 +4,7 @@
     <KnOverlaySpinnerPanel />
     <div class="layout-wrapper-content" :class="{ 'layout-wrapper-content-embed': documentExecution.embed, isMobileDevice: isMobileDevice }">
         <MainMenu v-if="showMenu && mainMenuVisibility" @menuItemSelected="setSelectedMenuItem" :closeMenu="closedMenu" @openMenu="openMenu"></MainMenu>
-        <KnChatbot v-if="user" />
+        <KnChatbot v-if="isEnterprise && configurations['KNOWAGE.AI.URL']" />
 
         <div class="layout-main" :class="{ hiddenMenu: !mainMenuVisibility }" @click="closeMenu" @blur="closeMenu">
             <router-view :selected-menu-item="selectedMenuItem" :menu-item-clicked-trigger="menuItemClickedTrigger" @click="closeMenu" />
