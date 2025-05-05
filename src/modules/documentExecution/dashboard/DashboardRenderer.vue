@@ -1,5 +1,5 @@
 <template>
-    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)">
+    <KnDashboardTabsPanel v-model:sheets="dashboardModel.sheets" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted">
         <div id="dashboard-css" v-html="dashboardCss" />
 
         <div v-if="activeDashboardSheet" class="sheet-container">
@@ -52,7 +52,7 @@
  * ! this component will be in charge of creating the dashboard visualizazion, specifically to manage responsive structure and sheets.
  */
 import { defineComponent, PropType } from 'vue'
-import { IBackground, IDashboardSheet, IDataset, IVariable } from './Dashboard'
+import { IBackground, IDashboardSheet, IDataset, IVariable, IWidgetSheetItem } from './Dashboard'
 import { canEditDashboard } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { emitter } from './DashboardHelpers'
@@ -131,7 +131,7 @@ export default defineComponent({
             const fullGridWidgets = this.dashboardModel.widgets.filter((widget) => widget.settings?.responsive?.fullGrid)
             if (!this.dashboardModel.sheets) this.dashboardModel.sheets = []
             if (this.dashboardModel.sheets.length === 0) this.dashboardModel.sheets.push({ label: this.$t('dashboard.sheets.newSheet'), widgets: { lg: [], md: [], sm: [], xs: [], xxs: [] } })
-            this.activeDashboardSheet = this.dashboardModel.sheets[0]
+            this.activeDashboardSheet = this.dashboardModel.sheets[this.selectedSheetIndex || 0]
             if (fullGridWidgets.length > 0) {
                 ;['lg', 'md', 'sm', 'xs', 'xxs'].forEach((size) => {
                     if (this.activeDashboardSheet?.widgets[size] && this.activeDashboardSheet?.widgets[size].some((widget) => widget.id === fullGridWidgets[0].id)) {
@@ -184,6 +184,9 @@ export default defineComponent({
             else if (window.innerWidth >= 768) return 'sm'
             else if (window.innerWidth >= 480) return 'xs'
             else return 'xxs'
+        },
+        onSheetDeleted(payload: { sheetForDelete: IWidgetSheetItem; currentPage: number }) {
+            this.sheetChange(payload.currentPage)
         }
     }
 })

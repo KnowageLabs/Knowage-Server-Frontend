@@ -122,6 +122,10 @@ export default defineComponent({
     methods: {
         async loadPreview() {
             this.loadDataset()
+            if (this.loadFromDatasetManagement) {
+                this.correctRolesForExecution = (this.store.$state as any).user.roles
+                if (!this.userRole && (this.store.$state as any).user.roles.length > 0) this.userRole = (this.store.$state as any).user.roles[0]
+            }
 
             if (this.userRole) {
                 await this.loadDatasetDrivers()
@@ -129,8 +133,6 @@ export default defineComponent({
                 this.parameterSidebarVisible = true
                 return
             }
-
-            if (this.loadFromDatasetManagement) this.correctRolesForExecution = (this.store.$state as any).user.roles
 
             if (this.dataset.label && this.dataset.pars.length === 0 && (this.filtersData.isReadyForExecution === undefined || this.filtersData.isReadyForExecution)) {
                 this.loadFromDatasetManagement ? await this.loadPreSavePreview() : await this.loadPreviewData()

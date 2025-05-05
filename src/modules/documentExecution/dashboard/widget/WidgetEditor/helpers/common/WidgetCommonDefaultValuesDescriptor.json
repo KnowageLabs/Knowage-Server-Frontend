@@ -83,7 +83,7 @@
     "defaultShadowsStyle": {
         "enabled": false,
         "properties": {
-            "box-shadow": "",
+            "box-shadow": "0px 2px 3px",
             "color": ""
         }
     },

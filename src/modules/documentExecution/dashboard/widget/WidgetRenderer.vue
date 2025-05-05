@@ -141,7 +141,10 @@ export default defineComponent({
     computed: {
         ...mapState(mainStore, {
             isEnterprise: 'isEnterprise'
-        })
+        }),
+        shouldOverflowBeVisible() {
+            return this.widget?.type === 'map'
+        }
     },
     watch: {
         widgetData() {
@@ -169,11 +172,11 @@ export default defineComponent({
         },
         getWidgetContainerStyle() {
             const styleString = getWidgetStyleByType(this.widget, 'borders') + getWidgetStyleByType(this.widget, 'shadows') + getWidgetStyleByType(this.widget, 'background')
-            return styleString
+            return styleString + `overflow: ${this.shouldOverflowBeVisible ? 'visible' : 'hidden'}`
         },
         getWidgetPadding() {
             const styleString = getWidgetStyleByType(this.widget, 'padding')
-            return styleString
+            return styleString + `overflow: ${this.shouldOverflowBeVisible ? 'visible' : 'hidden'}`
         }
     }
 })
@@ -188,11 +191,20 @@ export default defineComponent({
     overflow: hidden;
     background-color: #fff;
     flex: 1;
+
+    &.overflow-visible {
+        overflow: visible !important;
+    }
+
     .widget-container-renderer {
         flex: 1;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+
+        .widget-container.overflow-visible & {
+            overflow: visible !important;
+        }
     }
 }
 </style>

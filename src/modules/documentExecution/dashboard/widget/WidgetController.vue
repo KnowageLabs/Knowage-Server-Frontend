@@ -300,7 +300,7 @@ export default defineComponent({
             this.setLoading(true)
             let body = { ...this.widgetModel, selections: this.dashStore.$state.dashboards[this.dashboardId].selections, drivers: this.dashStore.$state.dashboards[this.dashboardId].drivers }
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/spreadsheet`, body, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/spreadsheet`, body, {
                     responseType: 'blob',
                     headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
                 })

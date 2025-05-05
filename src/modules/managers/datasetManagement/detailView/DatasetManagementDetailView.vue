@@ -183,6 +183,14 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => {
                     this.selectedDataset = response.data[0] ? { ...response.data[0] } : {}
 
+                    const columns = [...new Set(this.selectedDataset.meta?.columns.map((e) => e.column))]
+                    columns.forEach((col) => {
+                        const hasDescription = this.selectedDataset.meta?.columns.some((item) => item.pname === 'description' && item.column === col)
+                        if (!hasDescription) {
+                            this.selectedDataset.meta?.columns.push({ column: col, pname: 'description', pvalue: '' })
+                        }
+                    })
+
                     this.selectedDataset.restJsonPathAttributes ? (this.selectedDataset.restJsonPathAttributes = JSON.parse(this.selectedDataset.restJsonPathAttributes ? this.selectedDataset.restJsonPathAttributes : '[]')) : []
                     this.selectedDataset.restRequestHeaders ? (this.selectedDataset.restRequestHeaders = JSON.parse(this.selectedDataset.restRequestHeaders ? this.selectedDataset.restRequestHeaders : '{}')) : {}
 
@@ -326,7 +334,6 @@ export default defineComponent({
                     this.setInfo({ title: this.$t('common.toast.createTitle'), msg: this.$t('common.toast.success') })
                     this.selectedDataset.id ? this.$emit('updated') : this.$emit('created', response)
                     await this.saveTags(dsToSave, response.data.id)
-                    await this.saveSchedulation(dsToSave, response.data.id)
                     await this.saveLinks(response.data.id)
                     await this.removeLinks(response.data.id)
                     await this.getSelectedDataset()
@@ -341,13 +348,6 @@ export default defineComponent({
             tags.tagsToAdd = dsToSave.tags
 
             await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/datasets/${id}/dstags/`, tags).catch()
-        },
-        async saveSchedulation(dsToSave, id) {
-            if (dsToSave.isScheduled) {
-                await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/id/${id}`, dsToSave).catch()
-            } else {
-                await this.$http.delete(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/scheduleree/persistence/dataset/label/${dsToSave.label}`).catch()
-            }
         },
         async saveLinks(id) {
             if (this.tablesToAdd.length > 0) {
@@ -381,7 +381,7 @@ export default defineComponent({
                 columnsNames = this.removeDuplicates(columnsNames)
 
                 for (let i = 0; i < columnsNames.length; i++) {
-                    const columnObject = { displayedName: '', name: '', fieldType: '', type: '', personal: false, decrypt: false, subjectId: false }
+                    const columnObject = { displayedName: '', name: '', fieldType: '', type: '', personal: false, decrypt: false, subjectId: false, description: '' }
                     const currentColumnName = columnsNames[i]
 
                     //remove the part before the double dot if the column is in the format ex: it.eng.spagobi.Customer:customerId
@@ -406,6 +406,8 @@ export default defineComponent({
                                 columnObject.decrypt = element.pvalue
                             } else if (element.pname.toUpperCase() == 'subjectId'.toUpperCase()) {
                                 columnObject.subjectId = element.pvalue
+                            } else if (element.pname.toUpperCase() == 'description'.toUpperCase()) {
+                                columnObject.description = element.pvalue
                             }
                         }
                     }

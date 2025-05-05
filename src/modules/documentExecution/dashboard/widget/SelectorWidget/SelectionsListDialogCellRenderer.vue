@@ -1,6 +1,6 @@
 <template>
     <div>
-        <Button v-tooltip.left="$t('common.lock')" class="p-button-text p-button-rounded p-button-plain" :icon="isLocked ? 'fas fa-lock' : 'fas fa-lock-open'" :style="{ color: isLocked ? '#d32f2f' : '' }" @click.stop="toggleSelectionLock()" />
+        <Button v-if="!params.isFinalUser" v-tooltip.left="$t('common.lock')" class="p-button-text p-button-rounded p-button-plain" :icon="isLocked ? 'fas fa-lock' : 'fas fa-lock-open'" :style="{ color: isLocked ? '#d32f2f' : '' }" @click.stop="toggleSelectionLock()" />
         <Button v-tooltip.left="$t('common.delete')" class="p-button-text p-button-rounded p-button-plain p-ml-auto" icon="fas fa-trash-alt" :style="{ 'pointer-events': isLocked ? 'none' : '' }" @click.stop="deleteSelection()" />
     </div>
 </template>

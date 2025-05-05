@@ -661,12 +661,8 @@ export default defineComponent({
                 window.open(this.urlData?.url + '&outputType=' + type, 'name', 'resizable=1,height=750,width=1000')
             } else if (this.document.typeCode === 'DATAMART') {
                 await this.exportRegistry(type.toLowerCase())
-            } else if (type === 'PDF' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
-                await this.asyncExport('pdf')
-            } else if (type === 'XLSX' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
-                await this.asyncExport('xlsx')
-            } else if (type === 'PNG' && this.document.typeCode != 'DOCUMENT_COMPOSITE') {
-                await this.asyncExport('png')
+            } else if (this.document.typeCode != 'DOCUMENT_COMPOSITE') {
+                await this.dashboardExport(type.toLowerCase())
             } else {
                 const filteredFrames = Array.prototype.filter.call(window.frames, (frame) => frame.name)
                 const tempIndex = this.breadcrumbs.findIndex((el: any) => el.label === this.document.name)
@@ -703,18 +699,21 @@ export default defineComponent({
                 })
                 .finally(() => this.setLoading(false))
         },
-        async asyncExport(format) {
+        async dashboardExport(format) {
             this.setLoading(true)
             let body = this.hiddenFormData
-            let headers = { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
+            let url = import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`
             if (format.includes('xls')) {
                 format = 'spreadsheet'
                 if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) body = this.dashboards[this.document.dashboardId]
-            } else headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            }
+
+            if (['spreadsheet'].includes(format)) {
+                url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${format}`
+            }
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`, body, {
-                    responseType: 'blob',
-                    // headers: headers
+                .post(url, body, {
+                    responseType: 'blob'
                 })
                 .then((response) => {
                     downloadDirectFromResponse(response)
@@ -813,7 +812,7 @@ export default defineComponent({
             this.updateMode(true)
             if (this.$route.query.outputType && ['png', 'xls', 'xlsx', 'pdf'].includes(this.$route.query.outputType.toLowerCase())) {
                 this.downloadMode = true
-                await this.asyncExport(this.$route.query.outputType.toLowerCase())
+                await this.dashboardExport(this.$route.query.outputType.toLowerCase())
                 return
             }
             this.loading = false

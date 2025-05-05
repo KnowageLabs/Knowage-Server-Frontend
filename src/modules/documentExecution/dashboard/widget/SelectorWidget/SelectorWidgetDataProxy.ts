@@ -82,7 +82,9 @@ const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: 
         }
     })
 
-    if (sortingColumn) dataToSend.aggregations.categories.push(sortingColumn)
+    if (sortingColumn && !dataToSend.aggregations.categories.some((column) => column.id === sortingColumn.id || column.columnName === sortingColumn.columnName)) {
+        dataToSend.aggregations.categories.push(sortingColumn)
+    }
 
     return dataToSend
 }

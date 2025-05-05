@@ -11,6 +11,7 @@ import {
     IMapWidgetVisualizationTypeChoropleth,
     IMapWidgetVisualizationTypeCluster,
     IMapWidgetVisualizationTypeHeatmap,
+    IMapWidgetVisualizationTypeLegendSettings,
     IMapWidgetVisualizationTypeMarker,
     IMapWidgetVisualizationTypePie
 } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
@@ -23,6 +24,10 @@ export const getDefaultMapTooltips = () => {
 
 export const getDefaultDialogSettings = () => {
     return deepcopy(descriptor.defaultDialogSettings) as IMapDialogSettings
+}
+
+export const getDefaultVisualizationTypeLegendSettings = () => {
+    return deepcopy(descriptor.defaultVisualizationTypeLegendSettings) as IMapWidgetVisualizationTypeLegendSettings
 }
 
 export const getDefaultLegendSettings = () => {
@@ -44,6 +49,7 @@ export const getDefaultConditionalStyle = () => {
 export const getDefaultVisualizationSettings = () => {
     const visualizationSettings = [
         {
+            id: crypto.randomUUID(),
             target: '',
             type: 'markers',
             visible: true,

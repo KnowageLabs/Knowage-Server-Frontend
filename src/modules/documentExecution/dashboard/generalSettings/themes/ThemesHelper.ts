@@ -55,19 +55,20 @@ export const applySelectedThemeToWidgets = (widgets: IWidget[], selectedTheme: I
 }
 
 export const applyStylesToWidget = (widgetStyle, theme: IDashboardTheme, themeStyle) => {
-    const propertiesToIgnore = ['title']
-
     widgetStyle.themeId = theme.id
     widgetStyle.themeName = theme.themeName
     for (const styleProp in themeStyle.style) {
-        if (!propertiesToIgnore.includes(styleProp) && widgetStyle[styleProp]) {
+        if (styleProp === 'title') {
+            const { text, ...rest } = themeStyle.style[styleProp]
+            widgetStyle[styleProp] = rest
+        } else {
             widgetStyle[styleProp] = themeStyle.style[styleProp]
         }
     }
 }
 
 export const updateWidgetThemeAndApplyStyle = (widget: IWidget, themes: IDashboardTheme[]) => {
-    if (widget?.settings?.style.id) {
+    if (widget?.settings?.style.themeId) {
         const theme = themes.find((theme: IDashboardTheme) => theme.id === widget.settings.style.themeId)
         if (theme) applySelectedThemeToWidgets([widget], theme)
     }

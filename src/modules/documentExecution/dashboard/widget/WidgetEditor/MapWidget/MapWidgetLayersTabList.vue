@@ -1,7 +1,7 @@
 <template>
     <div v-if="widgetModel" class="dashboard-editor-list-card-container p-my-3 p-ml-3">
         <div class="p-col-12 p-d-flex">
-            <label class="kn-material-input-label p-as-center p-ml-1"> {{ $t('workspace.gis.dnl.layers') }} </label>
+            <label class="kn-material-input-label p-as-center p-ml-1">{{ $t('workspace.gis.dnl.layers') }}</label>
             <Button :label="$t('workspace.gis.dnl.addLayer')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" @click="openLayersDialog" />
         </div>
         <Listbox class="kn-list kn-list-no-border-right dashboard-editor-list" :options="layers" :filter="true" :filter-placeholder="$t('common.search')" :filter-fields="dataListDescriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')">
@@ -21,8 +21,8 @@
                 >
                     <i class="pi pi-bars" :style="dataListDescriptor.style.list.listIcon"></i>
                     <i :style="dataListDescriptor.style.list.listIcon" :class="slotProps.option.type.toLowerCase() === 'dataset' ? 'fas fa-database' : 'fas fa-map'" class="p-ml-2">
-                        <q-tooltip>{{ slotProps.option.type.toLowerCase() === 'dataset' ? $t('common.dataset') : $t('common.layer') }}</q-tooltip></i
-                    >
+                        <q-tooltip>{{ slotProps.option.type.toLowerCase() === 'dataset' ? $t('common.dataset') : $t('common.layer') }}</q-tooltip>
+                    </i>
                     <div class="kn-list-item-text">
                         <span v-tooltip.top="slotProps.option.name" class="dashboard-editor-list-alias-container">{{ slotProps.option.name }}</span>
                     </div>
@@ -44,6 +44,7 @@ import Listbox from 'primevue/listbox'
 import dataListDescriptor from './MapWidgetLayersTabListDescriptor.json'
 
 import deepcopy from 'deepcopy'
+import { removeLayerFromModel } from './MapWidgetLayersTabListHelper'
 
 export default defineComponent({
     name: 'map-widget-layers-list',
@@ -95,23 +96,22 @@ export default defineComponent({
             this.layers.splice(eventData, 1)
             this.layers.splice(dropIndex, 0, temp)
         },
-        addDatasets(datasets: any[]) {
-            datasets.forEach((dataset) => {
-                /*let datasetToAdd = deepcopy(dataListDescriptor.defaultLayerConfig) as IMapWidgetLayer
-                datasetToAdd = 
-                /*datasetToAdd.name = dataset.name
-                datasetToAdd.layerId = dataset.layerId
-                if (dataset.columns) datasetToAdd.columns = dataset.columns
-                if (dataset.)
-                datasetToAdd.id = dataset.id
-                datasetToAdd.type = dataset.type*/
+        addDatasets(datasets: IMapWidgetLayer[]) {
+            const combinedArray = this.layers.concat(datasets)
+            const uniqueObjects = new Map()
 
-                this.layers.push(dataset)
+            combinedArray.forEach((obj) => {
+                uniqueObjects.set(obj.layerId, obj)
             })
+
+            this.layers = Array.from(uniqueObjects.values())
+            this.widgetModel.layers = this.layers
 
             this.closeLayersDialog()
         },
-        deleteLayer(index) {
+
+        deleteLayer(index: number) {
+            removeLayerFromModel(deepcopy(this.layers[index]), this.widgetModel)
             this.layers.splice(index, 1)
         }
     }

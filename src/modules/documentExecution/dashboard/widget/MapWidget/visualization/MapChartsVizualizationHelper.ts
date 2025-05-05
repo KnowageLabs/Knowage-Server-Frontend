@@ -1,6 +1,6 @@
 import { IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { centerTheMap, getColumnName, getCoordinates } from '../LeafletHelper'
+import { getColumnName, getCoordinates, LEGEND_DATA_TYPE } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
 import { getCoordinatesFromWktPointFeature, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 import L from 'leaflet'
@@ -13,31 +13,16 @@ interface IChartValuesRecord {
 
 export type ChartValuesRecord = Record<string, IChartValuesRecord>
 
-export const addMapCharts = (
-    map: any,
-    data: any,
-    model: IWidget,
-    target: IMapWidgetLayer,
-    spatialAttribute: any,
-    geoColumn: string,
-    layerGroup: any,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    markerBounds: any[],
-    layersData: any,
-    targetDatasetData: any,
-    variables: IVariable[],
-    centerMap: boolean = true
-) => {
+export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[]) => {
     if (data && data[target.name] && !targetDatasetData) {
-        addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
+        return addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
     } else {
-        addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, variables, targetDatasetData)
+        return addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, variables, targetDatasetData)
     }
-
-    if (centerMap) centerTheMap(map, markerBounds)
 }
 
 const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {
+    const charts = [] as any[]
     const fieldMetadata = getFieldMapFromMetadata(data[target.name])
 
     const id = 'id-' + performance.now().toString(36) + Math.random().toString(36)
@@ -56,12 +41,15 @@ const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLaye
         })
         const marker = L.marker(getCoordinates(spatialAttribute, row[geoColumn], null), { icon: customIcon }).addTo(layerGroup)
 
-        createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, model)
+        const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, model)
+        charts.push(chart)
 
         addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
         addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
         markerBounds.push(marker.getLatLng())
     }
+
+    return { charts: charts, type: LEGEND_DATA_TYPE.CHARTS }
 }
 
 const getFieldMapFromMetadata = (data: any) => {
@@ -71,6 +59,8 @@ const getFieldMapFromMetadata = (data: any) => {
 const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], targetDatasetData?: any) => {
     let mappedData: Record<string, number> | null = null
     let fieldMetadata: Record<string, string> | null = null
+    const charts = [] as any[]
+
     if (targetDatasetData) {
         if (!layerVisualizationSettings.targetDataset) return
 
@@ -83,16 +73,29 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null, fieldMetadata, variables)
+            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null, fieldMetadata, variables, charts)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord, fieldMetadata, variables)
+                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord, fieldMetadata, variables, charts)
             })
         }
     })
+
+    return { charts: charts, type: LEGEND_DATA_TYPE.CHARTS }
 }
 
-const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null, variables: IVariable[]) => {
+const addChartsUsingLayersPoint = (
+    feature: ILayerFeature,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    mappedData: any,
+    layerGroup: any,
+    widgetModel: IWidget,
+    markerBounds: any[],
+    coord: any[] | null,
+    fieldMetadata: Record<string, string> | null,
+    variables: IVariable[],
+    charts: any[]
+) => {
     const chartValuesRecord = {} as ChartValuesRecord
 
     if (mappedData && fieldMetadata) {
@@ -121,7 +124,8 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     })
     const marker = L.marker(coordinates.reverse(), { icon: customIcon }).addTo(layerGroup)
 
-    createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, widgetModel)
+    const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, widgetModel)
+    charts.push(chart)
 
     addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker)
     addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker)
@@ -131,9 +135,11 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
 
 const createVegaChart = (chartValuesRecord: ChartValuesRecord, layerVisualizationSettings: IMapWidgetVisualizationType, element: HTMLElement, variables: IVariable[], widgetModel: IWidget) => {
     const data = transformChartValuesDataToVegaData(chartValuesRecord) as { category: string; value: number | string }[]
-    const chart = layerVisualizationSettings.pieConf?.type === 'pie' ? createVegaPieChart(data, layerVisualizationSettings, variables, widgetModel) : createVegaBarChart(data, layerVisualizationSettings, variables, widgetModel)
+    const { chart, chartDomains, chartColors } = layerVisualizationSettings.pieConf?.type === 'pie' ? createVegaPieChart(data, layerVisualizationSettings, variables, widgetModel) : createVegaBarChart(data, layerVisualizationSettings, variables, widgetModel)
 
     vegaEmbed(element, chart as any, { renderer: 'svg', actions: false })
+
+    return { chartDomains, chartColors }
 }
 
 const createVegaPieChart = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
@@ -144,7 +150,7 @@ const createVegaPieChart = (data: { category: string; value: number | string }[]
         $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
         width: 30,
         height: 30,
-        data: { values: chartData },
+        data: { values: filteredChartData ?? chartData },
         mark: 'arc',
         encoding: {
             theta: { field: 'value', type: 'quantitative' },
@@ -153,7 +159,7 @@ const createVegaPieChart = (data: { category: string; value: number | string }[]
         config: getVegaChartConfig()
     }
 
-    return vegaPieChart
+    return { chart: vegaPieChart, chartColors, chartDomains }
 }
 
 const createVegaBarChart = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
@@ -174,7 +180,7 @@ const createVegaBarChart = (data: { category: string; value: number | string }[]
         config: getVegaChartConfig()
     }
 
-    return vegaBarChart
+    return { chart: vegaBarChart, chartColors, chartDomains }
 }
 
 const formatChartColorsAndData = (data: { category: string; value: number | string }[], layerVisualizationSettings: IMapWidgetVisualizationType, variables: IVariable[], widgetModel: IWidget) => {
