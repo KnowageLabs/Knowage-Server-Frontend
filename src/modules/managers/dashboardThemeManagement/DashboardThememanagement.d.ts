@@ -8,6 +8,7 @@ export interface IDashboardTheme {
     id: number | null
     themeName: string
     config: IDashboardThemeConfig
+    isDefault: boolean
 }
 
 export interface IDashboardThemeConfig {

@@ -218,6 +218,8 @@ const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration)
 }
 
 export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any, themes: IDashboardTheme[]) => {
+    addDefaultThemeToTheDashboardModel(dashboard, themes)
+
     for (let i = 0; i < dashboard.configuration.variables.length; i++) {
         if (dashboard.configuration.variables[i].type === 'dataset') await setVariableValueFromDataset(dashboard.configuration.variables[i], datasets, $http)
     }
@@ -231,6 +233,11 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     if (store.isEnterprise && (!dashboard.configuration.theme || !dashboard.configuration.theme.id)) dashboard.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     addMissingMenuWidgetsConfiguration(dashboard)
     return dashboard
+}
+
+const addDefaultThemeToTheDashboardModel = (dashboard: IDashboard, themes: IDashboardTheme[]) => {
+    const defaultTheme = themes.find((theme: IDashboardTheme) => theme.isDefault)
+    if (defaultTheme) dashboard.configuration.theme = { ...defaultTheme }
 }
 
 export const addMissingMenuWidgetsConfiguration = (dashboard: IDashboard) => {
