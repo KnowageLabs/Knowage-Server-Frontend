@@ -24,7 +24,7 @@ export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
 
 export const createNewDashboardModel = () => {
     const dashboardModel = deepcopy(descriptor.newDashboardModel) as IDashboard
-    dashboardModel.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
+    if (store.isEnterprise) dashboardModel.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     dashboardModel.configuration.id = crypto.randomUUID()
 
     return dashboardModel
@@ -209,7 +209,7 @@ export const formatDashboardForSave = (dashboard: IDashboard) => {
     const propertiesForDelete = ['allDatasetsLoaded', 'htmlGallery', 'pythonGallery', 'customChartGallery', 'currentView', 'associations', 'drivers', 'crossNavigations', 'document', 'outputParameters']
     propertiesForDelete.forEach((property: string) => delete dashboard[property])
 
-    if (dashboard.configuration.theme) delete dashboard.configuration.theme.config
+    if (store.isEnterprise && dashboard.configuration.theme) delete dashboard.configuration.theme.config
 }
 
 const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration) => {
@@ -224,11 +224,11 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
 
     for (let i = 0; i < dashboard.widgets.length; i++) {
         formatWidget(dashboard.widgets[i])
-        if (themes.length > 0) updateWidgetThemeAndApplyStyle(dashboard.widgets[i], themes)
+        if (store.isEnterprise && themes.length > 0) updateWidgetThemeAndApplyStyle(dashboard.widgets[i], themes)
         if (dashboard.widgets[i].settings.configuration.updateFromSelections === undefined) dashboard.widgets[i].settings.configuration.updateFromSelections = true
     }
 
-    if (!dashboard.configuration.theme || !dashboard.configuration.theme.id) dashboard.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
+    if (store.isEnterprise && (!dashboard.configuration.theme || !dashboard.configuration.theme.id)) dashboard.configuration.theme = { id: null, config: getDefaultDashboardThemeConfig() }
     addMissingMenuWidgetsConfiguration(dashboard)
     return dashboard
 }

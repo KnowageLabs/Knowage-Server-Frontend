@@ -15,7 +15,7 @@
             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
             <MenuWidgets v-if="selectedOption === 'MenuWidgets'" :menu-widgets-config-prop="menuWidgetsConfig" />
             <CssEditor v-if="selectedOption === 'CSS'" :dashboard-model-prop="dashboardModel" />
-            <DashboardThemes v-if="selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
+            <DashboardThemes v-if="isEnterprise && selectedOption === 'Themes'" :dashboard-model-prop="dashboardModel" />
             <div v-if="customHeaderWidgetEditorVisible && customHeaderWidget" class="p-d-flex p-flex-column kn-flex p-mr-3 p-my-3 dashboard-card-shadow kn-overflow dashboard-scrollbar">
                 <span class="p-p-3">
                     <InputSwitch v-model="menuWidgetsConfig.enableCustomHeader" />
@@ -29,7 +29,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IVariable, IDataset, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import DashboardGeneralSettingsList from './DashboardGeneralSettingsList.vue'
 import DashboardInformation from './information/DashboardInformation.vue'
@@ -72,7 +72,9 @@ export default defineComponent({
             menuWidgetsConfig: {} as IMenuAndWidgets
         }
     },
-    computed: {},
+    computed: {
+        ...mapState(mainStore, ['isEnterprise'])
+    },
     watch: {},
     created() {
         this.loadDashboardModel()
@@ -146,7 +148,7 @@ export default defineComponent({
             }
 
             this.dashboardModel.configuration.variables = this.variables
-            if (this.dashboardModel.configuration.theme?.id != null) {
+            if (this.isEnterprise && this.dashboardModel.configuration.theme?.id != null) {
                 const selectedTheme = this.getSelectedTheme(this.dashboardModel.configuration.theme.id)
                 if (selectedTheme) this.dashboardModel.configuration.theme = { ...selectedTheme }
                 applySelectedThemeToWidgets(this.dashboardModel.widgets, this.dashboardModel.configuration.theme)
