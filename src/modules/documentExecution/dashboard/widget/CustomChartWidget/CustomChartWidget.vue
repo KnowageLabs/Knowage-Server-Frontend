@@ -169,6 +169,7 @@ export default defineComponent({
         },
         getUserImportScripts(componentWrapperElement: any) {
             this.userScriptsURLs = []
+            this.addUserScriptsFromLibrariesConfiguration()
             const userImports = componentWrapperElement.getElementsByTagName('kn-import') ?? []
             for (let i = 0; i < userImports.length; i++) {
                 if (userImports.item(i)?.attributes?.src?.textContent) {
@@ -176,6 +177,10 @@ export default defineComponent({
                     this.userScriptsURLs.push(textContent)
                 }
             }
+        },
+        addUserScriptsFromLibrariesConfiguration() {
+            if (!this.propWidget.settings.configuration?.libraries) return
+            this.userScriptsURLs = this.userScriptsURLs.concat(this.propWidget.settings.configuration.libraries)
         },
         insertUsersCssContent() {
             const tempEl = this.iframeDocument.querySelector('.style-wrapper')
@@ -197,7 +202,7 @@ export default defineComponent({
             else this.loadUserImportScript(this.userScriptsURLs[this.loadedScriptsCount])
         },
         loadUserImportScript(scriptURL: string) {
-            if (this.isUserScriptAlreadLoaded(scriptURL)) {
+            if (this.isUserScriptAlreadyLoaded(scriptURL)) {
                 this.onScriptLoaded()
                 return
             }
@@ -213,7 +218,7 @@ export default defineComponent({
             this.loadedScriptsCount++
             this.loadUserImportScripts()
         },
-        isUserScriptAlreadLoaded(scriptURL: string) {
+        isUserScriptAlreadyLoaded(scriptURL: string) {
             let loaded = false
             const loadedScriptElements = this.iframeDocument.getElementsByTagName('script')
             for (let i = 0; i < loadedScriptElements.length; i++) {

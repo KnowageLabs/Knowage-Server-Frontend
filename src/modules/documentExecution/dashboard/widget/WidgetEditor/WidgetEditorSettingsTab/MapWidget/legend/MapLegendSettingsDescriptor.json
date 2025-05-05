@@ -21,6 +21,18 @@
         {
             "label": "dashboard.widgetEditor.map.south",
             "value": "south"
+        },
+        {
+            "label": "dashboard.widgetEditor.map.west",
+            "value": "west"
+        },
+        {
+            "label": "dashboard.widgetEditor.map.east",
+            "value": "east"
+        },
+        {
+            "label": "dashboard.widgetEditor.map.detached",
+            "value": "detached"
         }
     ],
     "toolbarStyleOptions": [

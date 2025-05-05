@@ -15,6 +15,7 @@
                 emit-value
                 map-options
                 :label="$t('dashboard.widgetEditor.map.metadata.coordType')"
+                @update:modelValue="onSpatialAttributeCoordTypeChanged($event)"
             />
             <q-select
                 v-if="spatialAttribute.properties.coordType === 'string'"
@@ -60,6 +61,10 @@ export default defineComponent({
     methods: {
         loadSpatialAttribute() {
             this.spatialAttribute = this.propSpatialAttribute
+        },
+        onSpatialAttributeCoordTypeChanged(coordType: string) {
+            if (!this.spatialAttribute) return
+            if (coordType === 'string' && !this.spatialAttribute.properties.coordFormat) this.spatialAttribute.properties.coordFormat = 'lon lat'
         }
     }
 })

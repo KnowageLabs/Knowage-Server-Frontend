@@ -37,7 +37,7 @@ const getFormattedWidgetSettings = (widget: any) => {
 }
 
 const getFormattedConfiguration = (widget: any) => {
-    return { exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false } as IWidgetExports }
+    return { exports: { showExcelExport: widget.style?.showExcelExport ?? false, showScreenshot: widget.style?.showScreenshot ?? false, libraries: [] } as IWidgetExports }
 }
 
 const getFormattedEditor = (widget: any) => {

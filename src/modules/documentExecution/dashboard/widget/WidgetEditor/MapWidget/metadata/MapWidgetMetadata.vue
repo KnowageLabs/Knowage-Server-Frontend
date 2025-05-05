@@ -10,7 +10,10 @@
 
 <script lang="ts">
 import { PropType, defineComponent } from 'vue'
-import { IMapWidgetLayer, IWidgetMapLayerColumn } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer, IMapWidgetLayerProperty, IWidgetMapLayerColumn } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { mapActions } from 'pinia'
+import { getPropertiesByLayerId } from '../../../MapWidget/MapWidgetDataProxy'
+import appStore from '@/App.store'
 import MapWidgetMetadataSpatialAttribute from './MapWidgetMetadataSpatialAttribute.vue'
 import MapWidgetMetadataFields from './MapWidgetMetadataFields.vue'
 import MapWidgetMetadataProperties from './MapWidgetMetadataProperties.vue'
@@ -25,7 +28,7 @@ export default defineComponent({
         return {
             layer: null as IMapWidgetLayer | null,
             spatialAttribute: null as IWidgetMapLayerColumn | null,
-            fields: [] as any[]
+            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>()
         }
     },
     watch: {
@@ -37,14 +40,40 @@ export default defineComponent({
         this.loadLayer()
     },
     methods: {
-        loadLayer() {
+        ...mapActions(appStore, ['setLoading']),
+        async loadLayer() {
             this.layer = this.selectedLayer
             this.loadSpatialAttribute()
+            await this.loadAvailableProperties()
         },
         loadSpatialAttribute() {
             if (!this.layer || !this.layer.columns) return
             const index = this.layer.columns.findIndex((column: IWidgetMapLayerColumn) => column.fieldType === 'SPATIAL_ATTRIBUTE')
-            if (index !== -1) this.spatialAttribute = this.layer.columns[index]
+            if (index !== -1) {
+                this.spatialAttribute = this.layer.columns[index]
+                this.setDefaultSpatialAttributeOptions()
+            }
+        },
+        setDefaultSpatialAttributeOptions() {
+            if (!this.spatialAttribute) return
+            if (!this.spatialAttribute.properties.coordType) {
+                this.spatialAttribute.properties.coordType = 'string'
+                this.spatialAttribute.properties.coordFormat = 'lon lat'
+            }
+        },
+        async loadAvailableProperties() {
+            if (!this.layer) return
+
+            if (this.propertiesCache.has(this.layer.layerId)) {
+                this.layer.properties = this.propertiesCache.get(this.layer.layerId)
+                return
+            }
+
+            this.setLoading(true)
+            const properties = await getPropertiesByLayerId(+this.layer.id)
+            this.setLoading(false)
+            this.propertiesCache.set(this.layer.layerId, properties)
+            this.layer.properties = properties
         }
     }
 })

@@ -21,6 +21,19 @@ const dashStore = dashboardStore()
 const appStore = useAppStore()
 const { t } = i18n.global
 
+export enum LEGEND_DATA_TYPE {
+    BALLOONS_INTERVALS = 'BALLOONS_INTERVALS',
+    BALLOONS_QUANTILES = 'BALLOONS_QUANTILES',
+    BALLOONS_RANGES = 'BALLOONS_RANGES',
+    CHARTS = 'CHARTS',
+    HEATMAP = 'HEATMAP',
+    CHOROPLETH_INTERVALS = ' CHOROPLETH_INTERVALS',
+    CHOROPLETH_QUANTILES = ' CHOROPLETH_QUANTILES',
+    CHOROPLETH_RANGES = ' CHOROPLETH_RANGES'
+}
+
+const legendData = {} as Record<string, any>
+
 // Used in the Map Visualization Helper to determine which of the three use cases is selected in the settings.
 // There is no explicit model property.
 export enum VisualizationDataType {
@@ -31,13 +44,6 @@ export enum VisualizationDataType {
 
 export function getColumnName(column, data) {
     return data?.metaData?.fields?.find((field) => field.header === column).name
-}
-
-function isConditionValid(operator: string, measureValue: any, value: any): boolean {
-    if (operator === '=') return measureValue == value
-    if (operator === '>') return measureValue > value
-    if (operator === '<') return measureValue < value
-    return false
 }
 
 // Used for adding a marker to Leaflet. If there is no MEASURE data (e.g., when only Geography is needed),
@@ -126,6 +132,8 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[]) {
     try {
         const markerBounds = [] as any
+        const bounds = L.latLngBounds()
+        let centerMap = model.settings?.configuration?.map?.autoCentering
         for (const layer of model.settings.visualizations) {
             const layerVisualizationSettings = deepcopy(layer)
             let reloadWithFilters = false
@@ -208,36 +216,42 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             const layerGroup = L.layerGroup().addTo(map)
             layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
 
-            const zoomMap = !reloadWithFilters && model.settings?.configuration?.map?.autoCentering
+            if (reloadWithFilters) centerMap = false
 
             if (layerVisualizationSettings.type === 'markers') {
-                addMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
+                addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'balloons') {
-                addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, zoomMap)
+                const baloonsData = addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables)
+                legendData[layerVisualizationSettings.id] = baloonsData
             }
 
             if (layerVisualizationSettings.type === 'pies') {
-                addMapCharts(map, data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
+                const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                legendData[layerVisualizationSettings.id] = chartsData
             }
 
             if (layerVisualizationSettings.type === 'clusters') {
-                addClusters(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, zoomMap)
+                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
             }
 
             if (layerVisualizationSettings.type === 'heatmap') {
-                createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, zoomMap)
+                const heatmapData = createHeatmapVisualization(map, data, target, dataColumn, spatialAttribute, geoColumn, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, centerMap)
+                legendData[layerVisualizationSettings.id] = heatmapData
             }
 
             if (layerVisualizationSettings.type === 'choropleth') {
-                createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, zoomMap)
+                const choroplethData = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds)
+                legendData[layerVisualizationSettings.id] = choroplethData
             }
 
             if (layerVisualizationSettings.type === 'geography') {
-                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map)
+                addGeography(data, target, dataColumn, spatialAttribute, geoColumn, layerGroup, markerBounds, layersData, map, bounds)
             }
         }
+
+        if (centerMap) centerTheMap(map, markerBounds, bounds)
     } catch (error: any) {
         console.log('------- ERROR - initializeLayers:', error)
         // TODO - add if needed for user
@@ -245,13 +259,30 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
         //     title: t('common.toast.errorTitle'),
         //     msg: error ? error.message : ''
         // })
+    } finally {
+        return legendData
     }
 }
 
-export const centerTheMap = (map: any, markerBounds: any[] | null) => {
+const centerTheMap = (map: any, markerBounds: any[] | null, bounds: any) => {
     setTimeout(() => {
         map.invalidateSize()
-        if (markerBounds && markerBounds.length > 0) map.fitBounds(L.latLngBounds(markerBounds))
+
+        const combinedBounds = L.latLngBounds([])
+
+        if (markerBounds && markerBounds.length > 0) {
+            combinedBounds.extend(L.latLngBounds(markerBounds))
+        }
+
+        if (bounds.isValid()) {
+            combinedBounds.extend(bounds)
+        }
+
+        if (combinedBounds.isValid()) {
+            map.fitBounds(combinedBounds)
+        }
+
+        map.invalidateSize()
     }, 100)
 }
 

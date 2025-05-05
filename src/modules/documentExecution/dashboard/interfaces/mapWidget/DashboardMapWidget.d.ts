@@ -32,6 +32,7 @@ export interface IMapWidgetControlPanel {
 }
 
 export interface IMapWidgetVisualizationType {
+    id?: string
     target: string
     targetType?: string
     targetDataset?: string
@@ -147,40 +148,22 @@ export interface IMapWidgetConditionalStyle {
 
 export interface IMapWidgetLegend {
     enabled: boolean
-    visualizationType: string
     position: string
-    alignment: string
-    prefix: string
-    suffix: string
-    precision: number
-    title: IMapWidgetLegendTitle
-    text: IMapWidgetLegendText
+    title: string
+    visualizationTypes: IMapWidgetVisualizationTypeLegendSettings[]
+}
+
+export interface IMapWidgetVisualizationTypeLegendSettings {
+    visualizationType: IMapWidgetVisualizationType | null
+    text: string
 }
 
 export interface IMapWidgetLegendTitle {
     text: string
-    style: {
-        'justify-content': string
-        'font-family': string
-        'font-size': string
-        'font-style': string
-        'font-weight': string
-        color: string
-        'background-color': string
-    }
 }
 
 export interface IMapWidgetLegendText {
     text: string
-    style: {
-        'justify-content': string
-        'font-family': string
-        'font-size': string
-        'font-style': string
-        'font-weight': string
-        color: string
-        'background-color': string
-    }
 }
 
 export interface IMapDialogSettings {

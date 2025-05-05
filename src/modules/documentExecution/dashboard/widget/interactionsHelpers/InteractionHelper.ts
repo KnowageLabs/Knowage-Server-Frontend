@@ -35,6 +35,7 @@ export const updateAllStoreSelections = (newSelections: ISelection[], currentAct
 
 const updateActiveSelections = (newSelection: ISelection, currentActiveSelections: ISelection[]) => {
     const index = currentActiveSelections.findIndex((activeSelection: ISelection) => activeSelection.datasetId === newSelection.datasetId && activeSelection.columnName === newSelection.columnName)
+    if (index !== -1 && currentActiveSelections[index].locked) newSelection.locked = currentActiveSelections[index].locked
     if (index !== -1 && areSelectionValuesEqual(currentActiveSelections[index].value, newSelection.value)) return false // dont update selection if values are the same
     index !== -1 ? (currentActiveSelections[index] = newSelection) : currentActiveSelections.push(newSelection) // update selection if values are different
     return true
