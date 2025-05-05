@@ -59,8 +59,9 @@ export const applyStylesToWidget = (widgetStyle, theme: IDashboardTheme, themeSt
     widgetStyle.themeName = theme.themeName
     for (const styleProp in themeStyle.style) {
         if (styleProp === 'title') {
+            const originalText = widgetStyle[styleProp].text
             const { text, ...rest } = themeStyle.style[styleProp]
-            widgetStyle[styleProp] = rest
+            widgetStyle[styleProp] = { ...rest, text: originalText }
         } else {
             widgetStyle[styleProp] = themeStyle.style[styleProp]
         }
