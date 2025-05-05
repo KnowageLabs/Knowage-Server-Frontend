@@ -7,7 +7,9 @@ import { applyStylesToWidget } from '../../../generalSettings/themes/ThemesHelpe
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import descriptor from '../WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
+import useStore from '@/App.store'
 
+const store = useStore()
 const dashStore = dashboardStore()
 
 export const changeChartType = (chartType: string, widget: IWidget, isEnterprise: boolean) => {
@@ -36,9 +38,9 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
         widget.settings.chartModel = createChartJSModel(chartType)
     }
 
-    widget.settings.style.themeId = selectedThemeId
+    if (store.isEnterprise) widget.settings.style.themeId = selectedThemeId
     widget.settings.style = originalChartStyle
-    reapplyThemeToChartWidget(widget, selectedThemeId)
+    if (store.isEnterprise) reapplyThemeToChartWidget(widget, selectedThemeId)
 
     emitter.emit('chartTypeChanged', widget)
     emitter.emit('refreshWidgetWithData', widget.id)

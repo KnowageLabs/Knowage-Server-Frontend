@@ -4,8 +4,7 @@ const routes = [
         name: 'dashboard-theme-management',
         component: () => import('@/modules/managers/dashboardThemeManagement/DashboardThemeManagement.vue'),
         meta: {
-            enterprise: true,
-            licenses: ['SI']
+            enterprise: true
         }
     }
 ]

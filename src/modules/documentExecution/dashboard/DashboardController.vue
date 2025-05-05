@@ -475,6 +475,7 @@ export default defineComponent({
             this.setProfileAttributes(this.profileAttributes)
         },
         async loadDashboardThemes() {
+            if (!this.isEnterprise) return
             this.dashboardThemes = []
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardtheme`).then((response: AxiosResponse<any>) => {
                 this.dashboardThemes = response.data

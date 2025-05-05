@@ -1,5 +1,5 @@
 <template>
-    <div class="kn-page--row p-grid p-m-0 kn-theme-management">
+    <div v-if="isEnterprise" class="kn-page--row p-grid p-m-0 kn-theme-management">
         <div class="kn-list--column kn-page p-col-2 p-sm-2 p-md-3 p-p-0">
             <Toolbar class="kn-toolbar kn-toolbar--primary">
                 <template #start>Dashboard {{ $t('managers.themeManagement.title') }}</template>
@@ -75,15 +75,23 @@ export default defineComponent({
         }
     },
     computed: {
-        ...mapState(mainStore, ['defaultTheme'])
+        ...mapState(mainStore, ['defaultTheme', 'isEnterprise'])
     },
-    mounted() {
+    async mounted() {
         this.loading = true
+        await this.checkIfTheUserCanSeeThemes()
         this.getAllThemes()
         this.loading = false
     },
     methods: {
         ...mapActions(mainStore, ['setInfo', 'setTheme']),
+        async checkIfTheUserCanSeeThemes() {
+            await new Promise((resolve) => setTimeout(resolve, 2000))
+            if (!this.isEnterprise) {
+                this.$router.back()
+                this.loading = false
+            }
+        },
         triggerInputFile(value) {
             this.triggerInput = value
         },
