@@ -81,11 +81,7 @@ router.afterEach(async () => {
 })
 
 router.beforeEach(async (to, from, next) => {
-    console.log('----- CALLED 1')
-
     const store = mainStore()
-
-    await store.readyPromise
 
     const checkRequired = !('/' == to.fullPath && '/' == from.fullPath)
     const loggedIn = localStorage.getItem('token')
