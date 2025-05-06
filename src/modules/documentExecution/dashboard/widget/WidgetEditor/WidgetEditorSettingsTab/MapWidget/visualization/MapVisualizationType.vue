@@ -119,7 +119,7 @@
 
                     <hr class="kn-width-full p-my-2" />
 
-                    <VisTypeConfig :widget-model="widgetModel" :vis-type-prop="visType" />
+                    <VisTypeConfig :widget-model="widgetModel" :vis-type-prop="visType" @marker-configuration-updated="onMarkerConfigurationUpdated(visType)" />
                 </div>
             </div>
 
@@ -364,6 +364,9 @@ export default defineComponent({
                 const newIndex = sourceRowIndex > targetRowIndex && position === 'after' ? targetRowIndex + 1 : targetRowIndex
                 this.visualizationTypeModel.splice(newIndex, 0, this.visualizationTypeModel.splice(sourceRowIndex, 1)[0])
             }
+        },
+        onMarkerConfigurationUpdated(visualizationType: IMapWidgetVisualizationType) {
+            this.updateMapWidgetLegendWithSepecificModel(visualizationType)
         }
     }
 })

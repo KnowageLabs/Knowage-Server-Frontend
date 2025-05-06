@@ -1,6 +1,6 @@
 <template>
     <div class="p-d-flex p-flex-column">
-        <MapVisualizationTypeMarkers v-if="visType.type === 'markers'" :marker-config-prop="visTypeProp.markerConf" />
+        <MapVisualizationTypeMarkers v-if="visType.type === 'markers'" :marker-config-prop="visTypeProp.markerConf" @marker-configuration-updated="$emit('marker-configuration-updated')" />
         <MapVisualizationTypeBalloonsChoropleth v-else-if="visType.type === 'balloons'" :prop-visualization-type-configuration="visType.balloonConf ?? null" type="balloons"></MapVisualizationTypeBalloonsChoropleth>
         <MapVisualizationTypePie v-else-if="visType.type === 'pies'" :widget-model="widgetModel" :vis-type-prop="visType ?? null" :layer-properties="visType.properties" :dataset-columns="[]"></MapVisualizationTypePie>
         <MapVisualizationTypeClusters v-if="visType.type === 'clusters'" :cluster-config-prop="visTypeProp.clusterConf" :marker-config-prop="visTypeProp.markerConf" />
@@ -24,7 +24,7 @@ export default defineComponent({
     name: 'map-visualization-type',
     components: { MapVisualizationTypeMarkers, MapVisualizationTypeClusters, MapVisualizationTypeHeatmap, MapVisualizationTypeBalloonsChoropleth, MapVisualizationTypePie },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, visTypeProp: { type: Object as PropType<IMapWidgetVisualizationType>, required: true } },
-    emits: [],
+    emits: ['marker-configuration-updated'],
     data() {
         return {
             descriptor,
