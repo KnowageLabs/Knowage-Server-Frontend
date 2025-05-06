@@ -1,0 +1,169 @@
+{
+    "additionalFunctions": [
+        {
+            "category": "NULLIF",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "NULLIF(field, expr)",
+            "help": "dataPreparation.nullIf",
+            "label": "NULLIF",
+            "name": "NULLIF"
+        }
+    ],
+    "availableFunctions": [
+        {
+            "category": "AGGREGATION",
+            "formula": "sum(expr1, expr2, …, exprN)",
+            "help": "dataPreparation.sum",
+            "label": "SUM",
+            "name": "SUM",
+            "output": "Number"
+        },
+        {
+            "category": "AGGREGATION",
+            "formula": "min(expr)",
+            "help": "dataPreparation.min",
+            "label": "MIN",
+            "name": "MIN",
+            "output": "Number"
+        },
+        {
+            "category": "AGGREGATION",
+            "formula": "max(expr)",
+            "help": "dataPreparation.max",
+            "label": "MAX",
+            "name": "MAX"
+        },
+        {
+            "category": "AGGREGATION",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "COUNT(column_name)",
+            "help": "dataPreparation.count",
+            "label": "COUNT",
+            "name": "COUNT"
+        },
+        {
+            "category": "AGGREGATION",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "COUNT(DISTINCT column_name)",
+            "help": "dataPreparation.countDistinct",
+            "label": "COUNT_DISTINCT",
+            "name": "COUNT_DISTINCT"
+        },
+        {
+            "category": "AGGREGATION",
+            "formula": "AVG(expr)",
+            "help": "dataPreparation.avg",
+            "label": "AVG",
+            "name": "AVG"
+        },
+        {
+            "category": "TOTALS",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "TOTAL_SUM(expr)",
+            "help": "dataPreparation.totalSum",
+            "label": "TOTAL_SUM",
+            "name": "TOTAL_SUM"
+        },
+        {
+            "category": "TOTALS",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "TOTAL_AVG(expr)",
+            "help": "dataPreparation.totalAge",
+            "label": "TOTAL_AVG",
+            "name": "TOTAL_AVG"
+        },
+        {
+            "category": "TOTALS",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "TOTAL_MIN(expr)",
+            "help": "dataPreparation.totalAge",
+            "label": "TOTAL_MIN",
+            "name": "TOTAL_MIN"
+        },
+        {
+            "category": "TOTALS",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "TOTAL_MAX(expr)",
+            "help": "dataPreparation.totalAge",
+            "label": "TOTAL_MAX",
+            "name": "TOTAL_MAX"
+        },
+        {
+            "category": "TOTALS",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "TOTAL_COUNT(expr)",
+            "help": "dataPreparation.totalAge",
+            "label": "TOTAL_COUNT",
+            "name": "TOTAL_COUNT"
+        },
+        {
+            "category": "TOTALS",
+            "exclude": ["SbiSolrDataSet"],
+            "formula": "TOTAL_COUNT_DISTINCT(expr)",
+            "help": "dataPreparation.totalAge",
+            "label": "TOTAL_COUNT_DISTINCT",
+            "name": "TOTAL_COUNT_DISTINCT"
+        }
+    ],
+    "availableOutputTypes": [
+        {
+            "code": "string",
+            "label": "string"
+        },
+        {
+            "code": "numeric",
+            "label": "numeric"
+        },
+        {
+            "code": "date",
+            "label": "date"
+        }
+    ],
+    "category": {
+        "label": "category"
+    },
+    "formula": "dataPreparation.formula",
+    "hint": "dataPreparation.hint",
+    "validations": [
+        {
+            "fieldName": "colName",
+            "validators": [
+                {
+                    "key": "required"
+                },
+                {
+                    "key": "maximumCharacters",
+                    "validator": {
+                        "params": {
+                            "max": 100
+                        },
+                        "type": "maxLength"
+                    }
+                },
+                {
+                    "key": "regex",
+                    "validator": {
+                        "type": "extendedAlphanumericRegex"
+                    }
+                }
+            ]
+        },
+        {
+            "fieldName": "formula",
+            "validators": [
+                {
+                    "key": "required"
+                },
+                {
+                    "key": "maximumCharacters",
+                    "validator": {
+                        "params": {
+                            "max": 1000
+                        },
+                        "type": "maxLength"
+                    }
+                }
+            ]
+        }
+    ]
+}

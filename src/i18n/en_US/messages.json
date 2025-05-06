@@ -23,6 +23,7 @@
     "common": {
         "active": "Active",
         "add": "Add",
+        "addCalculatedField": "Add calculated field",
         "addColumn": "Add column",
         "addNew": "Add new",
         "advanced": "Advanced",
