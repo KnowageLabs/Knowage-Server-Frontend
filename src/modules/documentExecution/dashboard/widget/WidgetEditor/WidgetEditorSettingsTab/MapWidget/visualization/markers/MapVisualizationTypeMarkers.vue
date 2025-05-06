@@ -66,7 +66,7 @@ export default defineComponent({
     name: 'map-visualization-type',
     components: { WidgetEditorColorPicker, InputNumber, WidgetEditorStyleIconPickerDialog, MapVisualizationImagePickerDialog },
     props: { markerConfigProp: { type: Object as PropType<IMapWidgetVisualizationTypeMarker | undefined>, required: true } },
-    emits: [],
+    emits: ['marker-configuration-updated'],
     data() {
         return {
             descriptor,
@@ -89,10 +89,12 @@ export default defineComponent({
         },
         selectMarkerType(markerType: string) {
             this.markerConfig.type = markerType
+            this.$emit('marker-configuration-updated')
         },
         updateMarkerColor(event: string | null) {
             if (!event || !this.markerConfig) return
             this.markerConfig.style.color = event
+            this.$emit('marker-configuration-updated')
         },
         getPreviewStyle() {
             return `color:${this.markerConfig.style.color}; font-size: 1.5rem;`
@@ -116,11 +118,13 @@ export default defineComponent({
         onIconSelected(icon: IIcon) {
             this.markerConfig.icon = icon
             this.iconPickerDialogVisible = false
+            this.$emit('marker-configuration-updated')
         },
         onSetImage(image: IImage | undefined) {
             if (!image) return
             this.markerConfig.img = `${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services` + image.url
             this.imagePickerDialogVisible = false
+            this.$emit('marker-configuration-updated')
         }
     }
 })
