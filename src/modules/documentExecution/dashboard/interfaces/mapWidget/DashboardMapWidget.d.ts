@@ -254,6 +254,7 @@ export interface IMapWidgetLayerProperty {
 }
 
 export interface IWidgetMapLayerColumn {
+    id?: string
     name: string
     alias: string
     type: string

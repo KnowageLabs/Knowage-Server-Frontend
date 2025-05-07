@@ -2,7 +2,7 @@ import { IDashboardConfiguration, IDashboardDataset, ISelection, IWidget } from 
 import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula } from '../../DashboardDataProxy'
 import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
-import { IMapWidgetLayer } from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetLayer, IWidgetMapLayerColumn } from '../../interfaces/mapWidget/DashboardMapWidget'
 import axios from 'axios'
 import mockedDataset from './mockedDataset.json'
 import mockedPolygonDataset from './mockedPolygonDataset.json'
@@ -16,8 +16,6 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
     const usedDatasets = datasets.filter((e) => datasetsInWidget.includes(e.dsLabel))
 
     for (const selectedDataset of usedDatasets) {
-        console.log('___________________ SELECTED DATASET: ', selectedDataset)
-
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatMapModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
@@ -66,14 +64,15 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     const datasetWithColumns = widget.layers.find((layer: IMapWidgetLayer) => layer.name === dataset.dsLabel)
     console.log('___________________ datasetWithColumns: ', datasetWithColumns)
 
-    datasetWithColumns.columns.forEach((column) => {
+    datasetWithColumns.columns.forEach((column: IWidgetMapLayerColumn) => {
+        console.log('------ COLUMN: ', column)
         if (column.fieldType === 'MEASURE') {
-            const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
+            const measureToPush = { id: column.alias, alias: column.alias, columnName: column.name, funct: column.aggregationSelected, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
 
             dataToSend.aggregations.measures.push(measureToPush)
         } else {
-            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any
+            const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.name, orderType: '', funct: 'NONE' } as any
             column.id === widget.settings.sortingColumn ? (attributeToPush.orderType = widget.settings.sortingOrder) : ''
 
             dataToSend.aggregations.categories.push(attributeToPush)
