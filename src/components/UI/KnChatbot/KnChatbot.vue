@@ -6,10 +6,10 @@
 
             <div class="column col">
                 <div ref="chatContainer" class="col q-ma-sm overflow-y-auto">
-                    <q-chat-message v-for="message in chat" :name="message.name" :avatar="message.avatar" :sent="message.name != 'AI'">
-                        <div>{{ message.text[0] }}</div>
-                        <div v-if="message.link" class="text-center">
-                            <q-btn flat color="black" size="md" :label="$t('dashboark link')" @click="followLink(message.link)" />
+                    <q-chat-message v-for="message in chat" :name="message.role === 'assistant' ? 'AI' : message.role" :avatar="message.role === 'assistant' ? avatarImg : undefined" :sent="message.role === 'user'">
+                        <div>{{ message.content }}</div>
+                        <div v-if="message.url" class="text-center">
+                            <q-btn flat color="black" size="md" :label="$t('dashboark link')" @click="followLink(message.url)" />
                         </div>
                     </q-chat-message>
                     <q-chat-message v-if="awaitingReply" name="AI" :avatar="avatarImg">
@@ -17,8 +17,8 @@
                     </q-chat-message>
                 </div>
                 <div class="row q-gutter-sm">
-                    <q-input outlined dense square placeholder="type your message" class="col" v-model.trim="userMessage" @keyup.enter="simulateMessage" />
-                    <q-btn outline color="primary" icon="send" @click="simulateMessage" />
+                    <q-input outlined dense square placeholder="type your message" class="col" v-model.trim="userMessage" @keyup.enter="sendMessage" />
+                    <q-btn outline color="primary" icon="send" @click="sendMessage" />
                 </div>
             </div>
         </div>
@@ -27,20 +27,24 @@
 </template>
 
 <script setup lang="ts">
+import mainStore from '@/App.store'
+import axios from 'axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { IChat } from './KnChatbot'
 import avatarImg from '@/assets/images/chatbot/chatty.webp'
 
 const router = useRouter()
+const store = mainStore()
 
 const showAlert = ref(false)
 const awaitingReply = ref(false)
 const userMessage = ref('')
-const chat = ref([
+const chat = ref<IChat[]>([
     {
-        name: 'AI',
-        text: ['Hello, how can I help you?'],
-        avatar: avatarImg
+        role: 'assistant',
+        content: 'Hello, how can I help you?',
+        turnId: 1
     }
 ]) as any
 
@@ -52,23 +56,53 @@ function followLink(url) {
     router.push(url)
 }
 
-function simulateMessage() {
+function sendMessage() {
     if (userMessage.value === '') return
-    chat.value.push({
-        name: 'User',
-        text: [userMessage.value]
-    })
-    userMessage.value = ''
     awaitingReply.value = true
-    setTimeout(() => {
-        chat.value.push({
-            name: 'AI',
-            text: [`Just for this demo purpose, I will provide you a useful link to the KNOWAGE 9.0 release!`],
-            link: '/dashboard/welcome?organization=DEFAULT_TENANT&toolbar=false&menu=true&role=admin&finalUser=true',
-            avatar: avatarImg
+    chat.value.push({
+        role: 'user',
+        content: userMessage.value,
+        turnId: 1
+    })
+
+    axios
+        .post(store.configurations['KNOWAGE.AI.URL'] + '/bot_response', {
+            tenant: store.user.organization,
+            role: store.user.defaultRole || store.user.roles[0],
+            pathQuestion: router.currentRoute.value.path,
+            promptUser: userMessage.value,
+            conversationHistory: chat.value,
+            timestamp: new Date().toISOString()
         })
-        awaitingReply.value = false
-    }, 5000)
+        .then((response) => {
+            if (response.data) {
+                let tempResponse: IChat = {
+                    role: response.data.role,
+                    content: response.data.response,
+                    turnId: 1
+                }
+                if (response.data.urlDashboard) {
+                    tempResponse.url = response.data.urlDashboard
+                }
+            } else {
+                chat.value.push({
+                    role: 'assistant',
+                    content: 'Sorry, I cannot help you with that.',
+                    turnId: 1
+                })
+            }
+            console.log(response.data)
+        })
+        .catch((error) => {
+            chat.value.push({
+                role: 'assistant',
+                content: 'Sorry, I cannot help you with that.',
+                turnId: 1
+            })
+        })
+        .finally(() => (awaitingReply.value = false))
+
+    userMessage.value = ''
 }
 </script>
 

@@ -52,7 +52,7 @@ export default defineComponent({
             warning: 'warning',
             user: 'user',
             loading: 'loading',
-            localse: 'locale',
+            locale: 'locale',
             isEnterprise: 'isEnterprise',
             documentExecution: 'documentExecution',
             theme: 'theme',

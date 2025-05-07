@@ -189,6 +189,7 @@
         "modify": "modify",
         "move": "Move",
         "name": "Name",
+        "never": "Never",
         "new": "new",
         "next": "next",
         "no": "No",
@@ -2234,6 +2235,11 @@
         "weekHeader": "Wk"
     },
     "managers": {
+        "ai": {
+            "hint": " AI functionalities management allows you to manage the AI functionalities of the platform. You can enable or disable them, and update the tenant definitions for the AI engine.",
+            "syncronize": "Synchronize Tenant",
+            "title": "AI functionalities management"
+        },
         "bml": {
             "drivers": "Analytical Drivers",
             "lovsTitle": "Lovs",
