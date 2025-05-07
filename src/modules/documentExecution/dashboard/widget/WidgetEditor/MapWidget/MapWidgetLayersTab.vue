@@ -1,11 +1,11 @@
 <template>
     <LayersList :widget-model="widget" :datasets="datasets" :selected-datasets="selectedDatasets" @layerSelected="setSelectedLayer"></LayersList>
-    <MapWidgetLayerDetail id="map-widget-layer-detail" class="p-d-flex kn-flex kn-overflow p-p-3" :selected-layer="selectedLayer" :layers="layers"></MapWidgetLayerDetail>
+    <MapWidgetLayerDetail id="map-widget-layer-detail" class="p-d-flex kn-flex kn-overflow p-p-3" :selected-layer="selectedLayer" :layers="layers" :prop-widget="propWidget" :variables="variables"></MapWidgetLayerDetail>
 </template>
 
 <script lang="ts">
 import { PropType, defineComponent } from 'vue'
-import { IDataset, IWidget } from '../../../Dashboard'
+import { IDataset, IWidget, IVariable } from '../../../Dashboard'
 import { mapState } from 'pinia'
 import { ILayer, IMapWidgetLayer } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import mainStore from '@/App.store'
@@ -29,7 +29,8 @@ export default defineComponent({
                 return []
             }
         },
-        layers: { type: Array as PropType<ILayer[]>, required: true }
+        layers: { type: Array as PropType<ILayer[]>, required: true },
+        variables: { type: Array as PropType<IVariable[]>, required: true }
     },
     data() {
         return {

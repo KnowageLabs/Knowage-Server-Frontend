@@ -276,6 +276,7 @@ export interface IWidgetMapLayerColumn {
     aliasToShow: string
     aggregationSelected?: string
     deleted?: boolean
+    formula?: string
 }
 
 export interface ILayerFeature {

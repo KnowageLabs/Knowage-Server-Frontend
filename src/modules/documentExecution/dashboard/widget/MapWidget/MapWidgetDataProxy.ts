@@ -8,12 +8,16 @@ import mockedDataset from './mockedDataset.json'
 import mockedPolygonDataset from './mockedPolygonDataset.json'
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+    console.log('___________________ widget: ', widget)
+
     const tempResponse = {}
     const datasetOnly = widget.layers.filter((e) => e.type === 'dataset')
     const datasetsInWidget = datasetOnly.map((e) => e.name)
     const usedDatasets = datasets.filter((e) => datasetsInWidget.includes(e.dsLabel))
 
     for (const selectedDataset of usedDatasets) {
+        console.log('___________________ SELECTED DATASET: ', selectedDataset)
+
         const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=0&size=-1&nearRealtime=true`
 
         const postData = formatMapModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
@@ -59,7 +63,10 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend)
 
-    widget.columns.forEach((column) => {
+    const datasetWithColumns = widget.layers.find((layer: IMapWidgetLayer) => layer.name === dataset.dsLabel)
+    console.log('___________________ datasetWithColumns: ', datasetWithColumns)
+
+    datasetWithColumns.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
@@ -72,6 +79,8 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
             dataToSend.aggregations.categories.push(attributeToPush)
         }
     })
+
+    console.log('___________________ dataToSend: ', dataToSend)
 
     return dataToSend
 }
