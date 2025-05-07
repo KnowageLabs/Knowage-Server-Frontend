@@ -1,5 +1,5 @@
 <template>
-    <div v-if="(selectionIsLocked || playSelectionButtonVisible) && inFocus" class="lockButtonContainer" @mouseover="$emit('changeFocus', true)" @mouseleave="$emit('changeFocus', false)">
+    <div v-if="(selectionIsLocked || playSelectionButtonVisible) && inFocus && !hideSelectionLock" class="lockButtonContainer" @mouseover="$emit('changeFocus', true)" @mouseleave="$emit('changeFocus', false)">
         <i v-if="selectionIsLocked" class="fas fa-lock kn-cursor-pointer click-icon" @click="$emit('unlockSelection')" />
         <i v-if="playSelectionButtonVisible" class="fas fa-play kn-cursor-pointer click-icon" @click="$emit('launchSelection')" />
     </div>
@@ -47,7 +47,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IDashboard, IMenuItem, IWidget, IWidgetHelpSettings } from '../Dashboard'
 import { mapActions } from 'pinia'
-import store from '@/modules/documentExecution/dashboard/Dashboard.store'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { canEditDashboard } from '../DashboardHelpers'
 
 export default defineComponent({
@@ -63,6 +63,10 @@ export default defineComponent({
         menuItems: { type: Object as PropType<IMenuItem[]> }
     },
     emits: ['editWidget', 'unlockSelection', 'launchSelection', 'changeFocus'],
+    setup() {
+        const store = dashboardStore()
+        return { store }
+    },
     data() {
         return {
             qMenuShown: false,
@@ -80,10 +84,28 @@ export default defineComponent({
         },
         helpConfig(): IWidgetHelpSettings {
             return this.widget?.settings?.help
+        },
+        hideSelectionLock(): boolean {
+            return this.document.seeAsFinalUser && this.isSelectionLocked
+        },
+        isSelectionLocked(): boolean {
+            if (this.widget.type !== 'selector') return false
+
+            const selections = this.store.getSelections(this.dashboardId)
+            const currentWidget = this.widget
+            if (!selections || !selections.length || !currentWidget) return false
+
+            const widgetDatasetId = currentWidget.dataset
+            const widgetColumnName = currentWidget.columns && currentWidget.columns.length > 0 ? currentWidget.columns[0].columnName : null
+            if (!widgetDatasetId || !widgetColumnName) return false
+
+            const matchingSelection = selections.find((selection) => selection.datasetId === widgetDatasetId && selection.columnName === widgetColumnName && selection.value && selection.value.length > 0)
+            if (matchingSelection) return matchingSelection.locked
+            else return false
         }
     },
     methods: {
-        ...mapActions(store, ['getDashboard']),
+        ...mapActions(dashboardStore, ['getDashboard', 'getSelections']),
         toggle(event) {
             const menu = this.$refs.widgetmenu as any
             menu.toggle(event)
