@@ -218,7 +218,7 @@ const formatVariablesForSave = (dashboardConfiguration: IDashboardConfiguration)
 }
 
 export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[], $http: any, themes: IDashboardTheme[]) => {
-    addDefaultThemeToTheDashboardModel(dashboard, themes)
+    if (!dashboard.configuration.theme || !dashboard.configuration.theme.id) addDefaultThemeToTheDashboardModel(dashboard, themes)
 
     for (let i = 0; i < dashboard.configuration.variables.length; i++) {
         if (dashboard.configuration.variables[i].type === 'dataset') await setVariableValueFromDataset(dashboard.configuration.variables[i], datasets, $http)
