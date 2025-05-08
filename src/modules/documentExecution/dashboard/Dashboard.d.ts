@@ -850,3 +850,60 @@ export interface IWidgetHelpSettings {
     popupWidth: string
     popupHeight: string
 }
+
+export interface SelectorDataMap {
+    [widgetId: string]: SelectorDataContainer
+}
+
+export interface SelectorDataContainer {
+    widgetData: WidgetData
+    selectorOptions: SelectorOption[]
+    initialData: WidgetData
+}
+
+export interface WidgetData {
+    metaData: MetaData
+    results: number
+    rows: Row[]
+    stats: Stats
+    initialCall: boolean
+}
+
+export interface MetaData {
+    totalProperty: string
+    root: string
+    id: string
+    fields: (string | FieldDefinition)[]
+    cacheDate: string
+}
+
+export interface FieldDefinition {
+    name: string
+    header: string
+    dataIndex: string
+    type: string
+    multiValue: boolean
+}
+
+export interface Row {
+    id: number
+    [columnKey: string]: any
+}
+
+export interface SelectorOption {
+    id: number
+    [columnKey: string]: any
+    disabled: boolean
+}
+
+export interface Stats {
+    [columnIndex: string]: ColumnStats
+}
+
+export interface ColumnStats {
+    name: string
+    max: string
+    min: string
+    distinct: string[]
+    cardinality: number
+}

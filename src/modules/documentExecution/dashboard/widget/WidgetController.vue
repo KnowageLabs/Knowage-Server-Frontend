@@ -71,7 +71,7 @@
  * ! this component will be in charge of managing the widget behaviour related to data and interactions, not related to view elements.
  */
 import { defineComponent, PropType } from 'vue'
-import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetPreview, IWidgetSearch } from '../Dashboard'
+import { IDashboardSheet, IDataset, IMenuItem, ISelection, IVariable, IWidget, IWidgetPreview, IWidgetSearch, SelectorDataMap } from '../Dashboard'
 import { emitter, canEditDashboard } from '../DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getWidgetData } from '../DashboardDataProxy'
@@ -357,23 +357,41 @@ export default defineComponent({
             this.loadInitialData()
         },
         async loadSelectorInitialData() {
-            this.widgetInitialData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, [], this.search, this.dashboards[this.dashboardId].configuration)
-            this.widgetData = this.widgetInitialData
+            const widgetId = this.widgetModel?.id
+            const selectorWidgetsData = this.selectorWidgetsInitialData as SelectorDataMap
+
+            if (selectorWidgetsData[widgetId]?.initialData) {
+                this.widgetInitialData = selectorWidgetsData[widgetId].initialData
+                return selectorWidgetsData[widgetId].initialData
+            } else {
+                const fetchedData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, true, [], this.search, this.dashboards[this.dashboardId].configuration)
+                this.widgetInitialData = fetchedData
+                return fetchedData
+            }
         },
         async loadInitialData() {
             if (!this.widgetModel || this.widgetModel.type === 'selection') return
+
             this.setWidgetLoading(true)
+            const widgetId = this.widgetModel?.id
+            const selectorWidgetsData = this.selectorWidgetsInitialData as SelectorDataMap
             let isInitialCall = true
+
             if (this.widgetModel.type === 'selector') {
-                await this.loadSelectorInitialData()
+                this.widgetData = await this.loadSelectorInitialData()
                 isInitialCall = false
             }
 
             if (this.updateFromSelections) {
                 this.getSelectionsFromStore()
-                const associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
-                this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeSelectionsFromStore)
-            } else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
+                const associativeSelections = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
+
+                if (selectorWidgetsData[widgetId]?.initialData) this.widgetData = selectorWidgetsData[widgetId].widgetData
+                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeSelections)
+            } else {
+                if (selectorWidgetsData[widgetId]?.initialData) this.widgetData = selectorWidgetsData[widgetId].widgetData
+                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
+            }
 
             this.setWidgetLoading(false)
         },

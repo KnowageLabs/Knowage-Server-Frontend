@@ -83,7 +83,7 @@
 import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
-import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView, IVariable } from './Dashboard'
+import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView, IVariable, SelectorDataMap, WidgetData } from './Dashboard'
 import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters, applyDashboardViewToModel } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { formatModel } from './helpers/DashboardBackwardCompatibilityHelper'
@@ -138,7 +138,7 @@ export default defineComponent({
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
     provide() {
         return {
-            selectorWidgetsInitialData: this.selectorWidgetsData
+            selectorWidgetsInitialData: this.selectorWidgetsData as SelectorDataMap
         }
     },
     setup() {
@@ -186,7 +186,7 @@ export default defineComponent({
                 dashboardModelLoaded: false,
                 crossNavigationsLoaded: false
             },
-            selectorWidgetsData: {}
+            selectorWidgetsData: {} as SelectorDataMap
         }
     },
     computed: {
@@ -338,38 +338,51 @@ export default defineComponent({
             return new Promise((resolve) => setTimeout(resolve, time))
         },
         async fetchAllSelectorDefaultValues() {
-            const widgets = this.model.widgets.filter((widget) => widget.type === 'selector' && widget.settings.configuration?.defaultValues?.enabled === true)
-            const promises = widgets.map(async (widget) => {
+            const selectorWidgets = this.model.widgets.filter((widget) => widget.type === 'selector' && widget.settings.configuration?.defaultValues?.enabled === true)
+            const promises = selectorWidgets.map(async (widget) => {
                 const selectorDefaultValues = widget.settings.configuration?.defaultValues
 
                 this.initializeWidgetData(widget)
-                this.selectorWidgetsData[widget.id].initialData = await this.fetchInitialWidgetData(widget)
-                if (widget.settings?.configuration?.updateFromSelections) {
-                    this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithSelections(widget)
-                }
 
+                //Initial Data
+                this.selectorWidgetsData[widget.id].initialData = await this.fetchInitialWidgetData(widget)
+
+                //Static Selections, get before selecting default value
+                if (widget.settings?.configuration?.updateFromSelections) {
+                    this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithStaticSelections(widget)
+                }
                 this.updateSelectorOptions(widget)
+
+                //Create Dynamic Selections
                 const enabledOptions = this.selectorWidgetsData[widget.id].selectorOptions.filter((item) => !item.disabled)
                 const selectionValue = this.getSelectionValue(selectorDefaultValues, enabledOptions)
-                if (selectionValue) {
-                    this.createDynamicSelection(widget, selectionValue, selectorDefaultValues)
-                }
+                if (selectionValue) this.createDynamicSelection(widget, selectionValue, selectorDefaultValues)
+
+                //Dynamic Selections, get after a dynamic selection has been created, this will return only selected/available options
+                this.selectorWidgetsData[widget.id].widgetData = await this.fetchWidgetDataWithDynamicSelections(widget)
+                this.updateSelectorOptions(widget)
             })
 
             await Promise.all(promises)
         },
         initializeWidgetData(widget: any) {
             this.selectorWidgetsData[widget.id] = {
-                widgetData: [],
-                selectorOptions: []
+                widgetData: {} as unknown as WidgetData,
+                selectorOptions: [],
+                initialData: {} as unknown as WidgetData
             }
         },
         async fetchInitialWidgetData(widget: any) {
             return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, true, [], { searchText: '', searchColumns: [] }, this.model.configuration)
         },
-        async fetchWidgetDataWithSelections(widget: any) {
+        async fetchWidgetDataWithStaticSelections(widget: any) {
             const nonDynamicSelections = this.model.configuration.selections.filter((selection) => !selection.dynamic)
+            //TODO - should add associative selections here? look at WidgetController.vue, loadInitialData() for associations?
             return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, nonDynamicSelections, { searchText: '', searchColumns: [] }, this.model.configuration)
+        },
+        async fetchWidgetDataWithDynamicSelections(widget: any) {
+            //TODO - should add associative selections here? look at WidgetController.vue, loadInitialData() for associations?
+            return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, this.model.configuration.selections, { searchText: '', searchColumns: [] }, this.model.configuration)
         },
         updateSelectorOptions(widget: any) {
             this.selectorWidgetsData[widget.id].initialData.rows.forEach((initialOption: any) => {
