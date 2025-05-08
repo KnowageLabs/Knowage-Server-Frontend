@@ -5,7 +5,7 @@
         <RoleDialog v-model:visibility="roleDisplay" :mandatory="mandatoryRole()"></RoleDialog>
         <DownloadsDialog v-model:visibility="downloadsDisplay"></DownloadsDialog>
         <NewsDialog v-model:visibility="newsDisplay"></NewsDialog>
-        <LicenseDialog v-if="user && user.isSuperadmin && isEnterprise" v-model:visibility="licenseDisplay"></LicenseDialog>
+        <LicenseDialog v-if="user && user.functionalities?.includes(UserFunctionalitiesConstants.LICENSE_MANAGEMENT)" v-model:visibility="licenseDisplay"></LicenseDialog>
         <AccountDialog :visible="accountDisplay" @closed="accountManagement"></AccountDialog>
         <MainMenuAdmin v-if="technicalUserFunctionalities && technicalUserFunctionalities.length > 0" :opened-panel-event="adminMenuOpened" :model="technicalUserFunctionalities" @click="itemClick"></MainMenuAdmin>
         <q-menu ref="menu" :target="menuTargetElem" :anchor="anchorPosition" self="top left" data-test="menu">
@@ -62,6 +62,7 @@ import { IMenuItem } from '@/modules/mainMenu/MainMenu'
 import MainMenuTieredMenu from '@/modules/mainMenu/MainMenuTieredMenu.vue'
 import ScrollPanel from 'primevue/scrollpanel'
 import mainStore from '../../App.store'
+import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
 export default defineComponent({
     name: 'knmenu',
@@ -88,6 +89,7 @@ export default defineComponent({
             allowedUserFunctionalities: new Array<IMenuItem>(),
             commonUserFunctionalities: new Array<IMenuItem>(),
             technicalUserFunctionalities: new Array<IMenuItem>(),
+            UserFunctionalitiesConstants,
             tieredMenuClass: 'largeScreen',
             display: false,
             languageDisplay: false,
