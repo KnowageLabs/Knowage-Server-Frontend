@@ -229,6 +229,7 @@ export default defineComponent({
     async created() {
         if (!this.showDashboard) return
         this.setEventListeners()
+        if (this.isEnterprise) await this.loadDashboardThemes()
         await this.getData()
         this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
     },
@@ -291,7 +292,6 @@ export default defineComponent({
                 this.currentView.drivers = this.filtersData
             }
             if (!this.initialDataLoadedMap.profileAttributesLoaded) this.loadProfileAttributes()
-            if (this.isEnterprise) await this.loadDashboardThemes()
             await this.loadModel()
             this.setDashboardDrivers(this.dashboardId, this.drivers)
             this.loadOutputParameters()

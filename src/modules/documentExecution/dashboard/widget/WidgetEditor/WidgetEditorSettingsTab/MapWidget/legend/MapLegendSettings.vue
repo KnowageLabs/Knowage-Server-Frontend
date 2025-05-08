@@ -35,11 +35,11 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetLegend } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import Dropdown from 'primevue/dropdown'
 import descriptor from './MapLegendSettingsDescriptor.json'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import MapLegendVisualizationTypeSettings from './MapLegendVisualizationTypeSettings.vue'
-import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 
 export default defineComponent({
     name: 'map-legend-settings',
@@ -68,10 +68,20 @@ export default defineComponent({
             immediate: true
         }
     },
-    created() {
+    mounted() {
+        this.setEventListeners()
         this.loadLegendSettings()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('mapFieldsUpdated', this.loadLegendSettings)
+        },
+        removeEventListeners() {
+            emitter.off('mapFieldsUpdated', this.loadLegendSettings)
+        },
         loadLegendSettings() {
             if (this.widgetModel?.settings?.legend) this.legendSettings = this.widgetModel.settings.legend
         }

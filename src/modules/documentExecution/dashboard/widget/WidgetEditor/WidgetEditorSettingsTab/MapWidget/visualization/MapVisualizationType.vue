@@ -141,11 +141,12 @@ import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Da
 import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetLegend, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeLegendSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { defineComponent, PropType } from 'vue'
 import { mapActions } from 'pinia'
+import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import appStore from '@/App.store'
 import descriptor from './MapVisualizationTypeDescriptor.json'
 import VisTypeConfig from './MapVisualizationTypeConfigurations.vue'
 import * as mapWidgetDefaultValues from '../../../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
-import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
 
 export default defineComponent({
     name: 'map-visualization-type',
@@ -184,10 +185,20 @@ export default defineComponent({
         }
     },
     mounted() {
+        this.setEventListeners()
         this.loadVisTypeModel()
+    },
+    unmounted() {
+        this.removeEventListeners()
     },
     methods: {
         ...mapActions(appStore, ['setLoading']),
+        setEventListeners() {
+            emitter.on('mapFieldsUpdated', this.loadVisTypeModel)
+        },
+        removeEventListeners() {
+            emitter.off('mapFieldsUpdated', this.loadVisTypeModel)
+        },
         availableMeasures(dsName: string) {
             const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsName === layer.name || dsName === layer.layerId)
             return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
