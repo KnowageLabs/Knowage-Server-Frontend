@@ -3,8 +3,8 @@
         <div class="p-d-flex p-jc-between p-ai-center p-col-12">
             <label class="kn-material-input-label">{{ $t('common.fields') }}</label>
             <div class="p-d-flex p-ai-center">
-                <i class="pi pi-plus-circle kn-cursor-pointer p-mr-2" data-test="new-button" @click="addField"></i>
-                <Button :label="$t('common.addCalculatedField')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" @click="createNewCalcField"></Button>
+                <Button :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-mr-2" @click="addField"></Button>
+                <Button :label="$t('common.addCalculatedField')" icon="pi pi-plus-circle" class="p-button-outlined p-mr-1" @click="createNewCalcField"></Button>
             </div>
         </div>
 
@@ -23,8 +23,9 @@
                         <Dropdown v-model="field.aggregationSelected" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label"></Dropdown>
                         <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
                     </div>
-                    <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-center p-ai-center p-ml-3 p-mb-2">
-                        <i class="pi pi-trash kn-cursor-pointer" data-test="delete-button" @click="removeField(field)"></i>
+                    <div v-if="field.fieldType !== 'SPATIAL_ATTRIBUTE'" class="p-d-flex p-flex-row p-jc-between p-ai-center p-ml-3 p-mb-2">
+                        <i v-if="field.formula" class="pi pi-pencil kn-cursor-pointer p-mr-2" @click="editField(field)"></i>
+                        <i class="pi pi-trash kn-cursor-pointer" @click="removeField(field)"></i>
                     </div>
                 </div>
             </div>
@@ -54,10 +55,11 @@
 <script lang="ts">
 import { PropType, defineComponent } from 'vue'
 import { IMapWidgetLayer, IWidgetMapLayerColumn } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
-import { IVariable, IWidget, IDashboardDataset } from '@/modules/documentExecution/dashboard/Dashboard'
-import { emitter } from '../../../../DashboardHelpers'
+import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { AxiosResponse } from 'axios'
+import { removeColumnFromModel } from '../MapWidgetLayersTabListHelper'
 import { mapActions } from 'pinia'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import descriptor from './MapWidgetMetadataDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputSwitch from 'primevue/inputswitch'
@@ -128,7 +130,11 @@ export default defineComponent({
         },
         removeField(field: IWidgetMapLayerColumn) {
             const index = this.fields.findIndex((tempField: IWidgetMapLayerColumn) => tempField.name === field.name)
-            if (index !== -1) this.fields[index].deleted = true
+            if (index !== -1) {
+                field.formula ? this.fields.splice(index, 1) : (this.fields[index].deleted = true)
+                removeColumnFromModel(this.selectedLayer, field, this.widgetModel)
+            }
+            emitter.emit('mapFieldsUpdated')
         },
         onAddSelectedFields(fields: IWidgetMapLayerColumn[]) {
             fields.forEach((field: IWidgetMapLayerColumn) => {
@@ -136,6 +142,7 @@ export default defineComponent({
                 if (index !== -1) this.fields[index].deleted = false
             })
             this.addNewFieldDialogVisible = false
+            emitter.emit('mapFieldsUpdated')
         },
         async loadAvailableFunctions() {
             if (!this.selectedLayer) return
@@ -167,9 +174,16 @@ export default defineComponent({
             this.setLoading(false)
         },
         createNewCalcField() {
-            console.log('------ createNewCalcField called: ')
             this.createCalcFieldColumns()
             this.selectedCalcField = { alias: '', expression: '', format: undefined, nature: 'ATTRIBUTE', type: 'STRING' } as any
+            this.calcFieldDialogVisible = true
+        },
+        editField(field: IWidgetMapLayerColumn) {
+            if (field.formula) this.editCalcField(field)
+        },
+        editCalcField(field: IWidgetMapLayerColumn) {
+            this.createCalcFieldColumns()
+            this.selectedCalcField = { ...field }
             this.calcFieldDialogVisible = true
         },
         createCalcFieldColumns() {
@@ -178,15 +192,15 @@ export default defineComponent({
             this.fields.forEach((field) => {
                 if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
             })
-            console.log('------ CALC FIELD COLUMNS: ', this.calcFieldColumns)
         },
         onCalcFieldSave(calcFieldOutput: { colName: string; formula: string }) {
-            console.log('------ CALCULATED FIELD OUTPUT: ', calcFieldOutput)
             if (this.selectedCalcField.id) {
+                this.selectedCalcField.newCalculatedField = calcFieldOutput.colName
                 this.selectedCalcField.alias = calcFieldOutput.colName
                 this.selectedCalcField.formula = calcFieldOutput.formula
             } else {
                 const newCalculatedField = {
+                    id: crypto.randomUUID(),
                     name: calcFieldOutput.colName,
                     alias: calcFieldOutput.colName,
                     type: 'java.lang.Double',
@@ -208,21 +222,10 @@ export default defineComponent({
                     formula: calcFieldOutput.formula
                 }
                 this.fields.push(newCalculatedField)
-
-                // emitter.emit('addNewCalculatedField', {
-                //     id: crypto.randomUUID(),
-                //     columnName: calcFieldOutput.colName,
-                //     alias: calcFieldOutput.colName,
-                //     type: 'java.lang.Double',
-                //     fieldType: 'MEASURE',
-                //     filter: {},
-                //     formula: calcFieldOutput.formula,
-                //     formulaEditor: calcFieldOutput.formula,
-                //     aggregation: 'NONE'
-                // })
             }
 
             this.calcFieldDialogVisible = false
+            emitter.emit('mapFieldsUpdated')
         }
     }
 })
