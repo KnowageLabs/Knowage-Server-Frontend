@@ -65,7 +65,7 @@ export default defineComponent({
             }
         },
         async loadAvailableProperties() {
-            if (!this.layer) return
+            if (!this.layer || this.layer.type === 'dataset') return
 
             if (this.propertiesCache.has(this.layer.layerId)) {
                 this.layer.properties = this.propertiesCache.get(this.layer.layerId)
