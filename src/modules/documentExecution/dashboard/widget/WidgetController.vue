@@ -380,6 +380,8 @@ export default defineComponent({
             if (this.widgetModel.type === 'selector') {
                 this.widgetData = await this.loadSelectorInitialData()
                 isInitialCall = false
+
+                if (this.activeSelections.length === 0) return
             }
 
             if (this.updateFromSelections) {
@@ -390,7 +392,7 @@ export default defineComponent({
                 else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeSelections)
             } else {
                 if (selectorWidgetsData[widgetId]?.initialData) this.widgetData = selectorWidgetsData[widgetId].widgetData
-                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration)
+                else this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, isInitialCall, [], this.search, this.dashboards[this.dashboardId].configuration)
             }
 
             this.setWidgetLoading(false)
