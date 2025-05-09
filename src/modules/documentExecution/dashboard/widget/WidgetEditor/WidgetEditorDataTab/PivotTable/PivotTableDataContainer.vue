@@ -96,20 +96,20 @@ export default defineComponent({
         removeColumnFromModel(column: IWidgetColumn) {
             removeColumnFromPivotTableWidgetModel(this.widgetModel, column)
         },
-        isTableInvalid(tableFields) {
+        isTableInvalid(tableFields, fieldType) {
             const invalid = tableFields.length === 0
             if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
-            this.widgetModel.invalid.columnsInvalid = invalid
+            this.widgetModel.invalid[fieldType] = invalid
             return invalid
         },
         getErrorForFieldType(fieldType) {
             switch (fieldType) {
                 case 'columns':
-                    return this.isTableInvalid(this.columnFields)
+                    return this.isTableInvalid(this.widgetModel.fields?.columns, 'columns')
                 case 'rows':
-                    return this.isTableInvalid(this.rowFields)
+                    return this.isTableInvalid(this.widgetModel.fields?.rows, 'rows')
                 case 'data':
-                    return this.isTableInvalid(this.dataFields)
+                    return this.isTableInvalid(this.widgetModel.fields?.data, 'data')
                 case 'filters':
                     return false
                 default:
