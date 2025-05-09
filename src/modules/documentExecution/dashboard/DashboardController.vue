@@ -284,6 +284,7 @@ export default defineComponent({
             emitter.off('selectionsDeleted', this.onSelectionsChanged)
         },
         async getData() {
+            this.appStore.setLoading(true)
             this.loading = true
             if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
             this.$emit('dashboardIdSet', this.dashboardId)
@@ -298,6 +299,7 @@ export default defineComponent({
             await this.loadCrossNavigations()
             this.setCurrentDashboardView(this.dashboardId, this.currentView)
             this.loading = false
+            this.appStore.setLoading(false)
         },
         async loadModel() {
             let tempModel = null as any

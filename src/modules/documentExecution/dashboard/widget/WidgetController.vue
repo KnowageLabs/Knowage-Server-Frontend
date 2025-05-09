@@ -381,7 +381,7 @@ export default defineComponent({
                 this.widgetData = await this.loadSelectorInitialData()
                 isInitialCall = false
 
-                if (this.activeSelections.length === 0) return
+                if (this.getSelections(this.dashboardId).length === 0) return
             }
 
             if (this.updateFromSelections) {
