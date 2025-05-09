@@ -284,7 +284,6 @@ export default defineComponent({
             emitter.off('selectionsDeleted', this.onSelectionsChanged)
         },
         async getData() {
-            this.appStore.setLoading(true)
             this.loading = true
             if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
             this.$emit('dashboardIdSet', this.dashboardId)
@@ -299,7 +298,6 @@ export default defineComponent({
             await this.loadCrossNavigations()
             this.setCurrentDashboardView(this.dashboardId, this.currentView)
             this.loading = false
-            this.appStore.setLoading(false)
         },
         async loadModel() {
             let tempModel = null as any
@@ -387,7 +385,7 @@ export default defineComponent({
             return await getWidgetData(this.dashboardId, widget, this.model?.configuration?.datasets, this.$http, false, this.model.configuration.selections, { searchText: '', searchColumns: [] }, this.model.configuration)
         },
         updateSelectorOptions(widget: any) {
-            this.selectorWidgetsData[widget.id].initialData.rows.forEach((initialOption: any) => {
+            this.selectorWidgetsData[widget.id]?.initialData?.rows?.forEach((initialOption: any) => {
                 const index = this.selectorWidgetsData[widget.id].widgetData.rows.findIndex((row: any) => row.column_1 === initialOption.column_1)
                 this.selectorWidgetsData[widget.id].selectorOptions.push({
                     ...initialOption,
