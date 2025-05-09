@@ -5,7 +5,7 @@
             <small v-if="settings.hint">{{ $t(settings.hint) }}</small>
         </div>
 
-        <div class="p-d-flex p-flex-column kn-flex" :class="{ 'dropzone-active': settings.dropIsActive }" @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
+        <div class="p-d-flex p-flex-column kn-flex" :class="{ 'dropzone-active': settings.dropIsActive, ['widget-editor-column-table-invalid']: error && fieldType !== 'filters' }" @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
             <span v-if="settings.dropIsActive && rows.length === 0" class="drag-columns-hint">{{ $t(settings.dragColumnsHint) }}</span>
             <DataTable v-else v-model:filters="filters" :value="rows" class="p-datatable-sm kn-table table-headers-hidden p-m-2" :data-key="settings.dataKey" :global-filter-fields="settings.globalFilterFields" :responsive-layout="'scroll'" :breakpoint="'600px'" @rowReorder="onRowReorder">
                 <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" :style="settings.rowReorder.rowReorderColumnStyle" />
@@ -62,7 +62,7 @@ import descriptor from './PivotTableDataContainerDescriptor.json'
 export default defineComponent({
     name: 'widget-editor-column-table',
     components: { Column, DataTable, Dropdown },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, fieldType: { type: String } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, fieldType: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {
@@ -195,5 +195,8 @@ export default defineComponent({
 .column-aggregation-dropdown {
     min-width: 200px;
     max-width: 400px;
+}
+.widget-editor-column-table-invalid {
+    border: 1.5px dashed red !important;
 }
 </style>

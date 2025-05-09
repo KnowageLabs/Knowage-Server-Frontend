@@ -8,6 +8,7 @@
             :widget-model="widgetModel"
             :items="field"
             :settings="descriptor[index]"
+            :error="getErrorForFieldType(index)"
             @row-reorder="onFieldsReorder"
             @item-added="onFieldAdded"
             @item-selected="setSelectedField"
@@ -94,6 +95,26 @@ export default defineComponent({
         },
         removeColumnFromModel(column: IWidgetColumn) {
             removeColumnFromPivotTableWidgetModel(this.widgetModel, column)
+        },
+        isTableInvalid(tableFields) {
+            const invalid = tableFields.length === 0
+            if (!this.widgetModel.invalid) this.widgetModel.invalid = {}
+            this.widgetModel.invalid.columnsInvalid = invalid
+            return invalid
+        },
+        getErrorForFieldType(fieldType) {
+            switch (fieldType) {
+                case 'columns':
+                    return this.isTableInvalid(this.columnFields)
+                case 'rows':
+                    return this.isTableInvalid(this.rowFields)
+                case 'data':
+                    return this.isTableInvalid(this.dataFields)
+                case 'filters':
+                    return false
+                default:
+                    return false
+            }
         }
     }
 })
