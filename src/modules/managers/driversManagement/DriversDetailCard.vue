@@ -1,145 +1,149 @@
 <template>
-    <Card>
-        <template #content>
-            <form class="p-fluid p-formgrid p-grid">
-                <div class="p-field p-col-4">
-                    <span class="p-float-label">
-                        <InputText
-                            id="label"
-                            v-model="v$.driver.label.$model"
-                            class="kn-material-input"
-                            type="text"
-                            :class="{
-                                'p-invalid': v$.driver.label.$invalid && v$.driver.label.$dirty
-                            }"
-                            max-length="20"
-                            @blur="v$.driver.label.$touch()"
-                            @change="setDirty"
-                        />
-                        <label for="label" class="kn-material-input-label">{{ $t('common.label') }} * </label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.driver.label" :additional-translate-params="{ fieldName: $t('common.label') }"></KnValidationMessages>
-                </div>
-                <div class="p-field p-col-4">
-                    <span class="p-float-label">
-                        <InputText
-                            id="name"
-                            v-model="v$.driver.name.$model"
-                            class="kn-material-input"
-                            type="text"
-                            :class="{
-                                'p-invalid': v$.driver.name.$invalid && v$.driver.name.$dirty
-                            }"
-                            max-length="20"
-                            @blur="v$.driver.name.$touch()"
-                            @change="setDirty"
-                        />
-                        <label for="name" class="kn-material-input-label">{{ $t('common.name') }} * </label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.driver.name" :additional-translate-params="{ fieldName: $t('common.name') }"></KnValidationMessages>
-                </div>
-                <div class="p-field p-col-4">
-                    <span class="p-float-label">
-                        <Dropdown
-                            id="type"
-                            v-model="v$.driver.type.$model"
-                            class="kn-material-input"
-                            :options="types"
-                            option-value="VALUE_CD"
-                            option-label="VALUE_NM"
-                            :class="{
-                                'p-invalid': v$.driver.type.$invalid && v$.driver.type.$dirty
-                            }"
-                            @blur="v$.driver.type.$touch()"
-                            @change="setDirty"
-                        />
-                        <label for="type" class="kn-material-input-label"> {{ $t('common.type') }} * </label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.driver.type" :additional-translate-params="{ fieldName: $t('common.type') }"></KnValidationMessages>
-                </div>
-                <div class="p-field p-col-8">
-                    <span class="p-float-label">
-                        <InputText id="description" v-model="driver.description" class="kn-material-input" type="text" max-length="100" @change="setDirty" />
-                        <label for="description" class="kn-material-input-label">{{ $t('common.description') }} </label>
-                    </span>
-                </div>
-                <div class="p-field p-col-4">
-                    <span class="p-float-label">
-                        <MultiSelect v-model="selectedOptions" class="kn-material-input" :options="driversManagemenDetailtDescriptor.options" option-label="name" option-value="label" @change="changeType" />
-                        <label for="description" class="kn-material-input-label">{{ $t('managers.driversManagement.options') }} </label>
-                    </span>
-                </div>
-            </form>
-        </template>
-    </Card>
+  <q-card>
+    <q-card-section>
+      <form class="row q-col-gutter-md">
+        <div class="col-4">
+          <q-input
+              outlined
+              v-model="v$.driver.label.$model"
+              :error="v$.driver.label.$invalid && v$.driver.label.$dirty"
+              :error-message="
+              v$.driver.label.$invalid && v$.driver.label.$dirty ?
+              $t('validation.required', { fieldName: $t('common.label') }) : null
+            "
+              maxlength="20"
+              @blur="v$.driver.label.$touch()"
+              @update:model-value="setDirty"
+              :label="$t('common.label') + '*'"
+              autofocus/>
+        </div>
+        <div class="col-4">
+          <q-input
+              outlined
+              v-model="v$.driver.name.$model"
+              :error="v$.driver.name.$invalid && v$.driver.name.$dirty"
+              :error-message="
+              v$.driver.name.$invalid && v$.driver.name.$dirty ?
+              $t('validation.required', { fieldName: $t('common.name') }) : null
+            "
+              maxlength="40"
+              @blur="v$.driver.name.$touch()"
+              @update:model-value="setDirty"
+              :label="$t('common.name') + '*'"
+              autofocus/>
+        </div>
+        <div class="col-4">
+          <q-select
+              outlined
+              v-model="v$.driver.type.$model"
+              :options="types"
+              option-value="VALUE_CD"
+              option-label="VALUE_NM"
+              emit-value
+              map-options
+              :error="v$.driver.type.$invalid && v$.driver.type.$dirty"
+              :error-message="
+              v$.driver.type.$invalid && v$.driver.type.$dirty ?
+              $t('validation.required', { fieldName: $t('common.type') }) : null
+            "
+              @blur="v$.driver.type.$touch()"
+              @update:model-value="setDirty"
+              :label="$t('common.type') + '*'"
+              autocomplete=""/>
+        </div>
+        <div class="col-8">
+          <q-input
+              outlined
+              v-model="driver.description"
+              maxlength="160"
+              @update:model-value="setDirty"
+              :label="$t('common.description') + '*'"
+              autofocus/>
+        </div>
+        <div class="col-4">
+          <q-select
+              outlined
+              v-model="selectedOptions"
+              :options="driversManagemenDetailtDescriptor.options"
+              option-label="name"
+              option-value="label"
+              emit-value
+              map-options
+              multiple
+              @update:model-value="changeType"
+              :label="$t('managers.driversManagement.options') + '*'"
+              autocomplete=""/>
+        </div>
+      </form>
+    </q-card-section>
+  </q-card>
 </template>
+
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { createValidations } from '@/helpers/commons/validationHelper'
-import Dropdown from 'primevue/dropdown'
-import MultiSelect from 'primevue/multiselect'
+import {defineComponent} from 'vue'
+import {createValidations} from '@/helpers/commons/validationHelper'
 import driversManagemenDetailtDescriptor from './DriversManagementDetailDescriptor.json'
 import driversManagemenValidationtDescriptor from './DriversManagementValidationDescriptor.json'
 import useValidate from '@vuelidate/core'
-import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
+import {QCard, QCardSection, QInput, QSelect} from 'quasar'
+
 export default defineComponent({
-    name: 'detail-card',
-    components: { Dropdown, MultiSelect, KnValidationMessages },
-    props: {
-        selectedDriver: {
-            type: Object,
-            required: false
-        },
-        types: {
-            type: Array,
-            required: false
-        }
+  name: 'detail-card',
+  components: { QCard, QCardSection, QInput, QSelect },
+  props: {
+    selectedDriver: {
+      type: Object,
+      required: false
     },
-    data() {
-        return {
-            driver: {} as any,
-            driversManagemenDetailtDescriptor,
-            driversManagemenValidationtDescriptor,
-            selectedOptions: [] as string[],
-            v$: useValidate() as any
-        }
-    },
-    validations() {
-        const validationObject = {
-            driver: createValidations('driver', driversManagemenValidationtDescriptor.validations.driver)
-        }
-        return validationObject
-    },
-    watch: {
-        selectedDriver() {
-            this.driver = this.selectedDriver as any
-            this.handleTypes()
-        }
-    },
-    mounted() {
-        if (this.driver) {
-            this.driver = this.selectedDriver as any
-            this.handleTypes()
-        }
-    },
-    methods: {
-        handleTypes() {
-            this.selectedOptions = []
-            if (this.driver.functional) {
-                this.selectedOptions.push('functional')
-            }
-            if (this.driver.temporal) {
-                this.selectedOptions.push('temporal')
-            }
-        },
-        changeType() {
-            this.selectedOptions.includes('temporal') ? (this.driver.temporal = true) : (this.driver.temporal = false)
-            this.selectedOptions.includes('functional') ? (this.driver.functional = true) : (this.driver.functional = false)
-            this.setDirty()
-        },
-        setDirty() {
-            this.$emit('touched')
-        }
+    types: {
+      type: Array,
+      required: false
     }
+  },
+  data() {
+    return {
+      driver: {} as any,
+      driversManagemenDetailtDescriptor,
+      driversManagemenValidationtDescriptor,
+      selectedOptions: [] as string[],
+      v$: useValidate() as any
+    }
+  },
+  validations() {
+    return {
+      driver: createValidations('driver', driversManagemenValidationtDescriptor.validations.driver)
+    }
+  },
+  watch: {
+    selectedDriver() {
+      this.driver = this.selectedDriver as any
+      this.handleTypes()
+    }
+  },
+  mounted() {
+    if (this.driver) {
+      this.driver = this.selectedDriver as any
+      this.handleTypes()
+    }
+  },
+  methods: {
+    handleTypes() {
+      this.selectedOptions = []
+      if (this.driver.functional) {
+        this.selectedOptions.push('functional')
+      }
+      if (this.driver.temporal) {
+        this.selectedOptions.push('temporal')
+      }
+    },
+    changeType() {
+      this.selectedOptions.includes('temporal') ? (this.driver.temporal = true) : (this.driver.temporal = false)
+      this.selectedOptions.includes('functional') ? (this.driver.functional = true) : (this.driver.functional = false)
+      this.setDirty()
+    },
+    setDirty() {
+      this.$emit('touched')
+    }
+  }
 })
 </script>
