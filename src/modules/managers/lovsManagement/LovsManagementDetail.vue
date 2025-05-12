@@ -1,37 +1,54 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--primary p-m-0">
-        <template #start>{{ selectedLov.label }}</template>
-        <template #end>
-            <Button v-tooltip="$t('common.save')" icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="saveButtonDisabled" data-test="submit-button" @click="saveLov" />
-            <Button v-tooltip="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeTemplate" />
-        </template>
-    </Toolbar>
-    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-    <div v-else class="kn-page-content">
-        <div class="card">
-            <LovsManagementDetailCard :selected-lov="selectedLov" :lovs="lovs" :list-of-input-types="listOfInputTypes" @touched="setTouched" @typeChanged="cleanSelections"></LovsManagementDetailCard>
-        </div>
-        <div class="card">
-            <LovsManagementWizardCard
-                v-if="selectedLov.itypeCd"
-                :selected-lov="selectedLov"
-                :selected-query="selectedQuery"
-                :selected-script="selectedScript"
-                :datasources="datasources"
-                :profile-attributes="profileAttributes"
-                :list-of-script-types="listOfScriptTypes"
-                :list-for-fix-lov="listForFixLov"
-                :selected-java-class="selectedJavaClass"
-                :selected-dataset="selectedDataset"
-                :save="save"
-                :preview-disabled="saveButtonDisabled"
-                @touched="setTouched"
-                @created="onCreated()"
-                @selectedDataset="setSelectedDataset($event)"
-                @sorted="onSort($event)"
-            ></LovsManagementWizardCard>
-        </div>
+  <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+    <q-toolbar-title>{{ selectedLov.label }}</q-toolbar-title>
+    <q-space />
+    <q-btn
+        flat
+        round
+        icon="save"
+        :disable="saveButtonDisabled"
+        data-test="submit-button"
+        @click="saveLov"
+    >
+      <q-tooltip>{{ $t('common.save') }}</q-tooltip>
+    </q-btn>
+    <q-btn
+        flat
+        round
+        icon="close"
+        data-test="close-button"
+        @click="closeTemplate"
+    >
+      <q-tooltip>{{ $t('common.close') }}</q-tooltip>
+    </q-btn>
+  </q-toolbar>
+  <q-linear-progress v-if="loading" indeterminate class="q-mt-none" />
+  <div v-else class="kn-page-content">
+    <!-- Rest of the component remains unchanged -->
+    <div class="card">
+      <LovsManagementDetailCard :selected-lov="selectedLov" :lovs="lovs" :list-of-input-types="listOfInputTypes" @touched="setTouched" @typeChanged="cleanSelections"></LovsManagementDetailCard>
     </div>
+    <div class="card">
+      <LovsManagementWizardCard
+          v-if="selectedLov.itypeCd"
+          :selected-lov="selectedLov"
+          :selected-query="selectedQuery"
+          :selected-script="selectedScript"
+          :datasources="datasources"
+          :profile-attributes="profileAttributes"
+          :list-of-script-types="listOfScriptTypes"
+          :list-for-fix-lov="listForFixLov"
+          :selected-java-class="selectedJavaClass"
+          :selected-dataset="selectedDataset"
+          :save="save"
+          :preview-disabled="saveButtonDisabled"
+          @touched="setTouched"
+          @created="onCreated()"
+          @selectedDataset="setSelectedDataset($event)"
+          @sorted="onSort($event)"
+      ></LovsManagementWizardCard>
+    </div>
+  </div>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'

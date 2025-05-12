@@ -1,41 +1,66 @@
 <template>
-    <Card class="p-m-2">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ toolbarTitle }}
-                </template>
-                <template #end>
-                    <Button class="kn-button-sm p-button-text" :label="$t('managers.lovsManagement.preview')" :disabled="previewDisabled" @click="checkForDependencies(true)" />
-                    <Button class="kn-button-sm p-button-text" :label="$t('managers.lovsManagement.test')" :disabled="previewDisabled" @click="onTestButtonClick" />
-                    <Button v-if="lovType !== 'DATASET'" icon="fa fa-info-circle" class="p-button-text p-button-rounded p-button-plain" aria-label="Info" @click="infoDialogVisible = true" />
-                    <Button icon="fa fa-users" class="p-button-text p-button-rounded p-button-plain" aria-label="Profiles" @click="profileAttributesDialogVisible = true" />
-                </template>
-            </Toolbar>
-        </template>
-        <template #content>
-            <LovsManagementQuery v-if="lovType === 'QUERY'" :selected-lov="lov" :selected-query="selectedQuery" :datasources="datasources" :code-input="codeInput" @touched="onTouched"></LovsManagementQuery>
-            <LovsManagementScript v-else-if="lovType === 'SCRIPT'" :selected-lov="lov" :selected-script="selectedScript" :list-of-script-types="listOfScriptTypes" @touched="onTouched"></LovsManagementScript>
-            <LovsManagementFixedLovsTable v-else-if="lovType === 'FIX_LOV'" :list-for-fix-lov="listForFixLov" @touched="$emit('touched')" @sorted="$emit('sorted', $event)"></LovsManagementFixedLovsTable>
-            <LovsManagementJavaClassInput v-else-if="lovType === 'JAVA_CLASS'" :selected-java-class="selectedJavaClass" @touched="onTouched"></LovsManagementJavaClassInput>
-            <LovsManagementDataset v-else-if="lovType === 'DATASET'" :dataset="selectedDataset" @selected="$emit('selectedDataset', $event)" />
-        </template>
-    </Card>
-    <LovsManagementInfoDialog v-show="infoDialogVisible" :visible="infoDialogVisible" :info-title="infoTitle" :lov-type="lov.itypeCd" @close="infoDialogVisible = false"></LovsManagementInfoDialog>
-    <LovsManagementProfileAttributesList v-show="profileAttributesDialogVisible" :visible="profileAttributesDialogVisible" :profile-attributes="profileAttributes" @selected="setCodeInput($event)" @close="profileAttributesDialogVisible = false"></LovsManagementProfileAttributesList>
-    <LovsManagementParamsDialog v-show="paramsDialogVisible" :visible="paramsDialogVisible" :dependencies-list="dependenciesList" :mode="paramsDialogMode" @preview="onPreview" @close="onParamsDialogClose" @test="onTest"></LovsManagementParamsDialog>
-    <LovsManagementPreviewDialog v-show="previewDialogVisible" :visible="previewDialogVisible" :data-for-preview="dataForPreview" :pagination="pagination" @close="onPreviewClose" @pageChanged="previewLov($event, false, true)"></LovsManagementPreviewDialog>
-    <LovsManagementTestDialog
-        v-if="testDialogVisible"
-        :visible="testDialogVisible"
-        :selectedLov="lov"
-        :testModel="treeListTypeModel"
-        :testLovModel="testLovModel"
-        :testLovTreeModel="testLovTreeModel"
-        :tableModelForTest="tableModelForTest"
-        @close="onTestDialogClose()"
-        @save="onTestSave($event)"
-    ></LovsManagementTestDialog>
+  <q-card class="p-m-2">
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+      <q-toolbar-title>{{ toolbarTitle }}</q-toolbar-title>
+      <q-space />
+      <q-btn
+          flat
+          class="kn-button-sm p-button-text p-button"
+          :label="$t('managers.lovsManagement.preview')"
+          :disable="previewDisabled"
+          @click="checkForDependencies(true)"
+      />
+      <q-btn
+          flat
+          class="kn-button-sm p-button-text p-button"
+          :label="$t('managers.lovsManagement.test')"
+          :disable="previewDisabled"
+          @click="onTestButtonClick"
+      />
+      <q-btn
+          v-if="lovType !== 'DATASET'"
+          flat
+          round
+          icon="fa fa-info-circle"
+          class="p-button-text p-button-rounded p-button-plain p-button"
+          @click="infoDialogVisible = true"
+      >
+        <q-tooltip>Info</q-tooltip>
+      </q-btn>
+      <q-btn
+          flat
+          round
+          icon="fa fa-users"
+          class="p-button-text p-button-rounded p-button-plain p-button"
+          @click="profileAttributesDialogVisible = true"
+      >
+        <q-tooltip>Profiles</q-tooltip>
+      </q-btn>
+    </q-toolbar>
+
+    <q-card-section>
+      <LovsManagementQuery v-if="lovType === 'QUERY'" :selected-lov="lov" :selected-query="selectedQuery" :datasources="datasources" :code-input="codeInput" @touched="onTouched"></LovsManagementQuery>
+      <LovsManagementScript v-else-if="lovType === 'SCRIPT'" :selected-lov="lov" :selected-script="selectedScript" :list-of-script-types="listOfScriptTypes" @touched="onTouched"></LovsManagementScript>
+      <LovsManagementFixedLovsTable v-else-if="lovType === 'FIX_LOV'" :list-for-fix-lov="listForFixLov" @touched="$emit('touched')" @sorted="$emit('sorted', $event)"></LovsManagementFixedLovsTable>
+      <LovsManagementJavaClassInput v-else-if="lovType === 'JAVA_CLASS'" :selected-java-class="selectedJavaClass" @touched="onTouched"></LovsManagementJavaClassInput>
+      <LovsManagementDataset v-else-if="lovType === 'DATASET'" :dataset="selectedDataset" @selected="$emit('selectedDataset', $event)" />
+    </q-card-section>
+  </q-card>
+  <LovsManagementInfoDialog v-show="infoDialogVisible" :visible="infoDialogVisible" :info-title="infoTitle" :lov-type="lov.itypeCd" @close="infoDialogVisible = false"></LovsManagementInfoDialog>
+  <LovsManagementProfileAttributesList v-show="profileAttributesDialogVisible" :visible="profileAttributesDialogVisible" :profile-attributes="profileAttributes" @selected="setCodeInput($event)" @close="profileAttributesDialogVisible = false"></LovsManagementProfileAttributesList>
+  <LovsManagementParamsDialog v-show="paramsDialogVisible" :visible="paramsDialogVisible" :dependencies-list="dependenciesList" :mode="paramsDialogMode" @preview="onPreview" @close="onParamsDialogClose" @test="onTest"></LovsManagementParamsDialog>
+  <LovsManagementPreviewDialog v-show="previewDialogVisible" :visible="previewDialogVisible" :data-for-preview="dataForPreview" :pagination="pagination" @close="onPreviewClose" @pageChanged="previewLov($event, false, true)"></LovsManagementPreviewDialog>
+  <LovsManagementTestDialog
+      v-if="testDialogVisible"
+      :visible="testDialogVisible"
+      :selectedLov="lov"
+      :testModel="treeListTypeModel"
+      :testLovModel="testLovModel"
+      :testLovTreeModel="testLovTreeModel"
+      :tableModelForTest="tableModelForTest"
+      @close="onTestDialogClose()"
+      @save="onTestSave($event)"
+  ></LovsManagementTestDialog>
 </template>
 
 <script lang="ts">
