@@ -1,33 +1,19 @@
 {
-    "alignmentOptions": [
-        {
-            "label": "common.left",
-            "value": "left"
-        },
-        {
-            "label": "common.center",
-            "value": "center"
-        },
-        {
-            "label": "common.right",
-            "value": "right"
-        }
-    ],
     "positionOptions": [
         {
-            "label": "dashboard.widgetEditor.map.north",
+            "label": "common.top",
             "value": "north"
         },
         {
-            "label": "dashboard.widgetEditor.map.south",
+            "label": "common.bottom",
             "value": "south"
         },
         {
-            "label": "dashboard.widgetEditor.map.west",
+            "label": "common.left",
             "value": "west"
         },
         {
-            "label": "dashboard.widgetEditor.map.east",
+            "label": "common.right",
             "value": "east"
         },
         {

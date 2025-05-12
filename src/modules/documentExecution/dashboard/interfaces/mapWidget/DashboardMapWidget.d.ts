@@ -8,7 +8,7 @@ export interface IMapWidgetSettings {
     conditionalStyles: IMapWidgetConditionalStyles
     legend: IMapWidgetLegend
     dialog: IMapDialogSettings
-    tooltip: IMapTooltipSettings
+    tooltips: IMapTooltipSettings
     interactions: IWidgetInteractions
     style: IMapWidgetStyle
     responsive: IWidgetResponsive

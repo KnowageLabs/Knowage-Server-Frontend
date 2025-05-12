@@ -1149,7 +1149,6 @@
                 "customColor": "Custom color",
                 "detached": "Detached",
                 "dialogHint": "The selected elements will be visible when clicking on the map",
-                "east": "East",
                 "fromColor": "From color",
                 "fromThreshold": "From (>=)",
                 "imagesGallery": "Images Gallery",
@@ -1202,7 +1201,6 @@
                     "wktFormat": "WKT Format"
                 },
                 "noLayerAvailable": "No Layer Available",
-                "north": "North",
                 "pieTypeOptions": {
                     "bars": "Bars",
                     "donuts": "Donuts",
@@ -1211,7 +1209,6 @@
                 },
                 "range": "Range",
                 "rangeLabel": "Min size/Max size",
-                "south": "South",
                 "toColor": "To color",
                 "toThreshold": "To (<)",
                 "tooltipHint": "The selected elements will be visible on mouse hover",
@@ -1223,8 +1220,7 @@
                     "heatmap": "Heatmap",
                     "markers": "Markers",
                     "pies": "Pies"
-                },
-                "west": "West"
+                }
             },
             "maxZoom": "Max Zoom",
             "menuConfiguration": "Menu Configuration",
