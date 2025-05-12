@@ -1,6 +1,6 @@
 <template>
     <div class="map-container">
-        <MapLegend :propMapWidgetLegend="widgetModel?.settings?.legend" :legend-data="legendData"> </MapLegend>
+        <MapLegend v-if="widgetModel?.settings?.legend?.enabled" :propMapWidgetLegend="widgetModel?.settings?.legend" :legend-data="legendData"> </MapLegend>
 
         <LeafletWrapper v-if="layerVisibilityState" :widget-model="widgetModel" :data="dataToShow" :layer-visibility="layerVisibilityState" :dashboardId="dashboardId" :filtersReloadTrigger="filtersReloadTrigger" :propVariables="variables" @legend-updated="onLegendUpdated"></LeafletWrapper>
 

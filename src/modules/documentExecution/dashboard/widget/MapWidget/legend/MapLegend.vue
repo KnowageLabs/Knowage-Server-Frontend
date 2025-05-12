@@ -5,7 +5,7 @@
         :style="[
             {
                 position: 'absolute',
-                zIndex: 2147483647,
+                zIndex: 99,
                 background: 'white'
             },
             isDetached
@@ -193,7 +193,7 @@ export default defineComponent({
 .map-legend {
     position: absolute;
     width: 300px;
-    z-index: 2147483647 !important;
+    z-index: 99 !important;
     background: white;
     padding: 8px;
     border-radius: 4px;

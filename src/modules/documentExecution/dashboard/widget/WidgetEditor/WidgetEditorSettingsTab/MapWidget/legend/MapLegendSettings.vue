@@ -1,7 +1,7 @@
 <template>
     <div v-if="legendSettings">
         <div class="p-formgrid p-grid p-p-3">
-            <q-input dense class="p-lg-4" filled v-model="legendSettings.title" :label="$t('common.title')" />
+            <q-input dense class="p-lg-4" filled v-model="legendSettings.title" :label="$t('common.title')" disable readonly />
 
             <span class="p-field p-float-label p-col-12 p-lg-6 p-fluid">
                 <Dropdown v-model="legendSettings.position" class="kn-material-input" :options="descriptor.positionOptions" option-value="value" :disabled="legendSettingsDisabled">
