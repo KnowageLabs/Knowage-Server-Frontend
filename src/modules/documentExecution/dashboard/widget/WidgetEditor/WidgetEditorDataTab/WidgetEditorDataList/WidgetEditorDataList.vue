@@ -6,7 +6,21 @@
         </span>
         <div v-if="widgetModel.type !== 'selector'" class="p-col-12 p-d-flex">
             <label class="kn-material-input-label p-as-center p-ml-1"> {{ $t('common.columns') }} </label>
-            <Button :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
+
+            <q-btn v-if="isEnterprise" color="primary" :label="$t('common.add')">
+                <q-menu>
+                    <q-list style="min-width: 100px">
+                        <q-item clickable v-close-popup>
+                            <q-item-section @click="createNewCalcField">{{ $t('common.addCalculatedField') }}</q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup>
+                            <q-item-section @click="createNewFormulaField">{{ $t('common.addCalculatedField') }}</q-item-section>
+                        </q-item>
+                    </q-list>
+                </q-menu>
+            </q-btn>
+
+            <Button v-else :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
             <Button id="add-all-columns-button" icon="fa fa-arrow-right" class="p-button-text p-button-rounded p-button-plain" @click="addAllColumnsToWidgetModel" />
         </div>
 
@@ -56,6 +70,7 @@ import KnCalculatedField from '@/components/functionalities/KnCalculatedField/Kn
 import calcFieldDescriptor from './WidgetEditorCalcFieldDescriptor.json'
 import { AxiosResponse } from 'axios'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
+import { mapState } from 'pinia'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
@@ -85,6 +100,11 @@ export default defineComponent({
             },
             availableFunctions: [] as any
         }
+    },
+    computed: {
+        ...mapState(mainStore, {
+            isEnterprise: 'isEnterprise'
+        })
     },
     watch: {
         widgetModel() {
@@ -257,6 +277,9 @@ export default defineComponent({
             }
 
             this.calcFieldDialogVisible = false
+        },
+        createNewFormulaField() {
+            console.log('--------- CREATE NEW FORMULA FIELD CLICKED!')
         }
     }
 })

@@ -591,6 +591,7 @@
                 "solid": "Solid",
                 "title": "Borders"
             },
+            "catalogFunction": "Catalog Function",
             "chartJS": {
                 "legend": {
                     "alignHint": "Alignment of the legend",
