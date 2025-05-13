@@ -66,9 +66,9 @@ const formatSelectorWidgetModelForService = (dashboardId: any, dashboardConfig: 
 
     dataToSend.aggregations.dataset = dataset.dsLabel
 
-    addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, widget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     let sortingColumn = null as any
     if (widget.settings?.sortingColumn) sortingColumn = findSortingColumn(widget)

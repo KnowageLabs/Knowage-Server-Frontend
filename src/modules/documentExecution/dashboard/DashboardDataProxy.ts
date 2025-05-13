@@ -83,11 +83,11 @@ export const addDriversToData = (dataset, dataToSend) => {
     }
 }
 
-export const addParametersToData = (dataset, dashboardId, dataToSend) => {
+export const addParametersToData = (dataset, dashboardId, dataToSend, associativeResponseSelections?) => {
     if (dataset.parameters && dataset.parameters.length > 0) {
         const paramRegex = /[^$P{]+(?=\})/
         dataset.parameters.forEach((param: any) => {
-            const matched = paramRegex.exec(param.value)
+            const matched = paramRegex.exec(param.value) //check if param is wrapped in $P{}, if it is, grab the value from drivers
             if (matched && matched[0]) {
                 const documentDrivers = dashStore.dashboards[dashboardId].drivers || []
                 for (let index = 0; index < documentDrivers.length; index++) {
@@ -97,6 +97,17 @@ export const addParametersToData = (dataset, dashboardId, dataToSend) => {
                     }
                 }
             } else dataToSend.parameters[`${param.name}`] = param.value
+
+            if (associativeResponseSelections && associativeResponseSelections[dataset.dsLabel]) {
+                //associative selections should overwrite anything else, even drivers
+                const paramKey = `$P{${param.name}}`
+                if (associativeResponseSelections[dataset.dsLabel][paramKey]) {
+                    const rawValue = associativeResponseSelections[dataset.dsLabel][paramKey][0]
+                    const cleanValue = rawValue.replace(/[()'\s]/g, '')
+
+                    dataToSend.parameters[param.name] = cleanValue
+                }
+            }
         })
     }
 }
@@ -114,8 +125,8 @@ export const addVariablesToFormula = (column, dashboardConfig) => {
     } else return column.formula
 }
 
-export const addSelectionsToData = (dataToSend: any, propWidget: IWidget, datasetLabel: string | undefined, initialCall: boolean, selections: ISelection[], associativeResponseSelections: any) => {
-    if (associativeResponseSelections) dataToSend.selections = associativeResponseSelections
+export const addSelectionsToData = (dataToSend: any, propWidget: IWidget, datasetLabel: string, initialCall: boolean, selections: ISelection[], associativeResponseSelections: any) => {
+    if (associativeResponseSelections) dataToSend.selections = getFormattedAssociativeSelections(associativeResponseSelections, datasetLabel)
     else dataToSend.selections = getFormattedSelections(selections)
 
     if (datasetLabel) addFiltersToPostData(propWidget, dataToSend.selections, datasetLabel)
@@ -132,6 +143,19 @@ const getFormattedSelections = (selections: ISelection[]) => {
         }
     })
     return formattedSelections
+}
+
+const getFormattedAssociativeSelections = (associativeResponseSelections: any, datasetLabel: string) => {
+    if (!associativeResponseSelections || !associativeResponseSelections[datasetLabel]) return {}
+
+    const datasetSelections = associativeResponseSelections[datasetLabel]
+    const filteredSelections = {}
+
+    Object.keys(datasetSelections).forEach((columnName) => {
+        if (!columnName.startsWith('$P{')) filteredSelections[columnName] = datasetSelections[columnName]
+    })
+
+    return { [datasetLabel]: filteredSelections }
 }
 
 const addFiltersToPostData = (propWidget: IWidget, selectionsToSend: any, datasetLabel: string) => {

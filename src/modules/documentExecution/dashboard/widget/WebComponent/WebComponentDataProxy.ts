@@ -96,9 +96,9 @@ const formatWebComponentModelForService = (dashboardId: any, dashboardConfig: ID
 
     dataToSend.aggregations.dataset = dataset.dsLabel
 
-    addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, widget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {

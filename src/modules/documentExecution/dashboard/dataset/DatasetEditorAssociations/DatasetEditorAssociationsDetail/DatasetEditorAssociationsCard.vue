@@ -3,7 +3,7 @@
         <Toolbar class="kn-toolbar kn-toolbar--secondary">
             <template #start> {{ datasetProp.name }} - {{ datasetProp.id.dsId }}</template>
         </Toolbar>
-        <Listbox v-model="selectedField" class="kn-list kn-list-border-all" :options="datasetProp.metadata.fieldsMeta" @change="selectField">
+        <Listbox v-model="selectedField" class="kn-list kn-list-border-all" :options="datasetProp.metadata.fieldsMeta" @change="selectMetaField">
             <template #option="slotProps">
                 <div class="kn-list-item" :style="descriptor.style.metaCard.listItem">
                     <div class="kn-list-item-text">
@@ -11,6 +11,18 @@
                     </div>
                     <div class="kn-list-item-buttons">
                         <b>{{ descriptor.datasetTypes[slotProps.option.type] }}</b>
+                    </div>
+                </div>
+            </template>
+        </Listbox>
+        <Listbox v-if="datasetProp.parameters.length > 0" v-model="selectedField" class="kn-list kn-list-border-all" :options="datasetProp.parameters" @change="selectMetaField">
+            <template #option="slotProps">
+                <div class="kn-list-item" :style="descriptor.style.metaCard.listItem">
+                    <div class="kn-list-item-text">
+                        <span>$P{ {{ slotProps.option.name }} }</span>
+                    </div>
+                    <div class="kn-list-item-buttons">
+                        <b>{{ slotProps.option.type }}</b>
                     </div>
                 </div>
             </template>
@@ -54,15 +66,21 @@ export default defineComponent({
     },
     methods: {
         setSelectedAssociatonField() {
-            this.selectedField = this.datasetProp.metadata.fieldsMeta.find((datasetField) => {
+            const metaField = this.datasetProp.metadata.fieldsMeta.find((datasetField) => {
                 return this.selectedAssociationProp.fields.some((associationField) => this.datasetProp.id.dsId === associationField.dataset && datasetField.alias === associationField.column)
             })
+            const paramField = this.datasetProp.parameters.find((parameter) => {
+                return this.selectedAssociationProp.fields.some((associationField) => {
+                    return this.datasetProp.id.dsId === associationField.dataset && `$P{${parameter.name}}` === associationField.column
+                })
+            })
+            this.selectedField = metaField ?? paramField
         },
         resetfieldSelected() {
             this.selectedField = null as any
         },
-        selectField(event) {
-            event.value ? this.$emit('fieldSelected', { column: event.value.alias, dataset: this.datasetProp.id.dsId }) : this.$emit('fieldUnselected', this.datasetProp.id.dsId)
+        selectMetaField(event) {
+            event.value ? this.$emit('fieldSelected', { column: event.value.alias ?? `$P{${event.value.name}}`, dataset: this.datasetProp.id.dsId }) : this.$emit('fieldUnselected', this.datasetProp.id.dsId)
         }
     }
 })

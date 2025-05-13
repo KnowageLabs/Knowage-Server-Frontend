@@ -65,9 +65,9 @@ const formatChartWidgetForGet = (dashboardId: any, dashboardConfig: IDashboardCo
     dataToSend.aggregations.dataset = dataset.dsLabel
     dataToSend.options = { solrFacetPivot: true }
 
-    addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, widget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     if (widget.settings.configuration?.grouping?.enabled) {
         addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 2, -1, false, sortingColumn)
