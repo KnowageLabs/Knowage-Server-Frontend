@@ -6,8 +6,8 @@ export interface iFunction {
     language: string
     family?: string
     onlineScript: string
-    offlineScriptTrain: string
-    offlineScriptUse: string
+    offlineScriptTrain: string | null
+    offlineScriptUse: string | null
     owner: string
     label: string
     type: string
@@ -58,7 +58,6 @@ export interface iDataset {
     dsType: string
     meta?: any
     pars?: any
-    meta?: any
 }
 
 export interface iPythonConfiguration {

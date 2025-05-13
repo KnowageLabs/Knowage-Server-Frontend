@@ -1,0 +1,410 @@
+{
+    "data": [
+        {
+            "benchmark": "",
+            "description": "<p>Bugtest 7682 Description .</p>",
+            "family": "online",
+            "id": "f24b496a-898e-420a-b896-36a372e6605b",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Bugtest 7682",
+            "language": "Python",
+            "name": "Bugtest 7682",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "import numpy as np\nimport pandas as pd\n\ninput_col = ${column}\ninput_col = ${column}\nres_value = np.std(input_col)\n\n${standard_deviation} = pd.Series(input_col.size*[res_value])",
+            "outputColumns": [
+                {
+                    "fieldType": "MEASURE",
+                    "name": "Test",
+                    "type": "NUMBER"
+                }
+            ],
+            "owner": "kte_admin",
+            "tags": [""],
+            "type": "Text Analysis"
+        },
+        {
+            "benchmark": "<p>&lt;script&gt;alert(&#39;ciao&#39;)&lt;/script&gt;</p>",
+            "description": "<p>The cumulative moving average is the unweighted mean of all the previous data points up to the current one.</p><p>It is calculated according the sorting previously set on the dataset. In the function no sorting or grouping is performed.</p><p><br /></p><p><strong>Input variables:</strong></p><p>   <strong>column</strong>: the data on which apply the moving average</p><p>   <strong>min_periods</strong>: <em>integer</em>, default 1</p><p>         Minimum number of observations in window required to have a value (otherwise result is NA). </p><p>   <strong>center</strong>: <em>boolean</em>, default False</p><p>      Set the labels at the center of the window.</p><p>      By default, the result is set to the right edge of the window.</p><p>   </p><p><strong>Output:</strong></p><p>  The cumulative moving average of the column values</p><p>&lt;script&gt;alert(&#39;ciao&#39;)&lt;/script&gt;</p>",
+            "family": "online",
+            "id": "c5f7e504-3157-b5d3-e050-000a0f005732",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Cumulative moving average",
+            "language": "Python",
+            "name": "Cumulative moving average",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "${result_column} = ${column}.expanding(min_periods=int(${min_periods}),center=eval(${center})).mean()\n<script>alert('ciao')</script>",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["math"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "",
+            "description": "<div>The cumulative moving sum is the unweighted sum of all the previous data points up to the current one.</div><div>It is calculated according the sorting previously set on the dataset. In the function no sorting or grouping is performed.<br /></div><div><br /></div><div><span style=\"font-weight:bold\">Input variables:</span></div><div>    <span style=\"font-weight:bold\">column</span>: the data on which apply the moving sum</div><div>    <span style=\"font-weight:bold\">min_periods</span>: <span style=\"font-style:italic\">integer</span>, default 1</div><div>                 Minimum number of observations in window required to have a value (otherwise result is NA). </div><div>    <span style=\"font-weight:bold\">center</span>: <span style=\"font-style:italic\">boolean</span>, default False</div><div>            Set the labels at the center of the window.</div><div>            By default, the result is set to the right edge of the window.</div><div>    </div><div><span style=\"font-weight:bold\">Output:</span></div><div>    The cumulative moving sum of the column values</div>",
+            "family": "online",
+            "id": "c5f7e504-315a-b5d3-e050-000a0f005732",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Cumulative moving sum",
+            "language": "Python",
+            "name": "Cumulative moving sum",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "${result_column} = ${column}.expanding(min_periods=int(${min_periods}),center=eval(${center})).sum()\n<script>alert('ciao')</script>",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["math", "aggregation"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "<p>mmm</p>\n\n",
+            "description": "<p>aaa</p>\n\n",
+            "family": "online",
+            "id": "354a8050-2770-4913-9cb4-b3bbf4e6531b",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "JIRA-7215",
+            "language": "Python",
+            "name": "JIRA-7215",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "print(\"Hello, World!\")",
+            "outputColumns": [
+                {
+                    "fieldType": "ATTRIBUTE",
+                    "name": "JIRA-7215",
+                    "type": "STRING"
+                }
+            ],
+            "owner": "kte_admin",
+            "tags": [""],
+            "type": "Text Analysis"
+        },
+        {
+            "benchmark": "",
+            "description": "<div>The function compute the sample kurtosis (Fisher or Pearson) of a column. </div><div>Kurtosis is the fourth central moment divided by the square of the variance. </div><div>It is a useful measure of whether there is a problem with outliers in a data set. Larger kurtosis indicates a more serious outlier problem.</div><div>If Fisher’s definition is used, then 3.0 is subtracted from the result to give 0.0 for a normal distribution.</div><div>If bias is False then the kurtosis is calculated using k statistics to eliminate bias coming from biased moment estimators</div><div><br /></div><div>In the function no sorting or grouping is performed.</div><div><br /></div><div><span style=\"font-weight:bold\">Input variables:</span></div><div>    <span style=\"font-weight:bold\">column</span>: the data on which apply the skewness</div><div>    <span style=\"font-weight:bold\">fisher:</span> <span style=\"font-style:italic\">boolean</span>, default False</div><div><span style=\"white-space:pre\">\t\t</span>If True, Fisher’s definition is used (normal &#61;&#61;&gt; 0.0). If False, Pearson’s definition is used (normal &#61;&#61;&gt; 3.0).</div><div>    <span style=\"font-weight:bold\">bias:</span> <span style=\"font-style:italic\">boolean</span>, default True</div><div>          If False, then the calculations are corrected for statistical bias.</div><div>    <span style=\"font-weight:bold\">nan_policy</span>: <span style=\"font-style:italic\">{&#39;propagate&#39;, &#39;raise&#39;, &#39;omit&#39;}</span>, default &#39;propagate&#39;</div><div>           Defines how to handle when input contains nan. </div><div><span style=\"white-space:pre\">\t\t</span>   ‘propagate’ returns nan, </div><div><span style=\"white-space:pre\">\t\t</span>   ‘raise’ throws an error, </div><div><span style=\"white-space:pre\">\t\t</span>   ‘omit’ performs the calculations ignoring nan values. Default is ‘propagate’.</div><div>    </div><div><span style=\"font-weight:bold\">Output:</span></div><div>    The kurtosis of the column selected. The value is repeted in all the dataset rows. </div><div>    If all values are equal, return -3 for Fisher’s definition and 0 for Pearson’s definition.</div>",
+            "family": "online",
+            "id": "c5f7e504-3158-b5d3-e050-000a0f005732",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Kurtosis",
+            "language": "Python",
+            "name": "Kurtosis",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "from scipy.stats import kurtosis\nimport pandas as pd\n\ninput_col = ${column}\ninput_bias = eval(${bias})\ninput_nan_policy = ${nan_policy}\ninput_fisher = eval(${fisher})\n\nres_value = kurtosis(input_col, fisher=input_fisher, bias=input_bias, nan_policy=input_nan_policy)\n  \n${kurtosis_col} = pd.Series(input_col.size*[res_value])",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["kurtosis", "statistics"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "",
+            "description": "Mathematical function to calculate the logarithm of a dataset column.<div><br /></div><div><span style=\"font-weight:bold\">Input variables:</span></div><div><span style=\"font-style:italic\">x</span>: dataset column</div><div><span style=\"font-style:italic\">base</span>: the base to use in the logarithm. The default value is the natural base, e.</div><div><br /></div><div><span style=\"font-weight:bold\">Output</span>:</div><div>The logarithm of the column values</div>",
+            "family": "online",
+            "id": "c5f7e504-3152-b5d3-e050-000a0f005732",
+            "inputColumns": [
+                {
+                    "name": "column",
+                    "type": "NUMBER"
+                }
+            ],
+            "inputVariables": [
+                {
+                    "name": "base",
+                    "type": "STRING",
+                    "value": "e"
+                }
+            ],
+            "label": "Logarithm",
+            "language": "Python",
+            "name": "Logarithm",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "import numpy as np\n\nbase = ${base}\nx = ${column}\n\nif base=='e':\n  base_log=np.e\nelse:\n  base_log=eval(base)\n\nres_col = np.log(x)/np.log(base_log)\nres_col.loc[np.isinf(res_col)]=np.nan\n\n${logarithm}=res_col",
+            "outputColumns": [
+                {
+                    "fieldType": "MEASURE",
+                    "name": "logarithm",
+                    "type": "NUMBER"
+                }
+            ],
+            "owner": "Knowage Lab",
+            "tags": ["logarithm", "math"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "<p>Bookmark <strong>this</strong>!</p>",
+            "description": "<p>This is a very <strong>cool </strong><em>function</em>.</p>",
+            "family": "online",
+            "id": "3f35ed62-1533-4261-b724-9ee03ac49277",
+            "inputColumns": [
+                {
+                    "name": "MyInput",
+                    "type": "STRING"
+                }
+            ],
+            "inputVariables": [
+                {
+                    "name": "var1",
+                    "type": "STRING",
+                    "value": "pippo"
+                }
+            ],
+            "label": "MyCoolFunction",
+            "language": "Python",
+            "name": "MyCoolFunction",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "print(\"Hello world\")",
+            "outputColumns": [
+                {
+                    "fieldType": "ATTRIBUTE",
+                    "name": "output",
+                    "type": "STRING"
+                }
+            ],
+            "owner": "kte_admin",
+            "tags": ["cool", "function"],
+            "type": "Text Analysis"
+        },
+        {
+            "benchmark": "",
+            "description": "The function allow to calculate the q-th quantile over a specific column of the dataset.<div>The quantils are cut points divinding the range of  a probability distribution into </div>",
+            "family": "online",
+            "id": "b5915338-d591-4a9c-9cf6-66a8afbe155e",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Quantile",
+            "language": "Python",
+            "name": "Quantile",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "import numpy as np\nimport pandas as pd\n\ninput_col = ${column}\nquantil_val = ${quantile}\nint_val = ${interpolation}\nres_value = np.quantile(input_col,q=quantil_val, interpolation=int_val)\n    \n${quantile} = pd.Series(input_col.size*[res_value])",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["statistics"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "",
+            "description": "The function permits to derive the seasonal adjusted version of the time series analyzed using LOESS (local estimated scatterplot smoothing).<div><div>It can be used with a dataset contaning a datetime column and a measure column representing the time serie.</div><div><br /></div><div><div>The keys inputs into STL are:</div><div><span style=\"white-space:pre\">\t</span>season - The length of the seasonal smoother. Must be odd.</div><div><span style=\"white-space:pre\">\t</span>trend - The length of the trend smoother, usually around 150% of season. Must be odd and larger than season.</div><div><span style=\"white-space:pre\">\t</span>low_pass - The length of the low-pass estimation window, usually the smallest odd number larger than the periodicity of the data.</div><div><br /></div><div>Output:</div><div><span style=\"white-space:pre\">\t</span>a column with the seasonal adjusted version of the original time serie</div><div><br /></div></div></div>",
+            "family": "online",
+            "id": "5a81dbf9-81f7-4af6-8683-727eca5bd2d9",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Seasonal adjustment",
+            "language": "Python",
+            "name": "Seasonal adjustment",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "import dateparser\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import STL\n\ndate_column = ${datetime_column}\n \nval_fill_na_value = ${fill_na_value}\nif val_fill_na_value=='None':\n\tval_fill_na_value=eval(val_fill_na_value)\nelse:\n    val_fill_na_value=int(val_fill_na_value))\n    \nval_method = ${method}\nval_period = ${period}\nif val_period=='None':\n\tval_period = eval(val_period)\nelse:\n\tval_period = int(val_period)\nval_seasonal = int(${seasonal})\nval_trend = ${trend}\nif val_trend=='None':\n\tval_trend = eval(val_trend)\nelse:\n    val_trend = int(val_trend)\nval_low_pass = ${low_pass}\nif val_low_pass == 'None':\n\tval_low_pass=eval(val_low_pass)\nelse:\n  val_low_pass=int(val_low_pass)\nval_season_deg = int(${seasonal_deg})\nval_trend_deg = int(${trend_deg})\nval_low_pass_deg = int(${low_pass_deg})\nval_robust = eval(${robust})\nval_seasonal_jump = int(${seasonal_jump})\nval_trend_jump = int(${trend_jump})\nval_low_pass_jump = int(${low_pass_jump})\n\nif val_fill_na_value:\n\tmeasure = ${measure_column}.fillna(val_fill_na_value)\nelse:\n\tmeasure = ${measure_column}.fillna(method=val_method)\n\n# Build the dataframe with the two columns\ndf = pd.concat([date_column,measure],axis=1)\ndf['index1'] = df.index\ndf = df.sort_values(by=date_column.name)\ndf.set_index(date_column.name)\n\n\narray_serie = dataset[measure.name].array\nserie_stl = pd.Series(array_serie, name='serie_stl')\nstl = STL(serie_stl, period=val_period,seasonal=val_seasonal, \n\t\t\t\t   trend=val_trend, low_pass=val_low_pass, seasonal_deg=val_season_deg, \n\t\t\t\t   trend_deg=val_trend_deg, low_pass_deg=val_low_pass_deg, robust=val_robust, \n\t\t\t\t   seasonal_jump=val_seasonal_jump, trend_jump=val_trend_jump, low_pass_jump=val_low_pass_jump)\nres = stl.fit()\n\nseason = res.seasonal\ndf[measure.name+\"_DEST\"] = serie_stl - season\ndf.set_index('index1')\ndf=df.sort_index()\n${seasonal_adjusted} = df[measure.name+\"_DEST\"]",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["seasonal adjustiment", "time series"],
+            "type": "Machine Learning"
+        },
+        {
+            "benchmark": "",
+            "description": "The function permits to derive the seasonal component in a time series using LOESS (local estimated scatterplotsmoothing) to extract smooths estimate of that component.<div>It can be used with a dataset containing a datetime (datetime_column) and a measure column (measure_column) representing a time serie.</div><div>The key inputs of the function are:</div><div><ul><li><span style=\"font-weight:bold\">season </span>- The length of the seasonal smoother. Must be odd</li><li><span style=\"font-weight:bold\">trend </span>- The length of the trend smoother, usually around 150% of season. Must be odd and larger then season</li><li><span style=\"font-weight:bold\">low pass</span> - The length of the low-pass estimation window, usually the smallest odd number larger then the periodicity of the data</li></ul></div><div><span style=\"font-weight:bold\">Output</span>: </div><div><span style=\"white-space:pre\">\t</span>column with the seasonal component of the selected time serie<br /></div>",
+            "family": "online",
+            "id": "dcec6342-6fd8-47c1-bc95-01b37854f9e8",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Seasonal component",
+            "language": "Python",
+            "name": "Seasonal component",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "import dateparser\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import STL\n\ndate_column = ${datetime_column}\n \nval_fill_na_value = ${fill_na_value}\nif val_fill_na_value=='None':\n\tval_fill_na_value=eval(val_fill_na_value)\nelse:\n    val_fill_na_value=int(val_fill_na_value))\n    \nval_method = ${method}\nval_period = ${period}\nif val_period=='None':\n\tval_period = eval(val_period)\nelse:\n\tval_period = int(val_period)\nval_seasonal = int(${seasonal})\nval_trend = ${trend}\nif val_trend=='None':\n\tval_trend = eval(val_trend)\nelse:\n    val_trend = int(val_trend)\nval_low_pass = ${low_pass}\nif val_low_pass == 'None':\n\tval_low_pass=eval(val_low_pass)\nelse:\n  val_low_pass=int(val_low_pass)\nval_season_deg = int(${seasonal_deg})\nval_trend_deg = int(${trend_deg})\nval_low_pass_deg = int(${low_pass_deg})\nval_robust = eval(${robust})\nval_seasonal_jump = int(${seasonal_jump})\nval_trend_jump = int(${trend_jump})\nval_low_pass_jump = int(${low_pass_jump})\n\nif val_fill_na_value:\n\tmeasure = ${measure_column}.fillna(val_fill_na_value)\nelse:\n\tmeasure = ${measure_column}.fillna(method=val_method)\n\n# Build the dataframe with the two columns\ndf = pd.concat([date_column,measure],axis=1)\ndf['index1'] = df.index\ndf = df.sort_values(by=date_column.name)\ndf.set_index(date_column.name)\n\n\narray_serie = dataset[measure.name].array\nserie_stl = pd.Series(array_serie, name='serie_stl')\nstl = STL(serie_stl, period=val_period,seasonal=val_seasonal, \n\t\t\t\t   trend=val_trend, low_pass=val_low_pass, seasonal_deg=val_season_deg, \n\t\t\t\t   trend_deg=val_trend_deg, low_pass_deg=val_low_pass_deg, robust=val_robust, \n\t\t\t\t   seasonal_jump=val_seasonal_jump, trend_jump=val_trend_jump, low_pass_jump=val_low_pass_jump)\nres = stl.fit()\n\nseason = res.seasonal\ndf[measure.name+\"_DEST\"] =season #serie_stl - season\ndf.set_index('index1')\ndf=df.sort_index()\n${season_col} = df[measure.name+\"_DEST\"]",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["time series", "seasonal"],
+            "type": "Machine Learning"
+        },
+        {
+            "benchmark": "",
+            "description": "<div>The simple moving average is the unweighted mean of the previous M data points, where M is the window size.</div><div>The selection of M depends on the desired smoothing of the data, increasing M improves the smoothing.</div><div>It is calculated according the sorting previously set on the dataset. In the function no sorting or grouping is performed.<br /></div><div>    </div><div><span style=\"font-weight:bold\">Input variables:</span></div><div>    <span style=\"font-weight:bold\">column</span>: the data on which apply the moving average</div><div>    <span style=\"font-weight:bold\">window</span>: <span style=\"font-style:italic\">integer</span>, Size of the moving window. </div><div>            This is the number of observations used for calculating the statistic. </div><div>            Each window will be a fixed size.</div><div>    <span style=\"font-weight:bold\">closed</span>: <span style=\"font-style:italic\">string</span>, default None</div><div>            Make the interval closed on the ‘right’, ‘left’, ‘both’ or ‘neither’ endpoints. Defaults to ‘right’.</div><div>    <span style=\"font-weight:bold\">min_periods</span>: <span style=\"font-style:italic\">integer</span>, default None</div><div>                 Minimum number of observations in window required to have a value (otherwise result is NA). </div><div>                 min_periods will default to the size of the window.</div><div>    <span style=\"font-weight:bold\">center</span>: <span style=\"font-style:italic\">boolean</span>, default False</div><div>            Set the labels at the center of the window.</div><div>            By default, the result is set to the right edge of the window.</div><div>    </div><div><span style=\"font-weight:bold\">Output:</span></div><div>    The moving average of the column values</div>",
+            "family": "online",
+            "id": "c5f7e504-3153-b5d3-e050-000a0f005732",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Simple moving average",
+            "language": "Python",
+            "name": "Simple moving average",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "if ${min_periods}=='None':\n  min_periods=eval(${min_periods})\n  \n${result_column} = ${column}.rolling(window=${window}, closed=${closed}, min_periods=min_periods,center=eval(${center})).mean()",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["math", "aggregation"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "",
+            "description": "<div>The simple moving sumis the unweighted sum of the previous M data points, where M is the window size.</div><div>It is calculated according the sorting previously set on the dataset. In the function no sorting or grouping is performed.<br /></div><div>    </div><div><span style=\"font-weight:bold\">Input variables:</span></div><div>    <span style=\"font-weight:bold\">column</span>: the data on which apply the moving sum</div><div>    <span style=\"font-weight:bold\">window</span>: <span style=\"font-style:italic\">integer</span>, Size of the moving window. </div><div>            This is the number of observations used for calculating the statistic. </div><div>            Each window will be a fixed size.</div><div>    <span style=\"font-weight:bold\">closed</span>: <span style=\"font-style:italic\">string</span>, default None</div><div>            Make the interval closed on the ‘right’, ‘left’, ‘both’ or ‘neither’ endpoints. Defaults to ‘right’.</div><div>    <span style=\"font-weight:bold\">min_periods</span>: <span style=\"font-style:italic\">integer</span>, default None</div><div>                 Minimum number of observations in window required to have a value (otherwise result is NA). </div><div>                 min_periods will default to the size of the window.</div><div>    <span style=\"font-weight:bold\">center</span>: <span style=\"font-style:italic\">boolean</span>, default False</div><div>            Set the labels at the center of the window.</div><div>            By default, the result is set to the right edge of the window.</div><div>    </div><div><span style=\"font-weight:bold\">Output:</span></div><div>    The moving sum of the column values</div>",
+            "family": "online",
+            "id": "c5f7e504-3155-b5d3-e050-000a0f005732",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Simple moving sum",
+            "language": "Python",
+            "name": "Simple moving sum",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "if ${min_periods}=='None':\n  min_periods=eval(${min_periods})\n  \n${result_column} = ${column}.rolling(window=${window}, closed=${closed}, min_periods=min_periods,center=eval(${center})).sum()",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["math", "aggregation"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "",
+            "description": "<div>The function compute the sample skewness of a column. It measure the asymmetry of the distribution of a real-valued variable around its mean, so it is usefull to understand how data are distributed.</div><div>For normally distributed data the skewness should be about zero, for unimodal continous distribution a skewness greater than zero means that there is more weight in the right tail of the distribution.</div><div><br /></div><div><div>In the function no sorting or grouping is performed.<br /></div><div><br /></div><div><span style=\"font-weight:bold\">Input variables:</span></div><div>    <span style=\"font-weight:bold\">column</span>: the data on which apply the skewness</div><div>    <span style=\"font-weight:bold\">bias</span>: <span style=\"font-style:italic\">boolean</span>, default True</div><div>                If False, then the calculations are corrected for statistical bias.</div><div>    <span style=\"font-weight:700\">nan_policy</span>: {&#39;propagate&#39;, &#39;raise&#39;, &#39;omit&#39;}, default &#39;propagate&#39;</div><div>           Defines how to handle when input contains nan. The following options are available (default is ‘propagate’):</div><div><ul><li>‘propagate’: returns nan</li><li>‘raise’: throws an error</li><li>‘omit’: performs the calculations ignoring nan values</li></ul></div><div>    </div><div><span style=\"font-weight:bold\">Output:</span></div><div>    The skewness of the column selected. The value is repeted in all the dataset rows.</div></div>",
+            "family": "online",
+            "id": "c5f7e504-3156-b5d3-e050-000a0f005732",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Skewness",
+            "language": "Python",
+            "name": "Skewness",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "from scipy.stats import skew\nimport pandas as pd\n\ninput_col = ${column}\ninput_bias = eval(${bias})\ninput_nan_policy = ${nan_policy}\n\nres_value = skew(input_col, bias=input_bias, nan_policy=input_nan_policy)\n  \n${skewness_col} = pd.Series(input_col.size*[res_value])",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["skewness", "statistics"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "",
+            "description": "The standard deviation of the desired column.<div>The standar deviation is computed along the entire column and the value is repeated on the different rows.</div>",
+            "family": "online",
+            "id": "06e02df2-295c-4f58-bc6d-9f106450460b",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Standard deviation",
+            "language": "Python",
+            "name": "Standard deviation",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "import numpy as np\nimport pandas as pd\n\ninput_col = ${column}\n\n\nres_value = np.std(input_col)\n  \n${standard_deviation} = pd.Series(input_col.size*[res_value])",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["standard deviation"],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "",
+            "description": "The function permits to derive the trend component in a time series using LOESS (local estimated scatterplotsmoothing) to extract smooths estimate of that component.<div>It can be used with a dataset containing a datetime (datetime_column) and a measure column (measure_column) representing a time serie.<br /></div><div><br /></div><div>The key inputs of the function are:<br /></div><div><ul><li>season - The length of the seasonal smoother. Must be odd<br /></li><li>trend - The length of the trend smoother, usually around 150% of season. Must be odd and larger then season<br /></li><li>low pass - The length of the low-pass estimation window, usually the smallest odd number larger then the periodicity of the data<br /></li></ul><div>Output: <br /></div></div><div><span style=\"white-space:pre\">\t</span>column with the trend component of the selected time serie<br /></div>",
+            "family": "online",
+            "id": "e260cb0d-8b8c-4f1d-bdad-3e146577363a",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Trend component",
+            "language": "Python",
+            "name": "Trend component",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "import dateparser\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import STL\n\ndate_column = ${datetime_column}\n \nval_fill_na_value = ${fill_na_value}\nif val_fill_na_value=='None':\n\tval_fill_na_value=eval(val_fill_na_value)\nelse:\n    val_fill_na_value=int(val_fill_na_value))\n    \nval_method = ${method}\nval_period = ${period}\nif val_period=='None':\n\tval_period = eval(val_period)\nelse:\n\tval_period = int(val_period)\nval_seasonal = int(${seasonal})\nval_trend = ${trend}\nif val_trend=='None':\n\tval_trend = eval(val_trend)\nelse:\n    val_trend = int(val_trend)\nval_low_pass = ${low_pass}\nif val_low_pass == 'None':\n\tval_low_pass=eval(val_low_pass)\nelse:\n  val_low_pass=int(val_low_pass)\nval_season_deg = int(${seasonal_deg})\nval_trend_deg = int(${trend_deg})\nval_low_pass_deg = int(${low_pass_deg})\nval_robust = eval(${robust})\nval_seasonal_jump = int(${seasonal_jump})\nval_trend_jump = int(${trend_jump})\nval_low_pass_jump = int(${low_pass_jump})\n\nif val_fill_na_value:\n\tmeasure = ${measure_column}.fillna(val_fill_na_value)\nelse:\n\tmeasure = ${measure_column}.fillna(method=val_method)\n\n# Build the dataframe with the two columns\ndf = pd.concat([date_column,measure],axis=1)\ndf['index1'] = df.index\ndf = df.sort_values(by=date_column.name)\ndf.set_index(date_column.name)\n\n\narray_serie = dataset[measure.name].array\nserie_stl = pd.Series(array_serie, name='serie_stl')\nstl = STL(serie_stl, period=val_period,seasonal=val_seasonal, \n\t\t\t\t   trend=val_trend, low_pass=val_low_pass, seasonal_deg=val_season_deg, \n\t\t\t\t   trend_deg=val_trend_deg, low_pass_deg=val_low_pass_deg, robust=val_robust, \n\t\t\t\t   seasonal_jump=val_seasonal_jump, trend_jump=val_trend_jump, low_pass_jump=val_low_pass_jump)\nres = stl.fit()\n\ntrend = res.trend\ndf[measure.name+\"_TREND\"] =trend #serie_stl - season\ndf.set_index('index1')\ndf=df.sort_index()\n${trend_col} = df[measure.name+\"_TREND\"]",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["time series", "trend"],
+            "type": "Machine Learning"
+        },
+        {
+            "benchmark": "",
+            "description": "The function permits to derive the time series analyzed without the trend component  using LOESS (local estimated scatterplot smoothing).<div><div>It can be used with a dataset contaning a datetime column and a measure column representing the time serie.</div><div><br /></div><div><div>The keys inputs into STL are:</div><div><span style=\"white-space:pre\">\t</span>season - The length of the seasonal smoother. Must be odd.</div><div><span style=\"white-space:pre\">\t</span>trend - The length of the trend smoother, usually around 150% of season. Must be odd and larger than season.</div><div><span style=\"white-space:pre\">\t</span>low_pass - The length of the low-pass estimation window, usually the smallest odd number larger than the periodicity of the data.</div><div><br /></div><div>Output:</div><div><span style=\"white-space:pre\">\t</span>a column with the original time series withput the trend component</div><div><br /></div></div></div>",
+            "family": "online",
+            "id": "0761e56e-0d8f-498a-9d1f-cfc0c1cef1ac",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "Trend removal",
+            "language": "Python",
+            "name": "Trend removal",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "import dateparser\nimport pandas as pd\nfrom statsmodels.tsa.seasonal import STL\n# comment\ndate_column = ${datetime_column}\n \nval_fill_na_value = ${fill_na_value}\nif val_fill_na_value=='None':\n\tval_fill_na_value=eval(val_fill_na_value)\nelse:\n    val_fill_na_value=int(val_fill_na_value))\n    \nval_method = ${method}\nval_period = ${period}\nif val_period=='None':\n\tval_period = eval(val_period)\nelse:\n\tval_period = int(val_period)\nval_seasonal = int(${seasonal})\nval_trend = ${trend}\nif val_trend=='None':\n\tval_trend = eval(val_trend)\nelse:\n    val_trend = int(val_trend)\nval_low_pass = ${low_pass}\nif val_low_pass == 'None':\n\tval_low_pass=eval(val_low_pass)\nelse:\n  val_low_pass=int(val_low_pass)\nval_season_deg = int(${seasonal_deg})\nval_trend_deg = int(${trend_deg})\nval_low_pass_deg = int(${low_pass_deg})\nval_robust = eval(${robust})\nval_seasonal_jump = int(${seasonal_jump})\nval_trend_jump = int(${trend_jump})\nval_low_pass_jump = int(${low_pass_jump})\n\nif val_fill_na_value:\n\tmeasure = ${measure_column}.fillna(val_fill_na_value)\nelse:\n\tmeasure = ${measure_column}.fillna(method=val_method)\n\n# Build the dataframe with the two columns\ndf = pd.concat([date_column,measure],axis=1)\ndf['index1'] = df.index\ndf = df.sort_values(by=date_column.name)\ndf.set_index(date_column.name)\n\n\narray_serie = dataset[measure.name].array\nserie_stl = pd.Series(array_serie, name='serie_stl')\nstl = STL(serie_stl, period=val_period,seasonal=val_seasonal, \n\t\t\t\t   trend=val_trend, low_pass=val_low_pass, seasonal_deg=val_season_deg, \n\t\t\t\t   trend_deg=val_trend_deg, low_pass_deg=val_low_pass_deg, robust=val_robust, \n\t\t\t\t   seasonal_jump=val_seasonal_jump, trend_jump=val_trend_jump, low_pass_jump=val_low_pass_jump)\nres = stl.fit()\n\ntrend = res.trend\ndf[measure.name+\"_DETREND\"] =serie_stl - trend\ndf.set_index('index1')\ndf=df.sort_index()\n${detrended_col} = df[measure.name+\"_DETREND\"]",
+            "outputColumns": [],
+            "owner": "Knowage Lab",
+            "tags": ["time series", "trend"],
+            "type": "Machine Learning"
+        },
+        {
+            "benchmark": "<p>ddd</p>",
+            "description": "<p>d</p>",
+            "family": "online",
+            "id": "3109f12b-5dc9-4dbb-9fb5-9ce2a18a7a43",
+            "inputColumns": [],
+            "inputVariables": [],
+            "label": "ddd",
+            "language": "Python",
+            "name": "dddd",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "dddd",
+            "outputColumns": [
+                {
+                    "fieldType": "MEASURE",
+                    "name": "ddd",
+                    "type": "NUMBER"
+                }
+            ],
+            "owner": "kte_user",
+            "tags": [""],
+            "type": "Utilities"
+        },
+        {
+            "benchmark": "",
+            "description": "<p><span style=\"color:rgb( 0 , 0 , 0 );background-color:rgba( 0 , 0 , 0 , 0 )\">This is a test function. It computes the family size given number of children, pets, and a scale factor. It also takes the gender as a char and return the complete string</span></p>",
+            "family": "online",
+            "id": "0b7ceeab-9c09-4814-a046-7cacc3c922f1",
+            "inputColumns": [
+                {
+                    "name": "gender",
+                    "type": "STRING"
+                },
+                {
+                    "name": "pets",
+                    "type": "NUMBER"
+                },
+                {
+                    "name": "children",
+                    "type": "NUMBER"
+                }
+            ],
+            "inputVariables": [
+                {
+                    "name": "scale_factor",
+                    "type": "NUMBER",
+                    "value": "0.5"
+                }
+            ],
+            "label": "toy_dataset_function",
+            "language": "Python",
+            "name": "Toy function",
+            "offlineScriptTrain": null,
+            "offlineScriptUse": null,
+            "onlineScript": "# save copy of inputs (inputs are read only) \npets = ${pets} \ngender = ${gender} \n# business logic \nscaled_pets = pets.apply(lambda x: x*${scale_factor}) \n# fill outputs  \n${family_size} = ${children} + scaled_pets \n${gender_str} = gender.replace({\"M\": \"Male\", \"F\": \"Female\"}) ",
+            "outputColumns": [
+                {
+                    "fieldType": "MEASURE",
+                    "name": "family_size",
+                    "type": "NUMBER"
+                },
+                {
+                    "fieldType": "ATTRIBUTE",
+                    "name": "gender_str",
+                    "type": "STRING"
+                }
+            ],
+            "owner": "kte_admin",
+            "tags": [""],
+            "type": "Text Analysis"
+        }
+    ]
+}

@@ -569,6 +569,7 @@
                 },
                 "title": "Accessibility"
             },
+            "addFunction": "Add Function",
             "addWidget": "Add widget",
             "aggregation": "Aggregation",
             "area": "Area",
