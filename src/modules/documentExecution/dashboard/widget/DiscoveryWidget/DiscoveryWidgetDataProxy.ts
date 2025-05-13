@@ -74,9 +74,9 @@ const formatDiscoveryModelForGet = (dashboardId, dashboardConfig: IDashboardConf
     dataToSend.likeSelections[dataset.dsLabel] = {}
     dataToSend.aggregations.dataset = dataset.dsLabel
 
-    addSelectionsToData(dataToSend, propWidget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, propWidget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     propWidget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {

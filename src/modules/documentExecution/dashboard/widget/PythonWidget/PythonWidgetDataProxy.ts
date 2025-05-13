@@ -83,9 +83,9 @@ const formatPythonModelForGet = (dashboardId: any, dashboardConfig: IDashboardCo
         indexes: []
     } as any
 
-    addSelectionsToData(dataToSend, propWidget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, propWidget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     dataToSend.aggregations.dataset = dataset.dsLabel
 

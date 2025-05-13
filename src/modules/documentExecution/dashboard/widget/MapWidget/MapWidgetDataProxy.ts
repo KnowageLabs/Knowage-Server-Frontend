@@ -57,9 +57,9 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
 
     dataToSend.aggregations.dataset = dataset.dsLabel
 
-    addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, widget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     const datasetWithColumns = widget.layers.find((layer: IMapWidgetLayer) => layer.name === dataset.dsLabel)
     console.log('___________________ datasetWithColumns: ', datasetWithColumns)
