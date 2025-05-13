@@ -1,30 +1,31 @@
 <template>
   <q-card>
-    <q-card-section>
+    <q-card-section class="q-ma-lg">
       <form class="row q-col-gutter-md">
-        <div class="col-4">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-input
-              outlined
+              filled
               v-model="v$.driver.label.$model"
               :error="v$.driver.label.$invalid && v$.driver.label.$dirty"
               :error-message="
               v$.driver.label.$invalid && v$.driver.label.$dirty ?
-              $t('validation.required', { fieldName: $t('common.label') }) : null
+              $t('common.validation.required', { fieldName: $t('common.label') }) : ''
             "
+
               maxlength="20"
               @blur="v$.driver.label.$touch()"
               @update:model-value="setDirty"
               :label="$t('common.label') + '*'"
               autofocus/>
         </div>
-        <div class="col-4">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-input
-              outlined
+              filled
               v-model="v$.driver.name.$model"
               :error="v$.driver.name.$invalid && v$.driver.name.$dirty"
               :error-message="
               v$.driver.name.$invalid && v$.driver.name.$dirty ?
-              $t('validation.required', { fieldName: $t('common.name') }) : null
+              $t('common.validation.required', { fieldName: $t('common.name') }) : ''
             "
               maxlength="40"
               @blur="v$.driver.name.$touch()"
@@ -32,9 +33,9 @@
               :label="$t('common.name') + '*'"
               autofocus/>
         </div>
-        <div class="col-4">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-select
-              outlined
+              filled
               v-model="v$.driver.type.$model"
               :options="types"
               option-value="VALUE_CD"
@@ -44,25 +45,25 @@
               :error="v$.driver.type.$invalid && v$.driver.type.$dirty"
               :error-message="
               v$.driver.type.$invalid && v$.driver.type.$dirty ?
-              $t('validation.required', { fieldName: $t('common.type') }) : null
+              $t('common.validation.required', { fieldName: $t('common.type') }) : ''
             "
               @blur="v$.driver.type.$touch()"
               @update:model-value="setDirty"
               :label="$t('common.type') + '*'"
               autocomplete=""/>
         </div>
-        <div class="col-8">
+        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
           <q-input
-              outlined
+              filled
               v-model="driver.description"
               maxlength="160"
               @update:model-value="setDirty"
               :label="$t('common.description') + '*'"
               autofocus/>
         </div>
-        <div class="col-4">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-select
-              outlined
+              filled
               v-model="selectedOptions"
               :options="driversManagemenDetailtDescriptor.options"
               option-label="name"

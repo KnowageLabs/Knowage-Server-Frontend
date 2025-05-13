@@ -1,11 +1,10 @@
 <template>
-  <q-card class="full-width">
+  <q-card class="p-m-2">
     <q-card-section>
       <div class="row q-col-gutter-sm">
-        <div class="col-6 q-mb-md">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-input
               filled
-              class="col"
               v-model.trim="v$.lov.label.$model"
               maxlength="20"
               :error="v$.lov.label.$invalid && v$.lov.label.$dirty"
@@ -27,7 +26,7 @@
 
         </div>
 
-        <div class="col-6 q-mb-md">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-input
               filled
               v-model.trim="v$.lov.name.$model"
@@ -50,7 +49,7 @@
           />
         </div>
 
-        <div class="col-12">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-select
               filled
               v-model="v$.lov.itypeCd.$model"
@@ -72,7 +71,7 @@
           />
         </div>
 
-        <div class="col-12 q-mb-md">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <q-input
               filled
               v-model.trim="lov.description"
@@ -88,26 +87,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { iLov } from '../../LovsManagement'
-import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
+import {defineComponent} from 'vue'
+import {useI18n} from 'vue-i18n'
+import {iLov} from '../../LovsManagement'
+import {createValidations, ICustomValidatorMap} from '@/helpers/commons/validationHelper'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import lovsManagementDetailCardValidation from './LovsManagementDetailCardValidation.json'
 import useValidate from '@vuelidate/core'
 
 export default defineComponent({
   name: 'lovs-management-detail-card',
-  components: { KnValidationMessages },
+  components: {KnValidationMessages},
   props: {
-    selectedLov: { type: Object },
-    lovs: { type: Array, required: true },
-    listOfInputTypes: { type: Array }
+    selectedLov: {type: Object},
+    lovs: {type: Array, required: true},
+    listOfInputTypes: {type: Array}
   },
   emits: ['touched', 'typeChanged', 'dataChanged', 'save', 'cancel'],
   setup() {
-    const { t } = useI18n()
-    return { t }
+    const {t} = useI18n()
+    return {t}
   },
   data() {
     return {

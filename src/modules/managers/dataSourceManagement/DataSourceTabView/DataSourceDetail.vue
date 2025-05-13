@@ -27,7 +27,7 @@
                             filled
                             class="col"
                             v-model="v$.datasource.label.$model"
-                            max-length="100"
+                            maxLength="50"
                             :error="v$.datasource.label.$invalid && v$.datasource.label.$dirty"
                             :error-message="$t('common.validation.required', { fieldName: $t('common.name') })"
                             :label="$t('common.name')"
@@ -53,7 +53,7 @@
                         />
                     </div>
                     <div class="row">
-                        <q-input filled rows="2" class="col" type="textarea" v-model="datasource.descr" max-length="160" :label="$t('common.description')" :disable="readOnly" data-test="description-input" />
+                        <q-input filled rows="2" class="col" type="textarea" v-model="datasource.descr" maxLength="160" :label="$t('common.description')" :disable="readOnly" data-test="description-input" />
                     </div>
                     <div v-if="!showOwnerMessage" class="row q-mt-sm justify-between">
                         <q-btn-toggle
