@@ -1,0 +1,6 @@
+printWidth: 300
+semi: false
+singleQuote: true
+tabWidth: 4
+trailingComma: none
+useEditorConfig: false

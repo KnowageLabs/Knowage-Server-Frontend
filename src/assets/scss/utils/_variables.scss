@@ -70,14 +70,16 @@
     --kn-mainmenu-background-color: #363636;
     --kn-mainmenu-hover-background-color: #555555;
     --kn-adminmenu-hover-background-color: #c8c8c8;
+    --kn-mainmenu-badge-background-color: #c41b87;
+    --kn-mainmenu-badge-color: #fff;
     --kn-mainmenu-box-shadow: 0px 2px 4px #484848;
     --kn-mainmenu-highlight-color: #c41b87;
     --kn-mainmenu-avatar-background-color: transparent;
     --kn-mainmenu-avatar-border-radius: 0;
     --kn-mainmenu-avatar-border-color: transparent;
     --kn-mainmenu-icon-color: #fff;
-    --kn-mainmenu-panel-color: #e7e7e7;
-    --kn-mainmenu-panel-text-color: #363636;
+    --kn-mainmenu-panel-color: #f8f8f8;
+    --kn-mainmenu-panel-text-color: #292929;
     --kn-mainmenu-profile-box-shadow: -3px 0 4px 0 black;
     --kn-mainmenu-width: 58px;
 
@@ -127,10 +129,10 @@
     --kn-message-border-radius: 4px;
 
     //hint card
-    --kn-hintcard-background-color: #bbd6ed;
-    --kn-hintcard-title-color: #43749e;
-    --kn-hintcard-text-color: black;
-    --kn-hintcard-icon-color: #43749e;
+    --kn-hintcard-background-color: #72aadb;
+    --kn-hintcard-title-color: #000;
+    --kn-hintcard-text-color: #000;
+    --kn-hintcard-icon-color: #000;
 
     //parameter sidebar
     --kn-param-sidebar-expanded-icon: fa fa-angles-right;
@@ -141,10 +143,10 @@
     --kn-param-sidebar-even-alternate-rows: #ffffff;
     --kn-param-sidebar-odd-alternate-rows: #dcdcdc;
     --kn-param-sidebar-icon-background-color-expanded: #ffffff;
-    --kn-param-sidebar-icon-text-color-expanded: #ce0651;
+    --kn-param-sidebar-icon-text-color-expanded: #c41b87;
     --kn-param-sidebar-icon-background-color-collapsed: #ffffff;
-    --kn-param-sidebar-icon-text-color-collapsed: #ce0651;
+    --kn-param-sidebar-icon-text-color-collapsed: #c41b87;
     --kn-param-sidebar-icon-hover-background-color: #ffffff;
-    --kn-param-sidebar-icon-hover-text-color: #ce0651;
+    --kn-param-sidebar-icon-hover-text-color: #c41b87;
     --kn-param-sidebar-icon-radius: 50%;
 }

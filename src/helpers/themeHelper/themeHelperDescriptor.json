@@ -191,6 +191,16 @@
                 "key": "--kn-mainmenu-avatar-border-radius",
                 "label": "Profile Border Radius",
                 "type": "text"
+            },
+            {
+                "key": "--kn-mainmenu-badge-background-color",
+                "label": "Menu Badge Background Color",
+                "type": "color"
+            },
+            {
+                "key": "--kn-mainmenu-badge-color",
+                "label": "Menu Badge Text Color",
+                "type": "color"
             }
         ]
     },
