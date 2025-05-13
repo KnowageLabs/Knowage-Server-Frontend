@@ -1,9 +1,9 @@
 :root {
     // COLORS
     --kn-color-default: #a7a7a7;
-    --kn-color-primary: #43749e;
+    --kn-color-primary: #363636;
     --kn-color-secondary: #bbd6ed;
-    --kn-color-fab: #ce0651;
+    --kn-color-fab: #c41b87;
     --kn-color-disabled: #a0a0a0;
     --kn-color-selected: #deecf8;
     --kn-color-borders: #cccccc;
@@ -48,10 +48,10 @@
     --kn-button-icon-color-default: #a7a7a7;
     --kn-button-dark-color: #43749e;
     --kn-button-light-color: #ffffff;
-    --kn-button-fab-background-color: #ce0651;
-    --kn-button-fab-color: #ffffff;
-    --kn-button-fab-hover-background-color: #d14b7c;
-    --kn-button-fab-hover-color: #ffffff;
+    --kn-button-fab-background-color: #c41b87;
+    --kn-button-fab-color: #fff;
+    --kn-button-fab-hover-background-color: #b95d97;
+    --kn-button-fab-hover-color: #fff;
 
     // INPUTS
     --kn-input-checkbox-selected-background: #ce065180;
@@ -67,16 +67,17 @@
     --kn-list-item-height: 45px;
 
     // MENU
-    --kn-mainmenu-background-color: #43749e;
-    --kn-mainmenu-hover-background-color: #78a9d4;
-    --kn-adminmenu-hover-background-color: #cbdeef;
-    --kn-mainmenu-box-shadow: 0px 4px 8px #484848;
-    --kn-mainmenu-highlight-color: #ce0651;
-    --kn-mainmenu-avatar-background-color: #fff;
-    --kn-mainmenu-avatar-border-radius: 50%;
+    --kn-mainmenu-background-color: #363636;
+    --kn-mainmenu-hover-background-color: #555555;
+    --kn-adminmenu-hover-background-color: #c8c8c8;
+    --kn-mainmenu-box-shadow: 0px 2px 4px #484848;
+    --kn-mainmenu-highlight-color: #c41b87;
+    --kn-mainmenu-avatar-background-color: transparent;
+    --kn-mainmenu-avatar-border-radius: 0;
+    --kn-mainmenu-avatar-border-color: transparent;
     --kn-mainmenu-icon-color: #fff;
-    --kn-mainmenu-panel-color: #f0f8ff;
-    --kn-mainmenu-panel-text-color: #43749e;
+    --kn-mainmenu-panel-color: #e7e7e7;
+    --kn-mainmenu-panel-text-color: #363636;
     --kn-mainmenu-profile-box-shadow: -3px 0 4px 0 black;
     --kn-mainmenu-width: 58px;
 
@@ -100,11 +101,11 @@
     --kn-toolbar-default-background-color: #a7a7a7;
     --kn-toolbar-default-color: #ffffff;
 
-    --kn-toolbar-primary-background-color: #43749e;
+    --kn-toolbar-primary-background-color: #3f3f3f;
     --kn-toolbar-primary-color: #ffffff;
 
-    --kn-toolbar-secondary-background-color: #bbd6ed;
-    --kn-toolbar-secondary-color: #48525b;
+    --kn-toolbar-secondary-background-color: #929292;
+    --kn-toolbar-secondary-color: #000000;
 
     // TREE
     --kn-tree-border-color: #cccccc;

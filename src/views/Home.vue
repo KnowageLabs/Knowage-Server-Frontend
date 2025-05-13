@@ -4,36 +4,15 @@
         <div class="upperSection p-d-flex">
             <div class="p-d-flex p-flex-column kn-flex">
                 <div class="logo">
-                    <img src="/images/home/logo-knowage8.svg" />
+                    <img :src="logo" />
                 </div>
-                <div class="text p-grid">
-                    <h2 class="p-col-12 p-m-0">{{ $t('home.welcome') }}</h2>
-                    <p class="p-col-12 p-xl-6 p-m-0" v-html="$t('home.welcomeText')"></p>
+                <div class="text row">
+                    <p class="col-8" v-html="$t('home.welcomeText')"></p>
                 </div>
             </div>
             <div class="buttons p-d-flex">
                 <a href="https://knowage-suite.readthedocs.io/" target="_blank">{{ $t('home.button.documentation') }}</a>
-                <a href="https://www.knowage-suite.com/qa/" target="_blank">{{ $t('home.button.qa') }}</a>
-            </div>
-        </div>
-        <div class="lowerSection">
-            <div class="border-container">
-                <div class="image">
-                    <img src="/images/home/kn_arrow_right.svg" />
-                    <p>{{ $t('home.connectYourData') }}</p>
-                </div>
-                <div class="image">
-                    <img src="/images/home/kn_bubble.svg" />
-                    <p>{{ $t('home.queryYourData') }}</p>
-                </div>
-                <div class="image">
-                    <img src="/images/home/kn_add.svg" />
-                    <p>{{ $t('home.createYourAnalysis') }}</p>
-                </div>
-                <div class="image">
-                    <img src="/images/home/kn_flag.svg" />
-                    <p>{{ $t('home.saveAndShare') }}</p>
-                </div>
+                <a href="https://github.com/KnowageLabs/Knowage-Server/discussions" target="_blank">{{ $t('home.button.qa') }}</a>
             </div>
         </div>
     </div>
@@ -43,12 +22,14 @@
 import { defineComponent } from 'vue'
 import { mapState } from 'pinia'
 import mainStore from '../App.store.js'
+import logo from '/images/commons/logo_knowage_white.svg'
 
 export default defineComponent({
     name: 'home',
     data() {
         return {
-            completeUrl: false
+            completeUrl: false,
+            logo: logo
         }
     },
     beforeMounted() {
@@ -93,14 +74,14 @@ $knowageBlueColor: #042d5f;
 .homeContainer {
     height: 100vh;
     padding: 64px;
-    background: url('/images/home/home-background.png') no-repeat;
-    background-position: bottom right;
-    background-size: 120%;
+    background: url('/images/home/home-background.jpg') no-repeat;
+    background-size: cover;
     display: flex;
     flex-direction: column;
 
     .upperSection {
         flex-wrap: wrap;
+        align-items: center;
         .logo {
             width: 40%;
             min-width: 400px;
@@ -114,71 +95,33 @@ $knowageBlueColor: #042d5f;
                 width: 300px;
                 height: 60px;
                 line-height: 60px;
-                text-transform: uppercase;
+                text-transform: capitalize;
                 text-decoration: none;
-                color: white;
-                border-radius: 2px;
+                font-weight: bold;
+                font-size: 1rem;
+                color: black;
                 text-align: center;
-                background-color: $knowageBlueColor;
-                box-shadow: 0px 2px 2px #686868;
+                background-color: white;
                 margin-bottom: 20px;
                 transition: all 0.3s ease-in;
                 &:hover {
-                    background-color: color.adjust($knowageBlueColor, $lightness: 5%);
-                }
-                &:active {
-                    box-shadow: 0px 0px 2px #686868;
+                    background-color: var(--kn-color-fab);
+                    color: white;
                 }
             }
         }
         .text {
             margin-top: 5%;
-            h2 {
-                color: $knowageBlueColor;
-                font-size: 2rem;
-            }
             p {
-                font-size: 1.5rem;
-                color: color.adjust(black, $lightness: 40%);
+                font-size: 2rem;
+                font-weight: 100;
+                color: white;
             }
         }
     }
     .upperSection,
     .lowerSection {
         flex: 1;
-    }
-    .lowerSection {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        .border-container {
-            flex: 1;
-            max-width: 1100px;
-            border-bottom: 10px solid var(--kn-color-fab);
-            display: flex;
-            justify-content: space-around;
-        }
-        .image {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #ccc;
-            height: 200px;
-            width: 200px;
-            img {
-                height: 50px;
-                margin: 10px;
-            }
-            p {
-                text-transform: uppercase;
-                font-size: 1.8rem;
-                font-weight: 100;
-                margin: 10px;
-                text-align: center;
-                color: $knowageBlueColor;
-            }
-        }
     }
 }
 

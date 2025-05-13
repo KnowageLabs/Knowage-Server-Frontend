@@ -1,7 +1,7 @@
 <template>
     <div class="config-preview kn-flex" v-if="legendVizualizationSettings?.visualizationType && legendVizualizationSettings.visualizationType.markerConf" :style="getPreviewStyle(legendVizualizationSettings.visualizationType.markerConf)">
         <div v-if="legendVizualizationSettings.visualizationType.type === 'clusters'" class="clusters-config-preview">
-            <div class="p-d-flex p-flex-row p-jc-center p-ai-center cluster-preview" :style="getClusterPreviewStyle(legendVizualizationSettings.visualizationType.clusterConf)">10</div>
+            <div class="p-d-flex p-flex-row p-ai-center cluster-preview" :style="getClusterPreviewStyle(legendVizualizationSettings.visualizationType.clusterConf)">10</div>
         </div>
 
         <i v-if="legendVizualizationSettings.visualizationType.markerConf.type === 'default' || legendVizualizationSettings.visualizationType.markerConf.type === 'icon'" :class="getIconClass(legendVizualizationSettings.visualizationType.markerConf)" />
@@ -65,6 +65,7 @@ export default {
 
 <style scoped>
 .config-preview {
+    padding-left: 0.1rem;
     padding-right: 3rem;
     display: flex;
     flex-direction: row;

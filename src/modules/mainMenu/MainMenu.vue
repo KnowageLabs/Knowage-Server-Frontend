@@ -316,7 +316,7 @@ export default defineComponent({
                                 this.setHomePage(homePage)
                             }
                         }
-                    }
+                    } else this.setHomePage({ loading: false })
                     const responseCommonUserFunctionalities = response.data.commonUserFunctionalities
                     for (const index in responseCommonUserFunctionalities) {
                         const item = responseCommonUserFunctionalities[index]
@@ -409,7 +409,7 @@ export default defineComponent({
                 float: right;
                 margin-left: 4px;
                 border-radius: var(--kn-mainmenu-avatar-border-radius);
-                border: 2px solid var(--kn-mainmenu-highlight-color);
+                border: 2px solid var(--kn-mainmenu-avatar-border-color);
                 background-color: var(--kn-mainmenu-avatar-background-color);
             }
             .profile-name,
