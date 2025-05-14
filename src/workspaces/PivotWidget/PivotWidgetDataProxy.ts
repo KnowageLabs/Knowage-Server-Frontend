@@ -1,5 +1,5 @@
-import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, addVariablesToFormula, hasFields, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
-import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
+import { addDataToCache, addDriversToData, addFunctionColumnToTheMeasuresForThePostData, addParametersToData, addSelectionsToData, addVariablesToFormula, hasFields, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration, IWidgetFunctionColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -68,6 +68,10 @@ const formatPivotModelForGet = (dashboardId: any, dashboardConfig: IDashboardCon
         const fields = propWidget.fields[fieldsName]
         fields.forEach((field) => {
             if (field.fieldType === 'MEASURE') {
+                if (field.type === 'pythonFunction') {
+                    addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, field as IWidgetFunctionColumn)
+                    return
+                }
                 const measureToPush = { id: field.alias, alias: field.alias, columnName: field.columnName, funct: field.aggregation, orderColumn: field.alias } as any
                 if (field.formula) measureToPush.formula = addVariablesToFormula(field, dashboardConfig)
 

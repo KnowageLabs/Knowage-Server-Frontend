@@ -67,6 +67,9 @@ export default defineComponent({
         }
     },
     watch: {
+        async propFunctionColumn() {
+            await this.loadFunctionColumn()
+        },
         propFunction() {
             this.loadFunction()
         }

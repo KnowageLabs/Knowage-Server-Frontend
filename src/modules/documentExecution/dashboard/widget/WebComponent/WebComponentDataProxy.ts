@@ -1,5 +1,5 @@
-import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '../../Dashboard'
-import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, showGetDataError, getAggregationsModel, addDataToCache, addVariablesToFormula } from '../../DashboardDataProxy'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration, IWidgetFunctionColumn } from '../../Dashboard'
+import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, showGetDataError, getAggregationsModel, addDataToCache, addVariablesToFormula, addFunctionColumnToTheMeasuresForThePostData } from '../../DashboardDataProxy'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import deepcopy from 'deepcopy'
@@ -102,6 +102,11 @@ const formatWebComponentModelForService = (dashboardId: any, dashboardConfig: ID
 
     widget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
+            if (column.type === 'pythonFunction') {
+                addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as IWidgetFunctionColumn)
+                return
+            }
+
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
 
