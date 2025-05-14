@@ -55,7 +55,7 @@
     >
     </KnCalculatedField>
 
-    <WidgetEditorFunctionsDialog v-if="functionsDialogVisible" :visible="functionsDialogVisible" :prop-function-column="selectedFunctionColumn" :selected-dataset="selectedDatasetForFunctions" @close="onFunctionsDialogClosed"></WidgetEditorFunctionsDialog>
+    <WidgetEditorFunctionsDialog v-if="functionsDialogVisible" :visible="functionsDialogVisible" :prop-function-column="selectedFunctionColumn" :selected-dataset="selectedDatasetForFunctions" @close="onFunctionsDialogClosed" @save="onFunctionsColumnSave"></WidgetEditorFunctionsDialog>
 </template>
 
 <script lang="ts">
@@ -289,7 +289,6 @@ export default defineComponent({
             this.calcFieldDialogVisible = false
         },
         createNewFormulaField() {
-            console.log('--------- CREATE NEW FORMULA FIELD CLICKED!')
             this.selectedFunctionColumn = createNewFunctionColumn()
             this.functionsDialogVisible = true
         },
@@ -301,6 +300,12 @@ export default defineComponent({
             if (!this.selectedDatasets || !this.selectedDataset) return
             const dataset = this.selectedDatasets.find((tempDataset: IDataset) => tempDataset.id.dsId === this.selectedDataset?.id)
             this.selectedDatasetForFunctions = dataset ?? null
+        },
+        onFunctionsColumnSave(functionColumn: IWidgetFunctionColumn) {
+            this.functionsDialogVisible = false
+            this.selectedFunctionColumn = null
+            emitter.emit('addNewFunctionColumn', functionColumn)
+            console.log('------------ onFunctionsColumnSave: ', functionColumn)
         }
     }
 })

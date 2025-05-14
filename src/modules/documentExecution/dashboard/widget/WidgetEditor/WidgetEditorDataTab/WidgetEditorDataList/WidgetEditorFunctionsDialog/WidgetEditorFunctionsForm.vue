@@ -1,6 +1,6 @@
 <template>
     <div class="kn-full-width">
-        <Card v-if="selectedFunction" class="p-m-2">
+        <Card v-if="selectedFunction && functionColumn?.catalogFunctionConfig" class="p-m-2">
             <template #content>
                 <q-expansion-item class="kn-full-width p-m-2" default-opened :label="$t('common.description')">
                     <div>
@@ -14,13 +14,13 @@
                     </div>
                 </q-expansion-item>
 
-                <div v-if="selectedFunction.inputColumns.length > 0" class="p-m-2">
+                <div v-if="functionColumn.catalogFunctionConfig.inputColumns.length > 0" class="p-m-2">
                     <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.columnsSettings') }}</label>
-                    <FunctionsCatalogDatasetFormColumnsTable :columns="selectedFunction.inputColumns" :dataset-columns="datasetColumns"></FunctionsCatalogDatasetFormColumnsTable>
+                    <FunctionsCatalogDatasetFormColumnsTable :columns="functionColumn.catalogFunctionConfig.inputColumns" :dataset-columns="datasetColumns"></FunctionsCatalogDatasetFormColumnsTable>
                 </div>
-                <div v-if="selectedFunction.inputVariables.length > 0" class="p-mx-2 p-mt-3">
+                <div v-if="functionColumn.catalogFunctionConfig.inputVariables.length > 0" class="p-mx-2 p-mt-3">
                     <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.variablesSettings') }}</label>
-                    <FunctionsCatalogDatasetFormVariablesTable :variables="selectedFunction.inputVariables"></FunctionsCatalogDatasetFormVariablesTable>
+                    <FunctionsCatalogDatasetFormVariablesTable :variables="functionColumn.catalogFunctionConfig.inputVariables"></FunctionsCatalogDatasetFormVariablesTable>
                 </div>
                 <div class="p-mx-2 p-mt-3">
                     <q-select v-model="selectedEnvironment" clearable emit-value outlined :options="pythonEnvironments" option-value="label" option-label="label" map-options :label="$t('common.environment')" @update:model-value="onEnvironmentSelected" />
@@ -86,14 +86,12 @@ export default defineComponent({
                 this.selectedEnvironment = this.functionColumn.catalogFunctionConfig.environment
                 await this.onEnvironmentSelected(this.selectedEnvironment)
             }
-            console.log('-------- LOADED FUNCTION COLUMN: ', this.functionColumn)
         },
         loadFunction() {
             this.selectedFunction = this.propFunction as iFunction
         },
         loadDataset() {
             this.dataset = this.selectedDataset as IDataset | null
-            console.log('----------- LOADED DATASET: ', this.dataset)
             this.datasetColumns = []
             if (this.dataset && this.dataset.metadata) this.dataset.metadata.fieldsMeta.forEach((field: any) => this.datasetColumns.push(field.name))
         },
@@ -101,6 +99,8 @@ export default defineComponent({
             this.pythonEnvironments = this.getPythonEnvironments()
         },
         async onEnvironmentSelected(environment: string) {
+            if (!this.functionColumn) return
+            this.functionColumn.catalogFunctionConfig.environment = environment
             this.setLoading(true)
             if (environment && environment.split('.')[0] === 'python') {
                 await this.loadEnvironmentLibraries(`2.0/backendservices/widgets/python/libraries/${environment}`)

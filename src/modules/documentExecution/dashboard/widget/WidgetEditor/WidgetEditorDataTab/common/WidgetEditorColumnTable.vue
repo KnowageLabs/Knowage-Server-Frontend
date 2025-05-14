@@ -62,7 +62,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { filterDefault } from '@/helpers/commons/filterHelper'
-import { IWidget, IWidgetColumn } from '../../../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetFunctionColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { addChartColumnToTable } from '../../helpers/chartWidget/ChartWidgetDataTabHelpers'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
@@ -109,10 +109,12 @@ export default defineComponent({
         setEventListeners() {
             emitter.on('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.on('addNewCalculatedField', this.onCalcFieldAdded)
+            emitter.on('addNewFunctionColumn', this.onFunctionsColumnAdded)
         },
         removeEventListeners() {
             emitter.off('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.off('addNewCalculatedField', this.onCalcFieldAdded)
+            emitter.off('addNewFunctionColumn', this.onFunctionsColumnAdded)
         },
         onSelectedColumnUpdated(column: any) {
             this.updateSelectedColumn(column)
@@ -173,6 +175,11 @@ export default defineComponent({
             if (this.settings.attributesOnly || (this.axis && !['Y', 'start'].includes(this.axis))) return
             this.rows.push(field as IWidgetColumn)
             this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings })
+        },
+        onFunctionsColumnAdded(functionColumn: IWidgetFunctionColumn) {
+            if (this.settings.attributesOnly || (this.axis && !['Y', 'start'].includes(this.axis))) return
+            this.rows.push(functionColumn as IWidgetColumn)
+            this.$emit('itemAdded', { column: functionColumn, rows: this.rows, settings: this.settings })
         }
     }
 })

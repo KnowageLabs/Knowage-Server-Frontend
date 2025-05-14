@@ -861,6 +861,10 @@ export interface IWidgetFunctionColumn {
     catalogFunctionConfig: IWidgetFunctionColumnConfig
     funct: string
     orderColumn: string
+    type: string
+    multiValue: boolean
+    aggregation: string
+    filter: IWidgetColumnFilter | null
     formula?: string
     formulaEditor?: string
     drillOrder?: IDrillOrderItem

@@ -8,10 +8,10 @@ export const loadFunctionsData = async ($http: any): Promise<iFunction[]> => {
     const url = `${import.meta.env.VITE_KNOWAGE_API_CONTEXT}/api/1.0/functioncatalog/completelist`
 
     try {
-        // const response: AxiosResponse<any> = await $http.get(url)
+        const response: AxiosResponse<any> = await $http.get(url)
         // TODO - Remove mock
-        // return response.data as iFunction[];
-        return mockedData.data as iFunction[]
+        return response.data as iFunction[]
+        // return mockedData.data as iFunction[]
     } catch (error) {
         return []
     }
@@ -32,7 +32,11 @@ export const createNewFunctionColumn = () => {
         },
         funct: 'NONE',
         orderColumn: '',
-        orderType: ''
+        orderType: '',
+        type: 'pythonFunction',
+        multiValue: false,
+        aggregation: '',
+        filter: null
     } as IWidgetFunctionColumn
 
     return functionsColumn
