@@ -152,7 +152,7 @@ const getFilters = (propWidget: IWidget, datasetLabel: string) => {
     const activeFilters = {} as any
 
     columns.forEach((column) => {
-        if (column.filter.enabled && column.filter.operator) {
+        if (column.filter && column.filter.enabled && column.filter.operator) {
             const filterData = { filterOperator: column.filter.operator, filterVals: [`('${column.filter.value}')`] }
             createNestedObject(activeFilters, [datasetLabel, column.columnName], filterData)
         }
