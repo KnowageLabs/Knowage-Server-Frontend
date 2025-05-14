@@ -10,7 +10,7 @@ import deepcopy from 'deepcopy'
 import store from '@/App.store.js'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './helpers/common/DashboardRegexHelper'
-import { ISelection, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch, IDashboardConfiguration } from './Dashboard'
+import { ISelection, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch, IDashboardConfiguration, IWidgetFunctionColumn } from './Dashboard'
 import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
 import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
@@ -247,4 +247,24 @@ export const addDataToCache = async (dataHash, tempResponse) => {
 
 export const clearIndexedDBCache = () => {
     indexedDB.widgetData.clear()
+}
+
+export const addFunctionColumnToTheMeasuresForThePostData = (measures: any[], functionColumn: IWidgetFunctionColumn) => {
+    const functionDataForPost = {
+        id: functionColumn.id,
+        alias: functionColumn.alias,
+        catalogFunctionId: functionColumn.catalogFunctionId,
+        catalogFunctionConfig: {
+            inputColumns: functionColumn.catalogFunctionConfig?.inputColumns ?? [],
+            inputVariables: functionColumn.catalogFunctionConfig?.inputVariables ?? [],
+            outputColumns: functionColumn.catalogFunctionConfig?.outputColumns ?? [],
+            environment: functionColumn.catalogFunctionConfig?.environment ?? ''
+        },
+        columnName: functionColumn.columnName,
+        orderType: functionColumn.orderType ?? '',
+        funct: functionColumn.funct,
+        orderColumn: functionColumn.orderColumn
+    }
+
+    measures.push(functionDataForPost)
 }

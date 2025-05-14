@@ -1,5 +1,5 @@
-import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
-import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
+import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula, addFunctionColumnToTheMeasuresForThePostData } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration, IWidgetFunctionColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import deepcopy from 'deepcopy'
@@ -80,6 +80,10 @@ const formatDiscoveryModelForGet = (dashboardId, dashboardConfig: IDashboardConf
 
     propWidget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
+            if (column.type === 'pythonFunction') {
+                addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as IWidgetFunctionColumn)
+                return
+            }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: 'NONE', orderColumn: column.alias, functColumn: column.alias, orderType: '' } as any
             column.id === propWidget.settings.sortingColumn ? (measureToPush.orderType = propWidget.settings.sortingOrder) : ''
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
