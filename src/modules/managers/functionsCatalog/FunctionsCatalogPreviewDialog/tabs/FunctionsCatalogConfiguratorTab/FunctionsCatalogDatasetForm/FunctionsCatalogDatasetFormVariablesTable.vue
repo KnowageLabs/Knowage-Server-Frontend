@@ -18,7 +18,7 @@
         <Column :header="$t('common.value')">
             <template #editor="slotProps">
                 <div class="p-d-flex p-flex-row p-ai-center">
-                    <InputText v-if="slotProps.data.type !== 'DATE'" v-model="slotProps.data['value']" :style="functionsCatalogDatasetFormVariablesTableDescriptor.inputStyle" class="p-mr-2  kn-flex" :type="slotProps.data.type === 'NUMBER' ? 'number' : 'text'" />
+                    <InputText v-if="slotProps.data.type !== 'DATE'" v-model="slotProps.data['value']" :style="functionsCatalogDatasetFormVariablesTableDescriptor.inputStyle" class="p-mr-2 kn-flex" :type="slotProps.data.type === 'NUMBER' ? 'number' : 'text'" />
                     <Calendar v-else v-model="slotProps.data['value']" class="kn-flex"></Calendar>
                     <i class="pi pi-pencil edit-icon kn-flex" />
                 </div>
@@ -48,15 +48,15 @@ export default defineComponent({
         return { functionsCatalogDatasetFormVariablesTableDescriptor, inputVariables: [] as iInputVariable[] }
     },
     watch: {
-        propinputColumns() {
-            this.loadinputColumns()
+        variables() {
+            this.loadInputVariables()
         }
     },
     created() {
-        this.loadinputColumns()
+        this.loadInputVariables()
     },
     methods: {
-        loadinputColumns() {
+        loadInputVariables() {
             this.inputVariables = this.variables as iInputVariable[]
         },
         getIconClass(type: string) {

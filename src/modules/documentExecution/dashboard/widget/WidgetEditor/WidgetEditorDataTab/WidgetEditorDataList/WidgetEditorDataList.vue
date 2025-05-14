@@ -10,11 +10,11 @@
             <q-btn v-if="isEnterprise" color="primary" class="kn-cursor-pointer p-ml-auto p-mr-1" :label="$t('common.add')">
                 <q-menu>
                     <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup>
-                            <q-item-section @click="createNewCalcField">{{ $t('common.addCalculatedField') }}</q-item-section>
+                        <q-item clickable v-close-popup @click="createNewCalcField">
+                            <q-item-section>{{ $t('common.addCalculatedField') }}</q-item-section>
                         </q-item>
-                        <q-item clickable v-close-popup>
-                            <q-item-section @click="createNewFormulaField">{{ $t('dashboard.widgetEditor.addFunction') }}</q-item-section>
+                        <q-item clickable v-close-popup :disable="createNewFormulaDisabled" @click="createNewFormulaField">
+                            <q-item-section>{{ $t('dashboard.widgetEditor.addFunction') }}</q-item-section>
                         </q-item>
                     </q-list>
                 </q-menu>
@@ -55,7 +55,15 @@
     >
     </KnCalculatedField>
 
-    <WidgetEditorFunctionsDialog v-if="functionsDialogVisible" :visible="functionsDialogVisible" :prop-function-column="selectedFunctionColumn" :selected-dataset="selectedDatasetForFunctions" @close="onFunctionsDialogClosed" @save="onFunctionsColumnSave"></WidgetEditorFunctionsDialog>
+    <WidgetEditorFunctionsDialog
+        v-if="functionsDialogVisible"
+        :visible="functionsDialogVisible"
+        :prop-function-column="selectedFunctionColumn"
+        :selected-dataset="selectedDatasetForFunctions"
+        :edit-mode="functionsDialogEditMode"
+        @close="onFunctionsDialogClosed"
+        @save="onFunctionsColumnSave"
+    ></WidgetEditorFunctionsDialog>
 </template>
 
 <script lang="ts">
@@ -105,13 +113,18 @@ export default defineComponent({
             availableFunctions: [] as any,
             functionsDialogVisible: false,
             selectedDatasetForFunctions: null as IDataset | null,
-            selectedFunctionColumn: null as IWidgetFunctionColumn | null
+            selectedFunctionColumn: null as IWidgetFunctionColumn | null,
+            functionsDialogEditMode: false
         }
     },
     computed: {
         ...mapState(mainStore, {
             isEnterprise: 'isEnterprise'
-        })
+        }),
+        createNewFormulaDisabled() {
+            if (!this.widgetModel) return true
+            return this.widgetModel.columns.some((col: IWidgetColumn) => col.type === 'pythonFunction')
+        }
     },
     watch: {
         widgetModel() {
@@ -156,9 +169,11 @@ export default defineComponent({
         },
         setEventListeners() {
             emitter.on('editCalculatedField', this.editCalcField)
+            emitter.on('editFunctionColumn', this.editFunctionColumn)
         },
         removeEventListeners() {
             emitter.off('editCalculatedField', this.editCalcField)
+            emitter.off('editFunctionColumn', this.editFunctionColumn)
         },
         loadDatasets() {
             this.datasetOptions = []
@@ -295,17 +310,23 @@ export default defineComponent({
         onFunctionsDialogClosed() {
             this.functionsDialogVisible = false
             this.selectedFunctionColumn = null
+            this.functionsDialogEditMode = false
         },
         loadSelectedDatasetForFunctions() {
             if (!this.selectedDatasets || !this.selectedDataset) return
             const dataset = this.selectedDatasets.find((tempDataset: IDataset) => tempDataset.id.dsId === this.selectedDataset?.id)
             this.selectedDatasetForFunctions = dataset ?? null
         },
+        editFunctionColumn(functionColumn: any) {
+            this.selectedFunctionColumn = functionColumn
+            this.functionsDialogEditMode = true
+            this.functionsDialogVisible = true
+        },
         onFunctionsColumnSave(functionColumn: IWidgetFunctionColumn) {
             this.functionsDialogVisible = false
             this.selectedFunctionColumn = null
-            emitter.emit('addNewFunctionColumn', functionColumn)
-            console.log('------------ onFunctionsColumnSave: ', functionColumn)
+            if (!this.functionsDialogEditMode) emitter.emit('addNewFunctionColumn', functionColumn)
+            this.functionsDialogEditMode = false
         }
     }
 })

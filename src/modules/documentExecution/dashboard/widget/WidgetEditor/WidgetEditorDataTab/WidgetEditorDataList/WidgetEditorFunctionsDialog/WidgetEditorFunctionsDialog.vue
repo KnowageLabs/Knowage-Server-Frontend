@@ -9,8 +9,8 @@
         </template>
 
         <div class="p-formgrid p-grid p-pt-2">
-            <WidgetEditorFunctionsList class="p-lg-3" :prop-functions="functions" @selectedFunction="onSelectedFunction"></WidgetEditorFunctionsList>
-            <WidgetEditorFunctionsForm class="p-lg-9" :propFunctionColumn="propFunctionColumn" :prop-function="selectedFunction" :selected-dataset="selectedDataset" :python-environments="[]" :libraries="[]"></WidgetEditorFunctionsForm>
+            <WidgetEditorFunctionsList class="p-lg-3" :prop-functions="functions" :propSelectedFunction="selectedFunction" @selectedFunction="onSelectedFunction"></WidgetEditorFunctionsList>
+            <WidgetEditorFunctionsForm class="p-lg-9" :propFunctionColumn="functionColumn" :prop-function="selectedFunction" :selected-dataset="selectedDataset" :python-environments="[]" :libraries="[]"></WidgetEditorFunctionsForm>
         </div>
 
         <template #footer>
@@ -35,7 +35,7 @@ import WidgetEditorFunctionsForm from './WidgetEditorFunctionsForm.vue'
 export default defineComponent({
     name: 'widget-editor-functions-dialog',
     components: { Dialog, WidgetEditorFunctionsList, WidgetEditorFunctionsForm },
-    props: { propFunctionColumn: { type: Object as PropType<IWidgetFunctionColumn | null>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null>, required: true } },
+    props: { propFunctionColumn: { type: Object as PropType<IWidgetFunctionColumn | null>, required: true }, selectedDataset: { type: Object as PropType<IDataset | null>, required: true }, editMode: { type: Boolean } },
     emits: ['close', 'save'],
     data() {
         return {
@@ -71,6 +71,12 @@ export default defineComponent({
         ...mapActions(appStore, ['setLoading']),
         loadFunctionColumn() {
             this.functionColumn = this.propFunctionColumn
+            this.loadPreselectedFunction()
+        },
+        loadPreselectedFunction() {
+            if (!this.functionColumn?.catalogFunctionId) return
+            const tempFunction = this.functions.find((tempFunction: iFunction) => tempFunction.id === this.functionColumn?.catalogFunctionId)
+            if (tempFunction) this.selectedFunction = tempFunction
         },
         async loadFunctions() {
             this.setLoading(true)
