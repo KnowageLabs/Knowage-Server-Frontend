@@ -6,6 +6,7 @@ import { selectionsUseDatasetWithAssociation } from './widget/interactionsHelper
 import { loadAssociativeSelections } from './widget/interactionsHelpers/InteractionHelper'
 import { recreateKnowageChartModel } from './widget/WidgetEditor/helpers/WidgetEditorHelpers'
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
+import { iPythonConfiguration } from '../../managers/functionsCatalog/FunctionsCatalog'
 import deepcopy from 'deepcopy'
 
 const store = defineStore('dashboardStore', {
@@ -17,7 +18,8 @@ const store = defineStore('dashboardStore', {
             internationalization: {},
             profileAttributes: [] as { name: string; value: string }[],
             allThemes: [] as IDashboardTheme[],
-            dataProxyQueue: {}
+            dataProxyQueue: {},
+            pythonEnvironments: [] as iPythonConfiguration[]
         }
     },
     actions: {
@@ -207,6 +209,12 @@ const store = defineStore('dashboardStore', {
         },
         setExecutionTime(dashboardId: string, executionTime: Date) {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].executionTime = executionTime
+        },
+        getPythonEnvironments() {
+            return this.pythonEnvironments
+        },
+        setPythonEnvironments(pythonEnvironments: iPythonConfiguration[]) {
+            this.pythonEnvironments = pythonEnvironments
         }
     }
 })

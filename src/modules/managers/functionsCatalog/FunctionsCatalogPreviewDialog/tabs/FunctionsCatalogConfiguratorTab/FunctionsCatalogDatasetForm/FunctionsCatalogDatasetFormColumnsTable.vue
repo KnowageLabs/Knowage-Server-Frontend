@@ -42,6 +42,7 @@ export default defineComponent({
     name: 'function-catalog-dateset-form-columns-table',
     components: { Column, DataTable, Dropdown },
     props: { columns: { type: Array }, datasetColumns: { type: Array } },
+    emits: ['inputColumnsUpdated'],
     data() {
         return {
             functionsCatalogDatasetFormColumnsTableDescriptor,
@@ -74,6 +75,7 @@ export default defineComponent({
         },
         onCellEditComplete(event: any) {
             this.inputColumns[event.index] = event.newData
+            this.$emit('inputColumnsUpdated', event)
         }
     }
 })

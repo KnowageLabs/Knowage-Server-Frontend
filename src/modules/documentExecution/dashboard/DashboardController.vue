@@ -106,6 +106,7 @@ import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/Das
 import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
 import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
 import { getWidgetData } from './DashboardDataProxy'
+import { iPythonConfiguration } from '../../managers/functionsCatalog/FunctionsCatalog'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -229,7 +230,10 @@ export default defineComponent({
     async created() {
         if (!this.showDashboard) return
         this.setEventListeners()
-        if (this.isEnterprise) await this.loadDashboardThemes()
+        if (this.isEnterprise) {
+            await this.loadDashboardThemes()
+            await this.loadPythonEnvironments()
+        }
         await this.getData()
         this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
     },
@@ -494,6 +498,17 @@ export default defineComponent({
                 this.dashboardThemes = response.data
             })
             this.store.setAllThemes(this.dashboardThemes)
+        },
+        async loadPythonEnvironments() {
+            if (!this.isEnterprise) return
+            let pythonEnvironments = [] as iPythonConfiguration[]
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/category/PYTHON_CONFIGURATION`)
+                .then((response: AxiosResponse<any>) => {
+                    pythonEnvironments = response.data ?? []
+                })
+                .catch(() => {})
+            this.store.setPythonEnvironments(pythonEnvironments)
         },
         loadSelectedViewForExecution(view: IDashboardView) {
             this.selectedViewForExecution = view

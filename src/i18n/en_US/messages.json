@@ -569,6 +569,7 @@
                 },
                 "title": "Accessibility"
             },
+            "addFunction": "Add Function",
             "addWidget": "Add widget",
             "aggregation": "Aggregation",
             "area": "Area",
@@ -591,6 +592,7 @@
                 "solid": "Solid",
                 "title": "Borders"
             },
+            "catalogFunction": "Catalog Function",
             "chartJS": {
                 "legend": {
                     "alignHint": "Alignment of the legend",
