@@ -6,7 +6,7 @@
       <q-btn
           flat
           round
-          icon="fa fa-eye"
+          icon="visibility"
           class="p-button-text p-button-rounded p-button-plain p-button"
           :disable="previewDisabled"
           @click="checkForDependencies(true)"
@@ -27,7 +27,7 @@
           v-if="lovType !== 'DATASET'"
           flat
           round
-          icon="fa fa-info-circle"
+          icon="info"
           class="p-button-text p-button-rounded p-button-plain p-button"
           @click="infoDialogVisible = true"
       >
@@ -36,7 +36,7 @@
       <q-btn
           flat
           round
-          icon="fa fa-users"
+          icon="group"
           class="p-button-text p-button-rounded p-button-plain p-button"
           @click="profileAttributesDialogVisible = true"
       >
