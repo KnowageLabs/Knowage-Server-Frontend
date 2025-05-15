@@ -1,52 +1,41 @@
 <template>
-    <DataTable
-        class="p-datatable-sm kn-table p-m-2"
-        :value="inputColumns"
-        edit-mode="cell"
-        :data-key="functionsCatalogDatasetFormColumnsTableDescriptor.dataKey"
-        :responsive-layout="functionsCatalogDatasetFormColumnsTableDescriptor.responsiveLayout"
-        :breakpoint="functionsCatalogDatasetFormColumnsTableDescriptor.breakpoint"
-        @cell-edit-complete="onCellEditComplete"
-    >
-        <Column class="kn-truncated" field="name" :header="$t('managers.functionsCatalog.inputColumnName')"> </Column>
-        <Column class="kn-truncated" field="type" :header="$t('common.type')">
-            <template #body="slotProps">
-                <i :class="getIconClass(slotProps.data.type)"></i>
-                {{ slotProps.data.type }}
-            </template>
-        </Column>
-        <Column :header="$t('managers.functionsCatalog.datasetColumn')">
-            <template #editor="slotProps">
-                <div class="p-d-flex p-flex-row p-ai-center">
-                    <Dropdown v-model="slotProps.data['dsColumn']" :style="functionsCatalogDatasetFormColumnsTableDescriptor.dropdownStyle" class="p-mr-2 kn-flex" :options="datasetColumns" />
-                    <i class="pi pi-pencil edit-icon kn-flex" />
-                </div>
-            </template>
-            <template #body="slotProps">
-                <span class="p-mr-2">{{ slotProps.data['dsColumn'] }}</span>
-                <i class="pi pi-pencil edit-icon" />
-            </template>
-        </Column>
-    </DataTable>
+    <q-table flat dense :columns="columns" :rows="rows" row-key="name" class="input-columns-table p-m-2">
+        <template v-slot:body-cell-name="props">
+            <q-td :props="props">
+                <span>{{ props.row.name }}</span>
+            </q-td>
+        </template>
+        <template v-slot:body-cell-type="props">
+            <q-td :props="props">
+                <i class="p-mr-2" :class="getIconClass(props.row.type)"></i>
+                <span>{{ props.row.type }}</span>
+            </q-td>
+        </template>
+        <template v-slot:body-cell-dsColumn="props">
+            <q-td :props="props">
+                <q-select size="xs" dense v-model="props.row.dsColumn" emit-value outlined :options="datasetColumns" map-options @update:model-value="(val) => updateField(val, 'dsColumn', props.row)" />
+            </q-td>
+        </template>
+    </q-table>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import { iInputColumn } from '../../../../FunctionsCatalog'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Dropdown from 'primevue/dropdown'
-import functionsCatalogDatasetFormColumnsTableDescriptor from './FunctionsCatalogDatasetFormColumnsTableDescriptor.json'
 
 export default defineComponent({
     name: 'function-catalog-dateset-form-columns-table',
-    components: { Column, DataTable, Dropdown },
-    props: { columns: { type: Array }, datasetColumns: { type: Array } },
-    emits: ['inputColumnsUpdated'],
+    components: {},
+    props: { propRows: { type: Array as PropType<any[]> }, datasetColumns: { type: Array } },
+
     data() {
         return {
-            functionsCatalogDatasetFormColumnsTableDescriptor,
-            inputColumns: [] as iInputColumn[]
+            rows: [] as iInputColumn[],
+            columns: [
+                { name: 'name', label: this.$t('managers.functionsCatalog.inputColumnName'), align: 'left', field: 'name', sortable: true },
+                { name: 'type', label: this.$t('common.type'), align: 'left', field: 'type', sortable: true },
+                { name: 'dsColumn', label: this.$t('managers.functionsCatalog.datasetColumn'), align: 'left', field: 'dsColumn', sortable: true, style: 'width: 400px' }
+            ] as { name: string; label: string; align: 'left' | 'right' | 'center' | undefined; field: string; sortable: boolean; style?: string }[]
         }
     },
     watch: {
@@ -59,7 +48,7 @@ export default defineComponent({
     },
     methods: {
         loadInputColumns() {
-            this.inputColumns = this.columns as iInputColumn[]
+            this.rows = this.propRows as any[]
         },
         getIconClass(type: string) {
             switch (type) {
@@ -73,10 +62,24 @@ export default defineComponent({
                     return ''
             }
         },
-        onCellEditComplete(event: any) {
-            this.inputColumns[event.index] = event.newData
-            this.$emit('inputColumnsUpdated', event)
+        updateField(value: string, field: string, row: iInputColumn) {
+            row[field] = value
         }
     }
 })
 </script>
+
+<style lang="scss">
+.input-columns-table {
+    .q-field--auto-height.q-field--dense .q-field__control,
+    .q-field--auto-height.q-field--dense .q-field__native {
+        min-height: 30px;
+        height: 30px;
+    }
+    .q-field--dense .q-field__control,
+    .q-field--dense .q-field__marginal {
+        min-height: 30px;
+        height: 30px;
+    }
+}
+</style>
