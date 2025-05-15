@@ -16,14 +16,14 @@
 
                 <div v-if="functionColumn.catalogFunctionConfig.inputColumns.length > 0" class="p-m-2">
                     <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.columnsSettings') }}</label>
-                    <FunctionsCatalogDatasetFormColumnsTable :columns="functionColumn.catalogFunctionConfig.inputColumns" :dataset-columns="datasetColumns"></FunctionsCatalogDatasetFormColumnsTable>
+                    <FunctionsCatalogDatasetFormColumnsTable :prop-rows="functionColumn.catalogFunctionConfig.inputColumns" :dataset-columns="datasetColumns"></FunctionsCatalogDatasetFormColumnsTable>
                 </div>
                 <div v-if="functionColumn.catalogFunctionConfig.inputVariables.length > 0" class="p-mx-2 p-mt-3">
                     <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.variablesSettings') }}</label>
                     <FunctionsCatalogDatasetFormVariablesTable :variables="functionColumn.catalogFunctionConfig.inputVariables"></FunctionsCatalogDatasetFormVariablesTable>
                 </div>
                 <div class="p-mx-2 p-mt-3">
-                    <q-select v-model="selectedEnvironment" clearable emit-value outlined :options="pythonEnvironments" option-value="label" option-label="label" map-options :label="$t('common.environment')" @update:model-value="onEnvironmentSelected" />
+                    <q-select v-model="selectedEnvironment" dense clearable emit-value outlined :options="pythonEnvironments" option-value="label" option-label="label" map-options :label="$t('common.environment')" @update:model-value="onEnvironmentSelected" />
                 </div>
 
                 <div v-if="selectedEnvironment" class="p-mx-2 p-mt-3">
