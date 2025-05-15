@@ -6,10 +6,11 @@
           <q-input
               filled
               v-model.trim="v$.lov.label.$model"
+              type="text"
               maxlength="20"
               :error="v$.lov.label.$invalid && v$.lov.label.$dirty"
-              :error-message="t('common.validation.required', { fieldName: t('common.label') })"
-              :label="t('common.label') + '*'"
+              :error-message="$t('common.validation.required', { fieldName: $t('common.label') })"
+              :label="$t('common.label') + '*'"
               @update:model-value="onDataChange(v$.lov.label)"
               data-test="label-input"
               @input="$emit('touched')"
@@ -17,10 +18,10 @@
           <KnValidationMessages
               :v-comp="v$.lov.label"
               :additional-translate-params="{
-                          fieldName: t('common.label')
+                          fieldName: $t('common.label')
                       }"
               :specific-translate-keys="{
-                          custom_unique_name: 'managers.lovsManagement.lovLabelNotUnique'
+                          custom_unique_label: 'managers.lovsManagement.lovLabelNotUnique'
                       }"
           />
 
@@ -32,16 +33,16 @@
               v-model.trim="v$.lov.name.$model"
               type="text"
               :error="v$.lov.name.$invalid && v$.lov.name.$dirty"
-              :error-message="v$.lov.name.$invalid ? t('common.validation.required', { fieldName: t('common.name') }) : ''"
+              :error-message="v$.lov.name.$invalid ? $t('common.validation.required', { fieldName: $t('common.name') }) : ''"
               maxlength="40"
-              :label="t('common.name') + '*'"
+              :label="$t('common.name') + '*'"
               @update:model-value="onDataChange(v$.lov.name)"
               @input="$emit('touched')"
           />
           <KnValidationMessages
               :v-comp="v$.lov.name"
               :additional-translate-params="{
-                          fieldName: t('common.name')
+                          fieldName: $t('common.name')
                       }"
               :specific-translate-keys="{
                           custom_unique_name: 'managers.lovsManagement.lovNameNotUnique'
@@ -56,7 +57,7 @@
               :options="listOfInputTypes"
               option-label="VALUE_NM"
               option-value="VALUE_CD"
-              :label="t('managers.lovsManagement.lovType') + '*'"
+              :label="$t('managers.lovsManagement.lovType') + '*'"
               :error="v$.lov.itypeCd.$invalid && v$.lov.itypeCd.$dirty"
               @update:model-value="typeChanged"
               @input="$emit('touched')"
@@ -66,7 +67,7 @@
           <KnValidationMessages
               :v-comp="v$.lov.itypeCd"
               :additional-translate-params="{
-                          fieldName: t('managers.lovsManagement.lovType')
+                          fieldName: $t('managers.lovsManagement.lovType')
                       }"
           />
         </div>
@@ -75,9 +76,10 @@
           <q-input
               filled
               v-model.trim="lov.description"
-              type="text"
+              rows="2"
+              type="textarea"
               maxlength="160"
-              :label="t('managers.lovsManagement.description')"
+              :label="$t('managers.lovsManagement.description')"
               @update:model-value="$emit('touched')"
           />
         </div>

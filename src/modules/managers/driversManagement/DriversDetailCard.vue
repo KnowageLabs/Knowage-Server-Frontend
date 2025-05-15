@@ -5,13 +5,13 @@
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-input
               filled
+              type="text"
               v-model="v$.driver.label.$model"
               :error="v$.driver.label.$invalid && v$.driver.label.$dirty"
               :error-message="
               v$.driver.label.$invalid && v$.driver.label.$dirty ?
               $t('common.validation.required', { fieldName: $t('common.label') }) : ''
             "
-
               maxlength="20"
               @blur="v$.driver.label.$touch()"
               @update:model-value="setDirty"
@@ -21,6 +21,7 @@
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-input
               filled
+              type="text"
               v-model="v$.driver.name.$model"
               :error="v$.driver.name.$invalid && v$.driver.name.$dirty"
               :error-message="
@@ -55,6 +56,8 @@
         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
           <q-input
               filled
+              rows="2"
+              type="textarea"
               v-model="driver.description"
               maxlength="160"
               @update:model-value="setDirty"

@@ -16,7 +16,7 @@
       <q-btn
           flat
           round
-          icon="fa fa-play"
+          icon="network_check"
           class="p-button-text p-button-rounded p-button-plain p-button"
           :disable="previewDisabled"
           @click="onTestButtonClick"

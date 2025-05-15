@@ -5,6 +5,7 @@
         <div class="col-6">
           <q-input
               v-model="v$.dataset.label.$model"
+              type="text"
               label-slot
               filled
               maxlength="50"
@@ -22,6 +23,7 @@
         <div class="col-6">
           <q-input
               v-model="v$.dataset.name.$model"
+              type="text"
               label-slot
               filled
               maxlength="50"
@@ -39,6 +41,8 @@
         <div class="col-12">
           <q-input
               v-model="v$.dataset.description.$model"
+              rows="2"
+              type="textarea"
               label-slot
               filled
               maxlength="160"
