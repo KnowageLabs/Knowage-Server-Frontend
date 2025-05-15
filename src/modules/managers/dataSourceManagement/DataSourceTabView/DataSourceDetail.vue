@@ -66,14 +66,7 @@
                         />
                         <div class="row">
                             <q-checkbox v-if="currentUser.isSuperadmin" v-model="datasource.writeDefault" size="sm" :disable="readOnly || !selectedDatabase.cacheSupported || datasource.readOnly || !currentUser.isSuperadmin" :label="$t('managers.dataSourceManagement.form.writeDefault')" />
-                            <q-checkbox
-                                v-if="currentUser.isSuperadmin && !datasource.readOnly"
-                                v-model="datasource.useForDataprep"
-                                size="sm"
-                                :disable="readOnly || !selectedDatabase.cacheSupported || datasource.readOnly || !currentUser.isSuperadmin"
-                                :label="$t('managers.dataSourceManagement.form.useForDataprep')"
-                                @update:model-value="setReadOnly($event)"
-                            />
+                            <q-checkbox v-if="currentUser.isSuperadmin && !datasource.readOnly" v-model="datasource.useForDataprep" size="sm" :disable="readOnly || !selectedDatabase.cacheSupported || datasource.readOnly || !currentUser.isSuperadmin" :label="$t('managers.dataSourceManagement.form.useForDataprep')" @update:model-value="setReadOnly($event)" />
                         </div>
                     </div>
                 </q-card-section>
@@ -241,19 +234,6 @@ export default defineComponent({
             }
             this.touched = false
         },
-        databases() {
-            this.availableDatabases = this.databases
-            this.availableDatabases = this.availableDatabases.map((i) => {
-                return {
-                    name: i.databaseDialect.name,
-                    value: i.databaseDialect.value,
-                    cacheSupported: i.cacheSupported,
-                    writeDefault: i.writeDefault
-                }
-            })
-            this.selectDatabase(this.datasource.dialectName)
-            this.checkIfReadOnly()
-        },
         user() {
             this.currentUser = { ...this.user } as any
         },
@@ -262,6 +242,7 @@ export default defineComponent({
                 if (oldValue.dsId && newValue.dsId === oldValue.dsId) {
                     this.touched = true
                     this.$emit('touched')
+                    this.updateAvailableDatabases()
                 }
             },
             deep: true
@@ -283,6 +264,7 @@ export default defineComponent({
         } else {
             this.createNewDataSourceValues()
         }
+        this.updateAvailableDatabases()
     },
 
     validations() {
@@ -305,6 +287,19 @@ export default defineComponent({
 
     methods: {
         ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading']),
+        updateAvailableDatabases() {
+            this.availableDatabases = this.databases
+            this.availableDatabases = this.availableDatabases.map((i) => {
+                return {
+                    name: i.databaseDialect.name,
+                    value: i.databaseDialect.value,
+                    cacheSupported: i.cacheSupported,
+                    writeDefault: i.writeDefault
+                }
+            })
+            this.selectDatabase(this.datasource.dialectName)
+            this.checkIfReadOnly()
+        },
         setConnetionType() {
             if (this.datasource.driver) {
                 this.jdbcOrJndi.type = 'JDBC'
@@ -342,7 +337,7 @@ export default defineComponent({
         selectDatabase(selectedDatabaseDialect) {
             this.availableDatabases.forEach((database) => {
                 if (database.value == selectedDatabaseDialect) {
-                    this.selectedDatabase = database.dialectName
+                    this.selectedDatabase = database
                 }
             })
             if (typeof this.selectedDatabase.cacheSupported === 'undefined') {
