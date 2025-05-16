@@ -4,7 +4,7 @@
             <q-toolbar-title>{{ $t('managers.datasetManagement.fieldsMetadata') }}</q-toolbar-title>
         </q-toolbar>
         <q-card-section>
-            <q-table v-if="dataset.meta && (dataset.meta.ccolumns || dataset.meta.dataset)" flat dense :columns="columns" :rows="fieldsMetadata" row-key="fieldAlias" hide-pagination class="metadataTable">
+            <q-table v-if="dataset.meta && (dataset.meta.ccolumns || dataset.meta.dataset)" flat dense :columns="columns" :rows="fieldsMetadata" row-key="fieldAlias" :pagination="{ rowsPerPage: 0 }" hide-pagination class="metadataTable">
                 <template v-slot:body-cell-fieldType="props">
                     <q-td :props="props">
                         <q-select dense borderless emit-value map-options v-model="props.row.fieldType" :options="fieldMetadataTypes" option-label="value" option-value="value" @update:model-value="saveFieldsMetadata('fieldType')" />

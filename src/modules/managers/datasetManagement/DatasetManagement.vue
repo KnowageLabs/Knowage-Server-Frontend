@@ -43,7 +43,7 @@
     </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { AxiosResponse } from 'axios'
 import mainDescriptor from './DatasetManagementDescriptor.json'
 import FabButton from '@/components/UI/KnFabButton.vue'
@@ -79,6 +79,11 @@ export default defineComponent({
             metaSourceResource: [] as any,
             tags: [] as any,
             datasetToCloneId: null
+        }
+    },
+    provide() {
+        return {
+            datasetsList: computed(() => this.listOfDatasets)
         }
     },
     created() {

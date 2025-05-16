@@ -26,6 +26,9 @@
                         "validator": {
                             "type": "extendedAlphanumericRegex"
                         }
+                    },
+                    {
+                        "key": "datasetLabelExists"
                     }
                 ]
             },

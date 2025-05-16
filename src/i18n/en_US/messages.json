@@ -312,6 +312,7 @@
         "url": "URL",
         "user": "User",
         "validation": {
+            "datasetLabelExists": "Dataset label already exists",
             "jndiformat": "The JNDI string is required to start with \"java:comp/env/jdbc/\"",
             "maxLength": "This field must have less then {max} characters",
             "maximumCharacters": "The maximum length allowed is {max}",
