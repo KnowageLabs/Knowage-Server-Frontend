@@ -1,32 +1,34 @@
 import { IWidget, IWidgetResponsive, IWidgetExports, IWidgetInteractions, IDashboard, IDashboardDriver, IWidgetHelpSettings } from './../../Dashboard.d'
-import { IMapWidgetConditionalStyles, IMapWidgetSettings, IMapWidgetStyle } from './../../interfaces/mapWidget/DashboardMapWidget.d'
+import { IMapWidgetConditionalStyles, IMapWidgetLayer, IMapWidgetSettings, IMapWidgetStyle } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import { getFormattedStyle } from './MapStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
 import { getFormattedSettingsFromLayers } from './MapLayersCompatibilityHelper'
 import * as mapWidgetDefaultValues from '../../widget/WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
+import oldMapMock from './oldMapMock.json'
 
+// TODO - remove mock
 export const formatMapWidget = (widget: any, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
+    console.log('------------ OLD MAP MOCK: ', oldMapMock)
     const formattedWidget = {
-        id: widget.id,
-        dataset: widget.dataset.dsId,
-        type: widget.type,
+        id: oldMapMock.id,
+        dataset: null,
+        type: oldMapMock.type,
         columns: [],
-        layers: getFormattedLayers(widget),
+        layers: getFormattedLayers(oldMapMock) as IMapWidgetLayer[],
         theme: '',
         style: {},
         settings: {} as IMapWidgetSettings
     } as IWidget
-    formattedWidget.settings = getFormattedWidgetSettings(widget)
-    getFormattedSettingsFromLayers(widget, formattedWidget, formattedDashboardModel, drivers)
+    // formattedWidget.settings = getFormattedWidgetSettings(oldMapMock)
+    getFormattedSettingsFromLayers(oldMapMock, formattedWidget, formattedDashboardModel, drivers)
+    console.log('------------ FORMATTED MAP: ', formattedWidget)
     return formattedWidget
 }
 
 const getFormattedWidgetSettings = (widget: any) => {
     const formattedSettings = {
-        updatable: widget.updateble,
-        clickable: widget.cliccable,
         configuration: getFormattedConfiguration(widget),
         visualization: getFormattedVisualization(),
         conditionalStyles: getFormattedConditionalStyles(),
