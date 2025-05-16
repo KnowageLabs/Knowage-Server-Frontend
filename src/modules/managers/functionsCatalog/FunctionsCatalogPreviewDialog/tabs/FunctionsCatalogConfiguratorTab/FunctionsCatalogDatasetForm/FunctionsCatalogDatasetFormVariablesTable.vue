@@ -1,5 +1,5 @@
 <template>
-    <q-table flat dense :columns="columns" :rows="inputVariables" row-key="name" class="input-columns-table p-m-2">
+    <q-table flat dense :columns="columns" :rows="inputVariables" row-key="name" class="input-columns-table p-m-2"   hide-bottom>
         <template v-slot:body-cell-name="props">
             <q-td :props="props">
                 <span>{{ props.row.name }}</span>
