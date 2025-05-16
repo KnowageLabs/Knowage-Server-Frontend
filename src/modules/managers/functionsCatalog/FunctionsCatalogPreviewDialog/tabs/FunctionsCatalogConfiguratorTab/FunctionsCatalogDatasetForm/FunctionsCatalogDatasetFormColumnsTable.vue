@@ -1,5 +1,5 @@
 <template>
-    <q-table flat dense :columns="columns" :rows="rows" row-key="name" class="input-columns-table p-m-2">
+    <q-table flat dense :columns="columns" :rows="rows" row-key="name" class="input-columns-table p-m-2" hide-bottom>
         <template v-slot:body-cell-name="props">
             <q-td :props="props">
                 <span>{{ props.row.name }}</span>
@@ -13,7 +13,7 @@
         </template>
         <template v-slot:body-cell-dsColumn="props">
             <q-td :props="props">
-                <q-select size="xs" dense v-model="props.row.dsColumn" emit-value outlined :options="datasetColumns" map-options @update:model-value="(val) => updateField(val, 'dsColumn', props.row)" />
+                <q-select size="xs" dense filled v-model="props.row.dsColumn" emit-value outlined :options="datasetColumns" map-options @update:model-value="(val) => updateField(val, 'dsColumn', props.row)" />
             </q-td>
         </template>
     </q-table>

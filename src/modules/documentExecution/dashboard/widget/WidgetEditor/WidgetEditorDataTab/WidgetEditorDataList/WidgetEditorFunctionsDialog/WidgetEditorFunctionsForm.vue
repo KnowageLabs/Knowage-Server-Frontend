@@ -2,7 +2,7 @@
     <div class="kn-full-width">
         <Card v-if="selectedFunction && functionColumn?.catalogFunctionConfig" class="p-m-2">
             <template #content>
-                <q-expansion-item class="kn-full-width p-m-2" default-opened :label="$t('common.description')">
+                <q-expansion-item class="function-description-expander kn-full-width p-m-2" icon="fas fa-eye" default-opened :label="$t('common.description')">
                     <div>
                         <p v-html="selectedFunction.description"></p>
                     </div>
@@ -119,4 +119,12 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.function-description-expander .q-icon.fas.fa-eye {
+    font-size: 1.5rem;
+}
+
+.function-description-expander .q-item__label::first-letter {
+    text-transform: capitalize;
+}
+</style>
