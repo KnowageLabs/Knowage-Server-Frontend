@@ -86,7 +86,7 @@ import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSideba
 import { IDashboardDataset, ISelection, IGalleryItem, IDataset, IDashboardView, IVariable, SelectorDataMap, WidgetData } from './Dashboard'
 import { emitter, createNewDashboardModel, formatDashboardForSave, formatNewModel, loadDatasets, getFormattedOutputParameters, applyDashboardViewToModel } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
-import { formatModel } from './helpers/DashboardBackwardCompatibilityHelper'
+import { formatModel, formatWidget } from './helpers/DashboardBackwardCompatibilityHelper'
 import { setDatasetIntervals, clearAllDatasetIntervals } from './helpers/datasetRefresh/DatasetRefreshHelpers'
 import { loadDrivers } from './helpers/DashboardDriversHelper'
 import DashboardRenderer from './DashboardRenderer.vue'
@@ -106,6 +106,7 @@ import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/Das
 import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
 import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
 import { getWidgetData } from './DashboardDataProxy'
+import { formatMapWidget } from './helpers/mapWidget/MapCompatibilityHelper'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -311,28 +312,31 @@ export default defineComponent({
             }
 
             this.datasets = this.newDashboardMode ? [] : await loadDatasets(tempModel, this.appStore, this.setAllDatasets, this.$http)
-            this.model =
-                (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined'
-                    ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes)
-                    : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
-            setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
-            if (this.propView) {
-                this.loadSelectedViewForExecution(this.propView)
-                applyDashboardViewToModel(this.model, this.selectedViewForExecution)
+            // TODO - uncomment this
+            // this.model =
+            //     (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined'
+            //         ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes)
+            //         : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
 
-                this.drivers = loadDrivers(this.propView.drivers, this.model)
-                this.setDashboardDrivers(this.dashboardId, this.drivers)
-                emitter.emit('loadPivotStates', this.selectedViewForExecution)
-            }
+            formatMapWidget(null, this.document, this.drivers)
+            // setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
+            // if (this.propView) {
+            //     this.loadSelectedViewForExecution(this.propView)
+            //     applyDashboardViewToModel(this.model, this.selectedViewForExecution)
 
-            this.store.setDashboard(this.dashboardId, this.model)
+            //     this.drivers = loadDrivers(this.propView.drivers, this.model)
+            //     this.setDashboardDrivers(this.dashboardId, this.drivers)
+            //     emitter.emit('loadPivotStates', this.selectedViewForExecution)
+            // }
 
-            await this.fetchAllSelectorDefaultValues()
-            this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
-            this.store.setDashboardDocument(this.dashboardId, this.document)
-            this.store.setExecutionTime(this.dashboardId, new Date())
+            // this.store.setDashboard(this.dashboardId, this.model)
 
-            this.updateVariableValuesWithDriverValuesAfterExecution()
+            // await this.fetchAllSelectorDefaultValues()
+            // this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
+            // this.store.setDashboardDocument(this.dashboardId, this.document)
+            // this.store.setExecutionTime(this.dashboardId, new Date())
+
+            // this.updateVariableValuesWithDriverValuesAfterExecution()
         },
         async sleep(time) {
             return new Promise((resolve) => setTimeout(resolve, time))

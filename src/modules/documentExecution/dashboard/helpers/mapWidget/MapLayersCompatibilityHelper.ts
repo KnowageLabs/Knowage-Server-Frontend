@@ -7,20 +7,53 @@ import {
     IMapWidgetVisualizationTypePie,
     IMapWidgetVisualizationTypeCluster,
     IMapWidgetVisualizationTypeHeatmap,
-    IMapWidgetVisualizationTypeChoropleth
+    IMapWidgetVisualizationTypeChoropleth,
+    IMapWidgetLayer
 } from '../../interfaces/mapWidget/DashboardMapWidget'
 import * as mapWidgetDefaultValues from '../../widget/WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
+
+export const getFormattedLayers = (widget: any) => {
+    const layers = widget.content.layers
+    const formattedLayers = getFormattedLayersAsNewMapWidgetLayer(layers)
+
+    return formattedLayers
+}
 
 export const getFormattedSettingsFromLayers = (widget: any, formattedWidget: IWidget, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
     const layers = widget.content.layers
     console.log('---------- LAYERS: ', layers)
+
     layers?.forEach((layer: any) => {
+        console.log('!!!!!!!!!!!! LAYER: ', layer)
         layer?.content?.columnSelectedOfDataset?.forEach((column: any) => {
             addLayerColumnTooltipOptions(column, formattedWidget, layer.name)
-            addLayerColumnConditionalStyleSettings(column, formattedWidget, layer.layerId, formattedDashboardModel, drivers)
+            addLayerColumnConditionalStyleSettings(column, formattedWidget, layer.layerID, formattedDashboardModel, drivers)
         })
         addLayerVisualizationTypeSettings(layer, formattedWidget)
     })
+}
+
+const getFormattedLayersAsNewMapWidgetLayer = (oldLayers: any): IMapWidgetLayer[] => {
+    const formattedLayers = [] as IMapWidgetLayer[]
+
+    oldLayers?.forEach((oldLayer: any) => {
+        formattedLayers.push(getFormattedLayerAsNewMapWidgetLayer(oldLayer))
+    })
+
+    return formattedLayers
+}
+
+// TODO - Missing layer type and NEW LAYER ID
+const getFormattedLayerAsNewMapWidgetLayer = (oldLayer: any): IMapWidgetLayer => {
+    const formattedLayer = {
+        type: oldLayer.type,
+        id: oldLayer.layerID,
+        name: oldLayer.name,
+        layerId: oldLayer.layerID,
+        layerType: ''
+    }
+
+    return formattedLayer
 }
 
 const addLayerColumnTooltipOptions = (oldColumn: any, formattedWidget: IWidget, layerName: string) => {
@@ -92,7 +125,6 @@ const getValueFromDriver = (driverUrl: string, drivers: IDashboardDriver[]) => {
 
 // TODO - What to do with target property/column etc?
 const addLayerVisualizationTypeSettings = (oldLayer: any, formattedWidget: IWidget) => {
-    console.log('--------- LAYER: ', oldLayer)
     const visualizationType = {
         id: crypto.randomUUID(),
         target: oldLayer.layerID,
@@ -204,3 +236,17 @@ const getFormattedChoroplethConf = (oldLayerAnalysisConf: any): IMapWidgetVisual
 
     return formattedChoroplethConfig
 }
+
+export const getFormattedLegendSettingsFromOldLayers = (oldWidget: any, formattedWidget: IWidget) => {
+    console.log('______________ OLD WIDGET: ', oldWidget)
+    console.log('______________ FORMATTED WIDGET: ', formattedWidget)
+    const oldLegend = oldWidget.style?.legend
+    if (!oldLegend) return
+    formattedWidget.settings.legend.enabled = true
+    formattedWidget.settings.legend.title = oldLegend.title?.text ?? ''
+}
+
+//    enabled: boolean
+//     position: string
+//     title: string
+//     visualizationTypes: IMapWidgetVisualizationTypeLegendSettings[]
