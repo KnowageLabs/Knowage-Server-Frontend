@@ -297,7 +297,7 @@ export default defineComponent({
             /* CONST */
             DERIVED_CONST: 'Derived',
             showWarning: false as boolean,
-            correctRolesForExecution: null
+            correctRolesForExecution: null as string[] | null
         }
     },
     computed: {
