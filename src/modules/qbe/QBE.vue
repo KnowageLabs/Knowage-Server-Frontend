@@ -281,7 +281,7 @@ export default defineComponent({
             joinDefinitionDialogVisible: false,
             parameterSidebarVisible: false,
             user: null as any,
-            userRole: null,
+            userRole: null as string | null,
             qbePreviewDialogVisible: false,
             pagination: { start: 0, limit: 25 } as any,
             uniqueID: null as string | null,
@@ -340,7 +340,7 @@ export default defineComponent({
                             this.parameterSidebarVisible = true
                         }
                     } else if (this.userRole) {
-                        if (this.correctRolesForExecution.length == 1) {
+                        if (this.correctRolesForExecution?.length == 1) {
                             const correctRole = this.correctRolesForExecution[0]
                             if (this.userRole !== correctRole) {
                                 this.$store.commit('setError', {
