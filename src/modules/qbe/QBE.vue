@@ -107,7 +107,17 @@
                     </div>
                 </div>
             </div>
-            <KnParameterSidebar v-if="parameterSidebarVisible" :filters-data="filtersData" :prop-document="dataset || sourceDataset" :user-role="userRole" :prop-mode="'qbeView'" :prop-q-b-e-parameters="qbe?.pars" @execute="onExecute" @roleChanged="onRoleChange"></KnParameterSidebar>
+            <KnParameterSidebar
+                v-if="parameterSidebarVisible"
+                :filters-data="filtersData"
+                :prop-document="dataset || sourceDataset"
+                :user-role="userRole"
+                :prop-mode="'qbeView'"
+                :prop-q-b-e-parameters="qbe?.pars"
+                :correct-roles-for-execution="correctRolesForExecution"
+                @execute="onExecute"
+                @roleChanged="onRoleChange"
+            ></KnParameterSidebar>
         </div>
 
         <QBEPreviewDialog v-show="!loading && qbePreviewDialogVisible" :id="uniqueID" :query-preview-data="queryPreviewData" :pagination="pagination" :entities="entities?.entities" :selected-query="selectedQuery" @close="closePreview" @pageChanged="updatePagination($event)"> </QBEPreviewDialog>
@@ -286,7 +296,8 @@ export default defineComponent({
             colors: ['#D7263D', '#F46036', '#2E294E', '#1B998B', '#C5D86D', '#3F51B5', '#8BC34A', '#009688', '#F44336'],
             /* CONST */
             DERIVED_CONST: 'Derived',
-            showWarning: false as boolean
+            showWarning: false as boolean,
+            correctRolesForExecution: null
         }
     },
     computed: {
@@ -320,17 +331,17 @@ export default defineComponent({
         if (!this.fromDsManagement) {
             getCorrectRolesForExecution(null, dataset)
                 .then(async (response: any) => {
-                    const correctRolesForExecution = response
+                    this.correctRolesForExecution = response
 
                     if (!this.userRole) {
-                        if (correctRolesForExecution.length == 1) {
-                            this.userRole = correctRolesForExecution[0]
+                        if (this.correctRolesForExecution?.length == 1) {
+                            this.userRole = this.correctRolesForExecution[0]
                         } else {
                             this.parameterSidebarVisible = true
                         }
                     } else if (this.userRole) {
-                        if (correctRolesForExecution.length == 1) {
-                            const correctRole = correctRolesForExecution[0]
+                        if (this.correctRolesForExecution.length == 1) {
+                            const correctRole = this.correctRolesForExecution[0]
                             if (this.userRole !== correctRole) {
                                 this.$store.commit('setError', {
                                     title: this.$t('common.error.generic'),
