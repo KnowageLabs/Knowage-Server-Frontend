@@ -134,7 +134,8 @@ export default defineComponent({
         },
         newDashboardMode: { type: Boolean },
         mode: { type: Object as PropType<string | null>, required: true },
-        propView: { type: Object as PropType<IDashboardView | null> }
+        propView: { type: Object as PropType<IDashboardView | null> },
+        filtersLoaded: { type: Boolean }
     },
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
     provide() {
@@ -288,6 +289,7 @@ export default defineComponent({
             emitter.off('selectionsDeleted', this.onSelectionsChanged)
         },
         async getData() {
+            if (!this.filtersLoaded) return
             this.loading = true
             if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
             this.$emit('dashboardIdSet', this.dashboardId)

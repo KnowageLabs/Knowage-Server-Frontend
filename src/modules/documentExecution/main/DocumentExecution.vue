@@ -81,6 +81,7 @@
                             :new-dashboard-mode="newDashboardMode"
                             :mode="mode"
                             :prop-view="dashboardView"
+                            :filtersLoaded="filtersLoaded"
                             @executeView="executeView"
                             @dashboardIdSet="onSetDashboardId($event, item)"
                             @newDashboardSaved="onNewDashboardSaved"
@@ -340,7 +341,8 @@ export default defineComponent({
             downloadMode: false,
             datasetPreviewShown: false as boolean,
             datasetToPreview: {} as any,
-            initializePolling: null as any
+            initializePolling: null as any,
+            filtersLoaded: false
         }
     },
     computed: {
@@ -803,6 +805,7 @@ export default defineComponent({
                 return
             }
             this.filtersData = await loadFilters(initialLoading, this.filtersData, this.document, this.breadcrumbs, this.userRole, this.parameterValuesMap, this.tabKey as string, this.sessionEnabled, this.$http, this.dateFormat, this.$route, this)
+            this.filtersLoaded = true
             if (this.dashboardView) formatDriversUsingDashboardView(this.filtersData, this.dashboardView)
             else if (this.cockpitViewForExecution) formatDriversUsingDashboardView(this.filtersData, this.cockpitViewForExecution)
             if (this.filtersData?.isReadyForExecution) {
