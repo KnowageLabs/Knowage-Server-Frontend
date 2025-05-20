@@ -122,10 +122,9 @@ export default defineComponent({
     methods: {
         async loadPreview() {
             this.loadDataset()
-            if (this.loadFromDatasetManagement) {
-                this.correctRolesForExecution = (this.store.$state as any).user.roles
-                if (!this.userRole && (this.store.$state as any).user.roles.length > 0) this.userRole = (this.store.$state as any).user.roles[0]
-            }
+
+            this.correctRolesForExecution = (this.store.$state as any).user.roles
+            if (!this.userRole && (this.store.$state as any).user.roles.length > 0) this.userRole = (this.store.$state as any).user.roles[0]
 
             if (this.userRole) {
                 await this.loadDatasetDrivers()
