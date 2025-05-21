@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios'
-import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, addVariablesToFormula, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
-import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
+import { addDataToCache, addDriversToData, addFunctionColumnToTheMeasuresForThePostData, addParametersToData, addSelectionsToData, addVariablesToFormula, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration, IWidgetFunctionColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -83,14 +83,18 @@ const formatPythonModelForGet = (dashboardId: any, dashboardConfig: IDashboardCo
         indexes: []
     } as any
 
-    addSelectionsToData(dataToSend, propWidget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, propWidget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     dataToSend.aggregations.dataset = dataset.dsLabel
 
     propWidget.columns.forEach((column) => {
         if (column.fieldType === 'MEASURE') {
+            if (column.type === 'pythonFunction') {
+                addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as IWidgetFunctionColumn)
+                return
+            }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias } as any
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
 

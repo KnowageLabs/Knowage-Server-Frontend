@@ -1,3 +1,4 @@
+import { iInputColumn, iInputVariable, iOutputColumn } from '@/modules/managers/functionsCatalog/FunctionsCatalog'
 import { IDrillOrderItem, IHighchartsDrilldown } from './interfaces/highcharts/DashboardHighchartsWidget'
 import { IPivotFields } from './interfaces/pivotTable/DashboardPivotTableWidget'
 
@@ -851,6 +852,34 @@ export interface IWidgetHelpSettings {
     popupHeight: string
 }
 
+export interface IWidgetFunctionColumn {
+    id?: string
+    columnName: string
+    alias: string
+    fieldType: string
+    catalogFunctionId: string | null
+    catalogFunctionConfig: IWidgetFunctionColumnConfig
+    funct: string
+    orderColumn: string
+    type: string
+    multiValue: boolean
+    aggregation: string
+    filter: IWidgetColumnFilter | null
+    formula?: string
+    formulaEditor?: string
+    drillOrder?: IDrillOrderItem
+    orderType?: string
+    sort?: string
+    serieType?: string
+    axis?: string
+}
+
+export interface IWidgetFunctionColumnConfig {
+    inputColumns: iInputColumn[]
+    inputVariables: iInputVariable[]
+    outputColumns: iOutputColumn[]
+    environment: string | null
+}
 export interface SelectorDataMap {
     [widgetId: string]: SelectorDataContainer
 }

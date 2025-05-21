@@ -5,17 +5,12 @@
         }
     ],
     "settings": {
-        "prettier.semi": false,
-        "prettier.useEditorConfig": false,
         "scss.lint.float": "warning",
         "vetur.format.defaultFormatter.css": "prettier",
         "scss.lint.important": "warning",
-        "prettier.printWidth": 300,
-        "prettier.singleQuote": true,
         "vetur.format.defaultFormatter.html": "prettier",
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "eslint.format.enable": true,
-        "prettier.trailingComma": "none",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.fixAll.sortJSON": "explicit"
@@ -33,7 +28,6 @@
             "sortJSONTypeReverse": true
         },
         "vetur.format.options.tabSize": 4,
-        "prettier.tabWidth": 4,
         "[vue]": {
             "editor.defaultFormatter": "esbenp.prettier-vscode"
         }

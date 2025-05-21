@@ -1,140 +1,155 @@
 <template>
-    <Card class="p-m-2">
-        <template #content>
-            <form class="p-fluid p-formgrid p-grid">
-                <div class="p-field p-mt-1 p-col-6">
-                    <span class="p-float-label">
-                        <InputText id="label" v-model="v$.dataset.label.$model" class="kn-material-input" type="text" max-length="50" :class="{ 'p-invalid': v$.dataset.label.$invalid && v$.dataset.label.$dirty }" data-test="label-input" @blur="v$.dataset.label.$touch()" @change="$emit('touched')" />
-                        <label for="label" class="kn-material-input-label"> {{ $t('common.label') }} * </label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.dataset.label" :additional-translate-params="{ fieldName: $t('common.label') }" />
+    <q-card class="q-ma-md">
+        <q-card-section>
+            <form class="row q-col-gutter-sm">
+                <div class="col-6">
+                    <q-input
+                        v-model="v$.dataset.label.$model"
+                        label-slot
+                        filled
+                        maxlength="50"
+                        :error="v$.dataset.label.$invalid && v$.dataset.label.$dirty"
+                        :error-message="v$.dataset.label.$errors[0]?.$message || $t(`common.validation.${v$.dataset.label.$errors[0]?.$validator}`)"
+                        data-test="label-input"
+                        @blur="v$.dataset.label.$touch()"
+                        @update:model-value="$emit('touched')"
+                    >
+                        <template #label>
+                            <span>{{ $t('common.label') }} *</span>
+                        </template>
+                    </q-input>
                 </div>
-                <div class="p-field p-mt-1 p-col-6">
-                    <span class="p-float-label">
-                        <InputText id="name" v-model="v$.dataset.name.$model" class="kn-material-input" type="text" max-length="50" :class="{ 'p-invalid': v$.dataset.name.$invalid && v$.dataset.name.$dirty }" data-test="name-input" @blur="v$.dataset.name.$touch()" @change="$emit('touched')" />
-                        <label for="name" class="kn-material-input-label"> {{ $t('common.name') }} * </label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.dataset.name" :additional-translate-params="{ fieldName: $t('common.name') }" />
+                <div class="col-6">
+                    <q-input v-model="v$.dataset.name.$model" label-slot filled maxlength="50" :error="v$.dataset.name.$invalid && v$.dataset.name.$dirty" :error-message="v$.dataset.name.$errors[0]?.$message" data-test="name-input" @blur="v$.dataset.name.$touch()" @update:model-value="$emit('touched')">
+                        <template #label>
+                            <span>{{ $t('common.name') }} *</span>
+                        </template>
+                    </q-input>
                 </div>
-                <div class="p-field p-mt-1 p-col-12">
-                    <span class="p-float-label">
-                        <InputText
-                            id="description"
-                            v-model="v$.dataset.description.$model"
-                            class="kn-material-input"
-                            type="text"
-                            max-length="150"
-                            :class="{ 'p-invalid': v$.dataset.description.$invalid && v$.dataset.description.$dirty }"
-                            data-test="description-input"
-                            @blur="v$.dataset.description.$touch()"
-                            @change="$emit('touched')"
-                        />
-                        <label for="description" class="kn-material-input-label"> {{ $t('common.description') }} </label>
-                    </span>
-                    <KnValidationMessages class="p-mt-1" :v-comp="v$.dataset.description" :additional-translate-params="{ fieldName: $t('common.description') }" />
+                <div class="col-12">
+                    <q-input
+                        v-model="v$.dataset.description.$model"
+                        type="textarea"
+                        rows="2"
+                        label-slot
+                        filled
+                        maxlength="160"
+                        :error="v$.dataset.description.$invalid && v$.dataset.description.$dirty"
+                        :error-message="v$.dataset.description.$errors[0]?.$message"
+                        data-test="description-input"
+                        @blur="v$.dataset.description.$touch()"
+                        @update:model-value="$emit('touched')"
+                    >
+                        <template #label>
+                            <span>{{ $t('common.description') }}</span>
+                        </template>
+                    </q-input>
                 </div>
-                <div class="p-field p-mt-1 p-col-6">
-                    <span class="p-float-label">
-                        <Dropdown
-                            id="scope"
-                            v-model="v$.dataset.scopeId.$model"
-                            class="kn-material-input"
-                            :options="scopeTypes"
-                            option-label="VALUE_CD"
-                            option-value="VALUE_ID"
-                            :class="{
-                                'p-invalid': v$.dataset.scopeId.$invalid && v$.dataset.scopeId.$dirty
-                            }"
-                            data-test="scope-input"
-                            @before-show="v$.dataset.scopeId.$touch()"
-                            @change="updateCdFromId(this.scopeTypes, 'scopeCd', $event.value), $emit('touched')"
-                        />
-                        <label for="scope" class="kn-material-input-label"> {{ $t('managers.datasetManagement.scope') }} * </label>
-                    </span>
-                    <KnValidationMessages
-                        :v-comp="v$.dataset.scopeId"
-                        :additional-translate-params="{
-                            fieldName: $t('managers.datasetManagement.scope')
-                        }"
-                    />
+                <div class="col-6">
+                    <q-select
+                        v-model="v$.dataset.scopeId.$model"
+                        :options="scopeTypes"
+                        option-label="VALUE_CD"
+                        option-value="VALUE_ID"
+                        label-slot
+                        filled
+                        map-options
+                        emit-value
+                        :error="v$.dataset.scopeId.$invalid && v$.dataset.scopeId.$dirty"
+                        :error-message="v$.dataset.scopeId.$errors[0]?.$message"
+                        data-test="scope-input"
+                        @focus="v$.dataset.scopeId.$touch()"
+                        @update:model-value="updateCdFromId(this.scopeTypes, 'scopeCd', $event), $emit('touched')"
+                    >
+                        <template #label>
+                            <span>{{ $t('managers.datasetManagement.scope') }} *</span>
+                        </template>
+                    </q-select>
                 </div>
-                <div class="p-field p-mt-1 p-col-6">
-                    <span class="p-float-label">
-                        <Dropdown
-                            id="category"
-                            v-model="v$.dataset.catTypeId.$model"
-                            class="kn-material-input"
-                            :options="categoryTypes"
-                            option-label="VALUE_CD"
-                            option-value="VALUE_ID"
-                            :class="{
-                                'p-invalid': v$.dataset.catTypeId.$invalid && v$.dataset.catTypeId.$dirty
-                            }"
-                            :show-clear="dataset.scopeCd === 'USER'"
-                            data-test="category-input"
-                            @before-show="v$.dataset.catTypeId.$touch()"
-                            @change="updateCdFromId(this.categoryTypes, 'catTypeVn', $event.value), $emit('touched')"
-                        />
-                        <label v-if="dataset.scopeCd == 'USER'" for="category" class="kn-material-input-label"> {{ $t('common.category') }} </label>
-                        <label v-else for="category" class="kn-material-input-label"> {{ $t('common.category') }} * </label>
-                    </span>
-                    <KnValidationMessages
-                        :v-comp="v$.dataset.catTypeId"
-                        :additional-translate-params="{
-                            fieldName: $t('managers.datasetManagement.scope')
-                        }"
-                    />
+                <div class="col-6">
+                    <q-select
+                        v-model="v$.dataset.catTypeId.$model"
+                        :options="categoryTypes"
+                        option-label="VALUE_CD"
+                        option-value="VALUE_ID"
+                        label-slot
+                        filled
+                        map-options
+                        emit-value
+                        clearable
+                        :disable-clear="dataset.scopeCd !== 'USER'"
+                        :error="v$.dataset.catTypeId.$invalid && v$.dataset.catTypeId.$dirty"
+                        :error-message="v$.dataset.catTypeId.$errors[0]?.$message"
+                        data-test="category-input"
+                        @focus="v$.dataset.catTypeId.$touch()"
+                        @update:model-value="updateCdFromId(this.categoryTypes, 'catTypeVn', $event), $emit('touched')"
+                    >
+                        <template #label>
+                            <span>{{ $t('common.category') }} {{ dataset.scopeCd !== 'USER' ? '*' : '' }}</span>
+                        </template>
+                    </q-select>
                 </div>
-                <div class="p-field p-mt-1 p-col-12">
-                    <span class="p-float-label kn-material-input">
-                        <AutoComplete v-model="dataset.tags" :suggestions="filteredTagsNames" :multiple="true" @complete="searchTag" @keydown.enter="createTagChip" data-test="search-input">
-                            <template #chip="slotProps">
-                                {{ slotProps.value.name }}
-                            </template>
-                            <template #item="slotProps">
-                                {{ slotProps.item.name }}
-                            </template>
-                        </AutoComplete>
-                        <label for="tags" class="kn-material-input-label">{{ $t('common.tags') }}</label>
-                    </span>
-                    <small id="username1-help">{{ $t('managers.widgetGallery.tags.availableCharacters') }}</small>
+                <div class="col-12">
+                    <q-select v-model="dataset.tags" :options="filteredTagsNames" option-label="name" label-slot filled multiple use-input use-chips input-debounce="250" @filter="searchTag" @keyup.enter="createTagChip" data-test="search-input">
+                        <template #label>
+                            <span>{{ $t('common.tags') }}</span>
+                        </template>
+                    </q-select>
+                    <div class="text-caption">{{ $t('managers.widgetGallery.tags.availableCharacters') }}</div>
                 </div>
             </form>
-        </template>
-    </Card>
-    <Card class="p-m-2">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    {{ $t('managers.datasetManagement.oldVersions') }}
-                </template>
-                <template #end>
-                    <Button icon="fas fa-eraser" class="p-button-text p-button-rounded p-button-plain" :disabled="noDatasetVersions" @click="deleteConfirm('deleteAll')" />
-                </template>
-            </Toolbar>
-        </template>
-        <template #content>
-            <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="versions-loading" />
-            <DataTable v-if="!loading" class="p-datatable-sm kn-table" :value="selectedDatasetVersions" :scrollable="true" scroll-height="400px" :loading="loading" data-key="versNum" responsive-layout="stack" breakpoint="960px">
-                <template #empty>
+        </q-card-section>
+    </q-card>
+
+    <q-card class="q-ma-md">
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>{{ $t('managers.datasetManagement.oldVersions') }}</q-toolbar-title>
+            <q-btn flat round dense icon="cleaning_services" :disable="noDatasetVersions" @click="deleteConfirm('deleteAll')">
+                <q-tooltip>{{ $t('common.clear') }}</q-tooltip>
+            </q-btn>
+        </q-toolbar>
+        <q-card-section>
+            <q-linear-progress v-if="loading" indeterminate class="q-mb-md" data-test="versions-loading" />
+            <q-table
+                v-if="!loading"
+                :rows="selectedDatasetVersions"
+                :columns="[
+                    { name: 'userIn', label: $t('managers.datasetManagement.creationUser'), field: 'userIn', sortable: true, align: 'left' },
+                    { name: 'type', label: $t('importExport.gallery.column.type'), field: 'type', sortable: true, align: 'left' },
+                    { name: 'dateIn', label: $t('managers.mondrianSchemasManagement.headers.creationDate'), field: 'dateIn', sortable: true, format: (val) => formatDate(val), align: 'left' }
+                ]"
+                dense
+                flat
+                :pagination="{ rowsPerPage: 10 }"
+                row-key="versNum"
+                virtual-scroll
+                :virtual-scroll-item-size="48"
+                virtual-scroll-slice-size="10"
+            >
+                <template #no-data>
                     {{ $t('managers.datasetManagement.noVersions') }}
                 </template>
-                <Column field="userIn" :header="$t('managers.datasetManagement.creationUser')" :sortable="true" />
-                <Column field="type" :header="$t('importExport.gallery.column.type')" :sortable="true" />
-                <Column field="dateIn" :header="$t('managers.mondrianSchemasManagement.headers.creationDate')" data-type="date" :sortable="true">
-                    <template #body="{ data }">
-                        {{ formatDate(data.dateIn) }}
-                    </template>
-                </Column>
-                <Column @rowClick="false">
-                    <template #body="slotProps">
-                        <Button v-if="slotProps.data.versNum !== 0" icon="fas fa-retweet" class="p-button-link" data-test="submit-button" @click="restoreVersionConfirm(slotProps.data)" />
-                        <Button v-if="slotProps.data.versNum !== 0" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="deleteConfirm('deleteOne', slotProps.data)" />
-                    </template>
-                </Column>
-            </DataTable>
-        </template>
-    </Card>
+                <template #body-cell-dateIn="props">
+                    <q-td>{{ formatDate(props.row.dateIn) }}</q-td>
+                </template>
+                <template #body-cell-actions="props">
+                    <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="fas fa-retweet" @click="restoreVersionConfirm(props.row)" />
+                    <q-btn v-if="props.row.versNum !== 0" flat round size="sm" icon="pi pi-trash" @click="deleteConfirm('deleteOne', props.row)" />
+                </template>
+                <template #item="props">
+                    <q-tr :props="props">
+                        <q-td key="userIn" :props="props">{{ props.row.userIn }}</q-td>
+                        <q-td key="type" :props="props">{{ props.row.type }}</q-td>
+                        <q-td key="dateIn" :props="props">{{ formatDate(props.row.dateIn) }}</q-td>
+                        <q-td auto-width>
+                            <q-btn v-if="props.row.versNum !== 0" flat round dense icon="fas fa-retweet" @click.stop="restoreVersionConfirm(props.row)" />
+                            <q-btn v-if="props.row.versNum !== 0" flat round dense icon="pi pi-trash" @click.stop="deleteConfirm('deleteOne', props.row)" />
+                        </q-td>
+                    </q-tr>
+                </template>
+            </q-table>
+        </q-card-section>
+    </q-card>
 </template>
 
 <script lang="ts">
@@ -143,17 +158,10 @@ import { createValidations, ICustomValidatorMap } from '@/helpers/commons/valida
 import { AxiosResponse } from 'axios'
 import useValidate from '@vuelidate/core'
 import detailTabDescriptor from './DatasetManagementDetailCardDescriptor.json'
-import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-import Card from 'primevue/card'
-import Dropdown from 'primevue/dropdown'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import AutoComplete from 'primevue/autocomplete'
 import { formatDateWithLocale } from '@/helpers/commons/localeHelper'
 import mainStore from '../../../../../App.store'
 
 export default defineComponent({
-    components: { Card, Dropdown, KnValidationMessages, DataTable, Column, AutoComplete },
     props: {
         scopeTypes: { type: Array as any, required: true },
         categoryTypes: { type: Array as any, required: true },
@@ -162,6 +170,7 @@ export default defineComponent({
         availableTags: { type: Array as any },
         loading: { type: Boolean }
     },
+    inject: ['datasetsList'],
     emits: ['touched', 'reloadVersions', 'loadingOlderVersion', 'olderVersionLoaded'],
     setup() {
         const store = mainStore()
@@ -176,7 +185,8 @@ export default defineComponent({
             datasetVersions: [] as any,
             availableTagsNames: [] as any,
             selectedTagsNames: [] as any,
-            filteredTagsNames: null as any
+            filteredTagsNames: null as any,
+            datasetsList: this.datasetsList as any
         }
     },
     computed: {
@@ -189,35 +199,39 @@ export default defineComponent({
     },
     watch: {
         selectedDataset() {
-            this.dataset = this.selectedDataset
+            this.dataset = { ...this.selectedDataset }
             this.v$.dataset.label.$touch()
             this.v$.dataset.name.$touch()
         }
     },
     created() {
-        this.dataset = this.selectedDataset
+        this.dataset = { ...this.selectedDataset }
     },
     validations() {
         const catTypeRequired = (value) => {
             return this.dataset.scopeCd == 'USER' || value
         }
-        const customValidators: ICustomValidatorMap = { 'cat-type-required': catTypeRequired }
+        const datasetLabelExistsMethod = (value) => {
+            return this.datasetsList.find((item) => item.label === value && item.label != this.selectedDataset.label) === undefined
+        }
+        const customValidators: ICustomValidatorMap = { 'cat-type-required': catTypeRequired, datasetLabelExists: datasetLabelExistsMethod }
         const validationObject = { dataset: createValidations('dataset', detailTabDescriptor.validations.dataset, customValidators) }
         return validationObject
     },
     methods: {
-        //#region ===================== Delete Versions Functionality ====================================================
         deleteConfirm(deletetype, event) {
             let msgDesc = ''
             deletetype === 'deleteOne' ? (msgDesc = 'managers.datasetManagement.deleteOneVersionMsg') : (msgDesc = 'managers.datasetManagement.deleteAllVersionsMsg')
-            this.$confirm.require({
-                message: this.$t(msgDesc),
-                header: this.$t('common.uppercaseDelete'),
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => {
+            this.$q
+                .dialog({
+                    title: this.$t('common.uppercaseDelete'),
+                    message: this.$t(msgDesc),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => {
                     deletetype === 'deleteOne' ? this.deleteSelectedVersion(event) : this.deleteAllVersions()
-                }
-            })
+                })
         },
         async deleteSelectedVersion(event) {
             return this.$http
@@ -237,16 +251,15 @@ export default defineComponent({
                 })
                 .catch((error) => this.store.setError({ title: this.$t('common.error.generic'), msg: error.message }))
         },
-        //#endregion ================================================================================================
-
-        //#region ===================== Restore Versions Functionality ====================================================
         restoreVersionConfirm(event) {
-            this.$confirm.require({
-                icon: 'pi pi-exclamation-triangle',
-                message: this.$t('managers.datasetManagement.restoreMsg'),
-                header: this.$t('managers.datasetManagement.restoreTitle'),
-                accept: () => this.restoreVersion(event)
-            })
+            this.$q
+                .dialog({
+                    title: this.$t('managers.datasetManagement.restoreTitle'),
+                    message: this.$t('managers.datasetManagement.restoreMsg'),
+                    cancel: true,
+                    persistent: true
+                })
+                .onOk(() => this.restoreVersion(event))
         },
         async restoreVersion(dsToRestore) {
             this.$emit('loadingOlderVersion')
@@ -297,25 +310,25 @@ export default defineComponent({
 
             this.dataset.fileUploaded = false
         },
-        //#endregion ================================================================================================
-
-        //#region ===================== Tags Functionality ====================================================
-        searchTag(event) {
-            setTimeout(() => {
-                if (!event.query.trim().length) {
+        searchTag(val, update) {
+            if (val === '') {
+                update(() => {
                     this.filteredTagsNames = [...this.availableTags]
-                } else {
-                    this.filteredTagsNames = this.availableTags.filter((tag) => {
-                        return tag.name.toLowerCase().startsWith(event.query.toLowerCase())
-                    })
-                }
-            }, 250)
+                })
+                return
+            }
+
+            update(() => {
+                const needle = val.toLowerCase()
+                this.filteredTagsNames = this.availableTags.filter((tag) => tag.name.toLowerCase().startsWith(needle))
+            })
         },
-        createTagChip(event: any) {
-            if (event.target.value) {
-                const tempWord = this.availableTags.find((el) => el.name == event.target.value)
+        createTagChip(event) {
+            const value = event.target.value
+            if (value) {
+                const tempWord = this.availableTags.find((el) => el.name == value)
                 if (!tempWord) {
-                    this.dataset.tags.push(event.target.value)
+                    this.dataset.tags.push(value)
                     this.buildTagObject()
                     event.target.value = ''
                 }
@@ -330,8 +343,6 @@ export default defineComponent({
                 }
             })
         },
-        //#endregion ================================================================================================
-
         formatDate(date) {
             return formatDateWithLocale(date, { dateStyle: 'short', timeStyle: 'short' })
         },

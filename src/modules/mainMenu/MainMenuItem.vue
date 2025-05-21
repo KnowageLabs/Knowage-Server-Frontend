@@ -102,6 +102,8 @@ li {
             position: absolute;
             top: 0;
             right: 5px;
+            background-color: var(--kn-mainmenu-badge-background-color);
+            color: var(--kn-mainmenu-badge-color);
         }
         .p-menuitem-text,
         i {

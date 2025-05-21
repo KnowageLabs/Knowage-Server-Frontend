@@ -1,5 +1,5 @@
-import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration } from '@/modules/documentExecution/dashboard/Dashboard'
-import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToData, addVariablesToFormula, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
+import { IDashboardDataset, IWidget, ISelection, IDashboardConfiguration, IWidgetFunctionColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { addDataToCache, addDriversToData, addFunctionColumnToTheMeasuresForThePostData, addParametersToData, addSelectionsToData, addVariablesToFormula, showGetDataError } from '@/modules/documentExecution/dashboard/DashboardDataProxy'
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import deepcopy from 'deepcopy'
@@ -65,9 +65,9 @@ const formatChartWidgetForGet = (dashboardId: any, dashboardConfig: IDashboardCo
     dataToSend.aggregations.dataset = dataset.dsLabel
     dataToSend.options = { solrFacetPivot: true }
 
-    addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, widget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     if (widget.settings.configuration?.grouping?.enabled) {
         addMeasuresAndCategoriesByCount(widget, dashboardConfig, dataToSend, 2, -1, false, sortingColumn)
@@ -89,6 +89,10 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     if (measures.length >= measureLength && !specificMeasure) {
         for (let index = 0; index < measureLength; index++) {
             const measure = measures[index]
+            if (measure.type === 'pythonFunction') {
+                addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
+                return
+            }
             const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
             if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
 
@@ -98,6 +102,10 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
         const specificMeasure = widget.settings.configuration.grouping.secondDimension.serie
         const measure = measures.filter((measure) => measure.columnName === specificMeasure)[0]
         if (measure) {
+            if (measure.type === 'pythonFunction') {
+                addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
+                return
+            }
             const measureToPush = { id: `${measure.alias}_${measure.aggregation}`, alias: `${measure.alias}_${measure.aggregation}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
             if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
 

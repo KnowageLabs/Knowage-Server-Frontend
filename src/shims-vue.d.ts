@@ -1,4 +1,6 @@
 /* eslint-disable */
+import {I18n} from "vue-i18n";
+
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'
   const component: DefineComponent<{}, {}, any>
@@ -12,9 +14,10 @@ declare module 'vue/types/vue' {
   }
 }
 
-declare module 'vue/i18n/vue' {
-  import { I18n } from 'vue-i18n'
-  interface Vue {
-    $i18n: VueRouter
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $t: (key: string, values?: Record<string, any>) => string
+    $i18n: I18n
   }
 }

@@ -10,7 +10,7 @@ import deepcopy from 'deepcopy'
 import store from '@/App.store.js'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { aggregationRegex, aggregationsRegex, limitRegex, rowsRegex } from './helpers/common/DashboardRegexHelper'
-import { ISelection, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch, IDashboardConfiguration } from './Dashboard'
+import { ISelection, IWidget, IDashboardDataset, IDashboardDatasetDriver, IWidgetSearch, IDashboardConfiguration, IWidgetFunctionColumn } from './Dashboard'
 import { getTableWidgetData } from './widget/TableWidget/TableWidgetDataProxy'
 import { getSelectorWidgetData } from './widget/SelectorWidget/SelectorWidgetDataProxy'
 import { getWebComponentWidgetData } from './widget/WebComponent/WebComponentDataProxy'
@@ -83,11 +83,11 @@ export const addDriversToData = (dataset, dataToSend) => {
     }
 }
 
-export const addParametersToData = (dataset, dashboardId, dataToSend) => {
+export const addParametersToData = (dataset, dashboardId, dataToSend, associativeResponseSelections?) => {
     if (dataset.parameters && dataset.parameters.length > 0) {
         const paramRegex = /[^$P{]+(?=\})/
         dataset.parameters.forEach((param: any) => {
-            const matched = paramRegex.exec(param.value)
+            const matched = paramRegex.exec(param.value) //check if param is wrapped in $P{}, if it is, grab the value from drivers
             if (matched && matched[0]) {
                 const documentDrivers = dashStore.dashboards[dashboardId].drivers || []
                 for (let index = 0; index < documentDrivers.length; index++) {
@@ -97,6 +97,17 @@ export const addParametersToData = (dataset, dashboardId, dataToSend) => {
                     }
                 }
             } else dataToSend.parameters[`${param.name}`] = param.value
+
+            if (associativeResponseSelections && associativeResponseSelections[dataset.dsLabel]) {
+                //associative selections should overwrite anything else, even drivers
+                const paramKey = `$P{${param.name}}`
+                if (associativeResponseSelections[dataset.dsLabel][paramKey]) {
+                    const rawValue = associativeResponseSelections[dataset.dsLabel][paramKey][0]
+                    const cleanValue = rawValue.replace(/[()'\s]/g, '')
+
+                    dataToSend.parameters[param.name] = cleanValue
+                }
+            }
         })
     }
 }
@@ -114,8 +125,8 @@ export const addVariablesToFormula = (column, dashboardConfig) => {
     } else return column.formula
 }
 
-export const addSelectionsToData = (dataToSend: any, propWidget: IWidget, datasetLabel: string | undefined, initialCall: boolean, selections: ISelection[], associativeResponseSelections: any) => {
-    if (associativeResponseSelections) dataToSend.selections = associativeResponseSelections
+export const addSelectionsToData = (dataToSend: any, propWidget: IWidget, datasetLabel: string, initialCall: boolean, selections: ISelection[], associativeResponseSelections: any) => {
+    if (associativeResponseSelections) dataToSend.selections = getFormattedAssociativeSelections(associativeResponseSelections, datasetLabel)
     else dataToSend.selections = getFormattedSelections(selections)
 
     if (datasetLabel) addFiltersToPostData(propWidget, dataToSend.selections, datasetLabel)
@@ -132,6 +143,19 @@ const getFormattedSelections = (selections: ISelection[]) => {
         }
     })
     return formattedSelections
+}
+
+const getFormattedAssociativeSelections = (associativeResponseSelections: any, datasetLabel: string) => {
+    if (!associativeResponseSelections || !associativeResponseSelections[datasetLabel]) return {}
+
+    const datasetSelections = associativeResponseSelections[datasetLabel]
+    const filteredSelections = {}
+
+    Object.keys(datasetSelections).forEach((columnName) => {
+        if (!columnName.startsWith('$P{')) filteredSelections[columnName] = datasetSelections[columnName]
+    })
+
+    return { [datasetLabel]: filteredSelections }
 }
 
 const addFiltersToPostData = (propWidget: IWidget, selectionsToSend: any, datasetLabel: string) => {
@@ -155,7 +179,7 @@ const getFilters = (propWidget: IWidget, datasetLabel: string) => {
     const activeFilters = {} as any
 
     columns.forEach((column) => {
-        if (column.filter.enabled && column.filter.operator) {
+        if (column.filter && column.filter.enabled && column.filter.operator) {
             const filterData = { filterOperator: column.filter.operator, filterVals: [`('${column.filter.value}')`] }
             if (column.filter?.value2) filterData.filterVals.push(`('${column.filter.value2}')`)
             createNestedObject(activeFilters, [datasetLabel, column.columnName], filterData)
@@ -247,4 +271,24 @@ export const addDataToCache = async (dataHash, tempResponse) => {
 
 export const clearIndexedDBCache = () => {
     indexedDB.widgetData.clear()
+}
+
+export const addFunctionColumnToTheMeasuresForThePostData = (measures: any[], functionColumn: IWidgetFunctionColumn) => {
+    const functionDataForPost = {
+        id: functionColumn.id,
+        alias: functionColumn.alias,
+        catalogFunctionId: functionColumn.catalogFunctionId,
+        catalogFunctionConfig: {
+            inputColumns: functionColumn.catalogFunctionConfig?.inputColumns ?? [],
+            inputVariables: functionColumn.catalogFunctionConfig?.inputVariables ?? [],
+            outputColumns: functionColumn.catalogFunctionConfig?.outputColumns ?? [],
+            environment: functionColumn.catalogFunctionConfig?.environment ?? ''
+        },
+        columnName: functionColumn.columnName,
+        orderType: functionColumn.orderType ?? '',
+        funct: functionColumn.funct,
+        orderColumn: functionColumn.orderColumn
+    }
+
+    measures.push(functionDataForPost)
 }

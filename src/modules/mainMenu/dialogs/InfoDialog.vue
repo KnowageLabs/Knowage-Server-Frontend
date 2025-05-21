@@ -3,7 +3,7 @@
         <div class="p-grid p-m-1">
             <div class="p-col">
                 <div class="p-d-flex p-jc-center">
-                    <img :src="`${publicPath}/images/commons/logo_knowage.svg`" height="100" />
+                    <img :src="`${publicPath}/images/commons/logo_knowage_b.svg`" height="100" />
                 </div>
                 <p v-if="!configurations || !configurations['KNOWAGE.HIDE_VERSION']">
                     <strong>{{ $t('common.version') }}:</strong> {{ currentVersion }}

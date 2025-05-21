@@ -5,7 +5,7 @@
         <div class="col-12 flex wrap q-mt-3">
           <div class="col-6">
             <q-input
-                outlined
+                filled
                 v-model.trim="v$.mode.label.$model"
                 :error="v$.mode.label.$invalid && v$.mode.label.$dirty"
                 :error-message="v$.mode.label.$invalid && v$.mode.label.$dirty ?
@@ -18,7 +18,7 @@
           </div>
           <div class="col-6">
             <q-input
-                outlined
+                filled
                 v-model.trim="v$.mode.name.$model"
                 :error="v$.mode.name.$invalid && v$.mode.name.$dirty"
                 :error-message="v$.mode.name.$invalid && v$.mode.name.$dirty ?
@@ -31,7 +31,7 @@
           </div>
           <div class="col-12">
             <q-input
-                outlined
+                filled
                 v-model.trim="mode.description"
                 @update:model-value="modeChanged"
                 :label="$t('common.description') + '*'"
@@ -42,7 +42,7 @@
         <div class="col-12 flex wrap">
           <div class="col-3 col-sm-12 col-md-4">
             <q-select
-                outlined
+                filled
                 v-model="v$.mode.valueSelection.$model"
                 :options="availableTypes"
                 option-label="name"
@@ -60,7 +60,7 @@
           <div v-show="mode.valueSelection === 'lov'" class="col-9 col-sm-12 col-md-8 row q-col-gutter-md">
             <div class="col-6 col-sm-12 col-md-6">
               <q-input
-                  outlined
+                  filled
                   v-model="mode.typeLov.name"
                   :error="v$.mode.typeLov.$invalid && v$.mode.typeLov.$dirty"
                   :error-message="v$.mode.typeLov.$invalid && v$.mode.typeLov.$dirty ?
@@ -75,7 +75,7 @@
             </div>
             <div class="col-6 col-sm-12 col-md-6">
               <q-select
-                  outlined
+                  filled
                   v-model="v$.mode.selectionType.$model"
                   :options="selectionTypes"
                   option-label="VALUE_NM"
@@ -95,7 +95,7 @@
         <div class="col-12 flex wrap">
           <div class="col-4 col-sm-12 col-md-4">
             <q-select
-                outlined
+                filled
                 v-model="selectedDefault"
                 :options="defaults"
                 option-label="name"
@@ -109,7 +109,7 @@
 
           <div v-show="selectedDefault === 'lov'" class="col-8 col-sm-12 col-md-8">
             <q-input
-                outlined
+                filled
                 v-model="mode.defLov.name"
                 :error="v$.mode.defLov.$invalid && v$.mode.defLov.$dirty"
                 :error-message="v$.mode.defLov.$invalid && v$.mode.defLov.$dirty ?
@@ -125,7 +125,7 @@
 
           <div v-show="selectedDefault === 'pickUp'" class="col-8 col-sm-12 col-md-8">
             <q-select
-                outlined
+                filled
                 v-model="v$.mode.defaultFormula.$model"
                 :options="useModeDescriptor.defaultFormula"
                 option-label="name"
@@ -144,7 +144,7 @@
         <div class="col-12 flex wrap">
           <div v-show="isDate" class="col-4 col-sm-12 col-md-4">
             <q-select
-                outlined
+                filled
                 v-model="selectedMax"
                 :options="useModeDescriptor.maxValues"
                 option-label="name"
@@ -157,7 +157,7 @@
           </div>
           <div v-show="selectedMax === 'lov'" class="col-6 col-sm-12 col-md-6">
             <q-input
-                outlined
+                filled
                 v-model="mode.maxLov.name"
                 :error="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty"
                 :error-message="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty ?

@@ -312,6 +312,7 @@
         "url": "URL",
         "user": "User",
         "validation": {
+            "datasetLabelExists": "Dataset label already exists",
             "jndiformat": "The JNDI string is required to start with \"java:comp/env/jdbc/\"",
             "maxLength": "This field must have less then {max} characters",
             "maximumCharacters": "The maximum length allowed is {max}",
@@ -569,6 +570,7 @@
                 },
                 "title": "Accessibility"
             },
+            "addFunction": "Add Function",
             "addWidget": "Add widget",
             "aggregation": "Aggregation",
             "area": "Area",
@@ -591,6 +593,7 @@
                 "solid": "Solid",
                 "title": "Borders"
             },
+            "catalogFunction": "Catalog Function",
             "chartJS": {
                 "legend": {
                     "alignHint": "Alignment of the legend",

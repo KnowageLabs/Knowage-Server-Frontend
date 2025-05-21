@@ -26,29 +26,11 @@
         </div>
 
         <Transition name="editorEnter" appear>
-            <DatasetEditor
-                v-if="datasetEditorVisible"
-                :dashboard-id-prop="dashboardId"
-                :available-datasets-prop="datasets"
-                :filters-data-prop="filtersData"
-                :datasets-loaded="datasetsLoaded"
-                @close-dataset-editor="closeDatasetEditor"
-                @dataset-editor-saved="closeDatasetEditor"
-                @all-datasets-loaded="onAllDatasetsLoaded"
-            />
+            <DatasetEditor v-if="datasetEditorVisible" :dashboard-id-prop="dashboardId" :available-datasets-prop="datasets" :filters-data-prop="filtersData" :datasets-loaded="datasetsLoaded" @close-dataset-editor="closeDatasetEditor" @dataset-editor-saved="closeDatasetEditor" @all-datasets-loaded="onAllDatasetsLoaded" />
         </Transition>
 
         <Transition name="editorEnter" appear>
-            <DashboardGeneralSettings
-                v-if="generalSettingsVisible"
-                :dashboard-id="dashboardId"
-                :datasets="datasets"
-                :document-drivers="drivers"
-                :profile-attributes="profileAttributes"
-                :general-settings-mode="generalSettingsMode"
-                @close-general-settings="closeGeneralSettings"
-                @save-general-settings="generalSettingsVisible = false"
-            ></DashboardGeneralSettings>
+            <DashboardGeneralSettings v-if="generalSettingsVisible" :dashboard-id="dashboardId" :datasets="datasets" :document-drivers="drivers" :profile-attributes="profileAttributes" :general-settings-mode="generalSettingsMode" @close-general-settings="closeGeneralSettings" @save-general-settings="generalSettingsVisible = false"></DashboardGeneralSettings>
         </Transition>
 
         <Transition>
@@ -106,7 +88,7 @@ import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/Das
 import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeaderWidget.vue'
 import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
 import { getWidgetData } from './DashboardDataProxy'
-import { formatMapWidget } from './helpers/mapWidget/MapCompatibilityHelper'
+import { iPythonConfiguration } from '../../managers/functionsCatalog/FunctionsCatalog'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -134,7 +116,8 @@ export default defineComponent({
         },
         newDashboardMode: { type: Boolean },
         mode: { type: Object as PropType<string | null>, required: true },
-        propView: { type: Object as PropType<IDashboardView | null> }
+        propView: { type: Object as PropType<IDashboardView | null> },
+        filtersLoaded: { type: Boolean }
     },
     emits: ['newDashboardSaved', 'executeCrossNavigation', 'dashboardIdSet', 'executeView'],
     provide() {
@@ -230,7 +213,10 @@ export default defineComponent({
     async created() {
         if (!this.showDashboard) return
         this.setEventListeners()
-        if (this.isEnterprise) await this.loadDashboardThemes()
+        if (this.isEnterprise) {
+            await this.loadDashboardThemes()
+            await this.loadPythonEnvironments()
+        }
         await this.getData()
         this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
     },
@@ -285,6 +271,7 @@ export default defineComponent({
             emitter.off('selectionsDeleted', this.onSelectionsChanged)
         },
         async getData() {
+            if (!this.filtersLoaded) return
             this.loading = true
             if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
             this.$emit('dashboardIdSet', this.dashboardId)
@@ -498,6 +485,17 @@ export default defineComponent({
                 this.dashboardThemes = response.data
             })
             this.store.setAllThemes(this.dashboardThemes)
+        },
+        async loadPythonEnvironments() {
+            if (!this.isEnterprise) return
+            let pythonEnvironments = [] as iPythonConfiguration[]
+            await this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/configs/category/PYTHON_CONFIGURATION`)
+                .then((response: AxiosResponse<any>) => {
+                    pythonEnvironments = response.data ?? []
+                })
+                .catch(() => {})
+            this.store.setPythonEnvironments(pythonEnvironments)
         },
         loadSelectedViewForExecution(view: IDashboardView) {
             this.selectedViewForExecution = view

@@ -1,34 +1,25 @@
 <template>
-    <DataTable
-        class="p-datatable-sm kn-table p-m-2"
-        :value="inputVariables"
-        edit-mode="cell"
-        :data-key="functionsCatalogDatasetFormVariablesTableDescriptor.dataKey"
-        :responsive-layout="functionsCatalogDatasetFormVariablesTableDescriptor.responsiveLayout"
-        :breakpoint="functionsCatalogDatasetFormVariablesTableDescriptor.breakpoint"
-        @cell-edit-complete="onCellEditComplete"
-    >
-        <Column class="kn-truncated" field="name" :header="$t('managers.functionsCatalog.variableName')"> </Column>
-        <Column class="kn-truncated" field="type" :header="$t('common.type')">
-            <template #body="slotProps">
-                <i :class="getIconClass(slotProps.data.type)"></i>
-                {{ slotProps.data.type }}
-            </template>
-        </Column>
-        <Column :header="$t('common.value')">
-            <template #editor="slotProps">
+    <q-table flat dense :columns="columns" :rows="inputVariables" row-key="name" class="input-columns-table p-m-2"   hide-bottom>
+        <template v-slot:body-cell-name="props">
+            <q-td :props="props">
+                <span>{{ props.row.name }}</span>
+            </q-td>
+        </template>
+        <template v-slot:body-cell-type="props">
+            <q-td :props="props">
+                <i class="p-mr-2" :class="getIconClass(props.row.type)"></i>
+                <span>{{ props.row.type }}</span>
+            </q-td>
+        </template>
+        <template v-slot:body-cell-value="props">
+            <q-td :props="props">
                 <div class="p-d-flex p-flex-row p-ai-center">
-                    <InputText v-if="slotProps.data.type !== 'DATE'" v-model="slotProps.data['value']" :style="functionsCatalogDatasetFormVariablesTableDescriptor.inputStyle" class="p-mr-2  kn-flex" :type="slotProps.data.type === 'NUMBER' ? 'number' : 'text'" />
-                    <Calendar v-else v-model="slotProps.data['value']" class="kn-flex"></Calendar>
-                    <i class="pi pi-pencil edit-icon kn-flex" />
+                    <q-input v-if="props.row.type !== 'DATE'" dense class="col" filled v-model="props.row['value']" :type="props.row.type === 'NUMBER' ? 'number' : 'text'" @update:model-value="(value) => updateField(value, 'value', props.row)" />
+                    <Calendar v-else v-model="props.row['value']" class="kn-flex" @date-select="(value) => updateField(value, 'value', props.row)"></Calendar>
                 </div>
-            </template>
-            <template #body="slotProps">
-                <span class="p-mr-2">{{ slotProps.data.type === 'DATE' && slotProps.data.value ? getFormatedDate(slotProps.data['value']) : slotProps.data['value'] }}</span>
-                <i class="pi pi-pencil edit-icon" />
-            </template>
-        </Column>
-    </DataTable>
+            </q-td>
+        </template>
+    </q-table>
 </template>
 
 <script lang="ts">
@@ -36,27 +27,31 @@ import { defineComponent } from 'vue'
 import { formatDate } from '@/helpers/commons/localeHelper'
 import { iInputVariable } from '../../../../FunctionsCatalog'
 import Calendar from 'primevue/calendar'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import functionsCatalogDatasetFormVariablesTableDescriptor from './FunctionsCatalogDatasetFormVariablesTableDescriptor.json'
 
 export default defineComponent({
     name: 'function-catalog-dateset-form-variables-table',
-    components: { Calendar, Column, DataTable },
+    components: { Calendar },
     props: { variables: { type: Array } },
     data() {
-        return { functionsCatalogDatasetFormVariablesTableDescriptor, inputVariables: [] as iInputVariable[] }
+        return {
+            inputVariables: [] as iInputVariable[],
+            columns: [
+                { name: 'name', label: this.$t('managers.functionsCatalog.variableName'), align: 'left', field: 'name', sortable: true },
+                { name: 'type', label: this.$t('common.type'), align: 'left', field: 'type', sortable: true },
+                { name: 'value', label: this.$t('common.value'), align: 'left', field: 'value', sortable: true, style: 'width: 400px' }
+            ] as { name: string; label: string; align: 'left' | 'right' | 'center' | undefined; field: string; sortable: boolean; style?: string }[]
+        }
     },
     watch: {
-        propinputColumns() {
-            this.loadinputColumns()
+        variables() {
+            this.loadInputVariables()
         }
     },
     created() {
-        this.loadinputColumns()
+        this.loadInputVariables()
     },
     methods: {
-        loadinputColumns() {
+        loadInputVariables() {
             this.inputVariables = this.variables as iInputVariable[]
         },
         getIconClass(type: string) {
@@ -76,7 +71,25 @@ export default defineComponent({
         },
         onCellEditComplete(event: any) {
             this.inputVariables[event.index] = event.newData
+        },
+        updateField(value: string | number | Date | null, field: string, row: iInputVariable) {
+            row[field] = value
         }
     }
 })
 </script>
+
+<style lang="scss">
+.input-columns-table {
+    .q-field--auto-height.q-field--dense .q-field__control,
+    .q-field--auto-height.q-field--dense .q-field__native {
+        min-height: 30px;
+        height: 30px;
+    }
+    .q-field--dense .q-field__control,
+    .q-field--dense .q-field__marginal {
+        min-height: 30px;
+        height: 30px;
+    }
+}
+</style>

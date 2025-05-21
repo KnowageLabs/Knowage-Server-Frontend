@@ -30,9 +30,9 @@
                 <Column v-for="column in settings.columns" :key="column.field" class="kn-truncated" :field="column.field" :header="column.header ? $t(column.header) : ''" :sortable="column.sortable">
                     <template #body="slotProps">
                         <div>
-                            <InputText v-if="column.field === 'alias'" v-model="slotProps.data[column.field]" class="kn-material-input" @change="onColumnAliasRenamed(slotProps.data)" />
+                            <InputText v-if="column.field === 'alias'" v-model="slotProps.data[column.field]" class="kn-material-input" :disabled="slotProps.data.type === 'pythonFunction'" @change="onColumnAliasRenamed(slotProps.data)" />
                             <Dropdown
-                                v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)"
+                                v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data) && slotProps.data.type !== 'pythonFunction'"
                                 v-model="slotProps.data[column.field]"
                                 class="kn-material-input column-aggregation-dropdown"
                                 :options="commonDescriptor.columnAggregationOptions"
@@ -49,7 +49,8 @@
                     <template #body="slotProps">
                         <div>
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
-                            <Button v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" data-test="edit-button" @click.stop="$emit('itemSelected', slotProps.data)"></Button>
+                            <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
+                            <Button v-if="slotProps.data.type !== 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" data-test="edit-button" @click.stop="$emit('itemSelected', slotProps.data)"></Button>
                             <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data, slotProps.index)"></Button>
                         </div>
                     </template>
@@ -62,7 +63,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { filterDefault } from '@/helpers/commons/filterHelper'
-import { IWidget, IWidgetColumn } from '../../../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetFunctionColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { addChartColumnToTable } from '../../helpers/chartWidget/ChartWidgetDataTabHelpers'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
@@ -109,10 +110,12 @@ export default defineComponent({
         setEventListeners() {
             emitter.on('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.on('addNewCalculatedField', this.onCalcFieldAdded)
+            emitter.on('addNewFunctionColumn', this.onFunctionsColumnAdded)
         },
         removeEventListeners() {
             emitter.off('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.off('addNewCalculatedField', this.onCalcFieldAdded)
+            emitter.off('addNewFunctionColumn', this.onFunctionsColumnAdded)
         },
         onSelectedColumnUpdated(column: any) {
             this.updateSelectedColumn(column)
@@ -173,6 +176,14 @@ export default defineComponent({
             if (this.settings.attributesOnly || (this.axis && !['Y', 'start'].includes(this.axis))) return
             this.rows.push(field as IWidgetColumn)
             this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings })
+        },
+        openFunctionsColumnDialog(functionColumn: IWidgetFunctionColumn) {
+            emitter.emit('editFunctionColumn', functionColumn)
+        },
+        onFunctionsColumnAdded(functionColumn: any) {
+            if (this.settings.attributesOnly || (this.axis && !['Y', 'start'].includes(this.axis))) return
+            this.rows.push(functionColumn as IWidgetColumn)
+            this.$emit('itemAdded', { column: functionColumn, rows: this.rows, settings: this.settings })
         }
     }
 })

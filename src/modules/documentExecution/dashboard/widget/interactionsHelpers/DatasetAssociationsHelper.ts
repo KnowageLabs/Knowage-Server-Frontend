@@ -43,7 +43,7 @@ export const getAssociativeSelections = async (model: IDashboard, datasets: IDat
     await $http
         .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/associativeSelections/`, postData)
         .then((response: AxiosResponse<any>) => (tempResponse = response.data))
-        .catch(() => { })
+        .catch(() => {})
     emitter.emit('setWidgetLoading', false)
     return tempResponse
 }
@@ -143,7 +143,7 @@ const getFiltersFromWidgets = (model: IDashboard, datasetsInAssociation: any) =>
         const datasetLabel = widget.dataset ? getDatasetById(widget.dataset)?.label : ''
         if (datasetLabels.includes(datasetLabel)) {
             widget.columns?.forEach((column: IWidgetColumn) => {
-                if (column.filter.enabled) {
+                if (column.filter && column.filter.enabled) {
                     const formattedFilter = {
                         filterOperator: column.filter.operator,
                         filterVals: [`('${column.filter.value}')`],

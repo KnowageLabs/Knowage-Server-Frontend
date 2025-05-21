@@ -1,5 +1,5 @@
-import { IDashboardConfiguration, IDashboardDataset, ISelection, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
-import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula } from '../../DashboardDataProxy'
+import { IDashboardConfiguration, IDashboardDataset, ISelection, IWidget, IWidgetFunctionColumn } from '@/modules/documentExecution/dashboard/Dashboard'
+import { addDriversToData, addParametersToData, addSelectionsToData, showGetDataError, addVariablesToFormula, addFunctionColumnToTheMeasuresForThePostData } from '../../DashboardDataProxy'
 import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IMapWidgetLayer, IWidgetMapLayerColumn } from '../../interfaces/mapWidget/DashboardMapWidget'
@@ -57,9 +57,9 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
 
     dataToSend.aggregations.dataset = dataset.dsLabel
 
-    addSelectionsToData(dataToSend, widget, dataset.dsLabel, initialCall, selections, associativeResponseSelections)
+    addSelectionsToData(dataToSend, widget, dataset.dsLabel!, initialCall, selections, associativeResponseSelections)
     addDriversToData(dataset, dataToSend)
-    addParametersToData(dataset, dashboardId, dataToSend)
+    addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     const datasetWithColumns = widget.layers.find((layer: IMapWidgetLayer) => layer.name === dataset.dsLabel)
     console.log('___________________ datasetWithColumns: ', datasetWithColumns)
@@ -67,6 +67,10 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     datasetWithColumns.columns.forEach((column: IWidgetMapLayerColumn) => {
         console.log('------ COLUMN: ', column)
         if (column.fieldType === 'MEASURE') {
+            if (column.type === 'pythonFunction') {
+                addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as any)
+                return
+            }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.name, funct: column.aggregationSelected, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
 

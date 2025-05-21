@@ -1,16 +1,16 @@
 <template>
-  <q-card class="full-width">
+  <q-card class="p-m-2">
     <q-card-section>
       <div class="row q-col-gutter-sm">
-        <div class="col-6 q-mb-md">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-input
               filled
-              class="col"
               v-model.trim="v$.lov.label.$model"
+              type="text"
               maxlength="20"
               :error="v$.lov.label.$invalid && v$.lov.label.$dirty"
-              :error-message="t('common.validation.required', { fieldName: t('common.label') })"
-              :label="t('common.label') + '*'"
+              :error-message="$t('common.validation.required', { fieldName: $t('common.label') })"
+              :label="$t('common.label') + '*'"
               @update:model-value="onDataChange(v$.lov.label)"
               data-test="label-input"
               @input="$emit('touched')"
@@ -18,31 +18,31 @@
           <KnValidationMessages
               :v-comp="v$.lov.label"
               :additional-translate-params="{
-                          fieldName: t('common.label')
+                          fieldName: $t('common.label')
                       }"
               :specific-translate-keys="{
-                          custom_unique_name: 'managers.lovsManagement.lovLabelNotUnique'
+                          custom_unique_label: 'managers.lovsManagement.lovLabelNotUnique'
                       }"
           />
 
         </div>
 
-        <div class="col-6 q-mb-md">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-input
               filled
               v-model.trim="v$.lov.name.$model"
               type="text"
               :error="v$.lov.name.$invalid && v$.lov.name.$dirty"
-              :error-message="v$.lov.name.$invalid ? t('common.validation.required', { fieldName: t('common.name') }) : ''"
+              :error-message="v$.lov.name.$invalid ? $t('common.validation.required', { fieldName: $t('common.name') }) : ''"
               maxlength="40"
-              :label="t('common.name') + '*'"
+              :label="$t('common.name') + '*'"
               @update:model-value="onDataChange(v$.lov.name)"
               @input="$emit('touched')"
           />
           <KnValidationMessages
               :v-comp="v$.lov.name"
               :additional-translate-params="{
-                          fieldName: t('common.name')
+                          fieldName: $t('common.name')
                       }"
               :specific-translate-keys="{
                           custom_unique_name: 'managers.lovsManagement.lovNameNotUnique'
@@ -50,14 +50,14 @@
           />
         </div>
 
-        <div class="col-12">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <q-select
               filled
               v-model="v$.lov.itypeCd.$model"
               :options="listOfInputTypes"
               option-label="VALUE_NM"
               option-value="VALUE_CD"
-              :label="t('managers.lovsManagement.lovType') + '*'"
+              :label="$t('managers.lovsManagement.lovType') + '*'"
               :error="v$.lov.itypeCd.$invalid && v$.lov.itypeCd.$dirty"
               @update:model-value="typeChanged"
               @input="$emit('touched')"
@@ -67,18 +67,19 @@
           <KnValidationMessages
               :v-comp="v$.lov.itypeCd"
               :additional-translate-params="{
-                          fieldName: t('managers.lovsManagement.lovType')
+                          fieldName: $t('managers.lovsManagement.lovType')
                       }"
           />
         </div>
 
-        <div class="col-12 q-mb-md">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <q-input
               filled
               v-model.trim="lov.description"
-              type="text"
+              rows="2"
+              type="textarea"
               maxlength="160"
-              :label="t('managers.lovsManagement.description')"
+              :label="$t('managers.lovsManagement.description')"
               @update:model-value="$emit('touched')"
           />
         </div>
@@ -88,26 +89,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { iLov } from '../../LovsManagement'
-import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
+import {defineComponent} from 'vue'
+import {useI18n} from 'vue-i18n'
+import {iLov} from '../../LovsManagement'
+import {createValidations, ICustomValidatorMap} from '@/helpers/commons/validationHelper'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import lovsManagementDetailCardValidation from './LovsManagementDetailCardValidation.json'
 import useValidate from '@vuelidate/core'
 
 export default defineComponent({
   name: 'lovs-management-detail-card',
-  components: { KnValidationMessages },
+  components: {KnValidationMessages},
   props: {
-    selectedLov: { type: Object },
-    lovs: { type: Array, required: true },
-    listOfInputTypes: { type: Array }
+    selectedLov: {type: Object},
+    lovs: {type: Array, required: true},
+    listOfInputTypes: {type: Array}
   },
   emits: ['touched', 'typeChanged', 'dataChanged', 'save', 'cancel'],
   setup() {
-    const { t } = useI18n()
-    return { t }
+    const {t} = useI18n()
+    return {t}
   },
   data() {
     return {

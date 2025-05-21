@@ -27,7 +27,7 @@
                             filled
                             class="col"
                             v-model="v$.datasource.label.$model"
-                            max-length="100"
+                            maxlength="50"
                             :error="v$.datasource.label.$invalid && v$.datasource.label.$dirty"
                             :error-message="$t('common.validation.required', { fieldName: $t('common.name') })"
                             :label="$t('common.name')"
@@ -53,7 +53,7 @@
                         />
                     </div>
                     <div class="row">
-                        <q-input filled rows="2" class="col" type="textarea" v-model="datasource.descr" max-length="160" :label="$t('common.description')" :disable="readOnly" data-test="description-input" />
+                        <q-input filled rows="2" class="col" type="textarea" v-model="datasource.descr" maxlength="160" :label="$t('common.description')" :disable="readOnly" data-test="description-input" />
                     </div>
                     <div v-if="!showOwnerMessage" class="row q-mt-sm justify-between">
                         <q-btn-toggle
@@ -66,14 +66,7 @@
                         />
                         <div class="row">
                             <q-checkbox v-if="currentUser.isSuperadmin" v-model="datasource.writeDefault" size="sm" :disable="readOnly || !selectedDatabase.cacheSupported || datasource.readOnly || !currentUser.isSuperadmin" :label="$t('managers.dataSourceManagement.form.writeDefault')" />
-                            <q-checkbox
-                                v-if="currentUser.isSuperadmin && !datasource.readOnly"
-                                v-model="datasource.useForDataprep"
-                                size="sm"
-                                :disable="readOnly || !selectedDatabase.cacheSupported || datasource.readOnly || !currentUser.isSuperadmin"
-                                :label="$t('managers.dataSourceManagement.form.useForDataprep')"
-                                @update:model-value="setReadOnly($event)"
-                            />
+                            <q-checkbox v-if="currentUser.isSuperadmin && !datasource.readOnly" v-model="datasource.useForDataprep" size="sm" :disable="readOnly || !selectedDatabase.cacheSupported || datasource.readOnly || !currentUser.isSuperadmin" :label="$t('managers.dataSourceManagement.form.useForDataprep')" @update:model-value="setReadOnly($event)" />
                         </div>
                     </div>
                 </q-card-section>
@@ -98,7 +91,7 @@
                             bottom-slots
                             class="col"
                             v-model="v$.datasource.jndi.$model"
-                            max-length="160"
+                            maxlength="160"
                             :disable="readOnly"
                             :rules="[(val) => (val !== null && val !== '') || $t('common.validation.required', { fieldName: $t('managers.dataSourceManagement.form.jndi') }), (val) => val.match(/java:comp\/env\/jdbc\/[A-Za-z\d\-_|#$]+/g) || $t('common.validation.jndiformat')]"
                             :label="$t('managers.dataSourceManagement.form.jndi')"
@@ -117,7 +110,7 @@
                             dense
                             class="col-12"
                             v-model="v$.datasource.urlConnection.$model"
-                            max-length="500"
+                            maxlength="500"
                             type="url"
                             :disable="readOnly"
                             :error="v$.datasource.urlConnection.$invalid && v$.datasource.urlConnection.$dirty"
@@ -136,7 +129,7 @@
                             dense
                             class="col-12"
                             v-model="v$.datasource.driver.$model"
-                            max-length="50"
+                            maxlength="50"
                             :disable="readOnly"
                             :error="v$.datasource.driver.$invalid && v$.datasource.driver.$dirty"
                             :error-message="$t('common.validation.required', { fieldName: $t('managers.dataSourceManagement.form.driver') })"
@@ -148,8 +141,8 @@
                                 {{ $t('managers.dataSourceManagement.form.driverHint') }}
                             </template>
                         </q-input>
-                        <q-input filled dense class="col-6" v-model="datasource.user" max-length="50" :disable="readOnly" :label="$t('managers.dataSourceManagement.form.user')" @update:model-value="onFieldChange" data-test="user-input" />
-                        <q-input filled dense autocomplete="new-password" type="password" class="col-6" v-model="datasource.pwd" max-length="50" :disable="readOnly" :label="$t('managers.dataSourceManagement.form.pwd')" @update:model-value="onFieldChange" data-test="password-input" />
+                        <q-input filled dense class="col-6" v-model="datasource.user" maxlength="50" :disable="readOnly" :label="$t('managers.dataSourceManagement.form.user')" @update:model-value="onFieldChange" data-test="user-input" />
+                        <q-input filled dense autocomplete="new-password" type="password" class="col-6" v-model="datasource.pwd" maxlength="50" :disable="readOnly" :label="$t('managers.dataSourceManagement.form.pwd')" @update:model-value="onFieldChange" data-test="password-input" />
                     </div>
                     <DataSourceAdvancedOptions v-if="jdbcOrJndi.type == 'JDBC'" :advanced-options="jdbcPoolConfiguration" :is-read-only="readOnly" @fieldChanged="onAdvancedOptionsChange" />
                 </q-card-section>
@@ -241,19 +234,6 @@ export default defineComponent({
             }
             this.touched = false
         },
-        databases() {
-            this.availableDatabases = this.databases
-            this.availableDatabases = this.availableDatabases.map((i) => {
-                return {
-                    name: i.databaseDialect.name,
-                    value: i.databaseDialect.value,
-                    cacheSupported: i.cacheSupported,
-                    writeDefault: i.writeDefault
-                }
-            })
-            this.selectDatabase(this.datasource.dialectName)
-            this.checkIfReadOnly()
-        },
         user() {
             this.currentUser = { ...this.user } as any
         },
@@ -262,6 +242,7 @@ export default defineComponent({
                 if (oldValue.dsId && newValue.dsId === oldValue.dsId) {
                     this.touched = true
                     this.$emit('touched')
+                    this.updateAvailableDatabases()
                 }
             },
             deep: true
@@ -283,6 +264,7 @@ export default defineComponent({
         } else {
             this.createNewDataSourceValues()
         }
+        this.updateAvailableDatabases()
     },
 
     validations() {
@@ -305,6 +287,19 @@ export default defineComponent({
 
     methods: {
         ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading']),
+        updateAvailableDatabases() {
+            this.availableDatabases = this.databases
+            this.availableDatabases = this.availableDatabases.map((i) => {
+                return {
+                    name: i.databaseDialect.name,
+                    value: i.databaseDialect.value,
+                    cacheSupported: i.cacheSupported,
+                    writeDefault: i.writeDefault
+                }
+            })
+            this.selectDatabase(this.datasource.dialectName)
+            this.checkIfReadOnly()
+        },
         setConnetionType() {
             if (this.datasource.driver) {
                 this.jdbcOrJndi.type = 'JDBC'
@@ -342,7 +337,7 @@ export default defineComponent({
         selectDatabase(selectedDatabaseDialect) {
             this.availableDatabases.forEach((database) => {
                 if (database.value == selectedDatabaseDialect) {
-                    this.selectedDatabase = database.dialectName
+                    this.selectedDatabase = database
                 }
             })
             if (typeof this.selectedDatabase.cacheSupported === 'undefined') {

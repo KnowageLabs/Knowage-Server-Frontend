@@ -6,7 +6,21 @@
         </span>
         <div v-if="widgetModel.type !== 'selector'" class="p-col-12 p-d-flex">
             <label class="kn-material-input-label p-as-center p-ml-1"> {{ $t('common.columns') }} </label>
-            <Button :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
+
+            <q-btn v-if="isEnterprise" color="primary" class="kn-cursor-pointer p-ml-auto p-mr-1" :label="$t('common.add')">
+                <q-menu>
+                    <q-list style="min-width: 100px">
+                        <q-item clickable v-close-popup @click="createNewCalcField">
+                            <q-item-section>{{ $t('common.addCalculatedField') }}</q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup :disable="createNewFormulaDisabled" @click="createNewFormulaField">
+                            <q-item-section>{{ $t('dashboard.widgetEditor.addFunction') }}</q-item-section>
+                        </q-item>
+                    </q-list>
+                </q-menu>
+            </q-btn>
+
+            <Button v-else :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
             <Button id="add-all-columns-button" icon="fa fa-arrow-right" class="p-button-text p-button-rounded p-button-plain" @click="addAllColumnsToWidgetModel" />
         </div>
 
@@ -40,11 +54,21 @@
         @cancel="calcFieldDialogVisible = false"
     >
     </KnCalculatedField>
+
+    <WidgetEditorFunctionsDialog
+        v-if="functionsDialogVisible"
+        :visible="functionsDialogVisible"
+        :prop-function-column="selectedFunctionColumn"
+        :selected-dataset="selectedDatasetForFunctions"
+        :edit-mode="functionsDialogEditMode"
+        @close="onFunctionsDialogClosed"
+        @save="onFunctionsColumnSave"
+    ></WidgetEditorFunctionsDialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn, IVariable } from '../../../../Dashboard'
+import { IDashboardDataset, IDatasetColumn, IDataset, IWidget, IWidgetColumn, IVariable, IWidgetFunctionColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { removeColumnFromDiscoveryWidgetModel } from '../../helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import descriptor from './WidgetEditorDataListDescriptor.json'
@@ -56,10 +80,13 @@ import KnCalculatedField from '@/components/functionalities/KnCalculatedField/Kn
 import calcFieldDescriptor from './WidgetEditorCalcFieldDescriptor.json'
 import { AxiosResponse } from 'axios'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
+import { mapState } from 'pinia'
+import WidgetEditorFunctionsDialog from './WidgetEditorFunctionsDialog/WidgetEditorFunctionsDialog.vue'
+import { createNewFunctionColumn } from './WidgetEditorFunctionsDialog/WidgetEditorFunctionsDialogHelper'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
-    components: { Dropdown, Listbox, KnCalculatedField },
+    components: { Dropdown, Listbox, KnCalculatedField, WidgetEditorFunctionsDialog },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
     emits: ['datasetSelected', 'selectedDatasetColumnsChanged'],
     setup() {
@@ -83,7 +110,20 @@ export default defineComponent({
                 availableFunctions: string[]
                 nullifFunction: string[]
             },
-            availableFunctions: [] as any
+            availableFunctions: [] as any,
+            functionsDialogVisible: false,
+            selectedDatasetForFunctions: null as IDataset | null,
+            selectedFunctionColumn: null as IWidgetFunctionColumn | null,
+            functionsDialogEditMode: false
+        }
+    },
+    computed: {
+        ...mapState(mainStore, {
+            isEnterprise: 'isEnterprise'
+        }),
+        createNewFormulaDisabled() {
+            if (!this.widgetModel) return true
+            return this.widgetModel.columns.some((col: IWidgetColumn) => col.type === 'pythonFunction')
         }
     },
     watch: {
@@ -102,7 +142,8 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
-        async loadAvailableFunctions(dataset: IDashboardDataset) {
+        async loadAvailableFunctions(dataset: IDashboardDataset | null) {
+            if (!dataset) return
             this.store.setLoading(true)
 
             const datasetForType = this.datasets?.filter((x) => x.label == dataset.label)
@@ -128,9 +169,11 @@ export default defineComponent({
         },
         setEventListeners() {
             emitter.on('editCalculatedField', this.editCalcField)
+            emitter.on('editFunctionColumn', this.editFunctionColumn)
         },
         removeEventListeners() {
             emitter.off('editCalculatedField', this.editCalcField)
+            emitter.off('editFunctionColumn', this.editFunctionColumn)
         },
         loadDatasets() {
             this.datasetOptions = []
@@ -153,6 +196,7 @@ export default defineComponent({
                 this.onDatasetSelected()
             }
             this.loadDatasetColumns()
+            this.loadSelectedDatasetForFunctions()
         },
         loadSelectedDataset() {
             const index = this.datasetOptions?.findIndex((dataset: IDashboardDataset) => dataset.id === this.model?.dataset)
@@ -161,6 +205,7 @@ export default defineComponent({
                 this.$emit('datasetSelected', this.selectedDataset)
             }
             this.loadDatasetColumns()
+            this.loadSelectedDatasetForFunctions()
         },
         onDatasetSelected() {
             if (this.availableFunctions.length == 0) this.loadAvailableFunctions(this.selectedDataset)
@@ -257,6 +302,31 @@ export default defineComponent({
             }
 
             this.calcFieldDialogVisible = false
+        },
+        createNewFormulaField() {
+            this.selectedFunctionColumn = createNewFunctionColumn()
+            this.functionsDialogVisible = true
+        },
+        onFunctionsDialogClosed() {
+            this.functionsDialogVisible = false
+            this.selectedFunctionColumn = null
+            this.functionsDialogEditMode = false
+        },
+        loadSelectedDatasetForFunctions() {
+            if (!this.selectedDatasets || !this.selectedDataset) return
+            const dataset = this.selectedDatasets.find((tempDataset: IDataset) => tempDataset.id.dsId === this.selectedDataset?.id)
+            this.selectedDatasetForFunctions = dataset ?? null
+        },
+        editFunctionColumn(functionColumn: any) {
+            this.selectedFunctionColumn = functionColumn
+            this.functionsDialogEditMode = true
+            this.functionsDialogVisible = true
+        },
+        onFunctionsColumnSave(functionColumn: IWidgetFunctionColumn) {
+            this.functionsDialogVisible = false
+            this.selectedFunctionColumn = null
+            if (!this.functionsDialogEditMode) emitter.emit('addNewFunctionColumn', functionColumn)
+            this.functionsDialogEditMode = false
         }
     }
 })
