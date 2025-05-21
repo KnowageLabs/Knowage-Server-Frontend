@@ -238,15 +238,8 @@ const getFormattedChoroplethConf = (oldLayerAnalysisConf: any): IMapWidgetVisual
 }
 
 export const getFormattedLegendSettingsFromOldLayers = (oldWidget: any, formattedWidget: IWidget) => {
-    console.log('______________ OLD WIDGET: ', oldWidget)
-    console.log('______________ FORMATTED WIDGET: ', formattedWidget)
     const oldLegend = oldWidget.style?.legend
     if (!oldLegend) return
     formattedWidget.settings.legend.enabled = true
     formattedWidget.settings.legend.title = oldLegend.title?.text ?? ''
 }
-
-//    enabled: boolean
-//     position: string
-//     title: string
-//     visualizationTypes: IMapWidgetVisualizationTypeLegendSettings[]
