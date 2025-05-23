@@ -39,7 +39,7 @@ export default defineComponent({
         }
     },
     watch: {
-        columns() {
+        propRows() {
             this.loadInputColumns()
         }
     },
