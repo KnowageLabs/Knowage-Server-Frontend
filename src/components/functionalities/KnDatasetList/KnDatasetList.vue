@@ -1,5 +1,5 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary datasetListDialogClass" :visible="visibility" :header="$t('components.advancedData.chooseDataset')" :closable="false" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }">
+    <Dialog class="kn-dialog--toolbar--primary datasetListDialogClass" :visible="visibility" :header="$t('workspace.advancedData.chooseDataset')" :closable="false" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }">
         <DataTable
             id="datasets-datatable"
             :value="filteredDatasets"
@@ -19,7 +19,7 @@
             </template>
             <template #empty>
                 <div id="noDatasetsFound">
-                    {{ $t('managers.advancedData.noDatasetsFound') }}
+                    {{ $t('workspace.advancedData.noDatasetFound') }}
                 </div>
             </template>
             <template #header>

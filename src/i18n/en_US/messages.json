@@ -3885,6 +3885,7 @@
         "addViewFolderHint": "Please add at least one folder in your workspace.",
         "advancedData": {
             "chooseDataset": "Choose dataset",
+            "noDatasetFound": "No dataset found",
             "title": "Data preparation"
         },
         "buttonsTooltips": {

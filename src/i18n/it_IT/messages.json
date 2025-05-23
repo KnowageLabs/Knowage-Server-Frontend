@@ -3557,8 +3557,9 @@
     },
     "workspace": {
         "advancedData": {
-            "title": "Data preparation"
-        },
+            "chooseDataset": "Scegli un dataset",
+            "noDatasetFound": "Nessun dataset trovato",
+            "title": "Data preparation"        },
         "buttonsTooltips": {
             "deleteDoc": "Delete Document",
             "editDoc": "Edit Document",
