@@ -14,6 +14,8 @@ export default {
         localStorage.clear()
         store.setUser({})
         const url = window.location.origin
-        window.location.href = `${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?PAGE=LoginPage&NEW_SESSION=TRUE`
+        let search = window.location.search ?? ''
+        if (search && search.charAt(0) === '?') search = '&' + search.substring(1)
+        window.location.href = `${url}${import.meta.env.VITE_KNOWAGE_CONTEXT}/servlet/AdapterHTTP?PAGE=LoginPage&NEW_SESSION=TRUE${search}`
     }
 }
