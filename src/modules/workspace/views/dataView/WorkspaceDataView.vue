@@ -121,7 +121,7 @@
 
     <WorkspaceDataCloneDialog :visible="cloneDialogVisible" :prop-dataset="selectedDataset" @close="cloneDialogVisible = false" @clone="handleDatasetClone"> </WorkspaceDataCloneDialog>
     <WorkspaceDataShareDialog :visible="shareDialogVisible" :prop-dataset="selectedDataset" :dataset-categories="datasetCategories" @close="shareDialogVisible = false" @share="handleDatasetShare"></WorkspaceDataShareDialog>
-    <WorkspaceDataPreviewDialog v-if="previewDialogVisible" :visible="previewDialogVisible" :prop-dataset="selectedDataset" preview-type="workspace" @close="previewDialogVisible = false"></WorkspaceDataPreviewDialog>
+    <WorkspaceDataPreviewDialog v-if="previewDialogVisible && correctRolesForExecution" :visible="previewDialogVisible" :prop-dataset="selectedDataset" preview-type="workspace" :correct-roles-for-execution="correctRolesForExecution" @close="previewDialogVisible = false"></WorkspaceDataPreviewDialog>
     <WorkspaceWarningDialog :visible="warningDialogVisbile" :title="$t('workspace.myData.title')" :warning-message="warningMessage" @close="closeWarningDialog"> </WorkspaceWarningDialog>
 
     <DataPreparationAvroHandlingDialog :visible="dataPrepAvroHandlingDialogVisbile" :title="$t('workspace.myData.isPreparing')" :info-message="dataPrepAvroHandlingMessage" :events="events" @close="proceedToDataPrep"></DataPreparationAvroHandlingDialog>
@@ -261,7 +261,8 @@ export default defineComponent({
             exportFormat: '',
             dataPrepAvroHandlingDialogVisbile: false,
             dataPrepAvroHandlingMessage: '',
-            events: [] as any
+            events: [] as any,
+            correctRolesForExecution: null
         }
     },
     async created() {
@@ -565,7 +566,8 @@ export default defineComponent({
         },
         async previewDataset(dataset: any) {
             await this.loadDataset(dataset.label)
-            getCorrectRolesForExecution(null, dataset).then(async () => {
+            getCorrectRolesForExecution(null, dataset).then(async (response) => {
+                this.correctRolesForExecution = response
                 if (this.selectedDataset) this.selectedDataset.drivers = dataset.drivers
                 this.previewDialogVisible = true
             })
