@@ -23,18 +23,18 @@ const datasetIdLabelMap = {}
 
 export const formatModel = async (model: any, document: any, datasets: IDataset[], drivers: IDashboardDriver[], profileAttributes: { name: string; value: string }[], $http: any, user: any) => {
     if (!model.sheets) return
-    // TODO - DONT PUSH ANYTHING HERE
-    // loadDatasetIdNameMap(datasets)
+
+    loadDatasetIdNameMap(datasets)
     const formattedModel = {
         id: crypto.randomUUID(),
         widgets: [],
         version: model.knowageVersion,
-        configuration: [],
+        configuration: await getFormattedModelConfiguration(model, document, drivers, profileAttributes, datasets, $http),
         sheets: []
     } as any
     for (let i = 0; i < model.sheets.length; i++) {
         const formattedSheet = formatSheet(model.sheets[i], formattedModel, user, drivers)
-        // formattedModel.sheets.push(formattedSheet)
+        formattedModel.sheets.push(formattedSheet)
     }
 
     return formattedModel
@@ -200,8 +200,6 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
     formattedSheet.id = crypto.randomUUID()
     formattedSheet.widgets = { lg: [], md: [], sm: [], xs: [], xxs: [] }
 
-    console.log('------ SHEET WIDGETS: ', sheet.widgets)
-
     for (let i = 0; i < sheet.widgets.length; i++) {
         const tempWidget = sheet.widgets[i]
         const sizes = ['lg', 'md', 'sm', 'xs', 'xxs']
@@ -235,7 +233,6 @@ const checkIfWidgetInModel = (widget: any, formattedModel: any) => {
 
 export const formatWidget = (widget: any, formattedModel: IDashboard, user: any, drivers: IDashboardDriver[]) => {
     let formattedWidget = {} as any
-    console.log('----------- FORMAT WIDGET CAAAAAAAAAALED')
     switch (widget.type) {
         case 'table':
             formattedWidget = formatTableWidget(widget, formattedModel, drivers)
