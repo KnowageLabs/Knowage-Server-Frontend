@@ -30,6 +30,9 @@
             <Column field="defaultValue" :header="$t('managers.driversManagement.useModes.defaultValue')" :sortable="true">
                 <template #body="{ data }">
                     <InputText v-model="data.defaultValue" class="kn-material-input" @change="onDefaultValueChange(data)" />
+                    <div>
+                        <small>{{ $t('qbe.detailView.parameterMultivalueHint') }}</small>
+                    </div>
                 </template>
             </Column>
             <Column field="multiValue" :header="$t('managers.profileAttributesManagement.form.multiValue')" :sortable="true">

@@ -9,7 +9,13 @@
         <Column :field="'value'" :header="$t('common.value')" :sortable="true">
             <template #editor="slotProps">
                 <div class="p-d-flex p-flex-row p-ai-center">
-                    <InputText v-model="slotProps.data[slotProps.column.props.field]" class="kn-material-input p-inputtext-sm"></InputText>
+                    <div>
+                        <InputText v-model="slotProps.data[slotProps.column.props.field]" class="kn-material-input p-inputtext-sm"></InputText>
+                        <div>
+                            <small>{{ $t('qbe.detailView.parameterMultivalueHint') }}</small>
+                        </div>
+                    </div>
+
                     <i class="pi pi-pencil p-ml-2" />
                 </div>
             </template>
