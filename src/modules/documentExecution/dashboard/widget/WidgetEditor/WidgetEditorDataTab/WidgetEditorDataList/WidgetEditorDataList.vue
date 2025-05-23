@@ -214,6 +214,7 @@ export default defineComponent({
                 this.model.dataset = this.selectedDataset ? this.selectedDataset.id : null
                 if (this.model.dataset !== this.selectedDataset?.id) this.removeSelectedColumnsFromModel()
             }
+            this.loadSelectedDatasetForFunctions()
             this.$emit('datasetSelected', this.selectedDataset)
             emitter.emit('clearWidgetData', this.widgetModel.id)
         },
