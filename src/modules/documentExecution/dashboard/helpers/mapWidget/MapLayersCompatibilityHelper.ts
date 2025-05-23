@@ -1,15 +1,5 @@
 import { IDashboard, IDashboardDriver, IVariable, IWidget } from '../../Dashboard'
-import {
-    IMapWidgetConditionalStyle,
-    IMapWidgetVisualizationType,
-    IMapWidgetVisualizationTypeBalloons,
-    IMapWidgetVisualizationTypeMarker,
-    IMapWidgetVisualizationTypePie,
-    IMapWidgetVisualizationTypeCluster,
-    IMapWidgetVisualizationTypeHeatmap,
-    IMapWidgetVisualizationTypeChoropleth,
-    IMapWidgetLayer
-} from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetConditionalStyle, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker, IMapWidgetVisualizationTypePie, IMapWidgetVisualizationTypeCluster, IMapWidgetVisualizationTypeHeatmap, IMapWidgetVisualizationTypeChoropleth, IMapWidgetLayer } from '../../interfaces/mapWidget/DashboardMapWidget'
 import * as mapWidgetDefaultValues from '../../widget/WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 
 export const getFormattedLayers = (widget: any) => {
@@ -21,10 +11,8 @@ export const getFormattedLayers = (widget: any) => {
 
 export const getFormattedSettingsFromLayers = (widget: any, formattedWidget: IWidget, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
     const layers = widget.content.layers
-    console.log('---------- LAYERS: ', layers)
 
     layers?.forEach((layer: any) => {
-        console.log('!!!!!!!!!!!! LAYER: ', layer)
         layer?.content?.columnSelectedOfDataset?.forEach((column: any) => {
             addLayerColumnTooltipOptions(column, formattedWidget, layer.name)
             addLayerColumnConditionalStyleSettings(column, formattedWidget, layer.layerID, formattedDashboardModel, drivers)
@@ -127,7 +115,7 @@ const getValueFromDriver = (driverUrl: string, drivers: IDashboardDriver[]) => {
 const addLayerVisualizationTypeSettings = (oldLayer: any, formattedWidget: IWidget) => {
     const visualizationType = {
         id: crypto.randomUUID(),
-        target: oldLayer.layerID,
+        target: getModalColumnAsATarget(oldLayer),
         type: oldLayer.visualizationType,
         markerConf: getFormattedMarkerConf(oldLayer.markerConf),
         balloonConf: getFormattedBallonConf(oldLayer.balloonConf),
@@ -139,6 +127,12 @@ const addLayerVisualizationTypeSettings = (oldLayer: any, formattedWidget: IWidg
     } as IMapWidgetVisualizationType
 
     formattedWidget.settings.visualizations.push(visualizationType)
+}
+
+const getModalColumnAsATarget = (oldLayer: any) => {
+    if (!oldLayer) return ''
+    const modalColumn = oldLayer.content?.columnSelectedOfDataset?.find((column: any) => column.properties?.modal)
+    return modalColumn ? modalColumn.name : ''
 }
 
 const getFormattedMarkerConf = (oldLayerMarkerConf: any): IMapWidgetVisualizationTypeMarker => {

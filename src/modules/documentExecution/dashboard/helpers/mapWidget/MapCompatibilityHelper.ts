@@ -6,24 +6,21 @@ import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
 import { getFormattedLegendSettingsFromOldLayers, getFormattedSettingsFromLayers } from './MapLayersCompatibilityHelper'
 import * as mapWidgetDefaultValues from '../../widget/WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
-import oldMapMock from './oldMapMock.json'
 
-// TODO - remove mock
 export const formatMapWidget = (widget: any, formattedDashboardModel: IDashboard, drivers: IDashboardDriver[]) => {
-    console.log('------------ OLD MAP MOCK: ', oldMapMock)
     const formattedWidget = {
-        id: '' + oldMapMock.id,
+        id: '' + widget.id,
         dataset: null,
-        type: oldMapMock.type,
+        type: widget.type,
         columns: [],
-        layers: getFormattedLayers(oldMapMock) as IMapWidgetLayer[],
+        layers: getFormattedLayers(widget) as IMapWidgetLayer[],
         theme: '',
         settings: {} as IMapWidgetSettings
     } as IWidget
-    formattedWidget.settings = getFormattedWidgetSettings(oldMapMock)
-    getFormattedSettingsFromLayers(oldMapMock, formattedWidget, formattedDashboardModel, drivers)
-    getFormattedLegendSettingsFromOldLayers(oldMapMock, formattedWidget)
-    console.log('------------ FORMATTED MAP: ', formattedWidget)
+    formattedWidget.settings = getFormattedWidgetSettings(widget)
+    getFormattedSettingsFromLayers(widget, formattedWidget, formattedDashboardModel, drivers)
+    getFormattedLegendSettingsFromOldLayers(widget, formattedWidget)
+
     return formattedWidget
 }
 
