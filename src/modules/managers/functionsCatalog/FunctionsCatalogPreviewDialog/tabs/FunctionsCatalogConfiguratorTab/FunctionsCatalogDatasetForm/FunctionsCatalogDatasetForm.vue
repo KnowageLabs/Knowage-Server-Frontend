@@ -10,17 +10,17 @@
                         </div>
                     </AccordionTab>
                 </Accordion>
-                <Accordion v-if="selectedFunction.benchmarks" class="p-m-2">
+                <Accordion v-if="selectedFunction.benchmark" class="p-m-2">
                     <AccordionTab :header="$t('managers.functionsCatalog.benchmarks')">
                         <div>
                             <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.benchmarks') }}</label>
-                            <p v-html="selectedFunction.benchmarks"></p>
+                            <p v-html="selectedFunction.benchmark"></p>
                         </div>
                     </AccordionTab>
                 </Accordion>
                 <div v-if="selectedFunction.inputColumns.length > 0" class="p-m-2">
                     <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.columnsSettings') }}</label>
-                    <FunctionsCatalogDatasetFormColumnsTable :columns="selectedFunction.inputColumns" :dataset-columns="datasetColumns"></FunctionsCatalogDatasetFormColumnsTable>
+                    <FunctionsCatalogDatasetFormColumnsTable :prop-rows="selectedFunction.inputColumns" :dataset-columns="datasetColumns"></FunctionsCatalogDatasetFormColumnsTable>
                 </div>
                 <div v-if="selectedFunction.inputVariables.length > 0" class="p-mx-2 p-mt-3">
                     <label class="kn-material-input-label"> {{ $t('managers.functionsCatalog.variablesSettings') }}</label>
