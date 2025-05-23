@@ -26,29 +26,11 @@
         </div>
 
         <Transition name="editorEnter" appear>
-            <DatasetEditor
-                v-if="datasetEditorVisible"
-                :dashboard-id-prop="dashboardId"
-                :available-datasets-prop="datasets"
-                :filters-data-prop="filtersData"
-                :datasets-loaded="datasetsLoaded"
-                @close-dataset-editor="closeDatasetEditor"
-                @dataset-editor-saved="closeDatasetEditor"
-                @all-datasets-loaded="onAllDatasetsLoaded"
-            />
+            <DatasetEditor v-if="datasetEditorVisible" :dashboard-id-prop="dashboardId" :available-datasets-prop="datasets" :filters-data-prop="filtersData" :datasets-loaded="datasetsLoaded" @close-dataset-editor="closeDatasetEditor" @dataset-editor-saved="closeDatasetEditor" @all-datasets-loaded="onAllDatasetsLoaded" />
         </Transition>
 
         <Transition name="editorEnter" appear>
-            <DashboardGeneralSettings
-                v-if="generalSettingsVisible"
-                :dashboard-id="dashboardId"
-                :datasets="datasets"
-                :document-drivers="drivers"
-                :profile-attributes="profileAttributes"
-                :general-settings-mode="generalSettingsMode"
-                @close-general-settings="closeGeneralSettings"
-                @save-general-settings="generalSettingsVisible = false"
-            ></DashboardGeneralSettings>
+            <DashboardGeneralSettings v-if="generalSettingsVisible" :dashboard-id="dashboardId" :datasets="datasets" :document-drivers="drivers" :profile-attributes="profileAttributes" :general-settings-mode="generalSettingsMode" @close-general-settings="closeGeneralSettings" @save-general-settings="generalSettingsVisible = false"></DashboardGeneralSettings>
         </Transition>
 
         <Transition>
@@ -316,10 +298,7 @@ export default defineComponent({
             }
 
             this.datasets = this.newDashboardMode ? [] : await loadDatasets(tempModel, this.appStore, this.setAllDatasets, this.$http)
-            this.model =
-                (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined'
-                    ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes)
-                    : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
+            this.model = (tempModel && this.newDashboardMode) || typeof tempModel.configuration?.id != 'undefined' ? await formatNewModel(tempModel, this.datasets, this.$http, this.dashboardThemes) : await (formatModel(tempModel, this.document, this.datasets, this.drivers, this.profileAttributes, this.$http, this.user) as any)
             setDatasetIntervals(this.model?.configuration.datasets, this.datasets)
             if (this.propView) {
                 this.loadSelectedViewForExecution(this.propView)

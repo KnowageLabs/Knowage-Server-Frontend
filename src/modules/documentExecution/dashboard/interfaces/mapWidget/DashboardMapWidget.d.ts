@@ -1,8 +1,6 @@
 import { IWidgetInteractions, IWidgetResponsive, IWidgetTitle, IWidgetBordersStyle, IWidgetBackgroundStyle, IWidgetPaddingStyle, IWidgetShadowsStyle, IWidgetExports, IDataset, IIcon } from './../../Dashboard.d'
 
 export interface IMapWidgetSettings {
-    updatable: boolean
-    clickable: boolean
     configuration: IMapWidgetConfiguration
     visualizations: IMapWidgetVisualizationType[]
     conditionalStyles: IMapWidgetConditionalStyles
