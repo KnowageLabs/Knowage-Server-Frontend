@@ -3748,6 +3748,7 @@
             "modifyCalcField": "Modify calculated field",
             "noPreview": "Nothing to preview",
             "parameterDuplicates": "There are parameters with a duplicate name!",
+            "parameterMultivalueHint": "Enter multiple values separated by a semicolon (e.g., value1; value2; value3)",
             "showList": "Show List",
             "smartViewMenu": {
                 "aggregation": {

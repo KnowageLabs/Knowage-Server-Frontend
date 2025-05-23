@@ -435,7 +435,7 @@ export default defineComponent({
             this.loading = true
             //  { 'Content-Type': 'application/x-www-form-urlencoded' }
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `2.0/export/dataset/${dataset.id}/${format}`, {})
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/export/dataset/${dataset.id}/${format}`, {})
                 .then(() => {
                     this.setInfo({
                         title: this.$t('common.toast.updateTitle'),

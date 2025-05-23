@@ -48,16 +48,7 @@
 
                         <h5 class="p-float-label p-text-uppercase p-m-2">{{ $t('components.knCalculatedField.functions') }}</h5>
                         <ScrollPanel class="kn-list knListBox kn-flex kn-list-no-border-right" style="height: 150px !important; border: 1px">
-                            <div
-                                v-for="(af, index) in availableFunctions"
-                                :key="index"
-                                v-tooltip.bottom="af.formula"
-                                class="kn-list-item p-d-flex p-ai-center formulaType kn-truncated p-ml-2"
-                                :class="{ selected: af.formula === selectedFunction.formula }"
-                                draggable="true"
-                                @dragstart="dragElement($event, af, 'function')"
-                                @click="handleClick(af)"
-                            >
+                            <div v-for="(af, index) in availableFunctions" :key="index" v-tooltip.bottom="af.formula" class="kn-list-item p-d-flex p-ai-center formulaType kn-truncated p-ml-2" :class="{ selected: af.formula === selectedFunction.formula }" draggable="true" @dragstart="dragElement($event, af, 'function')" @click="handleClick(af)">
                                 <div><i class="fa fa-solid fa-bars"></i></div>
                                 <div class="p-ml-2">{{ af.formula }}</div>
                             </div>
@@ -84,17 +75,7 @@
         </Card>
 
         <Message v-if="isWarningVisible()" severity="warn" :closable="false">{{ $t('components.knCalculatedField.nullifWarning', { nullIfFunction: nullIfFunction }) }}</Message>
-        <knMonaco
-            ref="editor"
-            v-model="v$.cf.formula.$model"
-            class="p-mt-1"
-            :class="{ 'p-invalid': v$.cf.formula.$invalid, dragging: dragging }"
-            style="height: 200px"
-            language="cfLang"
-            :options="{ wordWrap: 'on', readOnly: readOnly }"
-            @editor-setup="editorSetup"
-            @drop="drop(this, $event)"
-        ></knMonaco>
+        <knMonaco ref="editor" v-model="v$.cf.formula.$model" class="p-mt-1" :class="{ 'p-invalid': v$.cf.formula.$invalid, dragging: dragging }" style="height: 200px" language="cfLang" :options="{ wordWrap: 'on', readOnly: readOnly }" @editor-setup="editorSetup" @drop="drop(this, $event)"></knMonaco>
 
         <template #footer>
             <Button :class="readOnly ? 'kn-button kn-button--primary' : 'kn-button kn-button--secondary'" :label="$t('common.cancel')" @click="cancel" />
@@ -347,7 +328,7 @@ export default defineComponent({
             if (data.item.fieldAlias) {
                 fieldAlias = this.source !== 'QBE' && this.source !== 'dashboard' ? this.wrap(data.item.fieldAlias) : data.item.fieldAlias
             }
-            text = data.elementType === 'function' ? data.item : `"${fieldAlias}"`
+            text = data.elementType === 'function' ? data.item : fieldAlias
             const word = editor.getModel().getWordAtPosition(position)
             let range = null
             if (selection.endColumn - selection.startColumn === 0) {

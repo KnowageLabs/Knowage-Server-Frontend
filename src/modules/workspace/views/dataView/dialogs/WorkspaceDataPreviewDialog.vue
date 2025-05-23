@@ -42,6 +42,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
+import { getCorrectRolesForExecution } from '../../../../../helpers/commons/roleHelper'
 import Dialog from 'primevue/dialog'
 import DatasetPreviewTable from '../tables/DatasetPreviewTable.vue'
 import Message from 'primevue/message'
@@ -54,7 +55,7 @@ import mainStore from '../../../../../App.store'
 export default defineComponent({
     name: 'kpi-scheduler-save-dialog',
     components: { Dialog, DatasetPreviewTable, Message, KnParameterSidebar },
-    props: { visible: { type: Boolean }, propDataset: { type: Object }, previewType: String, loadFromDatasetManagement: Boolean },
+    props: { visible: { type: Boolean }, propDataset: { type: Object }, previewType: String, loadFromDatasetManagement: Boolean, correctRolesForExecution: { type: Array as PropType<string[] | null> } },
     emits: ['close'],
     setup() {
         const store = mainStore()
@@ -76,8 +77,7 @@ export default defineComponent({
             loading: false,
             filtersData: {} as any,
             userRole: null,
-            sidebarMode: 'workspaceView',
-            correctRolesForExecution: null
+            sidebarMode: 'workspaceView'
         }
     },
     computed: {
@@ -123,8 +123,9 @@ export default defineComponent({
         async loadPreview() {
             this.loadDataset()
 
-            this.correctRolesForExecution = (this.store.$state as any).user.roles
-            if (!this.userRole && (this.store.$state as any).user.roles.length > 0) this.userRole = (this.store.$state as any).user.roles[0]
+            if (!this.userRole && this.correctRolesForExecution?.length == 1) {
+                this.userRole = this.correctRolesForExecution[0]
+            }
 
             if (this.userRole) {
                 await this.loadDatasetDrivers()
