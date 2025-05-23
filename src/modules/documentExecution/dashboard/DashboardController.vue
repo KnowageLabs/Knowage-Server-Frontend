@@ -289,7 +289,6 @@ export default defineComponent({
             emitter.off('selectionsDeleted', this.onSelectionsChanged)
         },
         async getData() {
-            if (!this.filtersLoaded) return
             this.loading = true
             if (!this.dashboardId) this.dashboardId = crypto.randomUUID()
             this.$emit('dashboardIdSet', this.dashboardId)
