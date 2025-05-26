@@ -1,10 +1,7 @@
 <template>
     <div class="kn-parameter-sidebar" :class="positionClass">
         <div class="p-fluid kn-parameter-sidebar-content kn-param-sidebar-alternated-rows">
-            <div
-                v-if="user && (!sessionRole || sessionRole === $t('role.defaultRolePlaceholder')) && (mode === 'execution' || mode === 'qbeView' || mode === 'datasetManagement' || (mode === 'workspaceView' && dataset?.drivers?.length > 0)) && availableRolesForExecution.length > 1"
-                class="p-field p-my-1 p-p-2"
-            >
+            <div v-if="user && (!sessionRole || sessionRole === $t('role.defaultRolePlaceholder')) && (mode === 'execution' || mode === 'qbeView' || mode === 'datasetManagement' || mode === 'workspaceView') && availableRolesForExecution.length > 1" class="p-field p-my-1 p-p-2">
                 <div class="p-d-flex">
                     <label class="kn-material-input-label">{{ $t('common.roles') }}</label>
                 </div>

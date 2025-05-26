@@ -42,7 +42,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
-import { getCorrectRolesForExecution } from '../../../../../helpers/commons/roleHelper'
+import { mapActions } from 'pinia'
 import Dialog from 'primevue/dialog'
 import DatasetPreviewTable from '../tables/DatasetPreviewTable.vue'
 import Message from 'primevue/message'
@@ -120,6 +120,7 @@ export default defineComponent({
         this.setSidebarMode()
     },
     methods: {
+        ...mapActions(mainStore, ['setError']),
         async loadPreview() {
             this.loadDataset()
 
@@ -128,6 +129,13 @@ export default defineComponent({
             }
 
             if (this.userRole) {
+                if (!this.correctRolesForExecution?.includes(this.userRole)) {
+                    this.setError({
+                        title: this.$t('common.error.generic'),
+                        msg: this.$t('documentExecution.main.userRoleError')
+                    })
+                    return
+                }
                 await this.loadDatasetDrivers()
             } else {
                 this.parameterSidebarVisible = true
@@ -141,6 +149,7 @@ export default defineComponent({
                 this.parameterSidebarVisible = true
             }
         },
+
         loadDataset() {
             this.dataset = this.propDataset as any
         },
