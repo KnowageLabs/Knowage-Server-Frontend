@@ -1,36 +1,26 @@
 <template>
     <Dialog id="qbe-saving-dialog" class="p-fluid kn-dialog--toolbar--primary" :style="descriptor.dialog.style" :visible="visible" :modal="true" :closable="false">
         <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary">
-                <template #start>
-                    {{ $t('qbe.savingDialog.title') }}
-                </template>
-            </Toolbar>
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title> {{ $t('qbe.savingDialog.title') }}</q-toolbar-title>
+            </q-toolbar>
         </template>
-
-        <TabView v-model:activeIndex="activeTab" class="tabview-custom" data-test="tab-view">
-            <TabPanel>
-                <template #header>
-                    <span>{{ $t('managers.mondrianSchemasManagement.detail.title') }}</span>
-                </template>
-                <DetailTab :prop-dataset="propDataset" :scope-types="scopeTypes" :category-types="categoryTypes" />
-            </TabPanel>
-
-            <TabPanel>
-                <template #header>
-                    <span>{{ $t('kpi.measureDefinition.metadata') }}</span>
-                </template>
-                <MetadataCard :prop-metadata="propMetadata" @touched="$emit('touched')" />
-            </TabPanel>
-
-            <TabPanel>
-                <template #header>
-                    <span>{{ $t('qbe.savingDialog.persistence') }}</span>
-                </template>
-
+        <q-tabs dense align="left" v-model="activeTab">
+            <q-tab name="detail" :label="$t('managers.mondrianSchemasManagement.detail.title')"> </q-tab>
+            <q-tab name="metadata" :label="$t('kpi.measureDefinition.metadata')"> </q-tab>
+            <q-tab name="persistence" :label="$t('qbe.savingDialog.persistence')"> </q-tab>
+        </q-tabs>
+        <q-tab-panels v-model="activeTab" animated>
+            <q-tab-panel name="detail">
+                <DetailTab :prop-dataset="propDataset" :scope-types="scopeTypes" :category-types="categoryTypes" @edited="changeValidation" />
+            </q-tab-panel>
+            <q-tab-panel name="metadata">
+                <MetadataCard :prop-metadata="$emit('edited',v$)data" @touched="$emit('touched')" />
+            </q-tab-panel>
+            <q-tab-panel name="persistence">
                 <PersistenceTab :prop-dataset="propDataset" :scheduling-data="scheduling" />
-            </TabPanel>
-        </TabView>
+            </q-tab-panel>
+        </q-tab-panels>
 
         <template #footer>
             <Button class="kn-button kn-button--secondary" data-test="close-button" @click="$emit('close')"> {{ $t('common.cancel') }}</Button>
@@ -56,7 +46,7 @@ import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 export default defineComponent({
     name: 'olap-custom-view-save-dialog',
     components: { TabView, TabPanel, Dialog, DetailTab, PersistenceTab, MetadataCard },
-    props: { propDataset: { type: Object, required: true }, propMetadata: { type: Array, required: true }, visible: Boolean },
+    props: { propDataset: { type: Object, required: true }, $emit('edited',v$)data: { type: Array, required: true }, visible: Boolean },
     setup() {
         const store = mainStore()
         return { store }
@@ -64,7 +54,7 @@ export default defineComponent({
     data() {
         return {
             descriptor,
-            v$: useValidate() as any,
+            v$: undefined as any,
             scopeTypes: [] as any,
             selectedDataset: {} as any,
             selectedDatasetId: null as any,
@@ -72,12 +62,13 @@ export default defineComponent({
             fieldsMetadata: [] as any,
             scheduling: {
                 repeatInterval: null as string | null
-            } as any
+            } as any,
+            activeTab: 'detail' as string
         }
     },
     computed: {
         buttonDisabled(): any {
-            return this.v$.$invalid
+            return this.v$?.$invalid
         }
     },
     watch: {
@@ -94,6 +85,9 @@ export default defineComponent({
         this.selectedDataset = this.propDataset
     },
     methods: {
+        changeValidation(v) {
+            this.v$ = v
+        },
         getDomainByType(type: string) {
             return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/domains/listValueDescriptionByType?DOMAIN_TYPE=${type}`)
         },
@@ -131,6 +125,7 @@ export default defineComponent({
                     name: meta.column,
                     displayedName: meta.fieldAlias,
                     type: meta.Type,
+                    description: meta.description,
                     fieldType: meta.fieldType,
                     decrypt: meta.decrypt,
                     personal: meta.personal,
@@ -154,7 +149,7 @@ export default defineComponent({
                 columnsNames = this.removeDuplicates(columnsNames)
 
                 for (let i = 0; i < columnsNames.length; i++) {
-                    const columnObject = { displayedName: '', name: '', fieldType: '', type: '', personal: false, decrypt: false, subjectId: false }
+                    const columnObject = { displayedName: '', name: '', fieldType: '', type: '', description: '',personal: false, decrypt: false, subjectId: false }
                     const currentColumnName = columnsNames[i]
 
                     if (currentColumnName.indexOf(':') != -1) {
