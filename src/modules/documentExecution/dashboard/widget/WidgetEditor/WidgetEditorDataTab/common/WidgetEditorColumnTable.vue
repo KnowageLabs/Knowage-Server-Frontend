@@ -71,6 +71,7 @@ import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Dropdown from 'primevue/dropdown'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
@@ -111,11 +112,13 @@ export default defineComponent({
             emitter.on('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.on('addNewCalculatedField', this.onCalcFieldAdded)
             emitter.on('addNewFunctionColumn', this.onFunctionsColumnAdded)
+            emitter.on('functionColumnEdited', this.onFunctionsColumnEdited)
         },
         removeEventListeners() {
             emitter.off('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.off('addNewCalculatedField', this.onCalcFieldAdded)
             emitter.off('addNewFunctionColumn', this.onFunctionsColumnAdded)
+            emitter.off('functionColumnEdited', this.onFunctionsColumnEdited)
         },
         onSelectedColumnUpdated(column: any) {
             this.updateSelectedColumn(column)
@@ -151,9 +154,18 @@ export default defineComponent({
             const index = this.rows.findIndex((row: IWidgetColumn) => row.columnName === tempColumn.columnName)
             return index !== -1
         },
-        deleteItem(item: IWidgetColumn, index: number) {
-            this.rows.splice(index, 1)
-            this.$emit('itemDeleted', item)
+        deleteItem(item: IWidgetColumn | IWidgetFunctionColumn, index: number) {
+            if ((item as IWidgetFunctionColumn).type === 'pythonFunction') {
+                for (let i = this.rows.length - 1; i >= 0; i--) {
+                    if (this.rows[i].id === item.id || (this.rows[i] as IWidgetFunctionColumn).originalFunctionColumnName === (item as IWidgetFunctionColumn).originalFunctionColumnName) {
+                        this.$emit('itemDeleted', this.rows[i])
+                        this.rows.splice(i, 1)
+                    }
+                }
+            } else {
+                this.rows.splice(index, 1)
+                this.$emit('itemDeleted', item)
+            }
         },
         aggregationDropdownIsVisible(row: any) {
             return (row.fieldType === 'MEASURE' || ['Y', 'Z'].includes(row.axis)) && this.widgetType !== 'discovery' && !row.formula
@@ -174,16 +186,37 @@ export default defineComponent({
         },
         onCalcFieldAdded(field) {
             if (this.settings.attributesOnly || (this.axis && !['Y', 'start'].includes(this.axis))) return
-            this.rows.push(field as IWidgetColumn)
-            this.$emit('itemAdded', { column: field, rows: this.rows, settings: this.settings })
+            this.addNewColumnToTheRows(field as IWidgetColumn)
         },
         openFunctionsColumnDialog(functionColumn: IWidgetFunctionColumn) {
-            emitter.emit('editFunctionColumn', functionColumn)
+            let functionToEmit = deepcopy(functionColumn)
+            if (functionColumn.originalFunctionColumnName) {
+                functionToEmit.alias = functionColumn.originalFunctionColumnName
+                functionToEmit.columnName = functionColumn.originalFunctionColumnName
+                functionToEmit.orderColumn = functionColumn.originalFunctionColumnName
+            }
+            emitter.emit('editFunctionColumn', functionToEmit)
         },
         onFunctionsColumnAdded(functionColumn: any) {
             if (this.settings.attributesOnly || (this.axis && !['Y', 'start'].includes(this.axis))) return
-            this.rows.push(functionColumn as IWidgetColumn)
-            this.$emit('itemAdded', { column: functionColumn, rows: this.rows, settings: this.settings })
+
+            if (functionColumn.catalogFunctionConfig?.outputColumns?.length > 0) {
+                const originalColumnName = functionColumn.columnName
+                functionColumn.catalogFunctionConfig.outputColumns.forEach((outputColumn: { fieldType: string; type: string; name: string }) => {
+                    const columnToAdd = { ...functionColumn, alias: outputColumn.name, columnName: outputColumn.name, orderColumn: outputColumn.name, originalFunctionColumnName: originalColumnName }
+                    this.addNewColumnToTheRows(columnToAdd as IWidgetColumn)
+                })
+            } else {
+                this.addNewColumnToTheRows(functionColumn as IWidgetColumn)
+            }
+        },
+        addNewColumnToTheRows(column: IWidgetColumn) {
+            this.rows.push(column as IWidgetColumn)
+            this.$emit('itemAdded', { column: column, rows: this.rows, settings: this.settings })
+        },
+        onFunctionsColumnEdited(functionColumn: any) {
+            this.deleteItem(functionColumn, -1)
+            this.onFunctionsColumnAdded(functionColumn)
         }
     }
 })

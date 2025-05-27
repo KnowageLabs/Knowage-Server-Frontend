@@ -55,15 +55,7 @@
     >
     </KnCalculatedField>
 
-    <WidgetEditorFunctionsDialog
-        v-if="functionsDialogVisible"
-        :visible="functionsDialogVisible"
-        :prop-function-column="selectedFunctionColumn"
-        :selected-dataset="selectedDatasetForFunctions"
-        :edit-mode="functionsDialogEditMode"
-        @close="onFunctionsDialogClosed"
-        @save="onFunctionsColumnSave"
-    ></WidgetEditorFunctionsDialog>
+    <WidgetEditorFunctionsDialog v-if="functionsDialogVisible" :visible="functionsDialogVisible" :prop-function-column="selectedFunctionColumn" :selected-dataset="selectedDatasetForFunctions" :edit-mode="functionsDialogEditMode" @close="onFunctionsDialogClosed" @save="onFunctionsColumnSave"></WidgetEditorFunctionsDialog>
 </template>
 
 <script lang="ts">
@@ -83,6 +75,7 @@ import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
 import { mapState } from 'pinia'
 import WidgetEditorFunctionsDialog from './WidgetEditorFunctionsDialog/WidgetEditorFunctionsDialog.vue'
 import { createNewFunctionColumn } from './WidgetEditorFunctionsDialog/WidgetEditorFunctionsDialogHelper'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'widget-editor-data-list',
@@ -319,14 +312,14 @@ export default defineComponent({
             this.selectedDatasetForFunctions = dataset ?? null
         },
         editFunctionColumn(functionColumn: any) {
-            this.selectedFunctionColumn = functionColumn
+            this.selectedFunctionColumn = deepcopy(functionColumn)
             this.functionsDialogEditMode = true
             this.functionsDialogVisible = true
         },
         onFunctionsColumnSave(functionColumn: IWidgetFunctionColumn) {
             this.functionsDialogVisible = false
             this.selectedFunctionColumn = null
-            if (!this.functionsDialogEditMode) emitter.emit('addNewFunctionColumn', functionColumn)
+            this.functionsDialogEditMode ? emitter.emit('functionColumnEdited', functionColumn) : emitter.emit('addNewFunctionColumn', functionColumn)
             this.functionsDialogEditMode = false
         }
     }
