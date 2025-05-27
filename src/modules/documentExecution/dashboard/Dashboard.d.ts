@@ -872,6 +872,7 @@ export interface IWidgetFunctionColumn {
     sort?: string
     serieType?: string
     axis?: string
+    originalFunctionColumnName?: string
 }
 
 export interface IWidgetFunctionColumnConfig {
