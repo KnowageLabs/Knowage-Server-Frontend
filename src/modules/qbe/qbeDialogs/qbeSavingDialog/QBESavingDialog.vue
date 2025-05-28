@@ -15,7 +15,7 @@
                 <DetailTab :prop-dataset="propDataset" :scope-types="scopeTypes" :category-types="categoryTypes" @edited="changeValidation" />
             </q-tab-panel>
             <q-tab-panel name="metadata">
-                <MetadataCard :prop-metadata="$emit('edited',v$)data" @touched="$emit('touched')" />
+                <MetadataCard :prop-metadata="propMetadata" @touched="$emit('touched')" />
             </q-tab-panel>
             <q-tab-panel name="persistence">
                 <PersistenceTab :prop-dataset="propDataset" :scheduling-data="scheduling" />
@@ -46,7 +46,7 @@ import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 export default defineComponent({
     name: 'olap-custom-view-save-dialog',
     components: { TabView, TabPanel, Dialog, DetailTab, PersistenceTab, MetadataCard },
-    props: { propDataset: { type: Object, required: true }, $emit('edited',v$)data: { type: Array, required: true }, visible: Boolean },
+    props: { propDataset: { type: Object, required: true }, propMetadata: { type: Array, required: true }, visible: Boolean },
     setup() {
         const store = mainStore()
         return { store }
@@ -149,7 +149,7 @@ export default defineComponent({
                 columnsNames = this.removeDuplicates(columnsNames)
 
                 for (let i = 0; i < columnsNames.length; i++) {
-                    const columnObject = { displayedName: '', name: '', fieldType: '', type: '', description: '',personal: false, decrypt: false, subjectId: false }
+                    const columnObject = { displayedName: '', name: '', fieldType: '', type: '', description: '', personal: false, decrypt: false, subjectId: false }
                     const currentColumnName = columnsNames[i]
 
                     if (currentColumnName.indexOf(':') != -1) {
