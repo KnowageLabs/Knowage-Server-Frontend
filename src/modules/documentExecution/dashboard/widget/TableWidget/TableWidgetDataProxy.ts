@@ -109,11 +109,13 @@ const formatTableWidgetModelForService = (dashboardId: any, dashboardConfig: IDa
         dataToSend.options = { solrFacetPivot: true } //if dataset is table solr, it needs this option
     }
 
-    widget.columns.forEach((column) => {
+    for (let i = 0; i < widget.columns.length; i++) {
+        const column = widget.columns[i]
+
         if (column.fieldType === 'MEASURE') {
             if (column.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as IWidgetFunctionColumn)
-                return
+                continue
             }
 
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: '' } as any
@@ -128,7 +130,7 @@ const formatTableWidgetModelForService = (dashboardId: any, dashboardConfig: IDa
 
             dataToSend.aggregations.categories.push(attributeToPush)
         }
-    })
+    }
 
     return dataToSend
 }

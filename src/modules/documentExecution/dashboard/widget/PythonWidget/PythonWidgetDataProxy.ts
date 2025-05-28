@@ -89,11 +89,12 @@ const formatPythonModelForGet = (dashboardId: any, dashboardConfig: IDashboardCo
 
     dataToSend.aggregations.dataset = dataset.dsLabel
 
-    propWidget.columns.forEach((column) => {
+    for (let i = 0; i < propWidget.columns.length; i++) {
+        const column = propWidget.columns[i]
         if (column.fieldType === 'MEASURE') {
             if (column.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as IWidgetFunctionColumn)
-                return
+                continue
             }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias } as any
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
@@ -103,7 +104,7 @@ const formatPythonModelForGet = (dashboardId: any, dashboardConfig: IDashboardCo
             const attributeToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, orderType: '', funct: 'NONE' } as any
             dataToSend.aggregations.categories.push(attributeToPush)
         }
-    })
+    }
 
     return dataToSend
 }
