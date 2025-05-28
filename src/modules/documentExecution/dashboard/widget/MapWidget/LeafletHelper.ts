@@ -105,10 +105,10 @@ const getCoordinatesFromString = (spatialAttribute: any, input: string, coord?: 
     const [firstCoord, secondCoord] = input.split(' ')
     const isLatLon = spatialAttribute.properties.coordFormat === 'lat lon'
 
-    if (coord === 'lat') return isLatLon ? secondCoord : firstCoord
-    if (coord === 'lon') return isLatLon ? firstCoord : secondCoord
+    if (coord === 'lon') return isLatLon ? secondCoord : firstCoord
+    if (coord === 'lat') return isLatLon ? firstCoord : secondCoord
 
-    return isLatLon ? [secondCoord, firstCoord] : [firstCoord, secondCoord]
+    return isLatLon ? [firstCoord, secondCoord] : [secondCoord, firstCoord]
 }
 
 const getCoordinatesFromJSONCoordType = (input: string) => {
