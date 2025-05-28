@@ -262,7 +262,7 @@ export default defineComponent({
             dataPrepAvroHandlingDialogVisbile: false,
             dataPrepAvroHandlingMessage: '',
             events: [] as any,
-            correctRolesForExecution: null
+            correctRolesForExecution: null as string[] | null
         }
     },
     async created() {
@@ -567,7 +567,7 @@ export default defineComponent({
         async previewDataset(dataset: any) {
             await this.loadDataset(dataset.label)
             getCorrectRolesForExecution(null, dataset).then(async (response) => {
-                this.correctRolesForExecution = response
+                this.correctRolesForExecution = response as string[]
                 if (this.selectedDataset) this.selectedDataset.drivers = dataset.drivers
                 this.previewDialogVisible = true
             })
@@ -813,10 +813,7 @@ export default defineComponent({
                     this.filteredDatasets = [...this.datasetList] as any[]
                 } else if (this.selectedCategoryIds.length > 0) {
                     this.filteredDatasets = this.datasetList.filter((el: any) => {
-                        return (
-                            this.selectedCategoryIds.includes(el.catTypeId) &&
-                            (el.label?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.name?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.dsTypeCd?.toLowerCase().includes(this.searchWord.toLowerCase()) || this.datasetTagFound(el))
-                        )
+                        return this.selectedCategoryIds.includes(el.catTypeId) && (el.label?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.name?.toLowerCase().includes(this.searchWord.toLowerCase()) || el.dsTypeCd?.toLowerCase().includes(this.searchWord.toLowerCase()) || this.datasetTagFound(el))
                     })
                 } else {
                     this.filteredDatasets = this.datasetList.filter((el: any) => {

@@ -70,19 +70,12 @@
         </TabView>
 
         <Button v-if="selectedDataset.dsTypeCd == 'Prepared' || isOpenInQBEVisible(selectedDataset)" icon="far fa-share-from-square" class="p-button-text p-button-rounded p-button-plain advancedTransformations" @click="toggleMenu($event, selectedDataset)"></Button>
-        <PreparedDataset
-            v-if="selectedDataset.dsTypeCd == 'Prepared'"
-            :selected-dataset="selectedDataset"
-            :show-monitoring-dialog="showMonitoringDialog"
-            :show-data-preparation="showDataPreparation"
-            @closeMonitoringDialog="showMonitoringDialog = false"
-            @closeDataPreparation="showDataPreparation = false"
-        />
+        <PreparedDataset v-if="selectedDataset.dsTypeCd == 'Prepared'" :selected-dataset="selectedDataset" :show-monitoring-dialog="showMonitoringDialog" :show-data-preparation="showDataPreparation" @closeMonitoringDialog="showMonitoringDialog = false" @closeDataPreparation="showDataPreparation = false" />
         <QBE v-if="qbeVisible" :source-dataset="selectedDataset" @close="closeQbe" />
 
         <Menu id="optionsMenu" ref="optionsMenu" :model="menuButtons" :popup="true" data-test="menu" />
 
-        <WorkspaceDataPreviewDialog v-if="showPreviewDialog" :visible="showPreviewDialog" :prop-dataset="previewDataset" :preview-type="'dataset'" :load-from-dataset-management="true" @close="showPreviewDialog = false"></WorkspaceDataPreviewDialog>
+        <WorkspaceDataPreviewDialog v-if="showPreviewDialog && correctRolesForExecution" :visible="showPreviewDialog" :prop-dataset="previewDataset" :preview-type="'dataset'" :load-from-dataset-management="true" :correct-roles-for-execution="correctRolesForExecution" @close="showPreviewDialog = false"></WorkspaceDataPreviewDialog>
     </div>
 </template>
 
@@ -105,6 +98,7 @@ import Menu from 'primevue/menu'
 import PreparedDataset from '@/modules/managers/datasetManagement/detailView/preparedDataset/DatasetManagementPreparedDataset.vue'
 import QBE from '@/modules/qbe/QBE.vue'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import { getCorrectRolesForExecution } from '@/helpers/commons/roleHelper'
 
 export default defineComponent({
     components: { TabView, TabPanel, DetailCard, AdvancedCard, LinkCard, TypeCard, MetadataCard, WorkspaceDataPreviewDialog, Menu, PreparedDataset, QBE },
@@ -146,7 +140,8 @@ export default defineComponent({
             qbeVisible: false,
             menuButtons: [] as any,
             showMonitoringDialog: false,
-            showDataPreparation: false
+            showDataPreparation: false,
+            correctRolesForExecution: null as string[] | null
         }
     },
     computed: {
@@ -476,6 +471,10 @@ export default defineComponent({
         //#endregion ===============================================================================================
 
         async sendDatasetForPreview() {
+            getCorrectRolesForExecution(null, this.selectedDataset).then(async (response) => {
+                this.correctRolesForExecution = response as string[]
+            })
+
             if (this.selectedDataset.dsTypeCd === 'Solr') {
                 this.previewDataset = JSON.parse(JSON.stringify(this.selectedDataset))
                 const restRequestHeadersTemp = {}
