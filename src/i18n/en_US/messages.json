@@ -2684,6 +2684,7 @@
         },
         "functionalitiesManagement": {
             "creation": "Creation",
+            "detailHint": "You have selected a root folder press the \"+\" button to add items to it.",
             "development": "Development",
             "execution": "Execution",
             "hint": "The functionalities management page allows you to create folders to contain the users reports and documents. It's also possible to set the folders visibility depending on the users roles. Click on one existing item from the list on the side, or press the \"+\" button to add one.",

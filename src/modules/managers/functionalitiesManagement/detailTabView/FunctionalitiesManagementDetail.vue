@@ -13,17 +13,7 @@
         <Card class="q-ma-md q-mb-sm">
             <template #content>
                 <div class="row">
-                    <q-input
-                        filled
-                        class="col"
-                        v-model="v$.selectedFolder.code.$model"
-                        max-length="100"
-                        :error="v$.selectedFolder.code.$invalid && v$.selectedFolder.code.$dirty"
-                        :error-message="$t('common.validation.required', { fieldName: $t('common.label') })"
-                        :label="$t('common.label')"
-                        @update:model-value="$emit('touched')"
-                        data-test="code-input"
-                    />
+                    <q-input filled class="col" v-model="v$.selectedFolder.code.$model" max-length="100" :error="v$.selectedFolder.code.$invalid && v$.selectedFolder.code.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.label') })" :label="$t('common.label')" @update:model-value="$emit('touched')" data-test="code-input" />
                     <q-input
                         filled
                         class="col q-ml-sm"
@@ -87,6 +77,9 @@
             </template>
         </Card>
     </div>
+    <div v-else class="kn-detail col">
+        <KnHint :title="'managers.functionalitiesManagement.title'" :hint="'managers.functionalitiesManagement.detailHint'" data-test="functionality-hint"></KnHint>
+    </div>
 </template>
 
 <script lang="ts">
@@ -101,6 +94,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Checkbox from 'primevue/checkbox'
 import mainStore from '../../../../App.store'
+import KnHint from '@/components/UI/KnHint.vue'
 
 export default defineComponent({
     components: {
@@ -108,7 +102,8 @@ export default defineComponent({
         DataTable,
         Column,
         Checkbox,
-        KnValidationMessages
+        KnValidationMessages,
+        KnHint
     },
     props: {
         functionality: Object,
@@ -218,9 +213,9 @@ export default defineComponent({
         },
         isCheckable(role: any, roleField: string) {
             role[roleField] = { checkable: false }
-            if (this.parentFolder.path === '/Functionalities') {
+            if (this.parentFolder?.path === '/Functionalities') {
                 role[roleField].checkable = true
-            } else if (this.parentFolder[roleField] && this.parentFolder[roleField].length > 0) {
+            } else if (this.parentFolder && this.parentFolder[roleField] && this.parentFolder[roleField].length > 0) {
                 this.parentFolder[roleField].forEach((currentRole) => {
                     if (role.name === currentRole.name) {
                         role[roleField].checkable = true
@@ -257,9 +252,7 @@ export default defineComponent({
             functionality.createRoles = []
         },
         async createOrUpdate(functionalityToSend) {
-            return this.selectedFolder.id
-                ? this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/functionalities/${functionalityToSend.id}`, functionalityToSend)
-                : this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/functionalities/', functionalityToSend)
+            return this.selectedFolder.id ? this.$http.put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/functionalities/${functionalityToSend.id}`, functionalityToSend) : this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/functionalities/', functionalityToSend)
         },
         async handleSubmit() {
             if (this.v$.$invalid) {
