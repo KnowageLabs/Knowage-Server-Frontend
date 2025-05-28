@@ -78,11 +78,12 @@ const formatDiscoveryModelForGet = (dashboardId, dashboardConfig: IDashboardConf
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
-    propWidget.columns.forEach((column) => {
+    for (let i = 0; i < propWidget.columns.length; i++) {
+        const column = propWidget.columns[i]
         if (column.fieldType === 'MEASURE') {
             if (column.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as IWidgetFunctionColumn)
-                return
+                continue
             }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: 'NONE', orderColumn: column.alias, functColumn: column.alias, orderType: '' } as any
             column.id === propWidget.settings.sortingColumn ? (measureToPush.orderType = propWidget.settings.sortingOrder) : ''
@@ -95,7 +96,7 @@ const formatDiscoveryModelForGet = (dashboardId, dashboardConfig: IDashboardConf
 
             column.id === propWidget.settings.sortingColumn ? (attributeToPush.orderType = propWidget.settings.sortingOrder) : ''
         }
-    })
+    }
 
     const searchWordSettings = propWidget.settings.search
     if (searchWordSettings.enabled && searchWordSettings.searchWord && searchWordSettings.columns.length > 0) {

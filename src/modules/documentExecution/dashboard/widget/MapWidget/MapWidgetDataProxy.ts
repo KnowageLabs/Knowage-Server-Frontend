@@ -8,8 +8,6 @@ import mockedDataset from './mockedDataset.json'
 import mockedPolygonDataset from './mockedPolygonDataset.json'
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
-    console.log('___________________ widget: ', widget)
-
     const tempResponse = {}
     const datasetOnly = widget.layers.filter((e) => e.type === 'dataset')
     const datasetsInWidget = datasetOnly.map((e) => e.name)
@@ -25,7 +23,7 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
         await axios
             .post(import.meta.env.VITE_KNOWAGE_CONTEXT + url, postData, { headers: { 'X-Disable-Errors': 'true' } })
             .then((response: AxiosResponse<any>) => {
-                tempResponse[selectedDataset.dsLabel] = response.data
+                if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = response.data
             })
             .catch((error: any) => {
                 showGetDataError(error, selectedDataset.dsLabel)
@@ -62,14 +60,14 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     const datasetWithColumns = widget.layers.find((layer: IMapWidgetLayer) => layer.name === dataset.dsLabel)
-    console.log('___________________ datasetWithColumns: ', datasetWithColumns)
 
-    datasetWithColumns.columns.forEach((column: IWidgetMapLayerColumn) => {
-        console.log('------ COLUMN: ', column)
+    for (let i = 0; i < datasetWithColumns.columns.length; i++) {
+        const column = datasetWithColumns.columns[i]
+
         if (column.fieldType === 'MEASURE') {
             if (column.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as any)
-                return
+                continue
             }
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.name, funct: column.aggregationSelected, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
@@ -81,9 +79,7 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
 
             dataToSend.aggregations.categories.push(attributeToPush)
         }
-    })
-
-    console.log('___________________ dataToSend: ', dataToSend)
+    }
 
     return dataToSend
 }

@@ -100,11 +100,13 @@ const formatWebComponentModelForService = (dashboardId: any, dashboardConfig: ID
     addDriversToData(dataset, dataToSend)
     addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
-    widget.columns.forEach((column) => {
+    for (let i = 0; i < widget.columns.length; i++) {
+        const column = widget.columns[i]
+
         if (column.fieldType === 'MEASURE') {
             if (column.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as IWidgetFunctionColumn)
-                return
+                continue
             }
 
             const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: column.aggregation, orderColumn: column.alias, orderType: widget.settings?.sortingOrder } as any
@@ -117,7 +119,7 @@ const formatWebComponentModelForService = (dashboardId: any, dashboardConfig: ID
 
             dataToSend.aggregations.categories.push(attributeToPush)
         }
-    })
+    }
 
     return dataToSend
 }
