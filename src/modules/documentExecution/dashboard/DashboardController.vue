@@ -205,13 +205,13 @@ export default defineComponent({
             if (!this.showDashboard) return
             await this.getData()
         },
-        async filtersData() {
+        async filtersLoaded() {
             if (!this.showDashboard) return
             await this.getData()
         }
     },
-    async created() {
-        if (!this.showDashboard) return
+    async mounted() {
+        if (!this.showDashboard || !this.filtersLoaded) return
         this.setEventListeners()
         if (this.isEnterprise) {
             await this.loadDashboardThemes()
