@@ -211,8 +211,8 @@ export default defineComponent({
         }
     },
     async mounted() {
-        if (!this.showDashboard || !this.filtersLoaded) return
         this.setEventListeners()
+        if (!this.showDashboard || !this.filtersLoaded) return
         if (this.isEnterprise) {
             await this.loadDashboardThemes()
             await this.loadPythonEnvironments()
