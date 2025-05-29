@@ -12,7 +12,6 @@
                 </template>
             </Toolbar>
         </template>
-        <ProgressSpinner v-if="loading" class="kn-progress-spinner" />
         <div v-if="!qbePreviewDialogVisible" class="kn-relative p-d-flex p-flex-row kn-height-full kn-width-full">
             <div v-if="parameterSidebarVisible" :style="qbeDescriptor.style.backdrop" @click="parameterSidebarVisible = false"></div>
             <div v-if="showEntitiesLists && qbeLoaded" :style="qbeDescriptor.style.entitiesLists">
@@ -107,17 +106,7 @@
                     </div>
                 </div>
             </div>
-            <KnParameterSidebar
-                v-if="parameterSidebarVisible"
-                :filters-data="filtersData"
-                :prop-document="dataset || sourceDataset"
-                :user-role="userRole"
-                :prop-mode="'qbeView'"
-                :prop-q-b-e-parameters="qbe?.pars"
-                :correct-roles-for-execution="correctRolesForExecution"
-                @execute="onExecute"
-                @roleChanged="onRoleChange"
-            ></KnParameterSidebar>
+            <KnParameterSidebar v-if="parameterSidebarVisible" :filters-data="filtersData" :prop-document="dataset || sourceDataset" :user-role="userRole" :prop-mode="'qbeView'" :prop-q-b-e-parameters="qbe?.pars" :correct-roles-for-execution="correctRolesForExecution" @execute="onExecute" @roleChanged="onRoleChange"></KnParameterSidebar>
         </div>
 
         <QBEPreviewDialog v-show="!loading && qbePreviewDialogVisible" :id="uniqueID" :query-preview-data="queryPreviewData" :pagination="pagination" :entities="entities?.entities" :selected-query="selectedQuery" @close="closePreview" @pageChanged="updatePagination($event)"> </QBEPreviewDialog>
@@ -208,7 +197,6 @@ import QBEJoinDefinitionDialog from './qbeDialogs/qbeJoinDefinitionDialog/QBEJoi
 import KnParameterSidebar from '@/components/UI/KnParameterSidebar/KnParameterSidebar.vue'
 import QBEPreviewDialog from './qbeDialogs/qbePreviewDialog/QBEPreviewDialog.vue'
 import qbeDescriptor from './QBEDescriptor.json'
-import ProgressSpinner from 'primevue/progressspinner'
 import calcFieldDescriptor from './QBECalcFieldDescriptor.json'
 import KnCalculatedField from '@/components/functionalities/KnCalculatedField/KnCalculatedField.vue'
 import Dropdown from 'primevue/dropdown'
@@ -239,7 +227,6 @@ export default defineComponent({
         KnParameterSidebar,
         QBEPreviewDialog,
         QBESmartTable,
-        ProgressSpinner,
         KnCalculatedField,
         Dropdown
     },
@@ -365,7 +352,7 @@ export default defineComponent({
     methods: {
         //#region ===================== Load QBE and format data ====================================================
         async loadPage() {
-            this.loading = true
+            this.store.setLoading(true)
 
             if (this.dataset && !this.dataset.dataSourceId && !this.dataset.federation_id) {
                 await this.loadDataset()
@@ -399,7 +386,7 @@ export default defineComponent({
                     this.parameterSidebarVisible = true
                 }
             }
-            this.loading = false
+            this.store.setLoading(false)
         },
         async loadDataset() {
             const dataset = this.dataset ? this.dataset : this.sourceDataset
@@ -617,7 +604,7 @@ export default defineComponent({
             if (!this.qbe) return
             if (this.qbe.qbeJSONQuery && this.qbe.qbeJSONQuery.catalogue.queries[0].fields.length == 0) return
 
-            this.loading = true
+            this.store.setLoading(true)
             const postData = { catalogue: getFormattedQBECatalogueForAPI(this.qbe?.qbeJSONQuery?.catalogue.queries, filters), meta: this.formatQbeMeta(), pars: this.qbe?.pars, qbeJSONQuery: {}, schedulingCronLine: '0 * * * * ?' }
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + `/restful-services/qbequery/executeQuery/?SBI_EXECUTION_ID=${this.uniqueID}&currentQueryId=${this.selectedQuery.id}&start=${this.pagination.start}&limit=${this.pagination.limit}`, postData)
@@ -629,7 +616,7 @@ export default defineComponent({
                 .catch(() => {
                     if (showPreview) this.qbePreviewDialogVisible = false
                 })
-            this.loading = false
+            this.store.setLoading(false)
         },
         formatQbeMeta() {
             const meta = [] as any[]
