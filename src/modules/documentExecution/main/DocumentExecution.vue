@@ -26,14 +26,7 @@
                     ></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'VIEW'" v-tooltip.left="$t('documentExecution.main.editCockpit')" icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
                     <Button v-if="mode !== 'dashboard' && canEditCockpit && documentMode === 'EDIT'" v-tooltip.left="$t('documentExecution.main.viewCockpit')" icon="fa fa-eye" class="p-button-text p-button-rounded p-button-plain p-mx-2" @click="editCockpitDocumentConfirm"></Button>
-                    <Button
-                        v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'"
-                        v-tooltip.left="$t('common.refresh')"
-                        icon="pi pi-refresh"
-                        class="p-button-text p-button-rounded p-button-plain p-mx-2"
-                        :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }"
-                        @click="refresh"
-                    ></Button>
+                    <Button v-if="!newDashboardMode && propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.refresh')" icon="pi pi-refresh" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="refresh"></Button>
                     <Button v-if="propMode !== 'document-execution-cross-navigation-popup'" v-tooltip.left="$t('common.menu')" icon="fa fa-ellipsis-v" class="p-button-text p-button-rounded p-button-plain p-mx-2" :class="{ 'dashboard-toolbar-icon': mode === 'dashboard' }" @click="toggle"></Button>
                     <TieredMenu ref="menu" :model="toolbarMenuItems" :popup="true" />
                     <Button v-if="mode == 'dashboard' && canSeeDashboardFunctions() && propMode != 'document-execution-cross-navigation-popup'" id="add-widget-button" class="p-button-sm" :label="$t('dashboard.widgetEditor.addWidget')" icon="pi pi-plus-circle" @click="addWidget" />
@@ -368,9 +361,9 @@ export default defineComponent({
         },
         url(): string {
             return this.document
-                ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${this.document.id}&OBJECT_LABEL=${
-                      this.document.label
-                  }&TOOLBAR_VISIBLE=false&MENU_PARAMETERS=%7B%7D&LIGHT_NAVIGATOR_DISABLED=TRUE&SBI_EXECUTION_ID=${this.sbiExecutionId}&OBJECT_NAME=${this.document.name}&CROSS_PARAMETER=null`
+                ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/publish?PUBLISHER=documentExecutionNg&OBJECT_ID=${this.document.id}&OBJECT_LABEL=${this.document.label}&TOOLBAR_VISIBLE=false&MENU_PARAMETERS=%7B%7D&LIGHT_NAVIGATOR_DISABLED=TRUE&SBI_EXECUTION_ID=${this.sbiExecutionId}&OBJECT_NAME=${
+                      this.document.name
+                  }&CROSS_PARAMETER=null`
                 : ''
         },
         isParameterSidebarVisible(): boolean {
@@ -684,10 +677,7 @@ export default defineComponent({
             }
         },
         exportOlap(type: string) {
-            const url =
-                type === 'PDF'
-                    ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}`
-                    : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
+            const url = type === 'PDF' ? `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/pdf?SBI_EXECUTION_ID=${this.sbiExecutionId}` : `${import.meta.env.VITE_HOST_URL}${import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT}/restful-services/1.0/model/export/excel?SBI_EXECUTION_ID=${this.sbiExecutionId}`
             window.open(url)
         },
         async exportRegistry(format) {
@@ -746,9 +736,7 @@ export default defineComponent({
             this.parameterSidebarVisible = false
             this.schedulationsTableVisible = true
             this.schedulations = []
-            await this.$http
-                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/getSnapshots?id=${this.document.id}`)
-                .then((response: AxiosResponse<any>) => response.data?.schedulers.forEach((el: any) => this.schedulations.push({ ...el, urlPath: response.data.urlPath })))
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documentsnapshot/getSnapshots?id=${this.document.id}`).then((response: AxiosResponse<any>) => response.data?.schedulers.forEach((el: any) => this.schedulations.push({ ...el, urlPath: response.data.urlPath })))
             this.loading = false
         },
         async copyLink(embedHTML: boolean) {
@@ -815,7 +803,7 @@ export default defineComponent({
             } else if (this.filtersData?.filterStatus) {
                 this.parameterSidebarVisible = true
             }
-            this.updateMode(true)
+            this.updateMode(!initialLoading)
             if (this.$route.query.outputType && ['png', 'xls', 'xlsx', 'pdf'].includes(this.$route.query.outputType.toLowerCase())) {
                 this.downloadMode = true
                 await this.dashboardExport(this.$route.query.outputType.toLowerCase())
