@@ -89,11 +89,11 @@ export default defineComponent({
             for (let i = 1; i < data.metaData?.fields?.length; i++) {
                 const tempColumn = data.metaData?.fields[i]
                 if (['timestamp', 'date'].includes(tempColumn.type)) {
-                    this.setCalculatedFieldDateFormat(tempColumn, i - 1)
                     if (!tempColumn.metawebDateFormat) {
                         const field = this.findField(tempColumn) as any
                         if (field) tempColumn.metawebDateFormat = field.format
                     }
+                    if (!tempColumn.metawebDateFormat) this.setCalculatedFieldDateFormat(tempColumn, i - 1)
                 }
                 this.columns.push(data.metaData?.fields[i])
             }
