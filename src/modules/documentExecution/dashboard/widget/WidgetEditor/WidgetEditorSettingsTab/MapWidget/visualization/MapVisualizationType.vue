@@ -2,14 +2,7 @@
     <div v-for="(visType, visTypeIndex) in visualizationTypeModel" :key="visTypeIndex" class="p-d-flex p-flex-column p-m-3 widget-editor-card">
         <div class="dynamic-form-item p-grid p-col-12 p-ai-center">
             <div v-show="dropzoneTopVisible[visTypeIndex]" class="p-col-12 p-px-3" @drop.stop="onDropComplete($event, 'before', visTypeIndex)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-            <div
-                class="p-col-12 form-list-item-dropzone p-m-1"
-                :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[visTypeIndex] }"
-                @drop.stop="onDropComplete($event, 'before', visTypeIndex)"
-                @dragover.prevent
-                @dragenter.prevent="displayDropzone('top', visTypeIndex)"
-                @dragleave.prevent="hideDropzone('top', visTypeIndex)"
-            ></div>
+            <div class="p-col-12 form-list-item-dropzone p-m-1" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[visTypeIndex] }" @drop.stop="onDropComplete($event, 'before', visTypeIndex)" @dragover.prevent @dragenter.prevent="displayDropzone('top', visTypeIndex)" @dragleave.prevent="hideDropzone('top', visTypeIndex)"></div>
 
             <div class="p-col-12 p-grid p-p-0" @dragstart.stop="onDragStart($event, visTypeIndex)">
                 <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center">
@@ -105,14 +98,7 @@
                     </div>
 
                     <div class="p-grid gap-1 p-m-0" style="column-gap: 0.5em; row-gap: 0.5em">
-                        <div
-                            v-for="(visTypeConfig, visTypeConfigIndex) in descriptor.visTypes"
-                            :key="visTypeConfigIndex"
-                            v-tooltip.bottom="$t(visTypeConfig.tooltip)"
-                            class="visTypeCards"
-                            :class="{ selected: visType.type === visTypeConfig.name }"
-                            @click="selectVisTypeConfig(visTypeIndex, visTypeConfig.name)"
-                        >
+                        <div v-for="(visTypeConfig, visTypeConfigIndex) in descriptor.visTypes" :key="visTypeConfigIndex" v-tooltip.bottom="$t(visTypeConfig.tooltip)" class="visTypeCards" :class="{ selected: visType.type === visTypeConfig.name }" @click="selectVisTypeConfig(visTypeIndex, visTypeConfig.name)">
                             <img class="kn-width-full kn-height-full" :src="getImageSource(visTypeConfig.name)" />
                         </div>
                     </div>
@@ -123,14 +109,7 @@
                 </div>
             </div>
 
-            <div
-                class="p-col-12 form-list-item-dropzone p-m-1"
-                :class="dropzoneBottomVisible[visTypeIndex] ? 'form-list-item-dropzone-active' : ''"
-                @drop.stop="onDropComplete($event, 'after', visTypeIndex)"
-                @dragover.prevent
-                @dragenter.prevent="displayDropzone('bottom', visTypeIndex)"
-                @dragleave.prevent="hideDropzone('bottom', visTypeIndex)"
-            ></div>
+            <div class="p-col-12 form-list-item-dropzone p-m-1" :class="dropzoneBottomVisible[visTypeIndex] ? 'form-list-item-dropzone-active' : ''" @drop.stop="onDropComplete($event, 'after', visTypeIndex)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', visTypeIndex)" @dragleave.prevent="hideDropzone('bottom', visTypeIndex)"></div>
             <div v-show="dropzoneBottomVisible[visTypeIndex]" class="p-col-12" @drop.stop="onDropComplete($event, 'after', visTypeIndex)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
         </div>
     </div>
@@ -270,6 +249,7 @@ export default defineComponent({
             this.removelayersFromAvailableOptions()
             await this.loadPropertiesForVisualizationTypes()
             this.updateVisualizationTypesId()
+            if (this.widgetModel.settings.visualizations.length === 0) this.widgetModel.settings.visualizations.push(mapWidgetDefaultValues.getDefaultVisualizationSettings()[0])
             this.updateMapWidgetLegendWithExistingVisualizationModels()
         },
         updateVisualizationTypesId() {
