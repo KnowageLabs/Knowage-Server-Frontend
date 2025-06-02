@@ -1,9 +1,11 @@
 import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeLegendSettings, IWidgetMapLayerColumn } from './../../../interfaces/mapWidget/DashboardMapWidget'
 import { IWidget } from '../../../Dashboard'
+import * as mapWidgetDefaultValues from '../helpers/mapWidget/MapWidgetDefaultValues'
 
 export const removeLayerFromModel = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
     removeLayerFromVizualizationTypes(layer, widgetModel)
     removeLayerFromLegend(layer, widgetModel)
+    layer.columns?.forEach((column: IWidgetMapLayerColumn) => removeColumnFromModel(layer, column, widgetModel))
 }
 
 const removeLayerFromVizualizationTypes = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
@@ -19,6 +21,10 @@ export const removeColumnFromModel = (selectedLayer: IMapWidgetLayer | null, col
     if (!selectedLayer || !widgetModel) return
     removeColumnFromVizualizationTypes(selectedLayer, column, widgetModel)
     removeColumnFromLegend(selectedLayer, column, widgetModel)
+
+    if (widgetModel.settings.visualizations.length === 0) {
+        widgetModel.settings.visualizations.push(mapWidgetDefaultValues.getDefaultVisualizationSettings()[0])
+    }
 }
 
 const removeColumnFromVizualizationTypes = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
