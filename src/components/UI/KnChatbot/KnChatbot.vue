@@ -65,6 +65,25 @@ function sendMessage() {
         turnId: 1
     })
 
+    if (store.configurations['KNOWAGE.AI.URL'] === 'demo') sendToDemo()
+    else sendToAI()
+
+    userMessage.value = ''
+}
+
+function sendToDemo() {
+    setTimeout(() => {
+        chat.value.push({
+            role: 'assistant',
+            content: 'This is a demo response. In a real scenario, the AI would process your request.',
+            turnId: 1,
+            url: '/dashboard/AI-test?organization=dte&toolbar=true&menu=true&role=/dte/admin&params=W3sidmFsdWUiOlt7InZhbHVlIjoiMSIsImRlc2NyaXB0aW9uIjoiU3RvcmUgMSJ9XSwidXJsTmFtZSI6InN0b3JlIiwibXVsdGl2YWx1ZSI6ZmFsc2V9XQ=='
+        })
+        awaitingReply.value = false
+    }, 2000)
+}
+
+async function sendToAI() {
     axios
         .post(store.configurations['KNOWAGE.AI.URL'] + '/bot_response', {
             tenant: store.user.organization,
@@ -101,8 +120,6 @@ function sendMessage() {
             })
         })
         .finally(() => (awaitingReply.value = false))
-
-    userMessage.value = ''
 }
 </script>
 
