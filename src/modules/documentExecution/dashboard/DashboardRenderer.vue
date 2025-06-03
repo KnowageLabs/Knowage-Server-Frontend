@@ -4,7 +4,7 @@
 
         <div v-if="activeDashboardSheet" class="sheet-container">
             <GridLayout
-                :layout.sync="activeDashboardSheet.widgets[currentScreenSize]"
+                v-model:layout="activeDashboardSheet.widgets[currentScreenSize]"
                 :responsive-layouts="activeDashboardSheet.widgets"
                 :responsive="true"
                 :cols="colSizes"
@@ -17,18 +17,7 @@
                 :style="getGridStyle"
                 @breakpoint-changed="breakpointChangedEvent"
             >
-                <WidgetController
-                    v-for="item in activeDashboardSheet.widgets[currentScreenSize]"
-                    :key="item.i"
-                    :active-sheet="activeDashboardSheet"
-                    :document="document"
-                    :widget="currentWidget(item.id)"
-                    :item="item"
-                    :datasets="datasets"
-                    :dashboard-id="dashboardId"
-                    :variables="variables"
-                    :model="model"
-                ></WidgetController>
+                <WidgetController v-for="item in activeDashboardSheet.widgets[currentScreenSize]" :key="item.i" :active-sheet="activeDashboardSheet" :document="document" :widget="currentWidget(item.id)" :item="item" :datasets="datasets" :dashboard-id="dashboardId" :variables="variables" :model="model"></WidgetController>
                 <div v-if="canEditDashboard(document)" class="emptyDashboardWizard">
                     <div v-if="dashboardModel?.configuration?.datasets.length === 0" class="dashboardWizardContainer" data-test="new-button" @click="addDataset">
                         <img :src="getImageSource('images/dashboard/common/databaseWizardDashboard.svg')" />
@@ -135,7 +124,7 @@ export default defineComponent({
             if (fullGridWidgets && fullGridWidgets.length > 0) {
                 ;['lg', 'md', 'sm', 'xs', 'xxs'].forEach((size) => {
                     if (this.activeDashboardSheet?.widgets[size] && this.activeDashboardSheet?.widgets[size].some((widget) => widget.id === fullGridWidgets[0].id)) {
-                        this.activeDashboardSheet?.widgets[size].map((widget) => {
+                        this.activeDashboardSheet?.widgets[size].forEach((widget) => {
                             if (widget.id === fullGridWidgets[0].id) {
                                 widget.w = this.colSizes[this.currentScreenSize]
                                 widget.y = 0
