@@ -202,7 +202,7 @@ export default defineComponent({
             await this.getData()
         },
         async propView() {
-            if (!this.showDashboard) return
+            if (!this.showDashboard || (!this.filtersLoaded && !this.newDashboardMode)) return
             await this.getData()
         },
         async filtersLoaded() {
@@ -212,7 +212,7 @@ export default defineComponent({
     },
     async mounted() {
         this.setEventListeners()
-        if (!this.showDashboard || !this.filtersLoaded) return
+        if (!this.showDashboard || (!this.filtersLoaded && !this.newDashboardMode)) return
         if (this.isEnterprise) {
             await this.loadDashboardThemes()
             await this.loadPythonEnvironments()
