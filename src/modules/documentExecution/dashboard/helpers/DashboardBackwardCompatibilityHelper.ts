@@ -203,7 +203,7 @@ const formatSheet = (sheet: any, formattedModel: any, user: any, drivers: IDashb
     for (let i = 0; i < sheet.widgets.length; i++) {
         const tempWidget = sheet.widgets[i]
         const sizes = ['lg', 'md', 'sm', 'xs', 'xxs']
-        sizes.forEach((size: string) => formattedSheet.widgets[size].push({ id: tempWidget.id, h: tempWidget.sizeY, w: tempWidget.sizeX, x: tempWidget.col, y: tempWidget.row, i: crypto.randomUUID(), moved: false }))
+        sizes.forEach((size: string) => formattedSheet.widgets[size].push({ id: tempWidget.id, h: tempWidget.sizeY, w: tempWidget.sizeX * 2, x: tempWidget.col * 2, y: tempWidget.row, i: crypto.randomUUID(), moved: false }))
         addWidgetToModel(tempWidget, formattedModel, user, drivers)
     }
 
@@ -287,9 +287,14 @@ const getFormattedPivotWidget = (widget: any, user: any) => {
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {
-    if (!oldWidget.filters || oldWidget.filters.length === 0) return
-    for (let i = 0; i < oldWidget.filters.length; i++) {
-        const tempFilter = oldWidget.filters[i]
+    if (!oldWidget.content?.filters && !oldWidget.filters) return
+
+    const filters = oldWidget.content.filters || oldWidget.filters
+
+    if (!filters || filters.length === 0) return
+
+    for (let i = 0; i < filters.length; i++) {
+        const tempFilter = filters[i]
         const index = formattedWidget.columns?.findIndex((column: IWidgetColumn) => column.columnName === tempFilter.colName)
         if (index !== -1) {
             formattedWidget.columns[index].filter = { enabled: true, operator: tempFilter.filterOperator, value: tempFilter.filterVal1 }

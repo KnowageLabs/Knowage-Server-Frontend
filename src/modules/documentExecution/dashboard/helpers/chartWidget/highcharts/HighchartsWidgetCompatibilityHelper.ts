@@ -39,6 +39,7 @@ export const formatHighchartsWidget = (widget: any) => {
     formattedWidget.settings = getFormattedWidgetSettings(widget, oldChart?.type) as IHighchartsWidgetSettings
     getFiltersForColumns(formattedWidget, widget)
     formattedWidget.settings.chartModel = createChartModel(widget, oldChart?.type, oldChart?.seriesStacking)
+
     return formattedWidget
 }
 
