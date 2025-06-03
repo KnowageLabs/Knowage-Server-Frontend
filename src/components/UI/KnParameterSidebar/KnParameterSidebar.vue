@@ -262,22 +262,28 @@ export default defineComponent({
         propDocument() {
             this.loadDocument()
             this.loadParameters()
+            this.loadAvailableRolesForExecution()
         },
         filtersData() {
             this.loadDocument()
             this.loadParameters()
+            this.loadAvailableRolesForExecution()
         },
         userRole() {
             this.role = this.userRole as string
         },
         propMode() {
             this.loadMode()
+            this.loadAvailableRolesForExecution()
         },
         propQBEParameters() {
             this.loadQBEParameters()
         },
         dateFormat() {
             this.userDateFormat = this.dateFormat as string
+        },
+        correctRolesForExecution() {
+            this.loadAvailableRolesForExecution()
         }
     },
     mounted() {
@@ -315,7 +321,7 @@ export default defineComponent({
             if (!this.document) return
 
             if (this.correctRolesForExecution) {
-                this.availableRolesForExecution = this.correctRolesForExecution
+                this.loadAvailableRolesForExecution()
             } else {
                 let typeCode = 'DOCUMENT'
                 let id = this.document.id
@@ -328,6 +334,9 @@ export default defineComponent({
                     id = this.document.federation_id
                 }
             }
+        },
+        loadAvailableRolesForExecution() {
+            this.availableRolesForExecution = this.correctRolesForExecution
         },
         loadParameters() {
             this.parameters.isReadyForExecution = this.filtersData?.isReadyForExecution
