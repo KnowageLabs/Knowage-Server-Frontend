@@ -16,7 +16,6 @@ export const updateBarChartModel = (oldModel: any, newModel: IHighchartsChartMod
     return newModel
 }
 
-
 const getFormattedAxisSettings = (oldModel: any, newModel: IHighchartsChartModel, axis: 'x' | 'y') => {
     const oldAxis = axis === 'x' ? oldModel.CHART.AXES_LIST.AXIS[1] : oldModel.CHART.AXES_LIST.AXIS[0]
     const newModelAxis = axis === 'x' ? highchartsDefaultValues.getDefaultBarXAxis() : highchartsDefaultValues.getDefaultBarYAxis()
@@ -26,17 +25,17 @@ const getFormattedAxisSettings = (oldModel: any, newModel: IHighchartsChartModel
     setAxisGridSettings(oldAxis, newModelAxis)
 
     axis === 'x' ? setXAxisSpecificValues(newModelAxis) : setYAxisSpecificValues(newModelAxis)
-    axis === 'x' ? newModel.xAxis[0] = newModelAxis : newModel.yAxis[0] = newModelAxis
+    axis === 'x' ? (newModel.xAxis[0] = newModelAxis) : (newModel.yAxis[0] = newModelAxis)
 }
 
 const setXAxisSpecificValues = (newModelAxis: any) => {
-    newModelAxis.type = "category"
+    newModelAxis.type = 'category'
     newModelAxis.plotBands = []
     newModelAxis.plotLines = []
 }
 
 const setYAxisSpecificValues = (newModelAxis: any) => {
-    newModelAxis.min = 0
+    newModelAxis.min = null
     newModelAxis.plotBands = []
     newModelAxis.plotLines = []
 }

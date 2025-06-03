@@ -287,9 +287,14 @@ const getFormattedPivotWidget = (widget: any, user: any) => {
 }
 
 export const getFiltersForColumns = (formattedWidget: IWidget, oldWidget: any) => {
-    if (!oldWidget.filters || oldWidget.filters.length === 0) return
-    for (let i = 0; i < oldWidget.filters.length; i++) {
-        const tempFilter = oldWidget.filters[i]
+    if (!oldWidget.content?.filters && !oldWidget.filters) return
+
+    const filters = oldWidget.content.filters || oldWidget.filters
+
+    if (!filters || filters.length === 0) return
+
+    for (let i = 0; i < filters.length; i++) {
+        const tempFilter = filters[i]
         const index = formattedWidget.columns?.findIndex((column: IWidgetColumn) => column.columnName === tempFilter.colName)
         if (index !== -1) {
             formattedWidget.columns[index].filter = { enabled: true, operator: tempFilter.filterOperator, value: tempFilter.filterVal1 }

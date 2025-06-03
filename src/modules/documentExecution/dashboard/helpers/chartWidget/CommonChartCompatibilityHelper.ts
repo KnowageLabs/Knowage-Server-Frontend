@@ -2,6 +2,8 @@ import { IWidget, IWidgetColumn } from '../../Dashboard'
 import { getFormattedWidgetColumn } from '../common/WidgetColumnHelper'
 import { hexToRgba } from '@/modules/documentExecution/dashboard/helpers/FormattingHelpers'
 import useStore from '@/App.store'
+import ChartColorSettingsDescriptor from '../../widget/WidgetEditor/WidgetEditorSettingsTab/ChartWidget/common/ChartColorSettingsDescriptor.json'
+import deepcopy from 'deepcopy'
 
 interface IOldModelCategory {
     column: string
@@ -17,11 +19,14 @@ const columnNameIdMap = {}
 const store = useStore()
 
 export const getFormattedWidgetColumns = (widget: any, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
-    if (!widget.content || !widget.content.columnSelectedOfDatasetAggregations || !widget.content.chartTemplate || !widget.content.chartTemplate.CHART || !widget.content.chartTemplate.CHART.VALUES) return []
+    if (!widget.content || (!widget.content.columnSelectedOfDatasetAggregations && !widget.content.columnSelectedOfDataset) || !widget.content.chartTemplate || !widget.content.chartTemplate.CHART || !widget.content.chartTemplate.CHART.VALUES) return []
+
     const chartType = widget.content.chartTemplate.CHART.type
     const widgetColumNameMap = {}
-    for (let i = 0; i < widget.content.columnSelectedOfDatasetAggregations.length; i++) {
-        if (!widgetColumNameMap[widget.content.columnSelectedOfDatasetAggregations[i].name]) widgetColumNameMap[widget.content.columnSelectedOfDatasetAggregations[i].name] = getFormattedWidgetColumn(widget.content.columnSelectedOfDatasetAggregations[i], columnNameIdMap)
+
+    const oldChartColumns = widget.content.columnSelectedOfDatasetAggregations ?? widget.content.columnSelectedOfDataset
+    for (let i = 0; i < oldChartColumns.length; i++) {
+        if (!widgetColumNameMap[oldChartColumns[i].name]) widgetColumNameMap[oldChartColumns[i].name] = getFormattedWidgetColumn(oldChartColumns[i], columnNameIdMap)
     }
 
     const formattedColumns = [] as IWidgetColumn[]
@@ -30,13 +35,12 @@ export const getFormattedWidgetColumns = (widget: any, chartLibrary: 'chartJS' |
         Array.isArray(category) ? addCategoryColumnsFromArray(category, formattedColumns, widgetColumNameMap, widget, 'vega') : addCategoryColumns(category, formattedColumns, widgetColumNameMap, widget, chartLibrary)
     }
 
-
-
     const index = getMaximumNumberOfSeries(chartLibrary, chartType, widget)
     if (widget.content.chartTemplate.CHART.VALUES.SERIE) {
         const endIndex = index ?? widget.content.chartTemplate.CHART.VALUES.SERIE.length
         for (let i = 0; i < endIndex && i < widget.content.chartTemplate.CHART.VALUES.SERIE.length; i++) addSerieColumn(widget.content.chartTemplate.CHART.VALUES.SERIE[i], widgetColumNameMap, formattedColumns, chartType)
     }
+
     return formattedColumns
 }
 
@@ -71,14 +75,14 @@ export const addCategoryColumns = (category: IOldModelCategory, formattedColumns
 const addCategoryColumn = (category: IOldModelCategory, widgetColumNameMap: any, formattedColumns: IWidgetColumn[], widget: IWidget, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
     if (widgetColumNameMap[category.column]) {
         const tempColumn = { ...widgetColumNameMap[category.column] }
-        if (category.orderType) tempColumn.orderType = category.orderType === 'desc' ? "DESC" : "ASC"
+        if (category.orderType) tempColumn.orderType = category.orderType === 'desc' ? 'DESC' : 'ASC'
         if (chartHasDrilldown(widget, chartLibrary) && category.drillOrder) tempColumn.drillOrder = createDrillOrder(category.drillOrder[category.column].orderColumn, category.drillOrder[category.column].orderType)
         formattedColumns.push(tempColumn)
     }
 }
 
 const chartCanHaveOnlyOneAttribute = (widget: any, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
-    return (chartLibrary === 'chartJS' && widget.content.chartTemplate.CHART.type === 'PIE')
+    return chartLibrary === 'chartJS' && widget.content.chartTemplate.CHART.type === 'PIE'
 }
 
 const chartHasDrilldown = (widget: any, chartLibrary: 'chartJS' | 'highcharts' | 'vega') => {
@@ -121,5 +125,7 @@ export const getFormattedColorSettings = (widget: any) => {
     if (widget.content.chartTemplate.CHART.COLORPALETTE.COLOR) {
         formattedColors = widget.content.chartTemplate.CHART.COLORPALETTE.COLOR.map((oldColor: any) => hexToRgba(oldColor.value))
     }
+
+    if (!formattedColors || formattedColors.length === 0) formattedColors = deepcopy(ChartColorSettingsDescriptor.defaultColors)
     return formattedColors
 }
