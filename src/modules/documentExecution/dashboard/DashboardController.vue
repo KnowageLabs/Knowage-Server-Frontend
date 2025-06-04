@@ -206,7 +206,7 @@ export default defineComponent({
             await this.getData()
         },
         async filtersLoaded() {
-            if (!this.showDashboard) return
+            if (!this.showDashboard || !this.filtersData?.isReadyForExecution) return
             await this.getData()
         }
     },

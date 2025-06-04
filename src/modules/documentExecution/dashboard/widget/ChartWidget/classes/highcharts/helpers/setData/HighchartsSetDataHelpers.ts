@@ -19,7 +19,7 @@ export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetMod
     const formattedColumns = [] as { column: IWidgetColumn; metadata: any }[]
     widgetModel.columns.forEach((column: IWidgetColumn) => {
         if (column.fieldType === type) {
-            const metadata = data.metaData.fields.find((field: any) => field.header?.startsWith(column.columnName))
+            const metadata = data.metaData?.fields?.find((field: any) => field.header?.startsWith(column.columnName))
             if (metadata) formattedColumns.push({ column: column, metadata: metadata })
         }
     })
