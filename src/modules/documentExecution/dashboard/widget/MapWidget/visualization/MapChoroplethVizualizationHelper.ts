@@ -153,7 +153,6 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
     if (!layerVisualizationSettings.analysisConf) return
     const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
 
-    // TODO - Check getMinMaxByName for the dataColumn after the test on Master with real dataset service
     const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, dataColumn)
     const numberOfClasses = layerVisualizationSettings.analysisConf?.classes ?? defaultChoroplethValues.classes
     const colorGradients = generateColorGradient(layerVisualizationSettings.analysisConf?.style.color ?? defaultChoroplethValues.style.color, layerVisualizationSettings.analysisConf?.style.toColor ?? defaultChoroplethValues.style.toColor, numberOfClasses)
@@ -165,6 +164,7 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
         if (filter?.enabled && !isConditionMet(filter, value)) return
 
         const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
+        if (!row[geoColumn]) return
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
         const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
         const color = colorGradients[getRangeIndexFromEqualIntervals(originalValue, valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, numberOfClasses)] ?? defaultChoroplethValues.style.color
