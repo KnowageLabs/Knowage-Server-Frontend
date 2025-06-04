@@ -118,6 +118,10 @@ export default defineComponent({
         datasetToCloneId: { type: Number as any }
     },
     emits: ['close', 'touched', 'loadingOlderVersion', 'olderVersionLoaded', 'updated', 'created', 'showSavingSpinner', 'hideSavingSpinner'],
+    setup() {
+        const store = mainStore()
+        return { store }
+    },
     data() {
         return {
             detailViewDescriptor,
@@ -471,9 +475,14 @@ export default defineComponent({
         //#endregion ===============================================================================================
 
         async sendDatasetForPreview() {
-            getCorrectRolesForExecution(null, this.selectedDataset).then(async (response) => {
-                this.correctRolesForExecution = response as string[]
-            })
+            if (this.previewDataset?.id) {
+                getCorrectRolesForExecution(null, this.selectedDataset).then(async (response) => {
+                    this.correctRolesForExecution = response as string[]
+                })
+            } else {
+                const sessionRole = (this.store.$state as any).user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? (this.store.$state as any).user.sessionRole : null
+                this.correctRolesForExecution = sessionRole ? [sessionRole] : [(this.store.$state as any).user.roles[0]]
+            }
 
             if (this.selectedDataset.dsTypeCd === 'Solr') {
                 this.previewDataset = JSON.parse(JSON.stringify(this.selectedDataset))
