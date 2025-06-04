@@ -1,10 +1,12 @@
-import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeLegendSettings, IWidgetMapLayerColumn } from './../../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapDialogSettings, IMapDialogSettingsProperty, IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeLegendSettings, IWidgetMapLayerColumn } from './../../../interfaces/mapWidget/DashboardMapWidget'
 import { IWidget } from '../../../Dashboard'
 import * as mapWidgetDefaultValues from '../helpers/mapWidget/MapWidgetDefaultValues'
 
 export const removeLayerFromModel = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
     removeLayerFromVizualizationTypes(layer, widgetModel)
     removeLayerFromLegend(layer, widgetModel)
+    removeLayerFromTooltips(layer, widgetModel)
+    removeLayerFromDialog(layer, widgetModel)
     layer.columns?.forEach((column: IWidgetMapLayerColumn) => removeColumnFromModel(layer, column, widgetModel))
 }
 
@@ -17,10 +19,24 @@ const removeLayerFromLegend = (layer: IMapWidgetLayer, widgetModel: IWidget) => 
     widgetModel.settings.legend.visualizationTypes = visualizationTypes.filter((visTypeLegend: IMapWidgetVisualizationTypeLegendSettings) => visTypeLegend.visualizationType?.target !== layer.layerId)
 }
 
+const removeLayerFromTooltips = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.tooltips) return
+    const tooltipSettings = widgetModel.settings?.tooltips as IMapTooltipSettings
+    tooltipSettings.layers = tooltipSettings.layers.filter((tooltipLayerSettings: IMapTooltipSettingsLayer) => tooltipLayerSettings.name !== layer.layerId)
+}
+
+const removeLayerFromDialog = (layer: IMapWidgetLayer, widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.dialog) return
+    const dialogSettings = widgetModel.settings.dialog as IMapDialogSettings
+    dialogSettings.layers = dialogSettings.layers.filter((dialogLayerSettings: IMapDialogSettingsProperty) => dialogLayerSettings.name !== layer.layerId)
+}
+
 export const removeColumnFromModel = (selectedLayer: IMapWidgetLayer | null, column: IWidgetMapLayerColumn, widgetModel: IWidget | null) => {
     if (!selectedLayer || !widgetModel) return
     removeColumnFromVizualizationTypes(selectedLayer, column, widgetModel)
     removeColumnFromLegend(selectedLayer, column, widgetModel)
+    removeColumnFromDialogs(selectedLayer, column, widgetModel)
+    removeColumnFromTooltips(selectedLayer, column, widgetModel)
 
     if (widgetModel.settings.visualizations.length === 0) {
         widgetModel.settings.visualizations.push(mapWidgetDefaultValues.getDefaultVisualizationSettings()[0])
@@ -46,4 +62,22 @@ const removeColumnFromVizualizationType = (layer: IMapWidgetLayer, column: IWidg
     if (visType.properties) visType.properties = visType.properties.filter((tempProperty: IMapWidgetLayerProperty) => tempProperty.property !== column.name)
     if (visType.targetMeasure && visType.targetMeasure === column.name) visType.targetMeasure = ''
     if (visType.chartMeasures) visType.chartMeasures = visType.chartMeasures.filter((chartMeasure: string) => chartMeasure !== column.name)
+}
+
+const removeColumnFromDialogs = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.tooltips) return
+    const tooltipSettings = widgetModel.settings?.tooltips as IMapTooltipSettings
+    tooltipSettings.layers.forEach((tooltipLayerSettings: IMapTooltipSettingsLayer) => {
+        if (tooltipLayerSettings.name !== layer.layerId) return
+        tooltipLayerSettings.columns = tooltipLayerSettings.columns.filter((columnName: string) => columnName !== column.name)
+    })
+}
+
+const removeColumnFromTooltips = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.dialog) return
+    const dialogSettings = widgetModel.settings.dialog as IMapDialogSettings
+    dialogSettings.layers.forEach((dialogSettingsLayerSettings: IMapTooltipSettingsLayer) => {
+        if (dialogSettingsLayerSettings.name !== layer.layerId) return
+        dialogSettingsLayerSettings.columns = dialogSettingsLayerSettings.columns.filter((columnName: string) => columnName !== column.name)
+    })
 }

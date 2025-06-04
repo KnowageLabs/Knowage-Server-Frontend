@@ -17,6 +17,7 @@ import { updateWidgetThemeAndApplyStyle } from './generalSettings/themes/ThemesH
 import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/DashboardThememanagement'
 import { formatDashboardDiscoveryWidgetAfterLoading } from './widget/WidgetEditor/helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import * as widgetCommonDefaultValues from './widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
+import { formatMapWidgetAfterDashboardLoading } from './widget/MapWidget/MapWidgetFormattingHelper'
 
 const store = mainStore()
 
@@ -225,7 +226,7 @@ export const formatNewModel = async (dashboard: IDashboard, datasets: IDataset[]
     }
 
     for (let i = 0; i < dashboard.widgets.length; i++) {
-        formatWidget(dashboard.widgets[i])
+        formatWidget(dashboard.widgets[i], datasets)
         if (store.isEnterprise && themes.length > 0) updateWidgetThemeAndApplyStyle(dashboard.widgets[i], themes)
         if (dashboard.widgets[i].settings.configuration.updateFromSelections === undefined) dashboard.widgets[i].settings.configuration.updateFromSelections = true
     }
@@ -248,7 +249,7 @@ export const addMissingMenuWidgetsConfiguration = (dashboard: IDashboard) => {
     if (dashboard.configuration.menuWidgets.enableWidgetMenu === undefined) dashboard.configuration.menuWidgets.enableWidgetMenu = true
 }
 
-const formatWidget = (widget: IWidget) => {
+const formatWidget = (widget: IWidget, datasets: IDataset[]) => {
     addColumnIdsToWidgetColumns(widget)
     addWidgetMenuConfig(widget)
     addWidgetHelpConfig(widget)
@@ -268,6 +269,9 @@ const formatWidget = (widget: IWidget) => {
             break
         case 'vega':
             formatVegaWidget(widget)
+            break
+        case 'map':
+            formatMapWidgetAfterDashboardLoading(widget, datasets)
     }
 
     if (widget.settings?.style?.themeName) delete widget.settings.style.themeName
