@@ -1,88 +1,61 @@
 <template>
     <Message v-if="showHint" severity="info" :closable="false"> {{ $t('managers.workspaceManagement.dataPreparation.monitoring.hint') }} </Message>
-    <div class="p-grid p-d-flex p-m-1 p-fluid">
-        <div v-if="schedulerVisible" :class="getSchedulerClass">
-            <Card class="kn-card full-height">
-                <template #content>
-                    <div class="p-grid knScheduler p-jc-between p-flex-column">
-                        <div class="p-col-12 p-mb-1 p-d-flex p-ai-center p-jc-between">
-                            <div>
-                                <span> {{ $t('knScheduler.enableSchedulation') }}</span> <InputSwitch v-model="enableSchedulation" @change="toggleSchedulationEnabled" />
-                            </div>
 
-                            <div v-if="enableSchedulation" class="p-d-flex p-ai-center">
-                                <template v-if="paused">
-                                    {{ $t('knScheduler.resumeSchedulation') }}
-                                    <Button icon="pi pi-play" class="p-button-text p-button-rounded p-button-plain" @click="togglePause" /> </template
-                                ><template v-else>
-                                    {{ $t('knScheduler.pauseSchedulation') }}
-                                    <Button icon="pi pi-pause" class="p-button-text p-button-rounded p-button-plain" @click="togglePause" />
-                                </template>
-                            </div>
-                        </div>
-                        <div v-if="descriptor.config.startDateEnabled" class="p-float-label p-col-12 p-mb-1">
-                            <Calendar id="startDate" v-model="startDate" :show-icon="true" @change="$emit('touched')" /><label for="startDate" class="kn-material-input-label"> {{ $t('kpi.targetDefinition.startDate') }} </label>
-                        </div>
+    <div class="row">
+        <q-card class="col-4 q-ma-md">
+            <q-card-section class="row q-ma-md">
+                <div class="col-12 row justify-between">
+                    <q-toggle v-model="enableSchedulation" :label="$t('knScheduler.enableSchedulation')" @update:model-value="toggleSchedulationEnabled" />
+                    <q-btn v-if="enableSchedulation" :icon="paused ? 'play_arrow' : 'pause'" rounded flat @click="togglePause">
+                        <q-tooltip :delay="500">{{ paused ? $t('knScheduler.resumeSchedulation') : $t('knScheduler.pauseSchedulation') }}</q-tooltip>
+                    </q-btn>
+                </div>
+                <div class="col-12">
+                    <q-input v-model="startDate" :label="$t('kpi.targetDefinition.startDate')" @update:model-value="$emit('touched')" :mask="locale === 'en_US' ? '####/##/##' : '##/##/####'" :disable="isDisabled" filled>
+                        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                            <q-date v-model="startDate" :mask="locale === 'en_US' ? 'YYYY/MM/DD' : 'DD/MM/YYYY'" :rules="['date']" bordered>
+                                <div class="row items-center justify-end">
+                                    <q-btn v-close-popup label="Close" color="primary" flat />
+                                </div>
+                            </q-date>
+                        </q-popup-proxy>
+                    </q-input>
+                </div>
 
-                        <div class="p-float-label p-col-12 p-mb-1">
-                            <Dropdown
-                                id="selectedRefreshRate"
-                                v-model="selectedRefreshRate"
-                                class="kn-material-input"
-                                data-key="id"
-                                option-label="name"
-                                option-value="code"
-                                :options="refreshRates"
-                                max-length="100"
-                                :disabled="isDisabled"
-                                @change="
-                                    () => {
-                                        resetFormula()
-                                        $emit('touched')
-                                    }
-                                "
-                            />
-                            <label for="refreshRate" class="kn-material-input-label"> {{ $t(descriptor.refreshRate.placeholder) }}</label>
-                        </div>
+                <div class="col-12 q-ma-md">
+                    <q-select
+                        v-model="selectedRefreshRate"
+                        :options="refreshRates"
+                        option-label="name"
+                        option-value="code"
+                        map-options
+                        emit-value
+                        filled
+                        :disable="isDisabled"
+                        :label="$t(descriptor?.refreshRate.placeholder)"
+                        @update:model-value="
+                            () => {
+                                resetFormula()
+                                $emit('touched')
+                            }
+                        "
+                    />
 
-                        <div v-if="selectedRefreshRate" class="p-d-flex p-flex-wrap p-col-12 p-mb-1">
-                            <div v-if="selectedRefreshRate === 'daily'" class="p-d-flex p-flex-wrap">
-                                <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
-                                    <RadioButton id="dayConf1" v-model="dayConf" :class="descriptor.style.radiobutton" name="dayConf" value="everyDay" :disabled="isDisabled" @change="$emit('touched')" />
-                                    <i18n-t keypath="knScheduler.everyDay" tag="div" class="p-d-flex p-ai-center p-mr-2">
-                                        <template #day>
-                                            <Dropdown
-                                                id="type"
-                                                v-model="selectedDay"
-                                                :class="descriptor.style.dropdown"
-                                                option-label="name"
-                                                option-value="code"
-                                                :options="getNumberOptions(5)"
-                                                max-length="100"
-                                                :disabled="isDisabled"
-                                                @change="
-                                                    () => {
-                                                        dayConf = 'everyDay'
-                                                        $emit('touched')
-                                                    }
-                                                "
-                                            />
-                                        </template>
-                                    </i18n-t>
-
-                                    <span class="p-mr-2" style="white-space: nowrap">
-                                        {{ $t('knScheduler.startingIn') }}
-                                    </span>
-                                    <Dropdown
+                    <div v-if="selectedRefreshRate === 'daily'" class="row q-ma-md">
+                        <div class="row wrap items-center">
+                            <q-radio id="dayConf1" v-model="dayConf" :class="descriptor?.style.radiobutton" name="dayConf" val="everyDay" :disable="isDisabled" @change="$emit('touched')" />
+                            <i18n-t keypath="knScheduler.everyDay" tag="div" class="p-d-flex p-ai-center p-mr-2">
+                                <template #day>
+                                    <q-select
                                         id="type"
-                                        v-model="selectedDayExtended"
-                                        :class="descriptor.style.dropdown"
-                                        data-key="id"
+                                        v-model="selectedDay"
                                         option-label="name"
-                                        option-value="id"
-                                        :options="days"
-                                        max-length="100"
-                                        :disabled="isDisabled"
+                                        option-value="code"
+                                        map-options
+                                        emit-value
+                                        :options="getNumberOptions(5)"
+                                        :disable="isDisabled"
+                                        filled
                                         @change="
                                             () => {
                                                 dayConf = 'everyDay'
@@ -90,187 +63,239 @@
                                             }
                                         "
                                     />
-                                </div>
+                                </template>
+                            </i18n-t>
 
-                                <div class="p-d-flex p-ai-center">
-                                    <RadioButton id="dayConf2" v-model="dayConf" :class="descriptor.style.radiobutton" name="dayConf" value="everyNotWorkingDays" :disabled="isDisabled" @change="$emit('touched')" />
-                                    {{ $t('knScheduler.everyNotWorkingDays') }}
-                                </div>
-                            </div>
-                            <div v-if="selectedRefreshRate === 'weekly'" class="p-d-flex p-flex-wrap">
-                                <div v-for="(day, index) in descriptor.days" :key="index" class="p-d-flex field-checkbox p-mb-1 p-mr-2 dayCheckbox">
-                                    <Checkbox :id="day - `${index}`" v-model="selectedWeekdays[day.id]" :name="day.name" :value="day.code" @change="$emit('touched')" /><label class="p-ml-2">{{ $t(day.name) }}</label>
-                                </div>
-                            </div>
-                            <div v-else-if="selectedRefreshRate === 'monthly'">
-                                <i18n-t keypath="knScheduler.everyMonth" tag="div" class="p-d-flex p-ai-center p-mr-2">
-                                    <template #month>
-                                        <Dropdown id="selectedMonth" v-model="selectedMonth" :class="descriptor.style.dropdown" option-label="name" option-value="id" :options="getNumberOptions(5)" max-length="100" :disabled="isDisabled" />
-                                    </template>
-                                </i18n-t>
-
-                                <div class="p-d-flex p-ai-center">
-                                    {{ $t('knScheduler.startingIn') }}
-                                    <Dropdown id="selectedMonthExtended" v-model="selectedMonthExtended" :class="descriptor.style.dropdown" data-key="id" option-label="name" option-value="id" :options="months" max-length="100" :disabled="isDisabled" />
-                                </div>
-
-                                <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
-                                    <RadioButton id="monthConf1" v-model="monthConf" :class="descriptor.style.radiobutton" name="monthConf" value="theDay" :disabled="isDisabled" @change="$emit('touched')" /> {{ $t('knScheduler.theDay') }}
-
-                                    <Dropdown
-                                        id="selectedDayNumber"
-                                        v-model="selectedDayNumber"
-                                        :class="descriptor.style.dropdown"
-                                        data-key="id"
-                                        option-label="name"
-                                        option-value="code"
-                                        :options="getNumberOptions(31)"
-                                        max-length="100"
-                                        :disabled="isDisabled"
-                                        @change="
-                                            () => {
-                                                monthConf = 'theDay'
-                                            }
-                                        "
-                                    />
-                                </div>
-
-                                <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
-                                    <RadioButton id="monthConf2" v-model="monthConf" :class="descriptor.style.radiobutton" name="monthConf" value="theOrdinalDay" :disabled="isDisabled" /> {{ $t('knScheduler.the') }}
-
-                                    <Dropdown
-                                        id="selectedDayOrdinal"
-                                        v-model="selectedDayOrdinal"
-                                        :class="descriptor.style.dropdown"
-                                        data-key="id"
-                                        option-label="name"
-                                        option-value="id"
-                                        :options="ordinal"
-                                        max-length="100"
-                                        :disabled="isDisabled"
-                                        @change="
-                                            () => {
-                                                monthConf = 'theOrdinalDay'
-                                            }
-                                        "
-                                    />
-
-                                    <Dropdown
-                                        id="selectedDayExtended"
-                                        v-model="selectedDayExtended"
-                                        :class="descriptor.style.dropdown"
-                                        data-key="id"
-                                        option-label="name"
-                                        option-value="id"
-                                        :options="days"
-                                        max-length="100"
-                                        :disabled="isDisabled"
-                                        @change="
-                                            () => {
-                                                monthConf = 'theOrdinalDay'
-                                            }
-                                        "
-                                    />
-                                </div>
-                            </div>
-                            <div v-else-if="selectedRefreshRate === 'yearly'">
-                                <i18n-t keypath="knScheduler.everyYear" tag="div" class="p-d-flex p-ai-center p-mr-2">
-                                    <template #year>
-                                        <Dropdown id="selectedYear" v-model="selectedYear" :class="descriptor.style.dropdown" data-key="id" option-label="name" option-value="code" :options="getNumberOptions(5)" max-length="100" :disabled="isDisabled" />
-                                    </template>
-                                </i18n-t>
-
-                                <div class="p-d-flex p-ai-center">
-                                    {{ $t('knScheduler.in') }}
-
-                                    <Dropdown id="selectedMonth" v-model="selectedMonth" :class="descriptor.style.dropdown" data-key="id" option-label="name" option-value="code" :options="months" max-length="100" :disabled="isDisabled" />
-                                </div>
-
-                                <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
-                                    <RadioButton id="monthConf1" v-model="yearConf" :class="descriptor.style.radiobutton" name="yearConf" value="theDay" :disabled="isDisabled" /> {{ $t('knScheduler.theDay') }}
-
-                                    <Dropdown
-                                        id="type"
-                                        v-model="selectedDayNumber"
-                                        :class="descriptor.style.dropdown"
-                                        data-key="id"
-                                        option-label="name"
-                                        option-value="code"
-                                        :options="getNumberOptions(31)"
-                                        max-length="100"
-                                        :disabled="isDisabled"
-                                        @change="
-                                            () => {
-                                                yearConf = 'theDay'
-                                            }
-                                        "
-                                    />
-                                </div>
-
-                                <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
-                                    <RadioButton id="monthConf2" v-model="yearConf" :class="descriptor.style.radiobutton" name="yearConf" value="theOrdinalDay" :disabled="isDisabled" /> {{ $t('knScheduler.the') }}
-
-                                    <Dropdown
-                                        id="selectedDayOrdinal"
-                                        v-model="selectedDayOrdinal"
-                                        :class="descriptor.style.dropdown"
-                                        data-key="id"
-                                        option-label="name"
-                                        option-value="id"
-                                        :options="ordinal"
-                                        max-length="100"
-                                        :disabled="isDisabled"
-                                        @change="
-                                            () => {
-                                                yearConf = 'theOrdinalDay'
-                                            }
-                                        "
-                                    />
-
-                                    <Dropdown
-                                        id="selectedDayExtended"
-                                        v-model="selectedDayExtended"
-                                        :class="descriptor.style.dropdown"
-                                        data-key="id"
-                                        option-label="name"
-                                        option-value="id"
-                                        :options="days"
-                                        max-length="100"
-                                        :disabled="isDisabled"
-                                        @change="
-                                            () => {
-                                                yearConf = 'theOrdinalDay'
-                                            }
-                                        "
-                                    />
-                                </div>
-                            </div>
-                            <div v-else-if="selectedRefreshRate === 'custom'">
-                                <span class="p-float-label p-col-12">
-                                    <InputText
-                                        :id="name"
-                                        v-model="localCronExpression"
-                                        type="text"
-                                        v-bind="$attrs"
-                                        :class="[cssClass ? cssClass + ' kn-truncated' : 'kn-material-input kn-truncated', required && !modelValue ? 'p-invalid' : '']"
-                                        :disabled="isDisabled"
-                                        @change="$emit('update:currentCronExpression', localCronExpression)"
-                                /></span>
-                                <small id="custom-cron-hint" v-html="$t('knScheduler.customCronHint')"></small>
-                            </div>
+                            <span class="m-2" style="white-space: nowrap">
+                                {{ $t('knScheduler.startingIn') }}
+                            </span>
+                            <q-select
+                                id="type"
+                                v-model="selectedDayExtended"
+                                option-label="name"
+                                option-value="id"
+                                map-options
+                                emit-value
+                                filled
+                                :options="days"
+                                :disable="isDisabled"
+                                @change="
+                                    () => {
+                                        dayConf = 'everyDay'
+                                        $emit('touched')
+                                    }
+                                "
+                            />
                         </div>
 
-                        <div v-if="descriptor.config.endDateEnabled" class="p-float-label p-col-12 p-mb-1">
-                            <Calendar id="icon" v-model="endDate" :show-icon="true" />
-                            <label for="endDate" class="kn-material-input-label"> {{ $t('kpi.targetDefinition.endDate') }} </label>
+                        <div class="p-d-flex p-ai-center">
+                            <q-radio id="dayConf2" v-model="dayConf" :class="descriptor?.style.radiobutton" name="dayConf" val="everyNotWorkingDays" :disable="isDisabled" @change="$emit('touched')" />
+                            {{ $t('knScheduler.everyNotWorkingDays') }}
                         </div>
-
                     </div>
-                  <Message v-if="!readOnly" :class="['p-col-12 messageClass', readOnly ? 'p-message-disabled' : '']" :severity="'info'">
-                    <template v-if="paused">{{ $t('knScheduler.schedulationPaused') }} </template><template v-else>{{ getCronstrueFormula }} </template></Message
-                  >
-                </template
-                ></Card
+                    <div v-if="selectedRefreshRate === 'weekly'" class="row q-ma-md">
+                        <div v-for="(day, index) in descriptor?.days" :key="index">
+                            <q-btn
+                                square
+                                :color="selectedWeekdays[day.id] ? 'primary' : ''"
+                                :text-color="selectedWeekdays[day.id] ? 'white' : 'primary'"
+                                @click="
+                                    () => {
+                                        selectedWeekdays[day.id] === day.code || (selectedWeekdays[day.id] && selectedWeekdays[day.id].includes(day.code)) ? delete selectedWeekdays[day.id] : (selectedWeekdays[day.id] = day.code)
+                                        $emit('touched')
+                                    }
+                                "
+                                :label="$t(day.name).substring(0, 2)"
+                                :disable="isDisabled"
+                            >
+                            </q-btn>
+                        </div>
+                    </div>
+                    <div v-else-if="selectedRefreshRate === 'monthly'" class="q-ma-md">
+                        <i18n-t keypath="knScheduler.everyMonth" tag="div">
+                            <template #month>
+                                <q-select id="selectedMonth" v-model="selectedMonth" option-label="name" option-value="id" map-options emit-value :options="getNumberOptions(5)" :disable="isDisabled" filled />
+                            </template>
+                        </i18n-t>
+
+                        <div>
+                            {{ $t('knScheduler.startingIn') }}
+                            <q-select id="selectedMonthExtended" v-model="selectedMonthExtended" :class="descriptor?.style.dropdown" data-key="id" option-label="name" option-value="id" :options="months" map-options emit-value :disable="isDisabled" filled />
+                        </div>
+
+                        <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
+                            <q-radio id="monthConf1" v-model="monthConf" :class="descriptor?.style.radiobutton" name="monthConf" val="theDay" :disable="isDisabled" @change="$emit('touched')" />
+                            <q-select
+                                id="selectedDayNumber"
+                                v-model="selectedDayNumber"
+                                data-key="id"
+                                option-label="name"
+                                option-value="code"
+                                :options="getNumberOptions(31)"
+                                map-options
+                                emit-value
+                                @change="
+                                    () => {
+                                        monthConf = 'theDay'
+                                    }
+                                "
+                                :disable="isDisabled"
+                                filled
+                            />
+                        </div>
+
+                        <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
+                            <q-radio id="monthConf2" v-model="monthConf" :class="descriptor?.style.radiobutton" name="monthConf" :disable="isDisabled" val="theOrdinalDay" />
+                            {{ $t('knScheduler.the') }}
+                            <q-select
+                                id="selectedDayOrdinal"
+                                v-model="selectedDayOrdinal"
+                                :class="descriptor?.style.dropdown"
+                                data-key="id"
+                                option-label="name"
+                                option-value="id"
+                                :options="ordinal"
+                                map-options
+                                emit-value
+                                :disable="isDisabled"
+                                @change="
+                                    () => {
+                                        monthConf = 'theOrdinalDay'
+                                    }
+                                "
+                                filled
+                            />
+
+                            <q-select
+                                id="selectedDayExtended"
+                                v-model="selectedDayExtended"
+                                :class="descriptor?.style.dropdown"
+                                data-key="id"
+                                option-label="name"
+                                option-value="id"
+                                :options="days"
+                                map-options
+                                emit-value
+                                :disable="isDisabled"
+                                @change="
+                                    () => {
+                                        monthConf = 'theOrdinalDay'
+                                    }
+                                "
+                                filled
+                            />
+                        </div>
+                    </div>
+                    <div v-else-if="selectedRefreshRate === 'yearly'" class="q-ma-md">
+                        <i18n-t keypath="knScheduler.everyYear" tag="div">
+                            <template #year>
+                                <q-select id="selectedYear" v-model="selectedYear" :class="descriptor?.style.dropdown" data-key="id" option-label="name" option-value="code" :options="getNumberOptions(5)" map-options emit-value :disabled="isDisabled" filled />
+                            </template>
+                        </i18n-t>
+
+                        <div class="p-d-flex p-ai-center">
+                            {{ $t('knScheduler.in') }}
+
+                            <q-select id="selectedMonth" v-model="selectedMonth" :class="descriptor?.style.dropdown" data-key="id" option-label="name" option-value="code" map-options emit-value :options="months" max-length="100" :disabled="isDisabled" filled />
+                        </div>
+
+                        <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
+                            <q-radio id="monthConf1" v-model="yearConf" :class="descriptor?.style.radiobutton" name="yearConf" val="theDay" :disabled="isDisabled" /> {{ $t('knScheduler.theDay') }}
+
+                            <q-select
+                                id="type"
+                                v-model="selectedDayNumber"
+                                :class="descriptor?.style.dropdown"
+                                data-key="id"
+                                option-label="name"
+                                option-value="code"
+                                :options="getNumberOptions(31)"
+                                map-options
+                                emit-value
+                                :disabled="isDisabled"
+                                @change="
+                                    () => {
+                                        yearConf = 'theDay'
+                                    }
+                                "
+                                filled
+                            />
+                        </div>
+
+                        <div class="p-d-flex p-ai-center p-flex-wrap itemClass">
+                            <q-radio id="monthConf2" v-model="yearConf" :class="descriptor?.style.radiobutton" name="yearConf" val="theOrdinalDay" :disabled="isDisabled" /> {{ $t('knScheduler.the') }}
+
+                            <q-select
+                                id="selectedDayOrdinal"
+                                v-model="selectedDayOrdinal"
+                                :class="descriptor?.style.dropdown"
+                                data-key="id"
+                                option-label="name"
+                                option-value="id"
+                                map-options
+                                emit-value
+                                :options="ordinal"
+                                max-length="100"
+                                :disabled="isDisabled"
+                                @change="
+                                    () => {
+                                        yearConf = 'theOrdinalDay'
+                                    }
+                                "
+                                filled
+                            />
+
+                            <q-select
+                                id="selectedDayExtended"
+                                v-model="selectedDayExtended"
+                                :class="descriptor?.style.dropdown"
+                                data-key="id"
+                                option-label="name"
+                                option-value="id"
+                                :options="days"
+                                map-options
+                                emit-value
+                                :disabled="isDisabled"
+                                @change="
+                                    () => {
+                                        yearConf = 'theOrdinalDay'
+                                    }
+                                "
+                                filled
+                            />
+                        </div>
+                    </div>
+
+                    <div v-if="descriptor?.config.endDateEnabled" class="p-float-label p-col-12 p-mb-1">
+                        <Calendar id="icon" v-model="endDate" :show-icon="true" />
+                        <label for="endDate" class="kn-material-input-label"> {{ $t('kpi.targetDefinition.endDate') }} </label>
+                    </div>
+                    <div v-else-if="selectedRefreshRate === 'custom'">
+                        <q-input :id="name" v-model="localCronExpression" type="text" v-bind="$attrs" :disabled="isDisabled" @change="$emit('update:currentCronExpression', localCronExpression)" />
+                        <small id="custom-cron-hint" v-html="$t('knScheduler.customCronHint')"></small>
+                    </div>
+                </div>
+            </q-card-section>
+        </q-card>
+    </div>
+
+    <div class="p-grid p-d-flex p-m-1 p-fluid">
+        <div v-if="schedulerVisible" :class="getSchedulerClass">
+            <Card class="kn-card full-height">
+                <template #content>
+                    <div class="p-grid knScheduler p-jc-between p-flex-column">
+                        <div v-if="selectedRefreshRate" class="p-d-flex p-flex-wrap p-col-12 p-mb-1">
+                            <div v-if="selectedRefreshRate === 'weekly'" class="p-d-flex p-flex-wrap">
+                                <!--                                <div v-for="(day, index) in descriptor.days" :key="index" class="p-d-flex field-checkbox p-mb-1 p-mr-2 dayCheckbox">-->
+                                <!--&lt;!&ndash;                                    <Checkbox :id="day - `${index}`" v-model="selectedWeekdays[day.id]" :name="day.name" :value="day.code" @change="$emit('touched')" /><label class="p-ml-2">{{ $t(day.name) }}</label>&ndash;&gt;-->
+                                <!--                                </div>-->
+                            </div>
+                        </div>
+                    </div>
+                    <Message v-if="!readOnly" :class="['p-col-12 messageClass', readOnly ? 'p-message-disabled' : '']" :severity="'info'">
+                        <template v-if="paused">{{ $t('knScheduler.schedulationPaused') }} </template><template v-else>{{ getCronstrueFormula }} </template></Message
+                    >
+                </template></Card
             >
         </div>
         <div v-if="logsVisible" :class="getLogsTableClass">
@@ -294,7 +319,7 @@
                         responsive-layout="stack"
                         breakpoint="960px"
                         :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
-                        :global-filter-fields="descriptor.globalFilterFields"
+                        :global-filter-fields="descriptor?.globalFilterFields"
                         :loading="loadingLogs"
                     >
                         <template #empty>
@@ -305,7 +330,7 @@
                         </template>
 
                         <Column
-                            v-for="col of descriptor.columns"
+                            v-for="col of descriptor?.columns"
                             :key="col.field"
                             class="kn-truncated"
                             :field="col.field"
@@ -374,23 +399,23 @@ export default defineComponent({
         schedulationPaused: Boolean,
         loadingLogs: { type: Boolean, default: false }
     },
-    emits: ['touched', 'update:schedulationPaused', 'update:schedulationEnabled', 'update:currentCronExpression', 'update:cronExpressionType'],
+    emits: ['touched', 'update:schedulationPaused', 'update:schedulationEnabled', 'update:currentCronExpression', 'update:cronExpressionType', 'validation-changed'],
     data() {
         return {
             startDate: null as Date | null,
             endDate: null as Date | null,
             selectedRefreshRate: '',
-            selectedMonth: null,
+            selectedMonth: null as number | null,
             selectedYear: null,
             selectedDay: null,
-            selectedDayExtended: null,
-            selectedDayOrdinal: null,
-            selectedDayNumber: null,
-            selectedMonthExtended: null,
+            selectedDayExtended: null as number | null,
+            selectedDayOrdinal: null as number | null,
+            selectedDayNumber: null as number | null,
+            selectedMonthExtended: null as number | null,
             dateFormat: '' as string,
-            dayConf: null,
-            monthConf: null,
-            yearConf: null,
+            dayConf: null as string | null,
+            monthConf: null as string | null,
+            yearConf: null as string | null,
             days: [] as any,
             months: [] as any,
             ordinal: [] as any,
@@ -410,8 +435,15 @@ export default defineComponent({
     },
     computed: {
         ...mapState(mainStore, {
-            configuration: 'configuration'
+            configuration: 'configuration',
+            locale: 'locale'
         }),
+        isFormValid(): boolean {
+            if (this.selectedRefreshRate === 'daily' && this.dayConf === 'everyDay') {
+                return this.selectedDay !== null && this.selectedDayExtended !== null
+            }
+            return true
+        },
         getCronstrueFormula(): string {
             const locale = localStorage.getItem('locale')
             let cronLocale = ''
@@ -506,6 +538,12 @@ export default defineComponent({
         },
         schedulationEnabled(newSchedulationEnabled) {
             this.enableSchedulation = newSchedulationEnabled
+        },
+        isFormValid: {
+            immediate: true,
+            handler(newValue) {
+                this.$emit('validation-changed', newValue)
+            }
         }
     },
     async created() {
@@ -532,6 +570,9 @@ export default defineComponent({
         if (this.cronExpressionType) {
             this.selectedRefreshRate = this.cronExpressionType
         }
+        this.$nextTick(() => {
+            this.$emit('validation-changed', this.isFormValid)
+        })
     },
     updated() {
         this.enableSchedulation = this.schedulationEnabled
@@ -562,6 +603,7 @@ export default defineComponent({
             })
         },
         parseFormula(cronExpression) {
+            console.log(this.selectedWeekdays)
             if (this.selectedRefreshRate == 'custom') {
                 return
             }
@@ -576,9 +618,7 @@ export default defineComponent({
                 if (this.isSet(cronExpressionArr[4])) {
                     const splitted = cronExpressionArr[4].split('/')
                     if (splitted.length > 1) {
-                        // @ts-ignore
                         this.selectedMonthExtended = parseInt(splitted[0])
-                        // @ts-ignore
                         this.selectedMonth = parseInt(splitted[1])
                     } else if (this.months.filter((x) => x.code === cronExpressionArr[4]).length == 1) {
                         this.selectedMonth = cronExpressionArr[4]
@@ -587,16 +627,12 @@ export default defineComponent({
                 if (this.isSet(cronExpressionArr[5])) {
                     let splitted = cronExpressionArr[5].split('/')
                     if (splitted.length > 1) {
-                        // @ts-ignore
                         this.selectedDayExtended = parseInt(splitted[0])
-                        // @ts-ignore
                         this.selectedDay = splitted[1]
                     } else {
                         splitted = cronExpressionArr[5].split('#')
                         if (splitted.length > 1) {
-                            // @ts-ignore
                             this.selectedDayExtended = parseInt(splitted[0])
-                            // @ts-ignore
                             this.selectedDayOrdinal = parseInt(splitted[1])
                         } else {
                             splitted = cronExpressionArr[5].split(',')
@@ -610,25 +646,19 @@ export default defineComponent({
                     }
                 }
                 if (this.isSet(cronExpressionArr[6])) {
-                    // @ts-ignore
                     this.selectedYear = cronExpressionArr[6].split('/')[1]
                 }
                 if (this.selectedYear) {
-                    if (this.selectedDayExtended)
-                        // @ts-ignore
+                    if (this.selectedDayExtended) {
                         this.yearConf = 'theOrdinalDay'
-                    // @ts-ignore
-                    else this.yearConf = 'theDay'
+                    } else this.yearConf = 'theDay'
                 } else {
                     if (this.selectedDay) {
-                        // @ts-ignore
                         this.dayConf = 'everyDay'
                     } else if (this.selectedMonth) {
                         if (this.selectedDayNumber) {
-                            // @ts-ignore
                             this.monthConf = 'theDay'
                         } else {
-                            // @ts-ignore
                             this.monthConf = 'theOrdinalDay'
                         }
                     }
@@ -659,6 +689,7 @@ export default defineComponent({
                 if (this.dayConf === 'everyDay') {
                     cronExpressionArr[3] = this.noSpecificValue
                     if (this.selectedDay && this.selectedDayExtended) {
+                        console.log(this.selectedDayExtended, this.selectedDay)
                         cronExpressionArr[5] = this.selectedDayExtended + '/' + this.selectedDay
                     }
                 } else if (this.dayConf === 'everyNotWorkingDays') {
@@ -670,8 +701,9 @@ export default defineComponent({
                 if (weekdayKeys.length > 0) {
                     const set = new Set()
                     for (const day in this.selectedWeekdays) {
-                        if (this.selectedWeekdays[day][0]) {
-                            set.add(this.selectedWeekdays[day][0].toUpperCase())
+                        if (this.selectedWeekdays[day]) {
+                            console.log('day', this.selectedWeekdays[day])
+                            set.add(this.selectedWeekdays[day])
                         }
                     }
                     t = Array.from(set).join(',')
@@ -712,6 +744,7 @@ export default defineComponent({
                 }
             }
             this.localCronExpression = cronExpressionArr.join(' ')
+            console.log('localCronExpression', this.localCronExpression)
             this.$emit('update:currentCronExpression', this.localCronExpression)
         },
         togglePause() {

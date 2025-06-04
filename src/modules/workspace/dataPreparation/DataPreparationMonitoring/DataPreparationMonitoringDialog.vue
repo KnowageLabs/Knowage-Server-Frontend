@@ -1,7 +1,6 @@
 <template>
     <Dialog class="p-fluid kn-dialog--toolbar--primary schedulerDialog" :visible="visibility" footer="footer" :header="$t('workspace.myData.monitoring')" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :closable="false" :base-z-index="1" :auto-z-index="true">
         <KnScheduler
-            class="p-m-1"
             :cron-expression="currentCronExpression"
             :cron-expression-type="cronExpressionType"
             :descriptor="schedulerDescriptor"
@@ -10,7 +9,8 @@
             :schedulation-enabled="schedulationEnabled"
             :schedulation-paused="schedulationPaused"
             :loading-logs="loadingLogs"
-            @touched="touched = true"
+            @validation-changed="handleValidationChanged"
+            @touched="handleTouched"
             @update:schedulationPaused="updateSchedulationPaused"
             @update:schedulationEnabled="updateSchedulationEnabled"
             @update:currentCronExpression="updateCurrentCronExpression"
@@ -19,7 +19,7 @@
         <template #footer>
             <Button :visible="visibility" class="kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="cancel" />
 
-            <Button :label="$t('common.save')" :visible="visibility" class="kn-button--primary" :disabled="!touched" data-test="save-button" @click="saveSchedulation" />
+            <Button :label="$t('common.save')" :visible="visibility" class="kn-button--primary" :disabled="!touched || !isFormValid" data-test="save-button" @click="saveSchedulation" />
         </template>
     </Dialog>
 </template>
@@ -56,7 +56,9 @@ export default defineComponent({
             schedulationPaused: false,
             schedulationEnabled: false,
             instanceId: '',
-            loadingLogs: false
+            loadingLogs: false,
+            isFormValid: true,
+            isDirty: false
         }
     },
     watch: {
@@ -84,9 +86,20 @@ export default defineComponent({
                         this.$http.get(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/process/logs/' + instance.id).then((response: AxiosResponse<any>) => {
                             this.logs = response.data
                         })
+                        if (this.currentCronExpression) {
+                            this.touched = true
+                        }
                     }
                 })
             }
+        },
+        handleValidationChanged(isValid) {
+            console.log('handleValidationChanged', isValid)
+            this.isFormValid = isValid
+        },
+        handleTouched() {
+            this.isDirty = true
+            this.touched = true
         },
         cancel() {
             if (this.touched) {
