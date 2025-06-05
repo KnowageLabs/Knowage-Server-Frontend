@@ -17,24 +17,29 @@
             <KnInputFile v-if="!uploading" label="" :change-function="uploadLicense" accept=".lic" :trigger-input="triggerUpload" />
         </template>
     </Toolbar>
-    <Listbox class="kn-list--column kn-list-no-border-right" :style="licenseDialogDescriptor.list.style" :options="licensesList">
-        <template #empty>{{ $t('licenseDialog.noLicenses') }}</template>
-        <template #option="slotProps">
-            <div class="kn-list-item" data-test="list-item">
-                <Avatar :image="`./images/licenseImages/${slotProps.option.product}.png`" size="medium" />
-                <div class="kn-list-item-text">
-                    <span>{{ slotProps.option.product }}</span>
-                    <span class="kn-list-item-text-secondary" :class="setLicenseClass(slotProps.option.status)">{{ licenseText(slotProps.option.status) }}</span>
+    <q-list class="rounded-borders" bordered>
+        <q-item v-for="(license, index) in licensesList" :key="index">
+            <q-item-section avatar class="col-1">
+                <q-avatar :label="license.product" square>
+                    <img :src="`${publicPath}/images/licenseImages/${license.product}.png`" />
+                </q-avatar>
+            </q-item-section>
+            <q-item-section class="col-3 q-pl-xs">
+                <span class="text-sm">{{ license.product }}</span>
+                <span class="text-sm" :class="setLicenseClass(license.status)">{{ licenseText(license.status) }}</span>
+            </q-item-section>
+            <q-item-section class="col-6 flex flex-row items-center justify-center">
+                <span>{{ $t('licenseDialog.licenseId') }}:</span>
+                <span>{{ license.licenseId }}</span>
+            </q-item-section>
+            <q-item-section class="col-2" side>
+                <div class="flex flex-row items-center justify-center gap-2">
+                    <q-btn v-tooltip.top="$t('licenseDialog.updateLicense')" class="gt-xs" size="12px" flat dense round icon="upload" @click="setUploadType(license.product, true)" />
+                    <q-btn v-tooltip.top="$t('common.delete')" class="gt-xs" size="12px" flat dense round icon="delete" @click="showDeleteDialog(license.product)" />
                 </div>
-                <div class="kn-list-item-text">
-                    <span class="kn-list-item-text-secondary">{{ $t('licenseDialog.licenseId') }}:</span>
-                    <span>{{ slotProps.option.licenseId }}</span>
-                </div>
-                <Button v-tooltip.top="$t('licenseDialog.changeLicense')" icon="pi pi-pencil" class="p-button-link" data-test="edit-button" @click="setUploadType(slotProps.option.product, true)" />
-                <Button v-tooltip.top="$t('licenseDialog.deleteLicense')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click="showDeleteDialog(slotProps.option.product)" />
-            </div>
-        </template>
-    </Listbox>
+            </q-item-section>
+        </q-item>
+    </q-list>
     <Dialog v-model:visible="displayWarning" header="Error">
         <p>{{ errorMessage }}</p>
         <template #footer>
@@ -44,7 +49,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, pushScopeId } from 'vue'
 import { iLicense, iHost } from './License'
 import licenseDialogDescriptor from './LicenseDialogDescriptor.json'
 import { AxiosResponse } from 'axios'
@@ -52,7 +57,6 @@ import Avatar from 'primevue/avatar'
 import Dialog from 'primevue/dialog'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
 import FabButton from '@/components/UI/KnFabButton.vue'
-import Listbox from 'primevue/listbox'
 import Tooltip from 'primevue/tooltip'
 import auth from '@/helpers/commons/authHelper'
 import mainStore from '../../../../App.store'
@@ -64,7 +68,6 @@ export default defineComponent({
         Avatar,
         Dialog,
         FabButton,
-        Listbox,
         KnInputFile
     },
     directives: {
@@ -94,7 +97,8 @@ export default defineComponent({
             existingLicenseName: '',
             isForUpdate: Boolean as any,
             uploading: false,
-            errorMessage: ''
+            errorMessage: '',
+            publicPath: import.meta.env.VITE_PUBLIC_PATH
         }
     },
     watch: {
@@ -126,7 +130,6 @@ export default defineComponent({
         licenseText(status: string) {
             return status === 'LICENSE_VALID' ? this.$t('licenseDialog.validLicense') : this.$t('licenseDialog.invalidLicense')
         },
-
         setUploadType(productName, value) {
             this.triggerUpload = false
             this.isForUpdate = value
@@ -216,7 +219,7 @@ export default defineComponent({
     padding: 0.5rem;
     border: 1px solid rgba(59, 103, 140, 0.1);
     background-color: #eaf0f6;
-    margin: 0 auto;
+    margin: 20px auto 0;
     width: 80%;
     display: flex;
     flex-direction: row;
