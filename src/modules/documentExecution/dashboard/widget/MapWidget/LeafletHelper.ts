@@ -51,8 +51,8 @@ export function getColumnName(column, data) {
 const createMarker = (position: number[] | string, settings: IMapWidgetVisualizationTypeMarker | IMapWidgetVisualizationTypeBalloons | null, colorFromConditionalStyles?: string | undefined, iconFromConditionalStyles?: string | undefined) => {
     const markerColor = colorFromConditionalStyles ?? settings?.style?.color
     const markerIcon = iconFromConditionalStyles ?? (settings as IMapWidgetVisualizationTypeMarker)?.icon?.className
-    const defaultMarkerSettings = { color: markerColor ?? '', fillColor: markerColor ?? '', radius: settings?.size || 10 }
-    if (!settings) return L.marker(position, defaultMarkerSettings)
+    const defaultMarkerSettings = { color: markerColor ?? '#0400f5ff', fillColor: markerColor ?? '#0400f5ff', radius: settings?.size || 10 }
+    if (!settings) return L.circleMarker(position, defaultMarkerSettings)
 
     let icon
 
