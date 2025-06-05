@@ -212,11 +212,12 @@ export default defineComponent({
     },
     async mounted() {
         this.setEventListeners()
-        if (!this.showDashboard || (!this.filtersLoaded && !this.newDashboardMode)) return
         if (this.isEnterprise) {
             await this.loadDashboardThemes()
             await this.loadPythonEnvironments()
         }
+        if (!this.showDashboard || (!this.filtersLoaded && !this.newDashboardMode)) return
+
         await this.getData()
         this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
     },
