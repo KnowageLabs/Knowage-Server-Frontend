@@ -161,12 +161,13 @@ export default defineComponent({
             this.checkTopLevelIframe(response.data)
             this.setConfigurations(response.data)
             this.checkOIDCSession(response.data)
+            await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
+                this.setLicenses(response.data)
+            })
+
             if (this.isEnterprise) {
                 if (Object.keys(this.defaultTheme.length === 0)) this.setDefaultTheme(this.themeHelper.getDefaultKnowageTheme())
 
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/license').then((response) => {
-                    this.setLicenses(response.data)
-                })
                 if (Object.keys(this.theme).length === 0) {
                     this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/thememanagement/current`).then((themes: any) => {
                         this.setTheme(themes.data.config)
