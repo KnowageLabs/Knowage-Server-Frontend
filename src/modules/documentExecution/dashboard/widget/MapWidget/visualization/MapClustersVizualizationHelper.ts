@@ -4,21 +4,7 @@ import { addMarkersOrClustersFromData, createMarkerForVisualization, getMappedDa
 import L from 'leaflet'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 
-export const addClusters = (
-    data: any,
-    model: IWidget,
-    target: IMapWidgetLayer,
-    dataColumn: string,
-    spatialAttribute: any,
-    geoColumn: string,
-    layerGroup: any,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    markerBounds: any[],
-    layersData: any,
-    targetDatasetData: any,
-    variables: IVariable[]
-) => {
-    const clusters = createClusterGroup(layerVisualizationSettings, target)
+export const addClusters = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], clusters: any) => {
     if (data && data[target.name]) {
         addClustersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, clusters, variables)
     } else {
@@ -26,7 +12,7 @@ export const addClusters = (
     }
 }
 
-const createClusterGroup = (layerVisualizationSettings: IMapWidgetVisualizationType, target: IMapWidgetLayer) => {
+export const createClusterGroup = (layerVisualizationSettings: IMapWidgetVisualizationType, target: IMapWidgetLayer) => {
     const defaultClusterConfiguration = mapWidgetDefaultValues.getDefaultVisualizationClusterConfiguration()
     const maxClusterRadius = layerVisualizationSettings.clusterConf?.maxClusterRadius ?? defaultClusterConfiguration.maxClusterRadius
     const clusterIconRadius = layerVisualizationSettings?.clusterConf?.radiusSize ?? defaultClusterConfiguration.radiusSize
@@ -82,19 +68,7 @@ const addClustersUsingLayers = (targetDatasetData: any | null, layersData: any, 
     layerGroup.addLayer(clusters)
 }
 
-const addClusterUsingLayersFeature = (
-    feature: ILayerFeature,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    mappedData: any,
-    layerGroup: any,
-    spatialAttribute: any,
-    widgetModel: IWidget,
-    markerBounds: any[],
-    clusters: any,
-    coord: any[] | null,
-    variables: IVariable[],
-    dataColumnIndex: string | null
-) => {
+const addClusterUsingLayersFeature = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], clusters: any, coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null) => {
     const marker = createMarkerForVisualization(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex)
     if (marker) clusters.addLayer(marker)
 }

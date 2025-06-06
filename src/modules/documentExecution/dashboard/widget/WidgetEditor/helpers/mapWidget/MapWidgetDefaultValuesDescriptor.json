@@ -93,7 +93,7 @@
     },
     "defaultVisualizationClusterConfiguration": {
         "enabled": false,
-        "maxClusterRadius": 30,
+        "maxClusterRadius": 10,
         "radiusSize": 30,
         "style": {
             "background-color": "rgba(0, 146, 255, 1)",
