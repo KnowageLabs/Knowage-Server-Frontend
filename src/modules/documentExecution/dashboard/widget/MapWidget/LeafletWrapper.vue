@@ -132,6 +132,7 @@ onMounted(async () => {
         handleLegendUpdated(legendData)
         setTimeout(() => {
             switchLayerVisibility(map, props.layerVisibility)
+            map.invalidateSize()
         }, 200)
     } catch (error: any) {
         console.log('------- ERROR"', error)
@@ -149,6 +150,7 @@ onUnmounted(() => {
 
 watch(props.layerVisibility, (newModel) => {
     switchLayerVisibility(map, newModel)
+    map.invalidateSize()
 })
 
 watch(

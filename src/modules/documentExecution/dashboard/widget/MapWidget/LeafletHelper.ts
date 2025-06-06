@@ -9,7 +9,7 @@ import { feature } from 'topojson-client'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { addMarkers } from './visualization/MapMarkersVizualizationHelper'
 import { addBaloonMarkers } from './visualization/MapBaloonsVizualizationHelper'
-import { addClusters } from './visualization/MapClustersVizualizationHelper'
+import { addClusters, createClusterGroup } from './visualization/MapClustersVizualizationHelper'
 import { addGeography } from './visualization/MapGeographyVizualizationHelper'
 import { createChoropleth } from './visualization/MapChoroplethVizualizationHelper'
 import { createHeatmapVisualization } from './visualization/MapHeatmapVizualizationHelper'
@@ -133,6 +133,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
     try {
         const markerBounds = [] as any
         const bounds = L.latLngBounds()
+        let clusters = null as any
         let centerMap = model.settings?.configuration?.map?.autoCentering
         for (const layer of model.settings.visualizations) {
             const layerVisualizationSettings = deepcopy(layer)
@@ -233,7 +234,8 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'clusters') {
-                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                clusters = createClusterGroup(layerVisualizationSettings, target)
+                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, clusters)
             }
 
             if (layerVisualizationSettings.type === 'heatmap') {
@@ -251,7 +253,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
         }
 
-        if (centerMap) centerTheMap(map, markerBounds, bounds)
+        if (centerMap) centerTheMap(map, markerBounds, bounds, clusters)
     } catch (error: any) {
         console.log('------- ERROR - initializeLayers:', error)
         // TODO - add if needed for user
@@ -264,13 +266,15 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
     }
 }
 
-const centerTheMap = (map: any, markerBounds: any[] | null, bounds: any) => {
+const centerTheMap = (map: any, markerBounds: any[] | null, bounds: any, clusters: any) => {
     setTimeout(() => {
         map.invalidateSize()
 
         const combinedBounds = L.latLngBounds([])
 
-        if (markerBounds && markerBounds.length > 0) {
+        if (clusters && clusters.getLayers().length > 0) {
+            combinedBounds.extend(clusters.getBounds()) // cluster-managed bounds
+        } else if (markerBounds && markerBounds.length > 0) {
             combinedBounds.extend(L.latLngBounds(markerBounds))
         }
 
@@ -280,6 +284,16 @@ const centerTheMap = (map: any, markerBounds: any[] | null, bounds: any) => {
 
         if (combinedBounds.isValid()) {
             map.fitBounds(combinedBounds)
+
+            const currentZoom = map.getZoom()
+            map.setZoom(currentZoom - 1)
+            setTimeout(() => map.setZoom(currentZoom), 50)
+        }
+
+        if (clusters) {
+            clusters.on('animationend', () => {
+                map.invalidateSize()
+            })
         }
 
         map.invalidateSize()

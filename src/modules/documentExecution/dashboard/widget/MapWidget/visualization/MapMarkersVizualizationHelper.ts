@@ -5,20 +5,7 @@ import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, a
 import { getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getTargetDataColumn, getTargetProperty, getVizualizationConditionalStyles, isConditionMet, transformDataUsingForeignKeyReturningAllColumns } from './MapVisualizationHelper'
 
 // Showing markers from the data using geoColumn for the dataset, and property for the layer features (only Points allowed)
-export const addMarkers = (
-    data: any,
-    model: IWidget,
-    target: IMapWidgetLayer,
-    dataColumn: string,
-    spatialAttribute: any,
-    geoColumn: string,
-    layerGroup: any,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    markerBounds: any[],
-    layersData: any,
-    targetDatasetData: any,
-    variables: IVariable[]
-) => {
+export const addMarkers = (data: any, model: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[]) => {
     if (data && data[target.name]) {
         addMarkersFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
     } else {
@@ -30,19 +17,7 @@ const addMarkersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetL
     addMarkersOrClustersFromData(data, widgetModel, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
 }
 
-export const addMarkersOrClustersFromData = (
-    data: any,
-    widgetModel: IWidget,
-    target: IMapWidgetLayer,
-    dataColumn: string,
-    spatialAttribute: any,
-    geoColumn: string,
-    layerGroup: any,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    markerBounds: any[],
-    variables: IVariable[],
-    clusters?: any
-) => {
+export const addMarkersOrClustersFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[], clusters?: any) => {
     for (const row of data[target.name].rows) {
         createAndAddMarkerFromData(row, data, widgetModel, target, layerVisualizationSettings, dataColumn, spatialAttribute, geoColumn, markerBounds, variables, layerGroup, clusters)
     }
@@ -50,20 +25,7 @@ export const addMarkersOrClustersFromData = (
     if (clusters) layerGroup.addLayer(clusters)
 }
 
-const createAndAddMarkerFromData = (
-    row: any,
-    data: any,
-    widgetModel: IWidget,
-    target: IMapWidgetLayer,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    dataColumn: string,
-    spatialAttribute: any,
-    geoColumn: string,
-    markerBounds: any[],
-    variables: IVariable[],
-    layerGroup: any,
-    clusters?: any
-) => {
+const createAndAddMarkerFromData = (row: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, dataColumn: string, spatialAttribute: any, geoColumn: string, markerBounds: any[], variables: IVariable[], layerGroup: any, clusters?: any) => {
     const dataColumnIndex = getTargetDataColumn(data[target.name], layerVisualizationSettings, dataColumn)
     const value = row[dataColumnIndex]
 
@@ -75,7 +37,7 @@ const createAndAddMarkerFromData = (
 
     addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
     addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
-    markerBounds.push(marker.getLatLng())
+    if (!clusters) markerBounds.push(marker.getLatLng())
 
     clusters ? clusters.addLayer(marker) : layerGroup.addLayer(marker)
 
@@ -116,18 +78,7 @@ const addMarkerUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     createMarkerForVisualization(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, coord, variables, dataColumnIndex)
 }
 
-export const createMarkerForVisualization = (
-    feature: ILayerFeature,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    mappedData: any,
-    layerGroup: any,
-    spatialAttribute: any,
-    widgetModel: IWidget,
-    markerBounds: any[],
-    coord: any[] | null,
-    variables: IVariable[],
-    dataColumnIndex: string | null
-) => {
+export const createMarkerForVisualization = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null) => {
     const { value } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
     const filter = layerVisualizationSettings.filter
