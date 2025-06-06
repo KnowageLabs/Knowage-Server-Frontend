@@ -17,22 +17,10 @@
             </div>
             <div class="kn-relative kn-flex p-m-2 registry-custom-card">
                 <div class="kn-height-full kn-width-full kn-absolute">
-                    <RegistryPivotDatatable
-                        v-if="isPivot"
-                        :id="id"
-                        :columns="columns"
-                        :rows="rows"
-                        :entity="entity"
-                        :prop-configuration="configuration"
-                        :prop-pagination="pagination"
-                        @rowChanged="onRowChanged"
-                        @rowDeleted="onRowDeleted"
-                        @pageChanged="updatePagination"
-                        @resetRows="updatedRows = []"
-                        @warningChanged="setWarningState"
-                    ></RegistryPivotDatatable>
+                    <RegistryPivotDatatable v-if="isPivot" :id="id" :columns="columns" :rows="rows" :entity="entity" :prop-configuration="configuration" :prop-pagination="pagination" @rowChanged="onRowChanged" @rowDeleted="onRowDeleted" @pageChanged="updatePagination" @resetRows="updatedRows = []" @warningChanged="setWarningState"></RegistryPivotDatatable>
                     <RegistryDatatable
                         v-else
+                        ref="registryDatatableRef"
                         :id="id"
                         :prop-columns="columns"
                         :prop-rows="rows"
@@ -221,14 +209,17 @@ export default defineComponent({
             index === -1 ? this.updatedRows.push(tempRow) : (this.updatedRows[index] = tempRow)
         },
         async saveRegistry() {
+            const datatableRef = this.$refs.registryDatatableRef as InstanceType<typeof RegistryDatatable>
+            if (datatableRef) datatableRef.stopGridEditing()
+
+            await new Promise((resolve) => setTimeout(resolve, 250))
+
             this.updatedRows.forEach((el: any) => {
                 if (this.isPivot) {
                     this.formatPivotRows(el)
                 }
-
                 ;['id', 'isNew', 'edited', 'uniqueId', 'isEdited'].forEach((property: string) => delete el[property])
             })
-
             const updatedRowsToIsoStrings = JSON.parse(JSON.stringify(this.updatedRows))
             updatedRowsToIsoStrings.forEach((el: any) => {
                 this.registry.metaData.fields.forEach((element) => {
@@ -236,7 +227,6 @@ export default defineComponent({
                         if (element.type === 'date') {
                             const date = new Date(formatDate(el[element.header], 'toISOString'))
                             const offset = new Date().getTimezoneOffset()
-
                             el[element.header] = new Date(date.getTime() - offset * 60000)
                         } else if (element.type === 'timestamp') {
                             el[element.header] = formatDate(el[element.header], 'toISOString')
@@ -244,7 +234,6 @@ export default defineComponent({
                     }
                 })
             })
-
             const postData = new URLSearchParams()
             postData.append('records', '' + JSON.stringify(updatedRowsToIsoStrings))
             await this.$http

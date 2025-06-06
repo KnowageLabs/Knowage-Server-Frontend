@@ -14,8 +14,7 @@
             />
             <label class="kn-material-input-label"> {{ filter.title }}</label>
         </span>
-        <span v-else-if="filter.presentation === 'COMBO'">
-            <label class="kn-material-input-label"> {{ filter.title }}</label>
+        <span v-else-if="filter.presentation === 'COMBO'" class="p-field p-float-label p-fluid kn-flex p-ml-2">
             <Dropdown v-model="v$.filter.filterValue.$model" class="kn-material-input" :options="options" option-value="value" option-label="label" :filter="true" @change="filterChanged" @click="loadFilterOptions">
                 <template #option="slotProps">
                     <div class="flex align-items-center">
@@ -23,6 +22,7 @@
                     </div>
                 </template>
             </Dropdown>
+            <label class="kn-material-input-label">{{ $t('common.type') }}</label>
         </span>
         <KnValidationMessages :v-comp="v$.filter.filterValue"></KnValidationMessages>
     </div>

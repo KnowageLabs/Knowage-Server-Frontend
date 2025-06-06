@@ -607,6 +607,9 @@ export default defineComponent({
         },
         clearSelectedRows() {
             this.selectedRows = []
+        },
+        stopGridEditing() {
+            if (this.gridApi) this.gridApi.stopEditing()
         }
     }
 })

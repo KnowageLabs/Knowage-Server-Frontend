@@ -11,7 +11,7 @@
             <div class="filter-container">
                 <form class="p-fluid p-formgrid p-grid fields-container" @submit="filterRegistry">
                     <template v-for="(filter, index) in filters" :key="index">
-                        <RegistryFilterCard :id="id" class="kn-flex p-mx-2" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" @changed="setFilterValue($event, index)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
+                        <RegistryFilterCard :id="id" class="kn-flex" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" @changed="setFilterValue($event, index)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
                     </template>
                 </form>
 
