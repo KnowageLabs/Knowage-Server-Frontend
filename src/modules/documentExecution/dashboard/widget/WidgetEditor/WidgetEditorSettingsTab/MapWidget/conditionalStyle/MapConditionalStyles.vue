@@ -3,14 +3,7 @@
         <div v-for="(conditionalStyle, index) in conditionalStylesModel.conditions" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center p-pt-2">
             <div class="dynamic-form-item p-grid p-col-12 p-ai-center">
                 <div v-show="dropzoneTopVisible[index]" class="p-col-12" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-                <div
-                    class="p-col-12 form-list-item-dropzone p-m-1"
-                    :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }"
-                    @drop.stop="onDropComplete($event, 'before', index)"
-                    @dragover.prevent
-                    @dragenter.prevent="displayDropzone('top', index)"
-                    @dragleave.prevent="hideDropzone('top', index)"
-                ></div>
+                <div class="p-col-12 form-list-item-dropzone p-m-1" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent="displayDropzone('top', index)" @dragleave.prevent="hideDropzone('top', index)"></div>
 
                 <div class="p-col-12 p-grid p-p-0" :draggable="!conditionalStylesDisabled" @dragstart.stop="onDragStart($event, index)">
                     <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center">
@@ -25,6 +18,7 @@
                             <div class="p-d-flex p-flex-column kn-flex p-p-2">
                                 <label class="kn-material-input-label">{{ $t('common.column') }}</label>
                                 <Dropdown v-model="conditionalStyle.targetColumn" class="kn-material-input" :options="getColumnOptionsFromLayer(conditionalStyle)" option-label="alias" option-value="name" :disabled="conditionalStylesDisabled"></Dropdown>
+                                <small>{{ $t('dashboard.widgetEditor.map.conditionalStylesColumnHint') }}</small>
                             </div>
                         </div>
                         <div class="p-d-flex p-flex-row p-ai-center">
@@ -61,13 +55,7 @@
                             </div>
                             <div v-if="conditionalStyle.condition.type === 'variable' && conditionalStyle.condition.variablePivotDatasetOptions" class="p-d-flex p-flex-column kn-flex">
                                 <label class="kn-material-input-label p-mr-2">{{ $t('common.key') }}</label>
-                                <Dropdown
-                                    v-model="conditionalStyle.condition.variableKey"
-                                    class="kn-material-input"
-                                    :options="conditionalStyle.condition.variablePivotDatasetOptions ? Object.keys(conditionalStyle.condition.variablePivotDatasetOptions) : []"
-                                    :disabled="conditionalStylesDisabled"
-                                    @change="onVariableKeyChanged(conditionalStyle)"
-                                ></Dropdown>
+                                <Dropdown v-model="conditionalStyle.condition.variableKey" class="kn-material-input" :options="conditionalStyle.condition.variablePivotDatasetOptions ? Object.keys(conditionalStyle.condition.variablePivotDatasetOptions) : []" :disabled="conditionalStylesDisabled" @change="onVariableKeyChanged(conditionalStyle)"></Dropdown>
                             </div>
                             <div class="icon-style-container p-pl-2 p-mt-4">
                                 <WidgetEditorStyleToolbar :options="descriptor.conditionsToolbarStyleOptions" :prop-model="conditionalStyle.properties" :disabled="conditionalStylesDisabled" @change="onStyleToolbarChange($event, conditionalStyle)"></WidgetEditorStyleToolbar>
@@ -80,14 +68,7 @@
                     </div>
                 </div>
 
-                <div
-                    class="p-col-12 form-list-item-dropzone p-m-1"
-                    :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }"
-                    @drop.stop="onDropComplete($event, 'after', index)"
-                    @dragover.prevent
-                    @dragenter.prevent="displayDropzone('bottom', index)"
-                    @dragleave.prevent="hideDropzone('bottom', index)"
-                ></div>
+                <div class="p-col-12 form-list-item-dropzone p-m-1" :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', index)" @dragleave.prevent="hideDropzone('bottom', index)"></div>
                 <div v-show="dropzoneBottomVisible[index]" class="p-col-12" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
             </div>
         </div>

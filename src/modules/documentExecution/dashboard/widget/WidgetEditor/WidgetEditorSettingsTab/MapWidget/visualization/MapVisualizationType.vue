@@ -56,7 +56,21 @@
                             :label="$t('common.measure')"
                             @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
                         ></q-select>
-
+                        <q-select
+                            v-if="visType.type !== 'geography' && visType.type !== 'pies' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
+                            filled
+                            dense
+                            class="col q-ml-sm"
+                            v-model="visType.targetDatasetForeignKeyColumn"
+                            :options="availableTargetDatasetColumns(visType.targetDataset || visType.target)"
+                            emit-value
+                            map-options
+                            option-value="name"
+                            option-label="name"
+                            options-dense
+                            :label="$t('dashboard.widgetEditor.map.targetDatasetColumn')"
+                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
+                        ></q-select>
                         <q-select
                             v-if="visType && getTargetLayerType(visType) === 'layer' && !['geography', 'pies'].includes(visType.type)"
                             filled
@@ -181,6 +195,10 @@ export default defineComponent({
         availableMeasures(dsName: string) {
             const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsName === layer.name || dsName === layer.layerId)
             return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
+        },
+        availableTargetDatasetColumns(dsName: string) {
+            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => dsName === layer.name || dsName === layer.layerId)
+            return targetDataset ? [...targetDataset.columns] : []
         },
         async loadPropertiesForVisualizationTypes() {
             await Promise.all(this.visualizationTypeModel.map((visTypeModel) => this.loadAvailableProperties(visTypeModel)))

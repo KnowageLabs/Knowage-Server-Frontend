@@ -64,8 +64,8 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
     if (targetDatasetData) {
         if (!layerVisualizationSettings.targetDataset) return
 
-        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
-        if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
+        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetDatasetForeignKeyColumn, targetDatasetData)
+        if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetDatasetForeignKeyColumn} is not present in the dataset`)
 
         mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
         fieldMetadata = getFieldMapFromMetadata(targetDatasetData)
@@ -84,18 +84,7 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
     return { charts: charts, type: LEGEND_DATA_TYPE.CHARTS }
 }
 
-const addChartsUsingLayersPoint = (
-    feature: ILayerFeature,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    mappedData: any,
-    layerGroup: any,
-    widgetModel: IWidget,
-    markerBounds: any[],
-    coord: any[] | null,
-    fieldMetadata: Record<string, string> | null,
-    variables: IVariable[],
-    charts: any[]
-) => {
+const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null, variables: IVariable[], charts: any[]) => {
     const chartValuesRecord = {} as ChartValuesRecord
 
     if (mappedData && fieldMetadata) {
