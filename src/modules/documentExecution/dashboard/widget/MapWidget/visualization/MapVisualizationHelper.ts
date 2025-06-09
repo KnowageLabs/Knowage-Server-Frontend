@@ -215,6 +215,8 @@ export const getRowValues = (row: any, dataColumn: string, layerVisualizationSet
 export const getFeatureValues = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, dataColumnIndex: string | null | undefined): { value: any; originalVisualizationTypeValue: any } => {
     const layerTargetProperty = mappedData ? layerVisualizationSettings.targetProperty : getTargetProperty(layerVisualizationSettings)
     const valueKey = feature.properties[layerTargetProperty]
+
+    if (!mappedData[valueKey]) return { value: null, originalVisualizationTypeValue: null }
     const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
 
     const originalVisualizationTypeValueKey = feature.properties[layerVisualizationSettings.targetProperty]

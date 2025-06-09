@@ -1142,6 +1142,7 @@
                     "title": "Classes method"
                 },
                 "classesNumber": "Classes number",
+                "conditionalStylesColumnHint": "Conditional styles apply only when the column is used in the visualization.",
                 "controlPanel": {
                     "alwaysShow": "Always show control panel",
                     "dimension": "Control Panel Dimension",
@@ -1212,6 +1213,7 @@
                 },
                 "range": "Range",
                 "rangeLabel": "Min size/Max size",
+                "targetDatasetColumn": "Target Dataset Column",
                 "toColor": "To color",
                 "toThreshold": "To (<)",
                 "tooltipHint": "The selected elements will be visible on mouse hover",

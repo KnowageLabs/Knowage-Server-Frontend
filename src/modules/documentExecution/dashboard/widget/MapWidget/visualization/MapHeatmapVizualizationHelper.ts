@@ -5,19 +5,7 @@ import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/Ma
 import L from 'leaflet'
 import 'leaflet.heat'
 
-export const createHeatmapVisualization = (
-    map: any,
-    data: any,
-    target: IMapWidgetLayer,
-    dataColumn: string,
-    spatialAttribute: any,
-    geoColumn: string,
-    layerVisualizationSettings: IMapWidgetVisualizationType,
-    layersData: any,
-    visualizationDataType: VisualizationDataType,
-    targetDatasetData: any,
-    centerMap: boolean = true
-) => {
+export const createHeatmapVisualization = (map: any, data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, layersData: any, visualizationDataType: VisualizationDataType, targetDatasetData: any, centerMap: boolean = true) => {
     if (!layerVisualizationSettings.heatmapConf) return
 
     if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
@@ -41,8 +29,8 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMa
 
         const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
         max = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
-        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetProperty, targetDatasetData)
-        if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetProperty} is not present in the dataset`)
+        const foreignKeyColumnName = getColumnName(layerVisualizationSettings.targetDatasetForeignKeyColumn, targetDatasetData)
+        if (!foreignKeyColumnName) throw Error(`Foreign key column ${layerVisualizationSettings.targetDatasetForeignKeyColumn} is not present in the dataset`)
 
         mappedData = transformDataUsingForeignKeyReturningAllColumns(targetDatasetData.rows, foreignKeyColumnName)
         dataColumnIndex = getTargetDataColumn(targetDatasetData, layerVisualizationSettings, dataColumn)

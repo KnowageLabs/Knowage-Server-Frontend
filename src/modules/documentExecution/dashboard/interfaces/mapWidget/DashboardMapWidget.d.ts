@@ -34,6 +34,7 @@ export interface IMapWidgetVisualizationType {
     target: string
     targetType?: string
     targetDataset?: string
+    targetDatasetForeignKeyColumn?: string
     targetMeasure?: any
     targetProperty?: any
     chartMeasures?: string[]

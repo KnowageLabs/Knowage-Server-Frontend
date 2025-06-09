@@ -273,7 +273,7 @@ const centerTheMap = (map: any, markerBounds: any[] | null, bounds: any, cluster
         const combinedBounds = L.latLngBounds([])
 
         if (clusters && clusters.getLayers().length > 0) {
-            combinedBounds.extend(clusters.getBounds()) // cluster-managed bounds
+            combinedBounds.extend(clusters.getBounds())
         } else if (markerBounds && markerBounds.length > 0) {
             combinedBounds.extend(L.latLngBounds(markerBounds))
         }

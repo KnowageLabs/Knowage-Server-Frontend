@@ -55,11 +55,11 @@ const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, laye
 
     // In the third use case (layer + external dataset), there are two dialogs:
     // one displaying the layer values and the other showing the values of the target dataset's foreign key column.
-    if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) {
+    if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetDatasetForeignKeyColumn) {
         const targetDatasetList = document.createElement('ul')
         targetDatasetList.classList.add('customLeafletPopup')
         targetDatasetList.append(createTooltipListHeader(layerVisualizationSettings.targetDataset))
-        targetDatasetList.append(createTooltipListItem(`${layerVisualizationSettings.targetProperty}: ${getTooltipHeaderValue(value, layerVisualizationSettings.targetProperty)}`, (settings as IMapDialogSettings).style))
+        targetDatasetList.append(createTooltipListItem(`${layerVisualizationSettings.targetDatasetForeignKeyColumn}: ${getTooltipHeaderValue(value, layerVisualizationSettings.targetDatasetForeignKeyColumn)}`, (settings as IMapDialogSettings).style))
         container.appendChild(targetDatasetList)
     }
 
@@ -78,7 +78,7 @@ const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, laye
 
 const getTooltipHeaderValue = (value: string | number | ChartValuesRecord, targetProperty: string | undefined) => {
     if (typeof value !== 'object') return value
-    if (targetProperty && value[targetProperty]?.value) return value[targetProperty].value
+    if (targetProperty && value?.[targetProperty]?.value) return value[targetProperty].value
     return ''
 }
 
