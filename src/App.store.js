@@ -16,6 +16,7 @@ const store = defineStore('store', {
             homePage: { loading: true },
             internationalization: [],
             isEnterprise: false,
+            isEnterpriseValid: false,
             licenses: {
                 hosts: [],
                 licenses: {},
@@ -30,7 +31,7 @@ const store = defineStore('store', {
     actions: {
         initializeUser(user) {
             this.setUser(user)
-            this.setEnterprise(user.enterprise)
+            this.setEnterprise(user.enterprise, user.enterpriseValid)
         },
 
         updateLicense(el) {
@@ -99,8 +100,9 @@ const store = defineStore('store', {
         setLicenses(licenses) {
             this.licenses = licenses
         },
-        setEnterprise(enterprise) {
+        setEnterprise(enterprise, enterpriseValid) {
             this.isEnterprise = enterprise
+            this.isEnterpriseValid = enterpriseValid
         },
         setDocumentExecutionEmbed() {
             this.documentExecution.embed = true
