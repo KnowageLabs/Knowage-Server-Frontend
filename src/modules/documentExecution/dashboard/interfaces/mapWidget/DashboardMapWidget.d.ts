@@ -38,6 +38,7 @@ export interface IMapWidgetVisualizationType {
     targetMeasure?: any
     targetProperty?: any
     chartMeasures?: string[]
+    targetDatasetMeasures?: string[]
     visible: boolean
     type: string
     markerConf?: IMapWidgetVisualizationTypeMarker

@@ -23,7 +23,6 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
 export const addDialogToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any) => {
     if (model.settings.dialog?.enabled) {
         const popup = createDialogFromDataset(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row)
-        marker.bindPopup(popup)
     }
 }
 
@@ -34,20 +33,20 @@ export const addTooltipToMarker = (data: any, model: IWidget, target: IMapWidget
     }
 }
 
-export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any) => {
+export const addDialogToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, foreignKeyValue?: string | null) => {
     if (!model.settings.dialog?.enabled) return
-    const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.dialog, value)
+    const popup = createDialogForLayerData(feature, false, layerVisualizationSettings, model.settings.dialog, value, foreignKeyValue)
     if (popup) marker.bindPopup(popup)
 }
 
-export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any) => {
+export const addTooltipToMarkerForLayerData = (feature: ILayerFeature, model: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, value: string | number | ChartValuesRecord, marker: any, foreignKeyValue?: string | null) => {
     if (!model.settings.tooltips?.enabled) return
-    const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value)
+    const tooltip = createDialogForLayerData(feature, true, layerVisualizationSettings, model.settings.tooltips, value, foreignKeyValue)
     if (tooltip) marker.bindTooltip(tooltip)
 }
 
 // Function that creates popup/tooltip for the maps that use layers as the target
-const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord) => {
+const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, layerVisualizationSettings: IMapWidgetVisualizationType, settings: IMapTooltipSettings | IMapDialogSettings, value: string | number | ChartValuesRecord, foreignKeyValue?: string | null) => {
     const container = document.createElement('div')
     const layersList = settings.layers.filter((layer: IMapTooltipSettingsLayer) => layer.name === layerVisualizationSettings.target) as any
 
@@ -59,7 +58,7 @@ const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, laye
         const targetDatasetList = document.createElement('ul')
         targetDatasetList.classList.add('customLeafletPopup')
         targetDatasetList.append(createTooltipListHeader(layerVisualizationSettings.targetDataset))
-        targetDatasetList.append(createTooltipListItem(`${layerVisualizationSettings.targetDatasetForeignKeyColumn}: ${getTooltipHeaderValue(value, layerVisualizationSettings.targetDatasetForeignKeyColumn)}`, (settings as IMapDialogSettings).style))
+        targetDatasetList.append(createTooltipListItem(`${layerVisualizationSettings.targetDatasetForeignKeyColumn}: ${getTooltipHeaderValue(value, layerVisualizationSettings.targetDatasetForeignKeyColumn, foreignKeyValue)}`, (settings as IMapDialogSettings).style))
         container.appendChild(targetDatasetList)
     }
 
@@ -76,7 +75,8 @@ const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, laye
     else return L.popup().setContent(container)
 }
 
-const getTooltipHeaderValue = (value: string | number | ChartValuesRecord, targetProperty: string | undefined) => {
+const getTooltipHeaderValue = (value: string | number | ChartValuesRecord, targetProperty: string | undefined, foreignKeyValue?: string | null) => {
+    if (foreignKeyValue) return foreignKeyValue
     if (typeof value !== 'object') return value
     if (targetProperty && value?.[targetProperty]?.value) return value[targetProperty].value
     return ''
