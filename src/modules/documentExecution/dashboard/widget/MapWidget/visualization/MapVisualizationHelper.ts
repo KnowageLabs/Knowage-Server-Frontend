@@ -216,7 +216,7 @@ export const getFeatureValues = (feature: ILayerFeature, layerVisualizationSetti
     const layerTargetProperty = mappedData ? layerVisualizationSettings.targetProperty : getTargetProperty(layerVisualizationSettings)
     const valueKey = feature.properties[layerTargetProperty]
 
-    if (!mappedData[valueKey]) return { value: null, originalVisualizationTypeValue: null }
+    if (mappedData && !mappedData[valueKey]) return { value: null, originalVisualizationTypeValue: null }
     const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
 
     const originalVisualizationTypeValueKey = feature.properties[layerVisualizationSettings.targetProperty]

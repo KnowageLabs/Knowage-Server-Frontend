@@ -63,6 +63,7 @@ const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSe
     if (value != null) validateNumber(value)
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    if (!coordinates) return
     if (coordinates?.length === 2) heatMapData.push([...coordinates.reverse(), value])
 }
 
@@ -75,6 +76,7 @@ const createHeatmapVisualizationFromData = (map: any, data: any, target: IMapWid
         const value = row[dataColumnIndex ?? dataColumn]
 
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
+        if (!coordinates) return
 
         if (value > max) max = value
         if (coordinates?.length === 2) heatMapData.push([...coordinates, value])

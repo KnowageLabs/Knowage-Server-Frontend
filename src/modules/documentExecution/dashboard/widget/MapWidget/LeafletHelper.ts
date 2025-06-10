@@ -102,7 +102,8 @@ export function getCoordinates(spatialAttribute: any, input: string, coord?: str
 }
 
 const getCoordinatesFromString = (spatialAttribute: any, input: string, coord?: string | null) => {
-    const [firstCoord, secondCoord] = input.split(' ')
+    const cleanInput = input.replace(/"/g, '').trim()
+    const [firstCoord, secondCoord] = cleanInput.split(' ')
     const isLatLon = spatialAttribute.properties.coordFormat === 'lat lon'
 
     if (coord === 'lon') return isLatLon ? secondCoord : firstCoord

@@ -57,7 +57,7 @@
                             @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
                         ></q-select>
                         <q-select
-                            v-if="visType.type !== 'geography' && visType.type !== 'pies' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
+                            v-if="visType.type !== 'geography' && visType.type !== 'pies' && visType.targetType === 'column' && visType.targetDataset"
                             filled
                             dense
                             class="col q-ml-sm"
@@ -254,6 +254,7 @@ export default defineComponent({
         },
         onDataLinkChange(dataLinkType: 'column' | 'property', visualization: IMapWidgetVisualizationType) {
             visualization.targetProperty = null
+            visualization.targetDatasetForeignKeyColumn = undefined
             if (dataLinkType === 'property') delete visualization.targetDataset
             this.updateMapWidgetLegendWithSepecificModel(visualization)
         },

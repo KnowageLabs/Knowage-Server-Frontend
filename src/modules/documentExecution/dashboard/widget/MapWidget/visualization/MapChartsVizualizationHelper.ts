@@ -103,6 +103,7 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     }
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    if (!coordinates) return
 
     const id = 'id-' + performance.now().toString(36) + Math.random().toString(36)
 
