@@ -229,6 +229,7 @@ const transformChartValuesDataToVegaData = (chartValuesRecord: ChartValuesRecord
 
     for (const key in chartValuesRecord) {
         const { value, measureName } = chartValuesRecord[key]
+        if (!value) return
 
         result.push({ category: measureName, value })
     }

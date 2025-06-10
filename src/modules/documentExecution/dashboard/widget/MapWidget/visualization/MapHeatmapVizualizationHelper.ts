@@ -58,9 +58,15 @@ const createHeatmapVisualizationLayers = (map: any, layersData: any, target: IMa
 
 const addHeatmapPointUsingLayers = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, heatMapData: number[][], coord: any[] | null, layerTargetProperty: string | null, dataColumnIndex: string | null | undefined) => {
     const valueKey = feature.properties[layerTargetProperty ?? layerVisualizationSettings.targetProperty]
-    const value = mappedData && dataColumnIndex ? mappedData[valueKey][dataColumnIndex] : valueKey
+    let value = null as string | number | null
+    if (mappedData && dataColumnIndex) {
+        value = mappedData[valueKey] ? mappedData[valueKey][dataColumnIndex] : null
+    } else {
+        value = valueKey
+    }
 
-    if (value != null) validateNumber(value)
+    if (!value) return
+    validateNumber(value)
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
     if (!coordinates) return

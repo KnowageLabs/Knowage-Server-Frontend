@@ -132,7 +132,8 @@ const addBaloonMarkerUsingLayersPointClassifedByRanges = (
 ) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
-    if (value != null) validateNumber(value)
+    if (!value) return
+    validateNumber(value)
 
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -164,6 +165,7 @@ const addBaloonMarkersClassifedByRangesFromData = (data: any, widgetModel: IWidg
 
     data[target.name].rows.forEach((row: any) => {
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
+        if (!value) return
 
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -255,7 +257,9 @@ export const getMappedDataAndQuantiles = (targetDatasetData: any, layersData: an
 const addBaloonMarkerUsingLayersPointClassifedByQuantils = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], quantiles: number[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null | undefined) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
-    if (value != null) validateNumber(value)
+    if (!value) return
+
+    validateNumber(value)
 
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -279,6 +283,7 @@ const addBaloonMarkersClassifedByQuantilsFromData = (data: any, widgetModel: IWi
 
     data[target.name].rows.forEach((row: any) => {
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
+        if (!value) return
 
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -387,7 +392,8 @@ const addBaloonMarkerUsingLayersPointClassifedByEqualIntervals = (
 ) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
-    if (value != null) validateNumber(value)
+    if (!value) return
+    validateNumber(value)
 
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -413,6 +419,7 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (data: any, widgetMode
 
     data[target.name].rows.forEach((row: any) => {
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
+        if (!value) return
 
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
