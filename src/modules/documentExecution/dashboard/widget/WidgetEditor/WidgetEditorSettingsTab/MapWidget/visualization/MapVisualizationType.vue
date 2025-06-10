@@ -57,7 +57,7 @@
                             @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
                         ></q-select>
                         <q-select
-                            v-if="visType.type !== 'geography' && visType.type !== 'pies' && visType.targetType === 'column' && visType.targetDataset"
+                            v-if="visType.type !== 'geography' && visType.targetType === 'column' && visType.targetDataset"
                             filled
                             dense
                             class="col q-ml-sm"

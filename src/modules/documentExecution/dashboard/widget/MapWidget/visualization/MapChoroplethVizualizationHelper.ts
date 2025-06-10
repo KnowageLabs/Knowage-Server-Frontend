@@ -132,7 +132,8 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
 ) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
-    if (value != null) validateNumber(value)
+    if (!value) return
+    validateNumber(value)
 
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -160,6 +161,7 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
 
     data[target.name].rows.forEach((row: any) => {
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
+        if (!value) return
 
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -260,7 +262,8 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
 ) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
-    if (value != null) validateNumber(value)
+    if (!value) return
+    validateNumber(value)
 
     const filter = layerVisualizationSettings.filter
     if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -288,6 +291,7 @@ const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any
 
     data[target.name].rows.forEach((row: any) => {
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
+        if (!value) return
 
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
@@ -365,6 +369,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
     const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
 
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
+    if (!value) return
 
     const filter = layerVisualizationSettings.filter
     if (value != null) validateNumber(value)
@@ -398,6 +403,7 @@ const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, 
     data[target.name].rows.forEach((row: any) => {
         if (!layerVisualizationSettings.analysisConf) return
         const { value, originalValue } = getRowValues(row, dataColumn, layerVisualizationSettings, data[target.name])
+        if (!value) return
 
         const filter = layerVisualizationSettings.filter
         if (filter?.enabled && !isConditionMet(filter, value)) return
