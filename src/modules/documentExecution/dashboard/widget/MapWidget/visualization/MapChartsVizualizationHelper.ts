@@ -87,14 +87,17 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
 const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null, variables: IVariable[], charts: any[]) => {
     const chartValuesRecord = {} as ChartValuesRecord
 
+    let foreignKeyValue = null as string | null
     if (mappedData && fieldMetadata) {
         const valueKey = feature.properties[layerVisualizationSettings.targetProperty]
         const mappedRow = mappedData[valueKey]
+        if (!mappedRow) return
+        foreignKeyValue = layerVisualizationSettings.targetDatasetForeignKeyColumn ? mappedRow[fieldMetadata[layerVisualizationSettings.targetDatasetForeignKeyColumn]] : ''
 
-        layerVisualizationSettings.chartMeasures?.forEach((chartMeasure: string) => {
-            const columnKey = fieldMetadata[chartMeasure]
+        layerVisualizationSettings.targetDatasetMeasures?.forEach((targetDatasetMeasure: string) => {
+            const columnKey = fieldMetadata[targetDatasetMeasure]
             const value = mappedRow[columnKey]
-            chartValuesRecord[chartMeasure] = { value: value, measureName: chartMeasure }
+            chartValuesRecord[targetDatasetMeasure] = { value: value, measureName: targetDatasetMeasure }
         })
     } else {
         layerVisualizationSettings.chartMeasures?.forEach((chartMeasure: string) => {
@@ -117,8 +120,8 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, widgetModel)
     charts.push(chart)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, foreignKeyValue)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, foreignKeyValue)
 
     markerBounds.push(marker.getLatLng())
 }
