@@ -254,6 +254,7 @@ export default defineComponent({
         },
         onDataLinkChange(dataLinkType: 'column' | 'property', visualization: IMapWidgetVisualizationType) {
             visualization.targetProperty = null
+            visualization.targetDatasetForeignKeyColumn = undefined
             if (dataLinkType === 'property') delete visualization.targetDataset
             this.updateMapWidgetLegendWithSepecificModel(visualization)
         },
