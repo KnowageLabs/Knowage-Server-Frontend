@@ -140,6 +140,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
     const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables)
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    if (!coordinates) return
     const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
     const color = colorGradients[getRangeIndexFromEqualIntervals(originalVisualizationTypeValue, minValue, maxValue, numberOfClasses)] ?? defaultChoroplethValues.style.color
 
@@ -166,6 +167,7 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
         const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
         if (!row[geoColumn]) return
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
+        if (!coordinates) return
         const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
         const color = colorGradients[getRangeIndexFromEqualIntervals(originalValue, valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, numberOfClasses)] ?? defaultChoroplethValues.style.color
 
@@ -266,6 +268,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
     const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables)
 
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    if (!coordinates) return
     const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
     const color = colorGradients[getQuantileIndex(quantiles, originalVisualizationTypeValue)] ?? defaultChoroplethValues.style.color
 
@@ -291,6 +294,7 @@ const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any
 
         const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
+        if (!coordinates) return
 
         const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
         const color = colorGradients[getQuantileIndex(quantiles, originalValue)] ?? defaultChoroplethValues.style.color
@@ -372,6 +376,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
 
     const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, originalVisualizationTypeValue, variables)
     const coordinates = coord ?? getCoordinatesFromWktPointFeature(feature)
+    if (!coordinates) return
     const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
 
     const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
@@ -402,6 +407,7 @@ const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, 
 
         const conditionalStyle = getConditionalStyleUsingTargetDataset(layerVisualizationSettings, widgetModel, value, variables)
         const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
+        if (!coordinates) return
         const polygonCoords = Array.isArray(coordinates) ? (coordinates as any).map((ring: any) => (Array.isArray(ring[0]) ? ring.map(([x, y]: [number, number]) => [y, x]) : [])) : []
 
         const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)

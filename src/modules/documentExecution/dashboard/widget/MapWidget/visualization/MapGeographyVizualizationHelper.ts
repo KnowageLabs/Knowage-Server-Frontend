@@ -14,7 +14,9 @@ export const addGeography = (data: any, target: IMapWidgetLayer, dataColumn: str
 
 const addGeograhyFromData = (data: any, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, markerBounds: any[]) => {
     for (const row of data[target.name].rows) {
-        const marker = addMarker(getCoordinates(spatialAttribute, row[geoColumn], null), layerGroup, null, row[dataColumn], spatialAttribute)
+        const coordinates = getCoordinates(spatialAttribute, row[geoColumn], null)
+        if (!coordinates) return
+        const marker = addMarker(coordinates, layerGroup, null, row[dataColumn], spatialAttribute)
         markerBounds.push(marker.getLatLng())
     }
 }
@@ -25,6 +27,7 @@ const addGeographyUsingLayers = (layersData: any, spatialAttribute: any, layerGr
         if (!type) return
         if (type === 'Point') {
             const coordinates = getCoordinatesFromWktPointFeature(feature)
+            if (!coordinates) return
             const marker = addMarker(coordinates.reverse(), layerGroup, null, 0, spatialAttribute)
             markerBounds.push(marker.getLatLng())
         } else if (type === 'MultiPoint') {
