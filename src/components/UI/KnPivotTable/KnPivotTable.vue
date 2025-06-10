@@ -1,58 +1,54 @@
 <template>
-    <table class="pivot-table" :style="descriptor.pivotStyles.table">
-        <thead>
-            <tr>
-                <th v-for="(column, index) of columns.slice(1)" :key="index" class="pivot-header" :style="descriptor.pivotStyles.header">
-                    {{ column.field }}
-                    <i v-if="column.isEditable && column.type !== 'merge' && column.columnInfo.type !== 'boolean'" class="pi pi-pencil edit-icon p-ml-2" />
-                </th>
-                <th class="pivot-header" :style="descriptor.pivotStyles.iconColumn" />
-            </tr>
-        </thead>
+    <div class="p-d-flex p-flex-column kn-height-full kn-width-full">
+        <div style="overflow: auto">
+            <table class="pivot-table" :style="descriptor.pivotStyles.table">
+                <thead>
+                    <tr>
+                        <th v-for="(column, index) of columns.slice(1)" :key="index" class="pivot-header" :style="descriptor.pivotStyles.header">
+                            {{ column.field }}
+                            <i v-if="column.isEditable && column.type !== 'merge' && column.columnInfo.type !== 'boolean'" class="pi pi-pencil edit-icon p-ml-2" />
+                        </th>
+                        <th class="pivot-header" :style="descriptor.pivotStyles.iconColumn" />
+                    </tr>
+                </thead>
 
-        <tr v-for="(row, index) of mappedRows" :key="index">
-            <template v-for="(column, i) of columns.slice(1)" :key="i">
-                <td v-if="row[column.field].rowSpan > 0" class="pivot-data" :rowspan="row[column.field].rowSpan" :style="descriptor.pivotStyles.row">
-                    <KnPivotTableEditableField
-                        v-if="column.isEditable && column.type !== 'merge'"
-                        :column="column"
-                        :prop-row="row"
-                        :combo-column-options="columnOptions"
-                        @rowChanged="setRowEdited(row)"
-                        @dropdownChanged="onDropdownChange"
-                        @dropdownOpened="$emit('dropdownOpened', $event)"
-                    ></KnPivotTableEditableField>
+                <tr v-for="(row, index) of mappedRows" :key="index">
+                    <template v-for="(column, i) of columns.slice(1)" :key="i">
+                        <td v-if="row[column.field].rowSpan > 0" class="pivot-data" :rowspan="row[column.field].rowSpan" :style="descriptor.pivotStyles.row">
+                            <KnPivotTableEditableField v-if="column.isEditable && column.type !== 'merge'" :column="column" :prop-row="row" :combo-column-options="columnOptions" @rowChanged="setRowEdited(row)" @dropdownChanged="onDropdownChange" @dropdownOpened="$emit('dropdownOpened', $event)"></KnPivotTableEditableField>
 
-                    <Checkbox v-else-if="column.editorType === 'TEXT' && column.columnInfo.type === 'boolean'" v-model="row[column.field].data" :binary="true" :disabled="!column.isEditable || column.type === 'merge'" @change="setRowEdited(row)"></Checkbox>
-                    <span v-if="!column.isEditable">
-                        <span v-if="row[column.field].data && column.columnInfo?.type === 'date'">
-                            {{ getFormattedDate(row[column.field].data, 'yyyy-MM-dd', getCurrentLocaleDefaultDateFormat(column)) }}
-                        </span>
-                        <span v-else-if="row[column.field].data && column.columnInfo?.type === 'timestamp'"> {{ getFormattedDateTime(row[column.field].data, { dateStyle: 'short', timeStyle: 'medium' }, true) }}</span>
+                            <Checkbox v-else-if="column.editorType === 'TEXT' && column.columnInfo.type === 'boolean'" v-model="row[column.field].data" :binary="true" :disabled="!column.isEditable || column.type === 'merge'" @change="setRowEdited(row)"></Checkbox>
+                            <span v-if="!column.isEditable">
+                                <span v-if="row[column.field].data && column.columnInfo?.type === 'date'">
+                                    {{ getFormattedDate(row[column.field].data, 'yyyy-MM-dd', getCurrentLocaleDefaultDateFormat(column)) }}
+                                </span>
+                                <span v-else-if="row[column.field].data && column.columnInfo?.type === 'timestamp'"> {{ getFormattedDateTime(row[column.field].data, { dateStyle: 'short', timeStyle: 'medium' }, true) }}</span>
 
-                        <span v-else>{{ row[column.field].data }}</span>
-                    </span>
-                </td>
-            </template>
-            <td class="pivot-data"><i v-if="row.edited" class="pi pi-flag" :style="descriptor.pivotStyles.iconColumn"></i></td>
-        </tr>
-    </table>
+                                <span v-else>{{ row[column.field].data }}</span>
+                            </span>
+                        </td>
+                    </template>
+                    <td class="pivot-data"><i v-if="row.edited" class="pi pi-flag" :style="descriptor.pivotStyles.iconColumn"></i></td>
+                </tr>
+            </table>
+        </div>
 
-    <Paginator
-        v-model:first="first"
-        :rows="numberOfRows"
-        :total-records="lazyParams.size"
-        :current-page-report-template="
-            $t('common.table.footer.paginated', {
-                first: '{first}',
-                last: '{last}',
-                totalRecords: '{totalRecords}'
-            })
-        "
-        paginator-template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        @page="onPage($event)"
-    ></Paginator>
-    <RegistryDatatableWarningDialog :visible="warningVisible" :columns="dependentColumns" @close="onWarningDialogClose"></RegistryDatatableWarningDialog>
+        <Paginator
+            v-model:first="first"
+            :rows="numberOfRows"
+            :total-records="lazyParams.size"
+            :current-page-report-template="
+                $t('common.table.footer.paginated', {
+                    first: '{first}',
+                    last: '{last}',
+                    totalRecords: '{totalRecords}'
+                })
+            "
+            paginator-template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+            @page="onPage($event)"
+        ></Paginator>
+        <RegistryDatatableWarningDialog :visible="warningVisible" :columns="dependentColumns" @close="onWarningDialogClose"></RegistryDatatableWarningDialog>
+    </div>
 </template>
 
 <script lang="ts">
