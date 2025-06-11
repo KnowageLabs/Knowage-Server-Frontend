@@ -43,7 +43,7 @@ export enum VisualizationDataType {
 }
 
 export function getColumnName(column, data) {
-    return data?.metaData?.fields?.find((field) => field.header === column).name
+    return data?.metaData?.fields?.find((field) => field.header === column)?.name ?? ''
 }
 
 // Used for adding a marker to Leaflet. If there is no MEASURE data (e.g., when only Geography is needed),
