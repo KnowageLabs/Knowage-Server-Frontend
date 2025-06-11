@@ -227,6 +227,7 @@ export default defineComponent({
                             if (response.status === 200) {
                                 const responseURL = new URL(response.request.responseURL)
                                 if (responseURL.searchParams.get('error')) auth.logout()
+                                if (configs['oidc.session.polling.errorMessage'] && response.data === configs['oidc.session.polling.errorMessage']) auth.logout()
                             }
                         })
                         .catch((error) => {
