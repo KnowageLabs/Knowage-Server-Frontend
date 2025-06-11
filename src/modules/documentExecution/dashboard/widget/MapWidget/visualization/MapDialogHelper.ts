@@ -23,13 +23,14 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
 export const addDialogToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any) => {
     if (model.settings.dialog?.enabled) {
         const popup = createDialogFromDataset(false, layerVisualizationSettings, model.settings.dialog, data[target.name], row)
+        if (popup) marker.bindPopup(popup)
     }
 }
 
 export const addTooltipToMarker = (data: any, model: IWidget, target: IMapWidgetLayer, layerVisualizationSettings: IMapWidgetVisualizationType, row: any, marker: any) => {
     if (model.settings.tooltips?.enabled) {
         const tooltip = createDialogFromDataset(true, layerVisualizationSettings, model.settings.tooltips, data[target.name], row)
-        marker.bindTooltip(tooltip)
+        if (tooltip) marker.bindTooltip(tooltip)
     }
 }
 
