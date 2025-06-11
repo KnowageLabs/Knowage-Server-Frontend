@@ -219,7 +219,8 @@ export default defineComponent({
                     decrypt: false,
                     subjectId: false,
                     aliasToShow: calcFieldOutput.colName,
-                    formula: calcFieldOutput.formula
+                    formula: calcFieldOutput.formula,
+                    isCalculatedField: true
                 }
                 this.fields.push(newCalculatedField)
             }
