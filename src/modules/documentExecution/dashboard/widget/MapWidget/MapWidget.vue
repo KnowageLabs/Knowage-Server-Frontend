@@ -36,21 +36,7 @@
                                         <span class="col">{{ visualization.layerName }}</span>
                                     </div>
                                     <div class="row items-center" v-if="visualization.filter?.enabled">
-                                        <q-select
-                                            filled
-                                            class="col-4 q-mr-xs"
-                                            v-model="visualization.filter.column"
-                                            :options="getColumnOptionsFromLayer(visualization)"
-                                            dense
-                                            options-dense
-                                            stack-label
-                                            emit-value
-                                            map-options
-                                            option-label="alias"
-                                            option-value="name"
-                                            :label="$t('common.column')"
-                                            @update:modelValue="onFilterColumnChanged(visualization)"
-                                        />
+                                        <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.column" :options="getColumnOptionsFromLayer(visualization)" dense options-dense stack-label emit-value map-options option-label="alias" option-value="name" :label="$t('common.column')" @update:modelValue="onFilterColumnChanged(visualization)" />
                                         <q-select filled class="col-4 q-mr-xs" v-model="visualization.filter.operator" :options="['=', '>', '<']" dense options-dense stack-label :label="$t('common.operator')" @update:modelValue="onFilterUpdated(visualization)" />
                                         <q-input type="number" filled class="col" v-model="visualization.filter.value" dense options-dense stack-label :label="$t('common.value')" @blur="onFilterUpdated(visualization)" />
                                         <q-btn v-if="visualization.filter.column || visualization.filter.operator || visualization.filter.value" flat round class="option-button col-2" color="black" size="xs" icon="backspace" @click="resetFilter(visualization)">
@@ -69,7 +55,7 @@
 
 <script lang="ts">
 import { mapActions } from 'pinia'
-import { IDashboardDataset, ISelection, IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IDashboardDataset, ISelection, IVariable, IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { defineComponent, PropType } from 'vue'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -185,7 +171,7 @@ export default defineComponent({
             else {
                 const layer = this.widgetModel.layers.find((layer: any) => layer.layerId === visualization.target)
                 if (!layer) return []
-                else if (layer.type === 'dataset') return layer.columns
+                else if (layer.type === 'dataset') return layer.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE')
                 else return this.propertiesCache.get(layer.layerId) ?? []
             }
         },
