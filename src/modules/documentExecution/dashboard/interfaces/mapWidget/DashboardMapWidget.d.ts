@@ -7,9 +7,33 @@ export interface IMapWidgetSettings {
     legend: IMapWidgetLegend
     dialog: IMapDialogSettings
     tooltips: IMapTooltipSettings
-    interactions: IWidgetInteractions
+    interactions: IMapWidgetInteractions
     style: IMapWidgetStyle
     responsive: IWidgetResponsive
+}
+
+export interface IMapWidgetInteractions {
+    selection?: IMapWidgetSelectionConfiguration
+    crossNavigation: IMapWidgetCrossNavigation
+}
+
+export interface IMapWidgetSelectionConfiguration {
+    enabled: boolean
+    selections: IMapWidgetSelection[]
+}
+
+export interface IMapWidgetSelection {
+    vizualizationType: IMapWidgetVisualizationType | null
+    column: string | null
+}
+export interface IMapWidgetCrossNavigation {
+    enabled: boolean
+    type: string
+    column: string
+    icon?: string
+    label?: string
+    name: string
+    parameters: IWidgetInteractionParameter[]
 }
 
 export interface IMapWidgetConfiguration {

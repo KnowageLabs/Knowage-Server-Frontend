@@ -1,12 +1,10 @@
-import { IMapWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetSelectionConfiguration, IMapWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import * as mapWidgetDefaultValues from './MapWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
 
 export const createNewMapWidgetSettings = () => {
     return {
-        updatable: true,
-        clickable: true,
         configuration: {
             map: mapWidgetDefaultValues.getDefaultMapLayerSettings(),
             controlPanel: mapWidgetDefaultValues.getDefaultControlPanelSettings(),
@@ -18,9 +16,7 @@ export const createNewMapWidgetSettings = () => {
         dialog: mapWidgetDefaultValues.getDefaultDialogSettings(),
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
-            link: widgetCommonDefaultValues.getDefaultLinks(),
-            preview: widgetCommonDefaultValues.getDefaultPreview(),
-            selection: { enabled: true }
+            selection: { enabled: true, selections: [] } as IMapWidgetSelectionConfiguration
         },
         style: {
             themeId: null,

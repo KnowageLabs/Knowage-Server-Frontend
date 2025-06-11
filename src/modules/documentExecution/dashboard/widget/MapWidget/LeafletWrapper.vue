@@ -121,6 +121,10 @@ onMounted(async () => {
         zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10
     })
 
+    // map.on('click', (event: any) => {
+    //     console.log('------- CLICK EVENT: ', event)
+    // })
+
     tile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
     }).addTo(map)
@@ -134,6 +138,12 @@ onMounted(async () => {
             switchLayerVisibility(map, props.layerVisibility)
             map.invalidateSize()
         }, 200)
+
+        map?.eachLayer((layer: any) => {
+            layer.on('click', (e) => console.log('Layer ', e))
+        })
+
+        console.log('------- MAP: ', map)
     } catch (error: any) {
         console.log('------- ERROR"', error)
         appStore.setError({
