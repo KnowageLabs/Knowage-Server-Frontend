@@ -278,6 +278,7 @@ export interface IWidgetMapLayerColumn {
     aggregationSelected?: string
     deleted?: boolean
     formula?: string
+    isCalculatedField?: boolean
 }
 
 export interface ILayerFeature {

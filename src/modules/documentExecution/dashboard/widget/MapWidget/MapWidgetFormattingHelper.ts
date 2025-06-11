@@ -24,6 +24,10 @@ const formatLayerColumnIfDatasetChanged = (widget: IWidget, datasets: IDataset[]
                     updatedColumns.push(metaColumn as IWidgetMapLayerColumn)
                 }
             })
+
+            existingColumns.forEach((column: IWidgetMapLayerColumn) => {
+                if (column.isCalculatedField) updatedColumns.push(column)
+            })
             layer.columns = updatedColumns
 
             const columnsForDelete = layer.columns?.filter((layerColumn: IWidgetMapLayerColumn) => !layerAsDataset.metadata.fieldsMeta.some((datasetColumn: IDatasetColumn) => datasetColumn.name === layerColumn.name))
@@ -48,7 +52,7 @@ export const setDefaultMeasureValuesForMapWidgetColumns = (widgetModel: IWidget)
     widgetModel?.layers?.forEach((layer: IMapWidgetLayer) => {
         if (layer.type !== 'dataset') return
         layer.columns?.forEach((column: IWidgetMapLayerColumn) => {
-            if (column.fieldType === 'MEASURE' && !column.aggregationSelected) column.aggregationSelected = 'SUM'
+            if (column.fieldType === 'MEASURE' && !column.aggregationSelected && !column.isCalculatedField) column.aggregationSelected = 'SUM'
         })
     })
 }
