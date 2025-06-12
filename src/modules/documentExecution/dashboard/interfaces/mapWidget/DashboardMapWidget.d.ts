@@ -28,11 +28,13 @@ export interface IMapWidgetSelection {
 }
 export interface IMapWidgetCrossNavigation {
     enabled: boolean
-    type: string
-    column: string
-    icon?: string
-    label?: string
     name: string
+    crossNavigationVizualizationTypes: IMapWidgetCrossNavigationVisualizationTypeConfig[]
+}
+
+export interface IMapWidgetCrossNavigationVisualizationTypeConfig {
+    vizualizationType: IMapWidgetVisualizationType | null
+    column: string | null
     parameters: IWidgetInteractionParameter[]
 }
 

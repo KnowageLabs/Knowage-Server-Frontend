@@ -17,7 +17,7 @@
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
                 <MapWidgetSelectionsConfiguration v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></MapWidgetSelectionsConfiguration>
-                <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
+                <MapWidgetCrossNavigationConfiguration v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetCrossNavigationConfiguration>
                 <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
                 <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
                 <WidgetVisType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel" />
@@ -48,7 +48,7 @@ import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
 import MapWidgetSelectionsConfiguration from './interactions/MapWidgetSelectionsConfiguration.vue'
-import WidgetCrossNavigation from '../common/interactions/crossNavigation/WidgetCrossNavigation.vue'
+import MapWidgetCrossNavigationConfiguration from './interactions/MapWidgetCrossNavigationConfiguration.vue'
 import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteractionsLinks.vue'
 import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
@@ -79,7 +79,6 @@ export default defineComponent({
         MapWidgetSelectionsConfiguration,
         WidgetPaddingStyle,
         WidgetBackgroundColorStyle,
-        WidgetCrossNavigation,
         WidgetInteractionsLinks,
         WidgetPreview,
         MapSettingsAccordionHeader,
@@ -94,6 +93,7 @@ export default defineComponent({
         Message,
         WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
+        MapWidgetCrossNavigationConfiguration,
         WidgetHelpSettings
     },
     props: {

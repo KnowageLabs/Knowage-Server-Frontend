@@ -31,6 +31,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType, IMapWidgetLayer, IMapWidgetSelection } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 
 export default defineComponent({
     name: 'map-widget-selections-configuration',
@@ -59,14 +60,22 @@ export default defineComponent({
         }
     },
     created() {
+        this.setEventListeners()
         this.loadSelectionConfiguration()
     },
+    unmounted() {
+        this.removeEventListeners()
+    },
     methods: {
+        setEventListeners() {
+            emitter.on('mapFieldsUpdated', this.loadSelectionConfiguration)
+        },
+        removeEventListeners() {
+            emitter.off('mapFieldsUpdated', this.loadSelectionConfiguration)
+        },
         loadSelectionConfiguration() {
             this.selectionConfiguration = this.widgetModel?.settings?.interactions?.selection ?? null
             if (this.selectionConfiguration?.selections?.length === 0) this.selectionConfiguration?.selections.push({ vizualizationType: null, column: '' })
-            console.log('----- LOADED widgetModel: ', this.widgetModel)
-            console.log('----- LOADED selectionConfiguration: ', this.selectionConfiguration)
             this.loadVisualizationTypeOptions()
         },
         loadVisualizationTypeOptions() {
@@ -76,7 +85,6 @@ export default defineComponent({
                 const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.target)
                 if (mapLayer && mapLayer.type === 'dataset') this.visualizationTypeOptions.push(visualization)
             })
-            console.log('----- LOADED visualizationTypeOptions: ', this.visualizationTypeOptions)
         },
         availableAttributeColumns(vizualizationType: IMapWidgetVisualizationType | null) {
             if (!vizualizationType) return null
@@ -84,11 +92,11 @@ export default defineComponent({
             return mapLayer && mapLayer.type === 'dataset' ? mapLayer.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE') : []
         },
         addSelectionConfiguration() {
-            if (!this.selectionsDisabled) return
+            if (this.selectionsDisabled) return
             if (this.selectionConfiguration) this.selectionConfiguration.selections.push({ vizualizationType: null, column: '' })
         },
         removeSelectionConfiguration(index: number) {
-            if (!this.selectionsDisabled) return
+            if (this.selectionsDisabled) return
             if (this.selectionConfiguration) this.selectionConfiguration.selections.splice(index, 1)
         },
         getFilteredVisualizationTypeOptions(currentIndex: number) {
