@@ -1,68 +1,9 @@
 <template>
     <Dialog class="p-fluid kn-dialog--toolbar--primary dataPreparationSaveDialog" :visible="visibility" footer="footer" :header="$t('managers.workspaceManagement.dataPreparation.savePreparedDataset')" :closable="false" modal>
-        <div class="p-grid p-m-0">
-            <div class="p-col-12">
-                <div class="p-d-flex">
-                    <span class="p-float-label kn-flex p-mr-2">
-                        <InputText
-                            v-model.trim="v$.preparedDataset.name.$model"
-                            class="kn-material-input"
-                            type="text"
-                            :disabled="!isFirstSave"
-                            :class="{
-                                'p-invalid': v$.preparedDataset.name.$invalid
-                            }"
-                            max-length="100"
-                            @change="touched = true"
-                        />
-                        <label class="kn-material-input-label" for="label">{{ $t('managers.workspaceManagement.dataPreparation.dataset.name') }}</label>
-                        <KnValidationMessages
-                            :v-comp="v$.preparedDataset.name"
-                            :additional-translate-params="{
-                                fieldName: $t('managers.configurationManagement.headers.name')
-                            }"
-                        ></KnValidationMessages>
-                    </span>
-                </div>
-
-                <span class="p-float-label">
-                    <Textarea
-                        v-model.trim="v$.preparedDataset.description.$model"
-                        class="kn-material-input p-mb-1"
-                        type="text"
-                        :disabled="!isFirstSave"
-                        :class="{
-                            'p-invalid': v$.preparedDataset.description.$invalid
-                        }"
-                        rows="3"
-                        max-length="10000"
-                        @blur="touched = true"
-                    />
-                    <label class="kn-material-input-label" for="label">{{ $t('managers.workspaceManagement.dataPreparation.dataset.description') }}</label>
-                    <KnValidationMessages
-                        :v-comp="v$.preparedDataset.description"
-                        :additional-translate-params="{
-                            fieldName: $t('managers.configurationManagement.headers.description')
-                        }"
-                    ></KnValidationMessages>
-                </span>
-            </div>
-            <div class="schedulerContainer">
-                <KnScheduler
-                    class="p-m-1"
-                    :cron-expression="currentCronExpression"
-                    :cron-expression-type="cronExpressionType"
-                    :descriptor="schedulerDescriptor"
-                    :logs-visible="false"
-                    :schedulation-enabled="schedulationEnabled"
-                    :schedulation-paused="schedulationPaused"
-                    @touched="touched = true"
-                    @update:schedulationPaused="updateSchedulationPaused"
-                    @update:schedulationEnabled="updateSchedulationEnabled"
-                    @update:currentCronExpression="updateCurrentCronExpression"
-                    @update:cronExpressionType="updateCronExpressionType"
-                />
-            </div>
+        <div class="row q-col-gutter-sm q-mt-sm">
+            <q-input v-model.trim="v$.preparedDataset.name.$model" class="col-12" :disabled="!isFirstSave" maxLength="100" filled :label="$t('common.name') + '*'" :error="v$.preparedDataset.name.$invalid && v$.preparedDataset.name.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.name') })" />
+            <q-input v-model.trim="v$.preparedDataset.description.$model" type="textarea" class="col-12" rows="2" :disabled="!isFirstSave" maxLength="500" filled :label="$t('common.description')" />
+            <KnScheduler class="col-12" :cron-expression="currentCronExpression" :cron-expression-type="cronExpressionType" :logs-visible="false" :schedulation-paused="schedulationPaused" @update:schedulationPaused="updateSchedulationPaused" @update:currentCronExpression="updateCurrentCronExpression" @update:cronExpressionType="updateCronExpressionType" />
         </div>
         <template #footer>
             <Button class="kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="cancel" />
@@ -193,10 +134,8 @@ export default defineComponent({
             toReturn['config'] = {}
             toReturn['config']['paused'] = this.schedulationPaused
 
-            if (this.schedulationEnabled) {
-                toReturn['config']['cron'] = this.currentCronExpression
-                toReturn['config']['type'] = this.cronExpressionType
-            }
+            toReturn['config']['cron'] = this.currentCronExpression
+            toReturn['config']['type'] = this.cronExpressionType
 
             toReturn['dataSetLabel'] = this.originalDataset.label
             toReturn['dataSetId'] = this.originalDataset.id
@@ -261,9 +200,6 @@ export default defineComponent({
 
         updateSchedulationPaused(newSchedulationPaused) {
             this.schedulationPaused = newSchedulationPaused
-        },
-        updateSchedulationEnabled(newSchedulationEnabled) {
-            this.schedulationEnabled = newSchedulationEnabled
         },
         updateCurrentCronExpression(newCronExpression) {
             this.currentCronExpression = newCronExpression
