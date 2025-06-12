@@ -6,9 +6,9 @@ export function generateCron(schedulation) {
     else {
         const minutes = schedulation.refreshTime.split(':')[1] ? schedulation.refreshTime.split(':')[1] : 0
         const hours = schedulation.refreshTime.split(':')[0] ? schedulation.refreshTime.split(':')[0] : 0
-        const dayOfMonth = schedulation.refreshDay || '*'
+        const dayOfMonth = schedulation.refreshRate != 'monthly' ? '?' : schedulation.refreshDay || '*'
         const month = schedulation.refreshMonth || '*'
-        const dayOfWeek = schedulation.refreshDays.length > 0 ? schedulation.refreshDays.join(',') : '*'
+        const dayOfWeek = ['monthly', 'yearly'].includes(schedulation.refreshRate) ? '?' : schedulation.refreshDays.length > 0 ? schedulation.refreshDays.join(',') : '*'
 
         return `0 ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`
     }
@@ -35,19 +35,10 @@ export function cronToNumber(cronString, property) {
         if (property === 'time') return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
         if (property === 'days') {
             const fields = cronString.split(' ')
-            const weekDaysField = fields[4]
+            const weekDaysField = fields[5]
             if (!weekDaysField || weekDaysField === '*') return []
-            const weekDaysMap = {
-                '0': 'sun',
-                '1': 'mon',
-                '2': 'tue',
-                '3': 'wed',
-                '4': 'thu',
-                '5': 'fri',
-                '6': 'sat'
-            }
 
-            return weekDaysField.split(',').map((day) => weekDaysMap[day] || `Sconosciuto (${day})`)
+            return weekDaysField.split(',')
         }
         if (property === 'day') return date.getDay()
         if (property === 'month') return date.getMonth() + 1

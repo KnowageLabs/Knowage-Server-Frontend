@@ -7,7 +7,7 @@
             </q-toolbar>
             <q-card-section>
                 <div class="row q-col-gutter-sm">
-                    <q-select class="col-12" v-model="schedulation.refreshRate" :label="$t(KnSchedulerDescriptor.refreshRate.label)" :options="KnSchedulerDescriptor.refreshRate.options" :option-label="(option) => (option.name ? $t(option.name) : '')" option-value="code" map-options emit-value filled dense :disable="props.readOnly" @update:model-value="resetSchedulation" />
+                    <q-select class="col-12" v-model="schedulation.refreshRate" :label="$t(KnSchedulerDescriptor.refreshRate.label)" :options="KnSchedulerDescriptor.refreshRate.options" :option-label="(option) => (option.name ? $t(option.name) : '')" option-value="code" map-options emit-value filled dense :disable="props.readOnly" @update:model-value="updateSchedulationType" />
                     <div v-if="schedulation.refreshRate === 'daily'" class="row col-12 q-gutter-sm">
                         <q-btn-group class="col-12" push spread> <q-btn v-for="day in KnSchedulerDescriptor.days" :key="day.code" :label="$t(`locale.dayNamesMin[${day.id}]`)" :disable="props.readOnly" :color="schedulation.refreshDays.includes(day.code) ? 'primary' : 'white'" :text-color="schedulation.refreshDays.includes(day.code) ? 'white' : 'primary'" @click="toggleDay(day.code)" /> </q-btn-group>
                     </div>
@@ -100,6 +100,11 @@ function toggleDay(day: string) {
     }
 }
 
+function updateSchedulationType(value: string) {
+    emit('update:cronExpressionType', value)
+    resetSchedulation()
+}
+
 function formatDate(date: Date) {
     return new Intl.DateTimeFormat(localStorage.getItem('locale').replace('_', '-'), {
         dateStyle: 'long',
@@ -124,7 +129,7 @@ const stopPropsWatcher = watch(
             schedulation.refreshMonth = cronToNumber(newValue, 'month') || ''
             schedulation.refreshTime = cronToNumber(newValue, 'time') || ''
             schedulation.refreshRate = props.cronExpressionType || ''
-            schedulation.custom = ''
+            schedulation.custom = props.cronExpressionType === 'custom' ? newValue : ''
 
             stopPropsWatcher()
         }

@@ -169,16 +169,7 @@ export default defineComponent({
             return toReturn
         },
         cancel() {
-            if (this.touched) {
-                this.$confirm.require({
-                    message: this.$t('common.toast.unsavedChangesHeader'),
-                    header: this.$t('common.toast.unsavedChangesMessage'),
-                    icon: 'pi pi-exclamation-triangle',
-                    accept: () => this.resetAndClose()
-                })
-            } else {
-                this.resetAndClose()
-            }
+            this.resetAndClose()
         },
         resetAndClose(): void {
             this.cronExpressionType = this.preparedDsMeta.config?.type
