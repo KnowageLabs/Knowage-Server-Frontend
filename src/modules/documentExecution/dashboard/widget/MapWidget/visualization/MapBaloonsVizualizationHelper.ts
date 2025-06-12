@@ -1,4 +1,4 @@
-import { IVariable, IWidget } from '../../../Dashboard'
+import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { addMarker, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
@@ -40,43 +40,45 @@ export const addBaloonMarkers = (
     layersData: any,
     visualizationDataType: VisualizationDataType,
     targetDatasetData: any,
-    variables: IVariable[]
+    variables: IVariable[],
+    activeSelections: ISelection[],
+    dashboardId: string
 ) => {
     if (!layerVisualizationSettings.balloonConf) return
     switch (layerVisualizationSettings.balloonConf.method) {
         case 'CLASSIFY_BY_RANGES':
             // We use user defined value ranges to determine what size (depending also on number of ranges) and color should each balloon value have
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
-                return addBaloonMarkersClassifedByRangesUsingLayers(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables)
+                return addBaloonMarkersClassifedByRangesUsingLayers(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
             } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
-                return addBaloonMarkersClassifedByRangesUsingLayers(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, targetDatasetData, dataColumn)
+                return addBaloonMarkersClassifedByRangesUsingLayers(layersData, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId, targetDatasetData, dataColumn)
             } else {
-                return addBaloonMarkersClassifedByRangesFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
+                return addBaloonMarkersClassifedByRangesFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
             }
             break
         // We divide the value array into user defined number of subarrays, each having the same number of elements, and determine the balloon size depending where the value fits
         case 'CLASSIFY_BY_QUANTILS':
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
-                return addBaloonMarkersClassifedByQuantilsUsingLayers(null, layersData, null, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables)
+                return addBaloonMarkersClassifedByQuantilsUsingLayers(null, layersData, null, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
             } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
-                return addBaloonMarkersClassifedByQuantilsUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables)
+                return addBaloonMarkersClassifedByQuantilsUsingLayers(targetDatasetData, layersData, dataColumn, spatialAttribute, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId)
             } else {
-                return addBaloonMarkersClassifedByQuantilsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
+                return addBaloonMarkersClassifedByQuantilsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
             }
             break
         default:
             // We divide the value array into user defined number of subarrays, using the minimum and maximum values as starting points (3 classes, 1-10, 10-20, 20-30 for example), and determine the balloon size depending where the value fits
             if (visualizationDataType === VisualizationDataType.LAYER_ONLY) {
-                return addBaloonMarkersClassifiedByEqualIntervalsUsingLayers(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, spatialAttribute, variables)
+                return addBaloonMarkersClassifiedByEqualIntervalsUsingLayers(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, spatialAttribute, variables, activeSelections, dashboardId)
             } else if (visualizationDataType === VisualizationDataType.DATASET_AND_LAYER) {
-                return addBaloonMarkersClassifiedByEqualIntervalsUsingLayers(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, spatialAttribute, variables, targetDatasetData, dataColumn)
+                return addBaloonMarkersClassifiedByEqualIntervalsUsingLayers(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, spatialAttribute, variables, activeSelections, dashboardId, targetDatasetData, dataColumn)
             } else {
-                return addBaloonMarkersClassifedByEqualIntervalsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
+                return addBaloonMarkersClassifedByEqualIntervalsFromData(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
             }
     }
 }
 
-const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], targetDatasetData?: any, dataColumn?: string) => {
+const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any, dataColumn?: string) => {
     const { mappedData, dataColumnIndex, minValue, maxValue } = getMappedDataMinMax(targetDatasetData, layersData, dataColumn, layerVisualizationSettings)
 
     const ranges = layerVisualizationSettings.balloonConf?.properties?.thresholds ?? []
@@ -86,10 +88,10 @@ const addBaloonMarkersClassifedByRangesUsingLayers = (layersData: any, spatialAt
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addBaloonMarkerUsingLayersPointClassifedByRanges(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, sortedRanges, defaultColor, null, variables, dataColumnIndex)
+            addBaloonMarkerUsingLayersPointClassifedByRanges(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, sortedRanges, defaultColor, null, variables, dataColumnIndex, activeSelections, dashboardId)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addBaloonMarkerUsingLayersPointClassifedByRanges(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, sortedRanges, defaultColor, coord, variables, dataColumnIndex)
+                addBaloonMarkerUsingLayersPointClassifedByRanges(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, sortedRanges, defaultColor, coord, variables, dataColumnIndex, activeSelections, dashboardId)
             })
         }
     })
@@ -128,7 +130,9 @@ const addBaloonMarkerUsingLayersPointClassifedByRanges = (
     defaultColor: string,
     coord: any[] | null,
     variables: IVariable[],
-    dataColumnIndex: string | null | undefined
+    dataColumnIndex: string | null | undefined,
+    activeSelections: ISelection[],
+    dashboardId: string
 ) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
@@ -150,11 +154,11 @@ const addBaloonMarkerUsingLayersPointClassifedByRanges = (
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
     markerBounds.push(marker.getLatLng())
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId)
 }
 
-const addBaloonMarkersClassifedByRangesFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {
+const addBaloonMarkersClassifedByRangesFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, dataColumn)
     const ranges = layerVisualizationSettings.balloonConf?.properties?.thresholds ?? []
     const minValue = valueColumnMinMaxValues?.min ?? 0
@@ -183,8 +187,8 @@ const addBaloonMarkersClassifedByRangesFromData = (data: any, widgetModel: IWidg
         if (!coordinates) return
         const marker = addMarker(coordinates, layerGroup, layerVisualizationSettings.balloonConf ?? null, value, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
         markerBounds.push(marker.getLatLng())
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
+        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId)
+        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId)
     })
 
     return { ranges: getSizeAndColorRangesForLegend(minValue, maxValue, ranges, defaultColor), type: LEGEND_DATA_TYPE.BALLOONS_RANGES }
@@ -221,17 +225,17 @@ export const getSizeAndColorRangesForLegend = (minSize: number, maxSize: number,
     }))
 }
 
-const addBaloonMarkersClassifedByQuantilsUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[]) => {
+const addBaloonMarkersClassifedByQuantilsUsingLayers = (targetDatasetData: any | null, layersData: any, dataColumn: string | null, spatialAttribute: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     if (!layerVisualizationSettings.balloonConf) return
 
     const { mappedData, dataColumnIndex, quantiles } = getMappedDataAndQuantiles(targetDatasetData, layersData, dataColumn, layerVisualizationSettings)
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addBaloonMarkerUsingLayersPointClassifedByQuantils(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, quantiles, null, variables, dataColumnIndex)
+            addBaloonMarkerUsingLayersPointClassifedByQuantils(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, quantiles, null, variables, dataColumnIndex, activeSelections, dashboardId)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addBaloonMarkerUsingLayersPointClassifedByQuantils(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, quantiles, coord, variables, dataColumnIndex)
+                addBaloonMarkerUsingLayersPointClassifedByQuantils(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, quantiles, coord, variables, dataColumnIndex, activeSelections, dashboardId)
             })
         }
     })
@@ -254,7 +258,21 @@ export const getMappedDataAndQuantiles = (targetDatasetData: any, layersData: an
     return { mappedData, dataColumnIndex, quantiles }
 }
 
-const addBaloonMarkerUsingLayersPointClassifedByQuantils = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, spatialAttribute: any, widgetModel: IWidget, markerBounds: any[], quantiles: number[], coord: any[] | null, variables: IVariable[], dataColumnIndex: string | null | undefined) => {
+const addBaloonMarkerUsingLayersPointClassifedByQuantils = (
+    feature: ILayerFeature,
+    layerVisualizationSettings: IMapWidgetVisualizationType,
+    mappedData: any,
+    layerGroup: any,
+    spatialAttribute: any,
+    widgetModel: IWidget,
+    markerBounds: any[],
+    quantiles: number[],
+    coord: any[] | null,
+    variables: IVariable[],
+    dataColumnIndex: string | null | undefined,
+    activeSelections: ISelection[],
+    dashboardId: string
+) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
     if (!value) return
@@ -273,11 +291,11 @@ const addBaloonMarkerUsingLayersPointClassifedByQuantils = (feature: ILayerFeatu
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf, value as number, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
     markerBounds.push(marker.getLatLng())
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId)
 }
 
-const addBaloonMarkersClassifedByQuantilsFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {
+const addBaloonMarkersClassifedByQuantilsFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     if (!layerVisualizationSettings.balloonConf) return
     const quantiles = getQuantiles(data[target.name].rows, layerVisualizationSettings.balloonConf.classes, dataColumn)
 
@@ -295,8 +313,8 @@ const addBaloonMarkersClassifedByQuantilsFromData = (data: any, widgetModel: IWi
         if (!coordinates) return
         const marker = addMarker(coordinates, layerGroup, layerVisualizationSettings.balloonConf ?? null, value, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
         markerBounds.push(marker.getLatLng())
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
+        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId)
+        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId)
     })
 
     return { qunatileMappings: getQuantileSizeMappings(quantiles, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize), type: LEGEND_DATA_TYPE.BALLOONS_QUANTILES }
@@ -337,17 +355,17 @@ export const getQuantileSizeMappings = (quantiles: number[], numQuantiles: numbe
     return mappings
 }
 
-const addBaloonMarkersClassifiedByEqualIntervalsUsingLayers = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, spatialAttribute: any, variables: IVariable[], targetDatasetData?: any, dataColumn?: string) => {
+const addBaloonMarkersClassifiedByEqualIntervalsUsingLayers = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, spatialAttribute: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any, dataColumn?: string) => {
     if (!layerVisualizationSettings.balloonConf) return
 
     const { mappedData, dataColumnIndex, minValue, maxValue } = getMappedDataAndMinMaxValues(targetDatasetData, layersData, dataColumn ?? null, layerVisualizationSettings)
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addBaloonMarkerUsingLayersPointClassifedByEqualIntervals(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, minValue, maxValue, null, variables, dataColumnIndex)
+            addBaloonMarkerUsingLayersPointClassifedByEqualIntervals(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, minValue, maxValue, null, variables, dataColumnIndex, activeSelections, dashboardId)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addBaloonMarkerUsingLayersPointClassifedByEqualIntervals(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, minValue, maxValue, coord, variables, dataColumnIndex)
+                addBaloonMarkerUsingLayersPointClassifedByEqualIntervals(feature, layerVisualizationSettings, mappedData, layerGroup, spatialAttribute, widgetModel, markerBounds, minValue, maxValue, coord, variables, dataColumnIndex, activeSelections, dashboardId)
             })
         }
     })
@@ -388,7 +406,9 @@ const addBaloonMarkerUsingLayersPointClassifedByEqualIntervals = (
     maxValue: number,
     coord: any[] | null,
     variables: IVariable[],
-    dataColumnIndex: string | null | undefined
+    dataColumnIndex: string | null | undefined,
+    activeSelections: ISelection[],
+    dashboardId: string
 ) => {
     const { value, originalVisualizationTypeValue } = getFeatureValues(feature, layerVisualizationSettings, mappedData, dataColumnIndex)
 
@@ -408,11 +428,11 @@ const addBaloonMarkerUsingLayersPointClassifedByEqualIntervals = (
     const marker = addMarker(coordinates.reverse(), layerGroup, layerVisualizationSettings.balloonConf ?? null, value as number, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
     markerBounds.push(marker.getLatLng())
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, marker, activeSelections, dashboardId)
 }
 
-const addBaloonMarkersClassifedByEqualIntervalsFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {
+const addBaloonMarkersClassifedByEqualIntervalsFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     if (!layerVisualizationSettings.balloonConf) return
 
     const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, dataColumn)
@@ -432,8 +452,8 @@ const addBaloonMarkersClassifedByEqualIntervalsFromData = (data: any, widgetMode
         if (!coordinates) return
         const marker = addMarker(coordinates, layerGroup, layerVisualizationSettings.balloonConf ?? null, value, spatialAttribute, conditionalStyle?.['background-color'], conditionalStyle?.icon)
         markerBounds.push(marker.getLatLng())
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker)
+        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId)
+        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId)
     })
 
     return getEqualIntervalsForLegend(valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, layerVisualizationSettings.balloonConf.classes, layerVisualizationSettings.balloonConf.minSize, layerVisualizationSettings.balloonConf.maxSize)

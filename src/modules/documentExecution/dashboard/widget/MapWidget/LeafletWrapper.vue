@@ -14,7 +14,7 @@ import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { clearLayersCache, switchLayerVisibility } from './visibility/MapVisibilityHelper'
-import { IVariable } from '../../Dashboard'
+import { ISelection, IVariable } from '../../Dashboard'
 
 //#region inlined leaflet-layervisibility
 function validateFilter(filterFunc) {
@@ -84,6 +84,7 @@ const props = defineProps<{
     dashboardId: string
     filtersReloadTrigger: boolean
     propVariables: IVariable[]
+    propActiveSelections: ISelection[]
 }>()
 
 const mapId = 'map_' + Math.random().toString(36).slice(2, 7)
@@ -132,18 +133,12 @@ onMounted(async () => {
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
     try {
-        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
         handleLegendUpdated(legendData)
         setTimeout(() => {
             switchLayerVisibility(map, props.layerVisibility)
             map.invalidateSize()
         }, 200)
-
-        map?.eachLayer((layer: any) => {
-            layer.on('click', (e) => console.log('Layer ', e))
-        })
-
-        console.log('------- MAP: ', map)
     } catch (error: any) {
         console.log('------- ERROR"', error)
         appStore.setError({
@@ -166,7 +161,7 @@ watch(props.layerVisibility, (newModel) => {
 watch(
     () => props.filtersReloadTrigger,
     async () => {
-        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
         handleLegendUpdated(legendData)
     }
 )
@@ -213,6 +208,10 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
     background: white;
     max-width: 180px;
     white-space: nowrap;
+}
+
+.customLeafletPopup li {
+    text-wrap: wrap;
 }
 
 .leaflet-popup-tip {

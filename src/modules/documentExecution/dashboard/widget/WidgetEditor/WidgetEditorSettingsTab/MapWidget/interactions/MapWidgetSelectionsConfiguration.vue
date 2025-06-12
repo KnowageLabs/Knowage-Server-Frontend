@@ -3,8 +3,21 @@
         <form v-if="selectionConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
             <div class="p-col-12 p-d-flex p-flex-column">
                 <div v-for="(selectionConfig, index) in selectionConfiguration.selections" :key="index" class="row items-center q-mb-sm">
-                    <q-select filled dense class="col-6" v-model="selectionConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="layerName" :label="$t('dashboard.widgetEditor.visualizationType.title')"></q-select>
-                    <q-select filled dense class="col-5 q-ml-sm" v-model="selectionConfig.column" :options="availableColumns(selectionConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')"></q-select>
+                    <q-select
+                        filled
+                        dense
+                        class="col-6"
+                        v-model="selectionConfig.vizualizationType"
+                        :options="getFilteredVisualizationTypeOptions(index)"
+                        emit-value
+                        map-options
+                        options-dense
+                        option-label="layerName"
+                        :label="$t('dashboard.widgetEditor.visualizationType.title')"
+                        :disable="selectionsDisabled"
+                        @update:modelValue="onVizualizationTypeChange(selectionConfig)"
+                    ></q-select>
+                    <q-select filled dense class="col-5 q-ml-sm" v-model="selectionConfig.column" :options="availableAttributeColumns(selectionConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="selectionsDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addSelectionConfiguration" />
                     <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeSelectionConfiguration(index)" />
@@ -16,7 +29,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType, IMapWidgetLayer, IMapWidgetSelection } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 
 export default defineComponent({
@@ -29,7 +42,11 @@ export default defineComponent({
             visualizationTypeOptions: [] as IMapWidgetVisualizationType[]
         }
     },
-    computed: {},
+    computed: {
+        selectionsDisabled() {
+            return !this.selectionConfiguration || !this.selectionConfiguration.enabled
+        }
+    },
     watch: {
         widgetModel: {
             handler(newVal) {
@@ -61,15 +78,17 @@ export default defineComponent({
             })
             console.log('----- LOADED visualizationTypeOptions: ', this.visualizationTypeOptions)
         },
-        availableColumns(vizualizationType: IMapWidgetVisualizationType | null) {
+        availableAttributeColumns(vizualizationType: IMapWidgetVisualizationType | null) {
             if (!vizualizationType) return null
             const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
-            return mapLayer && mapLayer.type === 'dataset' ? mapLayer.columns : []
+            return mapLayer && mapLayer.type === 'dataset' ? mapLayer.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE') : []
         },
         addSelectionConfiguration() {
+            if (!this.selectionsDisabled) return
             if (this.selectionConfiguration) this.selectionConfiguration.selections.push({ vizualizationType: null, column: '' })
         },
         removeSelectionConfiguration(index: number) {
+            if (!this.selectionsDisabled) return
             if (this.selectionConfiguration) this.selectionConfiguration.selections.splice(index, 1)
         },
         getFilteredVisualizationTypeOptions(currentIndex: number) {
@@ -82,6 +101,9 @@ export default defineComponent({
                 .filter((id): id is string => !!id)
 
             return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedLayerIds.includes(vizualizationType.target))
+        },
+        onVizualizationTypeChange(selectionConfig: IMapWidgetSelection) {
+            selectionConfig.column = ''
         }
     }
 })
