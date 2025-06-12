@@ -2,6 +2,7 @@ import { IAssociation, IAssociationField, IDashboard, IDataset, IDashboardDatase
 import { AxiosResponse } from 'axios'
 import { emitter } from '../../DashboardHelpers'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 interface IFormattedFilter {
     filterOperator: string
@@ -30,7 +31,7 @@ export const getAssociativeSelections = async (model: IDashboard, datasets: IDat
     const postData = {
         associationGroup: getFormattedAssocitationsGroups(model.configuration.associations),
         selections: getFormattedSelections(selections),
-        datasets: getFormattedModelDatasets(model.configuration.datasets),
+        datasets: getFormattedModelDatasets(model.configuration.datasets, model.configuration.id),
         nearRealtime: getNearRealtimeDatasets(tempDatasets)
     } as any
 
@@ -120,15 +121,32 @@ const getFormattedSelections = (modelSelections: ISelection[]) => {
     return formattedSelctions
 }
 
-const getFormattedModelDatasets = (modelDatasets: IDashboardDataset[]) => {
+const getFormattedModelDatasets = (modelDatasets: IDashboardDataset[], dashboardId: string) => {
     const formattedDatasets = {}
-    modelDatasets.forEach((dataset: IDashboardDataset) => (formattedDatasets[dataset.dsLabel as string] = getFormattedDatasetParameters(dataset)))
+    modelDatasets.forEach((dataset: IDashboardDataset) => (formattedDatasets[dataset.dsLabel as string] = getFormattedDatasetParameters(dataset, dashboardId)))
     return formattedDatasets
 }
 
-const getFormattedDatasetParameters = (dataset: IDashboardDataset) => {
+const getFormattedDatasetParameters = (dataset: IDashboardDataset, dashboardId: string) => {
     const formattedParameters = {}
-    if (dataset.parameters) dataset.parameters.forEach((parameter: IDashboardDatasetParameter) => (formattedParameters[parameter.name] = parameter.value))
+    const paramRegex = /[^$P{]+(?=\})/
+    const dashStore = dashboardStore()
+    const dashboards = dashStore.getDashboardsList() as IDashboard[]
+    const dashboard = Object.values(dashboards).find((dashboard: IDashboard) => dashboard.configuration.id === dashboardId)
+
+    if (dataset.parameters && dashboard?.drivers) {
+        dataset.parameters.forEach((parameter: IDashboardDatasetParameter) => {
+            const matched = paramRegex.exec(parameter.value)
+            if (matched && matched[0]) {
+                const documentDrivers = dashboard?.drivers || []
+                for (let index = 0; index < documentDrivers.length; index++) {
+                    const driver = documentDrivers[index]
+                    if (driver.urlName == matched[0]) formattedParameters[parameter.name] = driver.value
+                }
+            } else formattedParameters[parameter.name] = parameter.value
+        })
+    }
+
     return formattedParameters
 }
 

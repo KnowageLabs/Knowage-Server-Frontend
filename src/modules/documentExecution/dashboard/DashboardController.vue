@@ -311,6 +311,7 @@ export default defineComponent({
             }
 
             this.store.setDashboard(this.dashboardId, this.model)
+            this.setDashboardDrivers(this.dashboardId, this.drivers)
 
             await this.fetchAllSelectorDefaultValues()
             this.store.setSelections(this.dashboardId, this.model.configuration.selections, this.$http)
