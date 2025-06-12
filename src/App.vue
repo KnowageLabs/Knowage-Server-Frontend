@@ -218,7 +218,7 @@ export default defineComponent({
                     url = url.replace(parametersRegex, (match, parameter) => encodeURIComponent(window.sessionStorage.getItem(parameter) || ''))
                     await this.$http
                         .get(url, {
-                            withCredentials: true,
+                            withCredentials: configs['oidc.session.polling.errorMessage'] ? false : true,
                             headers: {
                                 'x-session-polling': 'true'
                             }
