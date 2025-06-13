@@ -71,13 +71,13 @@ const columns = KnSchedulerDescriptor.columns.map((column) => {
 })
 const cronExpression = ref(props.cronExpression)
 const schedulation = reactive({
-    enabled: false,
-    refreshDays: [],
-    refreshDay: '',
-    refreshMonth: '',
-    refreshTime: '',
+    enabled: !props.schedulationPaused,
+    refreshDays: cronToNumber(props.cronExpression, 'days') || [],
+    refreshDay: cronToNumber(props.cronExpression, 'day') || '',
+    refreshMonth: cronToNumber(props.cronExpression, 'month') || '',
+    refreshTime: cronToNumber(props.cronExpression, 'time') || '',
     refreshRate: props.cronExpressionType || '',
-    custom: ''
+    custom: props.cronExpressionType === 'custom' ? props.cronExpression : ''
 })
 
 const resetSchedulation = () => {
@@ -122,8 +122,9 @@ watch(schedulation, (newValue) => {
 const stopPropsWatcher = watch(
     () => props.cronExpression,
     (newValue, oldValue) => {
+        debugger
         if (newValue && newValue !== oldValue && newValue != '') {
-            schedulation.enabled = props.schedulationPaused || false
+            schedulation.enabled = !props.schedulationPaused
             schedulation.refreshDays = cronToNumber(newValue, 'days') || []
             schedulation.refreshDay = cronToNumber(newValue, 'day') || ''
             schedulation.refreshMonth = cronToNumber(newValue, 'month') || ''

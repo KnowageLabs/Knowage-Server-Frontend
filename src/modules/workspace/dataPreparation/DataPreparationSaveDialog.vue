@@ -1,8 +1,8 @@
 <template>
     <Dialog class="p-fluid kn-dialog--toolbar--primary dataPreparationSaveDialog" :visible="visibility" footer="footer" :header="$t('managers.workspaceManagement.dataPreparation.savePreparedDataset')" :closable="false" modal>
         <div class="row q-col-gutter-sm q-mt-sm">
-            <q-input v-model.trim="v$.preparedDataset.name.$model" class="col-12" :disabled="!isFirstSave" maxLength="100" filled :label="$t('common.name') + '*'" :error="v$.preparedDataset.name.$invalid && v$.preparedDataset.name.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.name') })" />
-            <q-input v-model.trim="v$.preparedDataset.description.$model" type="textarea" class="col-12" rows="2" :disabled="!isFirstSave" maxLength="500" filled :label="$t('common.description')" />
+            <q-input v-model.trim="v$.preparedDataset.name.$model" class="col-12" :disable="!isFirstSave" maxLength="100" filled :label="$t('common.name') + '*'" :error="v$.preparedDataset.name.$invalid && v$.preparedDataset.name.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.name') })" />
+            <q-input v-model.trim="v$.preparedDataset.description.$model" type="textarea" class="col-12" rows="2" :disable="!isFirstSave" maxLength="500" filled :label="$t('common.description')" />
             <KnScheduler class="col-12" :cron-expression="currentCronExpression" :cron-expression-type="cronExpressionType" :logs-visible="false" :schedulation-paused="schedulationPaused" @update:schedulationPaused="updateSchedulationPaused" @update:currentCronExpression="updateCurrentCronExpression" @update:cronExpressionType="updateCronExpressionType" />
         </div>
         <template #footer>
@@ -40,7 +40,8 @@ export default defineComponent({
         instanceId: {} as any,
         processId: {} as any,
         preparedDsMeta: {} as any,
-        visibility: Boolean
+        visibility: Boolean,
+        existingDataset: {} as any
     },
     emits: ['update:visibility', 'update:instanceId', 'update:processId'],
     setup() {
@@ -85,7 +86,12 @@ export default defineComponent({
         }
     },
     updated() {
-        if (this.processId && this.processId != '') this.isFirstSave = false
+        if (this.processId && this.processId != '' && this.existingDataset.name) {
+            this.preparedDataset.name = this.existingDataset.name
+            this.preparedDataset.label = this.existingDataset.label
+            this.preparedDataset.description = this.existingDataset.description
+            this.isFirstSave = false
+        }
     },
 
     validations() {
