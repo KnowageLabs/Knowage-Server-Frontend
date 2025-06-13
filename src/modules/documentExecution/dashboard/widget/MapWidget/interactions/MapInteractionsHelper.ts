@@ -1,6 +1,6 @@
-import { ISelection, IWidget } from '../../../Dashboard'
-import { IMapWidgetLayer, IMapWidgetSelection, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
-import { updateStoreSelections } from '../../interactionsHelpers/InteractionHelper'
+import { ISelection, IWidget, IWidgetInteractionParameter } from '../../../Dashboard'
+import { IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayer, IMapWidgetSelection, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { executeMapCrossNavigation, updateStoreSelections } from '../../interactionsHelpers/InteractionHelper'
 import store from '../../../Dashboard.store'
 import axios from 'axios'
 
@@ -9,6 +9,7 @@ const dashStore = store()
 export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string) => {
     const li = event.currentTarget as HTMLLIElement
     const data = li.getAttribute('data-value')
+    const dataMap = (event.currentTarget as any)._dataMap
 
     if (!data) return
 
@@ -16,11 +17,20 @@ export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVi
     const column = rawValueColumn.trim()
     const value = rawValue.trim()
 
+    // console.log('----- COLUMN: ', column)
+    // console.log('----- VALUE: ', value)
+    // console.log('----- layerVisualizationSettings: ', layerVisualizationSettings)
+    // console.log('----- dataMap: ', dataMap)
+
     const selectedLayer = widgetModel.layers?.find((layer: IMapWidgetLayer) => layer.layerId === layerVisualizationSettings.target)
     if (!selectedLayer) return
 
     if (widgetModel.settings.interactions.selection?.enabled) {
         setMapSelections(column, value, activeSelections, dashboardId, selectedLayer, widgetModel, layerVisualizationSettings)
+    }
+
+    if (widgetModel.settings.interactions.crossNavigation?.enabled) {
+        startMapCrossNavigation(column, value, widgetModel.settings.interactions.crossNavigation, layerVisualizationSettings, dataMap, dashboardId)
     }
 }
 
@@ -43,4 +53,33 @@ const createNewSelection = (column: string, value: (string | number)[], selected
         timestamp: new Date().getTime()
     }
     return selection
+}
+
+const startMapCrossNavigation = (column: string, value: string, crossNavigationConfiguration: IMapWidgetCrossNavigation, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, dashboardId: string) => {
+    const selectedCrossNavigationConfiguration = crossNavigationConfiguration.crossNavigationVizualizationTypes.find((crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) => crossNavigationVisTypeConfig.vizualizationType?.target === layerVisualizationSettings.target && crossNavigationVisTypeConfig.column === column)
+    console.log('%c________ selectedCrossNavigationConfiguration', 'color: red; font-weight: bold; font-size: 16px;', selectedCrossNavigationConfiguration)
+    if (!selectedCrossNavigationConfiguration) return
+
+    const formattedOutputParameters = getFormattedOutputParameters(dataMap, selectedCrossNavigationConfiguration.parameters)
+    executeMapCrossNavigation(formattedOutputParameters, selectedCrossNavigationConfiguration, dashboardId)
+}
+
+const getFormattedOutputParameters = (dataMap: Record<string, string | number> | null, outputParameters: IWidgetInteractionParameter[]) => {
+    const formattedOutputParameters = [] as IWidgetInteractionParameter[]
+    outputParameters.forEach((outputParameter: IWidgetInteractionParameter) => {
+        if (outputParameter.type === 'dynamic') {
+            formattedOutputParameters.push(getFormattedDynamicOutputParameter(dataMap, outputParameter))
+        } else {
+            formattedOutputParameters.push(outputParameter)
+        }
+    })
+    return formattedOutputParameters
+}
+
+const getFormattedDynamicOutputParameter = (dataMap: Record<string, string | number> | null, outputParameter: IWidgetInteractionParameter) => {
+    let value = ''
+
+    if (dataMap && outputParameter.column && dataMap[outputParameter.column]) value = '' + dataMap[outputParameter.column]
+
+    return { ...outputParameter, value: value }
 }

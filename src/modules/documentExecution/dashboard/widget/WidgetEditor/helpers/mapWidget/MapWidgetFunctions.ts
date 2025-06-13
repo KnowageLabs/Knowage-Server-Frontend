@@ -16,7 +16,7 @@ export const createNewMapWidgetSettings = () => {
         dialog: mapWidgetDefaultValues.getDefaultDialogSettings(),
         interactions: {
             selection: { enabled: true, selections: [] } as IMapWidgetSelectionConfiguration,
-            crossNavigation: { enabled: false, name: '', crossNavigationVizualizationTypes: [] } as IMapWidgetCrossNavigation
+            crossNavigation: { enabled: false, crossNavigationVizualizationTypes: [] } as IMapWidgetCrossNavigation
         },
         style: {
             themeId: null,

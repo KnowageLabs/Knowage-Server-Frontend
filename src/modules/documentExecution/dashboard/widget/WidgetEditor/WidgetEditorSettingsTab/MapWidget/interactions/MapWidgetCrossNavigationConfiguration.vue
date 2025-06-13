@@ -1,35 +1,57 @@
 <template>
     <div class="p-grid p-jc-start p-ai-center p-p-4">
         <form v-if="crossNavigationConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
-            <div class="p-col-12 p-d-flex p-flex-column">
-                <div class="p-d-flex p-flex-column kn-flex p-mx-2 p-mb-4">
-                    <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.crossNavigationName') }}</label>
-                    <Dropdown v-model="crossNavigationConfiguration.name" class="kn-material-input" :options="crossNavigationOptions" :disabled="crossNavigationDisabled"> </Dropdown>
-                </div>
-            </div>
-
             <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="row items-center q-mb-sm">
-                <q-select
-                    filled
-                    dense
-                    class="col-6"
-                    v-model="crossNavigationConfig.vizualizationType"
-                    :options="getFilteredVisualizationTypeOptions(index)"
-                    emit-value
-                    map-options
-                    options-dense
-                    option-label="layerName"
-                    :label="$t('dashboard.widgetEditor.visualizationType.title')"
-                    :disable="crossNavigationDisabled"
-                    @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"
-                ></q-select>
-                <q-select filled dense class="col-5 q-ml-sm" v-model="crossNavigationConfig.column" :options="availableColumns(crossNavigationConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="crossNavigationDisabled"></q-select>
+                <div class="p-col-12 row items-center q-mb-sm">
+                    <q-select
+                        filled
+                        dense
+                        class="p-col-4"
+                        v-model="crossNavigationConfig.vizualizationType"
+                        :options="getFilteredVisualizationTypeOptions(index)"
+                        emit-value
+                        map-options
+                        options-dense
+                        option-label="layerName"
+                        :label="$t('dashboard.widgetEditor.visualizationType.title')"
+                        :disable="crossNavigationDisabled"
+                        @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"
+                    ></q-select>
+                    <div class="p-col-4 p-d-flex p-flex-column">
+                        <div class="p-d-flex p-flex-column kn-flex p-mx-2 p-mb-4">
+                            <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.crossNavigationName') }}</label>
+                            <Dropdown v-model="crossNavigationConfig.name" class="kn-material-input" :options="crossNavigationOptions" :disabled="crossNavigationDisabled"> </Dropdown>
+                        </div>
+                    </div>
+                    <q-select
+                        filled
+                        dense
+                        class="p-col-3"
+                        v-model="crossNavigationConfig.column"
+                        :options="availableColumns(crossNavigationConfig.vizualizationType)"
+                        emit-value
+                        map-options
+                        :option-value="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'"
+                        :option-label="getTargetLayerType(crossNavigationConfig) === 'layer' ? 'property' : 'name'"
+                        options-dense
+                        :label="$t('common.column')"
+                        :disable="crossNavigationDisabled"
+                    ></q-select>
 
-                <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addCrossNavigationConfiguration" />
-                <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeCrossNavigationConfiguration(index)" />
-
-                <div v-if="crossNavigationConfig.parameters" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
-                    <WidgetOutputParametersList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="parameterList" :selected-datasets-columns-map="selectedDatasetsColumnsMap" :disabled="crossNavigationDisabled" @change="onParametersChanged($event, crossNavigationConfig)"></WidgetOutputParametersList>
+                    <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addCrossNavigationConfiguration" />
+                    <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeCrossNavigationConfiguration(index)" />
+                </div>
+                <div v-if="crossNavigationConfig.vizualizationType?.id && parameterList[crossNavigationConfig.vizualizationType.id]" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
+                    <WidgetOutputParametersList
+                        class="kn-flex p-mr-2"
+                        :widget-model="widgetModel"
+                        :prop-parameters="parameterList[crossNavigationConfig.vizualizationType.id]"
+                        :selected-datasets-columns-map="selectedDatasetsColumnsMap"
+                        :mapDynamicOptions="availableColumns(crossNavigationConfig.vizualizationType)"
+                        :crossNavigationConfig="crossNavigationConfig"
+                        :disabled="crossNavigationDisabled"
+                        @change="onParametersChanged($event, crossNavigationConfig)"
+                    ></WidgetOutputParametersList>
                 </div>
             </div>
         </form>
@@ -38,12 +60,16 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetColumn, IWidgetInteractionParameter } from '@/modules/documentExecution/dashboard/Dashboard'
-import { IMapWidgetVisualizationType, IMapWidgetLayer, IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IWidget, IWidgetInteractionParameter } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IMapWidgetVisualizationType, IMapWidgetLayer, IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayerProperty } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
+import { mapActions } from 'pinia'
+import appStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import Dropdown from 'primevue/dropdown'
 import WidgetOutputParametersList from '../../common/interactions/crossNavigation/WidgetOutputParametersList.vue'
+import deepcopy from 'deepcopy'
+import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
 
 export default defineComponent({
     name: 'map-widget-cross-navigation-configuration',
@@ -59,13 +85,18 @@ export default defineComponent({
             visualizationTypeOptions: [] as IMapWidgetVisualizationType[],
             crossNavigationOptions: [] as string[],
             outputParameters: [] as any[],
-            parameterList: [] as IWidgetInteractionParameter[],
-            selectedDatasetsColumnsMap: {}
+            parameterList: {} as Record<string, IWidgetInteractionParameter[]>,
+            selectedDatasetsColumnsMap: {},
+            propertiesCache: new Map<string, IMapWidgetLayerProperty[]>()
         }
     },
     computed: {
         crossNavigationDisabled() {
             return !this.crossNavigationConfiguration || !this.crossNavigationConfiguration.enabled
+        },
+        availableDatasets() {
+            if (!this.widgetModel?.layers) return []
+            return this.widgetModel.layers.filter((layer: IMapWidgetLayer) => layer.type === 'dataset')
         }
     },
     watch: {
@@ -91,6 +122,7 @@ export default defineComponent({
         this.removeEventListeners()
     },
     methods: {
+        ...mapActions(appStore, ['setLoading']),
         setEventListeners() {
             emitter.on('mapFieldsUpdated', this.loadCrossNavigationConfiguration)
         },
@@ -100,17 +132,16 @@ export default defineComponent({
         loadCrossNavigationOptions() {
             const temp = this.store.getCrossNavigations(this.dashboardId)
             if (temp) this.crossNavigationOptions = temp.map((crossNavigation: any) => crossNavigation.crossName)
-            console.log('---------- LOADED CROSS NAVIGATION OPTIONS: ', this.crossNavigationOptions)
         },
         loadOutputParameters() {
             this.outputParameters = this.store.getOutputParameters(this.dashboardId) ?? []
-            console.log('---------- LOADED outputParameters: ', this.crossNavigationOptions)
         },
         loadParameterList() {
             if (!this.crossNavigationConfiguration) return
 
-            this.crossNavigationConfiguration.crossNavigationVizualizationTypes.forEach((crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) => {
-                this.parameterList = []
+            this.crossNavigationConfiguration.crossNavigationVizualizationTypes.forEach((crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig, index: number) => {
+                if (!crossNavigationVisTypeConfig.vizualizationType?.id || this.parameterList[crossNavigationVisTypeConfig.vizualizationType.id]) return
+                this.parameterList[crossNavigationVisTypeConfig.vizualizationType.id] = []
                 for (let i = 0; i < this.outputParameters.length; i++) {
                     const outputParameter = this.outputParameters[i]
                     const temp = { enabled: false, name: outputParameter.name, type: '' } as IWidgetInteractionParameter
@@ -124,17 +155,16 @@ export default defineComponent({
                         if (modelParameter.column) temp.column = modelParameter.column
                         if (modelParameter.dataset) temp.dataset = modelParameter.dataset
                     }
-                    this.parameterList.push(temp)
+                    this.parameterList[crossNavigationVisTypeConfig.vizualizationType.id].push(deepcopy(temp))
                 }
             })
         },
-        loadCrossNavigationConfiguration() {
+        async loadCrossNavigationConfiguration() {
             this.crossNavigationConfiguration = this.widgetModel?.settings?.interactions?.crossNavigation ?? null
-            if (this.crossNavigationConfiguration?.crossNavigationVizualizationTypes?.length === 0) this.crossNavigationConfiguration?.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: null, parameters: [] })
-            console.log('----- LOADED widgetModel: ', this.widgetModel)
-            console.log('----- LOADED crossNavigationConfiguration: ', this.crossNavigationConfiguration)
+            if (this.crossNavigationConfiguration?.crossNavigationVizualizationTypes?.length === 0) this.crossNavigationConfiguration?.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: null, name: '', parameters: [] })
             this.loadVisualizationTypeOptions()
             this.loadCrossNavigationOptions()
+            await this.loadPropertiesForVisualizationTypes()
         },
         loadSelectedDatasetColumnNames() {
             if (!this.selectedDatasets || this.selectedDatasets.length === 0) return
@@ -154,16 +184,53 @@ export default defineComponent({
                 const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === visualization.target)
                 if (mapLayer) this.visualizationTypeOptions.push(visualization)
             })
-            console.log('----- LOADED visualizationTypeOptions: ', this.visualizationTypeOptions)
         },
         availableColumns(vizualizationType: IMapWidgetVisualizationType | null) {
             if (!vizualizationType) return null
-            const mapLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
-            return mapLayer && mapLayer.type === 'dataset' ? mapLayer.columns.filter((column: IWidgetColumn) => column.fieldType === 'ATTRIBUTE') : []
+
+            const targetDataset = this.availableDatasets.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
+            if (targetDataset) return targetDataset.columns ?? []
+
+            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.layerId === vizualizationType.target)
+            if (targetLayer && this.propertiesCache.has(targetLayer.layerId)) return this.propertiesCache.get(targetLayer.layerId)
+
+            return []
+        },
+        async loadPropertiesForVisualizationTypes() {
+            if (!this.crossNavigationConfiguration) return
+            const promises = this.crossNavigationConfiguration.crossNavigationVizualizationTypes.filter((config: IMapWidgetCrossNavigationVisualizationTypeConfig) => config.vizualizationType).map((config: IMapWidgetCrossNavigationVisualizationTypeConfig) => this.loadAvailableProperties(config.vizualizationType))
+            await Promise.all(promises)
+        },
+        async loadAvailableProperties(visualization: IMapWidgetVisualizationType | null) {
+            if (!visualization || !visualization.target) return
+
+            if (this.propertiesCache.has(visualization.target)) {
+                visualization.properties = this.propertiesCache.get(visualization.target)
+                return
+            }
+
+            const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
+            if (targetLayer?.type === 'layer') {
+                this.setLoading(true)
+                const properties = await getPropertiesByLayerId(targetLayer.id)
+                this.setLoading(false)
+                this.propertiesCache.set(targetLayer.layerId, properties)
+                visualization.properties = properties
+            }
+        },
+        async loadAvailablePropertiesInCrossNavigationForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
+            this.setLoading(true)
+            const properties = await getPropertiesByLayerId(targetLayer.id)
+            this.setLoading(false)
+            this.propertiesCache.set(targetLayer.layerId, properties)
+            visualization.properties = properties
+
+            return visualization.properties
         },
         addCrossNavigationConfiguration() {
             if (this.crossNavigationDisabled) return
-            if (this.crossNavigationConfiguration) this.crossNavigationConfiguration.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: null, parameters: [] })
+            if (this.crossNavigationConfiguration) this.crossNavigationConfiguration.crossNavigationVizualizationTypes.push({ vizualizationType: null, column: null, name: '', parameters: [] })
+            this.loadParameterList()
         },
         removeCrossNavigationConfiguration(index: number) {
             if (this.crossNavigationDisabled) return
@@ -180,11 +247,22 @@ export default defineComponent({
 
             return this.visualizationTypeOptions.filter((vizualizationType: IMapWidgetVisualizationType) => !selectedLayerIds.includes(vizualizationType.target))
         },
-        onVizualizationTypeChange(crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) {
+        async onVizualizationTypeChange(crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) {
             crossNavigationConfig.column = ''
+            if (!crossNavigationConfig.vizualizationType?.target) return
+            const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => crossNavigationConfig.vizualizationType?.target === layer.layerId)
+            if (!target || target.type !== 'layer' || this.propertiesCache.has(crossNavigationConfig.vizualizationType.target)) {
+                crossNavigationConfig.vizualizationType.properties = this.propertiesCache.get(crossNavigationConfig.vizualizationType.target)
+                return
+            }
+            await this.loadAvailablePropertiesInCrossNavigationForLayer(target, crossNavigationConfig.vizualizationType)
+            this.loadParameterList()
         },
         onParametersChanged(parameters: IWidgetInteractionParameter[], crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig | null) {
             if (crossNavigationVisTypeConfig) crossNavigationVisTypeConfig.parameters = parameters
+        },
+        getTargetLayerType(crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) {
+            return this.widgetModel.layers.find((layer: IMapWidgetLayer) => crossNavigationVisTypeConfig.vizualizationType?.target === layer.layerId) ? this.widgetModel.layers.find((layer: IMapWidgetLayer) => crossNavigationVisTypeConfig.vizualizationType?.target === layer.layerId).type : 'dataset'
         }
     }
 })

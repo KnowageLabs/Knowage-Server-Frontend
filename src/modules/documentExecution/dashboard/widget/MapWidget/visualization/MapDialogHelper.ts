@@ -24,7 +24,14 @@ export const createDialogFromDataset = (tooltip: boolean, layerVisualizationSett
     layersList.forEach((item: IMapTooltipSettingsLayer) => {
         item.columns.forEach((column: string) => {
             const value = `${column}: ${row[getColumnName(column, meta)]}`
-            list.append(createTooltipListItem(value, (settings as IMapDialogSettings).style, widgetModel, layerVisualizationSettings, activeSelections, dashboardId))
+            const dataMap = {}
+
+            meta.metaData?.fields.forEach((field: any) => {
+                if (!field.dataIndex) return
+                dataMap[field.header] = row[field.dataIndex]
+            })
+
+            list.append(createTooltipListItem(value, (settings as IMapDialogSettings).style, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, dataMap))
         })
     })
     if (tooltip) return L.tooltip().setContent(list)
@@ -79,7 +86,10 @@ const createDialogForLayerData = (feature: ILayerFeature, tooltip: boolean, laye
 
     layersList.forEach((item: IMapTooltipSettingsLayer) => {
         if (layerVisualizationSettings.targetDataset && layerVisualizationSettings.targetProperty) list.append(createTooltipListHeader(item.name))
-        item.columns.forEach((property: string) => list.append(createTooltipListItem(`${property}: ${feature.properties[property] ?? ''}`, (settings as IMapDialogSettings).style, widgetModel, layerVisualizationSettings, activeSelections, dashboardId)))
+        item.columns.forEach((property: string) => {
+            const dataMap = feature.properties
+            list.append(createTooltipListItem(`${property}: ${feature.properties[property] ?? ''}`, (settings as IMapDialogSettings).style, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, dataMap))
+        })
     })
 
     container.appendChild(list)
@@ -101,7 +111,7 @@ const createTooltipListHeader = (header: string) => {
     return headerElement
 }
 
-const createTooltipListItem = (value: string, style: IListItemStyle | undefined, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string) => {
+const createTooltipListItem = (value: string, style: IListItemStyle | undefined, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string, dataMap?: Record<string, string | number> | null) => {
     const li = document.createElement('li')
     li.innerHTML = value
 
@@ -109,6 +119,7 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
 
     li.setAttribute('data-value', value)
     li.setAttribute('data-layerId', layerVisualizationSettings.target)
+    if (dataMap) (li as any)._dataMap = dataMap
 
     if (style) {
         Object.entries(style).forEach(([key, val]) => {
