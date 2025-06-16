@@ -1,4 +1,4 @@
-import { IWidgetInteractions, IWidgetResponsive, IWidgetTitle, IWidgetBordersStyle, IWidgetBackgroundStyle, IWidgetPaddingStyle, IWidgetShadowsStyle, IWidgetExports, IDataset, IIcon } from './../../Dashboard.d'
+import { IWidgetInteractions, IWidgetResponsive, IWidgetTitle, IWidgetBordersStyle, IWidgetBackgroundStyle, IWidgetPaddingStyle, IWidgetShadowsStyle, IWidgetExports, IDataset, IIcon, ITableWidgetLink } from './../../Dashboard.d'
 
 export interface IMapWidgetSettings {
     configuration: IMapWidgetConfiguration
@@ -16,6 +16,7 @@ export interface IMapWidgetInteractions {
     selection: IMapWidgetSelectionConfiguration
     crossNavigation: IMapWidgetCrossNavigation
     preview: IMapWidgetPreview
+    link: IMapWidgetLinkConfiguration
 }
 
 export interface IMapWidgetSelectionConfiguration {
@@ -36,6 +37,25 @@ export interface IMapWidgetCrossNavigationVisualizationTypeConfig {
     name: string
     vizualizationType: IMapWidgetVisualizationType | null
     column: string | null
+    parameters: IWidgetInteractionParameter[]
+}
+
+export interface IMapWidgetLinkConfiguration {
+    enabled: boolean
+    linkVizualizationTypes: IMapWidgetLinkVisualizationTypeConfig[]
+}
+
+export interface IMapWidgetLinkVisualizationTypeConfig {
+    vizualizationType: IMapWidgetVisualizationType | null
+    column: string | null
+    links: IMapWidgetLink[]
+}
+export interface IMapWidgetLink {
+    type: string
+    icon?: string
+    baseurl: string
+    column?: string
+    action: string
     parameters: IWidgetInteractionParameter[]
 }
 

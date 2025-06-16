@@ -1,5 +1,5 @@
 import { IWidget, IWidgetResponsive, IWidgetExports, IWidgetInteractions, IDashboard, IDashboardDriver, IWidgetHelpSettings } from './../../Dashboard.d'
-import { IMapTooltipSettings, IMapWidgetConditionalStyles, IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLegend, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetSettings, IMapWidgetStyle, IMapWidgetVisualizationType } from './../../interfaces/mapWidget/DashboardMapWidget.d'
+import { IMapTooltipSettings, IMapWidgetConditionalStyles, IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLegend, IMapWidgetLink, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetSettings, IMapWidgetStyle, IMapWidgetVisualizationType } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import { getFormattedStyle } from './MapStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
@@ -31,7 +31,12 @@ const getFormattedWidgetSettings = (widget: any) => {
         conditionalStyles: { enabled: false, conditions: [] } as IMapWidgetConditionalStyles,
         legend: mapWidgetDefaultValues.getDefaultLegendSettings() as IMapWidgetLegend,
         dialog: getFormattedDialogSettings(widget),
-        interactions: { selection: { enabled: true, selections: [] } as IMapWidgetSelectionConfiguration, crossNavigation: { enabled: false, name: '', crossNavigationVizualizationTypes: [] } as IMapWidgetCrossNavigation, preview: { enabled: false, previewVizualizationTypes: [] } as IMapWidgetPreview },
+        interactions: {
+            selection: { enabled: true, selections: [] } as IMapWidgetSelectionConfiguration,
+            crossNavigation: { enabled: false, name: '', crossNavigationVizualizationTypes: [] } as IMapWidgetCrossNavigation,
+            preview: { enabled: false, previewVizualizationTypes: [] } as IMapWidgetPreview,
+            link: { enabled: false, linkVizualizationTypes: [] } as IMapWidgetLink
+        },
         style: getFormattedStyle(widget) as IMapWidgetStyle,
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
         tooltips: mapWidgetDefaultValues.getDefaultMapTooltips() as IMapTooltipSettings,

@@ -1,4 +1,4 @@
-import { IMapWidgetCrossNavigation, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetCrossNavigation, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import * as mapWidgetDefaultValues from './MapWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
 import { IWidgetHelpSettings } from '@/modules/documentExecution/dashboard/Dashboard'
@@ -17,7 +17,8 @@ export const createNewMapWidgetSettings = () => {
         interactions: {
             selection: { enabled: true, selections: [] } as IMapWidgetSelectionConfiguration,
             crossNavigation: { enabled: false, crossNavigationVizualizationTypes: [] } as IMapWidgetCrossNavigation,
-            preview: { enabled: false, previewVizualizationTypes: [] } as IMapWidgetPreview
+            preview: { enabled: false, previewVizualizationTypes: [] } as IMapWidgetPreview,
+            link: { enabled: false, linkVizualizationTypes: [] } as IMapWidgetLinkConfiguration
         },
         style: {
             themeId: null,
