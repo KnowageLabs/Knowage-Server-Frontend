@@ -13,8 +13,9 @@ export interface IMapWidgetSettings {
 }
 
 export interface IMapWidgetInteractions {
-    selection?: IMapWidgetSelectionConfiguration
+    selection: IMapWidgetSelectionConfiguration
     crossNavigation: IMapWidgetCrossNavigation
+    preview: IMapWidgetPreview
 }
 
 export interface IMapWidgetSelectionConfiguration {
@@ -34,6 +35,19 @@ export interface IMapWidgetCrossNavigation {
 export interface IMapWidgetCrossNavigationVisualizationTypeConfig {
     name: string
     vizualizationType: IMapWidgetVisualizationType | null
+    column: string | null
+    parameters: IWidgetInteractionParameter[]
+}
+
+export interface IMapWidgetPreview {
+    enabled: boolean
+    previewVizualizationTypes: IMapWidgetPreviewVisualizationTypeConfig[]
+}
+
+export interface IMapWidgetPreviewVisualizationTypeConfig {
+    name: string
+    vizualizationType: IMapWidgetVisualizationType | null
+    dataset: number | null
     column: string | null
     parameters: IWidgetInteractionParameter[]
 }

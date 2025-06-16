@@ -55,14 +55,7 @@
     <QuickWidgetDialog v-if="showQuickDialog" @close="toggleQuickDialog" @chartTypeSelected="onChartSelectedForQuickWidgetChange" />
     <ChangeWidgetDialog v-if="showChangeDialog" :widget-model="widgetModel" :widget-data="widgetData" @close="toggleChangeDialog" />
     <WidgetSearchDialog v-if="searchDialogVisible" :visible="searchDialogVisible" :widget="widget" :prop-search="search" @close="searchDialogVisible = false" @search="onSearch"></WidgetSearchDialog>
-    <SheetPickerDialog
-        v-if="sheetPickerDialogVisible"
-        :visible="sheetPickerDialogVisible"
-        :prop-sheets="dashboards && dashboards[dashboardId] ? dashboards[dashboardId].sheets : []"
-        :active-sheet="activeSheet"
-        @close="sheetPickerDialogVisible = false"
-        @sheetSelected="onSheetSelected"
-    ></SheetPickerDialog>
+    <SheetPickerDialog v-if="sheetPickerDialogVisible" :visible="sheetPickerDialogVisible" :prop-sheets="dashboards && dashboards[dashboardId] ? dashboards[dashboardId].sheets : []" :active-sheet="activeSheet" @close="sheetPickerDialogVisible = false" @sheetSelected="onSheetSelected"></SheetPickerDialog>
     <DatasetEditorPreview v-if="datasetPreviewShown" :visible="datasetPreviewShown" :prop-dataset="datasetToPreview" :dashboard-id="dashboardId" @close="datasetPreviewShown = false" />
 </template>
 
@@ -214,6 +207,7 @@ export default defineComponent({
             emitter.on('setWidgetLoading', this.setWidgetLoading)
             emitter.on('chartTypeChanged', this.onWidgetUpdated)
             emitter.on('refreshAfterGeneralSettingsChange', this.loadInitialData)
+            emitter.on('mapDatasetInteractionPreview', this.onMapDatasetInteractionPreview)
         },
         removeEventListeners() {
             emitter.off('selectionsChanged', this.loadActiveSelections)
@@ -224,6 +218,7 @@ export default defineComponent({
             emitter.off('setWidgetLoading', this.setWidgetLoading)
             emitter.off('chartTypeChanged', this.onWidgetUpdated)
             emitter.off('refreshAfterGeneralSettingsChange', this.loadInitialData)
+            emitter.off('mapDatasetInteractionPreview', this.onMapDatasetInteractionPreview)
         },
         //#endregion ================================================================================================
 
@@ -541,6 +536,10 @@ export default defineComponent({
         //#endregion ================================================================================================
 
         //#region ===================== DatasetPreview  ============================================
+        onMapDatasetInteractionPreview(event: any) {
+            if (event.widgetId !== this.widget.id) return
+            this.previewInteractionDataset(event)
+        },
         async previewInteractionDataset(event: any) {
             const previewSettings = event.previewSettings as IWidgetPreview
 

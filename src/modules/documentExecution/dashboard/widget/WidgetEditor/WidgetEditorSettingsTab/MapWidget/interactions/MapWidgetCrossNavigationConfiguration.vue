@@ -1,12 +1,12 @@
 <template>
     <div class="p-grid p-jc-start p-ai-center p-p-4">
         <form v-if="crossNavigationConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
-            <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="row items-center q-mb-sm">
-                <div class="p-col-12 row items-center q-mb-sm">
+            <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
+                <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                     <q-select
                         filled
                         dense
-                        class="p-col-4"
+                        class="p-sm-12 p-md-4"
                         v-model="crossNavigationConfig.vizualizationType"
                         :options="getFilteredVisualizationTypeOptions(index)"
                         emit-value

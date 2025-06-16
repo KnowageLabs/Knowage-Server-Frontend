@@ -1,6 +1,7 @@
 import { ISelection, IWidget, IWidgetInteractionParameter } from '../../../Dashboard'
-import { IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayer, IMapWidgetSelection, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayer, IMapWidgetPreview, IMapWidgetPreviewVisualizationTypeConfig, IMapWidgetSelection, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { executeMapCrossNavigation, updateStoreSelections } from '../../interactionsHelpers/InteractionHelper'
+import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import store from '../../../Dashboard.store'
 import axios from 'axios'
 
@@ -30,7 +31,11 @@ export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVi
     }
 
     if (widgetModel.settings.interactions.crossNavigation?.enabled) {
-        startMapCrossNavigation(column, value, widgetModel.settings.interactions.crossNavigation, layerVisualizationSettings, dataMap, dashboardId)
+        startMapCrossNavigation(column, widgetModel.settings.interactions.crossNavigation, layerVisualizationSettings, dataMap, dashboardId)
+    }
+
+    if (widgetModel.settings.interactions.preview?.enabled) {
+        startMapPreview(column, widgetModel.settings.interactions.preview, layerVisualizationSettings, dataMap, widgetModel.id)
     }
 }
 
@@ -55,7 +60,7 @@ const createNewSelection = (column: string, value: (string | number)[], selected
     return selection
 }
 
-const startMapCrossNavigation = (column: string, value: string, crossNavigationConfiguration: IMapWidgetCrossNavigation, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, dashboardId: string) => {
+const startMapCrossNavigation = (column: string, crossNavigationConfiguration: IMapWidgetCrossNavigation, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, dashboardId: string) => {
     const selectedCrossNavigationConfiguration = crossNavigationConfiguration.crossNavigationVizualizationTypes.find((crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) => crossNavigationVisTypeConfig.vizualizationType?.target === layerVisualizationSettings.target && crossNavigationVisTypeConfig.column === column)
     console.log('%c________ selectedCrossNavigationConfiguration', 'color: red; font-weight: bold; font-size: 16px;', selectedCrossNavigationConfiguration)
     if (!selectedCrossNavigationConfiguration) return
@@ -82,4 +87,13 @@ const getFormattedDynamicOutputParameter = (dataMap: Record<string, string | num
     if (dataMap && outputParameter.column && dataMap[outputParameter.column]) value = '' + dataMap[outputParameter.column]
 
     return { ...outputParameter, value: value }
+}
+
+const startMapPreview = (column: string, previewConfiguration: IMapWidgetPreview, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, widgetId: string | undefined) => {
+    const selectedPreviewConfiguration = previewConfiguration.previewVizualizationTypes.find((previewVizualizationTypeConfig: IMapWidgetPreviewVisualizationTypeConfig) => previewVizualizationTypeConfig.vizualizationType?.target === layerVisualizationSettings.target && previewVizualizationTypeConfig.column === column)
+    if (!selectedPreviewConfiguration) return
+
+    const formattedOutputParameters = getFormattedOutputParameters(dataMap, selectedPreviewConfiguration.parameters)
+
+    emitter.emit('mapDatasetInteractionPreview', { formattedOutputParameters: formattedOutputParameters, previewSettings: selectedPreviewConfiguration, widgetId: widgetId })
 }
