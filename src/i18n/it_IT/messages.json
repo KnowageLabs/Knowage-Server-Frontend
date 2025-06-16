@@ -2842,7 +2842,7 @@
                 "printDocuments": "Print Documents",
                 "rateDocuments": "Rate Documents",
                 "runScheduledExecution": "Run Scheduled execution",
-                "saveIntoWorkspace": "Save into My Workspace",
+                "saveIntoWorkspace": "Mostra il mio repository",
                 "saveMeta": "Save Metadata",
                 "saveOlapView": "Save OLAP View",
                 "saveRemember": "Save to remember",
