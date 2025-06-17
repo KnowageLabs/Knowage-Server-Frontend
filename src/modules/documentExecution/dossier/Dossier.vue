@@ -53,21 +53,7 @@
             </template>
             <template #content>
                 <KnHint v-if="showHint" :title="'documentExecution.dossier.title'" :hint="'documentExecution.dossier.hint'" data-test="hint"></KnHint>
-                <DataTable
-                    v-else
-                    v-model:filters="filters"
-                    :value="dossierActivities"
-                    :scrollable="true"
-                    scroll-height="40vh"
-                    :rows="20"
-                    class="p-datatable-sm kn-table"
-                    data-key="id"
-                    responsive-layout="stack"
-                    breakpoint="960px"
-                    data-test="activities-table"
-                    sort-field="creationDate"
-                    :sort-order="-1"
-                >
+                <DataTable v-else v-model:filters="filters" :value="dossierActivities" :scrollable="true" scroll-height="40vh" :rows="20" class="p-datatable-sm kn-table" data-key="id" responsive-layout="stack" breakpoint="960px" data-test="activities-table" sort-field="creationDate" :sort-order="-1">
                     <template #header>
                         <div class="table-header">
                             <span class="p-input-icon-left">
@@ -368,10 +354,7 @@ export default defineComponent({
         },
         createMenuItems() {
             this.menuButtons = []
-            this.menuButtons.push(
-                { key: '1', visible: this.templateOptionEnabled('uploadable'), icon: 'fas fa-upload', label: this.$t('documentExecution.dossier.uploadTemplate'), command: () => this.setUploadType() },
-                { key: '2', visible: this.templateOptionEnabled('downloadable'), icon: 'fas fa-download', label: this.$t('documentExecution.dossier.downloadTemplate'), command: () => this.downloadTemplate() }
-            )
+            this.menuButtons.push({ key: '1', visible: this.templateOptionEnabled('uploadable'), icon: 'fas fa-upload', label: this.$t('documentExecution.dossier.uploadTemplate'), command: () => this.setUploadType() }, { key: '2', visible: this.templateOptionEnabled('downloadable'), icon: 'fas fa-download', label: this.$t('documentExecution.dossier.downloadTemplate'), command: () => this.downloadTemplate() })
         },
         templateOptionEnabled(optionName: string) {
             let isEnabled = false
@@ -419,13 +402,16 @@ export default defineComponent({
             const formData = new FormData()
             formData.append('file', uploadedFile)
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: {  'X-Disable-Errors': 'true' } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.success'), msg: this.$t('common.toast.uploadSuccess') })
                 })
                 .catch(() => this.store.setError({ title: this.$t('common.toast.errorTitle'), msg: this.$t('documentExecution.dossier.templateUploadError') }))
                 .finally(() => (this.triggerUpload = false))
         }
+    },
+    beforeUnmount() {
+        this.interval()
     }
 })
 </script>
