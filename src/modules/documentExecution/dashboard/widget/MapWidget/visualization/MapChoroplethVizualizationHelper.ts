@@ -151,8 +151,8 @@ const addChoroplethPolygonUsingLayersPointClassifedByEqualIntervals = (
 
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -179,8 +179,8 @@ const createChoroplethClassifiedByEqualIntervalsFromData = (data: any, widgetMod
 
         const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId)
+        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
+        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
     })
 
     return { intervals: getEqualIntervalsForLegend(valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER, valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER, numberOfClasses), colorGradients: colorGradients, type: LEGEND_DATA_TYPE.CHOROPLETH_INTERVALS }
@@ -283,8 +283,8 @@ const addChoroplethPolygonUsingLayersPointClassifedByQuantils = (
 
     const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -310,8 +310,8 @@ const createChoroplethClassifiedByQuantilsFromData = (layerGroup: any, data: any
         const color = colorGradients[getQuantileIndex(quantiles, originalValue)] ?? defaultChoroplethValues.style.color
 
         const polygon = createPolygon(polygonCoords, color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId)
+        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
+        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
     })
 
     return { qunatileMappings: getQuantileSizeMappings(quantiles, layerVisualizationSettings.analysisConf.classes, layerVisualizationSettings.analysisConf.minSize, layerVisualizationSettings.analysisConf.maxSize), colorGradients: colorGradients, type: LEGEND_DATA_TYPE.CHOROPLETH_QUANTILES }
@@ -405,8 +405,8 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (
 
     const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, value, polygon, activeSelections, dashboardId, variables)
 }
 
 const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
@@ -437,8 +437,8 @@ const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, 
 
         const polygon = createPolygon(polygonCoords, rangeIndexAndColor.color, layerVisualizationSettings, defaultChoroplethValues, layerGroup, bounds, conditionalStyle)
 
-        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId)
-        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId)
+        addDialogToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
+        addTooltipToMarker(data, widgetModel, target, layerVisualizationSettings, row, polygon, activeSelections, dashboardId, variables)
     })
 
     return { ranges: getSizeAndColorRangesForLegend(minValue, maxValue, ranges, defaultColor), type: LEGEND_DATA_TYPE.CHOROPLETH_RANGES }

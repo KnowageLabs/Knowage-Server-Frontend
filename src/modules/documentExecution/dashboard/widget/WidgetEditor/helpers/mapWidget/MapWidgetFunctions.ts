@@ -18,7 +18,7 @@ export const createNewMapWidgetSettings = () => {
             selection: { enabled: true, selections: [] } as IMapWidgetSelectionConfiguration,
             crossNavigation: { enabled: false, crossNavigationVizualizationTypes: [] } as IMapWidgetCrossNavigation,
             preview: { enabled: false, previewVizualizationTypes: [] } as IMapWidgetPreview,
-            link: { enabled: false, linkVizualizationTypes: [] } as IMapWidgetLinkConfiguration
+            link: { enabled: false, linkVizualizationTypes: [{ vizualizationType: null, column: '', links: [{ type: '', baseurl: '', action: '', parameters: [] }] }] } as IMapWidgetLinkConfiguration
         },
         style: {
             themeId: null,

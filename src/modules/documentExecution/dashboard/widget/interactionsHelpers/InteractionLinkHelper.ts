@@ -1,14 +1,19 @@
-import { IDashboardDriver, ITableWidgetLink, IVariable, IWidgetInteractionParameter, IWidgetLinks } from "../../Dashboard";
-import { IChartInteractionValues } from "../../interfaces/chartJS/DashboardChartJSWidget";
-import { getActiveSelectionByDatasetAndColumn } from "./InteractionHelper";
-import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from "./InteractionsParserHelper";
+import { IDashboardDriver, ITableWidgetLink, IVariable, IWidgetInteractionParameter, IWidgetLinks } from '../../Dashboard'
+import { IChartInteractionValues } from '../../interfaces/chartJS/DashboardChartJSWidget'
+import { getActiveSelectionByDatasetAndColumn } from './InteractionHelper'
+import { replaceDriversPlaceholdersByDriverUrlName, replaceVariablesPlaceholdersByVariableName } from './InteractionsParserHelper'
 import mainStore from '@/App.store'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import i18n from '@/App.i18n'
+import { IMapWidgetLink, IMapWidgetLinkVisualizationTypeConfig } from '../../interfaces/mapWidget/DashboardMapWidget'
 
 const { t } = i18n.global
 
-interface IFormattedLink { url: string, action: string }[]
+interface IFormattedLink {
+    url: string
+    action: string
+}
+;[]
 
 export const openNewLinkTableWidget = (formattedRow: any, dashboardId: string, variables: IVariable[], activeLink: ITableWidgetLink) => {
     const formattedLinks = [getFormattedLink(activeLink, formattedRow, null, dashboardId, variables)]
@@ -29,11 +34,11 @@ const executeFormattedLinks = (formattedLinks: IFormattedLink[]) => {
     const linksForNewTab = formattedLinks.filter((formattedLink: IFormattedLink) => formattedLink.action === 'blank')
     const linkForReplace = formattedLinks.find((formattedLink: IFormattedLink) => formattedLink.action === 'replace')
     linksForNewTab.forEach((formattedLink: IFormattedLink) => window.open(formattedLink.url, '_blank'))
-    if (linkForReplace) window.open(linkForReplace.url, '_self');
+    if (linkForReplace) window.open(linkForReplace.url, '_self')
 }
 
 const getFormattedLinks = (linkOptions: IWidgetLinks, formattedRow: any, formattedChartValues: IChartInteractionValues | null, dashboardId: string, variables: IVariable[]) => {
-    const formattedLinks = [] as { url: string, action: string }[]
+    const formattedLinks = [] as { url: string; action: string }[]
     linkOptions.links?.forEach((link: ITableWidgetLink) => {
         const formattedLink = getFormattedLink(link, formattedRow, formattedChartValues, dashboardId, variables)
         if (formattedLink) formattedLinks.push(formattedLink)
@@ -92,11 +97,10 @@ const getFormattedStaticParameterUrl = (parameter: IWidgetInteractionParameter, 
     return useAsResource ? `${parameter.value}` : `${parameter.name}=${parameter.value}&`
 }
 
-
 const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
     if (!drivers) return {}
     const driversValuesMap = {}
-    drivers.forEach((driver: IDashboardDriver) => driversValuesMap[driver.urlName] = { value: driver.value, multivalue: driver.multivalue })
+    drivers.forEach((driver: IDashboardDriver) => (driversValuesMap[driver.urlName] = { value: driver.value, multivalue: driver.multivalue }))
     return driversValuesMap
 }
 
@@ -118,18 +122,18 @@ const getFormattedChartDynamicParameterUrl = (parameter: IWidgetInteractionParam
 export const getChartDynamicParameterValue = (formattedChartValues: IChartInteractionValues | null, column: string) => {
     if (!formattedChartValues) return ''
     switch (column) {
-        case "SERIE_NAME":
-            return formattedChartValues.serieName;
-        case "SERIE_VALUE":
-            return formattedChartValues.serieValue;
-        case "CATEGORY_NAME":
-            return formattedChartValues.categoryName;
-        case "CATEGORY_VALUE":
-            return formattedChartValues.categoryValue;
-        case "GROUPING_NAME":
-            return formattedChartValues.groupingName;
-        case "GROUPING_VALUE":
-            return formattedChartValues.groupingValue;
+        case 'SERIE_NAME':
+            return formattedChartValues.serieName
+        case 'SERIE_VALUE':
+            return formattedChartValues.serieValue
+        case 'CATEGORY_NAME':
+            return formattedChartValues.categoryName
+        case 'CATEGORY_VALUE':
+            return formattedChartValues.categoryValue
+        case 'GROUPING_NAME':
+            return formattedChartValues.groupingName
+        case 'GROUPING_VALUE':
+            return formattedChartValues.groupingValue
     }
 }
 
@@ -139,7 +143,7 @@ const getFormattedDriverParameterUrl = (parameter: IWidgetInteractionParameter, 
     else {
         let formattedUrl = ``
         const driverValuesAsArray = driversValuesMap[parameter.driver].value.split(',')
-        driverValuesAsArray.forEach((value: string) => formattedUrl += useAsResource ? `${value},` : `${parameter.name}=${value}&`)
+        driverValuesAsArray.forEach((value: string) => (formattedUrl += useAsResource ? `${value},` : `${parameter.name}=${value}&`))
         if (useAsResource) formattedUrl = formattedUrl.slice(0, -1)
         return formattedUrl
     }
@@ -177,4 +181,19 @@ const replacePlaceholders = (originalString: string, variables: IVariable[], dri
     originalString = replaceVariablesPlaceholdersByVariableName(originalString, variables)
     originalString = replaceDriversPlaceholdersByDriverUrlName(originalString, drivers)
     return originalString
+}
+
+export const openNewLinkMapWidget = (dataMap: any, dashboardId: string, variables: IVariable[], linkConfiguration: IMapWidgetLinkVisualizationTypeConfig) => {
+    console.log('__________________________ dataMap: ', dataMap)
+    console.log('__________________________ dashboardId: ', dashboardId)
+    console.log('__________________________ variables: ', variables)
+    console.log('__________________________ linkConfiguration: ', linkConfiguration)
+    const formattedLinks = [] as IFormattedLink[]
+    linkConfiguration.links.forEach((mapLink: IMapWidgetLink) => {
+        const formattedLink = getFormattedLink(mapLink, dataMap, null, dashboardId, variables)
+        formattedLinks.push(formattedLink)
+    })
+    console.log('__________________________ linkConfiguration: ', linkConfiguration)
+    // const formattedLinks = [getFormattedLink(activeLink, dataMap, null, dashboardId, variables)]
+    //executeFormattedLinks(formattedLinks)
 }

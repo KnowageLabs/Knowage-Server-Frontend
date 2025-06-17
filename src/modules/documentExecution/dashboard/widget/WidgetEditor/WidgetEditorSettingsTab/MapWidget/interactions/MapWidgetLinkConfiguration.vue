@@ -27,13 +27,14 @@
                         <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addLinkConfiguration" />
                         <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeLinkConfiguration(index)" />
                     </div>
-                    <div v-for="(link, index) in linkConfig.links" :key="index" c class="p-col-12">
-                        <div class="kn-flex p-d-flex p-flex-column p-pt-2 p-ml-2">
+
+                    <div v-for="(link, index) in linkConfig.links" :key="index" class="p-sm-12 p-md-12 p-fluid p-formgrid p-grid p-ai-center">
+                        <div class="p-col-5 kn-flex p-d-flex p-flex-column p-pt-2 p-ml-2">
                             <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.interactions.basicUrl') }}</label>
                             <InputText v-model="link.baseurl" class="kn-material-input p-inputtext-sm" :disabled="linksDisabled" />
                         </div>
 
-                        <div class="kn-flex p-d-flex p-flex-column p-mx-2">
+                        <div class="p-col-5 kn-flex p-d-flex p-flex-column p-mx-2">
                             <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.linkType') }}</label>
                             <Dropdown v-model="link.action" class="kn-material-input" :options="widgetInteractionsLinkDescriptor.linkTypes" option-value="value" :disabled="linksDisabled">
                                 <template #value="slotProps">
@@ -49,11 +50,11 @@
                             </Dropdown>
                         </div>
 
-                        <div class="p-text-left p-mt-3 p-ml-3">
+                        <div class="p-col-2 p-text-left p-mt-3 p-ml-3">
                             <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer" @click="index === 0 ? addLink(linkConfig) : removeLink(index, linkConfig)"></i>
                         </div>
 
-                        <div class="p-sm-12 p-md-12">
+                        <div class="p-sm-12 p-md-12 p-mt-4">
                             <WidgetLinkParameterList
                                 class="kn-flex p-mr-2"
                                 :widget-model="widgetModel"
@@ -147,6 +148,7 @@ export default defineComponent({
         async loadLinkConfiguration() {
             this.linkConfiguration = this.widgetModel?.settings?.interactions?.link ?? null
             if (this.linkConfiguration?.linkVizualizationTypes?.length === 0) this.linkConfiguration?.linkVizualizationTypes.push({ vizualizationType: null, column: '', links: [] })
+            if (this.linkConfiguration?.linkVizualizationTypes?.length === 1 && this.linkConfiguration.linkVizualizationTypes[0].links.length === 0) this.linkConfiguration.linkVizualizationTypes[0].links.push({ type: '', baseurl: '', action: '', parameters: [] })
             this.loadVisualizationTypeOptions()
             await this.loadPropertiesForVisualizationTypes()
             console.log('-------- widgetModel: ', this.widgetModel)

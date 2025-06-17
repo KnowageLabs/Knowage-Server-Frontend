@@ -44,8 +44,8 @@ const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLaye
         const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, model)
         charts.push(chart)
 
-        addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId)
-        addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId)
+        addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
+        addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
         markerBounds.push(marker.getLatLng())
     }
 
@@ -120,8 +120,8 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, widgetModel)
     charts.push(chart)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, foreignKeyValue)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, foreignKeyValue)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue)
 
     markerBounds.push(marker.getLatLng())
 }

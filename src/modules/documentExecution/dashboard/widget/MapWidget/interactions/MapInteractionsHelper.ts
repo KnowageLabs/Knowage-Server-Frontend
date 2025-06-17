@@ -1,13 +1,15 @@
-import { ISelection, IWidget, IWidgetInteractionParameter } from '../../../Dashboard'
-import { IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayer, IMapWidgetPreview, IMapWidgetPreviewVisualizationTypeConfig, IMapWidgetSelection, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { ISelection, IVariable, IWidget, IWidgetInteractionParameter } from '../../../Dashboard'
+import { IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayer, IMapWidgetLinkConfiguration, IMapWidgetLinkVisualizationTypeConfig, IMapWidgetPreview, IMapWidgetPreviewVisualizationTypeConfig, IMapWidgetSelection, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { executeMapCrossNavigation, updateStoreSelections } from '../../interactionsHelpers/InteractionHelper'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import store from '../../../Dashboard.store'
 import axios from 'axios'
+import { openNewLinkMapWidget } from '../../interactionsHelpers/InteractionLinkHelper'
+import DashboardSaveViewDialog from '../../../DashboardViews/DashboardSaveViewDialog/DashboardSaveViewDialog.vue'
 
 const dashStore = store()
 
-export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string) => {
+export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType, activeSelections: ISelection[], dashboardId: string, variables: IVariable[]) => {
     const li = event.currentTarget as HTMLLIElement
     const data = li.getAttribute('data-value')
     const dataMap = (event.currentTarget as any)._dataMap
@@ -32,6 +34,10 @@ export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVi
 
     if (widgetModel.settings.interactions.crossNavigation?.enabled) {
         startMapCrossNavigation(column, widgetModel.settings.interactions.crossNavigation, layerVisualizationSettings, dataMap, dashboardId)
+    }
+
+    if (widgetModel.settings.interactions.link?.enabled) {
+        startMapLink(column, widgetModel.settings.interactions.link, layerVisualizationSettings, dataMap, dashboardId, variables)
     }
 
     if (widgetModel.settings.interactions.preview?.enabled) {
@@ -87,6 +93,14 @@ const getFormattedDynamicOutputParameter = (dataMap: Record<string, string | num
     if (dataMap && outputParameter.column && dataMap[outputParameter.column]) value = '' + dataMap[outputParameter.column]
 
     return { ...outputParameter, value: value }
+}
+
+const startMapLink = (column: string, linkConfiguration: IMapWidgetLinkConfiguration, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, dashboardId: string, variables: IVariable[]) => {
+    const selectedLinkConfiguration = linkConfiguration.linkVizualizationTypes.find((previewVizualizationTypeConfig: IMapWidgetLinkVisualizationTypeConfig) => previewVizualizationTypeConfig.vizualizationType?.target === layerVisualizationSettings.target && previewVizualizationTypeConfig.column === column)
+    console.log('------------------------- selectedLinkConfiguration: ', selectedLinkConfiguration)
+    if (!selectedLinkConfiguration) return
+
+    openNewLinkMapWidget(dataMap, dashboardId, variables, selectedLinkConfiguration)
 }
 
 const startMapPreview = (column: string, previewConfiguration: IMapWidgetPreview, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, widgetId: string | undefined) => {

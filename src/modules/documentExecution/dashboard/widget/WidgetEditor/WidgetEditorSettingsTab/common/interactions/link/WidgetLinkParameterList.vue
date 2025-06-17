@@ -1,10 +1,9 @@
 <template>
     <div class="p-grid">
         <div class="p-col-12 p-text-right">
-            <Button class="kn-button kn-button--primary" @click="$emit('addParameter')"> {{ $t('documentExecution.documentDetails.designerDialog.addParameter') }}</Button>
+            <Button id="add-parameter-button" class="kn-button kn-button--primary" @click="$emit('addParameter')"> {{ $t('documentExecution.documentDetails.designerDialog.addParameter') }}</Button>
         </div>
-        {{ 'HEHE - parameters' }}
-        {{ parameters }}
+
         <div v-for="(parameter, index) in parameters" :key="index" class="p-grid p-col-12 p-ai-center p-p-2">
             <div class="p-grid p-ai-center p-col-10">
                 <div class="p-sm-12 p-md-3 p-d-flex p-flex-column">
@@ -214,3 +213,9 @@ export default defineComponent({
     }
 })
 </script>
+
+<style lang="scss" scoped>
+#add-parameter-button {
+    max-width: 200px;
+}
+</style>
