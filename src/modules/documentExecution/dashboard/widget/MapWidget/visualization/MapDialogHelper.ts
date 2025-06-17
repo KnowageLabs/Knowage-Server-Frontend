@@ -1,5 +1,5 @@
 import { ISelection, IVariable, IWidget } from '../../../Dashboard'
-import { ILayerFeature, IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
+import { ILayerFeature, IMapDialogSettings, IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getColumnName } from '../LeafletHelper'
 import L from 'leaflet'
 import { ChartValuesRecord } from './MapChartsVizualizationHelper'
@@ -130,6 +130,12 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
 
     li.setAttribute('data-value', value)
     li.setAttribute('data-layerId', layerVisualizationSettings.target)
+
+    if (checkInteractionsIfColumnIsClickable(value, widgetModel, layerVisualizationSettings)) {
+        console.log('--- GOT HERE!')
+        li.classList.add('clickable-custom-leaflet-list-item')
+    }
+
     if (dataMap) (li as any)._dataMap = dataMap
 
     if (style) {
@@ -143,4 +149,41 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
     li.addEventListener('click', (event) => executeMapInteractions(event, widgetModel, layerVisualizationSettings, activeSelections, dashboardId, variables))
 
     return li
+}
+
+const checkInteractionsIfColumnIsClickable = (value: string, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType) => {
+    console.log('!!!!!! value: ', value)
+    console.log('!!!!!! LAYER VISUALIZATION SETTINGS: ', layerVisualizationSettings)
+    const [rawValueColumn] = value.split(':')
+    const column = rawValueColumn.trim()
+
+    const selectionConfiguration = (widgetModel?.settings?.interactions?.selection ?? null) as IMapWidgetSelectionConfiguration | null
+    if (!selectionConfiguration) return false
+
+    for (let i = selectionConfiguration.selections.length - 1; i >= 0; i--) {
+        if (layerVisualizationSettings.id === selectionConfiguration.selections[i].vizualizationType?.id && selectionConfiguration.selections[i].column === column) return true
+    }
+
+    const crossNavigationConfiguration = (widgetModel?.settings?.interactions?.crossNavigation ?? null) as IMapWidgetCrossNavigation | null
+    if (!crossNavigationConfiguration) return false
+
+    for (let i = crossNavigationConfiguration.crossNavigationVizualizationTypes.length - 1; i >= 0; i--) {
+        if (layerVisualizationSettings.id === crossNavigationConfiguration.crossNavigationVizualizationTypes[i].vizualizationType?.id && crossNavigationConfiguration.crossNavigationVizualizationTypes[i].column === column) return true
+    }
+
+    const linkConfiguration = (widgetModel?.settings?.interactions?.link ?? null) as IMapWidgetLinkConfiguration | null
+    if (!linkConfiguration) return false
+
+    for (let i = linkConfiguration.linkVizualizationTypes.length - 1; i >= 0; i--) {
+        if (layerVisualizationSettings.id === linkConfiguration.linkVizualizationTypes[i].vizualizationType?.id && linkConfiguration.linkVizualizationTypes[i].column === column) return true
+    }
+
+    const previewConfiguration = (widgetModel?.settings?.interactions?.preview ?? null) as IMapWidgetPreview | null
+    if (!previewConfiguration) return false
+
+    for (let i = previewConfiguration.previewVizualizationTypes.length - 1; i >= 0; i--) {
+        if (layerVisualizationSettings.id === previewConfiguration.previewVizualizationTypes[i].vizualizationType?.id && previewConfiguration.previewVizualizationTypes[i].column === column) return true
+    }
+
+    return false
 }

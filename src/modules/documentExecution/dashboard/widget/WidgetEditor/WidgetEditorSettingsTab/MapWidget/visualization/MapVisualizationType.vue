@@ -162,6 +162,7 @@ import appStore from '@/App.store'
 import descriptor from './MapVisualizationTypeDescriptor.json'
 import VisTypeConfig from './MapVisualizationTypeConfigurations.vue'
 import * as mapWidgetDefaultValues from '../../../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
+import { removeVisualizationTypeFromModel } from './MapVisualizationTypeHelpers'
 
 export default defineComponent({
     name: 'map-visualization-type',
@@ -273,6 +274,7 @@ export default defineComponent({
             }
             await this.loadAvailablePropertiesInVisualizationTypeForLayer(target, visualization)
             this.updateMapWidgetLegendWithSepecificModel(visualization)
+            emitter.emit('vizualizationTypesUpdated')
         },
         onDataLinkChange(dataLinkType: 'column' | 'property', visualization: IMapWidgetVisualizationType) {
             visualization.targetProperty = null
@@ -348,6 +350,7 @@ export default defineComponent({
             const visualizationType = this.createDefaultVisualizationType()
             this.visualizationTypeModel.push(visualizationType)
             this.addVisualizationTypeLegendOption(visualizationType)
+            emitter.emit('vizualizationTypesUpdated')
         },
         addVisualizationTypeLegendOption(visualizationType: IMapWidgetVisualizationType) {
             const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
@@ -356,16 +359,13 @@ export default defineComponent({
             mapLegend.visualizationTypes.push({ ...defaultVisualizationTypeLegendSettings, visualizationType: visualizationType })
         },
         removeVisualizationType(index: number) {
-            this.removeVisualizationTypeLegendOption(this.visualizationTypeModel[index])
+            removeVisualizationTypeFromModel(this.visualizationTypeModel[index], this.widgetModel)
+
             if (index === 0) this.visualizationTypeModel[0] = this.createDefaultVisualizationType()
             else this.visualizationTypeModel.splice(index, 1)
+            emitter.emit('vizualizationTypesUpdated')
         },
-        removeVisualizationTypeLegendOption(visualizationType: IMapWidgetVisualizationType) {
-            const mapLegend = this.widgetModel?.settings?.legend as IMapWidgetLegend | undefined
-            if (!mapLegend) return
-            const index = mapLegend.visualizationTypes.findIndex((visualizationTypeLegendSettings: IMapWidgetVisualizationTypeLegendSettings) => visualizationTypeLegendSettings.visualizationType?.id === visualizationType.id)
-            if (index !== -1) mapLegend.visualizationTypes.splice(index, 1)
-        },
+
         createDefaultVisualizationType() {
             return mapWidgetDefaultValues.getDefaultVisualizationSettings()[0]
         },

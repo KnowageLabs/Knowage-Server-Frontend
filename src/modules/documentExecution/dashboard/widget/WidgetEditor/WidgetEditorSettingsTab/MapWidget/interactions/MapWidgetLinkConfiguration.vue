@@ -3,15 +3,11 @@
         <form v-if="linkConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
             <div class="p-col-12 p-fluid p-formgrid p-grid">
                 <div v-for="(linkConfig, index) in linkConfiguration.linkVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
-                    <div class="p-col-12">
-                        {{ linkConfig }}
-                    </div>
-
                     <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
                         <q-select
                             filled
                             dense
-                            class="p-sm-12 p-md-4"
+                            class="p-sm-12 p-md-5"
                             v-model="linkConfig.vizualizationType"
                             :options="getFilteredVisualizationTypeOptions(index)"
                             emit-value
@@ -22,7 +18,7 @@
                             :disable="linksDisabled"
                             @update:modelValue="onVizualizationTypeChange(linkConfig)"
                         ></q-select>
-                        <q-select filled dense class="p-sm-12 p-md-4 q-ml-sm" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
+                        <q-select filled dense class="p-sm-12 p-md-5 q-ml-sm" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
 
                         <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addLinkConfiguration" />
                         <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-button-text p-button-plain p-js-center p-ml-2" @click="removeLinkConfiguration(index)" />
@@ -130,9 +126,15 @@ export default defineComponent({
         ...mapActions(appStore, ['setLoading']),
         setEventListeners() {
             emitter.on('mapFieldsUpdated', this.loadLinkConfiguration)
+            emitter.on('vizualizationTypesUpdated', this.onVizualizationTypesUpdated)
         },
         removeEventListeners() {
             emitter.off('mapFieldsUpdated', this.loadLinkConfiguration)
+            emitter.off('vizualizationTypesUpdated', this.onVizualizationTypesUpdated)
+        },
+        async onVizualizationTypesUpdated() {
+            this.loadVisualizationTypeOptions()
+            await this.loadPropertiesForVisualizationTypes()
         },
         async loadLinkConfiguration() {
             this.linkConfiguration = this.widgetModel?.settings?.interactions?.link ?? null
@@ -140,7 +142,6 @@ export default defineComponent({
             if (this.linkConfiguration?.linkVizualizationTypes?.length === 1 && this.linkConfiguration.linkVizualizationTypes[0].links.length === 0) this.linkConfiguration.linkVizualizationTypes[0].links.push({ type: '', baseurl: '', action: '', parameters: [] })
             this.loadVisualizationTypeOptions()
             await this.loadPropertiesForVisualizationTypes()
-            console.log('-------- widgetModel: ', this.widgetModel)
         },
         loadVisualizationTypeOptions() {
             this.visualizationTypeOptions = []

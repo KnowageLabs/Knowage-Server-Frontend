@@ -68,7 +68,6 @@ const createNewSelection = (column: string, value: (string | number)[], selected
 
 const startMapCrossNavigation = (column: string, crossNavigationConfiguration: IMapWidgetCrossNavigation, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, dashboardId: string) => {
     const selectedCrossNavigationConfiguration = crossNavigationConfiguration.crossNavigationVizualizationTypes.find((crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) => crossNavigationVisTypeConfig.vizualizationType?.target === layerVisualizationSettings.target && crossNavigationVisTypeConfig.column === column)
-    console.log('%c________ selectedCrossNavigationConfiguration', 'color: red; font-weight: bold; font-size: 16px;', selectedCrossNavigationConfiguration)
     if (!selectedCrossNavigationConfiguration) return
 
     const formattedOutputParameters = getFormattedOutputParameters(dataMap, selectedCrossNavigationConfiguration.parameters)

@@ -204,7 +204,6 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 .customLeafletPopup {
     margin: 0px 0px;
     padding: 0px 0px;
-
     background: white;
     max-width: 180px;
     white-space: nowrap;
@@ -216,5 +215,16 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 
 .leaflet-popup-tip {
     display: none;
+}
+
+.clickable-custom-leaflet-list-item {
+    color: #0056b3;
+    background-color: #ffffff;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.clickable-custom-leaflet-list-item:hover {
+    color: #004085;
+    background-color: #e9f5ff;
 }
 </style>
