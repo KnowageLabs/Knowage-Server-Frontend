@@ -365,6 +365,16 @@ export default defineComponent({
             this.hideDataSetCatalog()
             this.openDataPreparation(dataset)
         },
+        getDatasetInfo(dataset) {
+            if (!dataset) return ''
+            const tempDs = {
+                label: dataset.label,
+                name: dataset.name,
+                description: dataset.description,
+                id: dataset.id
+            }
+            return JSON.stringify(tempDs)
+        },
         async openDataPreparation(dataset: any) {
             this.events = []
             this.pushEvent(0)
@@ -388,7 +398,7 @@ export default defineComponent({
                                 this.generateAvro(datasetId)
                                 this.existingPreparedDatasetId = datasetId
                             } else {
-                                this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: JSON.stringify(dataset) } })
+                                this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
                             }
                         })
                     },

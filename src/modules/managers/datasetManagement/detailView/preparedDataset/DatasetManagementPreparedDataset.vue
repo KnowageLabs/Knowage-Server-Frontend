@@ -78,6 +78,17 @@ export default defineComponent({
             else return false
         },
 
+        getDatasetInfo(dataset) {
+            if (!dataset) return ''
+            const tempDs = {
+                label: dataset.label,
+                name: dataset.name,
+                description: dataset.description,
+                id: dataset.id
+            }
+            return JSON.stringify(tempDs)
+        },
+
         openDataPreparation(dataset: any) {
             if (dataset.dsTypeCd == 'Prepared') {
                 //edit existing data prep
@@ -91,7 +102,7 @@ export default defineComponent({
                                 const datasetId = response.data.instance.dataSetId
                                 if (this.isAvroReady(datasetId))
                                     // check if Avro file has been deleted or not
-                                    this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: JSON.stringify(dataset) } })
+                                    this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
                                 else {
                                     this.store.setInfo({
                                         title: 'Avro file is missing',

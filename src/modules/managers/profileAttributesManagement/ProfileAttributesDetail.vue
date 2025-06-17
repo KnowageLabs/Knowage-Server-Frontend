@@ -21,7 +21,7 @@
                             filled
                             class="col"
                             v-model="v$.attribute.attributeName.$model"
-                            max-length="100"
+                            maxLength="100"
                             :error="v$.attribute.attributeName.$invalid && v$.attribute.attributeName.$dirty"
                             :error-message="$t('common.validation.required', { fieldName: $t('managers.profileAttributesManagement.form.name') })"
                             :label="$t('managers.profileAttributesManagement.form.name') + '*'"
@@ -29,20 +29,7 @@
                             data-test="name-input"
                         />
 
-                        <q-select
-                            class="col"
-                            filled
-                            emit-value
-                            map-options
-                            options-dense
-                            :error="v$.attribute.value.$invalid && v$.attribute.value.$dirty"
-                            v-model="v$.attribute.value.$model"
-                            :options="attributeTypeValues"
-                            option-label="name"
-                            option-value="value"
-                            :label="$t('managers.profileAttributesManagement.form.dataType') + '*'"
-                            @update:model-value="onDataChange(v$.attribute.value)"
-                        />
+                        <q-select class="col" filled emit-value map-options options-dense :error="v$.attribute.value.$invalid && v$.attribute.value.$dirty" v-model="v$.attribute.value.$model" :options="attributeTypeValues" option-label="name" option-value="value" :label="$t('managers.profileAttributesManagement.form.dataType') + '*'" @update:model-value="onDataChange(v$.attribute.value)" />
                     </div>
                     <div class="row">
                         <q-input
@@ -53,7 +40,7 @@
                             v-model="v$.attribute.attributeDescription.$model"
                             :error="v$.attribute.attributeDescription.$invalid && v$.attribute.attributeDescription.$dirty"
                             :error-message="$t('common.validation.required', { fieldName: $t('common.description') })"
-                            max-length="250"
+                            maxLength="250"
                             :label="$t('common.description') + '*'"
                             data-test="description-input"
                             @update:model-value="onDataChange(v$.attribute.attributeDescription)"
@@ -74,20 +61,7 @@
                         </div>
                     </div>
                     <div class="row q-mt-sm q-col-gutter-sm" v-if="!manualInput">
-                        <q-select
-                            class="col"
-                            filled
-                            emit-value
-                            map-options
-                            options-dense
-                            :error="v$.attribute.lovId.$invalid && v$.attribute.lovId.$dirty"
-                            v-model="v$.attribute.lovId.$model"
-                            :options="lovs"
-                            option-label="name"
-                            option-value="id"
-                            :label="$t('managers.profileAttributesManagement.form.lov') + '*'"
-                            @update:model-value="onLoveDropdownChange()"
-                        >
+                        <q-select class="col" filled emit-value map-options options-dense :error="v$.attribute.lovId.$invalid && v$.attribute.lovId.$dirty" v-model="v$.attribute.lovId.$model" :options="lovs" option-label="name" option-value="id" :label="$t('managers.profileAttributesManagement.form.lov') + '*'" @update:model-value="onLoveDropdownChange()">
                             <template v-slot:option="scope">
                                 <q-item v-bind="scope.itemProps">
                                     <q-item-section>

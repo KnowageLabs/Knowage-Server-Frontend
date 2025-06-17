@@ -1,20 +1,23 @@
 <template>
-    <Message v-if="nodes.length === 0 && !loading" class="p-m-3" severity="info" :closable="false">
-        {{ $t('workspace.addViewFolderHint') }}
-    </Message>
+    <q-banner v-if="nodes.length === 0 && !loading" class="bg-info text-black q-ma-sm" rounded dense>{{ $t('workspace.addViewFolderHint') }}</q-banner>
     <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-    <Tree v-else id="folders-tree" v-model:selectionKeys="selectedFolderKey" :value="nodes" selection-mode="single" @node-select="setSelectedFolder($event)" @node-unselect="removeSelectedFolder" @node-expand="setOpenFolderIcon($event)" @node-collapse="setClosedFolderIcon($event)">
-        <template #default="slotProps">
-            <div class="p-d-flex p-flex-row p-ai-center" @mouseover="buttonsVisible[slotProps.node.id] = true" @mouseleave="buttonsVisible[slotProps.node.id] = false">
-                <span>{{ slotProps.node.label }}</span>
-                <div v-show="mode === 'select' && buttonsVisible[slotProps.node.id]" class="p-ml-2">
-                    <Button icon="fa fa-plus" class="p-button-link p-button-sm p-p-0" @click.stop="createFolder(slotProps.node)" />
-                    <Button v-if="slotProps.node.id" icon="fa fa-pencil" class="p-button-link p-button-sm p-p-0" @click.stop="editFolder(slotProps.node.data)" />
-                    <Button v-if="slotProps.node.id" icon="far fa-trash-alt" class="p-button-link p-button-sm p-p-0" @click.stop="deleteFolderConfirm(slotProps.node)" />
-                </div>
+    <q-tree v-else :nodes="nodes" node-key="id" :selected="selectedFolderKey" @update:selected="setSelectedFolder">
+        <template #default-header="{ node }">
+            <div v-show="mode === 'select'" class="row full-width">
+                <q-icon :name="node.icon" class="q-mr-sm" />
+                <span class="col">{{ node.label }}</span>
+                <q-btn flat round dense size="xs" icon="add" @click.stop="createFolder(node)">
+                    <q-tooltip>{{ $t('common.add') }}</q-tooltip>
+                </q-btn>
+                <q-btn v-if="node.id" flat round dense size="xs" icon="edit" @click.stop="editFolder(node.data)">
+                    <q-tooltip>{{ $t('common.edit') }}</q-tooltip>
+                </q-btn>
+                <q-btn v-if="node.id" flat round dense size="xs" icon="delete" @click.stop="deleteFolderConfirm(node)">
+                    <q-tooltip class="text-capitalized">{{ $t('common.delete') }}</q-tooltip>
+                </q-btn>
             </div>
         </template>
-    </Tree>
+    </q-tree>
     <WorkspaceNewFolderDialog :visible="newFolderDialogVisible" :selected-folder="selectedFolderForEdit" :propFolders="folders" @close="onNewFolderDialogClose" @create="createNewFolder" @edit="onEditFolder"></WorkspaceNewFolderDialog>
 </template>
 
@@ -23,15 +26,13 @@ import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import { IFolder } from '../Workspace'
 import { mapActions } from 'pinia'
-import Message from 'primevue/message'
-import Tree from 'primevue/tree'
 import WorkspaceNewFolderDialog from './WorkspaceNewFolderDialog.vue'
 import workspaceDocumentTreeDescriptor from './WorkspaceDocumentTreeDescriptor.json'
 import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'workspace-document-tree',
-    components: { Message, Tree, WorkspaceNewFolderDialog },
+    components: { WorkspaceNewFolderDialog },
     props: { mode: { type: String }, selectedBreadcrumb: { type: Object }, selectedFolderId: { type: String } },
     emits: ['folderSelected', 'delete', 'createFolder'],
     data() {
@@ -78,6 +79,7 @@ export default defineComponent({
             if (this.mode === 'move') this.nodes = this.nodes[0].children
         },
         formatNodes(tree: any, parent: any) {
+            console.log(tree)
             return tree.map((node: any) => {
                 node = {
                     key: node.id,
@@ -88,7 +90,7 @@ export default defineComponent({
                     style: { padding: 0 },
                     leaf: node.children.length === 0,
                     parent: parent,
-                    icon: 'pi pi-folder'
+                    icon: 'folder_open'
                 }
                 if (node.children && node.children.length > 0) {
                     node.children = this.formatNodes(node.children, node)
@@ -129,8 +131,20 @@ export default defineComponent({
         setClosedFolderIcon(node: any) {
             node.icon = 'pi pi-folder'
         },
+        findSelectedObjects(nodes, keys) {
+            const result = []
+            for (const node of nodes) {
+                if (keys.includes(node.id)) {
+                    result.push(node)
+                }
+                if (node.children) {
+                    result.push(...this.findSelectedObjects(node.children, keys))
+                }
+            }
+            return result
+        },
         setSelectedFolder(folder: any) {
-            this.selectedFolder = folder
+            this.selectedFolder = this.findSelectedObjects(this.nodes, folder)[0]
             this.$emit('folderSelected', this.selectedFolder)
         },
         removeSelectedFolder() {

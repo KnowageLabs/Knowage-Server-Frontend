@@ -100,19 +100,7 @@
     />
 
     <div v-if="parameterSidebarVisible" id="document-execution-backdrop" @click="parameterSidebarVisible = false"></div>
-    <KnParameterSidebar
-        v-if="parameterSidebarVisible"
-        style="height: 100%; top: 0 !important"
-        class="workspace-parameter-sidebar kn-overflow-y"
-        :filters-data="filtersData"
-        :prop-document="selectedDataset"
-        :prop-mode="'workspaceView'"
-        :prop-q-b-e-parameters="selectedDataset.pars"
-        :user-role="userRole"
-        :dataset="selectedDataset"
-        @execute="onExecute"
-        @roleChanged="onRoleChange"
-    />
+    <KnParameterSidebar v-if="parameterSidebarVisible" style="height: 100%; top: 0 !important" class="workspace-parameter-sidebar kn-overflow-y" :filters-data="filtersData" :prop-document="selectedDataset" :prop-mode="'workspaceView'" :prop-q-b-e-parameters="selectedDataset.pars" :user-role="userRole" :dataset="selectedDataset" @execute="onExecute" @roleChanged="onRoleChange" />
 
     <DatasetWizard v-if="showDatasetDialog" :selected-dataset="selectedDataset" :visible="showDatasetDialog" @closeDialog="showDatasetDialog = false" @closeDialogAndReload="closeWizardAndReload" />
     <EditPreparedDatasetDialog :dataset="selectedDataset" :visible="showEditPreparedDatasetDialog" @save="updatePreparedDataset" @cancel="showEditPreparedDatasetDialog = false" />
@@ -594,6 +582,16 @@ export default defineComponent({
             // listen on websocket for avro export job to be finished
             if (this.user?.functionalities.includes(UserFunctionalitiesConstants.DATA_PREPARATION) && Object.keys(this.client).length > 0) this.client.publish({ destination: '/app/prepare', body: dsId })
         },
+        getDatasetInfo(dataset) {
+            if (!dataset) return ''
+            const tempDs = {
+                label: dataset.label,
+                name: dataset.name,
+                description: dataset.description,
+                id: dataset.id
+            }
+            return JSON.stringify(tempDs)
+        },
         async openDataPreparation(dataset: any) {
             this.events = []
             this.pushEvent(0)
@@ -616,7 +614,7 @@ export default defineComponent({
 
                                     this.generateAvro(datasetId)
                                 } else {
-                                    this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: JSON.stringify(dataset) } })
+                                    this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
                                 }
                             },
                             () => {

@@ -18,7 +18,7 @@
                 <q-splitter v-model="splitterModel" style="height: 100%">
                     <template #before>
                         <div class="q-pa-md">
-                            <q-tree :nodes="folders" :default-expand-all="true" node-key="id" label-key="name" selected-color="primary" v-model:selected="selected" @update:selected="getFolderDocuments" default-expand-all />
+                            <q-tree :nodes="folders" :default-expand-all="true" node-key="id" label-key="name" selected-color="primary" v-model:selected="selected" @update:selected="getFolderDocuments" default-expand-all :filter-method="(node) => node.type === 'VIEW'" />
                         </div>
                     </template>
 
