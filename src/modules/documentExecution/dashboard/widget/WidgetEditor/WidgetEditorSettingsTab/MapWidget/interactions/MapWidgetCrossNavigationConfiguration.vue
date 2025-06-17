@@ -99,17 +99,6 @@ export default defineComponent({
             return this.widgetModel.layers.filter((layer: IMapWidgetLayer) => layer.type === 'dataset')
         }
     },
-    watch: {
-        widgetModel: {
-            handler(newVal) {
-                if (newVal?.settings?.visualizations) {
-                    this.loadCrossNavigationConfiguration()
-                }
-            },
-            deep: true,
-            immediate: true
-        }
-    },
     created() {
         this.setEventListeners()
         this.loadCrossNavigationOptions()

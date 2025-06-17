@@ -29,11 +29,12 @@
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="addPreviewConfiguration" />
                     <Button v-if="index !== 0" icon="pi pi-trash kn-cursor-pointer" class="p-md-2 p-button-text p-button-plain p-js-center p-ml-2" @click="removePreviewConfiguration(index)" />
                 </div>
-                <div v-if="previewConfig.vizualizationType?.id && parameterList[previewConfig.vizualizationType.id]" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
+
+                <div v-if="previewConfig.vizualizationType?.id" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
                     <WidgetOutputParametersList
                         class="kn-flex p-mr-2"
                         :widget-model="widgetModel"
-                        :prop-parameters="parameterList[previewConfig.vizualizationType.id]"
+                        :prop-parameters="previewConfig.parameters"
                         :selected-datasets-columns-map="selectedDatasetColumnNameMap"
                         :mapDynamicOptions="availableColumns(previewConfig.vizualizationType)"
                         :preview-config="previewConfig"
@@ -96,20 +97,10 @@ export default defineComponent({
             return this.widgetModel.layers.filter((layer: IMapWidgetLayer) => layer.type === 'dataset')
         }
     },
-    watch: {
-        widgetModel: {
-            handler(newVal) {
-                if (newVal?.settings?.visualizations) {
-                    this.loadPreviewModel()
-                }
-            },
-            deep: true,
-            immediate: true
-        }
-    },
     created() {
         this.setEventListeners()
         this.loadPreviewModel()
+        this.loadDatasetsFromModel()
         this.loadOutputParameters()
         this.loadParameterList()
         this.loadSelectedDatasetColumnNames()
@@ -132,6 +123,10 @@ export default defineComponent({
         loadCrossNavigationOptions() {
             const temp = this.store.getCrossNavigations(this.dashboardId)
             if (temp) this.crossNavigationOptions = temp.map((crossNavigation: any) => crossNavigation.crossName)
+        },
+        loadDatasetsFromModel() {
+            const dashboardModel = this.store.getDashboard(this.dashboardId)
+            this.dashboardDatasets = dashboardModel?.configuration.datasets
         },
         loadOutputParameters() {
             this.outputParameters = this.store.getOutputParameters(this.dashboardId) ?? []
@@ -209,6 +204,9 @@ export default defineComponent({
             previewConfig.column = ''
             previewConfig.parameters = []
             const index = this.dashboardDatasets.findIndex((dataset: any) => dataset.id === previewConfig?.dataset)
+            console.log('previewConfig: ', previewConfig)
+            console.log('dashboardDatasets: ', this.dashboardDatasets)
+            console.log('index: ', index)
             if (index !== -1)
                 previewConfig.parameters = this.dashboardDatasets[index].parameters.map((tempParameter: IDatasetParameter) => {
                     return {

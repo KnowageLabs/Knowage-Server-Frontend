@@ -48,17 +48,6 @@ export default defineComponent({
             return !this.selectionConfiguration || !this.selectionConfiguration.enabled
         }
     },
-    watch: {
-        widgetModel: {
-            handler(newVal) {
-                if (newVal?.settings?.visualizations) {
-                    this.loadSelectionConfiguration()
-                }
-            },
-            deep: true,
-            immediate: true
-        }
-    },
     created() {
         this.setEventListeners()
         this.loadSelectionConfiguration()
