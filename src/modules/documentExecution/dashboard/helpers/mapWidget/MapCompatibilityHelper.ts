@@ -2,7 +2,7 @@ import { IWidget, IWidgetResponsive, IWidgetExports, IWidgetInteractions, IDashb
 import { IMapTooltipSettings, IMapWidgetConditionalStyles, IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLegend, IMapWidgetLink, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetSettings, IMapWidgetStyle, IMapWidgetVisualizationType } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import { getFormattedStyle } from './MapStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
-import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
+import { getFormattedCrossNavigation, getFormattedInteractions } from '../common/WidgetInteractionsHelper'
 import { getFormattedLegendSettingsFromOldLayers, getFormattedSettingsFromLayers } from './MapLayersCompatibilityHelper'
 import * as mapWidgetDefaultValues from '../../widget/WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../../widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
@@ -33,7 +33,7 @@ const getFormattedWidgetSettings = (widget: any) => {
         dialog: getFormattedDialogSettings(widget),
         interactions: {
             selection: mapWidgetDefaultValues.getDefaultMapSelectionConfiguration() as IMapWidgetSelectionConfiguration,
-            crossNavigation: getFormattedCrossNavigation(widget) as IMapWidgetCrossNavigation,
+            crossNavigation: getFormattedCrossNavigationFromOldWidget(widget) as IMapWidgetCrossNavigation,
             preview: mapWidgetDefaultValues.getDefaultMapPreviewConfiguration() as IMapWidgetPreview,
             link: mapWidgetDefaultValues.getDefaultMapLinkConfiguration() as IMapWidgetLinkConfiguration
         },
@@ -84,6 +84,16 @@ const getFormattedDialogSettings = (widget: any) => {
     return formattedDialogSettings
 }
 
-const getFormattedCrossNavigation = (widget: any) => {
-    return mapWidgetDefaultValues.getDefaultMapCrossNavigationConfiguration()
+const getFormattedCrossNavigationFromOldWidget = (oldWidget: any) => {
+    const newCrossNavigation = mapWidgetDefaultValues.getDefaultMapCrossNavigationConfiguration()
+    const formattedOldCrossNavigation = getFormattedCrossNavigation(oldWidget)
+    if (!formattedOldCrossNavigation) return newCrossNavigation
+
+    newCrossNavigation.enabled = formattedOldCrossNavigation.enabled
+    if (newCrossNavigation.crossNavigationVizualizationTypes[0]) {
+        newCrossNavigation.crossNavigationVizualizationTypes[0].name = formattedOldCrossNavigation.name
+        newCrossNavigation.crossNavigationVizualizationTypes[0].parameters = formattedOldCrossNavigation.parameters
+    }
+
+    return newCrossNavigation
 }
