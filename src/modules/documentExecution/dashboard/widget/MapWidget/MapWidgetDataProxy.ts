@@ -4,8 +4,6 @@ import { AxiosResponse } from 'axios'
 import { clearDatasetInterval } from '../../helpers/datasetRefresh/DatasetRefreshHelpers'
 import { IMapWidgetLayer, IWidgetMapLayerColumn } from '../../interfaces/mapWidget/DashboardMapWidget'
 import axios from 'axios'
-import mockedDataset from './mockedDataset.json'
-import mockedPolygonDataset from './mockedPolygonDataset.json'
 
 export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, widget: IWidget, datasets: IDashboardDataset[], initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
     const tempResponse = {}
@@ -32,9 +30,6 @@ export const getMapWidgetData = async (dashboardId: any, dashboardConfig: any, w
                 // TODO - uncomment when realtime dataset example is ready
                 // resetDatasetInterval(widget)
             })
-
-        // if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = mockedDataset
-        // if (selectedDataset.dsLabel) tempResponse[selectedDataset.dsLabel] = mockedPolygonDataset
     }
 
     return tempResponse
