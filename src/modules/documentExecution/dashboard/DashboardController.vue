@@ -1,24 +1,9 @@
 <template>
     <div v-show="model && visible && showDashboard" :id="`dashboard_${model?.configuration?.id}`" :class="mode === 'dashboard-popup' ? 'dashboard-container-popup' : 'dashboard-container'">
-        <Button
-            v-if="alwaysShowSelectionButton || store.dashboards[dashboardId]?.selections?.length > 0"
-            icon="fa-regular fa-rectangle-list"
-            class="p-m-3 p-button-rounded p-button-text p-button-plain"
-            style="position: fixed; right: 0; z-index: 999; background-color: white; box-shadow: 0px 2px 3px #ccc"
-            :title="$t('dashboard.selectionsList')"
-            @click="selectionsDialogVisible = true"
-        />
+        <Button v-if="alwaysShowSelectionButton || store.dashboards[dashboardId]?.selections?.length > 0" icon="fa-regular fa-rectangle-list" class="p-m-3 p-button-rounded p-button-text p-button-plain" style="position: fixed; right: 0; z-index: 999; background-color: white; box-shadow: 0px 2px 3px #ccc" :title="$t('dashboard.selectionsList')" @click="selectionsDialogVisible = true" />
 
         <div class="dashboard-renderer-container">
-            <DashboardHeaderWidget
-                v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible && model.configuration.menuWidgets.enableCustomHeader"
-                :dashboard-id="dashboardId"
-                :prop-widget="model?.configuration?.customHeader"
-                :datasets="model.configuration.datasets"
-                :document-drivers="drivers"
-                :variables="model ? model.configuration.variables : []"
-                :custom-chart-gallery-prop="customChartGallery"
-            ></DashboardHeaderWidget>
+            <DashboardHeaderWidget v-if="!loading && showDashboard && model?.configuration?.customHeader && customHeaderVisible && model.configuration.menuWidgets.enableCustomHeader" :dashboard-id="dashboardId" :prop-widget="model?.configuration?.customHeader" :datasets="model.configuration.datasets" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" :custom-chart-gallery-prop="customChartGallery"></DashboardHeaderWidget>
 
             <div class="dashboard-renderer-core">
                 <DashboardRenderer v-if="!loading && visible && showDashboard" :document="document" :model="model" :datasets="datasets" :dashboard-id="dashboardId" :document-drivers="drivers" :variables="model ? model.configuration.variables : []"></DashboardRenderer>
@@ -40,19 +25,7 @@
         <SelectionsListDialog v-if="selectionsDialogVisible" :visible="selectionsDialogVisible" :document="document" :dashboard-id="dashboardId" @close="selectionsDialogVisible = false" @save="onSelectionsRemove" />
     </div>
 
-    <WidgetEditor
-        v-if="widgetEditorVisible"
-        :dashboard-id="dashboardId"
-        :prop-widget="selectedWidget"
-        :datasets="datasets"
-        :document-drivers="drivers"
-        :variables="model ? model.configuration.variables : []"
-        :custom-chart-gallery-prop="customChartGallery"
-        data-test="widget-editor"
-        @close="closeWidgetEditor"
-        @widget-saved="closeWidgetEditor"
-        @widget-updated="closeWidgetEditor"
-    ></WidgetEditor>
+    <WidgetEditor v-if="widgetEditorVisible" :dashboard-id="dashboardId" :prop-widget="selectedWidget" :datasets="datasets" :document-drivers="drivers" :variables="model ? model.configuration.variables : []" :custom-chart-gallery-prop="customChartGallery" data-test="widget-editor" @close="closeWidgetEditor" @widget-saved="closeWidgetEditor" @widget-updated="closeWidgetEditor"></WidgetEditor>
 
     <DashboardSaveViewDialog v-if="saveViewDialogVisible" :visible="saveViewDialogVisible" :prop-view="selectedView" :document="document" @close="onSaveViewListDialogClose"></DashboardSaveViewDialog>
     <DashboardSavedViewsDialog v-if="savedViewsListDialogVisible" :visible="savedViewsListDialogVisible" :document="document" @close="savedViewsListDialogVisible = false" @move-view="moveView" @execute-view="executeView"></DashboardSavedViewsDialog>
@@ -198,7 +171,7 @@ export default defineComponent({
             this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
         },
         async reloadTrigger() {
-            if (!this.showDashboard) return
+            if (!this.showDashboard || !this.visible) return
             await this.getData()
         },
         async propView() {
@@ -227,24 +200,7 @@ export default defineComponent({
     },
     methods: {
         ...mapState(dashboardStore, ['dashboards']),
-        ...mapActions(dashboardStore, [
-            'getDashboardDrivers',
-            'removeSelections',
-            'setAllDatasets',
-            'getSelections',
-            'setInternationalization',
-            'getInternationalization',
-            'setDashboardDocument',
-            'setDashboardDrivers',
-            'setProfileAttributes',
-            'getCrossNavigations',
-            'setCurrentDashboardView',
-            'setHTMLGaleryItems',
-            'setPythonGaleryItems',
-            'setCustomChartGaleryItems',
-            'setSelectedSheetIndex',
-            'setExecutionTime'
-        ]),
+        ...mapActions(dashboardStore, ['getDashboardDrivers', 'removeSelections', 'setAllDatasets', 'getSelections', 'setInternationalization', 'getInternationalization', 'setDashboardDocument', 'setDashboardDrivers', 'setProfileAttributes', 'getCrossNavigations', 'setCurrentDashboardView', 'setHTMLGaleryItems', 'setPythonGaleryItems', 'setCustomChartGaleryItems', 'setSelectedSheetIndex', 'setExecutionTime']),
         setEventListeners() {
             emitter.on('openNewWidgetPicker', this.openNewWidgetPicker)
             emitter.on('openDatasetManagement', this.openDatasetManagementDialog)
