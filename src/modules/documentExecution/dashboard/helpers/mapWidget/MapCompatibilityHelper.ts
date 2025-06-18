@@ -1,5 +1,5 @@
 import { IWidget, IWidgetResponsive, IWidgetExports, IWidgetInteractions, IDashboard, IDashboardDriver, IWidgetHelpSettings } from './../../Dashboard.d'
-import { IMapTooltipSettings, IMapWidgetConditionalStyles, IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLegend, IMapWidgetLink, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetSettings, IMapWidgetStyle, IMapWidgetVisualizationType } from './../../interfaces/mapWidget/DashboardMapWidget.d'
+import { IMapTooltipSettings, IMapWidgetConditionalStyles, IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLegend, IMapWidgetLink, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IMapWidgetSettings, IMapWidgetStyle, IMapWidgetVisualizationType } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import { getFormattedStyle } from './MapStyleHelper'
 import { hexToRgba } from '../FormattingHelpers'
 import { getFormattedInteractions } from '../common/WidgetInteractionsHelper'
@@ -32,10 +32,10 @@ const getFormattedWidgetSettings = (widget: any) => {
         legend: mapWidgetDefaultValues.getDefaultLegendSettings() as IMapWidgetLegend,
         dialog: getFormattedDialogSettings(widget),
         interactions: {
-            selection: { enabled: true, selections: [] } as IMapWidgetSelectionConfiguration,
-            crossNavigation: { enabled: false, name: '', crossNavigationVizualizationTypes: [] } as IMapWidgetCrossNavigation,
-            preview: { enabled: false, previewVizualizationTypes: [] } as IMapWidgetPreview,
-            link: { enabled: false, linkVizualizationTypes: [] } as IMapWidgetLink
+            selection: mapWidgetDefaultValues.getDefaultMapSelectionConfiguration() as IMapWidgetSelectionConfiguration,
+            crossNavigation: getFormattedCrossNavigation(widget) as IMapWidgetCrossNavigation,
+            preview: mapWidgetDefaultValues.getDefaultMapPreviewConfiguration() as IMapWidgetPreview,
+            link: mapWidgetDefaultValues.getDefaultMapLinkConfiguration() as IMapWidgetLinkConfiguration
         },
         style: getFormattedStyle(widget) as IMapWidgetStyle,
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,
@@ -82,4 +82,8 @@ const getFormattedDialogSettings = (widget: any) => {
         formattedDialogSettings.style.color = widget.style.tooltip.text.color ? hexToRgba(widget.style.tooltip.text.color) : ''
     }
     return formattedDialogSettings
+}
+
+const getFormattedCrossNavigation = (widget: any) => {
+    return mapWidgetDefaultValues.getDefaultMapCrossNavigationConfiguration()
 }

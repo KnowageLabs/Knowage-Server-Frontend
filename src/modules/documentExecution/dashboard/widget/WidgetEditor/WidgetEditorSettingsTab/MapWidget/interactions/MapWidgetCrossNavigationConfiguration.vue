@@ -238,6 +238,7 @@ export default defineComponent({
         },
         async onVizualizationTypeChange(crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig) {
             crossNavigationConfig.column = ''
+            this.loadParameterList()
             if (!crossNavigationConfig.vizualizationType?.target) return
             const target = this.widgetModel.layers.find((layer: IMapWidgetLayer) => crossNavigationConfig.vizualizationType?.target === layer.layerId)
             if (!target || target.type !== 'layer' || this.propertiesCache.has(crossNavigationConfig.vizualizationType.target)) {
@@ -245,7 +246,6 @@ export default defineComponent({
                 return
             }
             await this.loadAvailablePropertiesInCrossNavigationForLayer(target, crossNavigationConfig.vizualizationType)
-            this.loadParameterList()
         },
         onParametersChanged(parameters: IWidgetInteractionParameter[], crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig | null) {
             if (crossNavigationVisTypeConfig) crossNavigationVisTypeConfig.parameters = parameters

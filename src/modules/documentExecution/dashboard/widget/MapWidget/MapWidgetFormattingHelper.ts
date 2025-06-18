@@ -1,9 +1,11 @@
 import { IDataset, IDatasetColumn, IWidget } from '../../Dashboard'
-import { IMapWidgetLayer, IWidgetMapLayerColumn } from '../../interfaces/mapWidget/DashboardMapWidget'
+import { IMapWidgetCrossNavigation, IMapWidgetLayer, IMapWidgetLinkConfiguration, IMapWidgetPreview, IMapWidgetSelectionConfiguration, IWidgetMapLayerColumn } from '../../interfaces/mapWidget/DashboardMapWidget'
 import { removeColumnFromModel } from '../WidgetEditor/MapWidget/MapWidgetLayersTabListHelper'
+import * as mapWidgetDefaultValues from '@/modules/documentExecution/dashboard/widget/WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 
 export const formatMapWidgetAfterDashboardLoading = (widget: IWidget, datasets: IDataset[]) => {
     formatLayerColumnIfDatasetChanged(widget, datasets)
+    formatMapInteractions(widget)
 }
 
 const formatLayerColumnIfDatasetChanged = (widget: IWidget, datasets: IDataset[]) => {
@@ -55,4 +57,38 @@ export const setDefaultMeasureValuesForMapWidgetColumns = (widgetModel: IWidget)
             if (column.fieldType === 'MEASURE' && !column.aggregationSelected && !column.isCalculatedField) column.aggregationSelected = 'SUM'
         })
     })
+}
+
+const formatMapInteractions = (widget: IWidget) => {
+    formatMapSelectioConfigurationn(widget)
+    formatMapCrossNavigationConfiguration(widget)
+    formatMapLinkConfiguration(widget)
+    formatMapPreviewConfiguration(widget)
+}
+
+const formatMapSelectioConfigurationn = (widget: IWidget) => {
+    const selectionConfiguration = (widget?.settings?.interactions?.selection ?? null) as IMapWidgetSelectionConfiguration | null
+    if (!selectionConfiguration) return false
+
+    if (selectionConfiguration.selections == undefined) widget.settings.interactions.selection = mapWidgetDefaultValues.getDefaultMapSelectionConfiguration()
+}
+const formatMapCrossNavigationConfiguration = (widget: IWidget) => {
+    const crossNavigationConfiguration = (widget?.settings?.interactions?.crossNavigation ?? null) as IMapWidgetCrossNavigation | null
+    if (!crossNavigationConfiguration) return false
+
+    if (crossNavigationConfiguration.crossNavigationVizualizationTypes == undefined) widget.settings.interactions.crossNavigation = mapWidgetDefaultValues.getDefaultMapCrossNavigationConfiguration()
+}
+
+const formatMapLinkConfiguration = (widget: IWidget) => {
+    const linkConfiguration = (widget?.settings?.interactions?.link ?? null) as IMapWidgetLinkConfiguration | null
+    if (!linkConfiguration) return false
+
+    if (linkConfiguration.linkVizualizationTypes == undefined) widget.settings.interactions.link = mapWidgetDefaultValues.getDefaultMapLinkConfiguration()
+}
+
+const formatMapPreviewConfiguration = (widget: IWidget) => {
+    const previewConfiguration = (widget?.settings?.interactions?.preview ?? null) as IMapWidgetPreview | null
+    if (!previewConfiguration) return false
+
+    if (previewConfiguration.previewVizualizationTypes == undefined) widget.settings.interactions.preview = mapWidgetDefaultValues.getDefaultMapPreviewConfiguration()
 }

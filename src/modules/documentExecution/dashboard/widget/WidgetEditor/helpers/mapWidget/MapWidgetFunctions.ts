@@ -15,10 +15,10 @@ export const createNewMapWidgetSettings = () => {
         legend: mapWidgetDefaultValues.getDefaultLegendSettings(),
         dialog: mapWidgetDefaultValues.getDefaultDialogSettings(),
         interactions: {
-            selection: { enabled: true, selections: [] } as IMapWidgetSelectionConfiguration,
-            crossNavigation: { enabled: false, crossNavigationVizualizationTypes: [] } as IMapWidgetCrossNavigation,
-            preview: { enabled: false, previewVizualizationTypes: [] } as IMapWidgetPreview,
-            link: { enabled: false, linkVizualizationTypes: [{ vizualizationType: null, column: '', links: [{ type: '', baseurl: '', action: '', parameters: [] }] }] } as IMapWidgetLinkConfiguration
+            selection: mapWidgetDefaultValues.getDefaultMapSelectionConfiguration() as IMapWidgetSelectionConfiguration,
+            crossNavigation: mapWidgetDefaultValues.getDefaultMapCrossNavigationConfiguration() as IMapWidgetCrossNavigation,
+            preview: mapWidgetDefaultValues.getDefaultMapPreviewConfiguration() as IMapWidgetPreview,
+            link: mapWidgetDefaultValues.getDefaultMapLinkConfiguration() as IMapWidgetLinkConfiguration
         },
         style: {
             themeId: null,
