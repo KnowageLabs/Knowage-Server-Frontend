@@ -3,7 +3,6 @@ import { IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisuali
 import L from 'leaflet'
 import deepcopy from 'deepcopy'
 import { getLayerData, getMapWidgetData } from './MapWidgetDataProxy'
-import wktMock from './wkt-mock.json'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { feature } from 'topojson-client'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -174,7 +173,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 if (!layersData) return
 
                 if (layersData.wkt) {
-                    const wktData = wktMock.wkt
+                    const wktData = layersData.wkt
                     const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
                     const wktArray = wktData.match(wktRegex) || []
 
