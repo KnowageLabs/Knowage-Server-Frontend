@@ -1,96 +1,45 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary dossier-designer-dialog" :visible="visible" footer="footer" :header="$t(`documentExecution.dossier.designerDialog.step${step}.title`)" modal :base-z-index="9990" :closable="false">
-        <ProgressSpinner v-if="loading" class="kn-progress-spinner" />
-        <Message v-if="step == 0" class="p-mx-2" severity="info" :closable="false">
+    <Dialog class="kn-dialog--toolbar--primary dossier-designer-dialog" :visible="visible" footer="footer" :header="$t(`documentExecution.dossier.designerDialog.step${step}.title`)" modal :closable="false">
+        <q-banner class="bg-info text-black q-ma-sm" rounded dense>
+            <template v-slot:avatar>
+                <q-icon name="info" color="primary" size="sm" />
+            </template>
             {{ $t(`documentExecution.dossier.designerDialog.step0.info`) }}
-        </Message>
+        </q-banner>
 
         <div v-if="step == 0">
-            <Accordion :active-index="0" class="p-px-3">
-                <AccordionTab :header="$t('common.settings')">
-                    <div class="p-grid p-pl-2 p-ml-2 p-pr-2 p-mr-2">
-                        <div class="p-col-6 p-d-flex p-mt-2 p-mb-4">
-                            <span class="p-float-label kn-width-full">
-                                <InputText id="fileName" v-model="v$.activeTemplate.name.$model" class="kn-material-input kn-width-full" :disabled="true" @change="setDirty()" />
-                                <label for="fileName" class="kn-material-input-label">
-                                    {{ $t('documentExecution.documentDetails.info.uploadTemplate') }}
-                                </label>
-                            </span>
-                            <Button icon="fas fa-upload fa-1x" class="p-button-text p-button-plain p-ml-2" @click="setUploadType" />
-                            <KnInputFile v-if="!uploading" :label="$t('documentExecution.dossier.designerDialog.templateFile')" :change-function="startTemplateUpload" accept=".docx, .pptx" :trigger-input="triggerUpload" />
-                            <KnValidationMessages class="p-mt-1" :v-comp="v$.activeTemplate.name.$model" />
-                        </div>
-                        <div class="p-col-6 p-d-flex p-mt-2 p-mb-4">
-                            <span class="p-float-label">
-                                <InputText
-                                    id="prefix"
-                                    v-model="v$.activeTemplate.prefix.$model"
-                                    class="kn-material-input kn-width-full"
-                                    type="text"
-                                    max-length="100"
-                                    :class="{
-                                        'p-invalid': v$.activeTemplate.prefix.$invalid && v$.activeTemplate.prefix.$dirty
-                                    }"
-                                    @blur="v$.activeTemplate.prefix.$touch()"
-                                    @change="setDirty()"
-                                />
-                                <label for="prefix" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.prefix') }}</label>
-                                <small id="prefix-help" class="hint">{{ $t('documentExecution.dossier.designerDialog.prefixHint') }}</small>
-                            </span>
-
-                            <KnValidationMessages
-                                class="p-mt-1"
-                                :v-comp="v$.activeTemplate.prefix"
-                                :additional-translate-params="{
-                                    fieldName: $t('dashboard.widgetEditor.prefix')
-                                }"
-                            />
-                        </div>
-
-                        <div class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
-                            <div class="p-col-5 p-float-label">
-                                <InputSwitch v-model="activeTemplate.uploadable" class="p-mr-2" />
-                                <span>{{ $t('documentExecution.dossier.designerDialog.uploadable') }}</span>
-                            </div>
-                            <i v-tooltip.bottom="$t('documentExecution.dossier.designerDialog.uploadableHint')" class="p-col-1 pi pi-question-circle endIcon"></i>
-                        </div>
-                        <div class="p-col-6 p-d-flex p-m-2 kn-height-full kn-width-full">
-                            <div class="p-col-5 p-float-label">
-                                <InputSwitch v-model="activeTemplate.downloadable" class="p-mr-2" />
-                                <span>{{ $t('documentExecution.dossier.designerDialog.downloadable') }}</span>
-                            </div>
-                            <i v-tooltip.bottom="$t('documentExecution.dossier.designerDialog.downloadableHint')" class="p-col-1 pi pi-question-circle endIcon"></i>
-                        </div>
-                    </div> </AccordionTab
-            ></Accordion>
+            <q-card class="q-ma-sm">
+                <q-card-section>
+                    <div class="row q-col-gutter-sm">
+                        <q-input filled class="col-6" v-model="v$.activeTemplate.name.$model" readonly maxLength="100" :error="v$.activeTemplate.name.$invalid && v$.activeTemplate.name.$dirty" :error-message="v$.activeTemplate.name.$errors[0]?.$message" :label="$t('documentExecution.documentDetails.info.uploadTemplate') + '*'">
+                            <template v-slot:after>
+                                <q-btn icon="upload" flat @click="setUploadType" />
+                                <KnInputFile v-if="!uploading" :label="$t('documentExecution.dossier.designerDialog.templateFile')" :change-function="startTemplateUpload" accept=".docx, .pptx" :trigger-input="triggerUpload" />
+                            </template>
+                        </q-input>
+                        <q-input filled class="col-6" v-model="v$.activeTemplate.prefix.$model" maxLength="100" :error="v$.activeTemplate.prefix.$invalid && v$.activeTemplate.prefix.$dirty" :error-message="v$.activeTemplate.prefix.$errors[0]?.$message" :label="$t('dashboard.widgetEditor.prefix')">
+                            <template v-slot:hint> {{ $t('documentExecution.dossier.designerDialog.prefixHint') }}</template>
+                        </q-input>
+                        <q-toggle class="col-6" v-model="activeTemplate.uploadable" :label="$t('documentExecution.dossier.designerDialog.uploadable')">
+                            <q-tooltip :delay="500">{{ $t('documentExecution.dossier.designerDialog.uploadableHint') }}</q-tooltip>
+                        </q-toggle>
+                        <q-toggle class="col-6" v-model="activeTemplate.downloadable" :label="$t('documentExecution.dossier.designerDialog.downloadable')">
+                            <q-tooltip :delay="500">{{ $t('documentExecution.dossier.designerDialog.downloadableHint') }}</q-tooltip>
+                        </q-toggle>
+                    </div>
+                </q-card-section>
+            </q-card>
         </div>
 
         <div v-if="step == 1" class="p-grid kn-width-full kn-height-full">
-            <Listbox
-                option-label="name"
-                class="kn-list kn-height-full p-col-4"
-                :options="activeTemplate.placeholders"
-                :filter="true"
-                :filter-placeholder="$t('common.search')"
-                filter-match-mode="contains"
-                :filter-fields="['label']"
-                :empty-filter-message="$t('common.info.noDataFound')"
-                @change="selected($event)"
-            >
+            <Listbox option-label="name" class="kn-list p-col-4 overflow-auto card-height" :options="activeTemplate.placeholders" :filter="true" :filter-placeholder="$t('common.search')" filter-match-mode="contains" :filter-fields="['label']" :empty-filter-message="$t('common.info.noDataFound')" @change="selected($event)">
                 <template #option="slotProps">
                     <div :class="['kn-list-item', 'selected']">
                         <div class="kn-list-item-text">
                             {{ slotProps.option.imageName }}
                         </div>
 
-                        <Button
-                            v-if="slotProps.option.label"
-                            v-tooltip="$t('documentExecution.dossier.designerDialog.resetPlaceholder')"
-                            icon="fa-solid fa-arrows-rotate"
-                            class="p-button-text p-button-rounded p-button-plain"
-                            @click="resetPlaceholder()"
-                            :disabled="isIconDisabled(slotProps.option)"
-                        ></Button>
+                        <Button v-if="slotProps.option.label" v-tooltip="$t('documentExecution.dossier.designerDialog.resetPlaceholder')" icon="fa-solid fa-arrows-rotate" class="p-button-text p-button-rounded p-button-plain" @click="resetPlaceholder()" :disabled="isIconDisabled(slotProps.option)"></Button>
                         <i v-if="!slotProps.option.label" :v-tooltip="$t('documentExecution.dossier.designerDialog.noDocumentLinkedToThePlaceholder')" class="p-button-text p-button-rounded p-button-plain fa-solid fa-triangle-exclamation"></i>
                     </div>
                 </template>
@@ -99,7 +48,7 @@
             <div v-if="currentSelectedIndex == -1" class="p-col">
                 <KnHint class="kn-hint-sm" :title="$t('documentExecution.dossier.designerDialog.placeholders')" :hint="$t('documentExecution.dossier.designerDialog.noPlaceholdersHint')" data-test="hint"></KnHint>
             </div>
-            <div v-else class="p-col placeholders-detail">
+            <div v-else class="p-col placeholders-detail card-height">
                 <div class="p-col">
                     <Message v-if="!activeTemplate.placeholders[currentSelectedIndex].label" class="p-my-4 p-px-0" severity="info" :closable="false">
                         {{ $t(`documentExecution.dossier.designerDialog.linkToDocumentHint`) }}
@@ -129,27 +78,9 @@
                                     <div v-for="(driver, key) in activeTemplate.placeholders[currentSelectedIndex].parameters" :key="driver.label" class="kn-card p-m-2 p-p-2">
                                         <span class="p-text-bold p-text-italic">{{ $t('documentExecution.dossier.designerDialog.documentDriver', { driver: driver.urlName || driver.parameterUrlName }) }} </span>
                                         <div class="p-grid p-pb-4 q-gutter-sm">
-                                            <q-select
-                                                v-if="driverTypes.length > 0"
-                                                v-model="driver.type"
-                                                :options="driverTypes"
-                                                :label="$t('documentExecution.dossier.designerDialog.driverLinkType')"
-                                                :option-label="(option) => (option.label ? $t(option.label) : '')"
-                                                emit-value
-                                                map-options
-                                                option-value="code"
-                                                style="min-width: 200px"
-                                            />
+                                            <q-select v-if="driverTypes.length > 0" v-model="driver.type" :options="driverTypes" :label="$t('documentExecution.dossier.designerDialog.driverLinkType')" :option-label="(option) => (option.label ? $t(option.label) : '')" emit-value map-options option-value="code" style="min-width: 200px" />
                                             <q-input v-if="typeCheck(driver, 'static')" v-model="driver.value" :label="$t('common.value')" class="kn-flex" />
-                                            <q-select
-                                                v-else-if="typeCheck(driver, 'dynamic')"
-                                                v-model="driver.dossierUrlName"
-                                                :options="document?.drivers"
-                                                :label="$t('documentExecution.dossier.designerDialog.dossierDriverName')"
-                                                option-label="label"
-                                                option-value="parameterUrlName"
-                                                class="kn-flex"
-                                            />
+                                            <q-select v-else-if="typeCheck(driver, 'dynamic')" v-model="driver.dossierUrlName" :options="document?.drivers" :label="$t('documentExecution.dossier.designerDialog.dossierDriverName')" option-label="label" option-value="parameterUrlName" class="kn-flex" />
                                             <q-input v-else-if="typeCheck(driver, 'inherit')" v-model="driver.dossierUrlName" :disabled="true" :hidden="true" />
                                         </div>
                                         <Divider v-if="key !== activeTemplate.placeholders[currentSelectedIndex].parameters.length - 1" class="p-m-0 p-p-0 dividerCustomConfig" type="solid" />
@@ -198,8 +129,6 @@ import DocDialog from './DocumentDetailDossierDocumentSelectionDialog.vue'
 import KnHint from '@/components/UI/KnHint.vue'
 import Message from 'primevue/message'
 import Listbox from 'primevue/listbox'
-import InputSwitch from 'primevue/inputswitch'
-import InputNumber from 'primevue/inputnumber'
 import Accordion from 'primevue/accordion'
 import AccordionTab from 'primevue/accordiontab'
 import Divider from 'primevue/divider'
@@ -218,8 +147,6 @@ export default defineComponent({
         DocDialog,
         KnInputFile,
         KnHint,
-        InputNumber,
-        InputSwitch,
         Listbox,
         Message,
         ProgressSpinner,
@@ -336,15 +263,14 @@ export default defineComponent({
         },
         async initialize() {
             if (!this.document || !this.user) return
-            this.loading = true
+            this.setLoading(true)
 
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/documents/listDocument')
                 .then((response: AxiosResponse<any>) => (this.documents = response.data))
-                .finally(() => (this.loading = false))
+                .finally(() => this.setLoading(false))
 
             this.driverTypes = descriptor.driverTypes
-            this.loading = false
         },
 
         closeDialog(refreshDrivers: boolean, refreshHistory: boolean) {
@@ -359,11 +285,13 @@ export default defineComponent({
         },
         async setActiveTemplate() {
             const documentId = this.getDocument()?.id
+            this.activeTemplate.downloadable = false
+            this.activeTemplate.uploadable = false
             if (documentId) {
                 const userId = this.user?.userUniqueIdentifier
                 const url = `${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/dossierTemplate?user_id=${userId}&documentId=${documentId}`
 
-                this.loading = true
+                this.setLoading(true)
                 await this.$http
                     .get(url)
                     .then((response: any) => {
@@ -384,7 +312,7 @@ export default defineComponent({
                             })
                         }
                     })
-                    .finally(() => (this.loading = false))
+                    .finally(() => this.setLoading(false))
             }
         },
         async next() {
@@ -404,7 +332,7 @@ export default defineComponent({
                 formData.append('file', this.uploadedFile)
                 formData.append('uuid', this.uuid)
 
-                this.loading = true
+                this.setLoading(true)
                 await this.$http
                     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/importTemplateFile', formData, {
                         headers: {
@@ -431,7 +359,10 @@ export default defineComponent({
                         })
                         valid = false
                     })
-                    .finally(() => (this.triggerUpload = false))
+                    .finally(() => {
+                        this.setLoading(false)
+                        this.triggerUpload = false
+                    })
             }
             if (valid) {
                 const ppt = this.activeTemplate.type === 'PPT_TEMPLATE_V2'
@@ -452,7 +383,7 @@ export default defineComponent({
                 }
 
                 const placeholdersInTheLastTemplate = this.activeTemplate.placeholders?.length > 0
-                this.loading = true
+                this.setLoading(true)
                 await this.$http
                     .get(url)
                     .then((response: AxiosResponse<any>) => {
@@ -472,7 +403,7 @@ export default defineComponent({
                             this.activeTemplate.placeholders.push(item)
                         })
                     })
-                    .finally(() => (this.loading = false))
+                    .finally(() => this.setLoading(false))
 
                 if (this.activeTemplate.placeholders.length == 0) {
                     this.setInfo({
@@ -505,7 +436,7 @@ export default defineComponent({
                 }
             }
 
-            this.loading = true
+            this.setLoading(true)
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/2.0/saveDocument/', formattedAnalysis, { headers: { 'X-Disable-Errors': 'true' } })
                 .then(async (response: any) => {
@@ -528,7 +459,7 @@ export default defineComponent({
                         msg: response
                     })
                 })
-                .finally(() => (this.loading = false))
+                .finally(() => this.setLoading(false))
         },
         back() {
             this.dirty = false
@@ -601,7 +532,7 @@ export default defineComponent({
             // await this.loadViews(doc.DOCUMENT_ID)
         },
         async loadParameters(docId) {
-            this.loading = true
+            this.setLoading(true)
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${docId}/drivers`)
                 .then((response: AxiosResponse<any>) => {
@@ -623,10 +554,10 @@ export default defineComponent({
                         }
                     }
                 })
-                .finally(() => (this.loading = false))
+                .finally(() => this.setLoading(false))
         },
         /*async loadViews(docId) {
-            this.loading = true
+            this.setLoading(true)
             await this.$http
                 .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/repository/view/document/${docId}`)
                 .then((response: AxiosResponse<any>) => {
@@ -638,7 +569,7 @@ export default defineComponent({
                         tmp.source = 'VIEWS'
                     }
                 })
-                .finally(() => (this.loading = false))
+                .finally(() => (this.setLoading(false)))
         },*/
         setupViewsObj(template) {
             if (!template.views) template.views = {}
@@ -690,7 +621,7 @@ export default defineComponent({
             }
 
             // SAVE TEMPLATE
-            this.loading = true
+            this.setLoading(true)
             await this.$http
                 .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossierdocument/saveTemplate?user_id=${this.user?.userUniqueIdentifier}`, objToSend)
                 .then(() => {
@@ -700,7 +631,7 @@ export default defineComponent({
                         msg: this.$t('common.toast.uploadSuccess')
                     })
                 })
-                .finally(() => (this.loading = false))
+                .finally(() => this.setLoading(false))
         },
         async handleDrivers() {
             const objToSave = JSON.parse(JSON.stringify(this.activeTemplate))
@@ -747,7 +678,7 @@ export default defineComponent({
                                 delete newDriver.type
                                 newDriver.prog = this.document?.drivers?.length ?? 1
 
-                                this.loading = true
+                                this.setLoading(true)
                                 await this.$http
                                     .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`, newDriver, {
                                         headers: {
@@ -767,15 +698,15 @@ export default defineComponent({
                                             msg: this.$t('documentExecution.documentDetails.drivers.persistError')
                                         })
                                     )
-                                    .finally(() => (this.loading = false))
+                                    .finally(() => this.setLoading(false))
 
-                                this.loading = true
+                                this.setLoading(true)
                                 await this.$http
                                     .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${newDriver.biObjectID}/drivers`)
                                     .then((response: AxiosResponse<any>) => {
                                         if (this.document && this.document.drivers) this.document.drivers = response.data
                                     })
-                                    .finally(() => (this.loading = false))
+                                    .finally(() => this.setLoading(false))
                             }
                         } else {
                             this.setError({
@@ -813,7 +744,7 @@ export default defineComponent({
             }
             formData.append('prefix', '' + this.activeTemplate.prefix)
             formData.append('fileName', fileName)
-            this.loading = true
+            this.setLoading(true)
             await this.$http
                 .post(`${import.meta.env.VITE_KNOWAGEDOSSIER_CONTEXT}/api/dossiervalidator/validateDocument?user_id=${this.user?.userUniqueIdentifier}`, formData, {
                     headers: {
@@ -828,7 +759,7 @@ export default defineComponent({
                     })
                     valid = false
                 })
-                .finally(() => (this.loading = false))
+                .finally(() => this.setLoading(false))
 
             return valid
         },
@@ -867,11 +798,8 @@ export default defineComponent({
     min-width: 900px;
     width: 70%;
     max-width: 1200px;
-    min-height: 550px;
-    height: 70%;
 
     .p-dialog-content {
-        height: calc(100% - 35px);
         padding: 0;
         overflow-x: hidden;
     }
@@ -898,10 +826,9 @@ export default defineComponent({
         }
     }
 
-    .p-card,
-    .p-card .p-card-body,
-    .p-card .p-card-content {
-        padding: 0.25rem;
+    .card-height {
+        min-height: 300px;
+        max-height: 500px;
     }
 }
 .dividerCustomConfig {

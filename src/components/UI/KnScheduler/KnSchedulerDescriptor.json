@@ -1,0 +1,153 @@
+{
+    "columns": [
+        {
+            "align": "left",
+            "field": "start",
+            "label": "managers.workspaceManagement.dataPreparation.monitoring.start",
+            "name": "start"
+        },
+        {
+            "align": "left",
+            "field": "stop",
+            "label": "managers.workspaceManagement.dataPreparation.monitoring.stop",
+            "name": "stop"
+        },
+        {
+            "align": "center",
+            "field": "status",
+            "label": "managers.workspaceManagement.dataPreparation.monitoring.status",
+            "name": "status"
+        },
+        {
+            "align": "left",
+            "field": "recordsNumber",
+            "label": "managers.workspaceManagement.dataPreparation.monitoring.recordsNumber",
+            "name": "recordsNumber"
+        }
+    ],
+    "config": {
+        "endDateEnabled": false,
+        "startDateEnabled": false
+    },
+    "days": [
+        {
+            "code": "mon",
+            "id": 1,
+            "name": "cron.monday"
+        },
+        {
+            "code": "tue",
+            "id": 2,
+            "name": "cron.tuesday"
+        },
+        {
+            "code": "wed",
+            "id": 3,
+            "name": "cron.wednesday"
+        },
+        {
+            "code": "thu",
+            "id": 4,
+            "name": "cron.thursday"
+        },
+        {
+            "code": "fri",
+            "id": 5,
+            "name": "cron.friday"
+        },
+        {
+            "code": "sat",
+            "id": 6,
+            "name": "cron.saturday"
+        },
+        {
+            "code": "sun",
+            "id": 0,
+            "name": "cron.sunday"
+        }
+    ],
+    "monthDays": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+    "months": [
+        {
+            "code": "jan",
+            "id": 1,
+            "name": "cron.january"
+        },
+        {
+            "code": "feb",
+            "id": 2,
+            "name": "cron.february"
+        },
+        {
+            "code": "mar",
+            "id": 3,
+            "name": "cron.march"
+        },
+        {
+            "code": "apr",
+            "id": 4,
+            "name": "cron.april"
+        },
+        {
+            "code": "may",
+            "id": 5,
+            "name": "cron.may"
+        },
+        {
+            "code": "jun",
+            "id": 6,
+            "name": "cron.june"
+        },
+        {
+            "code": "jul",
+            "id": 7,
+            "name": "cron.july"
+        },
+        {
+            "code": "aug",
+            "id": 8,
+            "name": "cron.august"
+        },
+        {
+            "code": "sep",
+            "id": 9,
+            "name": "cron.september"
+        },
+        {
+            "code": "oct",
+            "id": 10,
+            "name": "cron.october"
+        },
+        {
+            "code": "nov",
+            "id": 11,
+            "name": "cron.november"
+        },
+        {
+            "code": "dec",
+            "id": 12,
+            "name": "cron.december"
+        }
+    ],
+    "refreshRate": {
+        "label": "managers.workspaceManagement.dataPreparation.dataset.refreshRate.label",
+        "options": [
+            {
+                "code": "daily",
+                "name": "cron.daily"
+            },
+            {
+                "code": "monthly",
+                "name": "cron.monthly"
+            },
+            {
+                "code": "yearly",
+                "name": "cron.yearly"
+            },
+            {
+                "code": "custom",
+                "name": "cron.custom"
+            }
+        ]
+    }
+}

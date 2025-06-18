@@ -314,9 +314,7 @@ export default defineComponent({
             if (column.dependences && row && row[column.dependences]) {
                 postData.append('DEPENDENCES', this.entity + subEntity + ':' + column.dependences + '=' + row[column.dependences])
             }
-            await this.$http
-                .post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
-                .then((response: AxiosResponse<any>) => (this.comboColumnOptions[column.field][row[column.dependences] ?? 'All'] = response.data.rows))
+            await this.$http.post(`${import.meta.env.VITE_KNOWAGEQBE_CONTEXT}/servlet/AdapterHTTP?ACTION_NAME=GET_FILTER_VALUES_ACTION&SBI_EXECUTION_ID=${this.id}`, postData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then((response: AxiosResponse<any>) => (this.comboColumnOptions[column.field][row[column.dependences] ?? 'All'] = response.data.rows))
             this.gridApi?.hideOverlay()
         },
         loadConfiguration() {
@@ -383,7 +381,7 @@ export default defineComponent({
             this.columns.forEach((el: any) => {
                 if (el.isVisible && el.field && el.field !== 'id') {
                     if (el.defaultValue) newRow[el.field] = el.defaultValue
-                    else newRow[el.field] = ['int', 'float', 'double'].includes(el.columnInfo.type) ? 0 : ''
+                    else newRow[el.field] = ''
                 }
             })
             this.addRowToFirstPosition(newRow)

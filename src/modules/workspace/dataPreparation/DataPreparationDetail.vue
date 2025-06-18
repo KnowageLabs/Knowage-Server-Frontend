@@ -1,17 +1,6 @@
 <template>
     <div class="kn-page kn-data-preparation">
-        <KnCalculatedField
-            v-model:visibility="showCFDialog"
-            v-model:template="selectedTransformation"
-            :fields="columns"
-            :descriptor="cfDescriptor"
-            :prop-calc-field-functions="cfDescriptor.availableFunctions"
-            :read-only="readOnly"
-            :valid="cfType !== ''"
-            @save="saveCFDialog"
-            @cancel="cancelCFDialog"
-            @update:readOnly="updateReadOnly"
-        >
+        <KnCalculatedField v-model:visibility="showCFDialog" v-model:template="selectedTransformation" :fields="columns" :descriptor="cfDescriptor" :prop-calc-field-functions="cfDescriptor.availableFunctions" :read-only="readOnly" :valid="cfType !== ''" @save="saveCFDialog" @cancel="cancelCFDialog" @update:readOnly="updateReadOnly">
             <template #additionalInputs>
                 <div class="p-col-4">
                     <span v-if="cfDescriptor.availableTypes" class="p-float-label p-field p-ml-2 kn-flex">
@@ -32,17 +21,7 @@
             </template>
         </KnCalculatedField>
         <DataPreparationDialog v-model:transformation="selectedTransformation" v-model:col="col" :columns="columns" :read-only="readOnly" @send-transformation="handleTransformation" @update:readOnly="updateReadOnly" />
-        <DataPreparationSaveDialog
-            v-model:visibility="showSaveDialog"
-            :original-dataset="dataset"
-            :config="dataset.config"
-            :columns="columns"
-            :instance-id="instanceId"
-            :process-id="processId"
-            :prepared-ds-meta="preparedDsMeta"
-            @update:instanceId="updateInstanceId"
-            @update:processId="updateprocessId"
-        />
+        <DataPreparationSaveDialog v-model:visibility="showSaveDialog" :original-dataset="dataset" :existing-dataset="JSON.parse(existingDataset || '')" :config="dataset.config" :columns="columns" :instance-id="instanceId" :process-id="processId" :prepared-ds-meta="preparedDsMeta" @update:instanceId="updateInstanceId" @update:processId="updateprocessId" />
         <Toolbar class="kn-toolbar kn-toolbar--primary p-m-0">
             <template #start> {{ $t('managers.workspaceManagement.dataPreparation.label') }} ({{ $t('managers.workspaceManagement.dataPreparation.originalDataset') }}: {{ dataset.name }})</template>
             <template #end>
@@ -380,10 +359,7 @@ export default defineComponent({
         refreshOriginalDataset(): void {
             // launch avro export job
             this.$http
-                .post(
-                    import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/data-preparation/prepare/${this.dataset.id}`,
-                    {}
-                )
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/data-preparation/prepare/${this.dataset.id}`, {})
                 .then(() => {
                     this.store.setInfo({
                         title: this.$t('workspace.myData.isPreparing')

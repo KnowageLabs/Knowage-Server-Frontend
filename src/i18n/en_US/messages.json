@@ -79,7 +79,7 @@
         "default": "Default",
         "delete": "delete",
         "deleteAll": "delete all",
-        "description": "description",
+        "description": "Description",
         "detail": "Detail",
         "details": "Details",
         "development": "Development",
@@ -396,10 +396,10 @@
         "minute": "Minute",
         "minutes": "Minutes",
         "monday": "Monday",
-        "month": "Month",
+        "month": "Month | Months",
         "monthly": "Monthly",
         "months": "Months",
-        "nextExecution": "Next execution",
+        "nextExecution": "Next execution on {date}",
         "november": "November",
         "october": "October",
         "quarter": "Quarter",
@@ -422,11 +422,11 @@
         "thursday": "Thursday",
         "tuesday": "Tuesday",
         "wednesday": "Wednesday",
-        "week": "Week",
+        "week": "Week | Weeks",
         "weekday": "Weekday",
         "weekdays": "Weekdays",
         "weekly": "Weekly",
-        "year": "Year",
+        "year": "Year | Years",
         "yearly": "Yearly"
     },
     "dashboard": {
@@ -3189,7 +3189,7 @@
                 "printDocuments": "Print Documents",
                 "rateDocuments": "Rate Documents",
                 "runScheduledExecution": "Run Scheduled execution",
-                "saveIntoWorkspace": "Save into My Workspace",
+                "saveIntoWorkspace": "Show My Repository",
                 "saveMeta": "Save Metadata",
                 "saveOlapView": "Save OLAP View",
                 "saveRemember": "Save to remember",
@@ -3512,6 +3512,7 @@
                         },
                         "label": "Refresh rate"
                     },
+                    "refreshTime": "Refresh Time",
                     "visibility": "Visibility"
                 },
                 "errors": {

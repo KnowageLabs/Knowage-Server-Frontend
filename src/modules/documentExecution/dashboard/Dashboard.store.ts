@@ -29,6 +29,9 @@ const store = defineStore('dashboardStore', {
         getDashboard(dashboardId: string) {
             return this.dashboards[dashboardId]
         },
+        getDashboardsList() {
+            return this.dashboards
+        },
         setDashboard(id: string, dashboard: any) {
             this.dashboards[id] = dashboard
         },
@@ -125,8 +128,7 @@ const store = defineStore('dashboardStore', {
                 }
             })
             if (removedSelections.length > 0) {
-                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0)
-                    loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
+                if (selectionsUseDatasetWithAssociation(removedSelections, this.dashboards[dashboardId].configuration.associations) && this.dashboards[dashboardId].selections.length > 0) loadAssociativeSelections(dashboardId, this.dashboards[dashboardId], this.allDatasets, this.dashboards[dashboardId].selections, $http)
                 else if (this.dashboards[dashboardId].selections.length === 0) this.setAssociations(dashboardId, {})
             }
             emitter.emit('selectionsDeleted', removedSelections)

@@ -6,16 +6,11 @@
                     <i v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_USER_MANAGEMENT)" v-tooltip.top="$t('documentBrowser.executeDocument')" class="fa fa-play-circle document-pointer p-mx-4" data-test="execution" @click="executeDocument" />
                     <template v-if="canEditDocument">
                         <i v-tooltip.top="$t('documentBrowser.editDocument')" class="pi pi-pencil document-pointer p-mx-4" @click="$emit('showDocumentDetails', document)" />
-                        <i v-tooltip.top="$t('documentBrowser.cloneDocument')" class="far fa-copy document-pointer p-mx-4" @click="cloneDocumentConfirm" />
+                        <i v-if="document.typeCode != 'DOSSIER'" v-tooltip.top="$t('documentBrowser.cloneDocument')" class="far fa-copy document-pointer p-mx-4" @click="cloneDocumentConfirm" />
                         <i v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_DELETE_MANAGEMENT)" v-tooltip.top="$t('documentBrowser.deleteDocument')" class="far fa-trash-alt document-pointer p-mx-4" @click="deleteDocumentConfirm" />
                     </template>
                     <i v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_UP_STATE) && document.stateCode === 'TEST'" v-tooltip.left="$t('documentBrowser.moveUpDocumentState')" class="fa fa-arrow-up document-pointer p-mx-4" @click="changeStateDocumentConfirm('UP')" />
-                    <i
-                        v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_DOWN_STATE) && (document.stateCode === 'TEST' || document.stateCode === 'REL')"
-                        v-tooltip.left="$t('documentBrowser.moveDownDocumentState')"
-                        class="fa fa-arrow-down document-pointer p-mx-4"
-                        @click="changeStateDocumentConfirm('DOWN')"
-                    />
+                    <i v-if="user?.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_MOVE_DOWN_STATE) && (document.stateCode === 'TEST' || document.stateCode === 'REL')" v-tooltip.left="$t('documentBrowser.moveDownDocumentState')" class="fa fa-arrow-down document-pointer p-mx-4" @click="changeStateDocumentConfirm('DOWN')" />
                 </div>
             </template>
         </Toolbar>

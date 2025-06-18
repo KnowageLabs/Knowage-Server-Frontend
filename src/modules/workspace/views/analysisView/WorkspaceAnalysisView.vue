@@ -166,9 +166,7 @@ export default defineComponent({
             isEnterprise: 'isEnterprise'
         }),
         addButtonIsVisible(): boolean {
-            return (
-                this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)
-            )
+            return this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_COCKPIT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_GEOREPORT) || this.user.functionalities.includes(UserFunctionalitiesConstants.CREATE_SELF_SELVICE_KPI)
         }
     },
 
@@ -210,7 +208,7 @@ export default defineComponent({
             this.menuButtons.push({ key: '1', label: this.$t('workspace.myAnalysis.menuItems.editTemplate'), icon: 'fa-solid fa-wand-magic-sparkles', command: () => { this.editTemplateDocument(this.selectedAnalysis) }, visible: this.isOwner && this.selectedAnalysis.typeCode === 'DOSSIER'})
             this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.share'), icon: 'fas fa-share-alt', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: !this.isShared })
             this.menuButtons.push({ key: '2', label: this.$t('workspace.myAnalysis.menuItems.unshare'), icon: 'fas fa-times-circle', command: () => { this.shareAnalysisDocument(this.selectedAnalysis) }, visible: this.isShared })
-            this.menuButtons.push({ key: '3', label: this.$t('workspace.myAnalysis.menuItems.clone'), icon: 'fas fa-clone', command: () => { this.cloneAnalysisDocument(this.selectedAnalysis) } })
+            this.menuButtons.push({ key: '3', label: this.$t('workspace.myAnalysis.menuItems.clone'), icon: 'fas fa-clone', command: () => { this.cloneAnalysisDocument(this.selectedAnalysis) } , visible: this.selectedAnalysis.typeCode != 'DOSSIER'})
 
             this.menuButtons.push({ key: '4', label: this.$t('workspace.myAnalysis.menuItems.upload'), icon: 'fas fa-upload', command: () => { this.uploadAnalysisPreviewFile(this.selectedAnalysis) } })
             this.menuButtons.push({ key: '5', label: this.$t('workspace.myAnalysis.menuItems.delete'), icon: 'fas fa-trash', command: () => { this.deleteAnalysisDocumentConfirm(this.selectedAnalysis) } })

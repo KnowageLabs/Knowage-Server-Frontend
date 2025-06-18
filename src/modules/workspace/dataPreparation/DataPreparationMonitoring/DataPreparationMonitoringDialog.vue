@@ -1,25 +1,10 @@
 <template>
     <Dialog class="p-fluid kn-dialog--toolbar--primary schedulerDialog" :visible="visibility" footer="footer" :header="$t('workspace.myData.monitoring')" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :closable="false" :base-z-index="1" :auto-z-index="true">
-        <KnScheduler
-            :cron-expression="currentCronExpression"
-            :cron-expression-type="cronExpressionType"
-            :descriptor="schedulerDescriptor"
-            :read-only="false"
-            :logs="logs"
-            :schedulation-enabled="schedulationEnabled"
-            :schedulation-paused="schedulationPaused"
-            :loading-logs="loadingLogs"
-            @validation-changed="handleValidationChanged"
-            @touched="handleTouched"
-            @update:schedulationPaused="updateSchedulationPaused"
-            @update:schedulationEnabled="updateSchedulationEnabled"
-            @update:currentCronExpression="updateCurrentCronExpression"
-            @update:cronExpressionType="updateCronExpressionType"
-        />
+        <KnScheduler :cron-expression="currentCronExpression" :cron-expression-type="cronExpressionType" :read-only="false" :logs="logs" :schedulation-paused="schedulationPaused" :loading-logs="loadingLogs" @update:schedulationPaused="updateSchedulationPaused" @update:currentCronExpression="updateCurrentCronExpression" @update:cronExpressionType="updateCronExpressionType" />
         <template #footer>
             <Button :visible="visibility" class="kn-button--secondary" :label="$t('common.cancel')" data-test="close-button" @click="cancel" />
 
-            <Button :label="$t('common.save')" :visible="visibility" class="kn-button--primary" :disabled="!touched || !isFormValid" data-test="save-button" @click="saveSchedulation" />
+            <Button :label="$t('common.save')" :visible="visibility" class="kn-button--primary" data-test="save-button" @click="saveSchedulation" />
         </template>
     </Dialog>
 </template>
@@ -54,7 +39,6 @@ export default defineComponent({
             cronExpressionType: '',
             touched: false,
             schedulationPaused: false,
-            schedulationEnabled: false,
             instanceId: '',
             loadingLogs: false,
             isFormValid: true,
@@ -82,7 +66,6 @@ export default defineComponent({
                         if (!this.currentCronExpression) this.showHint
                         this.cronExpressionType = instance.config.type
                         this.schedulationPaused = instance.config.paused || false
-                        this.schedulationEnabled = this.currentCronExpression ? true : false
                         this.$http.get(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/process/logs/' + instance.id).then((response: AxiosResponse<any>) => {
                             this.logs = response.data
                         })
@@ -92,14 +75,6 @@ export default defineComponent({
                     }
                 })
             }
-        },
-        handleValidationChanged(isValid) {
-            console.log('handleValidationChanged', isValid)
-            this.isFormValid = isValid
-        },
-        handleTouched() {
-            this.isDirty = true
-            this.touched = true
         },
         cancel() {
             if (this.touched) {
@@ -126,19 +101,16 @@ export default defineComponent({
         },
         saveSchedulation() {
             const obj = { instanceId: this.instanceId, config: {} }
-            if (this.schedulationEnabled) {
-                obj['config']['cron'] = this.currentCronExpression
-                obj['config']['paused'] = this.schedulationPaused
-                obj['config']['type'] = this.cronExpressionType
-            }
+
+            obj['config']['cron'] = this.currentCronExpression
+            obj['config']['paused'] = this.schedulationPaused
+            obj['config']['type'] = this.cronExpressionType
+
             this.$emit('save', obj)
             this.resetAndClose()
         },
         updateSchedulationPaused(newSchedulationPaused) {
-            this.schedulationPaused = newSchedulationPaused
-        },
-        updateSchedulationEnabled(newSchedulationEnabled) {
-            this.schedulationEnabled = newSchedulationEnabled
+            this.schedulationPaused = !newSchedulationPaused
         },
         updateCurrentCronExpression(newCronExpression) {
             this.currentCronExpression = newCronExpression

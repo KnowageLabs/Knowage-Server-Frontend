@@ -59,7 +59,7 @@
     ],
     "authorizations": [
         {
-            "category": "documentExecutionMenu",
+            "category": "myWorskpace",
             "dbname": "SAVE_INTO_FOLDER",
             "fieldName": "ableToSaveIntoPersonalFolder",
             "label": "managers.rolesManagement.authorizations.saveIntoWorkspace",

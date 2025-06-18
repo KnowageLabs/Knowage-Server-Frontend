@@ -313,10 +313,10 @@
         "minute": "minuto",
         "minutes": "minuti",
         "monday": "lunedi",
-        "month": "mese",
+        "month": "mese | mesi",
         "monthly": "mensile",
         "months": "mesi",
-        "nextExecution": "prossima esecuzione",
+        "nextExecution": "prossima esecuzione il {date}",
         "november": "novembre",
         "october": "ottobre",
         "quarter": "Quarter",
@@ -343,7 +343,7 @@
         "weekday": "giorno della settimana",
         "weekdays": "giorni della settimana",
         "weekly": "settimanale",
-        "year": "Year",
+        "year": "Anno | Anni",
         "yearly": "annuale"
     },
     "dashboard": {
@@ -1968,62 +1968,12 @@
     },
     "locale": {
         "dateFormat": "mm/dd/yy",
-        "dayNames": [
-            "Domenica",
-            "Lunedi",
-            "Martedì",
-            "Mercoledì",
-            "Giovedì",
-            "Venerdì",
-            "Sabato"
-        ],
-        "dayNamesMin": [
-            "Su",
-            "Mo",
-            "Tu",
-            "We",
-            "Th",
-            "Fr",
-            "Sa"
-        ],
-        "dayNamesShort": [
-            "Sun",
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat"
-        ],
+        "dayNames": ["Domenica", "Lunedi", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"],
+        "dayNamesMin": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        "dayNamesShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         "firstDayOfWeek": 0,
-        "monthNames": [
-            "Gennaio",
-            "Febbraio",
-            "Marzo",
-            "Aprile",
-            "Maggio",
-            "Giugno",
-            "Luglio",
-            "Agosto",
-            "Settembre",
-            "Ottobre",
-            "Novembre",
-            "Dicembre"
-        ],
-        "monthNamesShort": [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        ],
+        "monthNames": ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
+        "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         "today": "Today",
         "weekHeader": "Wk"
     },
@@ -2892,7 +2842,7 @@
                 "printDocuments": "Print Documents",
                 "rateDocuments": "Rate Documents",
                 "runScheduledExecution": "Run Scheduled execution",
-                "saveIntoWorkspace": "Save into My Workspace",
+                "saveIntoWorkspace": "Mostra il mio repository",
                 "saveMeta": "Save Metadata",
                 "saveOlapView": "Save OLAP View",
                 "saveRemember": "Save to remember",
@@ -3189,6 +3139,7 @@
                         },
                         "label": "Refresh rate"
                     },
+                    "refreshTime": "Orario di aggiornamento",
                     "visibility": "Visibility"
                 },
                 "errors": {
@@ -3559,7 +3510,8 @@
         "advancedData": {
             "chooseDataset": "Scegli un dataset",
             "noDatasetFound": "Nessun dataset trovato",
-            "title": "Data preparation"        },
+            "title": "Data preparation"
+        },
         "buttonsTooltips": {
             "deleteDoc": "Delete Document",
             "editDoc": "Edit Document",

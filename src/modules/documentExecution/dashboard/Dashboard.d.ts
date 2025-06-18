@@ -8,6 +8,7 @@ export interface IDashboard {
     configuration: IDashboardConfiguration
     version: string
     allDatasetsLoaded?: boolean
+    drivers?: IDashboardDatasetDriver[]
 }
 
 export interface IDashboardSheet {
@@ -506,6 +507,7 @@ export interface IDashboardDatasetDriver {
     dataDependencies?: any
     dataDependsOnParameters?: IDashboardDatasetDriver[]
     dataDependentParameters?: IDashboardDatasetDriver[]
+    value?: any
 }
 
 export interface IWidgetPickerType {

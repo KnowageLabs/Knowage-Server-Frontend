@@ -2,30 +2,8 @@
     <div class="kn-height-full p-d-flex p-flex-row p-ai-center">
         <Checkbox v-if="getCellType(column) === 'checkbox'" ref="input" v-model="value" class="p-ml-2" :binary="true" />
         <Textarea v-if="getCellType(column) === 'text'" ref="input" v-model="value" class="kn-material-input kn-width-full" rows="4" :step="getStep(column.columnInfo?.type)" maxlength="250" @input="onRowChanged(row)" />
-        <InputNumber
-            v-if="getCellType(column) === 'number'"
-            ref="input"
-            v-model="value"
-            class="kn-material-input p-inputtext-sm kn-width-full kn-height-full"
-            :use-grouping="useGrouping"
-            :locale="locale"
-            :min-fraction-digits="minFractionDigits"
-            :max-fraction-digits="maxFractionDigits"
-            :disabled="!column.isEditable"
-            @blur="onInputNumberChange"
-        />
-        <Dropdown
-            v-else-if="getCellType(column) === 'dropdown'"
-            ref="input"
-            v-model="value"
-            class="kn-material-input kn-width-full"
-            :options="getOptions(column, row)"
-            option-value="column_1"
-            option-label="column_1"
-            :filter="true"
-            @change="onDropdownChange({ row: row, column: column })"
-            @before-show="addColumnOptions({ row: row, column: column })"
-        />
+        <InputNumber v-if="getCellType(column) === 'number'" ref="input" v-model="value" class="kn-material-input p-inputtext-sm kn-width-full kn-height-full" :use-grouping="useGrouping" :locale="locale" :min-fraction-digits="minFractionDigits" :max-fraction-digits="maxFractionDigits" :disabled="!column.isEditable" @blur="onInputNumberChange" />
+        <Dropdown v-else-if="getCellType(column) === 'dropdown'" ref="input" v-model="value" class="kn-material-input kn-width-full" :options="getOptions(column, row)" option-value="column_1" option-label="column_1" :filter="true" @change="onDropdownChange({ row: row, column: column })" @before-show="addColumnOptions({ row: row, column: column })" />
         <Calendar
             v-else-if="getCellType(column) === 'temporal'"
             ref="input"
@@ -120,15 +98,6 @@ export default defineComponent({
     methods: {
         loadRow() {
             this.row = this.params.data
-            if (this.column && (this.row[this.column.field] || this.row[this.column.field] === 0 || this.row[this.column.field] === '')) {
-                if (this.column.columnInfo?.type === 'date' && typeof this.row[this.column.field] === 'string') {
-                    this.row[this.column.field] = this.row[this.column.field] ? new Date(luxonFormatDate(this.row[this.column.field], 'yyyy-MM-dd', 'yyyy-MM-dd')) : null
-                } else if (this.column.columnInfo?.type === 'timestamp' && typeof this.row[this.column.field] === 'string' && this.row[this.column.field] !== '') {
-                    this.row[this.column.field] = new Date(luxonFormatDate(this.row[this.column.field], 'yyyy-MM-dd HH:mm:ss.S', 'yyyy-MM-dd HH:mm:ss.S'))
-                } else if (this.column.editorType !== 'COMBO' && this.column.columnInfo?.type !== 'date' && this.column.columnInfo?.type !== 'timestamp' && this.getDataType(this.column.columnInfo?.type) === 'number') {
-                    this.formatNumberConfiguration()
-                }
-            }
         },
         formatNumberConfiguration() {
             const configuration = formatRegistryNumber(this.column)
@@ -166,6 +135,17 @@ export default defineComponent({
             return options ?? []
         },
         getValue() {
+            if (this.column.columnInfo?.type === 'date' || this.column.columnInfo?.type === 'timestamp') return this.returnDateValues()
+            return this.value
+        },
+        returnDateValues() {
+            if (!this.value) return ''
+
+            if (this.value instanceof Date) {
+                if (this.column.columnInfo?.type === 'timestamp') return luxonFormatDate(this.value, undefined, 'yyyy-MM-dd HH:mm:ss.S')
+                else return luxonFormatDate(this.value, undefined, 'yyyy-MM-dd')
+            }
+
             return this.value
         },
         isPopup() {
@@ -179,9 +159,17 @@ export default defineComponent({
         getInitialValue() {
             let startValue = this.params.value
             const isBackspaceOrDelete = this.params.eventKey === 'Backspace' || this.params.eventKey === 'Delete'
-            if (isBackspaceOrDelete) startValue = null
-            if (startValue !== null && startValue !== undefined) return startValue
-            return null
+            if (isBackspaceOrDelete) return null
+
+            if (this.column.columnInfo?.type === 'date' || this.column.columnInfo?.type === 'timestamp') {
+                if (typeof startValue === 'string' && startValue) {
+                    if (this.column.columnInfo?.type === 'date') return new Date(luxonFormatDate(startValue, 'yyyy-MM-dd', 'yyyy-MM-dd'))
+                    else return new Date(luxonFormatDate(startValue, 'yyyy-MM-dd HH:mm:ss.S', 'yyyy-MM-dd HH:mm:ss.S'))
+                }
+                if (startValue instanceof Date) return startValue
+            }
+
+            return startValue || null
         },
         onRowChanged(payload: any) {
             this.params.context.componentParent.setRowEdited(payload)

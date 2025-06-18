@@ -1,42 +1,14 @@
 <template>
     <Dialog class="p-fluid kn-dialog--toolbar--primary" :content-style="workspaceNewFolderDialogDescriptor.dialog.style" :visible="visible" :modal="true" :closable="false">
         <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary p-p-0 p-m-0 p-col-12">
-                <template #start>
-                    {{ newFolder?.id ? $t('common.edit') : $t('workspace.myRepository.newFolderTitle') }}
-                </template>
-            </Toolbar>
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ newFolder?.id ? $t('common.edit') : $t('workspace.myRepository.newFolderTitle') }}</q-toolbar-title>
+            </q-toolbar>
         </template>
 
-        <form v-if="newFolder" class="p-fluid p-formgrid p-grid p-mt-4">
-            <div class="p-field p-col-6">
-                <span class="p-float-label">
-                    <InputText
-                        id="name"
-                        v-model.trim="v$.newFolder.name.$model"
-                        class="kn-material-input"
-                        type="text"
-                        max-length="25"
-                        :class="{
-                            'p-invalid': v$.newFolder.name.$invalid && v$.newFolder.name.$dirty
-                        }"
-                        @blur="v$.newFolder.name.$touch()"
-                    />
-                    <label for="name" class="kn-material-input-label">{{ $t('importExport.catalogFunction.column.name') }} * </label>
-                </span>
-                <KnValidationMessages
-                    :v-comp="v$.newFolder.name"
-                    :additional-translate-params="{
-                        fieldName: $t('importExport.catalogFunction.column.name')
-                    }"
-                />
-            </div>
-            <div class="p-field p-col-6">
-                <span class="p-float-label p-mb-2">
-                    <InputText id="description" v-model.trim="newFolder.description" class="kn-material-input" type="text" max-length="254" />
-                    <label for="description" class="kn-material-input-label"> {{ $t('common.description') }} </label>
-                </span>
-            </div>
+        <form v-if="newFolder" class="row q-mt-sm q-col-gutter-sm">
+            <q-input filled class="col-12" v-model="v$.newFolder.name.$model" :label="$t('common.name') + '*'" maxLength="25" :error="v$.newFolder.name.$invalid && v$.newFolder.name.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('importExport.catalogFunction.column.name') })" data-test="name-input" />
+            <q-input filled class="col-12" type="textarea" rows="2" v-model.trim="newFolder.description" :label="$t('common.description')" maxLength="254" data-test="description-input" />
         </form>
 
         <WorkspaceFolderPickerTree v-if="newFolder?.id" :prop-folders="propFolders ?? null" :selected-folder-id="newFolder.parentId" @folderSelected="setSelectedParentFolder"></WorkspaceFolderPickerTree>

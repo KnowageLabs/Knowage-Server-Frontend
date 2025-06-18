@@ -22,7 +22,7 @@
                     </div>
                 </template>
             </Dropdown>
-            <label class="kn-material-input-label">{{ $t('common.type') }}</label>
+            <label class="kn-material-input-label">{{ filter.title }}</label>
         </span>
         <KnValidationMessages :v-comp="v$.filter.filterValue"></KnValidationMessages>
     </div>

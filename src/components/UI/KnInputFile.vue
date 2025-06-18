@@ -3,7 +3,7 @@
         <span :v-if="label"> {{ label }} </span>
         <input :id="id" ref="inputFile" type="file" :accept="accept" @change="changeFunction" />
         <label for="inputFile">
-            <i class="pi pi-upload" />
+            <q-icon name="upload" />
         </label>
     </div>
 </template>
