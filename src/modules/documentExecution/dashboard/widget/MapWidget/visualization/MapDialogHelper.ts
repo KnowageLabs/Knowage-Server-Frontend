@@ -132,7 +132,6 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
     li.setAttribute('data-layerId', layerVisualizationSettings.target)
 
     if (checkInteractionsIfColumnIsClickable(value, widgetModel, layerVisualizationSettings)) {
-        console.log('--- GOT HERE!')
         li.classList.add('clickable-custom-leaflet-list-item')
     }
 
@@ -152,8 +151,6 @@ const createTooltipListItem = (value: string, style: IListItemStyle | undefined,
 }
 
 const checkInteractionsIfColumnIsClickable = (value: string, widgetModel: IWidget, layerVisualizationSettings: IMapWidgetVisualizationType) => {
-    console.log('!!!!!! value: ', value)
-    console.log('!!!!!! LAYER VISUALIZATION SETTINGS: ', layerVisualizationSettings)
     const [rawValueColumn] = value.split(':')
     const column = rawValueColumn.trim()
 

@@ -439,12 +439,27 @@ export default defineComponent({
             this.widgetLoading = false
         },
         widgetUsesSelections(selections: ISelection[]) {
+            if (this.widget.type === 'map') return this.checkIfMapWidgetUsesSelection(selections)
             let widgetUsesSelection = false
             if (!this.widgetModel.dataset) return widgetUsesSelection
             for (let i = 0; i < selections.length; i++) {
                 if (selections[i].datasetId === this.widgetModel.dataset) {
                     widgetUsesSelection = true
                     break
+                }
+            }
+
+            return widgetUsesSelection
+        },
+        checkIfMapWidgetUsesSelection(selections: ISelection[]) {
+            let widgetUsesSelection = false
+            if (!this.widgetModel.layers || this.widgetModel.layers.length === 0) return widgetUsesSelection
+            for (let i = 0; i < selections.length; i++) {
+                for (let j = 0; j < this.widgetModel.layers.length; j++) {
+                    if (this.widgetModel.layers[j].type === 'dataset' && selections[i].datasetId === this.widgetModel.layers[j].id) {
+                        widgetUsesSelection = true
+                        break
+                    }
                 }
             }
 
