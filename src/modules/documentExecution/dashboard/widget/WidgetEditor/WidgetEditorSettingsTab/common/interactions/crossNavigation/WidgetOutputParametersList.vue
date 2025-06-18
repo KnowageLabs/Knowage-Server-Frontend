@@ -42,7 +42,16 @@
                         :disabled="disabled"
                         @change="parametersChanged"
                     ></Dropdown>
-                    <Dropdown v-else-if="widgetType === 'map'" v-model="parameter.column" class="kn-material-input" :options="mapColumnOptions" option-label="alias" option-value="columnName" :disabled="disabled" @change="parametersChanged"></Dropdown>
+                    <Dropdown
+                        v-else-if="widgetType === 'map'"
+                        v-model="parameter.column"
+                        class="kn-material-input"
+                        :options="mapDynamicOptions"
+                        :option-value="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'"
+                        :option-label="getTargetLayerType(crossNavigationConfig ?? previewConfig) === 'layer' ? 'property' : 'name'"
+                        :disabled="disabled"
+                        @change="parametersChanged"
+                    ></Dropdown>
                     <Dropdown v-else v-model="parameter.column" class="kn-material-input" :options="chartColumnOptions" option-value="value" :disabled="disabled" @change="parametersChanged">
                         <template #value="slotProps">
                             <span>{{ getTranslatedLabel(slotProps.value, chartColumnOptions, $t) }}</span>
@@ -78,11 +87,20 @@ import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../WidgetInteractionsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import InputSwitch from 'primevue/inputswitch'
+import { IMapWidgetCrossNavigationVisualizationTypeConfig, IMapWidgetLayer, IMapWidgetPreviewVisualizationTypeConfig } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 
 export default defineComponent({
     name: 'table-widget-output-parameters-list',
     components: { Dropdown, InputSwitch },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, propParameters: { type: Array as PropType<IWidgetInteractionParameter[]>, required: true }, selectedDatasetsColumnsMap: { type: Object }, disabled: { type: Boolean } },
+    props: {
+        widgetModel: { type: Object as PropType<IWidget>, required: true },
+        propParameters: { type: Array as PropType<IWidgetInteractionParameter[]>, required: true },
+        selectedDatasetsColumnsMap: { type: Object },
+        disabled: { type: Boolean },
+        mapDynamicOptions: { type: Object as PropType<any> },
+        crossNavigationConfig: { type: Object as PropType<IMapWidgetCrossNavigationVisualizationTypeConfig> },
+        previewConfig: { type: Object as PropType<IMapWidgetPreviewVisualizationTypeConfig> }
+    },
     emits: ['change'],
     data() {
         return {
@@ -114,12 +132,6 @@ export default defineComponent({
             } else {
                 return descriptor.chartInteractionDynamicOptions
             }
-        },
-        mapColumnOptions() {
-            if (this.widgetType !== 'map' || !this.widgetModel.layers) return []
-            const columns = [] as { columnName: string; alias: string }[]
-            this.widgetModel.layers.forEach((layer: any) => layer.content?.columnSelectedOfDataset?.forEach((column: any) => columns.push({ columnName: column.name, alias: column.alias })))
-            return columns
         }
     },
     watch: {
@@ -167,6 +179,10 @@ export default defineComponent({
         onDatasetChanged(parameter: IWidgetInteractionParameter) {
             parameter.column = ''
             this.parametersChanged()
+        },
+        getTargetLayerType(crossNavigationVisTypeConfig: IMapWidgetCrossNavigationVisualizationTypeConfig | IMapWidgetPreviewVisualizationTypeConfig | undefined) {
+            if (!crossNavigationVisTypeConfig) return ''
+            return this.widgetModel.layers.find((layer: IMapWidgetLayer) => crossNavigationVisTypeConfig.vizualizationType?.target === layer.layerId) ? this.widgetModel.layers.find((layer: IMapWidgetLayer) => crossNavigationVisTypeConfig.vizualizationType?.target === layer.layerId).type : 'dataset'
         }
     }
 })

@@ -3,9 +3,13 @@ import {
     IMapTooltipSettings,
     IMapWidgetConditionalStyle,
     IMapWidgetControlPanel,
+    IMapWidgetCrossNavigation,
     IMapWidgetLayerFilter,
     IMapWidgetLegend,
+    IMapWidgetLinkConfiguration,
     IMapWidgetMapSettings,
+    IMapWidgetPreview,
+    IMapWidgetSelectionConfiguration,
     IMapWidgetVisualizationType,
     IMapWidgetVisualizationTypeBalloons,
     IMapWidgetVisualizationTypeChoropleth,
@@ -91,4 +95,20 @@ export const getDefaultVisualizationChoroplethConfiguration = () => {
 
 export const getDefaultVisualizationMapFilter = () => {
     return deepcopy(descriptor.defaultMapFilter) as IMapWidgetLayerFilter
+}
+
+export const getDefaultMapSelectionConfiguration = () => {
+    return deepcopy(descriptor.defaultMapSelectionConfiguration) as IMapWidgetSelectionConfiguration
+}
+
+export const getDefaultMapCrossNavigationConfiguration = () => {
+    return deepcopy(descriptor.defaultMapCrossNavigationConfiguration) as IMapWidgetCrossNavigation
+}
+
+export const getDefaultMapLinkConfiguration = () => {
+    return deepcopy(descriptor.defaultMapLinkConfiguration) as IMapWidgetLinkConfiguration
+}
+
+export const getDefaultMapPreviewConfiguration = () => {
+    return deepcopy(descriptor.defaultMapPreviewConfiguration) as IMapWidgetPreview
 }

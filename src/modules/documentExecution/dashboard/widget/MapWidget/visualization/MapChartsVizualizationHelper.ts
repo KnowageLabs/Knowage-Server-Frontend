@@ -1,4 +1,4 @@
-import { IVariable, IWidget } from '../../../Dashboard'
+import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationType } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getColumnName, getCoordinates, LEGEND_DATA_TYPE } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
@@ -13,15 +13,15 @@ interface IChartValuesRecord {
 
 export type ChartValuesRecord = Record<string, IChartValuesRecord>
 
-export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[]) => {
+export const addMapCharts = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], layersData: any, targetDatasetData: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     if (data && data[target.name] && !targetDatasetData) {
-        return addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables)
+        return addMapChartsUsingData(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, variables, activeSelections, dashboardId)
     } else {
-        return addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, variables, targetDatasetData)
+        return addMapChartsUsingLayer(layersData, layerGroup, layerVisualizationSettings, markerBounds, model, variables, activeSelections, dashboardId, targetDatasetData)
     }
 }
 
-const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[]) => {
+const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLayer, spatialAttribute: any, geoColumn: string, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     const charts = [] as any[]
     const fieldMetadata = getFieldMapFromMetadata(data[target.name])
 
@@ -44,8 +44,8 @@ const addMapChartsUsingData = (data: any, model: IWidget, target: IMapWidgetLaye
         const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, model)
         charts.push(chart)
 
-        addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker)
-        addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker)
+        addDialogToMarker(data, model, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
+        addTooltipToMarker(data, model, target, layerVisualizationSettings, row, marker, activeSelections, dashboardId, variables)
         markerBounds.push(marker.getLatLng())
     }
 
@@ -56,7 +56,7 @@ const getFieldMapFromMetadata = (data: any) => {
     return Object.fromEntries(data.metaData?.fields?.filter((field: any) => typeof field === 'object' && field.header && field.name).map((field: any) => [field.header, field.name]))
 }
 
-const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], targetDatasetData?: any) => {
+const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualizationSettings: IMapWidgetVisualizationType, markerBounds: any[], widgetModel: IWidget, variables: IVariable[], activeSelections: ISelection[], dashboardId: string, targetDatasetData?: any) => {
     let mappedData: Record<string, number> | null = null
     let fieldMetadata: Record<string, string> | null = null
     const charts = [] as any[]
@@ -73,10 +73,10 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
 
     layersData.features.forEach((feature: ILayerFeature) => {
         if (feature.geometry?.type === 'Point') {
-            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null, fieldMetadata, variables, charts)
+            addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, null, fieldMetadata, variables, charts, activeSelections, dashboardId)
         } else if (feature.geometry?.type === 'MultiPoint') {
             feature.geometry.coordinates?.forEach((coord: any) => {
-                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord, fieldMetadata, variables, charts)
+                addChartsUsingLayersPoint(feature, layerVisualizationSettings, mappedData, layerGroup, widgetModel, markerBounds, coord, fieldMetadata, variables, charts, activeSelections, dashboardId)
             })
         }
     })
@@ -84,7 +84,7 @@ const addMapChartsUsingLayer = (layersData: any, layerGroup: any, layerVisualiza
     return { charts: charts, type: LEGEND_DATA_TYPE.CHARTS }
 }
 
-const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null, variables: IVariable[], charts: any[]) => {
+const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSettings: IMapWidgetVisualizationType, mappedData: any, layerGroup: any, widgetModel: IWidget, markerBounds: any[], coord: any[] | null, fieldMetadata: Record<string, string> | null, variables: IVariable[], charts: any[], activeSelections: ISelection[], dashboardId: string) => {
     const chartValuesRecord = {} as ChartValuesRecord
 
     let foreignKeyValue = null as string | null
@@ -120,8 +120,8 @@ const addChartsUsingLayersPoint = (feature: ILayerFeature, layerVisualizationSet
     const chart = createVegaChart(chartValuesRecord, layerVisualizationSettings, marker._icon, variables, widgetModel)
     charts.push(chart)
 
-    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, foreignKeyValue)
-    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, foreignKeyValue)
+    addDialogToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue)
+    addTooltipToMarkerForLayerData(feature, widgetModel, layerVisualizationSettings, chartValuesRecord, marker, activeSelections, dashboardId, variables, foreignKeyValue)
 
     markerBounds.push(marker.getLatLng())
 }

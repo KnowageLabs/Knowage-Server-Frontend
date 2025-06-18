@@ -16,10 +16,10 @@
                 <WidgetPaddingStyle v-else-if="accordion.type === 'PaddingStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetPaddingStyle>
                 <WidgetShadowsStyle v-else-if="accordion.type === 'ShadowsStyle'" :widget-model="widgetModel" :theme-style="null" @styleChanged="onStyleChanged"></WidgetShadowsStyle>
                 <WidgetResponsive v-else-if="accordion.type === 'Responsive'" :widget-model="widgetModel"></WidgetResponsive>
-                <WidgetSelection v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></WidgetSelection>
-                <WidgetCrossNavigation v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetCrossNavigation>
-                <WidgetInteractionsLinks v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetInteractionsLinks>
-                <WidgetPreview v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></WidgetPreview>
+                <MapWidgetSelectionsConfiguration v-else-if="accordion.type === 'Selection'" :widget-model="widgetModel"></MapWidgetSelectionsConfiguration>
+                <MapWidgetCrossNavigationConfiguration v-else-if="accordion.type === 'CrossNavigation'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetCrossNavigationConfiguration>
+                <MapWidgetLinkConfiguration v-else-if="accordion.type === 'Link'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetLinkConfiguration>
+                <MapWidgetDatasetPreviewConfiguration v-else-if="accordion.type === 'Preview'" :widget-model="widgetModel" :datasets="datasets" :selected-datasets="selectedDatasets" :dashboard-id="dashboardId"></MapWidgetDatasetPreviewConfiguration>
                 <WidgetVisType v-else-if="accordion.type === 'VisualizationType'" :widget-model="widgetModel" />
                 <MapTooltips v-else-if="accordion.type === 'Tooltips'" :widget-model="widgetModel"></MapTooltips>
                 <MapDialogSettings v-else-if="accordion.type === 'DialogSettings'" :widget-model="widgetModel"></MapDialogSettings>
@@ -47,10 +47,10 @@ import WidgetMenuConfiguration from '../common/configuration/WidgetMenuConfigura
 import WidgetBordersStyle from '../common/style/WidgetBordersStyle.vue'
 import WidgetShadowsStyle from '../common/style/WidgetShadowsStyle.vue'
 import WidgetResponsive from '../common/responsive/WidgetResponsive.vue'
-import WidgetSelection from '../common/interactions/selection/WidgetSelection.vue'
-import WidgetCrossNavigation from '../common/interactions/crossNavigation/WidgetCrossNavigation.vue'
-import WidgetInteractionsLinks from '../common/interactions/link/WidgetInteractionsLinks.vue'
-import WidgetPreview from '../common/interactions/preview/WidgetPreview.vue'
+import MapWidgetSelectionsConfiguration from './interactions/MapWidgetSelectionsConfiguration.vue'
+import MapWidgetCrossNavigationConfiguration from './interactions/MapWidgetCrossNavigationConfiguration.vue'
+import MapWidgetLinkConfiguration from './interactions/MapWidgetLinkConfiguration.vue'
+import MapWidgetDatasetPreviewConfiguration from './interactions/MapWidgetDatasetPreviewConfiguration.vue'
 import WidgetTitleStyle from '../common/style/WidgetTitleStyle.vue'
 import WidgetPaddingStyle from '../common/style/WidgetPaddingStyle.vue'
 import WidgetBackgroundColorStyle from '../common/style/WidgetBackgroundColorStyle.vue'
@@ -76,12 +76,9 @@ export default defineComponent({
         WidgetBordersStyle,
         WidgetShadowsStyle,
         WidgetResponsive,
-        WidgetSelection,
+        MapWidgetSelectionsConfiguration,
         WidgetPaddingStyle,
         WidgetBackgroundColorStyle,
-        WidgetCrossNavigation,
-        WidgetInteractionsLinks,
-        WidgetPreview,
         MapSettingsAccordionHeader,
         MapTooltips,
         MapDialogSettings,
@@ -94,7 +91,10 @@ export default defineComponent({
         Message,
         WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
-        WidgetHelpSettings
+        MapWidgetCrossNavigationConfiguration,
+        WidgetHelpSettings,
+        MapWidgetLinkConfiguration,
+        MapWidgetDatasetPreviewConfiguration
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },

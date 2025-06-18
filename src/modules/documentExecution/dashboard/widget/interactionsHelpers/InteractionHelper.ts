@@ -4,6 +4,7 @@ import { getAssociativeSelections } from './DatasetAssociationsHelper'
 import { emitter } from '../../DashboardHelpers'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import moment from 'moment'
+import { IMapWidgetCrossNavigation, IMapWidgetCrossNavigationVisualizationTypeConfig } from '../../interfaces/mapWidget/DashboardMapWidget'
 
 interface IClickedValue {
     value: string
@@ -148,7 +149,7 @@ export const executeChartCrossNavigation = (outputParameters: IWidgetInteraction
     executeCrossNavigation(formattedOutputParameters, crossNavigationModel.name)
 }
 
-const getFormattedChartOutputParameters = (outputParameters: IWidgetInteractionParameter[], crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {
+const getFormattedChartOutputParameters = (outputParameters: IWidgetInteractionParameter[], crossNavigationModel: IWidgetCrossNavigation | IMapWidgetCrossNavigationVisualizationTypeConfig, dashboardId: string) => {
     const formattedOutputParameters = [] as ICrossNavigationParameter[]
     for (let i = 0; i < crossNavigationModel.parameters.length; i++) {
         const crossNavigationParameter = crossNavigationModel.parameters[i] as IWidgetInteractionParameter
@@ -179,6 +180,12 @@ const getFormattedChartDynamicOutputParameter = (outputParameters: IWidgetIntera
         parameterType: getDriverParameterTypeFromOutputParameterType(crossNavigationParameter.dataType),
         outputDriverName: crossNavigationParameter.name
     } as ICrossNavigationParameter
+}
+
+export const executeMapCrossNavigation = (outputParameters: IWidgetInteractionParameter[], crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig, dashboardId: string) => {
+    const formattedOutputParameters = getFormattedChartOutputParameters(outputParameters, crossNavigationConfig, dashboardId)
+    console.log('%c________ formattedOutputParameters', 'color: blue; font-weight: bold; font-size: 16px;', formattedOutputParameters)
+    executeCrossNavigation(formattedOutputParameters, crossNavigationConfig.name)
 }
 
 export const executeCrossNavigationForWidgetsWithoutSpecificCrossNavigationSettings = (crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {

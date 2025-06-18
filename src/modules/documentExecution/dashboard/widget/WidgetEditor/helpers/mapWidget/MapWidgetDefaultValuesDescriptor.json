@@ -40,6 +40,10 @@
         "title": "",
         "visualizationTypes": []
     },
+    "defaultMapCrossNavigationConfiguration": {
+        "crossNavigationVizualizationTypes": [],
+        "enabled": false
+    },
     "defaultMapFilter": {
         "column": null,
         "enabled": false,
@@ -52,6 +56,31 @@
         "enabled": true,
         "showScale": false,
         "zoom": 10
+    },
+    "defaultMapLinkConfiguration": {
+        "enabled": false,
+        "linkVizualizationTypes": [
+            {
+                "column": "",
+                "links": [
+                    {
+                        "action": "",
+                        "baseurl": "",
+                        "parameters": [],
+                        "type": ""
+                    }
+                ],
+                "vizualizationType": null
+            }
+        ]
+    },
+    "defaultMapPreviewConfiguration": {
+        "enabled": false,
+        "previewVizualizationTypes": []
+    },
+    "defaultMapSelectionConfiguration": {
+        "enabled": true,
+        "selections": []
     },
     "defaultTooltip": {
         "enabled": false,

@@ -14,7 +14,7 @@ import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { clearLayersCache, switchLayerVisibility } from './visibility/MapVisibilityHelper'
-import { IVariable } from '../../Dashboard'
+import { ISelection, IVariable } from '../../Dashboard'
 
 //#region inlined leaflet-layervisibility
 function validateFilter(filterFunc) {
@@ -84,6 +84,7 @@ const props = defineProps<{
     dashboardId: string
     filtersReloadTrigger: boolean
     propVariables: IVariable[]
+    propActiveSelections: ISelection[]
 }>()
 
 const mapId = 'map_' + Math.random().toString(36).slice(2, 7)
@@ -121,6 +122,10 @@ onMounted(async () => {
         zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10
     })
 
+    // map.on('click', (event: any) => {
+    //     console.log('------- CLICK EVENT: ', event)
+    // })
+
     tile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
     }).addTo(map)
@@ -128,7 +133,7 @@ onMounted(async () => {
     if (props.widgetModel.settings?.configuration?.map?.showScale) L.control.scale().addTo(map)
 
     try {
-        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
         handleLegendUpdated(legendData)
         setTimeout(() => {
             switchLayerVisibility(map, props.layerVisibility)
@@ -156,7 +161,7 @@ watch(props.layerVisibility, (newModel) => {
 watch(
     () => props.filtersReloadTrigger,
     async () => {
-        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables)
+        const legendData = await initializeLayers(map, props.widgetModel, props.data, props.dashboardId, variables, props.propActiveSelections)
         handleLegendUpdated(legendData)
     }
 )
@@ -199,13 +204,27 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 .customLeafletPopup {
     margin: 0px 0px;
     padding: 0px 0px;
-
     background: white;
     max-width: 180px;
     white-space: nowrap;
 }
 
+.customLeafletPopup li {
+    text-wrap: wrap;
+}
+
 .leaflet-popup-tip {
     display: none;
+}
+
+.clickable-custom-leaflet-list-item {
+    color: #0056b3;
+    background-color: #ffffff;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.clickable-custom-leaflet-list-item:hover {
+    color: #004085;
+    background-color: #e9f5ff;
 }
 </style>

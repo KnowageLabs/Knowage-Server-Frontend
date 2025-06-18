@@ -1,4 +1,4 @@
-import { IWidgetInteractions, IWidgetResponsive, IWidgetTitle, IWidgetBordersStyle, IWidgetBackgroundStyle, IWidgetPaddingStyle, IWidgetShadowsStyle, IWidgetExports, IDataset, IIcon } from './../../Dashboard.d'
+import { IWidgetInteractions, IWidgetResponsive, IWidgetTitle, IWidgetBordersStyle, IWidgetBackgroundStyle, IWidgetPaddingStyle, IWidgetShadowsStyle, IWidgetExports, IDataset, IIcon, ITableWidgetLink } from './../../Dashboard.d'
 
 export interface IMapWidgetSettings {
     configuration: IMapWidgetConfiguration
@@ -7,9 +7,69 @@ export interface IMapWidgetSettings {
     legend: IMapWidgetLegend
     dialog: IMapDialogSettings
     tooltips: IMapTooltipSettings
-    interactions: IWidgetInteractions
+    interactions: IMapWidgetInteractions
     style: IMapWidgetStyle
     responsive: IWidgetResponsive
+}
+
+export interface IMapWidgetInteractions {
+    selection: IMapWidgetSelectionConfiguration
+    crossNavigation: IMapWidgetCrossNavigation
+    preview: IMapWidgetPreview
+    link: IMapWidgetLinkConfiguration
+}
+
+export interface IMapWidgetSelectionConfiguration {
+    enabled: boolean
+    selections: IMapWidgetSelection[]
+}
+
+export interface IMapWidgetSelection {
+    vizualizationType: IMapWidgetVisualizationType | null
+    column: string | null
+}
+export interface IMapWidgetCrossNavigation {
+    enabled: boolean
+    crossNavigationVizualizationTypes: IMapWidgetCrossNavigationVisualizationTypeConfig[]
+}
+
+export interface IMapWidgetCrossNavigationVisualizationTypeConfig {
+    name: string
+    vizualizationType: IMapWidgetVisualizationType | null
+    column: string | null
+    parameters: IWidgetInteractionParameter[]
+}
+
+export interface IMapWidgetLinkConfiguration {
+    enabled: boolean
+    linkVizualizationTypes: IMapWidgetLinkVisualizationTypeConfig[]
+}
+
+export interface IMapWidgetLinkVisualizationTypeConfig {
+    vizualizationType: IMapWidgetVisualizationType | null
+    column: string | null
+    links: IMapWidgetLink[]
+}
+export interface IMapWidgetLink {
+    type: string
+    icon?: string
+    baseurl: string
+    column?: string
+    action: string
+    parameters: IWidgetInteractionParameter[]
+}
+
+export interface IMapWidgetPreview {
+    enabled: boolean
+    previewVizualizationTypes: IMapWidgetPreviewVisualizationTypeConfig[]
+}
+
+export interface IMapWidgetPreviewVisualizationTypeConfig {
+    name: string
+    vizualizationType: IMapWidgetVisualizationType | null
+    dataset: number | null
+    column: string | null
+    parameters: IWidgetInteractionParameter[]
 }
 
 export interface IMapWidgetConfiguration {

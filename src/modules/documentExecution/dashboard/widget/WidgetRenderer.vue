@@ -19,28 +19,9 @@
                 @launch-selection="$emit('launchSelection', $event)"
                 @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
             />
-            <SelectorWidget
-                v-if="widget.type == 'selector'"
-                :prop-widget="widget"
-                :data-to-show="dataToShow"
-                :widget-initial-data="widgetInitialData"
-                :prop-active-selections="activeSelections"
-                :editor-mode="false"
-                :dashboard-id="dashboardId"
-                :datasets="datasets"
-                :selection-is-locked="selectionIsLocked"
-            />
+            <SelectorWidget v-if="widget.type == 'selector'" :prop-widget="widget" :data-to-show="dataToShow" :widget-initial-data="widgetInitialData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :datasets="datasets" :selection-is-locked="selectionIsLocked" />
             <ActiveSelectionsWidget v-if="widget.type == 'selection'" :prop-widget="widget" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" />
-            <WebComponentContainer
-                v-if="widget.type == 'html' || widget.type == 'text'"
-                :prop-widget="widget"
-                :widget-data="dataToShow"
-                :prop-active-selections="activeSelections"
-                :editor-mode="false"
-                :dashboard-id="dashboardId"
-                :variables="variables"
-                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
-            ></WebComponentContainer>
+            <WebComponentContainer v-if="widget.type == 'html' || widget.type == 'text'" :prop-widget="widget" :widget-data="dataToShow" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"></WebComponentContainer>
             <HighchartsContainer
                 v-if="widget.type === 'highcharts' && isEnterprise"
                 :widget-model="widget"
@@ -54,19 +35,9 @@
             ></HighchartsContainer>
             <ChartJSContainer v-if="widget.type === 'chartJS'" :widget-model="widget" :data-to-show="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId"></ChartJSContainer>
             <ImageWidget v-if="widget.type === 'image'" :widget-model="widget" :dashboard-id="dashboardId" :editor-mode="false" :prop-variables="variables" />
-            <CustomChartWidget
-                v-if="widget.type == 'customchart'"
-                :prop-widget="widget"
-                :widget-data="widgetData"
-                :prop-active-selections="activeSelections"
-                :editor-mode="false"
-                :dashboard-id="dashboardId"
-                :variables="variables"
-                @loading="$emit('loading', $event)"
-                @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"
-            ></CustomChartWidget>
+            <CustomChartWidget v-if="widget.type == 'customchart'" :prop-widget="widget" :widget-data="widgetData" :prop-active-selections="activeSelections" :editor-mode="false" :dashboard-id="dashboardId" :variables="variables" @loading="$emit('loading', $event)" @dataset-interaction-preview="$emit('datasetInteractionPreview', $event)"></CustomChartWidget>
             <PivotWidget v-if="widget.type == 'static-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" />
-            <MapWidget v-if="widget.type == 'map' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
+            <MapWidget v-if="widget.type == 'map' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" :prop-variables="variables" />
             <CEPivotWidget v-if="widget.type == 'ce-pivot-table' && !widgetLoading" :prop-widget="widget" :datasets="datasets" :data-to-show="dataToShow" :editor-mode="false" :prop-active-selections="activeSelections" :dashboard-id="dashboardId" />
             <DiscoveryWidget
                 v-if="widget.type === 'discovery'"

@@ -1,9 +1,8 @@
-import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
+import { ISelection, IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetLayer, IMapWidgetVisualizationTypeBalloons, IMapWidgetVisualizationTypeMarker } from './../../interfaces/mapWidget/DashboardMapWidget.d'
 import L from 'leaflet'
 import deepcopy from 'deepcopy'
 import { getLayerData, getMapWidgetData } from './MapWidgetDataProxy'
-import wktMock from './wkt-mock.json'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { feature } from 'topojson-client'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
@@ -130,7 +129,7 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 }
 
 // Starting point for the data/layers logic
-export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[]) {
+export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[], activeSelections: ISelection[]) {
     try {
         const markerBounds = [] as any
         const bounds = L.latLngBounds()
@@ -174,7 +173,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
                 if (!layersData) return
 
                 if (layersData.wkt) {
-                    const wktData = wktMock.wkt
+                    const wktData = layersData.wkt
                     const wktRegex = /(POINT\s*\([^\)]+\)|POINT\s*M\s*\([^\)]+\)|POINT\s*ZM\s*\([^\)]+\)|LINESTRING\s*\([^\)]+\)|POLYGON\s*\(\([^\)]+\)\))/g
                     const wktArray = wktData.match(wktRegex) || []
 
@@ -217,26 +216,29 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
             const layerGroup = L.layerGroup().addTo(map)
             layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
+            layerGroup.on('click', function (e) {
+                console.log('Layer group clicked at', e.latlng)
+            })
 
             if (reloadWithFilters) centerMap = false
 
             if (layerVisualizationSettings.type === 'markers') {
-                addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                addMarkers(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, activeSelections, dashboardId)
             }
 
             if (layerVisualizationSettings.type === 'balloons') {
-                const baloonsData = addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables)
+                const baloonsData = addBaloonMarkers(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, visualizationDataType, targetDatasetData, variables, activeSelections, dashboardId)
                 legendData[layerVisualizationSettings.id] = baloonsData
             }
 
             if (layerVisualizationSettings.type === 'pies') {
-                const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables)
+                const chartsData = addMapCharts(data, model, target, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, activeSelections, dashboardId)
                 legendData[layerVisualizationSettings.id] = chartsData
             }
 
             if (layerVisualizationSettings.type === 'clusters') {
                 clusters = createClusterGroup(layerVisualizationSettings, target)
-                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, clusters)
+                addClusters(data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, markerBounds, layersData, targetDatasetData, variables, clusters, activeSelections, dashboardId)
             }
 
             if (layerVisualizationSettings.type === 'heatmap') {
@@ -245,7 +247,7 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
             }
 
             if (layerVisualizationSettings.type === 'choropleth') {
-                const choroplethData = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds)
+                const choroplethData = createChoropleth(map, data, model, target, dataColumn, spatialAttribute, geoColumn, layerGroup, layerVisualizationSettings, layersData, visualizationDataType, targetDatasetData, variables, bounds, activeSelections, dashboardId)
                 legendData[layerVisualizationSettings.id] = choroplethData
             }
 
