@@ -1,4 +1,21 @@
-import { IMapDialogSettings, IMapDialogSettingsProperty, IMapTooltipSettings, IMapTooltipSettingsLayer, IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetSelection, IMapWidgetSelectionConfiguration, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeLegendSettings, IWidgetMapLayerColumn } from './../../../interfaces/mapWidget/DashboardMapWidget'
+import {
+    IMapDialogSettings,
+    IMapDialogSettingsProperty,
+    IMapTooltipSettings,
+    IMapTooltipSettingsLayer,
+    IMapWidgetCrossNavigation,
+    IMapWidgetLayer,
+    IMapWidgetLayerProperty,
+    IMapWidgetLinkConfiguration,
+    IMapWidgetLinkVisualizationTypeConfig,
+    IMapWidgetPreview,
+    IMapWidgetPreviewVisualizationTypeConfig,
+    IMapWidgetSelection,
+    IMapWidgetSelectionConfiguration,
+    IMapWidgetVisualizationType,
+    IMapWidgetVisualizationTypeLegendSettings,
+    IWidgetMapLayerColumn
+} from './../../../interfaces/mapWidget/DashboardMapWidget'
 import { IWidget } from '../../../Dashboard'
 import * as mapWidgetDefaultValues from '../helpers/mapWidget/MapWidgetDefaultValues'
 
@@ -44,7 +61,7 @@ export const removeColumnFromModel = (selectedLayer: IMapWidgetLayer | null, col
     removeColumnFromLegend(selectedLayer, column, widgetModel)
     removeColumnFromDialogs(selectedLayer, column, widgetModel)
     removeColumnFromTooltips(selectedLayer, column, widgetModel)
-    removeColumnFromSelections(selectedLayer, column, widgetModel)
+    removeColumnFromInteractions(selectedLayer, column, widgetModel)
 
     if (widgetModel.settings.visualizations.length === 0) {
         widgetModel.settings.visualizations.push(mapWidgetDefaultValues.getDefaultVisualizationSettings()[0])
@@ -90,11 +107,45 @@ const removeColumnFromTooltips = (layer: IMapWidgetLayer, column: IWidgetMapLaye
     })
 }
 
+const removeColumnFromInteractions = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
+    removeColumnFromSelections(layer, column, widgetModel)
+    removeColumnFromCrossNavigation(layer, column, widgetModel)
+    removeColumnFromLinks(layer, column, widgetModel)
+    removeColumnFromPreview(layer, column, widgetModel)
+}
+
 const removeColumnFromSelections = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
     if (!widgetModel.settings || !widgetModel.settings.interactions?.selection) return
     const selectionConfiguration = widgetModel.settings.interactions.selection as IMapWidgetSelectionConfiguration
     selectionConfiguration.selections.forEach((selectionConfig: IMapWidgetSelection) => {
         if (selectionConfig.vizualizationType?.target !== layer.layerId) return
         if (selectionConfig.column === column.name) selectionConfig.column = ''
+    })
+}
+
+const removeColumnFromCrossNavigation = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.interactions?.interactions) return
+    const crossNavigationConfiguration = (widgetModel?.settings?.interactions?.crossNavigation ?? null) as IMapWidgetCrossNavigation | null
+    crossNavigationConfiguration?.crossNavigationVizualizationTypes.forEach((IMapWidgetCrossNavigationVisualizationTypeConfig: IMapWidgetSelection) => {
+        if (IMapWidgetCrossNavigationVisualizationTypeConfig.vizualizationType?.target !== layer.layerId) return
+        if (IMapWidgetCrossNavigationVisualizationTypeConfig.column === column.name) IMapWidgetCrossNavigationVisualizationTypeConfig.column = ''
+    })
+}
+
+const removeColumnFromLinks = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.interactions?.link) return
+    const linkConfiguration = (widgetModel?.settings?.interactions?.link ?? null) as IMapWidgetLinkConfiguration | null
+    linkConfiguration?.linkVizualizationTypes.forEach((linkConfig: IMapWidgetLinkVisualizationTypeConfig) => {
+        if (linkConfig.vizualizationType?.target !== layer.layerId) return
+        if (linkConfig.column === column.name) linkConfig.column = ''
+    })
+}
+
+const removeColumnFromPreview = (layer: IMapWidgetLayer, column: IWidgetMapLayerColumn, widgetModel: IWidget) => {
+    if (!widgetModel.settings || !widgetModel.settings.interactions?.preview) return
+    const previewConfiguration = widgetModel.settings.interactions.preview as IMapWidgetPreview | null
+    previewConfiguration?.previewVizualizationTypes.forEach((previewConfig: IMapWidgetPreviewVisualizationTypeConfig) => {
+        if (previewConfig.vizualizationType?.target !== layer.layerId) return
+        if (previewConfig.column === column.name) previewConfig.column = ''
     })
 }

@@ -3,20 +3,7 @@
         <form v-if="crossNavigationConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
             <div v-for="(crossNavigationConfig, index) in crossNavigationConfiguration.crossNavigationVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                    <q-select
-                        filled
-                        dense
-                        class="p-sm-12 p-md-4"
-                        v-model="crossNavigationConfig.vizualizationType"
-                        :options="getFilteredVisualizationTypeOptions(index)"
-                        emit-value
-                        map-options
-                        options-dense
-                        option-label="layerName"
-                        :label="$t('dashboard.widgetEditor.visualizationType.title')"
-                        :disable="crossNavigationDisabled"
-                        @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"
-                    ></q-select>
+                    <q-select filled dense class="p-sm-12 p-md-4" v-model="crossNavigationConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="layerName" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="crossNavigationDisabled" @update:modelValue="onVizualizationTypeChange(crossNavigationConfig)"></q-select>
                     <div class="p-col-4 p-d-flex p-flex-column">
                         <div class="p-d-flex p-flex-column kn-flex p-mx-2 p-mb-4">
                             <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.crossNavigationName') }}</label>
@@ -74,7 +61,7 @@ import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy
 export default defineComponent({
     name: 'map-widget-cross-navigation-configuration',
     components: { Dropdown, WidgetOutputParametersList },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<any[]> }, selectedDatasets: { type: Array as PropType<any[]> }, dashboardId: { type: String, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<any[]> }, selectedDatasets: { type: Array as PropType<any[]> }, dashboardId: { type: String, required: true }, visible: { type: Boolean } },
     setup() {
         const store = dashboardStore()
         return { store }
@@ -99,13 +86,14 @@ export default defineComponent({
             return this.widgetModel.layers.filter((layer: IMapWidgetLayer) => layer.type === 'dataset')
         }
     },
+    watch: {
+        visible() {
+            this.initialLoad()
+        }
+    },
     created() {
         this.setEventListeners()
-        this.loadCrossNavigationOptions()
-        this.loadCrossNavigationConfiguration()
-        this.loadOutputParameters()
-        this.loadParameterList()
-        this.loadSelectedDatasetColumnNames()
+        this.initialLoad()
     },
     unmounted() {
         this.removeEventListeners()
@@ -117,6 +105,13 @@ export default defineComponent({
         },
         removeEventListeners() {
             emitter.off('mapFieldsUpdated', this.loadCrossNavigationConfiguration)
+        },
+        initialLoad() {
+            this.loadCrossNavigationOptions()
+            this.loadCrossNavigationConfiguration()
+            this.loadOutputParameters()
+            this.loadParameterList()
+            this.loadSelectedDatasetColumnNames()
         },
         loadCrossNavigationOptions() {
             const temp = this.store.getCrossNavigations(this.dashboardId)
