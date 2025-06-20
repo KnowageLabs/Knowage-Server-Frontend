@@ -3,20 +3,7 @@
         <form v-if="selectionConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
             <div class="p-col-12 p-d-flex p-flex-column">
                 <div v-for="(selectionConfig, index) in selectionConfiguration.selections" :key="index" class="row items-center q-mb-sm">
-                    <q-select
-                        filled
-                        dense
-                        class="col-6"
-                        v-model="selectionConfig.vizualizationType"
-                        :options="getFilteredVisualizationTypeOptions(index)"
-                        emit-value
-                        map-options
-                        options-dense
-                        option-label="layerName"
-                        :label="$t('dashboard.widgetEditor.visualizationType.title')"
-                        :disable="selectionsDisabled"
-                        @update:modelValue="onVizualizationTypeChange(selectionConfig)"
-                    ></q-select>
+                    <q-select filled dense class="col-6" v-model="selectionConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="layerName" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="selectionsDisabled" @update:modelValue="onVizualizationTypeChange(selectionConfig)"></q-select>
                     <q-select filled dense class="col-5 q-ml-sm" v-model="selectionConfig.column" :options="availableAttributeColumns(selectionConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="selectionsDisabled"></q-select>
 
                     <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addSelectionConfiguration" />
@@ -36,7 +23,7 @@ import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 export default defineComponent({
     name: 'map-widget-selections-configuration',
     components: {},
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, visible: { type: Boolean } },
     data() {
         return {
             selectionConfiguration: null as IMapWidgetSelectionConfiguration | null,
@@ -46,6 +33,11 @@ export default defineComponent({
     computed: {
         selectionsDisabled() {
             return !this.selectionConfiguration || !this.selectionConfiguration.enabled
+        }
+    },
+    watch: {
+        visible() {
+            this.loadSelectionConfiguration()
         }
     },
     created() {

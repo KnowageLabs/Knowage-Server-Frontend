@@ -3,20 +3,7 @@
         <form v-if="previewConfiguration" class="p-fluid p-formgrid p-grid p-col-12 p-m-1">
             <div v-for="(previewConfig, index) in previewConfiguration.previewVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                 <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                    <q-select
-                        filled
-                        dense
-                        class="p-sm-12 p-md-4"
-                        v-model="previewConfig.vizualizationType"
-                        :options="getFilteredVisualizationTypeOptions(index)"
-                        emit-value
-                        map-options
-                        options-dense
-                        option-label="layerName"
-                        :label="$t('dashboard.widgetEditor.visualizationType.title')"
-                        :disable="previewDisabled"
-                        @update:modelValue="onVizualizationTypeChange(previewConfig)"
-                    ></q-select>
+                    <q-select filled dense class="p-sm-12 p-md-4" v-model="previewConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="layerName" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="previewDisabled" @update:modelValue="onVizualizationTypeChange(previewConfig)"></q-select>
                     <q-select filled dense class="p-sm-12 p-md-4 p-px-2" v-model="previewConfig.column" :options="availableColumns(previewConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="previewDisabled"></q-select>
 
                     <div class="p-sm-12 p-md-3 p-px-2">
@@ -31,17 +18,7 @@
                 </div>
 
                 <div v-if="previewConfig.vizualizationType?.id" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-2">
-                    <WidgetOutputParametersList
-                        class="kn-flex p-mr-2"
-                        :widget-model="widgetModel"
-                        :prop-parameters="previewConfig.parameters"
-                        :selected-datasets-columns-map="selectedDatasetColumnNameMap"
-                        :mapDynamicOptions="availableColumns(previewConfig.vizualizationType)"
-                        :preview-config="previewConfig"
-                        :dashboard-id="dashboardId"
-                        :disabled="previewDisabled"
-                        @change="onParametersChanged($event, previewConfig)"
-                    ></WidgetOutputParametersList>
+                    <WidgetOutputParametersList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="previewConfig.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :mapDynamicOptions="availableColumns(previewConfig.vizualizationType)" :preview-config="previewConfig" :dashboard-id="dashboardId" :disabled="previewDisabled" @change="onParametersChanged($event, previewConfig)"></WidgetOutputParametersList>
                 </div>
             </div>
         </form>
@@ -70,7 +47,8 @@ export default defineComponent({
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]> },
         selectedDatasets: { type: Array as PropType<IDataset[]> },
-        dashboardId: { type: String, required: true }
+        dashboardId: { type: String, required: true },
+        visible: { type: Boolean }
     },
     setup() {
         const store = dashboardStore()
@@ -97,13 +75,14 @@ export default defineComponent({
             return this.widgetModel.layers.filter((layer: IMapWidgetLayer) => layer.type === 'dataset')
         }
     },
+    watch: {
+        visible() {
+            this.initialLoad()
+        }
+    },
     created() {
         this.setEventListeners()
-        this.loadPreviewModel()
-        this.loadDatasetsFromModel()
-        this.loadOutputParameters()
-        this.loadParameterList()
-        this.loadSelectedDatasetColumnNames()
+        this.initialLoad()
     },
     unmounted() {
         this.removeEventListeners()
@@ -114,6 +93,13 @@ export default defineComponent({
         },
         removeEventListeners() {
             emitter.off('mapFieldsUpdated', this.loadPreviewModel)
+        },
+        initialLoad() {
+            this.loadPreviewModel()
+            this.loadDatasetsFromModel()
+            this.loadOutputParameters()
+            this.loadParameterList()
+            this.loadSelectedDatasetColumnNames()
         },
         loadPreviewModel() {
             if (this.widgetModel?.settings?.interactions?.preview) this.previewConfiguration = this.widgetModel.settings.interactions.preview

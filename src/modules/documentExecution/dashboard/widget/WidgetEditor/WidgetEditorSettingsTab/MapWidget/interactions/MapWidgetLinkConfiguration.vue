@@ -4,20 +4,7 @@
             <div class="p-col-12 p-fluid p-formgrid p-grid">
                 <div v-for="(linkConfig, index) in linkConfiguration.linkVizualizationTypes" :key="index" class="p-col-12 p-fluid p-formgrid p-grid">
                     <div class="p-col-12 p-fluid p-formgrid p-grid p-ai-center">
-                        <q-select
-                            filled
-                            dense
-                            class="p-sm-12 p-md-5"
-                            v-model="linkConfig.vizualizationType"
-                            :options="getFilteredVisualizationTypeOptions(index)"
-                            emit-value
-                            map-options
-                            options-dense
-                            option-label="layerName"
-                            :label="$t('dashboard.widgetEditor.visualizationType.title')"
-                            :disable="linksDisabled"
-                            @update:modelValue="onVizualizationTypeChange(linkConfig)"
-                        ></q-select>
+                        <q-select filled dense class="p-sm-12 p-md-5" v-model="linkConfig.vizualizationType" :options="getFilteredVisualizationTypeOptions(index)" emit-value map-options options-dense option-label="layerName" :label="$t('dashboard.widgetEditor.visualizationType.title')" :disable="linksDisabled" @update:modelValue="onVizualizationTypeChange(linkConfig)"></q-select>
                         <q-select filled dense class="p-sm-12 p-md-5 q-ml-sm" v-model="linkConfig.column" :options="availableColumns(linkConfig.vizualizationType)" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.column')" :disable="linksDisabled"></q-select>
 
                         <Button v-if="index === 0" icon="fas fa-plus-circle fa-1x" class="p-button-text p-button-plain p-js-center p-ml-2" @click="addLinkConfiguration" />
@@ -51,17 +38,7 @@
                         </div>
 
                         <div class="p-sm-12 p-md-12 p-mt-4">
-                            <WidgetLinkParameterList
-                                class="kn-flex p-mr-2"
-                                :widget-model="widgetModel"
-                                :prop-parameters="link.parameters"
-                                :selected-datasets-columns-map="selectedDatasetColumnNameMap"
-                                :disabled="linksDisabled"
-                                :dashboard-id="dashboardId"
-                                @change="onParametersChanged($event, link)"
-                                @addParameter="onAddParameter(link)"
-                                @delete="onParameterDelete($event, link)"
-                            ></WidgetLinkParameterList>
+                            <WidgetLinkParameterList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="link.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :disabled="linksDisabled" :dashboard-id="dashboardId" @change="onParametersChanged($event, link)" @addParameter="onAddParameter(link)" @delete="onParameterDelete($event, link)"></WidgetLinkParameterList>
                         </div>
                     </div>
                 </div>
@@ -87,7 +64,7 @@ import WidgetLinkParameterList from '@/modules/documentExecution/dashboard/widge
 export default defineComponent({
     name: 'map-widget-link-configuration',
     components: { Dropdown, WidgetLinkParameterList },
-    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<any[]> }, selectedDatasets: { type: Array as PropType<any[]> }, dashboardId: { type: String, required: true } },
+    props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array as PropType<any[]> }, selectedDatasets: { type: Array as PropType<any[]> }, dashboardId: { type: String, required: true }, visible: { type: Boolean } },
     setup() {
         const store = dashboardStore()
         return { store }
@@ -114,10 +91,14 @@ export default defineComponent({
             return this.widgetModel.layers.filter((layer: IMapWidgetLayer) => layer.type === 'dataset')
         }
     },
+    watch: {
+        visible() {
+            this.initialLoad()
+        }
+    },
     created() {
         this.setEventListeners()
-        this.loadLinkConfiguration()
-        this.loadSelectedDatasetColumnNames()
+        this.initialLoad()
     },
     unmounted() {
         this.removeEventListeners()
@@ -131,6 +112,10 @@ export default defineComponent({
         removeEventListeners() {
             emitter.off('mapFieldsUpdated', this.loadLinkConfiguration)
             emitter.off('vizualizationTypesUpdated', this.onVizualizationTypesUpdated)
+        },
+        initialLoad() {
+            this.loadLinkConfiguration()
+            this.loadSelectedDatasetColumnNames()
         },
         async onVizualizationTypesUpdated() {
             this.loadVisualizationTypeOptions()
