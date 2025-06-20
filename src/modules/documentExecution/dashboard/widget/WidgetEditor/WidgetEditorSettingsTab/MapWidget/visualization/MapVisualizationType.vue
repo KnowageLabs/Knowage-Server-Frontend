@@ -12,37 +12,9 @@
                     <div class="row items-center q-mb-sm">
                         <q-select filled dense class="col" v-model="visType.target" :options="availableLayersOptions" emit-value map-options option-value="layerId" option-label="name" options-dense :label="$t('common.layer')" @update:modelValue="onTargetChange($event, visType)"></q-select>
 
-                        <q-select
-                            v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'"
-                            filled
-                            dense
-                            class="col q-ml-sm"
-                            v-model="visType.targetType"
-                            :options="['column', 'property']"
-                            emit-value
-                            map-options
-                            option-value="name"
-                            option-label="name"
-                            options-dense
-                            label="Data Link"
-                            @update:modelValue="onDataLinkChange($event, visType)"
-                        ></q-select>
+                        <q-select v-if="visType && getTargetLayerType(visType) === 'layer' && visType.type !== 'geography'" filled dense class="col q-ml-sm" v-model="visType.targetType" :options="['column', 'property']" emit-value map-options option-value="name" option-label="name" options-dense label="Data Link" @update:modelValue="onDataLinkChange($event, visType)"></q-select>
 
-                        <q-select
-                            v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column' && visType.type !== 'geography'"
-                            filled
-                            dense
-                            class="col q-ml-sm"
-                            v-model="visType.targetDataset"
-                            :options="availableDatasets"
-                            emit-value
-                            map-options
-                            option-value="name"
-                            option-label="name"
-                            options-dense
-                            :label="$t('common.dataset')"
-                            @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"
-                        ></q-select>
+                        <q-select v-if="getTargetLayerType(visType) === 'layer' && visType.targetType === 'column' && visType.type !== 'geography'" filled dense class="col q-ml-sm" v-model="visType.targetDataset" :options="availableDatasets" emit-value map-options option-value="name" option-label="name" options-dense :label="$t('common.dataset')" @update:modelValue="updateMapWidgetLegendWithSepecificModel(visType)"></q-select>
 
                         <q-select
                             v-if="visType.type !== 'geography' && visType.type !== 'pies' && (getTargetLayerType(visType) === 'dataset' || (visType.targetType === 'column' && visType.targetDataset))"
@@ -109,7 +81,7 @@
                         ></q-select>
 
                         <q-select
-                            v-if="visType && visType.type === 'pies' && getTargetLayerType(visType) === 'layer' && visType.targetType !== 'column'"
+                            v-if="visType && visType.type === 'pies' && visType.targetType !== 'column'"
                             filled
                             dense
                             multiple
