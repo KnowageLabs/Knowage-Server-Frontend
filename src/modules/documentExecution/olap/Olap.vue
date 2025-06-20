@@ -4,20 +4,7 @@
 
         <OlapCustomViewTable v-if="customViewVisible" class="olap-overlay-dialog" :olap-custom-views="olapCustomViews" @close="$emit('closeOlapCustomView')" @applyCustomView="$emit('applyCustomView', $event)" />
 
-        <DrillTruDialog
-            v-if="drillTruDialogVisible"
-            :drill-data="dtData"
-            :table-columns="formattedColumns"
-            :dt-levels="dtAssociatedLevels"
-            :menu-tree="dtTree"
-            :dt-max-rows="dtMaxRows"
-            class="olap-overlay-dialog"
-            @close="closeDrillTruDialog"
-            @checkCheckboxes="checkCheckboxes"
-            @clearLevels="dtAssociatedLevels.length = 0"
-            @rowsChanged="dtMaxRows = $event"
-            @drill="drillThrough"
-        />
+        <DrillTruDialog v-if="drillTruDialogVisible" :drill-data="dtData" :table-columns="formattedColumns" :dt-levels="dtAssociatedLevels" :menu-tree="dtTree" :dt-max-rows="dtMaxRows" class="olap-overlay-dialog" @close="closeDrillTruDialog" @checkCheckboxes="checkCheckboxes" @clearLevels="dtAssociatedLevels.length = 0" @rowsChanged="dtMaxRows = $event" @drill="drillThrough" />
 
         <FilterPanel :olap-prop="olap" :olap-designer="olapDesigner" @putFilterOnAxis="putFilterOnAxis" @showMultiHierarchy="showMultiHierarchy" @openFilterDialog="openFilterDialog" />
         <FilterTopToolbar :olap-prop="olap" @openSidebar="olapSidebarVisible = true" @putFilterOnAxis="putFilterOnAxis" @swapAxis="swapAxis" @switchPosition="moveHierarchies" @showMultiHierarchy="showMultiHierarchy" @openFilterDialog="openFilterDialog" />
@@ -85,17 +72,7 @@
     <OutputWizard v-if="outputWizardVisible" :visible="outputWizardVisible" :olap-versions-prop="olapVersions" :sbi-execution-id="id" @close="outputWizardVisible = false" />
     <ScenarioWizard v-if="scenarioWizardVisible" :visible="scenarioWizardVisible" :artifact-id-prop="artifactId" :sbi-execution-id="id" :olap-designer-prop="olapDesigner" @saveScenario="saveScenario" @deleteScenario="deleteScenario" @close="scenarioWizardVisible = false" />
     <AlgorithmDialog v-if="algorithmDialogVisible" :visible="algorithmDialogVisible" :sbi-execution-id="id" @close="algorithmDialogVisible = false" />
-    <OlapFilterDialog
-        :id="id"
-        :visible="filterDialogVisible"
-        :prop-filter="selectedFilter"
-        :olap-designer-mode="olapDesignerMode"
-        :parameters="parameters"
-        :profile-attributes="profileAttributes"
-        :olap-designer="olapDesigner"
-        @close="closeFilterDialog"
-        @applyFilters="applyFilters"
-    ></OlapFilterDialog>
+    <OlapFilterDialog :id="id" :visible="filterDialogVisible" :prop-filter="selectedFilter" :olap-designer-mode="olapDesignerMode" :parameters="parameters" :profile-attributes="profileAttributes" :olap-designer="olapDesigner" @close="closeFilterDialog" @applyFilters="applyFilters"></OlapFilterDialog>
 </template>
 
 <script lang="ts">
@@ -200,7 +177,7 @@ export default defineComponent({
     },
     computed: {
         olapHasScenario() {
-            if (this.olapDesigner?.template?.wrappedObject?.olap?.SCENARIO) {
+            if (this.olapDesigner?.template?.olap?.SCENARIO) {
                 return true
             } else return false
         }
@@ -308,41 +285,39 @@ export default defineComponent({
                 ENGINE: this.olapEngine,
                 template: this.createOlapDesginerTemplateFromOLAP()
             }
-            this.olapDesigner.template.wrappedObject.olap.JSONTEMPLATE.XML_TAG_TEXT_CONTENT = JSON.stringify(this.olapDesigner.template.wrappedObject)
+            this.olapDesigner.template.olap.JSONTEMPLATE.XML_TAG_TEXT_CONTENT = JSON.stringify(this.olapDesigner.template)
         },
         createOlapDesginerTemplateFromOLAP() {
             return {
-                wrappedObject: {
-                    olap: {
-                        cube: {
-                            reference: this.reference
-                        },
-                        MDXMondrianQuery: {
-                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF
-                        },
-                        MDXQUERY: {
-                            XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF,
-                            parameter: []
-                        },
-                        JSONTEMPLATE: {
-                            XML_TAG_TEXT_CONTENT: ''
-                        },
-                        calculated_fields: {
-                            calculated_field: []
-                        }
+                olap: {
+                    cube: {
+                        reference: this.reference
+                    },
+                    MDXMondrianQuery: {
+                        XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF
+                    },
+                    MDXQUERY: {
+                        XML_TAG_TEXT_CONTENT: this.olap.MDXWITHOUTCF,
+                        parameter: []
+                    },
+                    JSONTEMPLATE: {
+                        XML_TAG_TEXT_CONTENT: ''
+                    },
+                    calculated_fields: {
+                        calculated_field: []
                     }
                 }
             }
         },
         setClickedButtons() {
-            if (this.olapDesigner && this.olapDesigner.template?.wrappedObject?.olap?.TOOLBAR) {
-                const toolbarButtonKeys = Object.keys(this.olapDesigner.template?.wrappedObject?.olap?.TOOLBAR)
+            if (this.olapDesigner && this.olapDesigner.template?.olap?.TOOLBAR) {
+                const toolbarButtonKeys = Object.keys(this.olapDesigner.template?.olap?.TOOLBAR)
                 this.buttons.forEach((tempButton: iButton) => {
                     const index = toolbarButtonKeys.indexOf(tempButton.name)
                     if (index >= 0) {
-                        tempButton.visible = this.olapDesigner.template.wrappedObject.olap.TOOLBAR[toolbarButtonKeys[index]].visible
+                        tempButton.visible = this.olapDesigner.template.olap.TOOLBAR[toolbarButtonKeys[index]].visible
 
-                        tempButton.clicked = this.olapDesigner.template.wrappedObject.olap.TOOLBAR[toolbarButtonKeys[index]].clicked
+                        tempButton.clicked = this.olapDesigner.template.olap.TOOLBAR[toolbarButtonKeys[index]].clicked
                     }
                 })
 
@@ -677,7 +652,7 @@ export default defineComponent({
             this.loading = true
 
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${this.documentLabel}/saveOlapTemplate`, { olap: { ...this.olapDesigner.template.wrappedObject.olap, JSONTEMPLATE: { XML_TAG_TEXT_CONTENT: JSON.stringify(this.olapDesigner.template.wrappedObject) } } })
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/documents/${this.documentLabel}/saveOlapTemplate`, { olap: { ...this.olapDesigner.template.olap, JSONTEMPLATE: { XML_TAG_TEXT_CONTENT: JSON.stringify(this.olapDesigner.template) } } })
                 .then(async () => {
                     this.store.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('common.toast.updateSuccess') })
                     await this.loadOlapDesigner()
@@ -891,15 +866,15 @@ export default defineComponent({
             }
 
             this.formatOlapTable()
-            if (this.olapDesigner.template) this.olapDesigner.template.wrappedObject.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
+            if (this.olapDesigner.template) this.olapDesigner.template.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
             this.loading = false
         },
         updateOlapDesignerMDXQueryParameters() {
             if (!this.olapDesigner || !this.olapDesigner.template) return
             let query = this.olap.MDXWITHOUTCF
 
-            this.olapDesigner.template.wrappedObject.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = query
-            this.olapDesigner.template.wrappedObject.olap.MDXQUERY.parameter = []
+            this.olapDesigner.template.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = query
+            this.olapDesigner.template.olap.MDXQUERY.parameter = []
 
             Object.keys(this.filterLevels).forEach((key: string) => {
                 const payload = this.filterLevels[key]
@@ -916,11 +891,11 @@ export default defineComponent({
                     }
                     replaceValue += `.[${paramName}]`
 
-                    if (slicer.url) this.olapDesigner.template.wrappedObject.olap.MDXQUERY.parameter.push({ name: slicer.url, as: slicer.url })
+                    if (slicer.url) this.olapDesigner.template.olap.MDXQUERY.parameter.push({ name: slicer.url, as: slicer.url })
                 }
                 query = query.replaceAll(uniqueName, replaceValue)
             })
-            this.olapDesigner.template.wrappedObject.olap.MDXQUERY.XML_TAG_TEXT_CONTENT = query
+            this.olapDesigner.template.olap.MDXQUERY.XML_TAG_TEXT_CONTENT = query
         },
         async sliceOLAP(payload) {
             await this.$http
@@ -971,16 +946,16 @@ export default defineComponent({
             this.loading = false
         },
         saveScenario(scenario) {
-            this.olapDesigner.template.wrappedObject.olap.SCENARIO = scenario
+            this.olapDesigner.template.olap.SCENARIO = scenario
             this.scenarioWizardVisible = false
             this.store.setInfo({ title: this.$t('common.toast.updateTitle'), msg: this.$t('documentExecution.olap.scenarioWizard.scenarioUpdated') })
         },
         deleteScenario() {
-            delete this.olapDesigner.template.wrappedObject.olap.SCENARIO
+            delete this.olapDesigner.template.olap.SCENARIO
             this.scenarioWizardVisible = false
         },
         updateDynamicSlicer(payload: any) {
-            if (!this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER) this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER = []
+            if (!this.olapDesigner.template.olap.DYNAMIC_SLICER) this.olapDesigner.template.olap.DYNAMIC_SLICER = []
             const temp = payload.DYNAMIC_SLICER?.filter((level: any) => level.DRIVER || level.PROFILE_ATTRIBUTE).map((level: any) => {
                 return {
                     HIERARCHY: level.HIERARCHY,
@@ -991,21 +966,21 @@ export default defineComponent({
             })
 
             if (!temp || temp.length === 0) {
-                for (let i = this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER.length - 1; i >= 0; i--) {
-                    if (this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER[i].HIERARCHY === payload.filterUniqueName) this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER.splice(i, 1)
+                for (let i = this.olapDesigner.template.olap.DYNAMIC_SLICER.length - 1; i >= 0; i--) {
+                    if (this.olapDesigner.template.olap.DYNAMIC_SLICER[i].HIERARCHY === payload.filterUniqueName) this.olapDesigner.template.olap.DYNAMIC_SLICER.splice(i, 1)
                 }
             } else {
                 temp?.forEach((el: any) => {
-                    const index = this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER.findIndex((tempEl: any) => tempEl.HIERARCHY === el.HIERARCHY && tempEl.LEVEL === el.LEVEL)
+                    const index = this.olapDesigner.template.olap.DYNAMIC_SLICER.findIndex((tempEl: any) => tempEl.HIERARCHY === el.HIERARCHY && tempEl.LEVEL === el.LEVEL)
                     if (index !== -1) {
-                        this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER[index] = el
+                        this.olapDesigner.template.olap.DYNAMIC_SLICER[index] = el
                     } else {
-                        this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER.push(el)
+                        this.olapDesigner.template.olap.DYNAMIC_SLICER.push(el)
                     }
                 })
             }
 
-            if (!this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER || this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER.length === 0) delete this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER
+            if (!this.olapDesigner.template.olap.DYNAMIC_SLICER || this.olapDesigner.template.olap.DYNAMIC_SLICER.length === 0) delete this.olapDesigner.template.olap.DYNAMIC_SLICER
         },
         exportExcel() {
             if (this.checkIfVersionIsSet()) {
@@ -1023,10 +998,10 @@ export default defineComponent({
             }
         },
         removeFilterLevels(filter: any) {
-            if (this.olapDesigner && this.olapDesigner.template && this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER) {
-                for (let i = this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER.length - 1; i >= 0; i--) {
-                    if (this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER[i].HIERARCHY === filter.uniqueName) {
-                        this.olapDesigner.template.wrappedObject.olap.DYNAMIC_SLICER.splice(i, 1)
+            if (this.olapDesigner && this.olapDesigner.template && this.olapDesigner.template.olap.DYNAMIC_SLICER) {
+                for (let i = this.olapDesigner.template.olap.DYNAMIC_SLICER.length - 1; i >= 0; i--) {
+                    if (this.olapDesigner.template.olap.DYNAMIC_SLICER[i].HIERARCHY === filter.uniqueName) {
+                        this.olapDesigner.template.olap.DYNAMIC_SLICER.splice(i, 1)
                     }
                 }
             }
@@ -1091,8 +1066,8 @@ export default defineComponent({
             this.loadVersions()
         },
         updateOlapDesignerWithMDXFromOlap() {
-            this.olapDesigner.template.wrappedObject.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
-            this.olapDesigner.template.wrappedObject.olap.MDXQUERY.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
+            this.olapDesigner.template.olap.MDXMondrianQuery.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
+            this.olapDesigner.template.olap.MDXQUERY.XML_TAG_TEXT_CONTENT = this.olap.MDXWITHOUTCF
         }
     }
 })
