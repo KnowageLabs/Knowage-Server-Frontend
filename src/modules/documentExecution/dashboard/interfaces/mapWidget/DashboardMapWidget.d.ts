@@ -13,6 +13,7 @@ export interface IMapWidgetSettings {
 }
 
 export interface IMapWidgetInteractions {
+    version: number
     selection: IMapWidgetSelectionConfiguration
     crossNavigation: IMapWidgetCrossNavigation
     preview: IMapWidgetPreview

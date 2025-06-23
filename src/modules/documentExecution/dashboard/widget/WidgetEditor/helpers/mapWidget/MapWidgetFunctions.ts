@@ -18,7 +18,8 @@ export const createNewMapWidgetSettings = () => {
             selection: mapWidgetDefaultValues.getDefaultMapSelectionConfiguration() as IMapWidgetSelectionConfiguration,
             crossNavigation: mapWidgetDefaultValues.getDefaultMapCrossNavigationConfiguration() as IMapWidgetCrossNavigation,
             preview: mapWidgetDefaultValues.getDefaultMapPreviewConfiguration() as IMapWidgetPreview,
-            link: mapWidgetDefaultValues.getDefaultMapLinkConfiguration() as IMapWidgetLinkConfiguration
+            link: mapWidgetDefaultValues.getDefaultMapLinkConfiguration() as IMapWidgetLinkConfiguration,
+            version: 2
         },
         style: {
             themeId: null,
