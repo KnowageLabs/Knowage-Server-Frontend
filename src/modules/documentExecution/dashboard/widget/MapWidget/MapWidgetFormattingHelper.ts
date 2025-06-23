@@ -5,7 +5,7 @@ import * as mapWidgetDefaultValues from '@/modules/documentExecution/dashboard/w
 
 export const formatMapWidgetAfterDashboardLoading = (widget: IWidget, datasets: IDataset[]) => {
     formatLayerColumnIfDatasetChanged(widget, datasets)
-    formatMapInteractions(widget)
+    if (widget.settings?.interactions.version !== 2) formatMapInteractions(widget)
 }
 
 const formatLayerColumnIfDatasetChanged = (widget: IWidget, datasets: IDataset[]) => {
@@ -70,25 +70,25 @@ const formatMapSelectioConfigurationn = (widget: IWidget) => {
     const selectionConfiguration = (widget?.settings?.interactions?.selection ?? null) as IMapWidgetSelectionConfiguration | null
     if (!selectionConfiguration) return false
 
-    if (selectionConfiguration.selections == undefined) widget.settings.interactions.selection = mapWidgetDefaultValues.getDefaultMapSelectionConfiguration()
+    widget.settings.interactions.selection = mapWidgetDefaultValues.getDefaultMapSelectionConfiguration()
 }
 const formatMapCrossNavigationConfiguration = (widget: IWidget) => {
     const crossNavigationConfiguration = (widget?.settings?.interactions?.crossNavigation ?? null) as IMapWidgetCrossNavigation | null
     if (!crossNavigationConfiguration) return false
 
-    if (crossNavigationConfiguration.crossNavigationVizualizationTypes == undefined) widget.settings.interactions.crossNavigation = mapWidgetDefaultValues.getDefaultMapCrossNavigationConfiguration()
+    widget.settings.interactions.crossNavigation = mapWidgetDefaultValues.getDefaultMapCrossNavigationConfiguration()
 }
 
 const formatMapLinkConfiguration = (widget: IWidget) => {
     const linkConfiguration = (widget?.settings?.interactions?.link ?? null) as IMapWidgetLinkConfiguration | null
     if (!linkConfiguration) return false
 
-    if (linkConfiguration.linkVizualizationTypes == undefined) widget.settings.interactions.link = mapWidgetDefaultValues.getDefaultMapLinkConfiguration()
+    widget.settings.interactions.link = mapWidgetDefaultValues.getDefaultMapLinkConfiguration()
 }
 
 const formatMapPreviewConfiguration = (widget: IWidget) => {
     const previewConfiguration = (widget?.settings?.interactions?.preview ?? null) as IMapWidgetPreview | null
     if (!previewConfiguration) return false
 
-    if (previewConfiguration.previewVizualizationTypes == undefined) widget.settings.interactions.preview = mapWidgetDefaultValues.getDefaultMapPreviewConfiguration()
+    widget.settings.interactions.preview = mapWidgetDefaultValues.getDefaultMapPreviewConfiguration()
 }

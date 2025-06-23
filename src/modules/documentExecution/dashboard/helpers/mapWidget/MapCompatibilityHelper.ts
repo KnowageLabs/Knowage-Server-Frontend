@@ -35,7 +35,8 @@ const getFormattedWidgetSettings = (widget: any) => {
             selection: mapWidgetDefaultValues.getDefaultMapSelectionConfiguration() as IMapWidgetSelectionConfiguration,
             crossNavigation: getFormattedCrossNavigationFromOldWidget(widget) as IMapWidgetCrossNavigation,
             preview: mapWidgetDefaultValues.getDefaultMapPreviewConfiguration() as IMapWidgetPreview,
-            link: mapWidgetDefaultValues.getDefaultMapLinkConfiguration() as IMapWidgetLinkConfiguration
+            link: mapWidgetDefaultValues.getDefaultMapLinkConfiguration() as IMapWidgetLinkConfiguration,
+            version: 2
         },
         style: getFormattedStyle(widget) as IMapWidgetStyle,
         responsive: widgetCommonDefaultValues.getDefaultResponsivnes() as IWidgetResponsive,

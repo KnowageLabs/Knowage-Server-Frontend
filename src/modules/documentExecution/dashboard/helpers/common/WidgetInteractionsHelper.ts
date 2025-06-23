@@ -10,8 +10,8 @@ import mainStore from '@/App.store'
 export const getFormattedInteractions = (widget: any) => {
     const interactions = {} as IWidgetInteractions
     const chartType = getChartType(widget)
-    if (['table', 'chart', 'static-pivot-table', 'map'].includes(widget.type) && chartType !== 'GAUGE') interactions.selection = getFormattedSelection(widget, chartType) as IWidgetSelection
-    if (['table', 'html', 'text', 'chart', 'discovery', 'image', 'customchart', 'static-pivot-table', 'map'].includes(widget.type)) interactions.crossNavigation = getFormattedCrossNavigation(widget) as IWidgetCrossNavigation
+    if (['table', 'chart', 'static-pivot-table'].includes(widget.type) && chartType !== 'GAUGE') interactions.selection = getFormattedSelection(widget, chartType) as IWidgetSelection
+    if (['table', 'html', 'text', 'chart', 'discovery', 'image', 'customchart', 'static-pivot-table'].includes(widget.type)) interactions.crossNavigation = getFormattedCrossNavigation(widget) as IWidgetCrossNavigation
     if (['table', 'image', 'chart', 'discovery'].includes(widget.type)) interactions.link = getFormattedLinkInteraction(widget) as IWidgetLinks
     if (['table', 'html', 'text', 'chart', 'discovery', 'customchart'].includes(widget.type)) interactions.preview = getFormattedPreview(widget) as IWidgetPreview
     if (['chart'].includes(widget.type)) interactions.drilldown = { enabled: false } as IHighchartsDrilldown
@@ -28,7 +28,7 @@ const getFormattedSelection = (widget: any, chartType: string | null) => {
         return getFormattedTableSelection(widget)
     } else if (widget.type === 'chart') {
         return getFormattedChartSelection(widget, chartType)
-    } else if (['static-pivot-table', 'map'].includes(widget.type)) {
+    } else if (['static-pivot-table'].includes(widget.type)) {
         return getFormattedCommonSelection()
     }
 }
@@ -94,7 +94,6 @@ const getOldCrossNavigation = (widget: any) => {
         case 'customchart':
         case 'static-pivot-table':
         case 'discovery':
-        case 'map':
             return widget.cross.cross
         default:
             return widget.cross
