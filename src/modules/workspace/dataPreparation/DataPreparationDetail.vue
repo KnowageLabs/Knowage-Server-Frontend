@@ -21,7 +21,7 @@
             </template>
         </KnCalculatedField>
         <DataPreparationDialog v-model:transformation="selectedTransformation" v-model:col="col" :columns="columns" :read-only="readOnly" @send-transformation="handleTransformation" @update:readOnly="updateReadOnly" />
-        <DataPreparationSaveDialog v-model:visibility="showSaveDialog" :original-dataset="dataset" :existing-dataset="JSON.parse(existingDataset || '')" :config="dataset.config" :columns="columns" :instance-id="instanceId" :process-id="processId" :prepared-ds-meta="preparedDsMeta" @update:instanceId="updateInstanceId" @update:processId="updateprocessId" />
+        <DataPreparationSaveDialog v-model:visibility="showSaveDialog" :original-dataset="dataset" :existing-dataset="existingDataset || ''" :config="dataset.config" :columns="columns" :instance-id="instanceId" :process-id="processId" :prepared-ds-meta="preparedDsMeta" @update:instanceId="updateInstanceId" @update:processId="updateprocessId" />
         <Toolbar class="kn-toolbar kn-toolbar--primary p-m-0">
             <template #start> {{ $t('managers.workspaceManagement.dataPreparation.label') }} ({{ $t('managers.workspaceManagement.dataPreparation.originalDataset') }}: {{ dataset.name }})</template>
             <template #end>
@@ -218,6 +218,7 @@ export default defineComponent({
             this.dataset = response.data[0]
         })
         if (this.dataset) {
+          console.log(this.dataset)
             await this.initDsMetadata()
             this.initTransformations()
 
