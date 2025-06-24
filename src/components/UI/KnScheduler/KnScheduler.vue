@@ -122,7 +122,6 @@ watch(schedulation, (newValue) => {
 const stopPropsWatcher = watch(
     () => props.cronExpression,
     (newValue, oldValue) => {
-        debugger
         if (newValue && newValue !== oldValue && newValue != '') {
             schedulation.enabled = !props.schedulationPaused
             schedulation.refreshDays = cronToNumber(newValue, 'days') || []

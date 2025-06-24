@@ -140,7 +140,10 @@ export default defineComponent({
             toReturn['config'] = {}
             toReturn['config']['paused'] = this.schedulationPaused
 
-            toReturn['config']['cron'] = this.currentCronExpression
+            if (this.currentCronExpression && this.currentCronExpression !== '') {
+                toReturn['config']['cron'] = this.currentCronExpression
+            }
+
             toReturn['config']['type'] = this.cronExpressionType
 
             toReturn['dataSetLabel'] = this.originalDataset.label
@@ -171,6 +174,7 @@ export default defineComponent({
         },
         createProcessDefinition() {
             const toReturn = {}
+            console.log(this.config)
             if (this.config && this.config.transformations) toReturn['definition'] = this.config.transformations
             return toReturn
         },
