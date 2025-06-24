@@ -398,7 +398,11 @@ export default defineComponent({
                                 this.generateAvro(datasetId)
                                 this.existingPreparedDatasetId = datasetId
                             } else {
-                                this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
+                                if (transformations && transformations.length > 0) {
+                                  this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
+                                } else {
+                                  this.$router.push({ name: 'data-preparation', params: { id: datasetId, processId: processId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
+                                }
                             }
                         })
                     },
