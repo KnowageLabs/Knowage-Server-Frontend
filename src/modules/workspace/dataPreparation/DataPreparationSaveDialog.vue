@@ -128,11 +128,11 @@ export default defineComponent({
             this.resetAndClose()
         },
         saveOrUpdateProcess(processDefinition) {
-            if (this.processId && this.processId != '') return this.$http.put(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/1.0/process/${this.processId}`, processDefinition)
+            if (this.processId && this.processId != '') return this.$http.put(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/api/1.0/process/${this.processId}`, processDefinition)
             else return this.$http.post(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/process', processDefinition)
         },
         saveOrUpdateInstance(processId, datasetDefinition) {
-            if (this.instanceId && this.instanceId != '') return this.$http.post(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/1.0/instance/${this.instanceId}`, datasetDefinition)
+            if (this.instanceId && this.instanceId != '') return this.$http.post(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/api/1.0/instance/${this.instanceId}`, datasetDefinition)
             else return this.$http.post(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/process/' + processId + '/instance', datasetDefinition)
         },
         createDatasetDefinition() {
