@@ -387,7 +387,9 @@ export default defineComponent({
                 positionUniqueName: event.target.parentNode.getAttribute('positionuniquename')
             })
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilldown/${axis}/${position}/${member}/?SBI_EXECUTION_ID=${this.id}`, postData)
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drilldown/${axis}/${position}/${member}/?SBI_EXECUTION_ID=${this.id}`, postData,
+                    { headers: { 'Content-Type': 'application/json;charset=UTF-8', 'Accept': 'application/json, text/plain, */*' }}
+                )
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
 
@@ -398,7 +400,9 @@ export default defineComponent({
         async drillUp(event: any, replace: boolean) {
             this.loading = true
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drillup?SBI_EXECUTION_ID=${this.id}`, this.formatDrillUpPostData(event, replace))
+                .post(import.meta.env.VITE_KNOWAGEWHATIF_CONTEXT + `/restful-services/1.0/member/drillup?SBI_EXECUTION_ID=${this.id}`, this.formatDrillUpPostData(event, replace),
+                    { headers: { 'Content-Type': 'application/json;charset=UTF-8', 'Accept': 'application/json, text/plain, */*' }}
+                )
                 .then((response: AxiosResponse<any>) => (this.olap = response.data))
                 .catch(() => {})
 
