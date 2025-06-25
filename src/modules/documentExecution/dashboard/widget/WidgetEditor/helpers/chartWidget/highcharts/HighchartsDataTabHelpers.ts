@@ -34,10 +34,10 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
 }
 
 const addHighchartsColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, mode: string, widgetModel: IWidget) => {
-    if (mode === 'attributesOnly') {
+    if (mode === 'attributesOnly' && chartType !== 'scatter') {
         addAttributeColumnToTableRows(tempColumn, rows)
-    } else if (mode === 'measuresOnly') {
-        addMeasureColumnToTableRows(tempColumn, rows, chartType, widgetModel)
+    } else if (mode === 'measuresOnly' || chartType === 'scatter') {
+        addMeasureColumnToTableRows(tempColumn, rows, chartType, widgetModel, mode)
     }
 }
 
@@ -54,19 +54,20 @@ const addAttributeColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetC
     addColumnToRows(rows, tempColumn)
 }
 
-const addMeasureColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, widgetModel: IWidget) => {
-    convertColumnToMeasure(tempColumn)
+const addMeasureColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, widgetModel: IWidget, mode: string) => {
+    convertColumnToMeasure(tempColumn, chartType, mode)
     addColumnToRows(rows, tempColumn)
     widgetModel.settings.chartModel.addSerie(tempColumn, chartType)
     addSerieToWidgetModel(widgetModel, tempColumn, chartType)
     emitter.emit('seriesAdded', tempColumn)
 }
 
-const convertColumnToMeasure = (tempColumn: IWidgetColumn) => {
+const convertColumnToMeasure = (tempColumn: IWidgetColumn, chartType: string | undefined, mode: string) => {
     if (tempColumn.fieldType === 'ATTRIBUTE') {
         tempColumn.fieldType = 'MEASURE'
         tempColumn.aggregation = 'COUNT'
     }
+    if (chartType === 'scatter' && mode === 'attributesOnly') tempColumn.scatterAttributeAsMeasure = true
 }
 
 const addColumnToRows = (rows: IWidgetColumn[], tempColumn: IWidgetColumn) => {
@@ -93,7 +94,7 @@ export const removeSerieFromWidgetModel = (widgetModel: IWidget, column: IWidget
     const allSeriesOption = !['pie', 'solidgauge', 'sunburst', 'treemap', 'dependencywheel', 'sankey', 'pictorial', 'funnel', 'dumbbell', 'streamgraph', 'packedbubble', 'waterfall', 'scatter'].includes('' + chartType)
     removeColumnFromSubmodel(column, widgetModel.settings.accesssibility.seriesAccesibilitySettings, allSeriesOption)
     removeColumnFromSubmodel(column, widgetModel.settings.series.seriesSettings, allSeriesOption)
-    widgetModel.settings.series.aliases = widgetModel.settings.series.aliases.filter((aliasSettings: { column: IWidgetColumn | null; alias: string }) => aliasSettings.column?.id !== column.id && aliasSettings.column?.columnName !== column.columnName)
+    widgetModel.settings.series.aliases = widgetModel.settings.series.aliases ? widgetModel.settings.series.aliases.filter((aliasSettings: { column: IWidgetColumn | null; alias: string }) => aliasSettings.column?.id !== column.id && aliasSettings.column?.columnName !== column.columnName) : []
     emitter.emit('seriesRemoved', column)
 }
 

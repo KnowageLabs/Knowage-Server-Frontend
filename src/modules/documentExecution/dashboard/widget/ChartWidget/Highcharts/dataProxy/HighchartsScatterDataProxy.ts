@@ -80,6 +80,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     if (measures.length >= measureLength && !specificMeasure) {
         for (let index = 0; index < measureLength; index++) {
             const measure = measures[index]
+            if (measure.scatterAttributeAsMeasure) return
             if (measure.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
                 continue
@@ -92,6 +93,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     } else if (measures.length >= 1 && specificMeasure) {
         const specificMeasure = widget.settings.configuration.grouping.secondDimension.serie
         const measure = measures.filter((measure) => measure.columnName === specificMeasure)[0]
+        if (measure.scatterAttributeAsMeasure) return
         if (measure) {
             if (measure.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
@@ -104,7 +106,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
         }
     }
 
-    const categories = widget.columns.filter((column) => column.fieldType !== 'MEASURE')
+    const categories = widget.columns.filter((column) => column.fieldType !== 'MEASURE' || column.scatterAttributeAsMeasure)
     const categoryLength = noOfCategories == -1 ? categories.length : noOfCategories
 
     if (categories.length >= categoryLength) {
