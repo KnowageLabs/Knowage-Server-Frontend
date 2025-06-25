@@ -122,10 +122,6 @@ onMounted(async () => {
         zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10
     })
 
-    // map.on('click', (event: any) => {
-    //     console.log('------- CLICK EVENT: ', event)
-    // })
-
     tile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
     }).addTo(map)
