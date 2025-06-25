@@ -31,15 +31,7 @@
                     <template #body="slotProps">
                         <div>
                             <InputText v-if="column.field === 'alias'" v-model="slotProps.data[column.field]" class="kn-material-input" :disabled="slotProps.data.type === 'pythonFunction'" @change="onColumnAliasRenamed(slotProps.data)" />
-                            <Dropdown
-                                v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data) && slotProps.data.type !== 'pythonFunction'"
-                                v-model="slotProps.data[column.field]"
-                                class="kn-material-input column-aggregation-dropdown"
-                                :options="commonDescriptor.columnAggregationOptions"
-                                option-label="label"
-                                option-value="value"
-                                @change="$emit('itemUpdated', slotProps.data)"
-                            />
+                            <Dropdown v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data) && slotProps.data.type !== 'pythonFunction'" v-model="slotProps.data[column.field]" class="kn-material-input column-aggregation-dropdown" :options="commonDescriptor.columnAggregationOptions" option-label="label" option-value="value" @change="$emit('itemUpdated', slotProps.data)" />
                             <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                             <span v-else-if="!slotProps.data.formula" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                         </div>

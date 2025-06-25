@@ -73,44 +73,43 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
 
     setData(data: any, widgetModel: IWidget, variables: IVariable[]) {
         this.model.series = []
-        const attributeColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'ATTRIBUTE')
         const measureColumns = getAllColumnsOfSpecificTypeFromDataResponse(data, widgetModel, 'MEASURE')
         const dateFormat = widgetModel.settings?.configuration?.datetypeSettings && widgetModel.settings.configuration.datetypeSettings.enabled ? widgetModel.settings?.configuration?.datetypeSettings?.format : ''
-        this.model.plotOptions.scatter.jitter ? this.setJitteredChartData(data, attributeColumns, measureColumns, dateFormat) : this.setRegularData(data, attributeColumns, measureColumns, dateFormat, widgetModel)
+        this.model.plotOptions.scatter.jitter ? this.setJitteredChartData(data, measureColumns, dateFormat) : this.setRegularData(data, measureColumns, dateFormat, widgetModel)
         return this.model.series
     }
 
-    setRegularData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string, widgetModel: IWidget) {
-        const attributeColumn = attributeColumns[0]
-        if (!attributeColumn || !attributeColumn.metadata) return
+    setRegularData(data: any, measureColumns: any[], dateFormat: string, widgetModel: IWidget) {
+        const firstMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.scatterAttributeAsMeasure)
+        const secondMeasure = measureColumns.find((measureColumn: any) => !measureColumn.column.scatterAttributeAsMeasure)
+
+        if (!firstMeasure || !firstMeasure.metadata) return
         const columnAliases = widgetModel.settings?.series?.aliases ?? []
 
-        measureColumns.forEach((measureColumn: any, index: number) => {
-            const column = measureColumn.column as IWidgetColumn
-            const metadata = measureColumn.metadata as any
-            const serieElement = { id: index, name: getColumnAlias(column, columnAliases), data: [] as any[], connectNulls: true }
-            data?.rows?.forEach((row: any) => {
-                serieElement.data.push({
-                    x: row[attributeColumn.metadata.dataIndex],
-                    name: dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : '' + row[attributeColumn.metadata.dataIndex],
-                    y: row[metadata.dataIndex],
-                    drilldown: false
-                })
+        const column = secondMeasure.column as IWidgetColumn
+        const metadata = secondMeasure.metadata as any
+        const serieElement = { id: 0, name: getColumnAlias(column, columnAliases), data: [] as any[], connectNulls: true }
+        data?.rows?.forEach((row: any) => {
+            serieElement.data.push({
+                x: row[firstMeasure.metadata.dataIndex],
+                name: dateFormat && ['date', 'timestamp'].includes(firstMeasure.metadata.type) ? getFormattedDateCategoryValue(row[firstMeasure.metadata.dataIndex], dateFormat, firstMeasure.metadata.type) : '' + row[firstMeasure.metadata.dataIndex],
+                y: row[metadata.dataIndex],
+                drilldown: false
             })
-            this.model.series.push(serieElement)
         })
+        this.model.series.push(serieElement)
     }
 
-    setJitteredChartData(data: any, attributeColumns: any[], measureColumns: any[], dateFormat: string) {
-        const attributeColumn = attributeColumns[0]
+    setJitteredChartData(data: any, measureColumns: any[], dateFormat: string) {
+        const firstMeasure = measureColumns.find((column: any) => column.measureColumns)
         const measureColumn = measureColumns[0]
-        if (!attributeColumn || !measureColumn || !data.rows) return
+        if (!firstMeasure || !measureColumn || !data.rows) return
 
         const seriesMapByAttributeValueIndex: { [key: string]: { id: number; name: string; data: any[]; connectNulls: boolean } } = {}
         const uniqueValues: string[] = []
 
         data.rows.forEach((row: any) => {
-            const attributeValue = dateFormat && ['date', 'timestamp'].includes(attributeColumn.metadata.type) ? getFormattedDateCategoryValue(row[attributeColumn.metadata.dataIndex], dateFormat, attributeColumn.metadata.type) : '' + row[attributeColumn.metadata.dataIndex]
+            const attributeValue = dateFormat && ['date', 'timestamp'].includes(firstMeasure.metadata.type) ? getFormattedDateCategoryValue(row[firstMeasure.metadata.dataIndex], dateFormat, firstMeasure.metadata.type) : '' + row[firstMeasure.metadata.dataIndex]
 
             if (!seriesMapByAttributeValueIndex[attributeValue]) {
                 const index = uniqueValues.length

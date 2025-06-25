@@ -471,6 +471,7 @@ export interface IWidgetColumn {
     sort?: string
     serieType?: string
     axis?: string
+    scatterAttributeAsMeasure?: boolean
 }
 
 export interface IWidgetColumnFilter {
