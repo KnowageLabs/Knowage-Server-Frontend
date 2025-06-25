@@ -4,7 +4,7 @@
             <q-input dense class="p-lg-4" filled v-model="legendSettings.title" :label="$t('common.title')" disable readonly />
 
             <span class="p-field p-float-label p-col-12 p-lg-6 p-fluid">
-                <Dropdown v-model="legendSettings.position" class="kn-material-input" :options="descriptor.positionOptions" option-value="value" :disabled="legendSettingsDisabled">
+                <Dropdown v-model="legendSettings.position" class="kn-material-input" :options="descriptor.positionOptions" option-value="value" :disabled="legendSettingsDisabled" @change="onLegendPositionChange()">
                     <template #value="slotProps">
                         <div>
                             <span>{{ getTranslatedLabel(slotProps.value, descriptor.positionOptions, $t) }}</span>
@@ -84,6 +84,11 @@ export default defineComponent({
         },
         loadLegendSettings() {
             if (this.widgetModel?.settings?.legend) this.legendSettings = this.widgetModel.settings.legend
+        },
+        onLegendPositionChange() {
+            if (!this.legendSettings) return
+            this.legendSettings.positionX = 0
+            this.legendSettings.positionY = 0
         }
     }
 })
