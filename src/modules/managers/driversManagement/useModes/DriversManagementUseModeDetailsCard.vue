@@ -2,8 +2,8 @@
     <q-card v-if="mode.useID" class="col-12">
         <q-card-section>
             <form class="row q-col-gutter-sm">
-                <q-input class="col-6" filled v-model.trim="v$.mode.label.$model" :error="v$.mode.label.$invalid && v$.mode.label.$dirty" :error-message="v$.mode.label.$invalid && v$.mode.label.$dirty ? $t('validation.required', { fieldName: $t('common.label') }) : null" @blur="v$.mode.label.$touch()" @update:model-value="modeChanged" :label="$t('common.label') + '*'" maxlength="20" autofocus />
-                <q-input class="col-6" filled v-model.trim="v$.mode.name.$model" :error="v$.mode.name.$invalid && v$.mode.name.$dirty" :error-message="v$.mode.name.$invalid && v$.mode.name.$dirty ? $t('validation.required', { fieldName: $t('common.name') }) : null" @blur="v$.mode.name.$touch()" @update:model-value="modeChanged" :label="$t('common.name') + '*'" maxlength="40" autofocus />
+                <q-input class="col-6" filled v-model.trim="v$.mode.label.$model" :error="v$.mode.label.$invalid && v$.mode.label.$dirty" :error-message="v$.mode.label.$invalid && v$.mode.label.$dirty ? $t('validation.required', { fieldName: $t('common.label') }) : null" :label="$t('common.label') + '*'" maxlength="20" autofocus @update:model-value="modeChanged" @blur="v$.mode.label.$touch()" />
+                <q-input class="col-6" filled v-model.trim="v$.mode.name.$model" :error="v$.mode.name.$invalid && v$.mode.name.$dirty" :error-message="v$.mode.name.$invalid && v$.mode.name.$dirty ? $t('validation.required', { fieldName: $t('common.name') }) : null" :label="$t('common.name') + '*'" maxlength="40" autofocus @blur="v$.mode.name.$touch()" @update:model-value="modeChanged" />
                 <q-input class="col-12" type="textarea" rows="2" filled v-model.trim="mode.description" @update:model-value="modeChanged" :label="$t('common.description')" maxlength="160" autofocus />
                 <q-select
                     class="col-4"
@@ -22,8 +22,8 @@
                     autocomplete=""
                 />
                 <template v-if="mode.valueSelection === 'lov'">
-                    <q-input class="col-4" filled v-model="mode.typeLov.name" :error="v$.mode.typeLov.$invalid && v$.mode.typeLov.$dirty" :error-message="v$.mode.typeLov.$invalid && v$.mode.typeLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus>
-                        <template v-slot:append>
+                    <q-input class="col-4" filled v-model="mode.typeLov.name" :error="v$.mode.typeLov.$invalid && v$.mode.typeLov.$dirty" :error-message="v$.mode.typeLov.$invalid && v$.mode.typeLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus disable>
+                        <template v-slot:after>
                             <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('type')" />
                         </template>
                     </q-input>
@@ -45,38 +45,30 @@
                     />
                 </template>
 
-                <q-select class="col-4" filled v-model="selectedDefault" :options="defaults" option-label="name" option-value="label" emit-value map-options @update:model-value="setDefault" :label="$t('managers.driversManagement.useModes.defaultValue') + '*'" autocomplete="" />
+                <q-expansion-item default-opened dense icon="bookmark_border" :label="$t('managers.driversManagement.useModes.defaultValue')" class="col-12 q-ma-none q-pa-none bg-grey-1">
+                    <div class="row q-col-gutter-sm q-pa-sm">
+                        <q-select dense class="col-4" filled v-model="selectedDefault" :options="defaults" option-label="name" option-value="label" emit-value map-options :label="$t('managers.driversManagement.useModes.defaultValue')" autocomplete="" @update:model-value="setDefault" />
 
-                <q-input v-if="selectedDefault === 'lov'" class="col-4" filled v-model="mode.defLov.name" :error="v$.mode.defLov.$invalid && v$.mode.defLov.$dirty" :error-message="v$.mode.defLov.$invalid && v$.mode.defLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus>
-                    <template v-slot:append>
-                        <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('default')" />
-                    </template>
-                </q-input>
+                        <q-input v-if="selectedDefault === 'lov'" dense class="col-8" filled v-model="mode.defLov.name" :error="v$.mode.defLov.$invalid && v$.mode.defLov.$dirty" :error-message="v$.mode.defLov.$invalid && v$.mode.defLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus disable>
+                            <template v-slot:after>
+                                <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('default')" />
+                            </template>
+                        </q-input>
 
-                <q-select
-                    v-if="selectedDefault === 'pickUp'"
-                    class="col-4"
-                    filled
-                    v-model="v$.mode.defaultFormula.$model"
-                    :options="useModeDescriptor.defaultFormula"
-                    option-label="name"
-                    option-value="f_value"
-                    emit-value
-                    map-options
-                    :error="v$.mode.defaultFormula.$invalid && v$.mode.defaultFormula.$dirty"
-                    :error-message="v$.mode.defaultFormula.$invalid && v$.mode.defaultFormula.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.selectDefaultFormula') }) : null"
-                    @blur="v$.mode.defaultFormula.$touch()"
-                    @update:model-value="modeChanged"
-                    :label="$t('managers.driversManagement.useModes.selectDefaultFormula') + '*'"
-                    autocomplete=""
-                />
+                        <q-select v-if="selectedDefault === 'pickUp'" class="col-8" dense filled v-model="v$.mode.defaultFormula.$model" :options="useModeDescriptor.defaultFormula" option-label="name" option-value="f_value" emit-value map-options @blur="v$.mode.defaultFormula.$touch()" @update:model-value="modeChanged" :label="$t('managers.driversManagement.useModes.selectDefaultFormula')" autocomplete="" />
+                    </div>
+                </q-expansion-item>
 
-                <q-select v-if="isDate" class="col-4" filled v-model="selectedMax" :options="useModeDescriptor.maxValues" option-label="name" option-value="label" emit-value map-options @update:model-value="setMax" :label="$t('managers.driversManagement.useModes.maxValue') + '*'" autocomplete="" />
-                <q-input v-if="selectedMax === 'lov'" class="col-4" filled v-model="mode.maxLov.name" :error="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty" :error-message="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" disable :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus>
-                    <template v-slot:append>
-                        <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('max')" />
-                    </template>
-                </q-input>
+                <q-expansion-item v-if="isDate" default-opened dense icon="lock_clock" :label="$t('managers.driversManagement.useModes.maxValue')" class="col-12 q-ma-none q-pa-none bg-grey-2 q-mt-sm">
+                    <div class="row q-col-gutter-sm q-pa-sm">
+                        <q-select dense class="col-4" filled v-model="selectedMax" :options="useModeDescriptor.maxValues" option-label="name" option-value="label" emit-value map-options @update:model-value="setMax" :label="$t('managers.driversManagement.useModes.maxValue')" autocomplete="" />
+                        <q-input v-if="selectedMax === 'lov'" dense class="col-8" filled v-model="mode.maxLov.name" :error="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty" :error-message="v$.mode.maxLov.$invalid && v$.mode.maxLov.$dirty ? $t('common.validation.required', { fieldName: $t('managers.driversManagement.useModes.lov') }) : null" disable :label="$t('managers.driversManagement.useModes.lov') + '*'" autofocus>
+                            <template v-slot:after>
+                                <q-icon name="search" class="cursor-pointer" @click="showLovsDialog('max')" />
+                            </template>
+                        </q-input>
+                    </div>
+                </q-expansion-item>
             </form>
             <LovsDialog :dialog-visible="dialogVisiable" :lovs="lovs" :selected-lov-prop="lov" @close="dialogVisiable = false" @apply="applyLov"></LovsDialog>
         </q-card-section>
