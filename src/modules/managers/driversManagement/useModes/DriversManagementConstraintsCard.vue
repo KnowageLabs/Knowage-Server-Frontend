@@ -1,37 +1,12 @@
 <template>
-    <Card style="width: 100%" class="p-m-2">
-        <template #content>
-            <DataTable v-model:selection="selectedMode.associatedChecks" v-model:filters="filters" :value="constraints" class="p-datatable-sm kn-table" data-key="checkId" responsive-layout="stack" filter-display="menu" data-test="values-list">
-                <template #header>
-                    <div class="table-header">
-                        <span class="p-input-icon-left">
-                            <i class="pi pi-search" />
-                            <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" badge="0" data-test="search-input" />
-                        </span>
-                    </div>
-                </template>
-                <template #empty>
-                    {{ $t('common.info.noDataFound') }}
-                </template>
-                <template #loading>
-                    {{ $t('common.info.dataLoading') }}
-                </template>
-
-                <Column selection-mode="multiple" header-style="width: 3rem"></Column>
-                <Column field="name" header="Constraints" class="kn-truncated"></Column>
-            </DataTable>
-        </template>
-    </Card>
+    <q-card>
+        <q-table v-if="constraints" v-model:selected="selectedMode.associatedChecks" :pagination="{ rowsPerPage: 10 }" class="q-pa-sm" :rows="constraints" :columns="columns" selection="multiple" dense data-test="values-list"></q-table>
+    </q-card>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import { filterDefault } from '@/helpers/commons/filterHelper'
-import { FilterOperator } from 'primevue/api'
 export default defineComponent({
     name: 'constraints-card',
-    components: { Column, DataTable },
     props: {
         constraints: {
             type: Array,
@@ -45,13 +20,10 @@ export default defineComponent({
     data() {
         return {
             selectedMode: [] as any,
-            filters: {
-                global: [filterDefault],
-                name: {
-                    operator: FilterOperator.AND,
-                    constraints: [filterDefault]
-                }
-            } as Object
+            columns: [
+                { field: 'name', name: 'name', label: this.$t('common.roles'), align: 'left', sortable: true },
+                { field: 'description', name: 'description', label: this.$t('common.description'), align: 'left' }
+            ]
         }
     },
     watch: {

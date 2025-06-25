@@ -1,11 +1,14 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary p-p-0 p-m-0">
-        <template #start>{{ title }} </template>
-        <template #end>
-            <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="submit-button" @click="handleSubmit" />
-            <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" data-test="close-button" @click="closeTemplate" />
-        </template>
-    </Toolbar>
+    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+        <q-toolbar-title>{{ title }}</q-toolbar-title>
+
+        <q-btn flat round dense icon="save" :disable="buttonDisabled" data-test="submit-button" @click="handleSubmit">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeTemplate">
+            <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+        </q-btn>
+    </q-toolbar>
     <div class="p-grid p-m-0 p-p-2 p-fluid p-d-flex p-flex-column kn-height-full kn-overflow-y" data-test="drivers-form">
         <DriversDetailCard class="p-mt-2" :selected-driver="driver" :types="filteredTypes" @touched="setDirty"></DriversDetailCard>
         <UseMode class="kn-flex-grow p-mt-2" :prop-modes="modes" :roles="roles" :constraints="constraints" :layers="layers" :lovs="lovs" :selection-types="filteredSelectionTypes" :is-date="isDateType" :show-map-driver="showMapDriver"></UseMode>

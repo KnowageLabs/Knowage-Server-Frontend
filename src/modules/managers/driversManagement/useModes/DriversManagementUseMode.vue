@@ -1,14 +1,13 @@
 <template>
-    <Card class="p-col-12 kn-card kn-card-layout kn-tab-card">
+    <Card class="p-col-12 kn-card kn-card-layout kn-tab-card p-p-0">
         <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                <template #start>
-                    <span>{{ $t('managers.driversManagement.useModes.title') }}</span>
-                </template>
-                <template #end>
-                    <Button :label="$t('managers.driversManagement.add')" class="kn-button p-button-text" :disabled="disableActionButton" data-test="add-action-button" @click="showForm" />
-                </template>
-            </Toolbar>
+            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                <q-toolbar-title>{{ $t('managers.driversManagement.useModes.title') }}</q-toolbar-title>
+
+                <q-btn flat round dense icon="add" :disable="disableActionButton" data-test="add-action-button" @click="showForm">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('managers.driversManagement.add') }}</q-tooltip>
+                </q-btn>
+            </q-toolbar>
         </template>
         <template #content>
             <div class="p-grid p-m-0 p-col-12 p-p-0 kn-height-full">
