@@ -212,6 +212,8 @@ export interface IMapWidgetLegend {
     position: string
     title: string
     visualizationTypes: IMapWidgetVisualizationTypeLegendSettings[]
+    positionX?: number
+    positionY?: number
 }
 
 export interface IMapWidgetVisualizationTypeLegendSettings {

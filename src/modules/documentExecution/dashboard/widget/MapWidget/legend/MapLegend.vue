@@ -20,15 +20,8 @@
         ref="legendRef"
     >
         <h2 v-if="legend.title">{{ legend.title }}</h2>
-
         <div :class="['p-formgrid p-grid', { 'horizontal-layout': isHorizontalLayout }]">
-            <q-expansion-item
-                :class="isHorizontalLayout ? 'kn-flex' : 'p-col-12'"
-                v-for="(legendVizualizationSettings, index) in legend.visualizationTypes.filter((legendVisType: IMapWidgetVisualizationTypeLegendSettings) => legendVisType.visualizationType?.type !== 'geography')"
-                :key="index"
-                :label="legendVizualizationSettings.visualizationType?.layerName ?? ''"
-                default-opened
-            >
+            <q-expansion-item :class="isHorizontalLayout ? 'kn-flex' : 'p-col-12'" v-for="(legendVizualizationSettings, index) in legend.visualizationTypes.filter((legendVisType: IMapWidgetVisualizationTypeLegendSettings) => legendVisType.visualizationType?.type !== 'geography')" :key="index" :label="legendVizualizationSettings.visualizationType?.layerName ?? ''" default-opened>
                 <MapLegendVisualization :prop-map-widget-legend-visualization="legendVizualizationSettings" :legend-data="legendData" />
             </q-expansion-item>
         </div>
@@ -149,6 +142,9 @@ export default defineComponent({
                             this.positionX = width - legendWidth - 20
                             this.positionY = 100
                     }
+                } else {
+                    this.positionX = this.legend?.positionX ?? 0
+                    this.positionY = this.legend?.positionY ?? 0
                 }
             })
         },
@@ -181,6 +177,10 @@ export default defineComponent({
 
             this.positionX = newX
             this.positionY = newY
+            if (this.legend) {
+                this.legend.positionX = this.positionX
+                this.legend.positionY = this.positionY
+            }
         },
         stopDrag() {
             this.isDragging = false
