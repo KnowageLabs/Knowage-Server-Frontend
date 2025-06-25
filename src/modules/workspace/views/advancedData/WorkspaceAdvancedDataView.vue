@@ -384,10 +384,7 @@ export default defineComponent({
                     (response: AxiosResponse<any>) => {
                         const instanceId = response.data.configuration.dataPrepInstanceId
                         this.$http.get(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/api/1.0/process/by-instance-id/${instanceId}`).then((response: AxiosResponse<any>) => {
-                            const transformations = response.data.definition
-                            const processId = response.data.id
                             const datasetId = response.data.instance.dataSetId
-
                             if (!this.isAvroReady(datasetId)) {
                                 // check if Avro file has been deleted or not
                                 /*                                 this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: JSON.stringify(dataset) } }) */
@@ -398,12 +395,8 @@ export default defineComponent({
                                 this.generateAvro(datasetId)
                                 this.existingPreparedDatasetId = datasetId
                             } else {
-                                if (transformations && transformations.length > 0) {
-                                  this.$router.push({ name: 'data-preparation', params: { id: datasetId, transformations: JSON.stringify(transformations), processId: processId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
-                                } else {
-                                  this.$router.push({ name: 'data-preparation', params: { id: datasetId, processId: processId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
+                                  this.$router.push({ name: 'data-preparation', params: { id: datasetId, instanceId: instanceId, dataset: this.getDatasetInfo(dataset) } })
                                 }
-                            }
                         })
                     },
                     () => {
