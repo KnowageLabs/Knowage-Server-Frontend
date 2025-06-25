@@ -177,7 +177,7 @@ export default defineComponent({
         },
         getColumnOptionsFromTargetDataset(visualization: IMapWidgetVisualizationType) {
             const targetDataset = this.widgetModel.layers.find((layer: IMapWidgetLayer) => layer.name === visualization.targetDataset)
-            return targetDataset ? targetDataset.columns : []
+            return targetDataset ? targetDataset.columns.filter((column: IWidgetColumn) => column.fieldType === 'MEASURE') : []
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
