@@ -80,7 +80,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     if (measures.length >= measureLength && !specificMeasure) {
         for (let index = 0; index < measureLength; index++) {
             const measure = measures[index]
-            if (measure.scatterAttributeAsMeasure) continue
+
             if (measure.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
                 continue
@@ -93,7 +93,6 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     } else if (measures.length >= 1 && specificMeasure) {
         const specificMeasure = widget.settings.configuration.grouping.secondDimension.serie
         const measure = measures.filter((measure) => measure.columnName === specificMeasure)[0]
-        if (measure.scatterAttributeAsMeasure) return
         if (measure) {
             if (measure.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
@@ -106,13 +105,13 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
         }
     }
 
-    const categories = widget.columns.filter((column) => column.fieldType !== 'MEASURE' || column.scatterAttributeAsMeasure)
+    const categories = widget.columns.filter((column) => column.fieldType !== 'MEASURE')
     const categoryLength = noOfCategories == -1 ? categories.length : noOfCategories
 
     if (categories.length >= categoryLength) {
         for (let index = 0; index < categoryLength; index++) {
             const category = categories[index]
-            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: category.alias, orderType: category.orderType, funct: 'NONE' } as any
+            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: category.alias, orderType: category.orderType, funct: category.aggregation ?? 'NONE' } as any
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }
