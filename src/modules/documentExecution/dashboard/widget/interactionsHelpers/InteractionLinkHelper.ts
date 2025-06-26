@@ -118,7 +118,6 @@ const getFormattedChartDynamicParameterUrl = (parameter: IWidgetInteractionParam
     return useAsResource ? `${value}` : `${parameter.name}=${value}&`
 }
 
-// TODO - Move to some common file?
 export const getChartDynamicParameterValue = (formattedChartValues: IChartInteractionValues | null, column: string) => {
     if (!formattedChartValues) return ''
     switch (column) {
@@ -184,16 +183,10 @@ const replacePlaceholders = (originalString: string, variables: IVariable[], dri
 }
 
 export const openNewLinkMapWidget = (dataMap: any, dashboardId: string, variables: IVariable[], linkConfiguration: IMapWidgetLinkVisualizationTypeConfig) => {
-    console.log('__________________________ dataMap: ', dataMap)
-    console.log('__________________________ dashboardId: ', dashboardId)
-    console.log('__________________________ variables: ', variables)
-    console.log('__________________________ linkConfiguration: ', linkConfiguration)
     const formattedLinks = [] as IFormattedLink[]
     linkConfiguration.links.forEach((mapLink: IMapWidgetLink) => {
         const formattedLink = getFormattedLink(mapLink, dataMap, null, dashboardId, variables)
         formattedLinks.push(formattedLink)
     })
-    console.log('__________________________ linkConfiguration: ', linkConfiguration)
-    // const formattedLinks = [getFormattedLink(activeLink, dataMap, null, dashboardId, variables)]
-    //executeFormattedLinks(formattedLinks)
+    executeFormattedLinks(formattedLinks)
 }
