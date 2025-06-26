@@ -201,12 +201,15 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
     margin: 0px 0px;
     padding: 0px 0px;
     background: white;
-    max-width: 180px;
+    min-width: 150px;
+    max-width: 400px;
     white-space: nowrap;
 }
 
 .customLeafletPopup li {
-    text-wrap: wrap;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .leaflet-popup-tip {
