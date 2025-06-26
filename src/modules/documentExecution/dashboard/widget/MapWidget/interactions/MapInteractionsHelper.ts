@@ -20,11 +20,6 @@ export const executeMapInteractions = (event: any, widgetModel: IWidget, layerVi
     const column = rawValueColumn.trim()
     const value = rawValue.trim()
 
-    // console.log('----- COLUMN: ', column)
-    // console.log('----- VALUE: ', value)
-    // console.log('----- layerVisualizationSettings: ', layerVisualizationSettings)
-    // console.log('----- dataMap: ', dataMap)
-
     const selectedLayer = widgetModel.layers?.find((layer: IMapWidgetLayer) => layer.layerId === layerVisualizationSettings.target)
     if (!selectedLayer) return
 
@@ -96,7 +91,6 @@ const getFormattedDynamicOutputParameter = (dataMap: Record<string, string | num
 
 const startMapLink = (column: string, linkConfiguration: IMapWidgetLinkConfiguration, layerVisualizationSettings: IMapWidgetVisualizationType, dataMap: Record<string, string | number> | null, dashboardId: string, variables: IVariable[]) => {
     const selectedLinkConfiguration = linkConfiguration.linkVizualizationTypes.find((previewVizualizationTypeConfig: IMapWidgetLinkVisualizationTypeConfig) => previewVizualizationTypeConfig.vizualizationType?.target === layerVisualizationSettings.target && previewVizualizationTypeConfig.column === column)
-    console.log('------------------------- selectedLinkConfiguration: ', selectedLinkConfiguration)
     if (!selectedLinkConfiguration) return
 
     openNewLinkMapWidget(dataMap, dashboardId, variables, selectedLinkConfiguration)

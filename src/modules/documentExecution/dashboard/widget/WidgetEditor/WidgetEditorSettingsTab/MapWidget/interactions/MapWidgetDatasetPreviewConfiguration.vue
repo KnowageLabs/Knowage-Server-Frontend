@@ -190,9 +190,6 @@ export default defineComponent({
             previewConfig.column = ''
             previewConfig.parameters = []
             const index = this.dashboardDatasets.findIndex((dataset: any) => dataset.id === previewConfig?.dataset)
-            console.log('previewConfig: ', previewConfig)
-            console.log('dashboardDatasets: ', this.dashboardDatasets)
-            console.log('index: ', index)
             if (index !== -1)
                 previewConfig.parameters = this.dashboardDatasets[index].parameters.map((tempParameter: IDatasetParameter) => {
                     return {
