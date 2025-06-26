@@ -184,7 +184,6 @@ const getFormattedChartDynamicOutputParameter = (outputParameters: IWidgetIntera
 
 export const executeMapCrossNavigation = (outputParameters: IWidgetInteractionParameter[], crossNavigationConfig: IMapWidgetCrossNavigationVisualizationTypeConfig, dashboardId: string) => {
     const formattedOutputParameters = getFormattedChartOutputParameters(outputParameters, crossNavigationConfig, dashboardId)
-    console.log('%c________ formattedOutputParameters', 'color: blue; font-weight: bold; font-size: 16px;', formattedOutputParameters)
     executeCrossNavigation(formattedOutputParameters, crossNavigationConfig.name)
 }
 

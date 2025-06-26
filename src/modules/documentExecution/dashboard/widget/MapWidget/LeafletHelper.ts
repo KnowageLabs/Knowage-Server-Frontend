@@ -216,9 +216,6 @@ export async function initializeLayers(map: L.Map, model: IWidget, data: any, da
 
             const layerGroup = L.layerGroup().addTo(map)
             layerGroup.knProperties = { layerId: target.layerId, layerGroup: true }
-            layerGroup.on('click', function (e) {
-                console.log('Layer group clicked at', e.latlng)
-            })
 
             if (reloadWithFilters) centerMap = false
 

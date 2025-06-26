@@ -199,7 +199,7 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 
 .customLeafletPopup {
     margin: 0px 0px;
-    padding: 0px 0px;
+    padding: 0px 5px;
     background: white;
     min-width: 150px;
     max-width: 400px;
