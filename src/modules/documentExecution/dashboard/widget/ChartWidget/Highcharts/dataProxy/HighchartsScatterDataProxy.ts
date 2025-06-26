@@ -93,7 +93,6 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     } else if (measures.length >= 1 && specificMeasure) {
         const specificMeasure = widget.settings.configuration.grouping.secondDimension.serie
         const measure = measures.filter((measure) => measure.columnName === specificMeasure)[0]
-        if (measure.scatterAttributeAsMeasure) return
         if (measure) {
             if (measure.type === 'pythonFunction') {
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
