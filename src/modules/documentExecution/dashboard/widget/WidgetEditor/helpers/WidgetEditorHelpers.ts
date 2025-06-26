@@ -40,7 +40,7 @@ export function createNewWidget(type: string, dashboardModel: any) {
     addWidgetMenuConfig(widget)
     widget.settings.configuration.updateFromSelections = true
 
-    if (store.isEnterprise && !widget.settings.style.themeId) widget.settings.style.themeId = dashboardModel.configuration.theme?.id ?? null
+    if (store.isEnterprise && !widget.settings.style.themeId) widget.settings.style.themeId = dashboardModel?.configuration?.theme?.id ?? null
 
     return widget
 }
