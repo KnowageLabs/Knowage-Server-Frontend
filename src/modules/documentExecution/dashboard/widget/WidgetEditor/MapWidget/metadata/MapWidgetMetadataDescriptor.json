@@ -1,6 +1,10 @@
 {
     "columnAggregationOptions": [
         {
+            "label": "NONE",
+            "value": "NONE"
+        },
+        {
             "label": "SUM",
             "value": "SUM"
         },
