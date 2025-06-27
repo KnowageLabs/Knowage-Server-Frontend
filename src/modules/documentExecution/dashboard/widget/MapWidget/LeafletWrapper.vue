@@ -119,7 +119,8 @@ onMounted(async () => {
 
     map = L.map(mapId, {
         center: navigator && !props.widgetModel.settings?.configuration?.map?.autoCentering ? await getCoords() : [0, 0],
-        zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10
+        zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10,
+        attributionControl: false
     })
 
     tile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
