@@ -1,7 +1,7 @@
 <template>
     <div v-if="mapSettings">
         <div class="row q-mx-md q-pb-lg items-center">
-            <q-input class="col" type="number" v-model="mapSettings.zoom" max="20" min="1" :label="$t('dashboard.widgetEditor.map.baseLayer.zoom')" />
+            <q-input class="col" type="number" v-model="mapSettings.zoom" max="20" min="1" :label="$t('dashboard.widgetEditor.map.baseLayer.zoom')" :disable="mapSettings.autoCentering" />
             <q-toggle class="col" v-model="mapSettings.showScale" :label="$t('dashboard.widgetEditor.map.baseLayer.showScale')" />
             <q-toggle class="col" v-model="mapSettings.autoCentering" :label="$t('dashboard.widgetEditor.map.baseLayer.autoCentering')" />
         </div>
