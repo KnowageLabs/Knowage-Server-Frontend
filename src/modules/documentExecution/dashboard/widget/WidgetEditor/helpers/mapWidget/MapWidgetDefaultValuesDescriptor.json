@@ -21,7 +21,10 @@
         "layers": [
             {
                 "columns": [],
-                "name": ""
+                "name": "",
+                "precision": 2,
+                "prefix": "",
+                "suffix": ""
             }
         ],
         "style": {
@@ -87,7 +90,10 @@
         "layers": [
             {
                 "columns": [],
-                "name": ""
+                "name": "",
+                "precision": 2,
+                "prefix": "",
+                "suffix": ""
             }
         ]
     },

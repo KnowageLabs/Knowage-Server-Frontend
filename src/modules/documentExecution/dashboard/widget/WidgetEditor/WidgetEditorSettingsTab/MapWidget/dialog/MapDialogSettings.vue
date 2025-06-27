@@ -8,14 +8,7 @@
 
         <div v-for="(dialogProperty, index) in dialogSettings.layers" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center p-m-0 p-pt-0">
             <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-            <div
-                class="p-col-12 form-list-item-dropzone"
-                :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }"
-                @drop.stop="onDropComplete($event, 'before', index)"
-                @dragover.prevent
-                @dragenter.prevent="displayDropzone('top', index)"
-                @dragleave.prevent="hideDropzone('top', index)"
-            ></div>
+            <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent="displayDropzone('top', index)" @dragleave.prevent="hideDropzone('top', index)"></div>
 
             <div class="p-d-flex kn-flex p-ai-center" :draggable="true" @dragstart.stop="onDragStart($event, index)">
                 <i class="pi pi-th-large kn-cursor-pointer"></i>
@@ -35,14 +28,13 @@
                 </div>
             </div>
 
-            <div
-                class="p-col-12 form-list-item-dropzone"
-                :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }"
-                @drop.stop="onDropComplete($event, 'after', index)"
-                @dragover.prevent
-                @dragenter.prevent="displayDropzone('bottom', index)"
-                @dragleave.prevent="hideDropzone('bottom', index)"
-            ></div>
+            <div class="p-grid p-col-12 p-mt-2">
+                <q-input dense class="p-col-4" filled v-model="dialogProperty.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="dialogSettingsDisabled" />
+                <q-input dense class="p-col-4" filled v-model="dialogProperty.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="dialogSettingsDisabled" />
+                <q-input dense class="p-col-4" type="number" filled v-model="dialogProperty.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="dialogSettingsDisabled" />
+            </div>
+
+            <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', index)" @dragleave.prevent="hideDropzone('bottom', index)"></div>
             <div v-show="dropzoneBottomVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
         </div>
     </div>
@@ -101,7 +93,7 @@ export default defineComponent({
             if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer)
         },
         addDialog() {
-            this.dialogSettings?.layers.push({ name: '', columns: [] })
+            this.dialogSettings?.layers.push(mapWidgetDefaultValues.getDefaultDialogSettings().layers[0])
         },
         removeDialog(index: number) {
             if (!this.dialogSettings || !this.dialogSettings.layers) return

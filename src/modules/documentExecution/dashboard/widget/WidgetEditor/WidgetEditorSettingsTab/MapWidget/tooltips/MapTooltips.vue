@@ -5,14 +5,8 @@
         </Message>
         <div v-for="(tool, index) in tooltip.layers" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center">
             <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-            <div
-                class="p-col-12 form-list-item-dropzone"
-                :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }"
-                @drop.stop="onDropComplete($event, 'before', index)"
-                @dragover.prevent
-                @dragenter.prevent="displayDropzone('top', index)"
-                @dragleave.prevent="hideDropzone('top', index)"
-            ></div>
+            <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent="displayDropzone('top', index)" @dragleave.prevent="hideDropzone('top', index)"></div>
+
             <div class="p-d-flex kn-flex p-ai-center" :draggable="true" @dragstart.stop="onDragStart($event, index)">
                 <i class="pi pi-th-large kn-cursor-pointer"></i>
                 <div class="kn-flex p-mx-2 p-d-flex p-flex-row" style="gap: 0.5em">
@@ -31,14 +25,13 @@
                 </div>
             </div>
 
-            <div
-                class="p-col-12 form-list-item-dropzone"
-                :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }"
-                @drop.stop="onDropComplete($event, 'after', index)"
-                @dragover.prevent
-                @dragenter.prevent="displayDropzone('bottom', index)"
-                @dragleave.prevent="hideDropzone('bottom', index)"
-            ></div>
+            <div class="p-grid p-col-12 p-mt-2">
+                <q-input dense class="p-col-4" filled v-model="tool.prefix" :label="$t('dashboard.widgetEditor.prefix')" :disable="tooltipsDisabled" />
+                <q-input dense class="p-col-4" filled v-model="tool.suffix" :label="$t('dashboard.widgetEditor.suffix')" :disable="tooltipsDisabled" />
+                <q-input dense class="p-col-4" type="number" filled v-model="tool.precision" :label="$t('dashboard.widgetEditor.precision')" :disable="tooltipsDisabled" />
+            </div>
+
+            <div class="p-col-12 form-list-item-dropzone" :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', index)" @dragleave.prevent="hideDropzone('bottom', index)"></div>
             <div v-show="dropzoneBottomVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
         </div>
     </div>
@@ -55,6 +48,7 @@ import MultiSelect from 'primevue/multiselect'
 import Message from 'primevue/message'
 import defaultsDescriptor from '../../../helpers/mapWidget/MapWidgetDefaultValuesDescriptor.json'
 import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 
 export default defineComponent({
     name: 'map-tooltips',
@@ -95,7 +89,7 @@ export default defineComponent({
             if (targetLayer?.type === 'layer') await this.loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer)
         },
         addTooltip() {
-            this.tooltip?.layers.push({ name: '', columns: [] })
+            this.tooltip?.layers.push(mapWidgetDefaultValues.getDefaultMapTooltips().layers[0])
         },
         removeTooltip(index: number) {
             if (!this.tooltip || !this.tooltip.layers) return
