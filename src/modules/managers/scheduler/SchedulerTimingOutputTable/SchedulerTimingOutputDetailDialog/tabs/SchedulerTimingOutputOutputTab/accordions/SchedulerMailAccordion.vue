@@ -58,18 +58,7 @@
 
                     <div class="row">
                         <q-checkbox v-model="document.zipMailDocument" :label="$t('managers.scheduler.zipMailDocument')" @update:model-value="removeDocumentFixedRecipientsAndDatasets" />
-                        <q-input
-                            v-if="document.zipMailDocument"
-                            bottom-slots
-                            counter
-                            :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.mail.zipMailNameMaxLength"
-                            dense
-                            filled
-                            v-model="document.zipMailName"
-                            @update:model-value="validateDocument(null)"
-                            :label="$t('managers.scheduler.zipFileName')"
-                            class="col q-ml-md"
-                        >
+                        <q-input v-if="document.zipMailDocument" bottom-slots counter :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.mail.zipMailNameMaxLength" dense filled v-model="document.zipMailName" @update:model-value="validateDocument(null)" :label="$t('managers.scheduler.zipFileName')" class="col q-ml-md">
                             <template #prepend>
                                 <q-icon name="folder_zip" />
                             </template>
@@ -90,19 +79,7 @@
                         <q-input bottom-slots counter :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.mail.fileNameMaxLength" @update:model-value="validateDocument(null)" dense filled v-model="document.containedFileName" :label="$t('common.fileName')" class="col q-ml-md"> </q-input>
                     </div>
 
-                    <q-input
-                        class="q-mt-md"
-                        dense
-                        bottom-slots
-                        counter
-                        :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.mail.mailTextMaxLength"
-                        v-model="document.mailtxt"
-                        filled
-                        @update:model-value="validateDocument(null)"
-                        type="textarea"
-                        :label="$t('managers.scheduler.mailText')"
-                        :placeholder="$t('managers.scheduler.mailTextMessage')"
-                    />
+                    <q-editor v-model="document.mailtxt" min-height="10rem" :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.mail.mailTextMaxLength" @update:model-value="validateDocument(null)" :placeholder="$t('managers.scheduler.mailTextMessage')" />
                 </div>
             </q-card-section>
         </q-card>
@@ -157,6 +134,7 @@ export default defineComponent({
             if (typeof this.document.zipMailDocument === 'undefined') this.document.zipMailDocument = false
             if (typeof this.document.reportNameInSubject === 'undefined') this.document.reportNameInSubject = false
 
+            if (!this.document.mailtxt) this.document.mailtxt = ''
             this.document.invalid.invalidMail = false
             this.validateDocument(null)
         },
