@@ -55,9 +55,10 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     const datasetWithColumns = widget.layers.find((layer: IMapWidgetLayer) => layer.name === dataset.dsLabel)
-
     for (let i = 0; i < datasetWithColumns.columns.length; i++) {
         const column = datasetWithColumns.columns[i]
+
+        if (!column.deleted) continue
 
         if (column.fieldType === 'MEASURE') {
             if (column.type === 'pythonFunction') {
