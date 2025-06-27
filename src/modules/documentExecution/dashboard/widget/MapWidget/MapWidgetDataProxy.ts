@@ -58,7 +58,7 @@ const formatMapModelForService = (dashboardId: any, dashboardConfig: IDashboardC
     for (let i = 0; i < datasetWithColumns.columns.length; i++) {
         const column = datasetWithColumns.columns[i]
 
-        if (!column.deleted) continue
+        if (column.deleted) continue
 
         if (column.fieldType === 'MEASURE') {
             if (column.type === 'pythonFunction') {
