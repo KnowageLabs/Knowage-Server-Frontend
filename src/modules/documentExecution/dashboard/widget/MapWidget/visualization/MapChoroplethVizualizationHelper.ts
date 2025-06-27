@@ -2,7 +2,7 @@ import { ISelection, IVariable, IWidget } from '../../../Dashboard'
 import { ILayerFeature, IMapWidgetLayer, IMapWidgetVisualizationThreshold, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeChoropleth } from '../../../interfaces/mapWidget/DashboardMapWidget'
 import { getColumnName, getCoordinates, LEGEND_DATA_TYPE, VisualizationDataType } from '../LeafletHelper'
 import { addDialogToMarker, addDialogToMarkerForLayerData, addTooltipToMarker, addTooltipToMarkerForLayerData } from './MapDialogHelper'
-import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, getTargetDataColumn, incrementColumnName, isConditionMet, sortRanges, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
+import { formatRanges, getConditionalStyleUsingTargetDataset, getCoordinatesFromWktPointFeature, getFeatureValues, getMinMaxByName, getNumericPropertyValues, getQuantiles, getQuantilesFromLayersData, getRowValues, getTargetDataColumn, isConditionMet, sortRanges, transformDataUsingForeignKeyReturningAllColumns, validateNumber } from './MapVisualizationHelper'
 import L from 'leaflet'
 import * as mapWidgetDefaultValues from '../../WidgetEditor/helpers/mapWidget/MapWidgetDefaultValues'
 import { getQuantileSizeMappings, getSizeAndColorRangesForLegend } from './MapBaloonsVizualizationHelper'
@@ -53,7 +53,7 @@ const createChoroplethClassifiedByEqualIntervalsUsingLayers = (layerGroup: any, 
     if (targetDatasetData && dataColumn) {
         if (!layerVisualizationSettings.targetDataset) return
 
-        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
+        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, dataColumn)
         minValue = valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER
         maxValue = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
 
@@ -304,7 +304,7 @@ const createChoroplethClassifiedByRangesUsingLayers = (layerGroup: any, layersDa
     if (targetDatasetData && dataColumn) {
         if (!layerVisualizationSettings.targetDataset) return
 
-        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, incrementColumnName(dataColumn))
+        const valueColumnMinMaxValues = getMinMaxByName(targetDatasetData.stats, dataColumn)
         minValue = valueColumnMinMaxValues?.min ?? Number.MIN_SAFE_INTEGER
         maxValue = valueColumnMinMaxValues?.max ?? Number.MAX_SAFE_INTEGER
 
@@ -365,7 +365,7 @@ const addChoroplethPolygonUsingLayersPointClassifedByRanges = (layerGroup: any, 
 
 const createChoroplethClassifiedByRangesFromData = (layerGroup: any, data: any, widgetModel: IWidget, target: IMapWidgetLayer, dataColumn: string, spatialAttribute: any, geoColumn: string, layerVisualizationSettings: IMapWidgetVisualizationType, bounds: any, variables: IVariable[], activeSelections: ISelection[], dashboardId: string) => {
     const defaultChoroplethValues = mapWidgetDefaultValues.getDefaultVisualizationChoroplethConfiguration()
-    const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, incrementColumnName(dataColumn))
+    const valueColumnMinMaxValues = getMinMaxByName(data[target.name].stats, dataColumn)
     const ranges = layerVisualizationSettings.analysisConf?.properties?.thresholds ?? []
     const minValue = valueColumnMinMaxValues?.min ?? 0
     const maxValue = valueColumnMinMaxValues?.max ?? 0
