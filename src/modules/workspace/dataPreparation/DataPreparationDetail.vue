@@ -350,12 +350,14 @@ export default defineComponent({
             }
         )
 
+        if (this.existingInstanceId) {
           this.client.publish({
             destination: '/app/preview',
             headers: {dsId: this.dataset.id},
             body: JSON.stringify(this.dataset.config.transformations)
           })
         }
+      }
 
       this.client.activate()
     }
@@ -476,12 +478,14 @@ export default defineComponent({
           })
     },
     async initTransformations(): Promise<void> {
-      this.setLoading(true)
-      await this.$http.get(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/api/1.0/process/by-instance-id/${this.existingInstanceId}`).then((response: AxiosResponse<any>) => {
-        if (!this.dataset.config) this.dataset.config = {}
-        this.dataset.config.transformations = response.data.definition
-        this.existingProcessId = response.data.id
-      })
+      if (this.existingInstanceId) {
+        this.setLoading(true)
+        await this.$http.get(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/api/1.0/process/by-instance-id/${this.existingInstanceId}`).then((response: AxiosResponse<any>) => {
+          if (!this.dataset.config) this.dataset.config = {}
+          this.dataset.config.transformations = response.data.definition
+          this.existingProcessId = response.data.id
+        })
+      }
     },
     async initDsMetadata() {
       if (this.existingProcessId) this.processId = this.existingProcessId
