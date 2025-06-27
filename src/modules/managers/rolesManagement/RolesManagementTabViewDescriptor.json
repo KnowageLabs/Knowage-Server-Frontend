@@ -179,13 +179,6 @@
         },
         {
             "category": "menuConfiguration",
-            "dbname": "MANAGE_KPI_VALUE",
-            "fieldName": "ableToManageKpiValue",
-            "label": "managers.rolesManagement.authorizations.manageKpiValue",
-            "visible": false
-        },
-        {
-            "category": "menuConfiguration",
             "dbname": "MANAGE_INTERNATIONALIZATION",
             "fieldName": "ableToManageInternationalization",
             "label": "managers.rolesManagement.authorizations.manageInternationalization",
@@ -235,20 +228,6 @@
         },
         {
             "category": "myWorskpace",
-            "dbname": "CREATE_SELF_SERVICE_GEOREPORT",
-            "fieldName": "ableToCreateSelfServiceGeoreport",
-            "label": "managers.rolesManagement.authorizations.createSelfSelviceGeoreport",
-            "visible": false
-        },
-        {
-            "category": "myWorskpace",
-            "dbname": "CREATE_SELF_SERVICE_KPI",
-            "fieldName": "ableToCreateSelfServiceKpi",
-            "label": "managers.rolesManagement.authorizations.createSelfSelviceKpi",
-            "visible": false
-        },
-        {
-            "category": "myWorskpace",
             "dbname": "BUILD_QBE_QUERY",
             "fieldName": "ableToBuildQbeQuery",
             "label": "managers.rolesManagement.authorizations.buildQbe",
@@ -259,13 +238,6 @@
             "dbname": "ENABLE_DATASET_PERSISTENCE",
             "fieldName": "ableToEnableDatasetPersistence",
             "label": "managers.rolesManagement.authorizations.datasetPersistence",
-            "visible": false
-        },
-        {
-            "category": "myWorskpace",
-            "dbname": "ENABLE_FEDERATED_DATASET",
-            "fieldName": "ableToEnableFederatedDataset",
-            "label": "managers.rolesManagement.authorizations.federatedDataset",
             "visible": false
         },
         {
