@@ -17,16 +17,7 @@
             <template #content>
                 <div class="row q-col-gutter-sm">
                     <kn-icon-picker v-if="chooseIconModalShown" :enable-base64="true" :current-icon="selectedIcon" @save="onChosenIcon" @close="closeFontAwesomeSelectionModal"></kn-icon-picker>
-                    <q-input
-                        filled
-                        class="col"
-                        v-model="v$.menuNode.name.$model"
-                        :error="v$.menuNode.name.$invalid && v$.menuNode.name.$dirty"
-                        :error-message="$t('common.validation.required', { fieldName: $t('managers.menuManagement.form.name') })"
-                        :label="$t('managers.menuManagement.form.name') + '*'"
-                        @update:model-value="onDataChange(v$.menuNode.name)"
-                        data-test="name-input"
-                    >
+                    <q-input filled class="col" v-model="v$.menuNode.name.$model" :error="v$.menuNode.name.$invalid && v$.menuNode.name.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('managers.menuManagement.form.name') })" :label="$t('managers.menuManagement.form.name') + '*'" @update:model-value="onDataChange(v$.menuNode.name)" data-test="name-input">
                         <template #before v-if="isIconSelectorShown(menuNode)">
                             <div class="relative-position">
                                 <q-btn v-if="isCustomIconShown(menuNode)" flat size="lg" @click="openFontAwesomeSelectionModal()">
@@ -45,33 +36,10 @@
                             </div>
                         </template>
                     </q-input>
-                    <q-select
-                        filled
-                        class="col"
-                        emit-value
-                        map-options
-                        v-model="v$.menuNode.menuNodeContent.$model"
-                        :options="menuNodeContent"
-                        option-label="name"
-                        option-value="value"
-                        :label="$t('managers.menuManagement.form.menuNodeContent') + '*'"
-                        @update:model-value="onMenuNodeChange(v$.menuNode.menuNodeContent)"
-                    />
+                    <q-select filled class="col" emit-value map-options v-model="v$.menuNode.menuNodeContent.$model" :options="menuNodeContent" option-label="name" option-value="value" :label="$t('managers.menuManagement.form.menuNodeContent') + '*'" @update:model-value="onMenuNodeChange(v$.menuNode.menuNodeContent)" />
                 </div>
                 <div class="row q-col-gutter-sm">
-                    <q-input
-                        class="col"
-                        rows="2"
-                        filled
-                        type="textarea"
-                        v-model="v$.menuNode.descr.$model"
-                        :error="v$.menuNode.descr.$invalid && v$.menuNode.descr.$dirty"
-                        :error-message="$t('common.validation.required', { fieldName: $t('common.description') })"
-                        max-length="255"
-                        :label="$t('common.description') + '*'"
-                        @update:model-value="onDataChange(v$.menuNode.descr)"
-                        data-test="description-input"
-                    />
+                    <q-input class="col" rows="2" filled type="textarea" v-model="v$.menuNode.descr.$model" :error="v$.menuNode.descr.$invalid && v$.menuNode.descr.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.description') })" max-length="255" :label="$t('common.description') + '*'" @update:model-value="onDataChange(v$.menuNode.descr)" data-test="description-input" />
                 </div>
 
                 <div v-if="!staticPageHidden" class="row q-col-gutter-sm">
@@ -83,16 +51,7 @@
                 </div>
 
                 <div v-if="!documentHidden" class="row q-col-gutter-sm">
-                    <q-input
-                        class="col"
-                        filled
-                        readonly
-                        v-model="v$.menuNode.document.$model"
-                        :error="v$.menuNode.document.$invalid && v$.menuNode.document.$dirty"
-                        :error-message="$t('common.validation.required', { fieldName: $t('managers.menuManagement.form.document') })"
-                        :label="$t('managers.menuManagement.form.document') + '*'"
-                        @update:model-value="onDataChange(v$.menuNode.document)"
-                    >
+                    <q-input class="col" filled readonly v-model="v$.menuNode.document.$model" :error="v$.menuNode.document.$invalid && v$.menuNode.document.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('managers.menuManagement.form.document') })" :label="$t('managers.menuManagement.form.document') + '*'" @update:model-value="onDataChange(v$.menuNode.document)">
                         <template v-slot:before>
                             <q-btn flat icon="find_in_page" size="lg" @click="openRelatedDocumentModal()">
                                 <q-tooltip :delay="500">{{ $t('managers.menuManagement.selectDocument') }}</q-tooltip>
@@ -100,11 +59,25 @@
                         </template>
                     </q-input>
                     <q-input class="hidden" v-model="v$.menuNode.objId.$model" @update:model-value="onDataChange(v$.menuNode.objId)" />
-                    <q-input class="col" filled v-model="v$.menuNode.objParameters.$model" :label="$t('managers.menuManagement.form.objParameters')" @update:model-value="onDataChange(v$.menuNode.objParameters)" />
+                    <q-input class="col" filled v-model="v$.menuNode.objParameters.$model" :label="$t('managers.menuManagement.form.objParameters')" @update:model-value="onDataChange(v$.menuNode.objParameters)">
+                        <template v-slot:append>
+                            <q-btn flat round icon="format_list_bulleted" @click="showParamsModal">
+                                <q-tooltip :delay="500">{{ $t('Format Parameters') }}</q-tooltip>
+                            </q-btn>
+                        </template>
+                    </q-input>
+
                     <q-dialog v-model="displayModal">
                         <q-card style="min-width: 50vw; max-width: 60vw">
                             <q-card-section>
                                 <RelatedDocumentList :loading="loading" data-test="related-documents-list" @selectedDocument="onDocumentSelect"></RelatedDocumentList>
+                            </q-card-section>
+                        </q-card>
+                    </q-dialog>
+                    <q-dialog v-model="displayModalParams">
+                        <q-card style="min-width: 50vw; max-width: 60vw">
+                            <q-card-section>
+                                <MenuManagementParameterDialog :parameters-string="menuNode.objParameters" @close="displayModalParams = false" @save="updateParameters"></MenuManagementParameterDialog>
                             </q-card-section>
                         </q-card>
                     </q-dialog>
@@ -123,18 +96,7 @@
                 </div>
 
                 <div v-if="!functionalityHidden" class="row q-col-gutter-sm">
-                    <q-select
-                        filled
-                        class="col"
-                        emit-value
-                        map-options
-                        v-model="v$.menuNode.functionality.$model"
-                        :options="menuNodeContentFunctionalies"
-                        option-label="name"
-                        option-value="value"
-                        :label="$t('managers.menuManagement.form.functionality') + '*'"
-                        @update:model-value="onFunctionalityTypeChange(v$.menuNode.functionality)"
-                    ></q-select>
+                    <q-select filled class="col" emit-value map-options v-model="v$.menuNode.functionality.$model" :options="menuNodeContentFunctionalies" option-label="name" option-value="value" :label="$t('managers.menuManagement.form.functionality') + '*'" @update:model-value="onFunctionalityTypeChange(v$.menuNode.functionality)"></q-select>
 
                     <q-input v-if="!documentTreeHidden" class="col" readonly filled v-model="v$.menuNode.initialPath.$model" :label="$t('managers.menuManagement.form.initialPath', { functionality: $t('documentBrowser.title') })" @update:model-value="onDataChange(v$.menuNode.initialPath.$model)">
                         <template v-slot:before>
@@ -151,18 +113,7 @@
                         </q-card>
                     </q-dialog>
 
-                    <q-select
-                        v-if="!workspaceInitialHidden"
-                        filled
-                        class="col"
-                        emit-value
-                        map-options
-                        v-model="v$.menuNode.initialPath.$model"
-                        :options="workspaceOptions"
-                        option-label="name"
-                        option-value="value"
-                        :label="$t('managers.menuManagement.form.initialPath', { functionality: $t('workspace.menuLabels.menuTitle') })"
-                    ></q-select>
+                    <q-select v-if="!workspaceInitialHidden" filled class="col" emit-value map-options v-model="v$.menuNode.initialPath.$model" :options="workspaceOptions" option-label="name" option-value="value" :label="$t('managers.menuManagement.form.initialPath', { functionality: $t('workspace.menuLabels.menuTitle') })"></q-select>
                 </div>
             </template>
         </Card>
@@ -187,12 +138,13 @@ import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import MenuConfigurationDescriptor from '../MenuManagementDescriptor.json'
 import MenuConfigurationValidationDescriptor from './MenuManagementValidationDescriptor.json'
 import MenuManagementElementDetailDescriptor from './MenuManagementElementDetailDescriptor.json'
+import MenuManagementParameterDialog from './MenuManagementParameterDialog.vue'
 import mainStore from '../../../../App.store'
 import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'profile-attributes-detail',
-    components: { Dropdown, DocumentBrowserTree, RelatedDocumentList, KnIconPicker, KnValidationMessages, Dialog, RolesCard },
+    components: { Dropdown, DocumentBrowserTree, RelatedDocumentList, KnIconPicker, KnValidationMessages, Dialog, RolesCard, MenuManagementParameterDialog },
     props: { roles: { type: Array }, selectedMenuNode: { type: Object, required: true }, selectedRoles: { type: Array }, staticPagesList: { type: Array }, menuNodes: { type: Array }, parentNodeRoles: { type: Array } },
     emits: ['refreshRecordSet', 'closesForm', 'dataChanged'],
     data() {
@@ -220,7 +172,9 @@ export default defineComponent({
             menuNodeContentFunctionalies: MenuConfigurationDescriptor.menuNodeContentFunctionalies,
             menuManagementElementDetailDescriptor: MenuManagementElementDetailDescriptor.importantfields,
             nodes: [] as iMenuNode[],
-            showDocumentBrowserFolders: false as boolean
+            showDocumentBrowserFolders: false as boolean,
+            displayModalParams: false as boolean,
+            tempParams: [] as any[]
         }
     },
     computed: {
@@ -508,6 +462,16 @@ export default defineComponent({
         onSelectedDocumentNode(documentInitialPath) {
             this.menuNode.initialPath = documentInitialPath
             this.closeDocumentBrowserFolders()
+        },
+
+        showParamsModal() {
+            this.displayModalParams = true
+        },
+
+        updateParameters(paramsString: string) {
+            this.menuNode.objParameters = paramsString
+            this.displayModalParams = false
+            this.$emit('dataChanged')
         }
     }
 })
