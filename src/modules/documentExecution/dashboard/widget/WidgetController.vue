@@ -1,19 +1,5 @@
 <template>
-    <GridItem
-        :id="`widget${item.id}`"
-        :ref="`widget${item.id}`"
-        :key="item.id"
-        class="p-d-flex widget-grid-item"
-        :x="item.x"
-        :y="item.y"
-        :w="item.w"
-        :h="item.h"
-        :i="item.i"
-        :static="widget?.settings?.locked"
-        drag-allow-from=".drag-handle"
-        :class="{ canEdit: canEditDashboard(document) && !widget?.settings?.locked, 'full-grid-widget': widget?.settings.responsive.fullGrid }"
-        @resized="onWidgetResize"
-    >
+    <GridItem :id="`widget${item.id}`" :ref="`widget${item.id}`" :key="item.id" class="p-d-flex widget-grid-item" :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i" :static="widget?.settings?.locked" drag-allow-from=".drag-handle" :class="{ canEdit: canEditDashboard(document) && !widget?.settings?.locked, 'full-grid-widget': widget?.settings.responsive.fullGrid }" @resized="onWidgetResize">
         <div v-if="initialized" class="drag-handle"></div>
         <q-spinner-grid v-if="loading || customChartLoading || widgetLoading" color="primary" size="3rem" class="widgetSpinner" />
         <q-skeleton v-if="!initialized" height="100%" width="100%" square />
@@ -35,20 +21,7 @@
             @loading="customChartLoading = $event"
             @dataset-interaction-preview="previewInteractionDataset"
         ></WidgetRenderer>
-        <WidgetButtonBar
-            v-if="items.filter((i) => i.visible).length > 0 || playSelectionButtonVisible"
-            :document="document"
-            :widget="widget"
-            :play-selection-button-visible="playSelectionButtonVisible"
-            :selection-is-locked="selectionIsLocked"
-            :dashboard-id="dashboardId"
-            :in-focus="inFocus"
-            :menu-items="items"
-            @edit-widget="toggleEditMode"
-            @unlock-selection="unlockSelection"
-            @launch-selection="launchSelection"
-            @change-focus="changeFocus"
-        ></WidgetButtonBar>
+        <WidgetButtonBar v-if="items.filter((i) => i.visible).length > 0 || playSelectionButtonVisible" :document="document" :widget="widget" :play-selection-button-visible="playSelectionButtonVisible" :selection-is-locked="selectionIsLocked" :dashboard-id="dashboardId" :in-focus="inFocus" :menu-items="items" @edit-widget="toggleEditMode" @unlock-selection="unlockSelection" @launch-selection="launchSelection" @change-focus="changeFocus"></WidgetButtonBar>
         <ContextMenu v-if="canEditDashboard(document)" ref="contextMenu" :model="items" />
     </GridItem>
 
@@ -196,7 +169,7 @@ export default defineComponent({
     },
     methods: {
         //#region ===================== EventListeners/Emitters & Store  ============================================
-        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'createNewWidget', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget', 'cloneWidget', 'getAssociations']),
+        ...mapActions(store, ['getDashboard', 'getSelections', 'setSelections', 'removeSelection', 'removeSelections', 'createNewWidget', 'deleteWidget', 'getCurrentDashboardView', 'moveWidget', 'cloneWidget', 'getAssociations']),
         ...mapActions(mainStore, ['setError']),
         setEventListeners() {
             emitter.on('selectionsChanged', this.loadActiveSelections)
@@ -526,7 +499,7 @@ export default defineComponent({
                 columnName: this.widgetModel.columns[0].columnName
             }
             emitter.emit('widgetUnlocked', [payload])
-            this.removeSelection(payload, this.dashboardId, this.$http, true)
+            this.removeSelections([payload], this.dashboardId, this.$http)
         },
 
         onChartSelectedForQuickWidgetChange(chartType: string) {

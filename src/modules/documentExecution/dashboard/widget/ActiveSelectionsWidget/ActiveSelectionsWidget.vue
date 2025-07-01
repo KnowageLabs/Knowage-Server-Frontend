@@ -63,7 +63,7 @@ export default defineComponent({
     updated() {},
     unmounted() {},
     methods: {
-        ...mapActions(store, ['removeSelection']),
+        ...mapActions(store, ['removeSelection', 'removeSelections']),
         loadActiveSelections() {
             if (this.editorMode) this.activeSelections = [...descriptor.activeSelectionsEditorMock] as ISelection[]
             else this.activeSelections = this.propActiveSelections
@@ -75,7 +75,7 @@ export default defineComponent({
         onDeleteSelection(selection: ISelection) {
             if (this.editorMode) return
             const payload = { datasetId: selection.datasetId, columnName: selection.columnName }
-            this.removeSelection(payload, this.dashboardId, this.$http)
+            this.removeSelections([selection], this.dashboardId, this.$http)
         }
     }
 })
