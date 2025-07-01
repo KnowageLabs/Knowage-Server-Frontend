@@ -14,7 +14,7 @@ import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import { clearLayersCache, switchLayerVisibility } from './visibility/MapVisibilityHelper'
-import { ISelection, IVariable } from '../../Dashboard'
+import { ISelection, IVariable, IWidget } from '../../Dashboard'
 
 //#region inlined leaflet-layervisibility
 function validateFilter(filterFunc) {
@@ -112,6 +112,18 @@ const resizeMap = () => {
     }
 }
 
+const getMapZoomValue = (widgetModel: IWidget | undefined): number => {
+    const defaultZoom = 10
+
+    const zoom = widgetModel?.settings?.configuration?.map?.zoom
+    const autoCentering = widgetModel?.settings?.configuration?.map?.autoCentering
+
+    if (autoCentering) return defaultZoom
+
+    const parsedZoom = parseInt(zoom)
+    return isNaN(parsedZoom) ? defaultZoom : parsedZoom
+}
+
 onMounted(async () => {
     emitter.on('widgetResized', resizeMap)
 
@@ -119,7 +131,8 @@ onMounted(async () => {
 
     map = L.map(mapId, {
         center: navigator && !props.widgetModel.settings?.configuration?.map?.autoCentering ? await getCoords() : [0, 0],
-        zoom: parseInt(props.widgetModel.settings?.configuration?.map?.zoom) || 10
+        zoom: getMapZoomValue(props.widgetModel),
+        attributionControl: false
     })
 
     tile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -199,7 +212,7 @@ const handleLegendUpdated = (legendData: Record<string, any> | undefined) => {
 
 .customLeafletPopup {
     margin: 0px 0px;
-    padding: 0px 5px;
+    padding: 0px 5px !important;
     background: white;
     min-width: 150px;
     max-width: 400px;

@@ -245,6 +245,9 @@ export interface IMapDialogSettings {
 
 export interface IMapDialogSettingsProperty {
     name: string
+    prefix: string
+    suffix: string
+    precision: number
     columns: string[]
 }
 
@@ -255,6 +258,9 @@ export interface IMapTooltipSettings {
 
 export interface IMapTooltipSettingsLayer {
     name: string
+    prefix: string
+    suffix: string
+    precision: number
     columns: string[]
 }
 

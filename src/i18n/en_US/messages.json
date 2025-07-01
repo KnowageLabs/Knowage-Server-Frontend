@@ -203,6 +203,7 @@
         "onlineHelp": "Help Online",
         "open": "Open",
         "operator": "Operator",
+        "optional": "Optional",
         "options": "Options",
         "order": "Order",
         "orderBy": "Order by",
@@ -3000,12 +3001,16 @@
                 "saveMessage": "Menu item saved",
                 "saveTitle": "Save menu item",
                 "updateMessage": "Menu item updated",
-                "updateTitle": "Update menu item"
+                "updateTitle": "Update menu item",
+                "parametersFormat": "Parameters inserted will be base64 code in a format needed for Knowage document execution"
             },
             "noRoles": "No roles available. Check if the one you are searching for is present in the parent menu object",
             "roles": "Roles",
             "selectDocument": "Select document",
-            "title": "List of menus"
+            "title": "List of menus",
+            "warning": {
+                "noValidParameters": "cannot evaluate parameters. If you continue the old ones will be overwritten"
+            }
         },
         "metadata": {
             "hint": "The metadata allows you to access and write metadata inside your users document. It's possible to change the type between the allowed ones and to name and describe it. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
@@ -3165,16 +3170,13 @@
                 "createCustomChart": "Create custom chart",
                 "createDocuments": "Create Documents",
                 "createSelfSelviceCockpit": "Create Cockpit report",
-                "createSelfSelviceGeoreport": "Create Geographic report",
-                "createSelfSelviceKpi": "Create KPI report",
                 "createSocialAnalysis": "Create social analysis",
                 "datasetPersistence": "Dataset Persistence",
                 "doMassiveExport": "Do massive export",
-                "editPythonScripts": "Edit Python/R Scripts",
+                "editPythonScripts": "Edit Python Scripts",
                 "enableDashboardThemeManagement": "Enable Dashboard Theme Management",
                 "enableDataPreparation": "Enable Data Preparation",
                 "enableDossier": "Enable Dossier",
-                "federatedDataset": "Federated Dataset",
                 "functionsCatalogUsage": "Functions Catalog Usage",
                 "hierarchiesManagement": "Manage Hierarchies",
                 "items": "Items for user menu",
@@ -3182,7 +3184,6 @@
                 "manageGlossaryBusiness": "Manage Glossary Business",
                 "manageGlossaryTechnical": "Manage Glossary Technical",
                 "manageInternationalization": "Manage Internationalization",
-                "manageKpiValue": "Manage Kpi Value",
                 "manageUsers": "Manage Users",
                 "manageWidgetGallery": "Manage widget gallery",
                 "newsVisualization": "News Visualization",
