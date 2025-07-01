@@ -1,8 +1,8 @@
 <template>
     <div class="widget-editor-card p-d-flex p-flex-column">
         <div class="p-d-flex p-flex-column">
-            <label v-if="settings.label" class="kn-material-input-label">{{ $t(settings.label) }}</label>
-            <small v-if="settings.hint">{{ $t(settings.hint) }}</small>
+            <label v-if="settings?.label" class="kn-material-input-label">{{ $t(settings?.label) }}</label>
+            <small v-if="settings?.hint">{{ $t(settings?.hint) }}</small>
         </div>
 
         <div class="p-d-flex p-flex-column kn-flex" :class="{ 'dropzone-active': settings.dropIsActive, ['widget-editor-column-table-invalid']: error && fieldType !== 'filters' }" @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
@@ -18,15 +18,7 @@
                     <template #body="slotProps">
                         <div :style="column.style ?? ''">
                             <InputText v-if="column.field === 'alias'" v-model="slotProps.data[column.field]" class="kn-material-input" @change="onColumnAliasRenamed(slotProps.data)" />
-                            <Dropdown
-                                v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)"
-                                v-model="slotProps.data[column.field]"
-                                class="kn-material-input column-aggregation-dropdown"
-                                :options="descriptor.columnAggregationOptions"
-                                option-label="label"
-                                option-value="value"
-                                @change="$emit('itemUpdated', slotProps.data)"
-                            />
+                            <Dropdown v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)" v-model="slotProps.data[column.field]" class="kn-material-input column-aggregation-dropdown" :options="descriptor.columnAggregationOptions" option-label="label" option-value="value" @change="$emit('itemUpdated', slotProps.data)" />
                             <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ '(' + slotProps.data[column.field] + ')' }}</span>
                             <span v-else class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                         </div>
@@ -98,10 +90,14 @@ export default defineComponent({
         setEventListeners() {
             emitter.on('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.on('addNewCalculatedField', this.onCalcFieldAdded)
+            emitter.on('addNewFunctionColumn', this.onFunctionsColumnAdded)
+            emitter.on('functionColumnEdited', this.onFunctionsColumnEdited)
         },
         removeEventListeners() {
             emitter.off('selectedColumnUpdated', this.onSelectedColumnUpdated)
             emitter.off('addNewCalculatedField', this.onCalcFieldAdded)
+            emitter.on('addNewFunctionColumn', this.onFunctionsColumnAdded)
+            emitter.on('functionColumnEdited', this.onFunctionsColumnEdited)
         },
         onSelectedColumnUpdated(column: any) {
             this.updateSelectedColumn(column)
@@ -175,6 +171,27 @@ export default defineComponent({
         changeColumnSort(column: IWidgetColumn) {
             column.sort = column.sort === 'ASC' ? 'DESC' : 'ASC'
             this.$emit('itemUpdated', column)
+        },
+        onFunctionsColumnAdded(functionColumn: any) {
+            if (this.settings.attributesOnly || this.settings.label !== 'dashboard.widgetEditor.pivotData') return
+
+            if (functionColumn.catalogFunctionConfig?.outputColumns?.length > 0) {
+                const originalColumnName = functionColumn.columnName
+                functionColumn.catalogFunctionConfig.outputColumns.forEach((outputColumn: { fieldType: string; type: string; name: string }) => {
+                    const columnToAdd = { ...functionColumn, alias: outputColumn.name, columnName: outputColumn.name, orderColumn: outputColumn.name, originalFunctionColumnName: originalColumnName }
+                    this.addNewColumnToTheRows(columnToAdd as IWidgetColumn)
+                })
+            } else {
+                this.addNewColumnToTheRows(functionColumn as IWidgetColumn)
+            }
+        },
+        addNewColumnToTheRows(column: IWidgetColumn) {
+            this.rows.push(column as IWidgetColumn)
+            this.$emit('itemAdded', { column: column, rows: this.rows, settings: this.settings, fieldType: 'data' })
+        },
+        onFunctionsColumnEdited(functionColumn: any) {
+            this.deleteItem(functionColumn, -1)
+            this.onFunctionsColumnAdded(functionColumn)
         }
     }
 })
