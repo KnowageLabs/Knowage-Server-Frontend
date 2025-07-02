@@ -895,9 +895,6 @@
                     "layoutHint": "The layout of the legend items. Can be one of horizontal or vertical or proximate. When proximate, the legend items will be placed as close as possible to the graphs they're representing, except in inverted charts or when the legend position doesn't allow it.",
                     "verticalAlignHint": "The vertical alignment of the legend box. Can be one of top, middle or bottom. Vertical position can be further determined by the y option. In the case that the legend is aligned in a corner position, the layout option will determine whether to place it above/below or on the side of the plot area. When the layout option is proximate, the verticalAlign option doesn't apply."
                 },
-                "libraries": {
-                    "hint": "Paste or select your external library URL here. Press Enter to add it to the list."
-                },
                 "limit": {
                     "direction": "Direction",
                     "itemsNumber": "Maximum number of records",
@@ -1119,7 +1116,7 @@
                 "title": "Legend"
             },
             "libraries": {
-                "hint": "No libraries selected. To add one, type it in the box or choose from the available list.",
+                "hint": "Paste or select your external library URL here. Press Enter to add it to the list.",
                 "select": "Select or add new library",
                 "title": "Libraries"
             },

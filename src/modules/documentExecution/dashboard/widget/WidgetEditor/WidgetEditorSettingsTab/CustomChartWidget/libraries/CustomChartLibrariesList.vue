@@ -1,13 +1,13 @@
 <template>
     <div>
-        <div class="p-formgrid p-grid p-p-3">
-            <q-select class="p-lg-12" filled v-model="model" :options="options" use-input input-debounce="0" bottom-slots new-value-mode="add" :label="$t('dashboard.widgetEditor.libraries.select')" @new-value="addLibrary" @update:model-value="addLibrary" >
+        <div class="row q-gutter-md">
+            <q-select class="col-12" filled v-model="model" :options="options" use-input input-debounce="0" bottom-slots new-value-mode="add" :label="$t('dashboard.widgetEditor.libraries.select')" @new-value="addLibrary" @update:model-value="addLibrary" >
                 <template v-slot:hint>
                     {{ $t('dashboard.widgetEditor.libraries.hint') }}
                 </template>
             </q-select>
 
-            <q-list v-if="selectedLibraries.length !== 0" class="p-lg-12" bordered separator>
+            <q-list v-if="selectedLibraries.length !== 0" class="col-12 q-mt-sm" bordered separator>
                 <q-item v-for="(library, index) in selectedLibraries" :key="index" clickable v-ripple>
                     <q-item-section avatar>
                         <q-img :id="'library-image_' + library" class="library-image" :src="getLibraryIcon(library)" spinner-color="grey-5">
