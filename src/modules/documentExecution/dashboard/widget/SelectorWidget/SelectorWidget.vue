@@ -15,19 +15,7 @@
         </div>
 
         <span v-if="widgetType === 'dropdown'" class="p-float-label p-m-2">
-            <Dropdown
-                v-model="selectedValue"
-                class="kn-width-full"
-                panel-class="selectorCustomDropdownPanel"
-                :options="showMode === 'hideDisabled' ?  options.rows.filter((row: any) => !row.disabled) : options.rows"
-                option-label="column_1"
-                option-value="column_1"
-                :style="getLabelStyle()"
-                :input-style="getLabelStyle()"
-                :panel-style="getLabelStyle()"
-                :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''"
-                @change="singleValueSelectionChanged"
-            />
+            <Dropdown v-model="selectedValue" class="kn-width-full" panel-class="selectorCustomDropdownPanel" :options="showMode === 'hideDisabled' ?  options.rows.filter((row: any) => !row.disabled) : options.rows" option-label="column_1" option-value="column_1" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :option-disabled="showMode === 'showDisabled' ? 'disabled' : ''" @change="singleValueSelectionChanged" />
         </span>
 
         <span v-if="widgetType === 'multiDropdown'" class="p-float-label p-m-2">
@@ -54,14 +42,14 @@
             </label>
         </span>
 
-        <div v-if="widgetType === 'dateRange'" :class="getLayoutStyle()">
+        <!-- <div v-if="widgetType === 'dateRange'" :class="getLayoutStyle()">
             <span class="p-float-label p-m-2" :style="getGridWidth()">
                 <Calendar v-model="startDate" class="kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :show-icon="true" @date-select="dateRangeSelectionChanged" />
             </span>
             <span class="p-float-label p-m-2" :style="getGridWidth()">
                 <Calendar v-model="endDate" class="kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :show-icon="true" @date-select="dateRangeSelectionChanged" />
             </span>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -281,7 +269,7 @@ export default defineComponent({
         },
         getDateRange(rangeValue: string) {
             const dateRange = this.propWidget.settings.configuration.defaultValues
-            if (dateRange.enabled && dateRange[rangeValue]) return dateRange[rangeValue]
+            if (dateRange.enabled && dateRange[rangeValue]) return new Date(dateRange[rangeValue])
             else return undefined
         },
         getLabelStyle() {
