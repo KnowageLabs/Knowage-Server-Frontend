@@ -36,7 +36,7 @@ export const createNewHighchartsSettings = () => {
             exports: { showExcelExport: true, showScreenshot: true },
             datetypeSettings: highchartsDefaultValues.getDefaultDateTypeSettings(),
             grouping: { enabled: false, secondSeries: { enabled: false }, secondDimension: { enabled: false, serie: '' } },
-            limit: { enabled: true, itemsNumber: 5 },
+            limit: { enabled: false, itemsNumber: 5 },
             axisLines: { color: '', crosshairColor: '', crosshairWidth: 8 }
         },
         accesssibility: { seriesAccesibilitySettings: getSeriesAccesibilitySettings() },

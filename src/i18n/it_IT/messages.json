@@ -928,6 +928,9 @@
             "legend": {
                 "title": "Legend"
             },
+            "libraries": {
+                "hint": "Seleziona o incolla la URL della libreria esterna qui. Premi invio per aggiungerla alla lista."
+            },
             "line": "Line",
             "manualInput": "Manual input",
             "map": {
