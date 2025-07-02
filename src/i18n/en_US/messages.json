@@ -1381,7 +1381,8 @@
                 "showDatasetHint": "Show Selection dataset hint placeholder",
                 "title": "Values Management",
                 "wrapText": "Wrap Text",
-                "wrapTextHint": "Wrap text hint placeholder"
+                "wrapTextHint": "Wrap text hint placeholder",
+                "colNumber": "Column Number"
             },
             "vega": {
                 "fontOptions": {

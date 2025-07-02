@@ -13,7 +13,7 @@
         </div>
         <span v-if="model.settings.configuration.selectorType.alignment === 'grid' && (model.settings.configuration.selectorType.modality === 'multiValue' || model.settings.configuration.selectorType.modality === 'singleValue')" class="p-float-label">
             <InputText id="colSize" v-model="model.settings.configuration.selectorType.columnSize" class="kn-material-input kn-width-full" />
-            <label for="colSize" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.info.uploadTemplate') }} </label>
+            <label for="colSize" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.valuesManagement.colNumber') }} </label>
         </span>
     </div>
 
