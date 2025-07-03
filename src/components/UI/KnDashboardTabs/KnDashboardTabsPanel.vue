@@ -283,6 +283,7 @@ export default defineComponent({
             }
         },
         setInitialSheetIndex() {
+            if (this.sheets.length < 2) return
             let found = false
             this.sheets.findIndex((sheet, index) => {
                 if (sheet.id === this.activeDashboardSheet?.id) {
