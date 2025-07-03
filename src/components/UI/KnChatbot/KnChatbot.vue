@@ -12,9 +12,6 @@
                     <div v-for="message in chat" class="q-mr-md relative-position">
                         <q-chat-message :name="message.role === 'assistant' ? 'AI' : message.role" :avatar="message.role === 'assistant' ? avatarImg : undefined" :sent="message.role === 'user'">
                             <div>{{ message.content }}</div>
-                            <!--div v-if="message.url" class="text-center">
-                                <q-btn flat color="black" size="md" :label="$t('dashboark link')" @click="followLink(message.url)" />
-                            </div-->
                         </q-chat-message>
 
                         <q-chip v-if="message.url" clickable class="dashboard-link" size="sm" color="accent" text-color="white" icon="open_in_new" @click="followLink(message.url)"> {{ $t('ai.dashboardLink') }} </q-chip>
@@ -92,7 +89,7 @@ function sendToDemo() {
             role: 'assistant',
             content: 'This is a demo response. In a real scenario, the AI would process your request.',
             turnId: 1,
-            url: '/dashboard/AI-test?organization=dte&toolbar=true&menu=true&role=/dte/admin&params=W3sidmFsdWUiOlt7InZhbHVlIjoiMSIsImRlc2NyaXB0aW9uIjoiU3RvcmUgMSJ9XSwidXJsTmFtZSI6InN0b3JlIiwibXVsdGl2YWx1ZSI6ZmFsc2V9XQ=='
+            url: '/dashboard/DASHBOARD_AIRBNB?organization=demo&toolbar=true&menu=true&role=/demo/admin'
         })
         awaitingReply.value = false
         scrollToBottom()
