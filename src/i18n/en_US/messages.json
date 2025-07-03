@@ -1428,6 +1428,7 @@
                 "alignment": "Alignment",
                 "bar": "Bar",
                 "barAndText": "Bar & Text",
+                "barColor": "Bar Color",
                 "maximumCharacters": "Maximum Characters",
                 "multilineText": "Multiline Text",
                 "pinned": "Pinned",

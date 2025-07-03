@@ -1213,13 +1213,14 @@
                 "textAndChart": "Text & Chart"
             },
             "visualizationType": {
-                "alignment": "Alignment",
-                "bar": "Bar",
-                "barAndText": "Bar & Text",
-                "pinned": "Pinned",
+                "alignment": "Allineamento",
+                "bar": "Barra",
+                "barAndText": "Barra e Testo",
+                "barColor": "Colore della barra",
+                "pinned": "Bloccato",
                 "sparkline": "Sparkline",
-                "textAndIcon": "Text & Icon",
-                "title": "Visualization Type"
+                "textAndIcon": "Testo & Icona",
+                "title": "Tipo di visualizzazione"
             },
             "xAxis": "X Axis",
             "yAxis": "Y Axis"
