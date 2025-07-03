@@ -54,6 +54,7 @@ export interface ISheet {
     label: string
     icon?: string
     widgets: Array<object>
+    id?: string
 }
 
 export interface IWidget {

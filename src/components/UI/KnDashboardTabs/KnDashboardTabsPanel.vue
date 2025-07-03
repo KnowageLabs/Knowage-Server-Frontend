@@ -73,7 +73,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
-import type { ISheet } from '@/modules/documentExecution/dashboard/Dashboard'
+import type { IDashboardSheet, ISheet } from '@/modules/documentExecution/dashboard/Dashboard'
 import KnIconPicker from '@/components/UI/KnIconPicker/KnIconPicker.vue'
 import deepcopy from 'deepcopy'
 
@@ -89,6 +89,9 @@ export default defineComponent({
         labelPosition: {
             type: String,
             default: 'bottom'
+        },
+        activeDashboardSheet: {
+            type: Object as PropType<IDashboardSheet>
         }
     },
     emits: ['sheetChange', 'update:sheets', 'sheetDeleted'],
@@ -118,6 +121,9 @@ export default defineComponent({
     watch: {
         sheets() {
             this.loadActiveSheetFromQuery()
+        },
+        activeDashboardSheet() {
+            this.setInitialSheetIndex()
         }
     },
     mounted() {
@@ -275,6 +281,16 @@ export default defineComponent({
                 this.setPage(+this.$route.query.sheet)
                 this.initialLoad = false
             }
+        },
+        setInitialSheetIndex() {
+            let found = false
+            this.sheets.findIndex((sheet, index) => {
+                if (sheet.id === this.activeDashboardSheet?.id) {
+                    this.setPage(index)
+                    found = true
+                }
+            })
+            if (!found) this.setPage(0)
         }
     }
 })
