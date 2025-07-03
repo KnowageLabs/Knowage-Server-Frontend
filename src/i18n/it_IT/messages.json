@@ -20,6 +20,14 @@
         "subtitle": "In questa schermata è possibile cambiare le informazioni personali",
         "title": "Gestione account"
     },
+    "ai": {
+        "disclaimer": "L'assistente virtuale genera risposte in tempo reale con l'IA. Consulta altre fonti, se necessario.",
+        "message": {
+            "placeholder": "Scrivi qui il tuo messaggio"
+        },
+        "title": "Assistente Virtuale",
+        "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti."
+    },
     "common": {
         "active": "Attivo",
         "add": "aggiungi",
@@ -184,6 +192,7 @@
         "script": "script",
         "search": "cerca",
         "select": "seleziona",
+        "send": "Invia",
         "sendByEmail": "invia tramite e-mail",
         "sendMail": "invia mail",
         "sendMailSuccess": "mail inviata",
