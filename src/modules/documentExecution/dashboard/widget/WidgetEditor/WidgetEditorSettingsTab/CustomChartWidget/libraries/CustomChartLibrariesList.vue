@@ -1,11 +1,6 @@
 <template>
-    <div>
-        <div class="row q-gutter-md">
-            <q-select class="col-12" filled v-model="model" :options="options" use-input input-debounce="0" bottom-slots new-value-mode="add" :label="$t('dashboard.widgetEditor.libraries.select')" @new-value="addLibrary" @update:model-value="addLibrary" >
-                <template v-slot:hint>
-                    {{ $t('dashboard.widgetEditor.libraries.hint') }}
-                </template>
-            </q-select>
+        <div class="row q-gutter-md fit q-pa-sm">
+            <q-select class="col-12" filled v-model="model" :options="options" use-input input-debounce="0" bottom-slots new-value-mode="add" :label="$t('dashboard.widgetEditor.libraries.select')" @new-value="addLibrary" @update:model-value="addLibrary" />
 
             <q-list v-if="selectedLibraries.length !== 0" class="col-12 q-mt-sm" bordered separator>
                 <q-item v-for="(library, index) in selectedLibraries" :key="index" clickable v-ripple>
@@ -27,7 +22,7 @@
                 </q-item>
             </q-list>
 
-            <div v-else class="row p-lg-12">
+            <div v-else class="row col-12 q-mt-sm">
                 <q-banner rounded class="bg-info col">
                     <template v-slot:avatar>
                         <q-icon name="info" />
@@ -36,7 +31,6 @@
                 </q-banner>
             </div>
         </div>
-    </div>
 </template>
 
 <script lang="ts">

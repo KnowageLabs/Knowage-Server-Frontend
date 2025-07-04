@@ -20,6 +20,15 @@
         "subtitle": "Here you can change your personal informations",
         "title": "Account Management"
     },
+    "ai": {
+        "dashboardLink": "Dashboard Link",
+        "disclaimer": "The virtual assistant generates real-time responses using AI. Please consult other sources if necessary.",
+        "message": {
+            "placeholder": "Type your message"
+        },
+        "title": "Virtual Assistant",
+        "welcomeMessage": "Welcome to the Knowage Virtual Assistant! Ask me anything and I will do my best to help you."
+    },
     "common": {
         "active": "Active",
         "add": "Add",
@@ -243,6 +252,7 @@
         "script": "Script",
         "search": "search",
         "select": "select",
+        "send": "Send",
         "sendByEmail": "Send by e-mail",
         "sendMail": "Send Mail",
         "sendMailSuccess": "Email Sent",
@@ -1373,6 +1383,7 @@
             "valuesManagement": {
                 "alwaysEnableValues": "Always Enable Values",
                 "alwaysEnableValuesHint": "Always enable values hint placeholder",
+                "colNumber": "Column Number",
                 "hideDisabledValues": "Hide Disabled Values",
                 "hideDisabledValuesHint": "Hide disabled values hint placeholder",
                 "showColumn": "Show Selection Column",
@@ -1381,8 +1392,7 @@
                 "showDatasetHint": "Show Selection dataset hint placeholder",
                 "title": "Values Management",
                 "wrapText": "Wrap Text",
-                "wrapTextHint": "Wrap text hint placeholder",
-                "colNumber": "Column Number"
+                "wrapTextHint": "Wrap text hint placeholder"
             },
             "vega": {
                 "fontOptions": {
@@ -1418,6 +1428,7 @@
                 "alignment": "Alignment",
                 "bar": "Bar",
                 "barAndText": "Bar & Text",
+                "barColor": "Bar Color",
                 "maximumCharacters": "Maximum Characters",
                 "multilineText": "Multiline Text",
                 "pinned": "Pinned",

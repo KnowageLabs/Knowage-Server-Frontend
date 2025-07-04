@@ -110,7 +110,7 @@ export default defineComponent({
                 (response: AxiosResponse<any>) => {
                     const processId = response.data.id
                     this.$emit('update:processId', processId)
-                    const datasetDefinition = this.createDatasetDefinition()
+                    const datasetDefinition = this.createDatasetDefinition(processId)
                     this.saveOrUpdateInstance(processId, datasetDefinition).then(
                         (response: AxiosResponse<any>) => {
                             this.$emit('update:instanceId', response.data.id)
@@ -135,7 +135,7 @@ export default defineComponent({
             if (this.instanceId && this.instanceId != '') return this.$http.post(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + `/api/1.0/instance/${this.instanceId}`, datasetDefinition)
             else return this.$http.post(import.meta.env.VITE_KNOWAGE_DATA_PREPARATION_CONTEXT + '/api/1.0/process/' + processId + '/instance', datasetDefinition)
         },
-        createDatasetDefinition() {
+        createDatasetDefinition(processId) {
             const toReturn = {}
             toReturn['config'] = {}
             toReturn['config']['paused'] = this.schedulationPaused
@@ -158,6 +158,7 @@ export default defineComponent({
             toReturn['destinationDataSetDescription'] = this.preparedDataset.description
             toReturn['meta'] = this.createMetaDefinition()
             toReturn['dsId'] = this.preparedDataset.id
+            toReturn['processId'] = processId
             return toReturn
         },
         createMetaDefinition() {

@@ -41,12 +41,14 @@
                 </template>
             </ul>
         </div>
+        <KnChatbot v-if="isEnterpriseValid && configurations['KNOWAGE.AI.URL']" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import InfoDialog from '@/modules/mainMenu/dialogs/InfoDialog.vue'
+import KnChatbot from '@/components/UI/KnChatbot/KnChatbot.vue'
 import MainMenuItem from '@/modules/mainMenu/MainMenuItem.vue'
 import MainMenuAdmin from '@/modules/mainMenu/MainMenuAdmin.vue'
 import AccountDialog from '@/modules/mainMenu/dialogs/AccountDialog.vue'
@@ -73,6 +75,7 @@ export default defineComponent({
         MainMenuItem,
         LanguageDialog,
         LicenseDialog,
+        KnChatbot,
         NewsDialog,
         RoleDialog,
         DownloadsDialog,
@@ -115,6 +118,7 @@ export default defineComponent({
             news: 'news',
             stateHomePage: 'homePage',
             isEnterprise: 'isEnterprise',
+            isEnterpriseValid: 'isEnterpriseValid',
             licenses: 'licenses'
         }),
         isPortrait(): boolean | undefined {
@@ -494,6 +498,7 @@ export default defineComponent({
             box-shadow: none;
         }
         .menu-scroll-content {
+            width: 100%;
             flex-direction: row;
             align-items: center;
             ::-webkit-scrollbar {

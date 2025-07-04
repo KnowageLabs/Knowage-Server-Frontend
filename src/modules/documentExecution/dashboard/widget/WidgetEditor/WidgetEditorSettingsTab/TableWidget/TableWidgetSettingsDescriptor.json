@@ -340,6 +340,7 @@
     ],
     "styleToolbarVisualizationTypeOptions": [
         {
+            "tooltip": "dashboard.widgetEditor.visualizationType.barColor",
             "type": "color"
         },
         {
