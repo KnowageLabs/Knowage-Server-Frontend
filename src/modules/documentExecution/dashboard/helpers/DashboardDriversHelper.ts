@@ -38,16 +38,17 @@ const updateDatasetDefaultValue = (datasetDriver: IDashboardDatasetDriver, drive
     })
 }
 
-export const getFormattedDashboardDrivers = (dashboardDrivers: (iParameter | IDashboardDatasetDriver)[]) => {
+export const getFormattedDashboardDrivers = (driversToFormat: (iParameter | IDashboardDatasetDriver)[]) => {
     const drivers = [] as IDashboardDriver[]
-    dashboardDrivers?.forEach((driver: iParameter | IDashboardDatasetDriver) => {
+    driversToFormat?.forEach((driver: iParameter | IDashboardDatasetDriver) => {
         const formattedDriver = {
             name: driver.label,
             type: driver.type,
             multivalue: driver.multivalue,
             value: getFormattedDriverValue(driver),
             urlName: driver.urlName,
-            driverLabel: driver.driverLabel
+            driverLabel: driver.driverLabel,
+            description: getFormattedDriverDescription(driver)
         } as IDashboardDriver
         drivers.push(formattedDriver)
     })
@@ -62,4 +63,14 @@ const getFormattedDriverValue = (filter: iParameter | IDashboardDatasetDriver) =
         value += i === filter.parameterValue.length ? '' : ','
     }
     return value.substring(0, value.length - 1)
+}
+
+const getFormattedDriverDescription = (filter: iParameter | IDashboardDatasetDriver) => {
+    if (!filter || !filter.parameterValue) return ''
+    let description = ''
+    for (let i = 0; i < filter.parameterValue.length; i++) {
+        filter.parameterValue.length > 1 ? (description += `'${filter.parameterValue[i].description}'`) : (description += filter.parameterValue[i].description)
+        description += i === filter.parameterValue.length - 1 ? '' : ','
+    }
+    return description
 }

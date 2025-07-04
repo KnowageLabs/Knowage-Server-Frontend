@@ -89,7 +89,7 @@ export const parseHtml = (tempWidgetModel: IWidget, tempDrivers: any[], tempVari
                 allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
                 allowedAttributes: {
                     '*': ['*'],
-                    img: ['src', 'align'],
+                    img: ['src', 'align']
                 },
                 allowedSchemes: ['data', 'http', 'https']
             })
