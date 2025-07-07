@@ -28,6 +28,7 @@
                     <template #body="slotProps">
                         <div>
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
+                            <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
                             <Button v-if="fieldType !== 'data'" v-tooltip.top="$t('common.sort')" :icon="getColumnSortIcon(slotProps.data)" class="p-button-link" @click.stop="changeColumnSort(slotProps.data)"></Button>
                             <Button v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" data-test="edit-button" @click.stop="$emit('itemSelected', slotProps.data)"></Button>
                             <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data, slotProps.index)"></Button>
@@ -42,7 +43,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { filterDefault } from '@/helpers/commons/filterHelper'
-import { IWidget, IWidgetColumn } from '../../../../Dashboard'
+import { IWidget, IWidgetColumn, IWidgetFunctionColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { createNewWidgetColumn } from '../../helpers/WidgetEditorHelpers'
 import Column from 'primevue/column'
@@ -50,6 +51,7 @@ import DataTable from 'primevue/datatable'
 import Dropdown from 'primevue/dropdown'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
 import descriptor from './PivotTableDataContainerDescriptor.json'
+import deepcopy from 'deepcopy'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
@@ -192,6 +194,15 @@ export default defineComponent({
         onFunctionsColumnEdited(functionColumn: any) {
             this.deleteItem(functionColumn, -1)
             this.onFunctionsColumnAdded(functionColumn)
+        },
+        openFunctionsColumnDialog(functionColumn: IWidgetFunctionColumn) {
+            let functionToEmit = deepcopy(functionColumn)
+            if (functionColumn.originalFunctionColumnName) {
+                functionToEmit.alias = functionColumn.originalFunctionColumnName
+                functionToEmit.columnName = functionColumn.originalFunctionColumnName
+                functionToEmit.orderColumn = functionColumn.originalFunctionColumnName
+            }
+            emitter.emit('editFunctionColumn', functionToEmit)
         }
     }
 })
