@@ -1,7 +1,7 @@
 <template>
     <div class="custom-header-group-container" :style="getSummaryStyle()">
         <span v-if="!params.hideSummary && showPinnedOnly()" class="custom-header-group-label">
-            <b style="margin-right: 4px">{{ params.value ? params.summaryRows[params.rowIndex] : '' }} </b>
+            <b style="margin-right: 4px">{{ params.value ? params.summaryRows[params.node.rowIndex] : '' }} </b>
             {{ params.value ?? '' }}
         </span>
     </div>
@@ -20,6 +20,7 @@ export default defineComponent({
     },
     mounted() {
         this.showPinnedOnly()
+        console.log('SummaryRowRenderer mounted', this.params)
     },
     methods: {
         showPinnedOnly() {
