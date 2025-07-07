@@ -400,7 +400,7 @@ export default defineComponent({
             }
             return widgetUsesSelection
         },
-        async reloadWidgetData(associativeResponseSelections: any) {
+        async reloadWidgetData(associativeResponseSelections: any, resetPagination?: boolean) {
             this.widgetLoading = true
             let associativeSelectionsFromStore = null
             if (!associativeResponseSelections) {
@@ -408,7 +408,7 @@ export default defineComponent({
                 if (this.widgetModel.type === 'selection') return
                 associativeSelectionsFromStore = this.getAssociativeSelectionsFromStoreIfDatasetIsBeingUsedInAssociation()
             }
-            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeResponseSelections ?? associativeSelectionsFromStore)
+            this.widgetData = await getWidgetData(this.dashboardId, this.widgetModel, this.model?.configuration?.datasets, this.$http, false, this.activeSelections, this.search, this.dashboards[this.dashboardId].configuration, associativeResponseSelections ?? associativeSelectionsFromStore, resetPagination)
             this.widgetLoading = false
         },
         widgetUsesSelections(selections: ISelection[]) {
@@ -507,13 +507,14 @@ export default defineComponent({
             quickWidgetCreateChartFromTable(chartType, this.widgetModel, this.dashboardId)
         },
 
-        onSearch(payload: { searchText: string; searchColumns: string[] }) {
+        async onSearch(payload: { searchText: string; searchColumns: string[] }) {
             this.search = payload
             this.searchDialogVisible = false
             const currentState = this.getCurrentDashboardView(this.dashboardId)
             if (currentState && this.widgetModel.id) currentState.settings.states[this.widgetModel.id] = { type: this.widgetModel.type, search: this.search }
 
-            this.reloadWidgetData(null)
+            this.widgetModel.settings.pagination.properties.offset = 0
+            await this.reloadWidgetData(null, true)
         },
         onSheetSelected(sheet: IDashboardSheet | null) {
             this.sheetPickerDialogVisible = false

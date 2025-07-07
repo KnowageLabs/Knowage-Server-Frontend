@@ -34,10 +34,10 @@ export const getData = (item) =>
         }, 1000)
     })
 
-export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, dashboardConfig: IDashboardConfiguration, associativeResponseSelections?: any) => {
+export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, dashboardConfig: IDashboardConfiguration, associativeResponseSelections?: any, resetPagination?: boolean) => {
     switch (widget.type) {
         case 'table':
-            return await getTableWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections)
+            return await getTableWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, searchParams, associativeResponseSelections, resetPagination)
         case 'selector':
             return await getSelectorWidgetData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'html':

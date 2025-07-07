@@ -8,7 +8,7 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 
 const dashStore = dashboardStore()
 
-export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any) => {
+export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any, resetPagination?: boolean) => {
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex] as IDashboardDataset
 
@@ -17,7 +17,7 @@ export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDas
     if (selectedDataset) {
         let url = ''
         const pagination = widget.settings.pagination
-        if (pagination && pagination?.enabled) url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=${!selectedDataset.cache}`
+        if (pagination && pagination?.enabled) url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=${resetPagination ? 0 : pagination.properties.offset}&size=${pagination.properties.itemsNumber}&nearRealtime=${!selectedDataset.cache}`
         else url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}`
 
         const postData = formatTableWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
