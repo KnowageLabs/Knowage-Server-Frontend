@@ -5,22 +5,22 @@
             <label for="dataset" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.selectDataset') }} </label>
         </span>
         <div v-if="widgetModel.type !== 'selector'" class="p-col-12 p-d-flex">
-            <label class="kn-material-input-label p-as-center p-ml-1"> {{ $t('common.columns') }} </label>
+            <label class="kn-material-input-label p-as-center p-ml-1 p-mr-auto"> {{ $t('common.columns') }} </label>
 
-            <q-btn v-if="isEnterprise" color="primary" class="kn-cursor-pointer p-ml-auto p-mr-1" :label="$t('common.add')">
+            <q-btn v-if="isEnterprise && !isTextOrHTMLWidget" color="primary" class="kn-cursor-pointer p-ml-auto p-mr-1" :label="$t('common.add')">
                 <q-menu>
                     <q-list style="min-width: 100px">
                         <q-item clickable v-close-popup @click="createNewCalcField">
                             <q-item-section>{{ $t('common.addCalculatedField') }}</q-item-section>
                         </q-item>
-                        <q-item clickable v-close-popup :disable="createNewFormulaDisabled" @click="createNewFormulaField">
+                        <q-item v-if="widgetModel.type !== 'python'" clickable v-close-popup :disable="createNewFormulaDisabled" @click="createNewFormulaField">
                             <q-item-section>{{ $t('dashboard.widgetEditor.addFunction') }}</q-item-section>
                         </q-item>
                     </q-list>
                 </q-menu>
             </q-btn>
 
-            <Button v-else :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
+            <Button v-else-if="!isTextOrHTMLWidget" :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
             <Button id="add-all-columns-button" icon="fa fa-arrow-right" class="p-button-text p-button-rounded p-button-plain" @click="addAllColumnsToWidgetModel" />
         </div>
 
@@ -37,22 +37,7 @@
             </template>
         </Listbox>
     </div>
-    <KnCalculatedField
-        v-if="calcFieldDialogVisible"
-        v-model:template="selectedCalcField"
-        v-model:visibility="calcFieldDialogVisible"
-        :fields="calcFieldColumns"
-        :validation="true"
-        :variables="variables"
-        :descriptor="calcFieldDescriptor"
-        :prop-calc-field-functions="availableFunctions"
-        :read-only="false"
-        :valid="true"
-        source="dashboard"
-        :prop-nullif-function="datasetFunctions.nullifFunction"
-        @save="onCalcFieldSave"
-        @cancel="calcFieldDialogVisible = false"
-    >
+    <KnCalculatedField v-if="calcFieldDialogVisible" v-model:template="selectedCalcField" v-model:visibility="calcFieldDialogVisible" :fields="calcFieldColumns" :validation="true" :variables="variables" :descriptor="calcFieldDescriptor" :prop-calc-field-functions="availableFunctions" :read-only="false" :valid="true" source="dashboard" :prop-nullif-function="datasetFunctions.nullifFunction" @save="onCalcFieldSave" @cancel="calcFieldDialogVisible = false">
     </KnCalculatedField>
 
     <WidgetEditorFunctionsDialog v-if="functionsDialogVisible" :visible="functionsDialogVisible" :prop-function-column="selectedFunctionColumn" :selected-dataset="selectedDatasetForFunctions" :edit-mode="functionsDialogEditMode" @close="onFunctionsDialogClosed" @save="onFunctionsColumnSave"></WidgetEditorFunctionsDialog>
@@ -117,6 +102,9 @@ export default defineComponent({
         createNewFormulaDisabled() {
             if (!this.widgetModel) return true
             return this.widgetModel.columns.some((col: IWidgetColumn) => col.type === 'pythonFunction')
+        },
+        isTextOrHTMLWidget() {
+            return this.widgetModel.type === 'text' || this.widgetModel.type === 'html'
         }
     },
     watch: {
