@@ -788,6 +788,9 @@ export default defineComponent({
         margin: 0.1rem;
         width: calc(100% - 3px);
         height: 15px;
+        label {
+            white-space: nowrap;
+        }
 
         .p-radiobutton {
             width: 15px;
