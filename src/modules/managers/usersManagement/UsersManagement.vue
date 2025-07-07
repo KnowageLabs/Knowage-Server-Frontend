@@ -78,6 +78,10 @@ import mainStore from '../../../App.store'
 export default defineComponent({
     name: 'user-management',
     components: { KnListBox, TabView, TabPanel, KnFabButton, KnHint, RolesTab, DetailFormTab, UserAttributesForm },
+    setup() {
+        const appStore = mainStore()
+        return { appStore }
+    },
     data() {
         return {
             v$: useValidate() as any,
@@ -205,6 +209,7 @@ export default defineComponent({
         },
         async saveUser() {
             this.loading = true
+            const isNewUser = this.userDetailsForm.id ? false : true
             if (!this.selectedRoles || this.selectedRoles.length == 0) {
                 this.setError({
                     title: this.userDetailsForm.id ? this.$t('common.toast.updateTitle') : this.$t('managers.usersManagement.info.createTitle'),
@@ -215,7 +220,7 @@ export default defineComponent({
                 const userToSave = this.formatUserObject()
                 this.saveOrUpdateUser(userToSave)
                     .then((response: AxiosResponse<any>) => {
-                        this.afterSaveOrUpdate(response)
+                        this.afterSaveOrUpdate(response, isNewUser)
                     })
                     .catch((error) => {
                         this.setError({
@@ -228,7 +233,7 @@ export default defineComponent({
                     })
             }
         },
-        async afterSaveOrUpdate(response: AxiosResponse<any>) {
+        async afterSaveOrUpdate(response: AxiosResponse<any>, isNewUser: boolean) {
             this.dirty = false
             await this.loadAllUsers()
             this.formInsert = false
@@ -239,9 +244,9 @@ export default defineComponent({
             if (selectedUser) {
                 this.onUserSelect(null, selectedUser)
             }
-            this.store.setInfo({
-                title: this.userDetailsForm.id ? this.$t('common.toast.updateTitle') : this.$t('managers.usersManagement.info.createTitle'),
-                msg: this.userDetailsForm.id ? this.$t('common.toast.updateSuccess') : this.$t('managers.usersManagement.info.createMessage')
+            this.appStore.setInfo({
+                title: !isNewUser ? this.$t('common.toast.updateTitle') : this.$t('managers.usersManagement.info.createTitle'),
+                msg: !isNewUser ? this.$t('common.toast.updateSuccess') : this.$t('managers.usersManagement.info.createMessage')
             })
         },
         onUserDelete(event: any) {
