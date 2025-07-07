@@ -88,7 +88,7 @@
     <Menu id="creationMenu" ref="creationMenu" :model="creationMenuButtons" data-test="creation-menu" />
 
     <WorkspaceDataCloneDialog :visible="cloneDialogVisible" :prop-dataset="selectedDataset" @close="cloneDialogVisible = false" @clone="handleDatasetClone"> </WorkspaceDataCloneDialog>
-    <WorkspaceDataPreviewDialog :visible="previewDialogVisible && correctRolesForExecution != null" :prop-dataset="selectedDataset" :correct-roles-for-execution="correctRolesForExecution" @close="previewDialogVisible = false"> </WorkspaceDataPreviewDialog>
+    <WorkspaceDataPreviewDialog v-if="previewDialogVisible && correctRolesForExecution != null" :visible="previewDialogVisible && correctRolesForExecution != null" :prop-dataset="selectedDataset" :correct-roles-for-execution="correctRolesForExecution" @close="previewDialogVisible = false"> </WorkspaceDataPreviewDialog>
     <WorkspaceWarningDialog :visible="warningDialogVisbile" :title="$t('workspace.advancedData.title')" :warning-message="warningMessage" @close="closeWarningDialog"></WorkspaceWarningDialog>
 
     <DataPreparationAvroHandlingDialog :visible="dataPrepAvroHandlingDialogVisbile" :title="$t('workspace.myData.isPreparing')" :info-message="dataPrepAvroHandlingMessage" :events="events" @close="proceedToDataPrep"></DataPreparationAvroHandlingDialog>
@@ -348,7 +348,7 @@ export default defineComponent({
         },
         async previewDataset(dataset: any) {
             await this.loadDataset(dataset.id)
-            getCorrectRolesForExecution(null, dataset).then(async (response) => {
+            await getCorrectRolesForExecution(null, dataset).then(async (response) => {
                 this.correctRolesForExecution = response as string[]
                 if (this.selectedDataset) this.selectedDataset.drivers = dataset.drivers
                 this.previewDialogVisible = true
