@@ -3,10 +3,11 @@
         <Message v-if="themePropertyChanged" class="p-p-2 p-m-4" severity="warn" :closable="false">{{ $t('dashboard.widgetEditor.themeChangedWarning') }}</Message>
         <WidgetEditorThemePicker v-if="showThemePicker" :widget-model="widgetModel" :style-changed-flag="styleChangedFlag" @themeSelected="onThemeSelected"></WidgetEditorThemePicker>
         <Accordion v-model:activeIndex="activeIndex" class="selectorAccordion">
-            <AccordionTab v-for="(accordion, index) in settings" :key="index" :disabled="accordion.type === 'LabelStyle' && labelStyleAccordionDisabled">
+            <AccordionTab v-for="(accordion, index) in filteredSettings" :key="index" :disabled="accordion.type === 'LabelStyle' && labelStyleAccordionDisabled">
                 <template #header>
-                    <SelectorWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectorWidgetSettingsAccordionHeader>
+                    <SelectorWidgetSettingsAccordionHeader v-if="!(accordion.type === 'DateRange' && !isDateType)" :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectorWidgetSettingsAccordionHeader>
                 </template>
+                <SelectorWidgetRange v-if="accordion.type === 'DateRange'" :widget-model="widgetModel"></SelectorWidgetRange>
                 <SelectorWidgetType v-if="accordion.type === 'SelectorType'" :widget-model="widgetModel"></SelectorWidgetType>
                 <SelectorWidgetDefaultValues v-else-if="accordion.type === 'DefaultValues'" :widget-model="widgetModel"></SelectorWidgetDefaultValues>
                 <SelectorWidgetValuesManagement v-else-if="accordion.type === 'ValuesManagement'" :widget-model="widgetModel"></SelectorWidgetValuesManagement>
@@ -52,6 +53,7 @@ import WidgetEditorThemePicker from '../common/style/WidgetEditorThemePicker.vue
 import Message from 'primevue/message'
 import WidgetSelectionConfiguration from '../common/configuration/WidgetSelectionConfiguration.vue'
 import WidgetHelpSettings from '../common/help/WidgetHelpSettings.vue'
+import SelectorWidgetRange from './configuration/SelectorWidgetRange.vue'
 
 export default defineComponent({
     name: 'selector-widget-settings-container',
@@ -74,7 +76,8 @@ export default defineComponent({
         Message,
         WidgetMenuConfiguration,
         WidgetSelectionConfiguration,
-        WidgetHelpSettings
+        WidgetHelpSettings,
+        SelectorWidgetRange
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -102,6 +105,17 @@ export default defineComponent({
         },
         showThemePicker() {
             return this.isEnterprise && this.settings && this.settings.find((setting: { title: string; type: string }) => setting.type === 'Title')
+        },
+        isDateType() {
+            return this.widgetModel?.settings?.isDateType
+        },
+        filteredSettings(): { title: string; type: string }[] {
+            if (!this.settings) return []
+
+            return this.settings.filter((setting) => {
+                if (setting.type === 'DateRange' && !this.isDateType) return false
+                return true
+            })
         }
     },
     watch: {

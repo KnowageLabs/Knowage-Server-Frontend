@@ -2,31 +2,19 @@
 <template>
     <div v-if="defaultValuesModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
         <div class="p-col-12 p-grid p-ai-center">
-            <div class="p-col-10 p-lg-11 p-grid">
-                <div class="p-col-12 p-lg-9 p-fluid p-d-flex p-flex-column kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.defaultValues.selectDafaultValue') }}</label>
-                    <Dropdown v-model="defaultValuesModel.valueType" class="kn-material-input" :options="filteredDefaultValuesTypes" option-value="value" :disabled="defaultModelDisabled" @change="onDefaultValuesTypeChanged">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ getTranslatedLabel(slotProps.value, descriptor.defaultValuesTypes, $t) }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
+            <div v-if="isDateType" class="p-col-10 p-lg-11 p-grid">
+                <div class="p-col-12 p-lg-6 p-d-flex p-flex-column">
+                    <label class="kn-material-input-label"> {{ $t('cron.startDate') }}</label>
+                    <Calendar v-model="(defaultValuesModel.startDate as Date)" :manual-input="true" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
                 </div>
 
-                <div v-if="defaultValuesModel.valueType === 'STATIC'" class="p-col-12 p-lg-3 p-d-flex p-flex-column">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
-                    <Calendar v-if="isDateType" v-model="(defaultValuesModel.value as Date)" :manual-input="true" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
-                    <InputText v-else v-model="defaultValuesModel.value" class="kn-material-input p-inputtext-sm kn-flex" :disabled="defaultModelDisabled" @change="defaultValuesChanged" />
+                <div class="p-col-12 p-lg-6 p-d-flex p-flex-column">
+                    <label class="kn-material-input-label"> {{ $t('cron.endDate') }}</label>
+                    <Calendar v-model="(defaultValuesModel.endDate as Date)" :manual-input="true" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
                 </div>
             </div>
             <div class="p-col-2 p-lg-1 p-d-flex p-jc-center">
-                <i v-tooltip.top="$t('dashboard.widgetEditor.defaultValues.hint')" class="pi pi-question-circle kn-cursor-pointer p-ml-auto p-mr-4"></i>
+                <i v-tooltip.top="$t('dashboard.widgetEditor.dateRange.hint')" class="pi pi-question-circle kn-cursor-pointer p-ml-auto p-mr-4"></i>
             </div>
         </div>
     </div>
@@ -59,12 +47,6 @@ export default defineComponent({
         },
         isDateType() {
             return this.widgetModel?.settings?.isDateType
-        },
-        filteredDefaultValuesTypes() {
-            if (this.isDateType) {
-                return this.descriptor.defaultValuesTypes.filter((option) => option.value === 'STATIC')
-            }
-            return this.descriptor.defaultValuesTypes
         }
     },
     watch: {

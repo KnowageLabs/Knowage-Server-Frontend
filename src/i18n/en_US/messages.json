@@ -684,6 +684,9 @@
                 "hideNoRowsAvailable": "Hide \"No Rows Available\" message",
                 "title": "Custom Messages"
             },
+            "dateRange": {
+                "title": "Selector Range"
+            },
             "defaultValues": {
                 "columnsFirstItem": "Main column's first item",
                 "columnsLastItem": "Main column's last item",

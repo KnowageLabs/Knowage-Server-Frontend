@@ -62,6 +62,8 @@ import DashboardHeaderWidget from './widget/DashboardHeaderWidget/DashboardHeade
 import { setVairableExecutionDateValue, setVairableLocaleValue, setVariableActiveSelectionValue, setVariableExectuionTimeValue, setVariableValueFromDriver } from './generalSettings/VariablesHelper'
 import { getWidgetData } from './DashboardDataProxy'
 import { iPythonConfiguration } from '../../managers/functionsCatalog/FunctionsCatalog'
+import moment from 'moment'
+import dashboardDescriptor from './DashboardDescriptor.json'
 
 export default defineComponent({
     name: 'dashboard-controller',
@@ -362,6 +364,11 @@ export default defineComponent({
                 timestamp: new Date().getTime(),
                 dynamic: true
             } as ISelection
+
+            if (widget?.settings?.isDateType) {
+                const formattedDate = [moment(deepcopy(dynamicSelection.value[0])).format(dashboardDescriptor.selectionsDateFormat)]
+                dynamicSelection.value = formattedDate
+            }
 
             const existingSelection = this.model.configuration.selections[this.model.configuration.selections.findIndex((modelSelection: ISelection) => modelSelection.datasetId === dynamicSelection.datasetId && modelSelection.columnName === dynamicSelection.columnName)]
 
