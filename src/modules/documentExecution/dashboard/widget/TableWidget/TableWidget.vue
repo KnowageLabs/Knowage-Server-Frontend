@@ -190,8 +190,8 @@ export default defineComponent({
 
                 // CALLBACKS
                 onGridReady: this.onGridReady,
-                getRowStyle: this.getRowStyle
-                // getRowHeight: this.getRowHeight
+                getRowStyle: this.getRowStyle,
+                getRowHeight: this.getRowHeight
             }
         },
         onGridReady(params) {
@@ -383,7 +383,7 @@ export default defineComponent({
                             if (colVisType.type.toLowerCase() === 'multiline text') {
                                 tempCol.autoHeight = true
                                 tempCol.wrapText = responseFields[responseField].type === 'text'
-                                tempCol.cellStyle = { 'white-space': 'normal' }
+                                tempCol.cellStyle = { 'white-space': 'normal', wordBreak: 'break-word' }
                             }
                         }
 
