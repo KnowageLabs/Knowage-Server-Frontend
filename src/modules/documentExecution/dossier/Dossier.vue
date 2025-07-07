@@ -106,6 +106,7 @@ import mainStore from '../../../App.store'
 import Menu from 'primevue/contextmenu'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
+import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 export default defineComponent({
     name: 'dossier',
     components: { KnInputFile, Menu, Card, Column, DataTable, KnHint, KnValidationMessages },
@@ -372,12 +373,12 @@ export default defineComponent({
             if (this.jsonTemplate.PPT_TEMPLATE == null) {
                 const fileName = this.jsonTemplate?.DOC_TEMPLATE?.name ? this.jsonTemplate?.DOC_TEMPLATE?.name : this.jsonTemplate?.PPT_TEMPLATE_V2?.name
                 await this.$http
-                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/checkPathFile?templateName=' + fileName)
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/checkPathFile?templateName=${fileName}&documentId=${this.id}`)
                     .then((response: AxiosResponse<any>) => {
                         if (response.data.STATUS == 'KO') {
                             this.store.setInfo({ title: this.$t('common.error.generic'), msg: this.$t('documentExecution.dossier.templateDownloadError') })
                         } else if (response.data.STATUS == 'OK') {
-                            window.open(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/dossier/resourcePath?templateName=' + fileName)
+                            this.downloadFile(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/dossier/resourcePath?templateName=${fileName}&documentId=${this.id}`)
                         }
                     })
                     .catch((error) => {
@@ -385,8 +386,18 @@ export default defineComponent({
                     })
             } else {
                 const fileName = this.jsonTemplate.PPT_TEMPLATE.name
-                window.open(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/resourcePath?templateName=' + fileName)
+                this.downloadFile(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/resourcePath?templateName=${fileName}&documentId=${this.id}`)
             }
+        },
+        async downloadFile(url) {
+            await this.$http
+                .get(url, { responseType: 'arraybuffer' })
+                .then((response: AxiosResponse<any>) => {
+                    downloadDirectFromResponse(response)
+                })
+                .catch((error) => {
+                    if (error) this.store.setError({ title: this.$t('common.error.generic'), msg: error.message })
+                })
         },
         setUploadType() {
             this.triggerUpload = false
