@@ -103,7 +103,8 @@ export default defineComponent({
                     this.selectedLovValues = values
                 }
             } else {
-                this.selectedLovValues = [this.lovValues.find((lovValue) => lovValue.value == this.selection[0]?.value)]
+                this.selectedLovValues = []
+                if (this.selection[0]) this.selectedLovValues = [this.lovValues.find((lovValue) => lovValue.value == this.selection[0]?.value)]
             }
         },
         closeDialog() {
