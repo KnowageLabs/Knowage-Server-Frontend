@@ -1,26 +1,4 @@
 {
-    "columns": [
-        {
-            "field": "partial",
-            "header": "documentExecution.dossier.headers.partial"
-        },
-        {
-            "field": "total",
-            "header": "documentExecution.dossier.headers.total"
-        },
-        {
-            "field": "status",
-            "header": "documentExecution.dossier.headers.status"
-        }
-    ],
-    "table": {
-        "iconColumn": {
-            "style": {
-                "text-align": "end",
-                "width": "10%"
-            }
-        }
-    },
     "validations": {
         "activity": [
             {
