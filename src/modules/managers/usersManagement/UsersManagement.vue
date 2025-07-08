@@ -2,53 +2,43 @@
     <div class="kn-page kn-width-full-with-menu">
         <div class="kn-page-content p-grid p-m-0">
             <div class="kn-list--column p-col-4 p-sm-4 p-md-3 p-p-0">
-                <Toolbar class="kn-toolbar kn-toolbar--primary">
-                    <template #start>
-                        {{ $t('managers.usersManagement.title') }}
-                    </template>
-                    <template #end>
-                        <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
-                    </template>
-                </Toolbar>
+                <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                    <q-toolbar-title>{{ $t('managers.usersManagement.title') }}</q-toolbar-title>
+                    <KnFabButton icon="fas fa-plus" data-test="new-button" @click="showForm()"></KnFabButton>
+                </q-toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
                 <KnListBox :options="users" :settings="usersManagementDescriptor.knListSettings" @click="onUserSelect" @delete.stop="onUserDelete" />
             </div>
 
             <KnHint v-if="hiddenForm" :title="'managers.usersManagement.title'" :hint="'managers.usersManagement.hint'"></KnHint>
             <div v-show="!hiddenForm" class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
-                <Toolbar class="kn-toolbar kn-toolbar--secondary">
-                    <template #start>
-                        {{ userDetailsForm.userId }}
-                    </template>
-                    <template #end>
-                        <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="!dirty || !passwordValidation" data-test="save-button" @click="saveUser" />
-                        <Button class="p-button-text p-button-rounded p-button-plain" icon="pi pi-times" data-test="close-button" @click="closeForm" />
-                    </template>
-                </Toolbar>
+                <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                    <q-toolbar-title>{{ userDetailsForm.userId }}</q-toolbar-title>
+                    <q-btn flat round dense icon="save" :disable="!dirty || !passwordValidation" data-test="submit-button" @click="saveUser">
+                        <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+                    </q-btn>
+                    <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeForm">
+                        <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+                    </q-btn>
+                </q-toolbar>
                 <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
                 <div class="kn-page-content">
-                    <TabView ref="usersFormTab" class="tabview-custom kn-tab">
-                        <TabPanel>
-                            <template #header>
-                                <span>{{ $t('managers.usersManagement.detail') }}</span>
-                            </template>
+                    <q-tabs align="left" v-model="selectedTab">
+                        <q-tab name="detail" :label="$t('managers.usersManagement.detail')" />
+                        <q-tab name="roles" :label="$t('managers.usersManagement.roles')" />
+                        <q-tab name="attributes" :label="$t('managers.usersManagement.attributes')" />
+                    </q-tabs>
+                    <q-tab-panels v-model="selectedTab" animated>
+                        <q-tab-panel name="detail" class="q-pa-sm">
                             <DetailFormTab v-if="!hiddenForm" :form-insert="formInsert" :form-values="userDetailsForm" :vobj="v$" :disabled-u-i-d="disableUsername" @dataChanged="onDataChange" @unlock="unlockUser($event)"></DetailFormTab>
-                        </TabPanel>
-
-                        <TabPanel>
-                            <template #header>
-                                <span>{{ $t('managers.usersManagement.roles') }}</span>
-                            </template>
+                        </q-tab-panel>
+                        <q-tab-panel name="roles" class="q-pa-sm">
                             <RolesTab :def-role="defaultRole" :roles-list="roles" :selected="selectedRoles" @changed="setSelectedRoles($event)" @setDefaultRole="setDefaultRoleValue($event)"></RolesTab>
-                        </TabPanel>
-
-                        <TabPanel>
-                            <template #header>
-                                <span>{{ $t('managers.usersManagement.attributes') }}</span>
-                            </template>
+                        </q-tab-panel>
+                        <q-tab-panel name="attributes" class="q-pa-sm">
                             <UserAttributesForm v-model="attributesForm" :attributes="attributes" @formDirty="onFormDirty"></UserAttributesForm>
-                        </TabPanel>
-                    </TabView>
+                        </q-tab-panel>
+                    </q-tab-panels>
                 </div>
             </div>
         </div>
@@ -78,10 +68,6 @@ import mainStore from '../../../App.store'
 export default defineComponent({
     name: 'user-management',
     components: { KnListBox, TabView, TabPanel, KnFabButton, KnHint, RolesTab, DetailFormTab, UserAttributesForm },
-    setup() {
-        const appStore = mainStore()
-        return { appStore }
-    },
     data() {
         return {
             v$: useValidate() as any,
@@ -100,7 +86,8 @@ export default defineComponent({
             disableUsername: true,
             loading: false,
             selectedRoles: [] as iRole[],
-            usersManagementDescriptor: usersManagementDescriptor
+            usersManagementDescriptor: usersManagementDescriptor,
+            selectedTab: 'detail'
         }
     },
     validations() {
@@ -244,7 +231,7 @@ export default defineComponent({
             if (selectedUser) {
                 this.onUserSelect(null, selectedUser)
             }
-            this.appStore.setInfo({
+            this.setInfo({
                 title: !isNewUser ? this.$t('common.toast.updateTitle') : this.$t('managers.usersManagement.info.createTitle'),
                 msg: !isNewUser ? this.$t('common.toast.updateSuccess') : this.$t('managers.usersManagement.info.createMessage')
             })
@@ -301,6 +288,7 @@ export default defineComponent({
             }
         },
         populateForms(userObj: any) {
+            this.selectedTab = 'detail'
             this.dirty = false
             this.v$.$reset()
             this.attributesForm = {}
