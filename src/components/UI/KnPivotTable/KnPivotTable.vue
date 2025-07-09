@@ -4,7 +4,7 @@
             <table class="pivot-table" :style="descriptor.pivotStyles.table">
                 <thead>
                     <tr>
-                        <th v-for="(column, index) of columns.slice(1)" :key="index" class="pivot-header" :style="descriptor.pivotStyles.header">
+                        <th v-for="(column, index) of columns.slice(1).filter((col) => col.isVisible !== false)" :key="index" class="pivot-header" :style="{ ...descriptor.pivotStyles.header, width: column.size ? `${column.size}px` : undefined }">
                             {{ column.field }}
                             <i v-if="column.isEditable && column.type !== 'merge' && column.columnInfo.type !== 'boolean'" class="pi pi-pencil edit-icon p-ml-2" />
                         </th>
@@ -13,8 +13,8 @@
                 </thead>
 
                 <tr v-for="(row, index) of mappedRows" :key="index">
-                    <template v-for="(column, i) of columns.slice(1)" :key="i">
-                        <td v-if="row[column.field].rowSpan > 0" class="pivot-data" :rowspan="row[column.field].rowSpan" :style="descriptor.pivotStyles.row">
+                    <template v-for="(column, i) of columns.slice(1).filter((col) => col.isVisible !== false)" :key="i">
+                        <td v-if="row[column.field].rowSpan > 0" class="pivot-data" :rowspan="row[column.field].rowSpan" :style="{ ...descriptor.pivotStyles.row, width: column.size ? `${column.size}px` : undefined }">
                             <KnPivotTableEditableField v-if="column.isEditable && column.type !== 'merge'" :column="column" :prop-row="row" :combo-column-options="columnOptions" @rowChanged="setRowEdited(row)" @dropdownChanged="onDropdownChange" @dropdownOpened="$emit('dropdownOpened', $event)"></KnPivotTableEditableField>
 
                             <Checkbox v-else-if="column.editorType === 'TEXT' && column.columnInfo.type === 'boolean'" v-model="row[column.field].data" :binary="true" :disabled="!column.isEditable || column.type === 'merge'" @change="setRowEdited(row)"></Checkbox>
