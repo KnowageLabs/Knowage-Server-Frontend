@@ -25,7 +25,8 @@ const store = defineStore('store', {
             mainMenuVisibility: false,
             documentExecution: {},
             theme: {},
-            defaultTheme: {}
+            defaultTheme: {},
+            menuOpened: false
         }
     },
     actions: {
@@ -124,6 +125,9 @@ const store = defineStore('store', {
         },
         storeClearIndexedDBCache() {
             indexedDB.widgetData.clear()
+        },
+        toggleMenuOpened() {
+            this.menuOpened = !this.menuOpened
         }
     }
 })
