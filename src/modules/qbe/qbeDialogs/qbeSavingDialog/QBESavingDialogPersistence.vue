@@ -1,11 +1,4 @@
 <template>
-    <Toolbar class="kn-toolbar kn-toolbar--secondary">
-        <template #start>
-            <InputSwitch v-model="dataset.isPersistedHDFS" class="p-mr-2" @change="$emit('touched')" />
-            <span>{{ $t('managers.datasetManagement.isPersistedHDFS') }}</span>
-        </template>
-    </Toolbar>
-
     <div v-if="dataset.dsTypeCd != 'Flat'">
         <Toolbar class="kn-toolbar kn-toolbar--secondary p-mt-3">
             <template #start>
