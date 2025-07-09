@@ -16,14 +16,7 @@
                         </template>
                     </Toolbar>
                     <div v-if="!facet.closed">
-                        <div
-                            v-for="(row, index) in facet.rows.slice(0, propWidget.settings.facets.limit ?? 1000)"
-                            :key="index"
-                            v-tooltip.top="facet.column_1"
-                            :class="{ selected: isFacetSelected(facetName, row), blocked: isFacetBlocked(facetName, row) }"
-                            class="facet-accordion-content selectable"
-                            @click="selectFacet(facetName, row)"
-                        >
+                        <div v-for="(row, index) in facet.rows.slice(0, propWidget.settings.facets.limit ?? 1000)" :key="index" v-tooltip.top="facet.column_1" :class="{ selected: isFacetSelected(facetName, row), blocked: isFacetBlocked(facetName, row) }" class="facet-accordion-content selectable" @click="selectFacet(facetName, row)">
                             <span class="kn-truncated">
                                 {{ formatFacetValue(row.column_1) }}
                             </span>
@@ -347,7 +340,7 @@ export default defineComponent({
                 for (const responseField in responseFields) {
                     const modelColumn = this.propWidget.columns[datasetColumn]
 
-                    if (typeof responseFields[responseField] == 'object' && ((dataset.type == 'SbiSolrDataSet' && modelColumn.alias.toLowerCase() === responseFields[responseField].header) || modelColumn.alias.toLowerCase() === responseFields[responseField].header.toLowerCase())) {
+                    if (typeof responseFields[responseField] == 'object' && modelColumn.columnName.toLowerCase() === responseFields[responseField].header.toLowerCase()) {
                         const tempCol = {
                             hide: this.getColumnVisibilityCondition(this.propWidget.columns[datasetColumn].id, 'hide'),
                             colId: modelColumn.id,
