@@ -5,22 +5,7 @@
                 <q-input class="col-6" filled dense maxLength="50" v-model="v$.dataset.label.$model" :error="v$.dataset.label.$invalid" :error-message="v$.dataset.label.$errors[0]?.$message" :label="$t('common.label') + ' *'" @update:model-value="$emit('edited', v$)" />
                 <q-input class="col-6" filled dense maxLength="50" v-model="v$.dataset.name.$model" :error="v$.dataset.name.$invalid" :error-message="v$.dataset.label.$errors[0]?.$message" :label="$t('common.name') + ' *'" @update:model-value="$emit('edited', v$)" />
                 <q-input class="col-12" type="textarea" rows="2" filled dense maxLength="150" v-model="v$.dataset.description.$model" :label="$t('common.description')" @update:model-value="$emit('edited', v$)" />
-                <q-select
-                    class="col-6"
-                    filled
-                    dense
-                    v-model="v$.dataset.scopeCd.$model"
-                    :options="scopeTypes"
-                    option-label="VALUE_CD"
-                    option-value="VALUE_CD"
-                    emit-value
-                    map-options
-                    :error="v$.dataset.scopeCd.$invalid && v$.dataset.scopeCd.$dirty"
-                    :error-message="v$.dataset.label.$errors[0]?.$message"
-                    :label="$t('managers.datasetManagement.scope') + ' *'"
-                    @before-show="v$.dataset.scopeCd.$touch()"
-                    @update:model-value="$emit('edited', v$)"
-                />
+                <q-select class="col-6" filled dense v-model="v$.dataset.scopeCd.$model" :options="scopeTypes" option-label="VALUE_CD" option-value="VALUE_CD" emit-value map-options :error="v$.dataset.scopeCd.$invalid && v$.dataset.scopeCd.$dirty" :error-message="v$.dataset.label.$errors[0]?.$message" :label="$t('managers.datasetManagement.scope') + ' *'" @before-show="v$.dataset.scopeCd.$touch()" @update:model-value="$emit('edited', v$)" />
                 <q-select
                     class="col-6"
                     filled
@@ -73,10 +58,20 @@ export default defineComponent({
     watch: {
         selectedDataset() {
             this.dataset = this.propDataset
+            if (this.dataset.dsTypeCd === 'Derived') {
+                this.dataset.name = ''
+                this.dataset.label = ''
+                this.dataset.description = ''
+            }
         }
     },
     created() {
         this.dataset = this.propDataset
+        if (this.dataset.dsTypeCd === 'Derived') {
+            this.dataset.name = ''
+            this.dataset.label = ''
+            this.dataset.description = ''
+        }
         this.$emit('edited', this.v$)
     },
     validations() {
