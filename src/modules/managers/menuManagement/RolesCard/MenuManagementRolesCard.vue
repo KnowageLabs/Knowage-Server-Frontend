@@ -70,9 +70,12 @@ export default defineComponent({
             }
         }
     },
-    updated() {
-        if (this.selected) {
-            this.selectedRoles = this.selected
+    watch: {
+        selected: {
+            handler(newVal) {
+                this.selectedRoles = newVal
+            },
+            immediate: true
         }
     }
 })

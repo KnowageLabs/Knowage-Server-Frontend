@@ -1,111 +1,123 @@
 <template>
     <div v-if="filter">
-        <div class="p-grid p-m-2">
-            <div class="p-col-4 p-d-flex p-flex-row p-ai-center">
-                <div class="kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('common.field') }} </label>
-                    <InputText v-model="filter.leftOperandDescription" class="kn-material-input" :disabled="true" />
-                </div>
-            </div>
+        <div class="row q-gutter-sm q-ma-sm">
+            <q-input filled v-model="filter.leftOperandDescription" class="col-3" :label="$t('common.field')" :disable="true" />
 
-            <div class="p-col p-d-flex p-flex-row p-ai-center">
-                <div class="kn-flex">
-                    <label v-tooltip.top="$t('qbe.filters.conditionTooltip')" class="kn-material-input-label"> {{ $t('qbe.filters.condition') }} </label>
-                    <Dropdown v-model="filter.operator" class="kn-material-input" :options="filterOperatorOptions" option-value="value" @change="onFilterOperatorChange">
-                        <template #value="slotProps">
-                            <div v-if="slotProps.value">
-                                <span class="qbe-filter-option-value">{{ getFilterOperatorLabel(slotProps.value) }}</span>
-                            </div>
+            <q-select class="col" v-model="filter.operator" :label="$t('qbe.filters.condition')" :options="filterOperatorOptions" :option-label="(option) => getFilterOperatorLabel(option.value)" option-value="value" map-options emit-value filled @update:model-value="onFilterOperatorChange" />
+
+            <q-input v-if="filter.operator === 'SPATIAL_NN'" filled v-model="filter.operatorParameter" class="col-4" :label="$t('common.parameter')" />
+
+            <q-select
+                v-if="filter.operator !== 'IS NULL' && filter.operator !== 'NOT NULL'"
+                class="col-3"
+                v-model="filter.rightType"
+                :label="$t('qbe.filters.targetType')"
+                :options="['STARTS WITH', 'NOT STARTS WITH', 'ENDS WITH', 'NOT ENDS WITH', 'CONTAINS', 'NOT CONTAINS', 'BETWEEN', 'NOT BETWEEN'].includes(filter.operator) ? [targetValues[0]] : targetValues"
+                option-value="value"
+                option-label="label"
+                map-options
+                emit-value
+                filled
+                @update:model-value="onFilterTypeChange"
+            />
+            <template v-if="!['BETWEEN', 'NOT BETWEEN', 'IS NULL', 'NOT NULL', 'IN', 'NOT IN'].includes(filter.operator)">
+                <q-input v-if="filter.rightType === 'manual' && field.dataType !== 'java.sql.Timestamp' && field.dataType !== 'java.sql.Date'" v-model="filter.rightOperandDescription" filled class="col" :label="$t('qbe.filters.target')" @update:model-value="onManualValueChange" />
+
+                <q-input class="col" v-if="filter.rightType === 'anotherEntity'" readonly v-model="filter.rightOperandDescription" @update:model-value="onEntityTypeChanged" filled :label="$t('qbe.filters.target')">
+                    <template v-slot:append>
+                        <q-btn round flat icon="search">
+                            <q-menu>
+                                <q-list dense style="min-width: 100px">
+                                    <q-item v-for="entity in entities" clickable :key="entity.id">
+                                        <q-item-section>{{ entity.text }}</q-item-section>
+                                        <q-item-section side>
+                                            <q-icon name="keyboard_arrow_right" />
+                                        </q-item-section>
+                                        <q-menu anchor="top end" self="top start">
+                                            <q-list>
+                                                <q-item v-for="child in entity.children" :key="child.id" dense clickable v-close-popup @click="filter.rightOperandDescription = child.attributes.longDescription">
+                                                    <q-item-section>{{ child.text }}</q-item-section>
+                                                </q-item>
+                                            </q-list>
+                                        </q-menu>
+                                    </q-item>
+                                </q-list></q-menu
+                            >
+                        </q-btn>
+                    </template>
+                </q-input>
+            </template>
+            <template v-if="filter.rightType === 'manual' && ['BETWEEN', 'NOT BETWEEN'].includes(filter.operator) && field.dataType !== 'java.sql.Timestamp' && field.dataType !== 'java.sql.Date'">
+                <q-input class="col-1" v-model="firstOperand" filled :label="$t('qbe.filters.lowLimit')" @update:model-value="onManualBetweenChange" />
+                <q-input class="col-1" v-model="secondOperand" filled :label="$t('qbe.filters.highLimit')" @update:model-value="onManualBetweenChange" />
+            </template>
+            <div v-if="filter.rightType === 'manual' && ['IN', 'NOT IN'].includes(filter.operator) && field.dataType !== 'java.sql.Timestamp' && field.dataType !== 'java.sql.Date'" class="col">
+                <label class="kn-material-input-label"> {{ $t('qbe.filters.enterValue') }} </label>
+                <Chips v-model="multiManualValues" class="kn-material-input" :add-on-blur="true" @add="onManualMultivalueChanged" @remove="onManualMultivalueChanged" />
+            </div>
+            <div v-if="filter.rightType === 'valueOfField' && ['IN', 'NOT IN'].includes(filter.operator) && field.dataType !== 'java.sql.Timestamp'" class="col">
+                <Chip v-for="(selectedValue, index) in selectedValues" :key="index" class="p-mr-1">{{ selectedValue }}</Chip>
+            </div>
+            <q-select v-if="filter.rightType === 'subquery' && !['IN', 'NOT IN'].includes(filter.operator)" filled v-model="filter.rightOperandDescription" class="col" :options="subqueries" option-value="name" option-label="name" @update:model-value="onSubqeryTargetChange" />
+
+            <q-select v-if="filter.rightType === 'parameter' && !['IN', 'NOT IN'].includes(filter.operator)" filled v-model="filter.rightOperandDescription" class="col" :options="parameters" option-value="name" option-label="name" @update:model-value="onParameterTargetChange" />
+
+            <template v-if="filter.rightType === 'manual' && (field.dataType === 'java.sql.Timestamp' || field.dataType === 'java.sql.Date') && filter.operator !== 'IS NULL' && filter.operator !== 'NOT NULL'">
+                <q-input filled v-model="targetDate" class="col" @update:model-value="onManualTimestampChange">
+                    <template v-slot:prepend>
+                        <q-icon name="event" class="cursor-pointer">
+                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                <q-date v-model="targetDate" :mask="field.dataType === 'java.sql.Timestamp' ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY'" @update:model-value="onManualTimestampChange">
+                                    <div class="row items-center justify-end">
+                                        <q-btn v-close-popup label="Close" color="primary" flat />
+                                    </div>
+                                </q-date>
+                            </q-popup-proxy>
+                        </q-icon>
+                    </template>
+                    <template v-slot:append v-if="field.dataType === 'java.sql.Timestamp'">
+                        <q-icon name="access_time" class="cursor-pointer">
+                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                <q-time v-model="targetDate" mask="DD/MM/YYYY HH:mm" format24h @update:model-value="onManualTimestampChange">
+                                    <div class="row items-center justify-end">
+                                        <q-btn v-close-popup label="Close" color="primary" flat />
+                                    </div>
+                                </q-time>
+                            </q-popup-proxy>
+                        </q-icon>
+                    </template>
+                </q-input>
+
+                <template v-if="['BETWEEN', 'NOT BETWEEN'].includes(filter.operator)" @update:model-value="onManualTimestampEndDateChange">
+                    <q-input filled v-model="targetEndDate" class="col">
+                        <template v-slot:prepend>
+                            <q-icon name="event" class="cursor-pointer">
+                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                    <q-date v-model="targetEndDate" mask="DD/MM/YYYY HH:mm" @update:model-value="onManualTimestampEndDateChange">
+                                        <div class="row items-center justify-end">
+                                            <q-btn v-close-popup label="Close" color="primary" flat />
+                                        </div>
+                                    </q-date>
+                                </q-popup-proxy>
+                            </q-icon>
                         </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
+
+                        <template v-slot:append v-if="field.dataType === 'java.sql.Timestamp'">
+                            <q-icon name="access_time" class="cursor-pointer">
+                                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                    <q-time v-model="targetEndDate" mask="DD/MM/YYYY HH:mm" format24h>
+                                        <div class="row items-center justify-end">
+                                            <q-btn v-close-popup label="Close" color="primary" flat />
+                                        </div>
+                                    </q-time>
+                                </q-popup-proxy>
+                            </q-icon>
                         </template>
-                    </Dropdown>
-                </div>
-
-                <div v-show="filter.operator === 'SPATIAL_NN'" class="p-ml-2">
-                    <label class="kn-material-input-label"> {{ $t('common.parameter') }} </label>
-                    <InputText v-model="filter.operatorParameter" class="kn-material-input" />
-                </div>
-            </div>
-
-            <div v-if="filter.operator !== 'IS NULL' && filter.operator !== 'NOT NULL'" class="p-col-2 p-d-flex p-flex-row p-ai-center">
-                <div class="kn-flex">
-                    <label class="kn-material-input-label"> {{ $t('qbe.filters.targetType') }} </label>
-                    <Dropdown
-                        v-model="filter.rightType"
-                        class="kn-material-input"
-                        :options="['STARTS WITH', 'NOT STARTS WITH', 'ENDS WITH', 'NOT ENDS WITH', 'CONTAINS', 'NOT CONTAINS', 'BETWEEN', 'NOT BETWEEN'].includes(filter.operator) ? [targetValues[0]] : targetValues"
-                        option-value="value"
-                        option-label="label"
-                        @change="onFilterTypeChange"
-                    />
-                </div>
-            </div>
-
-            <div v-if="filter.operator !== 'IS NULL' && filter.operator !== 'NOT NULL'" class="p-col p-d-flex p-flex-row p-ai-center">
-                <div class="kn-flex">
-                    <label v-show="!(filter.rightType === 'manual' && ['BETWEEN', 'NOT BETWEEN', 'IN', 'NOT IN'].includes(filter.operator))" class="kn-material-input-label"> {{ $t('qbe.filters.target') }} </label>
-                    <div class="p-d-flex p-flex-row p-ai-center">
-                        <div v-if="filter.rightType === 'manual' && ['BETWEEN', 'NOT BETWEEN'].includes(filter.operator) && field.dataType !== 'java.sql.Timestamp' && field.dataType !== 'java.sql.Date'" class="p-d-flex p-flex-row p-ai-center p-mt-3">
-                            <div class="p-float-label">
-                                <InputText v-model="firstOperand" class="kn-material-input" @input="onManualBetweenChange" />
-                                <label class="kn-material-input-label"> {{ $t('qbe.filters.lowLimit') }} </label>
-                            </div>
-                            <span class="p-mx-2">{{ $t('qbe.filters.and') }}</span>
-                            <div class="p-float-label">
-                                <InputText v-model="secondOperand" class="kn-material-input" @input="onManualBetweenChange" />
-                                <label class="kn-material-input-label"> {{ $t('qbe.filters.highLimit') }} </label>
-                            </div>
-                        </div>
-                        <div v-else-if="filter.rightType === 'manual' && ['IN', 'NOT IN'].includes(filter.operator) && field.dataType !== 'java.sql.Timestamp' && field.dataType !== 'java.sql.Date'" class="kn-width-full">
-                            <label class="kn-material-input-label"> {{ $t('qbe.filters.enterValue') }} </label>
-                            <Chips v-model="multiManualValues" class="kn-material-input" :add-on-blur="true" @add="onManualMultivalueChanged" @remove="onManualMultivalueChanged" />
-                        </div>
-
-                        <InputText v-else-if="filter.rightType === 'manual' && field.dataType !== 'java.sql.Timestamp' && field.dataType !== 'java.sql.Date'" v-model="filter.rightOperandDescription" class="kn-material-input" @input="onManualValueChange" />
-
-                        <div v-else-if="filter.rightType === 'manual' && (field.dataType === 'java.sql.Timestamp' || field.dataType === 'java.sql.Date')">
-                            <div class="kn-flex p-d-flex p-flex-row p-m-1">
-                                <Calendar v-model="targetDate" class="kn-flex p-mr-2" @input="onManualTimestampChange" @dateSelect="onManualTimestampChange"></Calendar>
-                                <Calendar v-if="field.dataType === 'java.sql.Timestamp'" v-model="targetDate" class="qbe-filter-time-input" :manual-input="true" :time-only="true" hour-format="24" @input="onManualTimestampChange" @dateSelect="onManualTimestampChange" />
-                            </div>
-
-                            <div v-if="['BETWEEN', 'NOT BETWEEN'].includes(filter.operator)" class="kn-flex p-d-flex p-flex-row p-m-1">
-                                <Calendar v-model="targetEndDate" class="kn-flex p-mr-2" @input="onManualTimestampChange" @dateSelect="onManualTimestampEndDateChange"></Calendar>
-                                <Calendar v-if="field.dataType === 'java.sql.Timestamp'" v-model="targetEndDate" class="qbe-filter-time-input" :manual-input="true" :time-only="true" hour-format="24" @input="onManualTimestampEndDateChange" @dateSelect="onManualTimestampChange" />
-                            </div>
-                        </div>
-
-                        <div v-else-if="filter.rightType === 'valueOfField'" class="qbe-filter-chip-container p-d-flex p-flex-row p-ai-center p-flex-wrap kn-flex">
-                            <Chip v-for="(selectedValue, index) in selectedValues" :key="index" class="p-mr-1">{{ selectedValue }}</Chip>
-                        </div>
-
-                        <CascadeSelect
-                            v-if="filter.rightType === 'anotherEntity'"
-                            v-model="filter.rightOperandDescription"
-                            class="kn-flex"
-                            :options="entities"
-                            option-label="attributes.longDescription"
-                            option-value="attributes.longDescription"
-                            option-group-label="text"
-                            :option-group-children="['children']"
-                            @change="onEntityTypeChanged"
-                        ></CascadeSelect>
-
-                        <Dropdown v-if="filter.rightType === 'subquery'" v-model="filter.rightOperandDescription" class="kn-material-input kn-flex" :options="subqueries" option-value="name" option-label="name" @change="onSubqeryTargetChange" />
-
-                        <Dropdown v-if="filter.rightType === 'parameter'" v-model="filter.rightOperandDescription" class="kn-material-input kn-flex" :options="parameters" option-value="name" option-label="name" @change="onParameterTargetChange" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <i v-if="filter.rightType === 'valueOfField'" class="fa fa-check kn-cursor-pointer p-ml-2" @click="loadFilterValues"></i>
-                <i class="fa fa-eraser kn-cursor-pointer p-ml-2" @click="$emit('removeFilter', filter)"></i>
-            </div>
+                    </q-input>
+                </template>
+            </template>
+            <q-btn flat size="sm" icon="search" v-if="filter.rightType === 'valueOfField'" @click="loadFilterValues" />
+            <q-btn flat size="sm" icon="backspace" @click="$emit('removeFilter', filter)" />
         </div>
         <QBEFilterValuesTable v-show="filter.rightType === 'valueOfField'" class="p-m-2" :filter-values-data="filterValuesData" :loaded-selected-values="selectedValues" :loading="loading" :filter-operator="filter.operator" @selected="setSelectedValues"></QBEFilterValuesTable>
     </div>
@@ -158,7 +170,8 @@ export default defineComponent({
             targetEndDate: null as Date | null,
             parameters: [] as any[],
             loading: false,
-            filterOperatorOptions: [] as { label: string; value: string }[]
+            filterOperatorOptions: [] as { label: string; value: string }[],
+            chips: [] as string[]
         }
     },
     watch: {
@@ -239,10 +252,10 @@ export default defineComponent({
                     this.filter.rightOperandType = 'Static Content'
 
                     if (['java.sql.Timestamp'].includes(this.field.dataType)) {
-                        this.targetDate = this.filter.rightOperandValue[0] ? moment(this.filter.rightOperandValue[0], 'DD/MM/YYYY hh:mm').toDate() : new Date()
+                        this.targetDate = this.filter.rightOperandValue[0] ? moment(this.filter.rightOperandValue[0], 'DD/MM/YYYY HH:mm').toDate() : new Date()
                         this.onManualTimestampChange()
                         if (['BETWEEN', 'NOT BETWEEN'].includes(this.filter.operator)) {
-                            this.targetEndDate = this.filter.rightOperandValue[1] ? moment(this.filter.rightOperandValue[1], 'DD/MM/YYYY hh:mm').toDate() : new Date()
+                            this.targetEndDate = this.filter.rightOperandValue[1] ? moment(this.filter.rightOperandValue[1], 'DD/MM/YYYY HH:mm').toDate() : new Date()
                         }
                     } else if (['java.sql.Date'].includes(this.field.dataType)) {
                         this.targetDate = this.filter.rightOperandValue[0] ? moment(this.filter.rightOperandValue[0], 'DD/MM/YYYY').toDate() : new Date()
@@ -399,16 +412,16 @@ export default defineComponent({
             }
         },
         onManualTimestampChange() {
-            const format = this.field.dataType === 'java.sql.Date' ? 'DD/MM/YYYY' : 'DD/MM/YYYY hh:mm'
+            const format = this.field.dataType === 'java.sql.Date' ? 'DD/MM/YYYY' : 'DD/MM/YYYY HH:mm'
             if (this.filter) {
-                this.filter.rightOperandDescription = this.targetDate instanceof Date ? moment(this.targetDate).format(format) : ''
-                this.filter.rightOperandValue[0] = this.targetDate instanceof Date ? moment(this.targetDate).format(format) : ''
+                this.filter.rightOperandDescription = moment(this.targetDate, format).format(format)
+                this.filter.rightOperandValue[0] = moment(this.targetDate, format).format(format)
             }
         },
         onManualTimestampEndDateChange() {
-            const format = this.field.dataType === 'java.sql.Date' ? 'DD/MM/YYYY' : 'DD/MM/YYYY hh:mm'
+            const format = this.field.dataType === 'java.sql.Date' ? 'DD/MM/YYYY' : 'DD/MM/YYYY HH:mm'
             if (this.filter) {
-                this.filter.rightOperandValue[1] = this.targetDate instanceof Date ? moment(this.targetEndDate).format(format) : ''
+                this.filter.rightOperandValue[1] = moment(this.targetEndDate, format).format(format)
             }
         },
         onParameterTargetChange() {

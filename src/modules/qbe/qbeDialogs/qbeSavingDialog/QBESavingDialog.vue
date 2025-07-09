@@ -1,51 +1,48 @@
 <template>
-    <Dialog id="qbe-saving-dialog" class="p-fluid kn-dialog--toolbar--primary" :style="descriptor.dialog.style" :visible="visible" :modal="true" :closable="false">
-        <template #header>
+    <q-dialog persistent v-model="visible">
+        <q-card style="width: 50%">
             <q-toolbar class="kn-toolbar kn-toolbar--primary">
-                <q-toolbar-title> {{ $t('qbe.savingDialog.title') }}</q-toolbar-title>
+                <q-toolbar-title>{{ $t('qbe.savingDialog.title') }}</q-toolbar-title>
             </q-toolbar>
-        </template>
-        <q-tabs dense align="left" v-model="activeTab">
-            <q-tab name="detail" :label="$t('managers.mondrianSchemasManagement.detail.title')"> </q-tab>
-            <q-tab name="metadata" :label="$t('kpi.measureDefinition.metadata')"> </q-tab>
-            <q-tab name="persistence" :label="$t('qbe.savingDialog.persistence')"> </q-tab>
-        </q-tabs>
-        <q-tab-panels v-model="activeTab" animated>
-            <q-tab-panel name="detail">
-                <DetailTab :prop-dataset="propDataset" :scope-types="scopeTypes" :category-types="categoryTypes" @edited="changeValidation" />
-            </q-tab-panel>
-            <q-tab-panel name="metadata">
-                <MetadataCard :prop-metadata="propMetadata" @touched="$emit('touched')" />
-            </q-tab-panel>
-            <q-tab-panel name="persistence">
-                <PersistenceTab :prop-dataset="propDataset" :scheduling-data="scheduling" />
-            </q-tab-panel>
-        </q-tab-panels>
+            <q-tabs dense align="left" v-model="activeTab">
+                <q-tab name="detail" :label="$t('managers.mondrianSchemasManagement.detail.title')"> </q-tab>
+                <q-tab name="metadata" :label="$t('kpi.measureDefinition.metadata')"> </q-tab>
+                <q-tab name="persistence" :label="$t('qbe.savingDialog.persistence')"> </q-tab>
+            </q-tabs>
 
-        <template #footer>
-            <Button class="kn-button kn-button--secondary" data-test="close-button" @click="$emit('close')"> {{ $t('common.cancel') }}</Button>
-            <Button class="kn-button kn-button--primary" :disabled="buttonDisabled" data-test="save-button" @click="saveDataset"> {{ $t('common.save') }}</Button>
-        </template>
-    </Dialog>
+            <q-tab-panels v-model="activeTab" animated>
+                <q-tab-panel name="detail">
+                    <DetailTab :prop-dataset="propDataset" :scope-types="scopeTypes" :category-types="categoryTypes" @edited="changeValidation" />
+                </q-tab-panel>
+                <q-tab-panel name="metadata">
+                    <MetadataCard :prop-metadata="propMetadata" @touched="$emit('touched')" />
+                </q-tab-panel>
+                <q-tab-panel name="persistence">
+                    <PersistenceTab :prop-dataset="propDataset" :scheduling-data="scheduling" />
+                </q-tab-panel>
+            </q-tab-panels>
+
+            <q-card-actions align="right">
+                <q-btn color="primary" data-test="close-button" @click="$emit('close')">{{ $t('common.cancel') }}</q-btn>
+                <q-btn color="secondary" data-test="save-button" @click="saveDataset"> {{ $t('common.save') }}</q-btn>
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { AxiosResponse } from 'axios'
 import { defineComponent } from 'vue'
-import Dialog from 'primevue/dialog'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
 import DetailTab from './QBESavingDialogDetailTab.vue'
 import PersistenceTab from './QBESavingDialogPersistence.vue'
 import MetadataCard from './QbeSavingDialogMetadata.vue'
-import useValidate from '@vuelidate/core'
 import descriptor from './QBESavingDialogDescriptor.json'
 import mainStore from '../../../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
 
 export default defineComponent({
     name: 'olap-custom-view-save-dialog',
-    components: { TabView, TabPanel, Dialog, DetailTab, PersistenceTab, MetadataCard },
+    components: { DetailTab, PersistenceTab, MetadataCard },
     props: { propDataset: { type: Object, required: true }, propMetadata: { type: Array, required: true }, visible: Boolean },
     setup() {
         const store = mainStore()
@@ -125,7 +122,7 @@ export default defineComponent({
                     name: meta.column,
                     displayedName: meta.fieldAlias,
                     type: meta.Type,
-                    description: meta.description,
+                    description: meta.description || '',
                     fieldType: meta.fieldType,
                     decrypt: meta.decrypt,
                     personal: meta.personal,

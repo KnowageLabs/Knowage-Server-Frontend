@@ -101,7 +101,6 @@ export default defineComponent({
             newsDisplay: false,
             licenseDisplay: false,
             selectedCustomMenu: {},
-            hoverTimer: false as any,
             menuTargetElem: '' as any,
             accountDisplay: false,
             publicPath: import.meta.env.VITE_PUBLIC_PATH,
@@ -119,7 +118,8 @@ export default defineComponent({
             stateHomePage: 'homePage',
             isEnterprise: 'isEnterprise',
             isEnterpriseValid: 'isEnterpriseValid',
-            licenses: 'licenses'
+            licenses: 'licenses',
+            menuOpened: 'menuOpened'
         }),
         isPortrait(): boolean | undefined {
             return this.windowWidth <= 1025
@@ -141,6 +141,11 @@ export default defineComponent({
         isPortrait() {
             if (this.isPortrait) this.anchorPosition = 'bottom left'
             else this.anchorPosition = 'top right'
+        },
+        menuOpened(newProp) {
+            if (newProp === false) {
+                this.$refs.menu.hide()
+            }
         }
     },
     async mounted() {
@@ -155,7 +160,7 @@ export default defineComponent({
         window.removeEventListener('resize', this.updateWindowWidth)
     },
     methods: {
-        ...mapActions(mainStore, ['setHomePage', 'setLoading', 'getConfigurations']),
+        ...mapActions(mainStore, ['setHomePage', 'setLoading', 'getConfigurations', 'toggleMenuOpened']),
         accountManagement() {
             this.accountDisplay = !this.accountDisplay
         },
@@ -190,16 +195,6 @@ export default defineComponent({
         },
         languageSelection() {
             this.languageDisplay = !this.languageDisplay
-        },
-        checkTimer() {
-            clearTimeout(this.hoverTimer)
-            this.hoverTimer = setTimeout(() => {
-                // @ts-ignore
-                this.$refs.menu.hide()
-            }, import.meta.env.VITE_MENU_FADE_TIMER)
-        },
-        deleteTimer() {
-            clearTimeout(this.hoverTimer)
         },
         newsSelection() {
             this.newsDisplay = !this.newsDisplay
@@ -278,11 +273,11 @@ export default defineComponent({
 
             if (item.items) {
                 this.$emit('openMenu')
-                clearTimeout(this.hoverTimer)
-                this.menuTargetElem = document.querySelector(`li[role="menu"][title="${item.label}"]`)
+                this.menuTargetElem = document.querySelector(`li[role="menu"][title="${item.descr || item.label}"]`)
                 this.selectedCustomMenu = item.items
                 // @ts-ignore
                 this.$refs.menu.show()
+                this.toggleMenuOpened(true)
             }
         },
         hideItemMenu() {

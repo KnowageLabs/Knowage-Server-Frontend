@@ -1,5 +1,5 @@
 <template>
-    <Dialog class="full-screen-dialog" :visible="true" :modal="false" :closable="false" position="right" :base-z-index="1" :auto-z-index="true">
+    <Dialog class="full-screen-dialog" :visible="true" :modal="false" :closable="false" position="right" :base-z-index="1" :auto-z-index="true" @click="closeMainMenu">
         <template #header>
             <Toolbar class="kn-toolbar kn-toolbar--primary p-col-12">
                 <template #start>
@@ -75,18 +75,7 @@
                 </Toolbar>
                 <div class="kn-relative kn-flex p-mt-2">
                     <div class="kn-height-full kn-width-full kn-absolute">
-                        <QBESimpleTable
-                            v-if="!smartView || showWarning"
-                            :query="selectedQuery"
-                            @columnVisibilityChanged="checkIfHiddenColumnsExist"
-                            @openFilterDialog="openFilterDialog"
-                            @openHavingDialog="openHavingDialog"
-                            @entityDropped="onDropComplete($event, false)"
-                            @groupingChanged="onGroupingChanged"
-                            @openCalculatedFieldDialog="editCalcField"
-                            @fieldDeleted="onFieldDeleted"
-                            @fieldAliasChanged="onFieldAliasChange"
-                        />
+                        <QBESimpleTable v-if="!smartView || showWarning" :query="selectedQuery" @columnVisibilityChanged="checkIfHiddenColumnsExist" @openFilterDialog="openFilterDialog" @openHavingDialog="openHavingDialog" @entityDropped="onDropComplete($event, false)" @groupingChanged="onGroupingChanged" @openCalculatedFieldDialog="editCalcField" @fieldDeleted="onFieldDeleted" @fieldAliasChanged="onFieldAliasChange" />
                         <QBESmartTable
                             v-else
                             :query="selectedQuery"
@@ -119,19 +108,7 @@
         <QBESavingDialog :visible="savingDialogVisible" :prop-dataset="qbe" :prop-metadata="qbeMetadata" @close="savingDialogVisible = false" @datasetSaved="$emit('datasetSaved')" />
         <QBEJoinDefinitionDialog v-if="joinDefinitionDialogVisible" :id="uniqueID" :visible="joinDefinitionDialogVisible" :qbe="qbe" :prop-entities="entities?.entities" :selected-query="selectedQuery" @close="onJoinDefinitionDialogClose"></QBEJoinDefinitionDialog>
 
-        <KnCalculatedField
-            v-if="calcFieldDialogVisible"
-            v-model:template="selectedCalcField"
-            v-model:visibility="calcFieldDialogVisible"
-            :fields="calcFieldColumns"
-            :descriptor="calcFieldDescriptor"
-            :prop-calc-field-functions="calcFieldFunctionsToShow"
-            :read-only="false"
-            :valid="true"
-            source="QBE"
-            @save="onCalcFieldSave"
-            @cancel="calcFieldDialogVisible = false"
-        >
+        <KnCalculatedField v-if="calcFieldDialogVisible" v-model:template="selectedCalcField" v-model:visibility="calcFieldDialogVisible" :fields="calcFieldColumns" :descriptor="calcFieldDescriptor" :prop-calc-field-functions="calcFieldFunctionsToShow" :read-only="false" :valid="true" source="QBE" @save="onCalcFieldSave" @cancel="calcFieldDialogVisible = false">
             <template #additionalInputs>
                 <div class="p-field" :class="[selectedCalcField.type === 'DATE' ? 'p-col-3' : 'p-col-4']">
                     <span class="p-float-label">
@@ -407,6 +384,11 @@ export default defineComponent({
                 }
             }
         },
+        closeMainMenu() {
+            if (this.store.menuOpened) {
+                this.store.toggleMenuOpened()
+            }
+        },
         getQBEFromModel() {
             if (!this.dataset) return {}
             this.smartView = this.dataset.smartView
@@ -509,9 +491,7 @@ export default defineComponent({
                 const datamart = this.dataset?.dataSourceLabel ? this.dataset.name : this.qbe?.qbeDatamarts
                 const temp = this.getFormattedParameters(this.filtersData)
                 const drivers = encodeURI(JSON.stringify(temp))
-                const url = this.dataset?.federation_id
-                    ? `/restful-services/start-federation?federationId=${this.dataset.federation_id}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}&drivers=%7B%7D`
-                    : `/restful-services/start-qbe?datamart=${datamart}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}&DATA_SOURCE_LABEL=${label}&drivers=${drivers}`
+                const url = this.dataset?.federation_id ? `/restful-services/start-federation?federationId=${this.dataset.federation_id}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}&drivers=%7B%7D` : `/restful-services/start-qbe?datamart=${datamart}&user_id=${this.user?.userUniqueIdentifier}&SBI_EXECUTION_ID=${this.uniqueID}&DATA_SOURCE_LABEL=${label}&drivers=${drivers}`
                 await this.$http
                     .get(import.meta.env.VITE_KNOWAGEQBE_CONTEXT + url)
                     .then(() => {

@@ -1,42 +1,38 @@
 <template>
-    <Dialog :visible="dialogVisible" :modal="true" class="kn-dialog--toolbar--primary" :closable="false" :style="userAttributesLovValueDialogDescriptor.style">
-        <template #header>
-            <Toolbar class="kn-toolbar kn-toolbar--primary p-col">
-                <template #start>
-                    {{ attribute.attributeName }}
-                </template>
-                <template #end>
-                    <Button icon="pi pi-save" class="p-button-text p-button-rounded p-button-plain" :disabled="buttonDisabled" data-test="submit-button" @click="handleSubmit" />
-                    <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" data-test="close-button" @click="closeDialog" />
-                </template>
-            </Toolbar>
-        </template>
-        <DataTable v-model:selection="selectedLovValues" v-model:filters="filters" :value="lovValues" data-key="id" responsive-layout="scroll" filter-display="row" :global-filter-fields="userAttributesLovValueDialogDescriptor.globalFilterFields">
-            <template #header>
-                <div class="p-col-8 p-input-icon-left">
-                    <i class="pi pi-search" />
-                    <InputText v-model="filters['global'].value" class="kn-material-input p-col-12" type="text" :placeholder="$t('common.search')" badge="0" data-test="search-input" />
-                </div>
-            </template>
-            <Column :selection-mode="selectionMode" data-key="id" :exportable="false"></Column>
-            <Column field="value" header="Value" :sortable="true"> </Column>
-        </DataTable>
-    </Dialog>
+    <q-dialog v-model="dialogVisible">
+        <q-card>
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ attribute.attributeName }}</q-toolbar-title>
+                <q-btn flat round dense icon="save" data-test="submit-button" @click="handleSubmit">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeDialog">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+                </q-btn>
+            </q-toolbar>
+            <q-card-section class="row">
+                <q-input dense outlined square class="col-12" v-model="filter" :placeholder="$t('common.search')">
+                    <template v-slot:append>
+                        <q-icon name="search" />
+                    </template>
+                </q-input>
+                <q-table dense class="col-12" flat :rows="lovValues" :pagination="{ rowsPerPage: 20 }" :columns="cols" :filter="filter" row-key="id" v-model:selected="selectedLovValues" :selection="selectionMode"></q-table>
+            </q-card-section>
+        </q-card>
+    </q-dialog>
 </template>
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import Dialog from 'primevue/dialog'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
 import { FilterOperator } from 'primevue/api'
 import { filterDefault } from '@/helpers/commons/filterHelper'
 import { iAttribute } from '../UsersManagement'
 import userAttributesLovValueDialogDescriptor from './UserAttributesLovValueDialogDescriptor.json'
 import { AxiosResponse } from 'axios'
+import mainStore from '@/App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'lovs-value-dialog',
-    components: { Dialog, DataTable, Column },
     props: {
         attribute: {
             type: Object as PropType<iAttribute>,
@@ -48,42 +44,49 @@ export default defineComponent({
     emits: ['closeDialog', 'saveLovValues'],
     data() {
         return {
-            selectedLovValues: [] as Array<any> | Object,
-            lovValues: [
-                { id: 1, value: 'Bla bla' },
-                { id: 2, value: 'ohoooo' }
-            ],
+            selectedLovValues: [] as Array<any> | Object | undefined,
+            lovValues: [],
             userAttributesLovValueDialogDescriptor: userAttributesLovValueDialogDescriptor,
             selectionMode: 'multiple',
+            filter: '' as string,
             filters: {
                 global: [filterDefault],
                 value: {
                     operator: FilterOperator.AND,
                     constraints: [filterDefault]
                 }
-            } as Object
+            } as Object,
+            cols: [{ name: 'value', field: 'value', label: this.$t('common.value'), sortable: true, align: 'left' }] as any[]
         }
     },
     watch: {
-        attribute() {
-            if (!this.attribute) return
-            this.loadAttributeValue()
-            this.selectionMode = this.attribute.multivalue ? 'multiple' : 'single'
-            this.selectedLovValues = this.attribute.multivalue ? [] : {}
+        attribute(newVal) {
+            if (newVal) {
+                this.selectedLovValues = this.attribute.multivalue ? [] : {}
+                this.loadAttributeValue()
+            }
         }
     },
-    created() {
-        this.loadAttributeValue()
+    async mounted() {
+        await this.loadAttributeValue()
     },
     methods: {
+        ...mapActions(mainStore, ['setLoading']),
         async loadAttributeValue() {
             if (this.attribute?.lovId) {
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/lovs/${this.attribute.lovId}/preview`).then((response: AxiosResponse<any>) => {
-                    this.lovValues = response.data.map((lovValue, index) => {
-                        return { value: lovValue, id: index }
+                this.lovValues = []
+                this.selectionMode = this.attribute.multivalue ? 'multiple' : 'single'
+                this.selectedLovValues = []
+                this.setLoading(true)
+                await this.$http
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/lovs/${this.attribute.lovId}/preview`)
+                    .then((response: AxiosResponse<any>) => {
+                        this.lovValues = response.data.map((lovValue, index) => {
+                            return { value: lovValue.value || lovValue, id: index }
+                        })
+                        this.loadSelectedValues()
                     })
-                    this.loadSelectedValues()
-                })
+                    .finally(() => this.setLoading(false))
             }
         },
         loadSelectedValues() {
@@ -100,24 +103,16 @@ export default defineComponent({
                     this.selectedLovValues = values
                 }
             } else {
-                this.selectedLovValues = {}
-                const ind = this.lovValues.findIndex((lovValue) => lovValue.value == this.selection)
-                if (ind >= 0) {
-                    this.selectedLovValues = this.lovValues[ind]
-                }
+                this.selectedLovValues = []
+                if (this.selection[0]) this.selectedLovValues = [this.lovValues.find((lovValue) => lovValue.value == this.selection[0]?.value)]
             }
         },
         closeDialog() {
             this.$emit('closeDialog')
         },
         handleSubmit() {
-            this.$emit('saveLovValues', this.selectedLovValues)
+            this.$emit('saveLovValues', this.selectedLovValues, this.selectionMode)
         }
     }
 })
 </script>
-<style lang="scss" scoped>
-.kn-toolbar button {
-    color: white;
-}
-</style>
