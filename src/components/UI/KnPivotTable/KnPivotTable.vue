@@ -34,6 +34,7 @@
         </div>
 
         <Paginator
+            v-if="paginatorEnabled"
             v-model:first="first"
             :rows="numberOfRows"
             :total-records="lazyParams.size"
@@ -89,7 +90,8 @@ export default defineComponent({
             warningVisible: false,
             stopWarnings: [] as any[],
             lazyParams: {} as any,
-            first: 0
+            first: 0,
+            paginatorEnabled: false
         }
     },
     computed: {
