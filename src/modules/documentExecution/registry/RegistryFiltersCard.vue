@@ -10,7 +10,7 @@
         <template #content>
             <div class="filter-container">
                 <form class="p-fluid p-formgrid p-grid fields-container" @submit="filterRegistry">
-                    <template v-for="(filter, index) in filters" :key="index">
+                    <template v-for="(filter, index) in filters.filter((fil) => fil.presentation !== 'DRIVER')" :key="index">
                         <RegistryFilterCard :id="id" class="kn-flex" :prop-filter="filter" :entity="entity" :clear-trigger="clearFiltersTrigger" @changed="setFilterValue($event, index)" @valid="setFilterButtonDisabled"> </RegistryFilterCard>
                     </template>
                 </form>
