@@ -85,7 +85,7 @@ const formatDiscoveryModelForGet = (dashboardId, dashboardConfig: IDashboardConf
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, column as IWidgetFunctionColumn)
                 continue
             }
-            const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: 'NONE', orderColumn: column.alias, functColumn: column.alias, orderType: '' } as any
+            const measureToPush = { id: column.alias, alias: column.alias, columnName: column.columnName, funct: 'NONE', orderColumn: column.columnName, functColumn: column.columnName, orderType: '' } as any
             column.id === propWidget.settings.sortingColumn ? (measureToPush.orderType = propWidget.settings.sortingOrder) : ''
             if (column.formula) measureToPush.formula = addVariablesToFormula(column, dashboardConfig)
 
