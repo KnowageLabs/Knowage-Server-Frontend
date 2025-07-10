@@ -35,15 +35,11 @@ export default defineComponent({
     data() {
         return {
             fileName: '',
-            checkboxes: ['EXPORT_SUB_OBJ', 'EXPORT_SNAPSHOT', 'EXPORT_BIRT', 'EXPORT_SCHEDULER', 'EXPORT_SELECTED_FUNCTIONALITY', 'EXPORT_RELATED_DOCS'],
+            checkboxes: ['EXPORT_SELECTED_FUNCTIONALITY', 'EXPORT_RELATED_DOCS'],
             exportPayload: {
                 EXPORT_FILE_NAME: '',
                 DOCUMENT_ID_LIST: [],
-                EXPORT_SUB_OBJ: false,
-                EXPORT_SNAPSHOT: false,
                 EXPORT_CROSSNAV: true,
-                EXPORT_BIRT: false,
-                EXPORT_SCHEDULER: false,
                 EXPORT_SELECTED_FUNCTIONALITY: false,
                 EXPORT_RELATED_DOCS: false
             }
