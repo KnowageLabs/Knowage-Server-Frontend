@@ -2,7 +2,7 @@
     <q-toolbar class="kn-toolbar kn-toolbar--secondary">
         <q-toolbar-title>{{ tenant.TENANT_NAME }}</q-toolbar-title>
 
-        <q-btn flat round dense icon="save" :disable="buttonDisabled" data-test="submit-button" @click="handleSubmit">
+        <q-btn flat round dense icon="save" data-test="submit-button" @click="handleSubmit">
             <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.save') }}</q-tooltip>
         </q-btn>
         <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeTemplateConfirm">
@@ -18,14 +18,6 @@
                 </template>
 
                 <TenantDetail :selected-tenant="tenant" :list-of-themes="listOfThemes" @fieldChanged="onFieldChange" />
-            </TabPanel>
-
-            <TabPanel>
-                <template #header>
-                    <span>{{ $t('managers.tenantManagement.productTypes.title') }}</span>
-                </template>
-
-                <ProductTypes :title="$t('managers.tenantManagement.productTypes.title')" :data-list="listOfProductTypes" :selected-data="listOfSelectedProducts" @changed="setSelectedProducts($event)" />
             </TabPanel>
 
             <TabPanel>
@@ -46,15 +38,13 @@ import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 import tabViewDescriptor from './TenantManagementTabViewDescriptor.json'
 import TenantDetail from './DetailTab/TenantDetail.vue'
-import ProductTypes from './SelectionTableTab/SelectionTable.vue'
 import mainStore from '../../../../App.store'
 
 export default defineComponent({
     components: {
         TabView,
         TabPanel,
-        TenantDetail,
-        ProductTypes
+        TenantDetail
     },
     props: {
         selectedTenant: {
@@ -77,18 +67,8 @@ export default defineComponent({
             tenant: {} as iTenant,
             listOfThemes: [] as any,
             availableLicenses: [] as any,
-            listOfProductTypes: [] as any,
-            listOfSelectedProducts: [] as any,
             listOfDataSources: [] as any,
             listOfSelectedDataSources: [] as any
-        }
-    },
-    computed: {
-        buttonDisabled(): any {
-            if ((this.listOfSelectedProducts && this.listOfSelectedProducts.length === 0) || (this.listOfSelectedDataSources && this.listOfSelectedDataSources.length === 0) || !this.validateTenantName()) {
-                return true
-            }
-            return false
         }
     },
     watch: {
@@ -121,30 +101,14 @@ export default defineComponent({
             await this.loadData('/datasources').then((response: AxiosResponse<any>) => {
                 this.listOfDataSources = response.data.root
             })
-            await this.loadData('/producttypes').then((response: AxiosResponse<any>) => {
-                this.listOfProductTypes = response.data.root
-                this.filterArrayByTargetArr(this.listOfProductTypes, this.availableLicenses)
-            })
             this.loading = false
-        },
-
-        filterArrayByTargetArr(sourceArr, targetArr) {
-            const newArr = sourceArr.filter((elem) => targetArr.find((target) => elem.LABEL == target.product))
-            this.listOfProductTypes = newArr
         },
 
         async getTenantData() {
             this.loading = true
-            this.listOfSelectedProducts = null
             this.listOfSelectedDataSources = null
             this.touched = false
 
-            await this.loadData(`/producttypes?TENANT=${this.tenant.TENANT_NAME}`).then((response: AxiosResponse<any>) => {
-                const productTypes = response.data.root
-
-                this.listOfSelectedProducts = []
-                this.copySelectedElement(productTypes, this.listOfSelectedProducts)
-            })
             await this.loadData(`/datasources?TENANT=${this.tenant.TENANT_NAME}`).then((response: AxiosResponse<any>) => {
                 const dataSources = response.data.root
 
@@ -200,10 +164,6 @@ export default defineComponent({
             tenantToSave.DS_LIST = this.listOfSelectedDataSources.map((dataSource) => {
                 delete dataSource.CHECKED
                 return dataSource
-            })
-            tenantToSave.PRODUCT_TYPE_LIST = this.listOfSelectedProducts.map((productType) => {
-                delete productType.CHECKED
-                return productType
             })
             return tenantToSave
         },

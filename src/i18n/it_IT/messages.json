@@ -3053,6 +3053,8 @@
             },
             "hint": "Tenants management allows you to define different tenants and set name and settings for each one. Click on one existing item from the list on the side, or press the \"+\" button to add one.",
             "hintTitle": "Tenant Management",
+            "multifactor": "Autenticazione multifattore",
+            "multifactorHint": "Abilita l'autenticazione multifattore per il tenant. Se abilitata all'utente finale verrà richiesto un codice ottenuto tramite un'apposita applicazione durante il processo di login.",
             "newTenantSaved": "Tenant correctly saved. The administrator of the tenant has been created too and his username and password are ",
             "productTypes": {
                 "title": "Product Types"
@@ -3105,6 +3107,7 @@
                 "deleteMessage": "User deleted",
                 "deleteTitle": "Delete user"
             },
+            "multifactor": "Questo utente ha l'autenticazione multifattore abilitata. Premi il pulsante per resettarla.",
             "roles": "Roles",
             "title": "Users Management",
             "unlockUser": "Unlock user",

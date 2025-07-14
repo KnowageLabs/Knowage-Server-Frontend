@@ -4,6 +4,7 @@ export interface iTenant {
     TENANT_THEME?: string
     TENANT_IMAGE?: any
     TENANT_IMAGE_WIDE?: any
+    TENANT_MFA?: boolean
 }
 
 export interface iTenantToSave {
@@ -13,5 +14,4 @@ export interface iTenantToSave {
     TENANT_IMAGE?: any
     TENANT_IMAGE_WIDE?: any
     DS_LIST: Array
-    PRODUCT_TYPE_LIST: Array
 }

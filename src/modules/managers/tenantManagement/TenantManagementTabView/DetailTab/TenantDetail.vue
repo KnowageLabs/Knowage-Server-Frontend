@@ -1,18 +1,8 @@
 <template>
-    <Card :style="tabViewDescriptor.card.style">
-        <template #content>
-            <q-input
-                filled
-                class="q-mb-md"
-                v-model="tenant.TENANT_NAME"
-                :label="$t('managers.tenantManagement.detail.name')"
-                :disable="disableField"
-                reactive-rules
-                ref="tenantName"
-                :rules="[(val) => val.match(/^[a-zA-Z0-9_]+$/) || $t('common.validation.regex'), (val) => !!val || $t('common.validation.required', { fieldName: $t('managers.tenantManagement.detail.name') })]"
-                @update:model-value="(value) => onFieldChange('TENANT_NAME', value)"
-            />
-            <div class="p-col-12 kn-height-full">
+    <q-card>
+        <q-card-section class="row q-col-gutter-sm">
+            <q-input filled class="col-12" v-model="tenant.TENANT_NAME" :label="$t('managers.tenantManagement.detail.name')" :disable="disableField" reactive-rules ref="tenantName" :rules="[(val) => val.match(/^[a-zA-Z0-9_]+$/) || $t('common.validation.regex'), (val) => !!val || $t('common.validation.required', { fieldName: $t('managers.tenantManagement.detail.name') })]" @update:model-value="(value) => onFieldChange('TENANT_NAME', value)" />
+            <div class="col-12">
                 <label class="kn-material-input-label">{{ $t('managers.tenantManagement.detail.logo') }}</label>
                 <div>
                     <small>{{ $t('managers.tenantManagement.detail.logoHint') }}</small>
@@ -33,7 +23,7 @@
                     <img v-if="tenant.TENANT_IMAGE" :src="tenant.TENANT_IMAGE" class="kn-no-select" />
                 </div>
             </div>
-            <div class="p-col-12 kn-height-full">
+            <div class="col-12">
                 <label class="kn-material-input-label">{{ $t('managers.tenantManagement.detail.logoWide') }}</label>
                 <div>
                     <small>{{ $t('managers.tenantManagement.detail.logoWideHint') }}</small>
@@ -53,13 +43,15 @@
                     <img v-if="tenant.TENANT_IMAGE_WIDE" :src="tenant.TENANT_IMAGE_WIDE" class="kn-no-select" />
                 </div>
             </div>
-        </template>
-    </Card>
+            <q-toggle v-model="tenant.TENANT_MFA" color="primary" icon="lock" :label="$t('managers.tenantManagement.multifactor')">
+                <q-tooltip :delay="500">{{ $t('managers.tenantManagement.multifactorHint') }}</q-tooltip>
+            </q-toggle>
+        </q-card-section>
+    </q-card>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Card from 'primevue/card'
 import tabViewDescriptor from '../TenantManagementTabViewDescriptor.json'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
 import { iTenant } from '../../TenantManagement'
@@ -70,7 +62,6 @@ import { mapActions } from 'pinia'
 export default defineComponent({
     name: 'detail-tab',
     components: {
-        Card,
         KnValidationMessages
     },
     props: {
@@ -97,6 +88,7 @@ export default defineComponent({
     watch: {
         async selectedTenant() {
             this.tenant = { ...this.selectedTenant } as iTenant
+            if (!this.tenant.TENANT_MFA) this.tenant.TENANT_MFA = false
             await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant/${this.tenant.TENANT_NAME}/logo`).then((response: AxiosResponse<any>) => {
                 this.tenant.TENANT_IMAGE = response.data
             })
@@ -115,6 +107,7 @@ export default defineComponent({
             this.tenant = {} as iTenant
             this.tenant.TENANT_THEME = 'sbi_default'
         }
+        if (!this.tenant.TENANT_MFA) this.tenant.TENANT_MFA = false
         if (this.listOfThemes) this.themes = [...this.listOfThemes] as any
         this.$refs.tenantName?.resetValidation()
     },
