@@ -23,7 +23,114 @@ export default defineConfig((command, mode) => {
                 template: { transformAssetUrls }
             }),
             forwardToTrailingSlashPlugin(Object.keys(build.rollupOptions.input)),
-
+            VitePWA({
+                registerType: 'autoUpdate',
+                devOptions: {
+                    enabled: true
+                },
+                workbox: {
+                    globPatterns: ['**/*.html'],
+                    runtimeCaching: [
+                        {
+                            urlPattern: /^.+\.(ttf|woff2)/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'fonts',
+                                expiration: {
+                                    maxEntries: 10,
+                                    maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.css/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'styles',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.js/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'scripts',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 10 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        },
+                        {
+                            urlPattern: /^.+\.(svg|png|jpg)/i,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'images',
+                                expiration: {
+                                    maxAgeSeconds: 60 * 60 * 24 * 10 // <== 365 days
+                                },
+                                cacheableResponse: {
+                                    statuses: [0, 200]
+                                }
+                            }
+                        }
+                    ]
+                },
+                useCredentials: true,
+                manifest: {
+                    name: 'Knowage',
+                    short_name: 'Knowage',
+                    start_url: '.',
+                    display: 'standalone',
+                    scope: env.VITE_PUBLIC_PATH,
+                    orientation: 'landscape',
+                    background_color: '#3b678c',
+                    theme_color: '#3b678c',
+                    description: 'The business intelligence open-source solution',
+                    icons: [
+                        {
+                            src: 'icons/48.png',
+                            sizes: '48x48',
+                            type: 'image/png'
+                        },
+                        {
+                            src: 'icons/72.png',
+                            sizes: '72x72',
+                            type: 'image/png'
+                        },
+                        {
+                            src: 'icons/96.png',
+                            sizes: '96x96',
+                            type: 'image/png'
+                        },
+                        {
+                            src: 'icons/144.png',
+                            sizes: '144x144',
+                            type: 'image/png'
+                        },
+                        {
+                            src: 'icons/168.png',
+                            sizes: '168x168',
+                            type: 'image/png'
+                        },
+                        {
+                            src: 'icons/192.png',
+                            sizes: '192x192',
+                            type: 'image/png'
+                        }
+                    ]
+                }
+            }),
             quasar()
         ],
         resolve: {

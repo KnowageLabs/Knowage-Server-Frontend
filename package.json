@@ -93,7 +93,7 @@
         "material-icons": "^1.10.0",
         "sass": "1.83.4",
         "typescript": "5.7.3",
-        "vite": "6.3.5",
+        "vite": "7.0.3",
         "vite-plugin-pwa": "1.0.1"
     },
     "exports": {
