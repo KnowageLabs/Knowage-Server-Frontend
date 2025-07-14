@@ -11,6 +11,7 @@
                 <label class="kn-material-input-label">{{ $t('documentExecution.olap.sidebar.drillOnDimension') }}</label>
                 <SelectButton v-model="drillOn" class="p-mt-2" :options="olapSidebarDescriptor.drillOnOptions" @click="$emit('drillTypeChanged', drillOn)"></SelectButton>
             </div>
+
             <div v-if="!olapDesignerMode" class="kn-flex-0">
                 <div v-if="isButtonVisible('BUTTON_DRILL_THROUGH')" class="p-d-flex p-flex-column p-my-3">
                     <label class="kn-material-input-label">{{ $t('documentExecution.olap.sidebar.drillOnData') }}</label>
@@ -36,14 +37,7 @@
                     <label v-if="tableFunctionsVisible" class="kn-material-input-label">{{ $t('documentExecution.olap.sidebar.tableFunctions') }}</label>
                     <div class="p-grid p-mt-1">
                         <div class="p-col-4">
-                            <Button
-                                v-if="isButtonVisible('BUTTON_FATHER_MEMBERS')"
-                                v-tooltip.top="$t('documentExecution.olap.sidebar.showParentMembers')"
-                                icon="far fa-caret-square-up"
-                                class="p-button-plain kn-button--secondary"
-                                :class="{ 'olap-sidebar-button-active': showParentMembers }"
-                                @click="onShowParentMemberClick"
-                            />
+                            <Button v-if="isButtonVisible('BUTTON_FATHER_MEMBERS')" v-tooltip.top="$t('documentExecution.olap.sidebar.showParentMembers')" icon="far fa-caret-square-up" class="p-button-plain kn-button--secondary" :class="{ 'olap-sidebar-button-active': showParentMembers }" @click="onShowParentMemberClick" />
                         </div>
                         <div class="p-col-4">
                             <Button v-if="isButtonVisible('BUTTON_HIDE_SPANS')" v-tooltip.top="$t('documentExecution.olap.sidebar.hideSpans')" icon="fas fa-eye-slash" class="p-button-plain kn-button--secondary" :class="{ 'olap-sidebar-button-active': hideSpans }" @click="onHideSpansClick" />
@@ -52,27 +46,29 @@
                             <Button v-if="isButtonVisible('BUTTON_SORTING_SETTINGS')" v-tooltip.top="$t('documentExecution.olap.sidebar.sortingSettings')" icon="fas fa-sort-amount-down-alt" class="p-button-plain kn-button--secondary" @click="$emit('openSortingDialog')" />
                         </div>
                         <div class="p-col-4">
-                            <Button
-                                v-if="isButtonVisible('BUTTON_SHOW_PROPERTIES')"
-                                v-tooltip.top="$t('documentExecution.olap.sidebar.showProperties')"
-                                icon="fas fa-cogs"
-                                class="p-button-plain kn-button--secondary"
-                                :class="{ 'olap-sidebar-button-active': showProperties }"
-                                @click="onShowPropertiesClick"
-                            />
+                            <Button v-if="isButtonVisible('BUTTON_SHOW_PROPERTIES')" v-tooltip.top="$t('documentExecution.olap.sidebar.showProperties')" icon="fas fa-cogs" class="p-button-plain kn-button--secondary" :class="{ 'olap-sidebar-button-active': showProperties }" @click="onShowPropertiesClick" />
                         </div>
                         <div class="p-col-4">
-                            <Button
-                                v-if="isButtonVisible('BUTTON_HIDE_EMPTY')"
-                                v-tooltip.top="$t('documentExecution.olap.sidebar.suppressEmptyRowsColumns')"
-                                icon="fas fa-border-none"
-                                class="p-button-plain kn-button--secondary"
-                                :class="{ 'olap-sidebar-button-active': suppressEmpty }"
-                                @click="onSuppressRowsColumnsClick"
-                            />
+                            <Button v-if="isButtonVisible('BUTTON_HIDE_EMPTY')" v-tooltip.top="$t('documentExecution.olap.sidebar.suppressEmptyRowsColumns')" icon="fas fa-border-none" class="p-button-plain kn-button--secondary" :class="{ 'olap-sidebar-button-active': suppressEmpty }" @click="onSuppressRowsColumnsClick" />
                         </div>
                         <div class="p-col-4">
                             <Button v-if="isButtonVisible('BUTTON_SAVE_SUBOBJECT')" v-tooltip.top="$t('documentExecution.olap.sidebar.saveCustomizedView')" icon="fas fa-save" class="p-button-plain kn-button--secondary" @click="$emit('openCustomViewDialog')" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-else class="kn-flex-0">
+                <div>
+                    <label class="kn-material-input-label">{{ $t('documentExecution.olap.sidebar.olapFunctions') }}</label>
+                    <div class="p-grid p-mt-1">
+                        <div class="p-col-4">
+                            <Button v-tooltip.top="$t('documentExecution.olap.sidebar.mdxQuery')" icon="far fa-eye" class="p-button-plain kn-button--secondary" @click="$emit('openMdxQueryDialog')" />
+                        </div>
+                        <div class="p-col-4">
+                            <Button v-if="olap.modelConfig.crossNavigation" v-tooltip.top="$t('documentExecution.olap.sidebar.enableCrossNavigation')" icon="fas fa-arrow-right" class="p-button-plain kn-button--secondary" @click="onEnableCrossNavigationClick" />
+                        </div>
+                        <div class="p-col-4">
+                            <Button v-tooltip.top="$t('documentExecution.olap.sidebar.configureButtonsVisiblity')" icon="fas fa-sync-alt" class="p-button-plain kn-button--secondary" @click="$emit('openButtonWizardDialog')" />
                         </div>
                     </div>
                 </div>
@@ -101,28 +97,7 @@ export default defineComponent({
         olapDesignerMode: { type: Boolean },
         propButtons: { type: Array }
     },
-    emits: [
-        'openCustomViewDialog',
-        'drillTypeChanged',
-        'showParentMemberChanged',
-        'hideSpansChanged',
-        'suppressEmptyChanged',
-        'showPropertiesChanged',
-        'openSortingDialog',
-        'openMdxQueryDialog',
-        'reloadSchema',
-        'enableCrossNavigation',
-        'openCrossNavigationDefinitionDialog',
-        'openButtonWizardDialog',
-        'drillThroughChanged',
-        'saveOlapDesigner',
-        'showOutputWizard',
-        'showScenarioWizard',
-        'undo',
-        'showAlgorithmDialog',
-        'loading',
-        'exportExcel'
-    ],
+    emits: ['openCustomViewDialog', 'drillTypeChanged', 'showParentMemberChanged', 'hideSpansChanged', 'suppressEmptyChanged', 'showPropertiesChanged', 'openSortingDialog', 'openMdxQueryDialog', 'reloadSchema', 'enableCrossNavigation', 'openCrossNavigationDefinitionDialog', 'openButtonWizardDialog', 'drillThroughChanged', 'saveOlapDesigner', 'showOutputWizard', 'showScenarioWizard', 'undo', 'showAlgorithmDialog', 'loading', 'exportExcel'],
     setup() {
         const store = mainStore()
         return { store }
@@ -144,14 +119,7 @@ export default defineComponent({
     },
     computed: {
         tableFunctionsVisible(): boolean {
-            return (
-                this.isButtonVisible('BUTTON_FATHER_MEMBERS') ||
-                this.isButtonVisible('BUTTON_HIDE_SPANS') ||
-                this.isButtonVisible('BUTTON_SORTING_SETTINGS') ||
-                this.isButtonVisible('BUTTON_SHOW_PROPERTIES') ||
-                this.isButtonVisible('BUTTON_HIDE_EMPTY') ||
-                this.isButtonVisible('BUTTON_SAVE_SUBOBJECT')
-            )
+            return this.isButtonVisible('BUTTON_FATHER_MEMBERS') || this.isButtonVisible('BUTTON_HIDE_SPANS') || this.isButtonVisible('BUTTON_SORTING_SETTINGS') || this.isButtonVisible('BUTTON_SHOW_PROPERTIES') || this.isButtonVisible('BUTTON_HIDE_EMPTY') || this.isButtonVisible('BUTTON_SAVE_SUBOBJECT')
         }
     },
     watch: {
