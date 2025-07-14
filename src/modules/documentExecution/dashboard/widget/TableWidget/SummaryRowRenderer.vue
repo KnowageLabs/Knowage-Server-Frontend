@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { ITableWidgetSummaryRows } from '../../Dashboard'
 
 export default defineComponent({
@@ -20,7 +20,10 @@ export default defineComponent({
     },
     mounted() {
         this.showPinnedOnly()
-        console.log('SummaryRowRenderer mounted', this.params)
+
+        nextTick(() => {
+            this.handleParentPointerEvents()
+        })
     },
     methods: {
         showPinnedOnly() {
@@ -29,6 +32,12 @@ export default defineComponent({
                 if (this.params.pinned) return true
                 else return false
             } else return true
+        },
+        handleParentPointerEvents() {
+            if (this.params.hideSummary) {
+                const parentElement = this.$el.parentElement
+                if (parentElement) parentElement.style.pointerEvents = 'none'
+            }
         },
         getSummaryStyle() {
             const styleSettings = this.params.propWidget.settings.style.summary

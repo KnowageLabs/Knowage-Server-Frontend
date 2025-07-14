@@ -320,13 +320,14 @@ export default defineComponent({
                         }
 
                         // SUMMARY ROW  -----------------------------------------------------------------
-                        if (this.widgetModel.settings.configuration.summaryRows.enabled) {
+                        const summaryRowsConfiguration = this.widgetModel.settings.configuration.summaryRows
+                        if (summaryRowsConfiguration.enabled) {
                             tempCol.cellRendererSelector = (params) => {
-                                if (params.node.rowPinned && this.widgetModel.settings.configuration.summaryRows.enabled) {
+                                if (params.node.rowPinned && summaryRowsConfiguration.enabled) {
                                     return {
                                         component: SummaryRowRenderer,
                                         params: {
-                                            summaryRows: this.widgetModel.settings.configuration.summaryRows.list.map((row) => {
+                                            summaryRows: summaryRowsConfiguration.list.map((row) => {
                                                 return row.label
                                             }),
                                             propWidget: this.widgetModel,
