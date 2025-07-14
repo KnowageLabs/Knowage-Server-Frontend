@@ -46,8 +46,6 @@ ModuleRegistry.registerModules([AllCommunityModule])
 
 import ResizeObserver from '@vue-toys/resize-observer'
 
-import { registerSW } from 'virtual:pwa-register'
-
 const pinia = createPinia()
 
 const app = createApp(App).use(pinia)
@@ -89,25 +87,4 @@ app.use(VueAxios, interceptor)
 
 router.isReady().then(() => {
     app.mount('#app')
-})
-
-const updateSW = registerSW({
-    onNeedRefresh() {
-        Notify.create({
-            message: 'Some new content is available',
-            timeout: 0,
-            actions: [
-                {
-                    label: 'Refresh',
-                    handler: () => {
-                        updateSW()
-                    }
-                },
-                {
-                    label: 'Cancel',
-                    handler: () => {}
-                }
-            ]
-        })
-    }
 })
