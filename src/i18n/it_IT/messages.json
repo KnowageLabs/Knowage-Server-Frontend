@@ -1097,12 +1097,12 @@
             "radius": "Raggio",
             "recentlyUsed": "Usati di recente",
             "responsive": {
-                "extraLargeDevices": "Mostra su dispositivi Extra Large",
-                "extraSmallDevices": "Mostra su dispositivi Extra Small",
+                "extraLargeDevices": "Mostra su dispositivi di grandi Dimensioni (LG, >1200px)",
+                "extraSmallDevices": "Mostra su dispositivi Extra Small (XXS, <480px)",
                 "fullGrid": "Mostra il widget a pieno schermo. (Può essere applicato ad un solo widget per dashboard)",
-                "largeDevices": "Mostra su dispositivi di grandi dimensioni",
-                "smallerDevices": "Mostra su dispositivi di piccole dimensioni",
-                "tablets": "Mostra su Tablet",
+                "largeDevices": "Mostra su dispositivi della dimensione di un laptop standard (MD, 996px - 1200px)",
+                "smallerDevices": "Mostra su dispositivi di piccole dimensioni (XS, 480px - 768px)",
+                "tablets": "Mostra su Tablet o laptop di piccole dimensioni (SM, 480px - 996px)",
                 "title": "Responsive"
             },
             "rows": {

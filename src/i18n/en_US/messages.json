@@ -1305,12 +1305,12 @@
             "radius": "Radius",
             "recentlyUsed": "Recently Used",
             "responsive": {
-                "extraLargeDevices": "Show On Extra Large Devices",
-                "extraSmallDevices": "Show On Extra Small Devices",
+                "extraLargeDevices": "Show on extra large devices (LG, >1200px)",
+                "extraSmallDevices": "Show on extra Small devices (XXS, <480px)",
                 "fullGrid": "Show the widget at full grid dimension. (Only one widget per dashboard)",
-                "largeDevices": "Show On Large Devices",
-                "smallerDevices": "Show On Smaller Devices",
-                "tablets": "Show On Tablets",
+                "largeDevices": "Show on common laptop dimension devices (MD, 996px-1200px)",
+                "smallerDevices": "Show on smaller devices (XS, 480px-768px)",
+                "tablets": "Show on tablets or small screen laptops (SM, 768px-996px)",
                 "title": "Responsive"
             },
             "rows": {

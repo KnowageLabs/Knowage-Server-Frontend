@@ -18,7 +18,7 @@
         </div>
     </KnDashboardTabsPanel>
     <div v-if="canEditDashboard(document)" class="responsive-device">
-        <q-icon :name="getCurrentScreenSizeIcon" :title="$t(`dashboard.breakpoints.${currentScreenSize}`)" />
+        <q-icon :name="getCurrentScreenSizeIcon" :title="$t(`dashboard.breakpoints.${currentScreenSize}`)" /><span class="text-uppercase" style="font-size: 0.7rem">{{ currentScreenSize }}</span>
     </div>
 </template>
 
