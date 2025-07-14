@@ -183,6 +183,11 @@ export default defineComponent({
         async filtersLoaded() {
             if (!this.showDashboard || !this.filtersData?.isReadyForExecution) return
             await this.getData()
+        },
+        'filtersData.isReadyForExecution': {
+            async handler(newVal) {
+                if (this.showDashboard && newVal) await this.getData()
+            }
         }
     },
     async mounted() {
