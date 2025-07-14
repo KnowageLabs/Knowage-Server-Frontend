@@ -4,13 +4,19 @@
             <q-toolbar-title>{{ $t('managers.usersManagement.detail') }}</q-toolbar-title>
         </q-toolbar>
         <q-card-section class="row q-gutter-sm">
-            <q-banner v-if="userDetailsForm.failedLoginAttempts >= 3" rounded dense class="bg-warning q-ma-sm text-center">
+            <q-banner v-if="userDetailsForm.failedLoginAttempts >= 3" rounded dense class="col-12 bg-warning q-ma-sm text-center">
                 <template v-slot:avatar>
                     <q-icon name="warning" />
                 </template>
                 {{ $t('managers.usersManagement.blockedUserInfo') }}
                 <template v-slot:action>
                     <q-btn icon="lock" color="primary" :label="$t('managers.usersManagement.unlockUser')" @click="unlockUser" />
+                </template>
+            </q-banner>
+            <q-banner v-if="tenant?.TENANT_MFA" rounded inline-actions dense class="col-12 bg-info q-ma-sm">
+                {{ $t('managers.usersManagement.multifactor') }}
+                <template v-slot:action>
+                    <q-btn flat color="primary" :label="$t('common.reset')" @click="resetMFA" />
                 </template>
             </q-banner>
             <q-input filled v-model="vobj.userDetailsForm.userId.$model" :label="$t('managers.usersManagement.form.userId') + ' *'" :maxLength="100" :disable="!formInsert || disableUsername" class="col-12" :error="vobj.userDetailsForm.userId.$invalid && vobj.userDetailsForm.userId.$dirty" :error-message="vobj.userDetailsForm.userId.$errors[0]?.$message" @update:model-value="onDataChange(vobj.userDetailsForm.userId)" />
@@ -50,7 +56,10 @@
 </template>
 
 <script lang="ts">
+import { mapActions } from 'pinia'
 import { defineComponent } from 'vue'
+import mainStore from '@/App.store'
+import { AxiosResponse } from 'axios'
 
 export default defineComponent({
     name: 'roles-tab',
@@ -58,6 +67,10 @@ export default defineComponent({
         formValues: Object,
         disabledUID: Boolean,
         vobj: Object,
+        tenant: {
+            type: Object,
+            required: false
+        },
         formInsert: {
             type: Boolean,
             default: false
@@ -96,12 +109,24 @@ export default defineComponent({
         this.disableUsername = this.disabledUID
     },
     methods: {
+        ...mapActions(mainStore, ['setLoading', 'setInfo']),
         unlockUser() {
             this.$emit('unlock')
         },
         onDataChange(v$Comp) {
             v$Comp.$touch()
             this.$emit('dataChanged')
+        },
+        async resetMFA() {
+            this.setLoading(true)
+            await this.$http
+                .put(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/users/${this.userDetailsForm.id}/resetOtp`)
+                .then((response: AxiosResponse<any>) => {
+                    this.setInfo({
+                        msg: this.$t('managers.usersManagement.info.resetSuccessful')
+                    })
+                })
+                .finally(() => this.setLoading(false))
         }
     }
 })

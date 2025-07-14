@@ -30,7 +30,7 @@
                     </q-tabs>
                     <q-tab-panels v-model="selectedTab" animated>
                         <q-tab-panel name="detail" class="q-pa-sm">
-                            <DetailFormTab v-if="!hiddenForm" :form-insert="formInsert" :form-values="userDetailsForm" :vobj="v$" :disabled-u-i-d="disableUsername" @dataChanged="onDataChange" @unlock="unlockUser($event)"></DetailFormTab>
+                            <DetailFormTab v-if="!hiddenForm" :form-insert="formInsert" :form-values="userDetailsForm" :vobj="v$" :disabled-u-i-d="disableUsername" :tenant="tenant" @dataChanged="onDataChange" @unlock="unlockUser($event)"></DetailFormTab>
                         </q-tab-panel>
                         <q-tab-panel name="roles" class="q-pa-sm">
                             <RolesTab :def-role="defaultRole" :roles-list="roles" :selected="selectedRoles" @changed="setSelectedRoles($event)" @setDefaultRole="setDefaultRoleValue($event)"></RolesTab>
@@ -64,6 +64,7 @@ import detailFormTabValidationDescriptor from './UserDetailTab/DetailFormTabVali
 import usersManagementDescriptor from './UsersManagementDescriptor.json'
 import { sameAs } from '@vuelidate/validators'
 import mainStore from '../../../App.store'
+import { iTenant } from '../tenantManagement/TenantManagement'
 
 export default defineComponent({
     name: 'user-management',
@@ -87,7 +88,8 @@ export default defineComponent({
             loading: false,
             selectedRoles: [] as iRole[],
             usersManagementDescriptor: usersManagementDescriptor,
-            selectedTab: 'detail'
+            selectedTab: 'detail',
+            tenant: {} as iTenant
         }
     },
     validations() {
@@ -115,6 +117,7 @@ export default defineComponent({
         await this.loadAllUsers()
         await this.loadAllRoles()
         await this.loadAllAttributes()
+        await this.getTenantInfo()
     },
     methods: {
         ...mapActions(mainStore, ['setError', 'setInfo']),
@@ -331,6 +334,9 @@ export default defineComponent({
         },
         onDataChange() {
             this.dirty = true
+        },
+        getTenantInfo() {
+            this.tenant = { TENANT_MFA: true } as iTenant
         }
     }
 })
