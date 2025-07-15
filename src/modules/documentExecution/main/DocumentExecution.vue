@@ -98,7 +98,7 @@ import { AxiosResponse } from 'axios'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
 import { iURLData, iExporter, iSchedulation, ICrossNavigationBreadcrumb, ICrossNavigationParameter } from './DocumentExecution'
 import { createToolbarMenuItems } from './DocumentExecutionHelpers'
-import { emitter } from '../dashboard/DashboardHelpers'
+import { emitter, formatDashboardForSave } from '../dashboard/DashboardHelpers'
 import { mapState, mapActions } from 'pinia'
 import { getCorrectRolesForExecution } from '../../../helpers/commons/roleHelper'
 import { executeAngularCrossNavigation, loadCrossNavigation } from './DocumentExecutionAngularCrossNavigationHelper'
@@ -640,7 +640,11 @@ export default defineComponent({
             let url = import.meta.env.VITE_KNOWAGECOCKPITENGINE_CONTEXT + `/api/1.0/pages/execute/${format}`
             if (format.includes('xls')) {
                 format = 'spreadsheet'
-                if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) body = this.dashboards[this.document.dashboardId]
+                if (this.document.dashboardId && this.dashboards[this.document.dashboardId]) {
+                    const dashboard = deepcopy(this.dashboards[this.document.dashboardId])
+                    delete dashboard.currentView
+                    body = dashboard
+                }
             }
 
             if (['spreadsheet'].includes(format)) {
