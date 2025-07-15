@@ -2,6 +2,7 @@
 <template>
     <Accordion class="p-mb-3 p-mr-3">
         <AccordionTab :header="$t('common.parameters')">
+            {{ selectedDataset }}
             <!-- PARAMETERS ---------------- -->
             <div v-for="(parameter, index) of selectedDataset.parameters" :key="index" class="p-fluid p-formgrid p-grid p-mx-2 p-mt-2">
                 <div class="p-field p-col-4">
@@ -136,9 +137,9 @@ export default defineComponent({
             this.driversDialogVisible = true
         },
         resetDefaultValue(driver: IDashboardDatasetDriver) {
-            if (!driver.defaultValue || driver.defaultValue.length == 0) driver.parameterValue = []
+            if (!driver.defaultValue || driver.defaultValue.length == 0) driver.parameterValue = [{ value: '', description: '' }]
+            else driver.parameterValue = deepcopy(driver.defaultValue) as { value: string; description: string }[]
 
-            driver.parameterValue = deepcopy(driver.defaultValue) as { value: string; description: string }[]
             if (driver.type === 'DATE' && driver.parameterValue && driver.parameterValue[0] && driver.parameterValue[0].value) {
                 driver.parameterValue[0].value = moment(driver.parameterValue[0].value).toDate()
                 this.setDateDisplayValue(driver)
