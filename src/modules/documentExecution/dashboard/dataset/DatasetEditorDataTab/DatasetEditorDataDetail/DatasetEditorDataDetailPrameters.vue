@@ -36,7 +36,7 @@
                 <div class="p-field p-col-8 p-d-flex">
                     <span class="p-float-label kn-flex">
                         <InputText v-if="driver.type === 'DATE'" v-model="driver.displayDate" class="kn-material-input" :disabled="true" />
-                        <InputText v-else-if="!driver.multivalue || (driver.typeCode === 'MAN_IN' && (driver.type === 'NUM' || driver.type === 'STRING') && driver.parameterValue[0])" v-model="driver.parameterValue[0]?.value as string" class="kn-material-input" :disabled="true" />
+                        <InputText v-else-if="(driver.parameterValue[0] && !driver.multivalue) || (driver.typeCode === 'MAN_IN' && (driver.type === 'NUM' || driver.type === 'STRING'))" v-model="driver.parameterValue[0].value as string" class="kn-material-input" :disabled="true" />
                         <Chips v-else v-model="driver.parameterValue" :disabled="true">
                             <template #chip="slotProps">
                                 <div>
