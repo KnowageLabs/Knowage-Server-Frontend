@@ -341,7 +341,7 @@ export default defineComponent({
             this.$http
                 .get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/tenant/${this.user.organization}`)
                 .then((response: AxiosResponse<any>) => {
-                    this.tenant = response.data
+                    this.tenant = response.data.root
                 })
                 .finally(() => this.setLoading(false))
         }
