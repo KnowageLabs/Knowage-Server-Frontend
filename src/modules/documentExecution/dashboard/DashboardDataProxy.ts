@@ -202,7 +202,17 @@ const addFilterToSelection = (selection: any, filter: any) => {
     const filterColumnKeys = filter ? Object.keys(filter) : []
     filterColumnKeys.forEach((key: string) => {
         if (selection[key]) {
-            selection[key].push(filter[key])
+            // Check if the same filter object already exists
+            const isFilterObjectAlreadyPresent = selection[key].some((item: any) => {
+                // Only check objects (filter objects), skip strings (selections)
+                if (typeof item === 'object' && item.filterOperator && item.filterVals) {
+                    return item.filterOperator === filter[key].filterOperator && JSON.stringify(item.filterVals) === JSON.stringify(filter[key].filterVals)
+                }
+                return false
+            })
+
+            // Only add the filter object if it's not already present
+            if (!isFilterObjectAlreadyPresent) selection[key].push(filter[key])
         } else {
             selection[key] = filter[key]
         }
