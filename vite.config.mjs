@@ -170,6 +170,9 @@ export default defineConfig((command, mode) => {
                         }
                     }
                 ]
+            },
+            optimizeDeps: {
+                include: ['vue', 'vue-router', 'pinia']
             }
         },
         server: {
