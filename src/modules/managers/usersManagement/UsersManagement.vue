@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
 import { iUser, iRole, iAttribute } from './UsersManagement'
 import useValidate from '@vuelidate/core'
@@ -109,6 +109,7 @@ export default defineComponent({
         return validationObject
     },
     computed: {
+        ...mapState(mainStore, ['user']),
         passwordValidation() {
             return (this.disableUsername && !this.userDetailsForm.password) || (this.userDetailsForm.password && !this.v$.userDetailsForm.$invalid)
         }
@@ -120,7 +121,7 @@ export default defineComponent({
         await this.getTenantInfo()
     },
     methods: {
-        ...mapActions(mainStore, ['setError', 'setInfo']),
+        ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading']),
         async loadAllUsers() {
             this.loading = true
             await this.$http
@@ -336,7 +337,13 @@ export default defineComponent({
             this.dirty = true
         },
         getTenantInfo() {
-            this.tenant = { TENANT_MFA: true } as iTenant
+            this.setLoading(true)
+            this.$http
+                .get(`${import.meta.env.VITE_KNOWAGE_CONTEXT}/restful-services/1.0/tenant/${this.user.organization}`)
+                .then((response: AxiosResponse<any>) => {
+                    this.tenant = response.data
+                })
+                .finally(() => this.setLoading(false))
         }
     }
 })
