@@ -4,6 +4,8 @@ import store from './App.store'
 const currentLocale = localStorage.getItem('locale') ? localStorage.getItem('locale') : store.locale
 
 const i18n = createI18n({
+    legacy: true,
+    globalInjection: true,
     locale: currentLocale,
     fallbackLocale: 'en_US',
     messages: {}
