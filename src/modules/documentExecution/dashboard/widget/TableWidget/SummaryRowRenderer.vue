@@ -1,11 +1,10 @@
 <template>
     <div class="custom-header-group-container" :style="getSummaryStyle()">
-        <span v-if="shouldShowSummaryContent()" class="custom-header-group-label">
-            <!-- Show label if this column should display labels -->
-            <b v-if="shouldShowLabel()" style="margin-right: 4px">
+        <span v-if="!params.hideSummary" class="custom-header-group-label kn-width-full p-d-flex">
+            <b v-if="isFirstColumn()" style="margin-right: 4px" class="p-mr-auto">
                 {{ params.summaryRows[params.node.rowIndex] || '' }}
             </b>
-            <!-- Show value only if this column should display values and it's not a label-only column -->
+            <!-- Always show value if this column has summary data and it's not a label-only column -->
             <span v-if="shouldShowValue()">
                 {{ params.value ?? '' }}
             </span>
@@ -30,48 +29,12 @@ export default defineComponent({
         })
     },
     methods: {
-        shouldShowSummaryContent() {
-            const summaryRowSettings = this.params.propWidget.settings.configuration.summaryRows as ITableWidgetSummaryRows
-            const pinnedOnlyEnabled = summaryRowSettings.style.pinnedOnly
-            const hasPinnedColumns = this.gridHasPinnedColumns()
-            const isCurrentColumnPinned = this.isColumnPinned()
-
-            // Case 3: No pinned columns + pinnedOnly = ON → show nothing
-            if (pinnedOnlyEnabled && !hasPinnedColumns) return false
-
-            // Case 4: Has pinned columns + pinnedOnly = ON → show only for pinned columns
-            if (pinnedOnlyEnabled && hasPinnedColumns) return isCurrentColumnPinned
-
-            // Cases 1 & 2: pinnedOnly = OFF → show for all columns
-            return true
-        },
-
-        shouldShowLabel() {
-            // Always show labels only in the first column (when content is visible)
-            return this.isFirstColumn()
-        },
-
         shouldShowValue() {
-            // Show value if this column has summary data and it's not a label-only column
+            // Always show value if this column has summary data and it's not a label-only column
             if (this.isLabelOnlyColumn()) return false
+
             return this.params.value !== undefined && this.params.value !== null
         },
-
-        isFirstColumn() {
-            const allColumns = this.params.api.getAllDisplayedColumns()
-            const firstColumn = allColumns[0]
-            return this.params.column?.colId === firstColumn?.colId
-        },
-
-        isColumnPinned() {
-            return this.params.column?.pinned === 'left' || this.params.column?.pinned === 'right'
-        },
-
-        gridHasPinnedColumns() {
-            const allColumns = this.params.api.getAllDisplayedColumns()
-            return allColumns.some((col) => col.getPinned() === 'left' || col.getPinned() === 'right')
-        },
-
         isLabelOnlyColumn() {
             // If this is the first column but not a measure column, show only label
             if (this.isFirstColumn()) {
@@ -80,8 +43,13 @@ export default defineComponent({
             }
             return false
         },
+        isFirstColumn() {
+            const allColumns = this.params.api.getAllDisplayedColumns()
+            const firstColumn = allColumns[0]
+            return this.params.column?.colId === firstColumn?.colId
+        },
         handleParentPointerEvents() {
-            if (this.params.hideSummary || !this.shouldShowSummaryContent()) {
+            if (this.params.hideSummary) {
                 const parentElement = this.$el.parentElement
                 if (parentElement) parentElement.style.pointerEvents = 'none'
             }

@@ -1,11 +1,11 @@
 <template>
     <div v-if="summaryRowsModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div class="p-col-12 p-grid">
+        <!-- <div class="p-col-12 p-grid">
             <div class="p-col-12 p-text-left p-text-md-left p-pr-4">
                 <label class="kn-material-input-label p-mr-3"> {{ $t('dashboard.widgetEditor.summaryRows.pinnedColumnsOnly') }}</label>
                 <Checkbox v-model="summaryRowsModel.style.pinnedOnly" :binary="true" :disabled="summaryRowsDiabled" @change="summaryRowsChanged" />
             </div>
-        </div>
+        </div> -->
 
         <div class="p-col-12">
             <div v-for="(summaryRow, index) in summaryRowsModel.list" :key="index" class="p-grid p-ai-center">
