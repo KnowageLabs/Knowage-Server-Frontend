@@ -105,7 +105,7 @@ const formatTableWidgetModelForService = (dashboardId: any, dashboardConfig: IDa
     addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     if (widget.type === 'table') {
-        if (widget.settings.configuration.summaryRows.enabled) dataToSend.summaryRow = getSummaryRow(widget)
+        if (widget.settings.configuration.summaryRows.enabled) dataToSend.summaryRow = getSummaryRow(widget, dashboardConfig)
         dataToSend.options = { solrFacetPivot: true } //if dataset is table solr, it needs this option
     }
 
@@ -135,7 +135,7 @@ const formatTableWidgetModelForService = (dashboardId: any, dashboardConfig: IDa
     return dataToSend
 }
 
-const getSummaryRow = (widget: IWidget) => {
+const getSummaryRow = (widget: IWidget, dashboardConfig: IDashboardConfiguration) => {
     const summaryArray = [] as any
     const columns = widget.columns
 
@@ -152,7 +152,7 @@ const getSummaryRow = (widget: IWidget) => {
                     if (widget.settings.configuration.summaryRows.list[k].aggregation == 'Columns Default Aggregation') obj['funct'] = col.aggregation
                     else obj['funct'] = widget.settings.configuration.summaryRows.list[k].aggregation || col.aggregation
 
-                    if (col.formula) obj['formula'] = col.formula
+                    if (col.formula) obj['formula'] = addVariablesToFormula(col, dashboardConfig) //col.formula
                     else obj['columnName'] = col.columnName
 
                     measures.push(obj)
