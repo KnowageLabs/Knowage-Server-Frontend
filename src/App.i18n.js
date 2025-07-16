@@ -21,41 +21,31 @@ const loadedLanguages = []
 const messageFiles = import.meta.glob('./i18n/*/messages.json')
 const helperMessageFiles = import.meta.glob('./i18n/*/helper-messages.json')
 
+function getLoader(filesMap, lang, fileName) {
+    const filePath = `./i18n/${lang}/${fileName}`
+    return filesMap[filePath] ? filesMap[filePath] : null
+}
+
 function setI18nLanguage(lang) {
     i18n.locale = lang
 }
 
-export function loadLanguageAsync(lang) {
-    return new Promise((resolve) => {
-        // If the same language
-        if (i18n.locale === lang) {
-            resolve(setI18nLanguage(lang))
-        }
+export async function loadLanguageAsync(lang) {
+    const messageLoader = getLoader(messageFiles, lang, 'messages.json')
+    const helperMessageLoader = getLoader(helperMessageFiles, lang, 'helper-messages.json')
 
-        // If the language was already loaded
-        if (loadedLanguages.includes(lang)) {
-            resolve(setI18nLanguage(lang))
-        }
+    if (!messageLoader || !helperMessageLoader) {
+        console.warn(`Language files for ${lang} not found.`)
+        return
+    }
 
-        const messagePath = `./i18n/${lang}/messages.json`
-        const helperMessagePath = `./i18n/${lang}/helper-messages.json`
+    const [messages, helperMessages] = await Promise.all([messageLoader(), helperMessageLoader()])
 
-        const loader = messageFiles[messagePath]
-        const helperLoader = helperMessageFiles[helperMessagePath]
+    i18n.global.setLocaleMessage(lang, messages.default)
+    i18n.global.mergeLocaleMessage(lang, helperMessages.default)
 
-        if (!loader || !helperLoader) {
-            console.warn(`Language files for ${lang} not found.`)
-            return resolve()
-        }
-
-        const [messages, helperMessages] = Promise.all([loader(), helperLoader()])
-
-        i18n.global.setLocaleMessage(lang, messages.default)
-        i18n.global.mergeLocaleMessage(lang, helperMessages.default)
-
-        loadedLanguages.push(lang)
-        resolve(setI18nLanguage(lang))
-    })
+    loadedLanguages.push(lang)
+    setI18nLanguage(lang)
 }
 
 export default i18n
