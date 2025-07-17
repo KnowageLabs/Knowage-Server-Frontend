@@ -10,7 +10,7 @@
                 <q-tab name="persistence" :label="$t('qbe.savingDialog.persistence')"> </q-tab>
             </q-tabs>
 
-            <q-tab-panels v-model="activeTab" animated>
+            <q-tab-panels v-model="activeTab" animated keep-alive>
                 <q-tab-panel name="detail">
                     <DetailTab :prop-dataset="propDataset" :scope-types="scopeTypes" :category-types="categoryTypes" @edited="changeValidation" />
                 </q-tab-panel>
