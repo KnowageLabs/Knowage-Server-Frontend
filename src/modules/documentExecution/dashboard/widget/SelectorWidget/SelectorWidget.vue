@@ -269,7 +269,7 @@ export default defineComponent({
         },
         getDateRange(rangeValue: string) {
             const dateRange = this.propWidget.settings.configuration.defaultValues
-            if (dateRange.enabled && dateRange[rangeValue]) return new Date(dateRange[rangeValue])
+            if (dateRange[rangeValue]) return new Date(dateRange[rangeValue])
             else return undefined
         },
         getLabelStyle() {

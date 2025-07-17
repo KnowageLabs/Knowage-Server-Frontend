@@ -5,7 +5,7 @@
         <Accordion v-model:activeIndex="activeIndex" class="selectorAccordion">
             <AccordionTab v-for="(accordion, index) in filteredSettings" :key="index" :disabled="accordion.type === 'LabelStyle' && labelStyleAccordionDisabled">
                 <template #header>
-                    <SelectorWidgetSettingsAccordionHeader v-if="!(accordion.type === 'DateRange' && !isDateType)" :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectorWidgetSettingsAccordionHeader>
+                    <SelectorWidgetSettingsAccordionHeader :widget-model="widgetModel" :title="accordion.title" :type="accordion.type" @styleChanged="onStyleChanged"></SelectorWidgetSettingsAccordionHeader>
                 </template>
                 <SelectorWidgetRange v-if="accordion.type === 'DateRange'" :widget-model="widgetModel"></SelectorWidgetRange>
                 <SelectorWidgetType v-if="accordion.type === 'SelectorType'" :widget-model="widgetModel"></SelectorWidgetType>

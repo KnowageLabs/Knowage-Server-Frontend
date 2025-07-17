@@ -21,7 +21,7 @@
 
                 <div v-if="defaultValuesModel.valueType === 'STATIC'" class="p-col-12 p-lg-3 p-d-flex p-flex-column">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
-                    <Calendar v-if="isDateType" v-model="(defaultValuesModel.value as Date)" :manual-input="true" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
+                    <Calendar v-if="isDateType" v-model="(defaultValuesModel.value as Date)" :disabled="defaultModelDisabled" :manual-input="true" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
                     <InputText v-else v-model="defaultValuesModel.value" class="kn-material-input p-inputtext-sm kn-flex" :disabled="defaultModelDisabled" @change="defaultValuesChanged" />
                 </div>
             </div>
@@ -87,6 +87,11 @@ export default defineComponent({
             if (!this.defaultValuesModel) return
             if (this.defaultValuesModel.valueType !== 'STATIC') delete this.defaultValuesModel.value
             this.defaultValuesChanged()
+        },
+        getDateRange(rangeValue: string) {
+            const dateRange = this.widgetModel.settings.configuration.defaultValues
+            if (dateRange[rangeValue]) return new Date(dateRange[rangeValue])
+            else return undefined
         }
     }
 })
