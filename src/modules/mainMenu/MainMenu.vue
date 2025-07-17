@@ -252,21 +252,18 @@ export default defineComponent({
             return 0
         },
         findHomePage(dynMenu) {
-            const toRet = undefined
-            for (const idx in dynMenu) {
-                const menu = dynMenu[idx]
-                if (this.user.sessionRole) {
-                    if (menu.roles.includes(this.user.sessionRole) && (menu.to || menu.url)) return menu
-                } else {
-                    for (let i = 0; i < this.user.roles.length; i++) {
-                        const element = this.user.roles[i]
-                        if (menu.roles.includes(element) && (menu.to || menu.url)) {
-                            return menu
-                        }
-                    }
+            for (const item of dynMenu) {
+                const hasAccess = item.roles?.some((role) => role === this.user.sessionRole || this.user.roles.includes(role))
+                const hasUrl = 'to' in item || 'url' in item
+
+                if (hasAccess && hasUrl) return item
+
+                if (item.items?.length) {
+                    const found = this.findHomePage(item.items)
+                    if (found) return found
                 }
             }
-            return toRet
+            return null
         },
         toggleMenu(event, item) {
             this.hideItemMenu()
