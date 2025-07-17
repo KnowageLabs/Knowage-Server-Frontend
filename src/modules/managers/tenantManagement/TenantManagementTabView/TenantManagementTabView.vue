@@ -24,8 +24,14 @@
                 <template #header>
                     <span>{{ $t('managers.tenantManagement.dataSource.title') }}</span>
                 </template>
-
-                <ProductTypes :title="$t('managers.tenantManagement.dataSource.title')" :data-list="listOfDataSources" :selected-data="listOfSelectedDataSources" @changed="setSelectedDataSources($event)" />
+                <q-card v-if="listOfDataSources && listOfSelectedDataSources">
+                    <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                        <q-toolbar-title>{{ $t('managers.tenantManagement.dataSource.title') }}</q-toolbar-title>
+                    </q-toolbar>
+                    <q-card-section>
+                        <q-table :rows="listOfDataSources" row-key="ID" :columns="columns" dense flat v-model:selected="listOfSelectedDataSources" selection="multiple" :pagination="{ rowsPerPage: 20 }" @selection="setSelectedDataSources()"></q-table>
+                    </q-card-section>
+                </q-card>
             </TabPanel>
         </TabView>
     </div>
@@ -39,6 +45,7 @@ import TabPanel from 'primevue/tabpanel'
 import tabViewDescriptor from './TenantManagementTabViewDescriptor.json'
 import TenantDetail from './DetailTab/TenantDetail.vue'
 import mainStore from '../../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     components: {
@@ -54,10 +61,6 @@ export default defineComponent({
         licenses: Array
     },
     emits: ['touched', 'closed', 'inserted'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             tabViewDescriptor,
@@ -68,7 +71,11 @@ export default defineComponent({
             listOfThemes: [] as any,
             availableLicenses: [] as any,
             listOfDataSources: [] as any,
-            listOfSelectedDataSources: [] as any
+            listOfSelectedDataSources: [] as any,
+            columns: [
+                { name: 'label', label: this.$t('common.label'), field: 'LABEL', align: 'left', sortable: true },
+                { name: 'description', label: this.$t('common.description'), field: 'DESCRIPTION', align: 'left', sortable: true }
+            ]
         }
     },
     watch: {
@@ -89,6 +96,7 @@ export default defineComponent({
         this.getTenantData()
     },
     methods: {
+        ...mapActions(mainStore, ['setInfo']),
         loadData(dataType: string) {
             return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/multitenant${dataType}`)
         },
@@ -137,12 +145,12 @@ export default defineComponent({
 
             await this.$http.post(url, this.createTenantToSave()).then((response: AxiosResponse<any>) => {
                 if (this.selectedTenant) {
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t(this.tabViewDescriptor.operation[this.operation].toastTitle),
                         msg: this.$t(this.tabViewDescriptor.operation.success)
                     })
                 } else {
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t(this.tabViewDescriptor.operation[this.operation].toastTitle),
                         msg: this.$t(this.tabViewDescriptor.operation.success) + response.data.NEW_USER,
                         duration: 0
@@ -179,14 +187,7 @@ export default defineComponent({
             this.$emit('touched')
         },
 
-        setSelectedProducts(categories: any[]) {
-            this.listOfSelectedProducts = categories
-            this.touched = true
-            this.$emit('touched')
-        },
-
-        setSelectedDataSources(categories: any[]) {
-            this.listOfSelectedDataSources = categories
+        setSelectedDataSources() {
             this.touched = true
             this.$emit('touched')
         },
