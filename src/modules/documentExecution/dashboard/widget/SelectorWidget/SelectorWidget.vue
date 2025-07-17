@@ -42,14 +42,14 @@
             </label>
         </span>
 
-        <!-- <div v-if="widgetType === 'dateRange'" :class="getLayoutStyle()">
+        <div v-if="widgetType === 'dateRange'" :class="getLayoutStyle()">
             <span class="p-float-label p-m-2" :style="getGridWidth()">
                 <Calendar v-model="startDate" class="kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :show-icon="true" @date-select="dateRangeSelectionChanged" />
             </span>
             <span class="p-float-label p-m-2" :style="getGridWidth()">
                 <Calendar v-model="endDate" class="kn-width-full" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" :style="getLabelStyle()" :input-style="getLabelStyle()" :panel-style="getLabelStyle()" :show-icon="true" @date-select="dateRangeSelectionChanged" />
             </span>
-        </div> -->
+        </div>
     </div>
 </template>
 
