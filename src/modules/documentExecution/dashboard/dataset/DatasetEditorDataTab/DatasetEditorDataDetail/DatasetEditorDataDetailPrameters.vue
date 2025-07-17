@@ -2,7 +2,6 @@
 <template>
     <Accordion class="p-mb-3 p-mr-3">
         <AccordionTab :header="$t('common.parameters')">
-            {{ selectedDataset }}
             <!-- PARAMETERS ---------------- -->
             <div v-for="(parameter, index) of selectedDataset.parameters" :key="index" class="p-fluid p-formgrid p-grid p-mx-2 p-mt-2">
                 <div class="p-field p-col-4">
