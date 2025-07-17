@@ -311,7 +311,7 @@ export default defineComponent({
                             if (!this.stateHomePage.label) {
                                 this.setHomePage(homePage)
                             }
-                        }
+                        } else this.setHomePage({ loading: false })
                     } else this.setHomePage({ loading: false })
                     const responseCommonUserFunctionalities = response.data.commonUserFunctionalities
                     for (const index in responseCommonUserFunctionalities) {
