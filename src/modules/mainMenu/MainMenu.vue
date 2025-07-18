@@ -253,10 +253,9 @@ export default defineComponent({
         },
         findHomePage(dynMenu) {
             for (const item of dynMenu) {
-                const hasAccess = item.roles?.some((role) => role === this.user.sessionRole || this.user.roles.includes(role))
                 const hasUrl = 'to' in item || 'url' in item
 
-                if (hasAccess && hasUrl) return item
+                if (hasUrl) return item
 
                 if (item.items?.length) {
                     const found = this.findHomePage(item.items)
