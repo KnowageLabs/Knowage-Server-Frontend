@@ -266,7 +266,9 @@ export default defineComponent({
         },
         async widgetExportExcel() {
             this.setLoading(true)
-            let body = { ...this.widgetModel, selections: this.dashStore.$state.dashboards[this.dashboardId].selections, drivers: this.dashStore.$state.dashboards[this.dashboardId].drivers }
+            const dataset = this.dashboards[this.dashboardId].configuration.datasets.find((i) => i.id === this.widgetModel.dataset)
+            const parameters = dataset ? dataset.parameters : []
+            let body = { ...this.widgetModel, parameters: parameters, selections: this.dashStore.$state.dashboards[this.dashboardId].selections, drivers: this.dashStore.$state.dashboards[this.dashboardId].drivers }
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/spreadsheet`, body, {
                     responseType: 'blob',
