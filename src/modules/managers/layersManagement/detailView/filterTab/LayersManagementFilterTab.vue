@@ -7,17 +7,7 @@
                         {{ $t('managers.layersManagement.layerFilter') }}
                     </template>
                 </Toolbar>
-                <Listbox
-                    class="kn-list layers-management-property-container"
-                    :options="filters"
-                    :filter="true"
-                    :filter-placeholder="$t('common.search')"
-                    option-label="property"
-                    filter-match-mode="contains"
-                    :filter-fields="layersManagementFilterTabDescriptor.filterFields"
-                    :empty-filter-message="$t('common.info.noDataFound')"
-                    data-test="available-properties-list"
-                >
+                <Listbox class="kn-list layers-management-property-container" :options="filters" :filter="true" :filter-placeholder="$t('common.search')" option-label="property" filter-match-mode="contains" :filter-fields="layersManagementFilterTabDescriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')" data-test="available-properties-list">
                     <template #empty>{{ $t('common.info.noDataFound') }}</template>
                     <template #option="slotProps">
                         <div class="kn-list-item" @click="addProperty(slotProps.option)">
@@ -34,17 +24,7 @@
                         {{ $t('managers.layersManagement.layerFilterAdded') }}
                     </template>
                 </Toolbar>
-                <Listbox
-                    class="kn-list layers-management-property-container"
-                    :options="layer.properties"
-                    :filter="true"
-                    :filter-placeholder="$t('common.search')"
-                    option-label="property"
-                    filter-match-mode="contains"
-                    :filter-fields="layersManagementFilterTabDescriptor.filterFields"
-                    :empty-filter-message="$t('common.info.noDataFound')"
-                    data-test="selected-properties-list"
-                >
+                <Listbox class="kn-list layers-management-property-container" :options="layer.properties" :filter="true" :filter-placeholder="$t('common.search')" option-label="property" filter-match-mode="contains" :filter-fields="layersManagementFilterTabDescriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')" data-test="selected-properties-list">
                     <template #empty>{{ $t('managers.layersManagement.noFilterSelected') }}</template>
                     <template #option="slotProps">
                         <div class="kn-list-item" @click="removeProperty(slotProps.option)">
@@ -101,13 +81,15 @@ export default defineComponent({
             if (this.layer) {
                 this.setLoading(true)
                 this.filters = []
-                await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?id=${this.layer.layerId}`).then((response: AxiosResponse<any>) => {
-                    response.data?.forEach((filter: iFilter) => {
-                        const index = this.layer?.properties.findIndex((property: iFilter) => property.property === filter.property)
-                        if (index === -1) this.filters.push(filter)
+                await this.$http
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?id=${this.layer.layerId}`)
+                    .then((response: AxiosResponse<any>) => {
+                        response.data?.forEach((filter: iFilter) => {
+                            const index = this.layer?.properties.findIndex((property: iFilter) => property.property === filter.property)
+                            if (index === -1) this.filters.push(filter)
+                        })
                     })
-                })
-                this.setLoading(false)
+                    .finally(() => this.setLoading(false))
             }
         },
         addProperty(filter: iFilter) {
