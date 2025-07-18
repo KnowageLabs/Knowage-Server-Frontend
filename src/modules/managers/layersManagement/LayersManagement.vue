@@ -36,14 +36,11 @@ import LayersManagementHint from './LayersManagementHint.vue'
 import LayersManagementDownloadDialog from './downloadDialog/LayersManagementDownloadDialog.vue'
 import mainStore from '../../../App.store'
 import deepcopy from 'deepcopy'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     name: 'roles-management',
     components: { FabButton, KnListBox, LayersManagementDetailView, LayersManagementHint, LayersManagementDownloadDialog },
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             descriptor,
@@ -61,6 +58,7 @@ export default defineComponent({
         this.loadPage()
     },
     methods: {
+        ...mapActions(mainStore, ['setInfo']),
         async loadPage() {
             this.loading = true
             this.touched = false
@@ -101,7 +99,7 @@ export default defineComponent({
         },
         async deleteLayer(layerId: number) {
             await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/deleteLayer?id=${layerId}`).then(() => {
-                this.store.setInfo({
+                this.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')
                 })

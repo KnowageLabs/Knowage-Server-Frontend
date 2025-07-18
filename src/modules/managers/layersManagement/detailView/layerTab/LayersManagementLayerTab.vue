@@ -2,30 +2,11 @@
     <Card id="basic-info-card">
         <template #content>
             <div class="row q-gutter-sm">
-                <q-input
-                    filled
-                    class="col"
-                    v-model="v$.layer.label.$model"
-                    :error="v$.layer.label.$invalid && v$.layer.label.$dirty"
-                    :error-message="$t('common.validation.required', { fieldName: $t('common.label') })"
-                    max-length="100"
-                    :label="$t('common.label') + '*'"
-                    data-test="description-input"
-                    @update:model-value="$emit('touched')"
-                />
-                <q-input
-                    filled
-                    class="col"
-                    v-model="v$.layer.name.$model"
-                    :error="v$.layer.name.$invalid && v$.layer.name.$dirty"
-                    :error-message="$t('common.validation.required', { fieldName: $t('common.name') })"
-                    max-length="100"
-                    :label="$t('common.name') + '*'"
-                    @update:model-value="$emit('touched')"
-                />
+                <q-input filled class="col" v-model="v$.layer.label.$model" :error="v$.layer.label.$invalid && v$.layer.label.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.label') })" max-length="100" :label="$t('common.label') + '*'" data-test="description-input" @update:model-value="$emit('touched')" />
+                <q-input filled class="col" v-model="v$.layer.name.$model" :error="v$.layer.name.$invalid && v$.layer.name.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.name') })" max-length="100" :label="$t('common.name') + '*'" @update:model-value="$emit('touched')" />
             </div>
             <div class="row">
-                <q-input filled rows="2" class="col" type="textarea" v-model="layer.descr" max-length="100" :label="$t('common.description') + '*'" data-test="description-input" @update:model-value="$emit('touched')" />
+                <q-input filled rows="2" class="col" type="textarea" v-model="layer.descr" max-length="100" :label="$t('common.description')" data-test="description-input" @update:model-value="$emit('touched')" />
             </div>
             <div class="row q-gutter-sm q-mt-sm">
                 <q-select class="col" emit-value map-options filled v-model="layer.category_id" :options="allCategories" option-label="VALUE_NM" option-value="VALUE_ID" :label="$t('common.category')" @update:model-value="onTypeChange" />
@@ -39,20 +20,7 @@
             <form class="p-fluid p-formgrid p-grid">
                 <div class="p-field p-col-12">
                     <div class="row">
-                        <q-select
-                            filled
-                            class="col"
-                            v-model="layer.type"
-                            :options="descriptor.layerTypes"
-                            emit-value
-                            map-options
-                            option-value="value"
-                            :option-label="(option) => (option.label ? $t(option.label) : '')"
-                            :label="$t('common.type')"
-                            :disable="layer.layerId != undefined"
-                            :error="!layer.type"
-                            @change="$emit('touched')"
-                        >
+                        <q-select filled class="col" v-model="layer.type" :options="descriptor.layerTypes" emit-value map-options option-value="value" :option-label="(option) => (option.label ? $t(option.label) : '')" :label="$t('common.type')" :disable="layer.layerId != undefined" :error="!layer.type" @change="$emit('touched')">
                             <template #hint>
                                 <span v-if="!layer.type">{{ $t('common.required') }}</span>
                             </template>

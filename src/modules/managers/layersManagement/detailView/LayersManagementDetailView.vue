@@ -10,7 +10,6 @@
         </q-btn>
     </q-toolbar>
 
-    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
     <TabView v-model:activeIndex="activeIndex" class="kn-overflow">
         <TabPanel>
             <template #header>
@@ -32,7 +31,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
-import { iFilter } from '../LayersManagement'
 import useValidate from '@vuelidate/core'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -40,21 +38,17 @@ import LayerTab from './layerTab/LayersManagementLayerTab.vue'
 import FilterTab from './filterTab/LayersManagementFilterTab.vue'
 import Toast from 'primevue/toast'
 import mainStore from '../../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
     components: { TabView, TabPanel, LayerTab, FilterTab, Toast },
     props: { selectedLayer: { type: Object, required: true }, allRoles: { type: Array, required: true }, allCategories: { type: Array, required: true } },
     emits: ['touched', 'closed', 'saved'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             v$: useValidate() as any,
             touched: false,
             layer: {} as any,
-            loading: false,
             activeIndex: 0
         }
     },
@@ -74,6 +68,7 @@ export default defineComponent({
         this.getRolesForLayer()
     },
     methods: {
+        ...mapActions(mainStore, ['setInfo']),
         loadLayer() {
             this.layer = this.selectedLayer
             this.layer.properties = this.layer.properties
@@ -126,10 +121,9 @@ export default defineComponent({
         },
         async saveLayer() {
             this.layer.roles === null ? (this.layer.roles = []) : ''
-            if (this.layer.type === 'geojson') this.layer.type = 'File'
             await this.saveOrUpdateMessage(this.layer)
                 .then((response: AxiosResponse<any>) => {
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t('common.toast.success'),
                         msg: this.$t('common.toast.success')
                     })
