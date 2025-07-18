@@ -2,14 +2,7 @@
     <div v-if="conditionalStylesModel" class="p-grid p-jc-center p-ai-center p-p-4">
         <div v-for="(conditionalStyle, index) in conditionalStylesModel.conditions" :key="index" class="dynamic-form-item p-grid p-col-12 p-ai-center p-pt-2">
             <div v-show="dropzoneTopVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
-            <div
-                class="p-col-12 form-list-item-dropzone p-p-0"
-                :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }"
-                @drop.stop="onDropComplete($event, 'before', index)"
-                @dragover.prevent
-                @dragenter.prevent="displayDropzone('top', index)"
-                @dragleave.prevent="hideDropzone('top', index)"
-            ></div>
+            <div class="p-col-12 form-list-item-dropzone p-p-0" :class="{ 'form-list-item-dropzone-active': dropzoneTopVisible[index] }" @drop.stop="onDropComplete($event, 'before', index)" @dragover.prevent @dragenter.prevent="displayDropzone('top', index)" @dragleave.prevent="hideDropzone('top', index)"></div>
             <div class="p-col-12 p-grid p-p-0" :draggable="!conditionalStylesDisabled" @dragstart.stop="onDragStart($event, index)">
                 <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center">
                     <i class="pi pi-th-large kn-cursor-pointer" :class="[conditionalStylesDisabled ? 'icon-disabled' : '']"></i>
@@ -39,14 +32,7 @@
                     <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash', conditionalStylesDisabled ? 'icon-disabled' : '']" class="kn-cursor-pointer p-ml-2" @click="index === 0 ? addConditionalStyle() : removeConditionalStyle(index)"></i>
                 </div>
             </div>
-            <div
-                class="p-col-12 form-list-item-dropzone p-p-0"
-                :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }"
-                @drop.stop="onDropComplete($event, 'after', index)"
-                @dragover.prevent
-                @dragenter.prevent="displayDropzone('bottom', index)"
-                @dragleave.prevent="hideDropzone('bottom', index)"
-            ></div>
+            <div class="p-col-12 form-list-item-dropzone p-p-0" :class="{ 'form-list-item-dropzone-active': dropzoneBottomVisible[index] }" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent="displayDropzone('bottom', index)" @dragleave.prevent="hideDropzone('bottom', index)"></div>
             <div v-show="dropzoneBottomVisible[index]" class="p-col-12 form-list-item-dropzone-active" @drop.stop="onDropComplete($event, 'after', index)" @dragover.prevent @dragenter.prevent @dragleave.prevent></div>
         </div>
     </div>
@@ -103,10 +89,24 @@ export default defineComponent({
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel, conditionalStyle: IPivotTableWidgetConditionalStyle) {
             const defaultConditionalStyle = pivotTableDefaultValues.getDefaultConditionalStyle()
+
+            const mapJustifyContentToTextAlign = (justifyContent: string) => {
+                switch (justifyContent) {
+                    case 'flex-start':
+                        return 'left'
+                    case 'center':
+                        return 'center'
+                    case 'flex-end':
+                        return 'right'
+                    default:
+                        return justifyContent || defaultConditionalStyle.properties['text-align']
+                }
+            }
+
             conditionalStyle.properties = {
                 'background-color': model['background-color'] ?? defaultConditionalStyle.properties['background-color'],
                 color: model.color ?? defaultConditionalStyle.properties.color,
-                'text-align': model['text-align'] ?? defaultConditionalStyle.properties['text-align'],
+                'text-align': model['justify-content'] ? mapJustifyContentToTextAlign(model['justify-content']) : model['text-align'] ?? defaultConditionalStyle.properties['text-align'],
                 'font-size': model['font-size'] ?? defaultConditionalStyle.properties['font-size'],
                 'font-family': model['font-family'] ?? defaultConditionalStyle.properties['font-family'],
                 'font-style': model['font-style'] ?? defaultConditionalStyle.properties['font-style'],
