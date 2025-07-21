@@ -63,6 +63,7 @@ const formatPivotModelForGet = (dashboardId: any, dashboardConfig: IDashboardCon
     addParametersToData(dataset, dashboardId, dataToSend, associativeResponseSelections)
 
     dataToSend.aggregations.dataset = dataset.dsLabel
+    dataToSend.options = { solrFacetPivot: true }
 
     for (const fieldsName in propWidget.fields) {
         const fields = propWidget.fields[fieldsName]
