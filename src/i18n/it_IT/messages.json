@@ -1459,7 +1459,10 @@
             "launchedActivities": "attività eseguite per il documento corrente",
             "progressNotFinished": "attendere la generazione del documento",
             "saveSuccess": "attività salvata correttamente",
-            "title": "dossier"
+            "title": "dossier",
+            "warning": {
+                "oldVersion": "Questo dossier è basato su una vecchia versione. Il designer non è disponibile. Si prega di crearne uno nuovo."
+            }
         },
         "main": {
             "addToWorkspace": "aggiungi al mio workspace",
@@ -1728,7 +1731,8 @@
         },
         "title": "Import/Export",
         "warning": {
-            "newCategoryCreated": "Una nuova categoria è stata aggiunta: {category}. Controllare i rouli utente per abilitarla. | Le seguenti categorie sono state aggiunte: {category}. Controllare i ruoli utente per abilitarla."
+            "newCategoryCreated": "Una nuova categoria è stata aggiunta: {parameters}. Controllare i ruoli utente per abilitarla. | Le seguenti categorie sono state aggiunte: {parameters}. Controllare i ruoli utente per abilitarla.",
+            "noTemplate": "Nessun template caricato per il dossier {parameters}."
         }
     },
     "infoDialog": {

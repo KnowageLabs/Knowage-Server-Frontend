@@ -604,7 +604,7 @@ export default defineComponent({
 
                         if (response.data?.warnings?.length > 0) {
                             response.data.warnings.forEach((i) => {
-                                this.store.setWarning({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.$t(i.MESSAGE, { count: i.PARAMETERS?.length || 1, category: i.PARAMETERS?.toString() })}` })
+                                this.store.setWarning({ title: this.$t('managers.importExportDocs.importComplete'), msg: `${this.$t(i.MESSAGE, { count: i.PARAMETERS?.length || 1, parameters: i.PARAMETERS?.toString() })}` })
                             })
                         }
 

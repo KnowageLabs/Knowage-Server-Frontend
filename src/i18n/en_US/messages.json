@@ -1692,7 +1692,10 @@
             "templateDownloadError": "Error downloading template",
             "templateUploadError": "Error uploading template",
             "title": "Dossier",
-            "uploadTemplate": "Upload document template"
+            "uploadTemplate": "Upload document template",
+            "warning": {
+                "oldVersion": "This dossier is based on an old version of the document. The designer is not available for this version. Please create a new dossier from scratch."
+            }
         },
         "main": {
             "addToMyRepository": "Add To My Repository",
@@ -1990,7 +1993,8 @@
         },
         "title": "Import/Export",
         "warning": {
-            "newCategoryCreated": "A new category has been created with the name: {category}. Check roles definitions accordingly. | The following categories have been created: {category}. Check roles definitions accordingly"
+            "newCategoryCreated": "A new category has been created with the name: {parameters}. Check roles definitions accordingly. | The following categories have been created: {parameters}. Check roles definitions accordingly",
+            "noTemplate": "No template uploaded for the dossier {parameters}"
         }
     },
     "infoDialog": {
