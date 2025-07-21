@@ -107,6 +107,7 @@ async function sendToAI() {
     axios
         .post(store.configurations['KNOWAGE.AI.URL'] + '/bot_response', {
             tenant: store.user.organization,
+            token: localStorage.getItem('token'),
             role: store.user.defaultRole || store.user.roles[0],
             pathQuestion: router.currentRoute.value.path,
             promptUser: userMessage.value,
