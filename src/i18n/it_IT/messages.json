@@ -167,6 +167,7 @@
         "output": "output",
         "owner": "proprietario",
         "packages": "pacchetti",
+        "pageNotFound": "Pagina non trovata",
         "parameter": "parametro",
         "parameters": "parametri",
         "password": "password",
