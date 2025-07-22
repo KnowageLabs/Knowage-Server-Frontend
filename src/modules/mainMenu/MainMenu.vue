@@ -269,7 +269,7 @@ export default defineComponent({
 
             if (item.items) {
                 this.$emit('openMenu')
-                this.menuTargetElem = document.querySelector(`li[role="menu"][title="${item.descr || item.label}"]`)
+                this.menuTargetElem = document.querySelector(`li[role="menu"][label="${item.label}"]`)
                 this.selectedCustomMenu = item.items
                 // @ts-ignore
                 this.$refs.menu.show()

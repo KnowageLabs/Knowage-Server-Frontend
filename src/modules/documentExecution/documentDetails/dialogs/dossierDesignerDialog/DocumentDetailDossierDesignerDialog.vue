@@ -246,7 +246,7 @@ export default defineComponent({
         return validationObject
     },
     methods: {
-        ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading']),
+        ...mapActions(mainStore, ['setError', 'setInfo', 'setLoading', 'setWarning']),
 
         isEmpty(): boolean {
             const selectedPlaceholder = this.activeTemplate.placeholders[this.currentSelectedIndex]
@@ -295,6 +295,14 @@ export default defineComponent({
                 await this.$http
                     .get(url)
                     .then((response: any) => {
+                        if (response.data.type === 'PPT_TEMPLATE') {
+                            this.setWarning({
+                                title: this.$t('common.warning.generic'),
+                                msg: this.$t('documentExecution.dossier.warning.oldVersion')
+                            })
+                            this.closeDialog(false, false)
+                            return
+                        }
                         if (response.data.name) {
                             this.activeTemplate = response.data
                             this.uploadedFile.name = this.activeTemplate.name
