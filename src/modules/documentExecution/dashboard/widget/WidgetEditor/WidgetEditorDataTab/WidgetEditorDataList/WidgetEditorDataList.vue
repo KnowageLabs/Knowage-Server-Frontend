@@ -189,11 +189,13 @@ export default defineComponent({
             this.loadSelectedDatasetForFunctions()
         },
         onDatasetSelected() {
-            if (this.availableFunctions.length == 0) this.loadAvailableFunctions(this.selectedDataset)
+            if (this.availableFunctions.length === 0) this.loadAvailableFunctions(this.selectedDataset)
             this.loadDatasetColumns()
             if (this.model) {
-                this.model.dataset = this.selectedDataset ? this.selectedDataset.id : null
-                if (this.model.dataset !== this.selectedDataset?.id) this.removeSelectedColumnsFromModel()
+                const previousDatasetId = this.model.dataset
+                const newDatasetId = this.selectedDataset ? this.selectedDataset.id : null
+                if (previousDatasetId !== newDatasetId) this.removeSelectedColumnsFromModel()
+                this.model.dataset = newDatasetId
             }
             this.loadSelectedDatasetForFunctions()
             this.$emit('datasetSelected', this.selectedDataset)
