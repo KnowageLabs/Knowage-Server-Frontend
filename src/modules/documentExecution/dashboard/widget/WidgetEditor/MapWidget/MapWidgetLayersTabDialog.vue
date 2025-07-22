@@ -1,17 +1,6 @@
 <template>
     <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="$t('dashboard.datasetEditor.selectDatasets')" :style="dataDialogDescriptor.style.datasetListDialog" :closable="false" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }">
-        <DataTable
-            id="datasets-datatable"
-            v-model:selection="selectedDatasets"
-            class="p-datatable-sm kn-table kn-page-content"
-            data-key="layerId"
-            :value="filteredDatasets"
-            :paginator="true"
-            :rows="dataDialogDescriptor.rows"
-            :breakpoint="dataDialogDescriptor.breakpoint"
-            :loading="loading"
-            responsive-layout="stack"
-        >
+        <DataTable id="datasets-datatable" v-model:selection="selectedDatasets" class="p-datatable-sm kn-table kn-page-content" data-key="layerId" :value="filteredDatasets" :paginator="true" :rows="dataDialogDescriptor.rows" :breakpoint="dataDialogDescriptor.breakpoint" :loading="loading" responsive-layout="stack">
             <template #loading>
                 {{ $t('common.info.dataLoading') }}
             </template>
@@ -82,6 +71,7 @@ export default defineComponent({
                         layerId: 'l_' + i.layerId,
                         name: i.name,
                         description: i.descr,
+                        label: i.label,
                         type: 'layer',
                         id: i.layerId,
                         layerType: i.type,
@@ -94,6 +84,7 @@ export default defineComponent({
                 return {
                     layerId: 'ds_' + i.id.dsId,
                     name: i.name,
+                    label: i.label,
                     description: i.description,
                     columns: i.metadata.fieldsMeta,
                     type: 'dataset',

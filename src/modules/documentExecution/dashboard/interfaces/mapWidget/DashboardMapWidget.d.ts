@@ -300,6 +300,7 @@ export interface IMapWidgetLayer {
     type: string
     id: number
     name: string
+    label: string
     columns?: IWidgetMapLayerColumn[]
     order?: number
     layerId: string
