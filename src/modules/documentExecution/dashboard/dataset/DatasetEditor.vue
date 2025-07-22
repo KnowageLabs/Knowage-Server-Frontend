@@ -11,15 +11,7 @@
 
             <TabView v-if="!loading" class="dashboardEditor-tabs">
                 <TabPanel :header="$t('dashboard.datasetEditor.dataTabTitle')">
-                    <DataTab
-                        :available-datasets-prop="availableDatasets"
-                        :dashboard-datasets-prop="dashboardDatasets"
-                        :selected-datasets-prop="selectedDatasets"
-                        :document-drivers-prop="filtersDataProp"
-                        :dashboard-id="dashboardIdProp"
-                        @addSelectedDatasets="addSelectedDatasets"
-                        @deleteDataset="confirmDeleteDataset"
-                    />
+                    <DataTab :available-datasets-prop="availableDatasets" :dashboard-datasets-prop="dashboardDatasets" :selected-datasets-prop="selectedDatasets" :document-drivers-prop="filtersDataProp" :dashboard-id="dashboardIdProp" @addSelectedDatasets="addSelectedDatasets" @deleteDataset="confirmDeleteDataset" />
                 </TabPanel>
                 <TabPanel v-if="dashboardDatasets.length > 1">
                     <template #header>
@@ -35,12 +27,9 @@
 </template>
 
 <script lang="ts">
-/**
- * ! this component will be in charge of managing the dataset.
- */
 import { defineComponent, PropType } from 'vue'
 import { IAssociation, IDashboardDataset, IDashboardDatasetParameter, IDataset } from '../Dashboard'
-import { loadDatasets } from '../DashboardHelpers'
+import { emitter, loadDatasets } from '../DashboardHelpers'
 import { mapActions } from 'pinia'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -73,7 +62,8 @@ export default defineComponent({
             selectedAssociation: {} as any,
             ignoredDatasets: [] as string[],
             uncachedDatasets: ['SbiQueryDataSet', 'SbiQbeDataSet', 'SbiSolrDataSet', 'SbiPreparedDataSet'],
-            dirty: false
+            dirty: false,
+            initialDatasetsSnapshot: [] as IDashboardDataset[]
         }
     },
     computed: {
@@ -100,6 +90,10 @@ export default defineComponent({
             await this.loadAvailableDatasets()
             this.dashboardDatasets = deepcopy(this.dashboardStore.$state.dashboards[this.dashboardIdProp].configuration.datasets)
             this.dashboardAssociations = deepcopy(this.dashboardStore.$state.dashboards[this.dashboardIdProp].configuration.associations)
+
+            // Create initial snapshot for change detection
+            this.initialDatasetsSnapshot = deepcopy(this.dashboardDatasets)
+
             this.selectedDatasets = this.selectModelDatasetsFromAvailable()
             this.setDatasetParametersFromModel()
             this.setDatasetDriversFromModel()
@@ -219,9 +213,12 @@ export default defineComponent({
             this.selectedDatasets.forEach((dataset) => {
                 formattedDatasets.push(this.formatDatasetForModel(dataset))
             })
+            const changedDatasetIds = this.detectDatasetChanges(formattedDatasets)
 
             this.dashboardStore.$state.dashboards[this.dashboardIdProp].configuration.datasets = formattedDatasets
             this.dashboardStore.$state.dashboards[this.dashboardIdProp].configuration.associations = this.dashboardAssociations
+
+            changedDatasetIds.forEach((datasetId) => emitter.emit('datasetRefreshed', datasetId))
 
             this.$emit('datasetEditorSaved')
         },
@@ -252,6 +249,35 @@ export default defineComponent({
                     accept: () => this.$emit('closeDatasetEditor')
                 })
             } else this.$emit('closeDatasetEditor')
+        },
+        detectDatasetChanges(newDatasets: IDashboardDataset[]): string[] {
+            const changedDatasetIds: string[] = []
+
+            newDatasets.forEach((newDataset) => {
+                const originalDataset = this.initialDatasetsSnapshot.find((orig) => orig.id === newDataset.id)
+
+                console.log('Comparing datasets:', newDataset, 'with original:', originalDataset)
+
+                if (originalDataset) {
+                    const originalParams = JSON.stringify(originalDataset.parameters?.sort((a, b) => a.name.localeCompare(b.name)) || [])
+                    const newParams = JSON.stringify(newDataset.parameters?.sort((a, b) => a.name.localeCompare(b.name)) || [])
+
+                    const originalDrivers = JSON.stringify(originalDataset.drivers?.sort() || [])
+                    const newDrivers = JSON.stringify(newDataset.drivers?.sort() || [])
+
+                    const originalCache = originalDataset.cache
+                    const newCache = newDataset.cache
+
+                    const originalFrequency = originalDataset.frequency
+                    const newFrequency = newDataset.frequency
+
+                    if (originalParams !== newParams || originalDrivers !== newDrivers || originalCache !== newCache || originalFrequency !== newFrequency) {
+                        changedDatasetIds.push(newDataset.id)
+                    }
+                }
+            })
+
+            return changedDatasetIds
         }
     }
 })
