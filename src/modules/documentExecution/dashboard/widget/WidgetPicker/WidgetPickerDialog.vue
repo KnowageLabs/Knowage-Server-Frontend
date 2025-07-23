@@ -1,20 +1,19 @@
 <template>
     <div class="newWidgetContainer">
-        <Toolbar class="kn-toolbar kn-toolbar--primary kn-width-full">
-            <template #start>
-                {{ $t('dashboard.widgetEditor.addWidget') }}
-            </template>
-            <template #end>
-                <Button icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain p-mx-2" data-test="close-button" @click="$emit('closeWidgetPicker')" />
-            </template>
-        </Toolbar>
+        <q-toolbar class="kn-toolbar kn-toolbar--primary">
+            <q-toolbar-title>{{ $t('dashboard.widgetEditor.addWidget') }}</q-toolbar-title>
 
-        <q-input v-model="searchText" :label="$t('common.search')" class="q-pa-sm" learable data-test="search-input">
+            <q-btn flat round dense icon="cancel" data-test="close-button" @click="$emit('closeWidgetPicker')">
+                <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.close') }}</q-tooltip>
+            </q-btn>
+        </q-toolbar>
+
+        <q-input filled v-model="searchText" :label="$t('common.search')" class="q-pa-sm" learable data-test="search-input">
             <template #prepend>
                 <q-icon name="search" />
             </template>
         </q-input>
-        <div id="widget-card-container" class="p-my-2">
+        <div id="widget-card-container" class="q-pt-md row justify-center items-center">
             <WidgetCard v-for="(widget, index) in filteredWidgetTypes" :key="index" :widget="widget" data-test="list-item" @click="openWidgetEditor(widget)" />
         </div>
     </div>
@@ -64,8 +63,8 @@ export default defineComponent({
     },
     methods: {
         openWidgetEditor(widget) {
+            if (widget.enterpriseOnly && !this.isEnterprise) return
             if (widget.type === 'chart') widget.type = this.isEnterprise ? 'highcharts' : 'chartJS'
-            if (widget.type === 'static-pivot-table') widget.type = this.isEnterprise ? 'static-pivot-table' : 'ce-pivot-table'
             this.$emit('openNewWidgetEditor', widget)
         }
     }

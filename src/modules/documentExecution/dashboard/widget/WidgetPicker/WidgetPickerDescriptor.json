@@ -37,6 +37,7 @@
         },
         {
             "description": "dashboard.widgets.static-pivot-table.description",
+            "enterpriseOnly": true,
             "name": "dashboard.widgets.static-pivot-table.title",
             "type": "static-pivot-table"
         },
