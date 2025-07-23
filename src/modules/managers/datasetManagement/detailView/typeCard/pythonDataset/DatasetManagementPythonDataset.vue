@@ -1,12 +1,6 @@
 <template>
     <Card class="p-m-2">
         <template #content>
-            <div class="p-field-radiobutton">
-                <RadioButton v-model="dataset.pythonDatasetType" name="Python" value="python" @click="resetPythonEnv" />
-                <label for="Python">Python</label>
-                <RadioButton v-model="dataset.pythonDatasetType" name="R" class="p-ml-3" value="r" @click="resetPythonEnv" />
-                <label for="R">R</label>
-            </div>
             <form class="p-fluid p-formgrid p-grid p-mt-2">
                 <div class="p-field p-col-6">
                     <span class="p-float-label">
@@ -14,13 +8,13 @@
                             id="pythonEnvironment"
                             v-model="dataset.pythonEnvironment.label"
                             class="kn-material-input"
-                            :options="datasetTypes"
+                            :options="pythonEnvironments"
                             option-label="label"
                             option-value="label"
                             :class="{
                                 'p-invalid': !dataset.pythonEnvironment?.label || dataset.pythonEnvironment?.label === ''
                             }"
-                            @change="updateValueFromLabel(datasetTypes, 'value', $event.value)"
+                            @change="updateValueFromLabel(pythonEnvironments, 'value', $event.value)"
                         />
                         <label for="pythonEnvironment" class="kn-material-input-label">{{ $t('managers.datasetManagement.environment') }} *</label>
                     </span>
@@ -46,8 +40,7 @@
             </form>
             <Button :label="$t('managers.datasetManagement.checkEnvironment')" class="p-button kn-button--primary" :disabled="!dataset.pythonEnvironment.label" @click="checkEnvironment" />
 
-            <knMonaco v-show="dataset.pythonDatasetType === 'python'" v-model="dataset.pythonScript" style="height: 400px" language="python" @keyup="$emit('touched')"></knMonaco>
-            <knMonaco v-show="dataset.pythonDatasetType === 'r'" v-model="dataset.pythonScript" style="height: 400px" language="r" @keyup="$emit('touched')"></knMonaco>
+            <knMonaco v-model="dataset.pythonScript" style="height: 400px" language="python" @keyup="$emit('touched')"></knMonaco>
 
             <Dialog :header="$t('managers.datasetManagement.availableLibraries')" style="width: 60vw" :visible="libListVisible" :modal="false" class="p-fluid kn-dialog--toolbar--primary" :closable="false">
                 <div class="p-mt-3">
@@ -106,15 +99,6 @@ export default defineComponent({
             libListVisible: false
         }
     },
-    computed: {
-        datasetTypes(): any {
-            if (this.dataset.pythonDatasetType == 'python') {
-                return this.pythonEnvironments
-            } else {
-                return this.rEnvironments
-            }
-        }
-    },
     watch: {
         selectedDataset() {
             this.loadDataset()
@@ -134,15 +118,11 @@ export default defineComponent({
     methods: {
         loadDataset() {
             this.dataset = this.selectedDataset
-            this.dataset.pythonDatasetType ? '' : (this.dataset.pythonDatasetType = 'python')
+            this.dataset.pythonDatasetType = 'python'
             this.dataset.pythonScript ? '' : (this.dataset.pythonScript = '')
         },
         getEnvLibraries() {
-            if (this.dataset.pythonDatasetType == 'python') {
-                return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/python/libraries/${this.dataset.pythonEnvironment.label}`)
-            } else {
-                return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/RWidget/libraries/${this.dataset.pythonEnvironment.label}`)
-            }
+            return this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/backendservices/widgets/python/libraries/${this.dataset.pythonEnvironment.label}`)
         },
         async checkEnvironment() {
             await this.$http
