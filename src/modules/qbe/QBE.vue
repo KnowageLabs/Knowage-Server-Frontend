@@ -634,7 +634,7 @@ export default defineComponent({
             const editQueryObj = this.selectedQuery
             for (let i = 0; i < queryModel.length; i++) {
                 if (queryModel != undefined && !this.smartView && queryModel.length > 0) {
-                    editQueryObj.fields[i].group = queryModel[i].group
+                    editQueryObj.fields[i].group = queryModel[i].isSpatial ? false : queryModel[i].group
                     editQueryObj.fields[i].funct = queryModel[i].funct
                     editQueryObj.fields[i].visible = queryModel[i].visible
                     editQueryObj.fields[i].distinct = queryModel[i].distinct
