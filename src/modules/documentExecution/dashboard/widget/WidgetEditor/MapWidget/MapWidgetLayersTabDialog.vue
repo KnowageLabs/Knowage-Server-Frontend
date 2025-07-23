@@ -79,7 +79,6 @@ export default defineComponent({
                     }
                 })
             })
-            //await this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/1/download/geojson`).then((response: AxiosResponse<any>) => {})
             this.datasets = this.filterOutSelectedDatasets(this.selectedDatasetsProp, this.availableDatasetsProp).map((i) => {
                 return {
                     layerId: 'ds_' + i.id.dsId,
