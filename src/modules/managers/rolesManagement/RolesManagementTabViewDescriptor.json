@@ -1,62 +1,4 @@
 {
-    "EEAuthorizations": [
-        {
-            "category": "documentExecutionMenu",
-            "dbname": "SEE_NOTES",
-            "fieldName": "ableToSeeNotes",
-            "label": "viewNotes",
-            "visible": false
-        },
-        {
-            "category": "documentExecutionMenu",
-            "dbname": "SEE_METADATA",
-            "fieldName": "ableToSeeMetadata",
-            "label": "viewMeta",
-            "visible": false
-        },
-        {
-            "category": "documentExecutionMenu",
-            "dbname": "SAVE_METADATA",
-            "fieldName": "ableToSaveMetadata",
-            "label": "saveMeta",
-            "visible": false
-        },
-        {
-            "category": "menuConfiguration",
-            "dbname": "MANAGE_GLOSSARY_BUSINESS",
-            "fieldName": "ableToManageGlossaryBusiness",
-            "label": "manageGlossaryBusiness",
-            "visible": false
-        },
-        {
-            "category": "menuConfiguration",
-            "dbname": "MANAGE_GLOSSARY_TECHNICAL",
-            "fieldName": "ableToManageGlossaryTechnical",
-            "label": "manageGlossaryTechnical",
-            "visible": false
-        },
-        {
-            "category": "menuConfiguration",
-            "dbname": "MANAGE_CALENDAR",
-            "fieldName": "ableToManageCalendar",
-            "label": "manageCalendar",
-            "visible": false
-        },
-        {
-            "category": "documentExecutionMenu",
-            "dbname": "SEE_SNAPSHOTS",
-            "fieldName": "ableToSeeSnapshots",
-            "label": "viewScheduledExecution",
-            "visible": false
-        },
-        {
-            "category": "documentExecutionMenu",
-            "dbname": "RUN_SNAPSHOTS",
-            "fieldName": "ableToRunSnapshots",
-            "label": "runSnapshot",
-            "visible": false
-        }
-    ],
     "authorizations": [
         {
             "category": "myWorskpace",
@@ -334,6 +276,7 @@
         {
             "category": "cockpitWidgets",
             "dbname": "ENABLE_DASHBOARD_THEME_MANAGEMENT",
+            "ee": true,
             "fieldName": "ableToUseDashboardThemeManagement",
             "label": "managers.rolesManagement.authorizations.enableDashboardThemeManagement",
             "visible": false

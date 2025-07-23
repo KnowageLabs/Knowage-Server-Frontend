@@ -71,6 +71,7 @@ import RoleDetailTab from './tabs/RoleDetailTab/RoleDetailTab.vue'
 import RoleAuthorizationsTab from './tabs/RoleAuthorizationsTab/RoleAuthorizationsTab.vue'
 import RolesManagementUsageTab from './tabs/RolesManagementUsageTab/RolesManagementUsageTab.vue'
 import mainStore from '../../../App.store'
+import { mapActions, mapState } from 'pinia'
 
 export default defineComponent({
     components: {
@@ -83,10 +84,6 @@ export default defineComponent({
     },
     props: { id: { type: String, required: false }, publicRole: { type: Object, required: false } },
     emits: ['touched', 'closed', 'inserted'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             rolesManagementTabViewDescriptor: rolesManagementTabViewDescriptor,
@@ -107,6 +104,7 @@ export default defineComponent({
         }
     },
     computed: {
+        ...mapState(mainStore, ['isEnterprise']),
         buttonDisabled(): any {
             return this.v$.$invalid
         }
@@ -124,6 +122,7 @@ export default defineComponent({
         this.initAuthorizationCB()
     },
     methods: {
+        ...mapActions(mainStore, ['setInfo']),
         async handleSubmit() {
             if (this.v$.$invalid) {
                 return
@@ -140,7 +139,7 @@ export default defineComponent({
             }
 
             await this.$http.post(url, this.selectedRole).then(() => {
-                this.store.setInfo({
+                this.setInfo({
                     title: this.$t(this.rolesManagementTabViewDescriptor.operation[this.operation].toastTitle),
                     msg: this.$t(this.rolesManagementTabViewDescriptor.operation.success)
                 })
@@ -169,6 +168,9 @@ export default defineComponent({
         initAuthorizationCB() {
             this.rolesManagementTabViewDescriptor.categories.forEach((category) => {
                 this.authorizationCBs[category.categoryName] = this.rolesManagementTabViewDescriptor.authorizations.filter((authCB) => authCB.category === category.categoryName && authCB.visible)
+                if (!this.isEnterprise) {
+                    this.authorizationCBs[category.categoryName] = this.authorizationCBs[category.categoryName].filter((authCB) => !authCB.ee)
+                }
             })
         },
         async loadAllDomainsData() {
