@@ -28,7 +28,7 @@
                         <q-tab name="roles" :label="$t('managers.usersManagement.roles')" />
                         <q-tab name="attributes" :label="$t('managers.usersManagement.attributes')" />
                     </q-tabs>
-                    <q-tab-panels v-model="selectedTab" animated>
+                    <q-tab-panels v-model="selectedTab" animated keep-alive>
                         <q-tab-panel name="detail" class="q-pa-sm">
                             <DetailFormTab v-if="!hiddenForm" :form-insert="formInsert" :form-values="userDetailsForm" :vobj="v$" :disabled-u-i-d="disableUsername" :tenant="tenant" @dataChanged="onDataChange" @unlock="unlockUser($event)"></DetailFormTab>
                         </q-tab-panel>
