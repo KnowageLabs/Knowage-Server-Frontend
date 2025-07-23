@@ -1244,6 +1244,7 @@
                 "description": "Custom document upload as databind or datasource.",
                 "title": "document"
             },
+            "eeOnly": " This widget is available only in Enterprise Edition.",
             "html": {
                 "description": "Editor di codice HTML personalizzato con la possibilità di integrare contenuti dinamici.",
                 "title": "HTML"

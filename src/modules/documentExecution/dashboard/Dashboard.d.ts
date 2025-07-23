@@ -517,6 +517,7 @@ export interface IWidgetPickerType {
     name: string
     type: string
     functionality?: string
+    enterpriseOnly?: boolean
 }
 
 export interface IDatasetOptions {

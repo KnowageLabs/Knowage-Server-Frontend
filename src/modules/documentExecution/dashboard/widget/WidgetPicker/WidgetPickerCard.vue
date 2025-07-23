@@ -1,6 +1,10 @@
 <template>
-    <div id="widget-card">
-        <div id="widget-card-icon-container" class="p-d-flex p-ai-center p-jc-center relative-position">
+    <div id="widget-card" :disable="widget.enterpriseOnly && !isEnterprise">
+        <div id="widget-card-icon-container" class="row items-center justify-center relative-position">
+            <q-badge v-if="widget.enterpriseOnly && !isEnterprise" color="accent" floating class="z-top">
+                EE
+                <q-tooltip :delay="500">{{ $t('dashboard.widgets.eeOnly') }}</q-tooltip>
+            </q-badge>
             <div class="innerIcon" :style="documentImageSource()">
                 <q-tooltip :delay="500">{{ $t(widget.description) }}</q-tooltip>
             </div>
@@ -15,6 +19,8 @@
  */
 import { defineComponent } from 'vue'
 import descriptor from './WidgetPickerDescriptor.json'
+import { mapState } from 'pinia'
+import appStore from '@/App.store'
 
 export default defineComponent({
     name: 'widget-picker-dialog',
@@ -26,6 +32,11 @@ export default defineComponent({
         return {
             descriptor
         }
+    },
+    computed: {
+        ...mapState(appStore, {
+            isEnterprise: 'isEnterprise'
+        })
     },
     methods: {
         documentImageSource(): any {
@@ -52,11 +63,28 @@ export default defineComponent({
         height: 50px;
         text-align: center;
     }
+    &[disable='true'] {
+        #widget-card-icon-container {
+            cursor: default;
+            background-color: color-mix(in srgb, var(--kn-color-secondary), transparent 60%) !important;
+            .innerIcon {
+                background-color: color-mix(in srgb, var(--kn-color-primary), transparent 60%) !important;
+            }
+            &:hover {
+                background-color: color-mix(in srgb, var(--kn-color-secondary), transparent 60%) !important;
+                .innerIcon {
+                    background-color: color-mix(in srgb, var(--kn-color-primary), transparent 60%) !important;
+                }
+            }
+        }
+    }
+
     #widget-card-icon-container {
         background-color: var(--kn-color-secondary);
         height: 60px;
         width: 60px;
         border-radius: 50%;
+
         .innerIcon {
             width: 60px;
             height: 100%;
@@ -70,7 +98,6 @@ export default defineComponent({
             background-color: var(--kn-color-primary);
             position: relative;
             overflow: hidden;
-            cursor: pointer;
             transition: 0.2s ease-in;
         }
     }
@@ -84,6 +111,9 @@ export default defineComponent({
                 -webkit-mask-position: center;
             }
         }
+    }
+    .z-top {
+        z-index: 90;
     }
 }
 </style>

@@ -47,6 +47,7 @@ const router = useRouter()
 const store = mainStore()
 const { t } = useI18n()
 
+const turnId = ref(0)
 const showAlert = ref(false)
 const awaitingReply = ref(false)
 const userMessage = ref('')
@@ -54,7 +55,7 @@ const chat = ref<IChat[]>([
     {
         role: 'assistant',
         content: t('ai.welcomeMessage'),
-        turnId: 1
+        turnId: 0
     }
 ]) as any
 const bottomAnchor = ref(null)
@@ -73,7 +74,7 @@ function sendMessage() {
     chat.value.push({
         role: 'user',
         content: userMessage.value,
-        turnId: 1
+        turnId: turnId.value++
     })
 
     if (store.configurations['KNOWAGE.AI.URL'] === 'demo') sendToDemo()

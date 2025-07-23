@@ -1501,7 +1501,8 @@
             "text": {
                 "description": "Static or dynamic widget text. Uses a WYSIWYG editor and shortcodes to embed dynamic content.",
                 "title": "text"
-            }
+            },
+            "eeOnly": " This widget is available only in Enterprise Edition."
         },
         "wizard": {
             "addDataset": "Add a new dataset to the dashboard",
