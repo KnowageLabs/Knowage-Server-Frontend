@@ -14,7 +14,7 @@
             </Listbox>
         </div>
 
-        <DataDialog v-if="dataDialogVisible" :visible="dataDialogVisible" :selected-datasets-prop="selectedDatasets" :available-datasets-prop="availableDatasetsProp" data-test="dataset-data-dialog" @addSelectedDatasets="addSelectedDatasets" @close="toggleDataDialog" />
+        <DataDialog v-if="dataDialogVisible" :selected-datasets-prop="selectedDatasets" :available-datasets-prop="availableDatasetsProp" data-test="dataset-data-dialog" @addSelectedDatasets="addSelectedDatasets" @close="toggleDataDialog" />
     </div>
 </template>
 

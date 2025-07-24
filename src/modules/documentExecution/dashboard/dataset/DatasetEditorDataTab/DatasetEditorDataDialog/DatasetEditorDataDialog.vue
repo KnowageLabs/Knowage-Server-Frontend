@@ -1,79 +1,48 @@
 <template>
-    <Dialog class="kn-dialog--toolbar--primary" :visible="visible" :header="$t('dashboard.datasetEditor.selectDatasets')" :style="dataDialogDescriptor.style.datasetListDialog" :closable="false" modal :breakpoints="{ '960px': '75vw', '640px': '100vw' }">
-        <DataTable
-            id="datasets-datatable"
-            v-model:selection="selectedDatasets"
-            class="p-datatable-sm kn-table kn-page-content"
-            :value="filteredDatasets"
-            :paginator="true"
-            :rows="dataDialogDescriptor.rows"
-            :loading="loading"
-            data-key="id.dsId"
-            :responsive-layout="dataDialogDescriptor.responsiveLayout"
-            :breakpoint="dataDialogDescriptor.breakpoint"
-        >
-            <template #loading>
-                {{ $t('common.info.dataLoading') }}
-            </template>
-            <template #empty>
-                <div v-if="!loading" id="noDatasetsFound">
-                    {{ $t('managers.advancedData.noDatasetsFound') }}
-                </div>
-            </template>
-            <template #header>
-                <div class="table-header p-d-flex">
-                    <span class="p-input-icon-left p-mr-3 p-col-12">
-                        <i class="pi pi-search" />
-                        <InputText v-model="searchWord" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchDatasets" />
-                    </span>
-                </div>
-            </template>
-            <Column selection-mode="multiple" />
-            <Column v-for="col of dataDialogDescriptor.columns" :key="col.field" class="kn-truncated" :style="col.style" :header="$t(col.header)" :sort-field="col.field" :sortable="true">
-                <template #body="slotProps">
-                    <span v-if="col.field == 'type'" v-tooltip.top="slotProps.data[col.field]"> {{ dataDialogDescriptor.datasetTypes[slotProps.data[col.field]] }} </span>
-                    <span v-else v-tooltip.top="slotProps.data[col.field]"> {{ slotProps.data[col.field] }}</span>
-                </template>
-            </Column>
-            <Column field="tags" :header="$t('importExport.gallery.column.tags')" :sortable="true">
-                <template #body="slotProps">
-                    <span v-if="slotProps.data.tags.length > 0">
-                        <Chip v-for="(tag, index) of slotProps.data.tags" :key="index"> {{ tag.name }} </Chip>
-                    </span>
-                </template>
-            </Column>
-            <Column :header="$t('workspace.myData.parametrical')">
-                <template #body="slotProps">
-                    <i v-if="slotProps.data.parameters?.length > 0 || slotProps.data.drivers?.length > 0" class="fas fa-check p-button-link" />
-                </template>
-            </Column>
-        </DataTable>
-        <template #footer>
-            <Button class="kn-button kn-button--secondary" :label="$t('common.close')" @click="$emit('close')" />
-            <Button class="kn-button kn-button--primary" :label="$t('common.add')" @click="addSelectedDatasets" />
-        </template>
-    </Dialog>
+    <q-dialog :model-value="visible" persistent>
+        <q-card style="width: 60%; max-width: 800px">
+            <q-toolbar class="kn-toolbar kn-toolbar--primary">
+                <q-toolbar-title>{{ $t('dashboard.datasetEditor.selectDatasets') }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section>
+                <q-input filled dense v-model="searchWord" class="q-my-sm" type="text" :placeholder="$t('common.search')" data-test="search-input" @update:model-value="searchDatasets">
+                    <template v-slot:append>
+                        <q-icon name="search" />
+                    </template>
+                </q-input>
+                <q-table :rows="filteredDatasets" :columns="columns" flat dense selection="multiple" v-model:selected="selectedDatasets" :row-key="(row) => row.id.dsId" :pagination="{ rowsPerPage: 10 }" class="dataset-table">
+                    <template #body-cell-type="props">
+                        <q-td :props="props">
+                            {{ dataDialogDescriptor.datasetTypes[props.row.type] }}
+                            <q-tooltip :delay="500">
+                                {{ props.row.type }}
+                            </q-tooltip>
+                        </q-td>
+                    </template>
+                    <template #body-cell-params="props">
+                        <q-td :props="props">
+                            <i v-if="props.row.parameters?.length > 0 || props.row.drivers?.length > 0" class="fas fa-check p-button-link" />
+                        </q-td>
+                    </template>
+                </q-table>
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn color="secondary" :label="$t('common.close')" @click="$emit('close')"></q-btn>
+                <q-btn color="primary" :label="$t('common.add')" @click="addSelectedDatasets"></q-btn>
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Dialog from 'primevue/dialog'
-import Chip from 'primevue/chip'
 import dataDialogDescriptor from './DatasetEditorDataDialogDescriptor.json'
-import dashStore from '../../../Dashboard.store'
 import { IDataset } from '../../../Dashboard'
 
 export default defineComponent({
     name: 'datasets-catalog-datatable',
-    components: { Column, DataTable, Dialog, Chip },
     props: { selectedDatasetsProp: { required: true, type: Array as any }, availableDatasetsProp: { required: true, type: Array as PropType<IDataset[]> } },
     emits: ['close', 'addSelectedDatasets'],
-    setup() {
-        const dashboardStore = dashStore()
-        return { dashboardStore }
-    },
     data() {
         return {
             dataDialogDescriptor,
@@ -81,7 +50,9 @@ export default defineComponent({
             filteredDatasets: [] as IDataset[],
             selectedDatasets: [] as any,
             searchWord: '',
-            loading: false
+            loading: false,
+            columns: [] as any[],
+            visible: true
         }
     },
     watch: {
@@ -99,6 +70,13 @@ export default defineComponent({
         async setDatasetList() {
             this.datasets = this.filterOutSelectedDatasets(this.selectedDatasetsProp, this.availableDatasetsProp)
             this.filteredDatasets = [...this.datasets]
+            this.columns = [
+                { name: 'label', label: this.$t('common.label'), field: 'label', sortable: true, align: 'left' },
+                { name: 'name', label: this.$t('common.name'), field: 'name', sortable: true, align: 'left' },
+                { name: 'description', label: this.$t('common.description'), field: 'description', align: 'left', style: { 'max-width': '300px' }, classes: 'ellipsis' },
+                { name: 'type', label: this.$t('common.type'), field: 'type', sortable: true, align: 'left' },
+                { name: 'params', label: this.$t('workspace.myData.parametrical'), field: 'params', align: 'center' }
+            ]
         },
         filterOutSelectedDatasets(selectedDatasets, allDatasets) {
             return allDatasets.filter((responseDataset) => {
@@ -136,19 +114,16 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
-#noDatasetsFound {
-    margin: 0 auto;
-    border: 1px solid rgba(204, 204, 204, 0.6);
-    padding: 0.5rem;
-    background-color: #e6e6e6;
-    text-align: center;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    width: 80%;
+<style lang="scss" scoped>
+body.q-body--force-scrollbar-x {
+    overflow-x: hidden;
 }
 
-#datasets-datatable .p-datatable-wrapper {
-    height: auto;
+.dataset-table {
+    &:deep(.q-table) {
+        tbody td {
+            font-size: 0.8rem;
+        }
+    }
 }
 </style>
