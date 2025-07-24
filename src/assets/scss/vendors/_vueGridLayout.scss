@@ -1,3 +1,6 @@
 .vue-grid-item.vue-grid-placeholder {
     background: var(--kn-color-fab) !important;
 }
+.vgl-item__resizer {
+    z-index: 90;
+}
