@@ -761,6 +761,7 @@ export interface IChartType {
     label: string
     value: string
     disabled: boolean
+    eeOnly?: boolean
 }
 
 export interface IDashboardCrossNavigation {

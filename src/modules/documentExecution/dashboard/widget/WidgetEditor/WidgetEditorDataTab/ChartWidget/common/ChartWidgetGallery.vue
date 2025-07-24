@@ -4,9 +4,13 @@
             <InputText v-model="searchWord" class="kn-material-input p-mr-2 model-search" :style="galleryDescriptor.style.filterInput" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
         </div>
 
-        <MasonryWall class="p-mx-4 p-my-2 kn-flex kn-overflow dashboard-scrollbar" :items="filteredChartTypes" :column-width="200" :gap="6">
+        <MasonryWall class="scroll q-pa-md" :items="filteredChartTypes" :column-width="200" :gap="6">
             <template #default="{ chart, index }">
-                <div class="gallery-card kn-cursor-pointer" :class="{ 'gallery-card-disabled': filteredChartTypes[index].disabled }" :style="(galleryDescriptor.style.galleryCard as any)" @click="onChange(filteredChartTypes[index])">
+                <div class="gallery-card kn-cursor-pointer relative-position" :class="{ 'gallery-card-disabled': filteredChartTypes[index].disabled || (filteredChartTypes[index].eeOnly && !isEnterprise) }" :style="(galleryDescriptor.style.galleryCard as any)" @click="onChange(filteredChartTypes[index])">
+                    <q-badge v-if="filteredChartTypes[index].eeOnly && !isEnterprise" color="accent" floating>
+                        EE
+                        <q-tooltip :delay="500">{{ $t('dashboard.widgets.eeOnly') }}</q-tooltip>
+                    </q-badge>
                     <label class="kn-material-input-label">{{ $t(`${filteredChartTypes[index].label}`) }}</label>
                     <img :src="getImageSource(filteredChartTypes[index].value)" />
                 </div>
@@ -21,6 +25,8 @@ import { IWidget, IChartType } from '@/modules/documentExecution/dashboard/Dashb
 import galleryDescriptor from './ChartWidgetGalleryDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import MasonryWall from '@yeger/vue-masonry-wall'
+import { mapState } from 'pinia'
+import mainStore from '@/App.store'
 
 export default defineComponent({
     name: 'chart-widget-gallery',
@@ -40,6 +46,9 @@ export default defineComponent({
     async created() {
         this.loadSelectedType()
     },
+    computed: {
+        ...mapState(mainStore, ['isEnterprise'])
+    },
     methods: {
         loadSelectedType() {
             const chartModel = this.widgetModel.settings.chartModel ? this.widgetModel.settings.chartModel.model : null
@@ -49,7 +58,7 @@ export default defineComponent({
             }
         },
         onChange(chartType: IChartType) {
-            if (chartType.disabled) return
+            if (chartType.disabled || (chartType.eeOnly && !this.isEnterprise)) return
             this.selectedType = chartType.value
             this.$emit('selectedChartTypeChanged', this.selectedType)
         },
@@ -82,8 +91,15 @@ export default defineComponent({
         max-height: 160px;
         filter: hue-rotate(196deg);
     }
+    &.gallery-card-disabled {
+        cursor: default;
+        background-color: #dcdcdc;
+        img {
+            opacity: 0.5;
+        }
+    }
 }
-.gallery-card:hover {
+.gallery-card:not(.gallery-card-disabled):hover {
     border-color: #43749e !important;
     background-color: var(--kn-color-secondary);
     opacity: 0.8;

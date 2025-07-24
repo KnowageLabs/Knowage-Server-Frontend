@@ -67,10 +67,12 @@
             "value": "barStacked"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.scatterChart",
             "value": "scatter"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.bubbleChart",
             "value": "bubble"
         },
@@ -79,22 +81,27 @@
             "value": "radar"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.funnelChart",
             "value": "funnel"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.dumbbellChart",
             "value": "dumbbell"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.gauge",
             "value": "gauge"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.activitygauge",
             "value": "activitygauge"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.solidgauge",
             "value": "solidgauge"
         },
@@ -103,6 +110,7 @@
             "value": "line"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.treemap",
             "value": "treemap"
         },
@@ -111,46 +119,57 @@
             "value": "wordcloud"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.heatmap",
             "value": "heatmap"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.sunburst",
             "value": "sunburst"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.chord",
             "value": "dependencywheel"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.parallelChart",
             "value": "spline"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.pictorial",
             "value": "pictorial"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.sankey",
             "value": "sankey"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.sankeyInverted",
             "value": "sankeyInverted"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.streamgraph",
             "value": "streamgraph"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.packedbubble",
             "value": "packedbubble"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.scatterJitter",
             "value": "scatterJitter"
         },
         {
+            "eeOnly": true,
             "label": "dashboard.widgetEditor.chartTypes.waterfall",
             "value": "waterfall"
         }
