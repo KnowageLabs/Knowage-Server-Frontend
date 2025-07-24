@@ -1462,6 +1462,7 @@
                 "description": "Custom document upload as databind or datasource.",
                 "title": "document"
             },
+            "eeOnly": " This widget is available only in Enterprise Edition.",
             "html": {
                 "description": "Custom HTML code editor with shortcodes to embed dynamic content.",
                 "title": "html"
@@ -1501,8 +1502,7 @@
             "text": {
                 "description": "Static or dynamic widget text. Uses a WYSIWYG editor and shortcodes to embed dynamic content.",
                 "title": "text"
-            },
-            "eeOnly": " This widget is available only in Enterprise Edition."
+            }
         },
         "wizard": {
             "addDataset": "Add a new dataset to the dashboard",
@@ -1562,6 +1562,7 @@
                 "adDepends": "depends from the AD",
                 "conditionSavedMsg": "Data dependency is successfully created",
                 "conditionsTitle": "Driver data conditions",
+                "dashboardUsesQBEDrivers": "Dashboards using QBE Dataset Drivers cannot create or use Document Drivers.",
                 "dataConditionsValue": "value of the parameter",
                 "dataHint": "Filter operator is used for comparing a column value of the AD",
                 "dataTitle": "Driver data conditions",

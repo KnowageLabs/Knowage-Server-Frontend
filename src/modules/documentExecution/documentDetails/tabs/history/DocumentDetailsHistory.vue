@@ -13,16 +13,7 @@
             <div id="drivers-list-container" class="kn-flex kn-relative">
                 <div :style="mainDescriptor.style.absoluteScroll">
                     <ProgressBar v-if="loading" class="kn-progress-bar" mode="indeterminate" data-test="progress-bar" />
-                    <KnListBox
-                        v-if="!loading"
-                        class="kn-height-full"
-                        :options="listOfTemplates"
-                        :settings="historyDescriptor.knListSettings"
-                        @click="selectTemplate($event.item)"
-                        @setActive.stop="setActiveTemplate($event.item)"
-                        @download.stop="downloadTemplate($event.item)"
-                        @delete.stop="deleteTemplateConfirm($event.item)"
-                    ></KnListBox>
+                    <KnListBox v-if="!loading" class="kn-height-full" :options="listOfTemplates" :settings="historyDescriptor.knListSettings" @click="selectTemplate($event.item)" @setActive.stop="setActiveTemplate($event.item)" @download.stop="downloadTemplate($event.item)" @delete.stop="deleteTemplateConfirm($event.item)"></KnListBox>
                 </div>
             </div>
         </div>

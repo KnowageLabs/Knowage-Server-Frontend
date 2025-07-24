@@ -6,23 +6,13 @@
                     {{ $t('documentExecution.documentDetails.drivers.title') }}
                 </template>
                 <template #end>
-                    <Button :label="$t('common.add')" class="p-button-text p-button-rounded p-button-plain kn-white-color" @click="addNewDriver" />
+                    <Button :disabled="hasDatasetWithDrivers" :label="$t('common.add')" class="p-button-text p-button-rounded p-button-plain kn-white-color" @click="addNewDriver" />
                 </template>
             </Toolbar>
             <div id="drivers-list-container" class="kn-flex kn-relative">
                 <div :style="mainDescriptor.style.absoluteScroll">
                     <ProgressBar v-if="loading" class="kn-progress-bar" mode="indeterminate" data-test="progress-bar" />
-                    <KnListBox
-                        v-if="!loading"
-                        class="kn-height-full"
-                        :options="document.drivers"
-                        :settings="driversDescriptor.knListSettings"
-                        @click="selectDriver($event.item)"
-                        @delete.stop="deleteDriverConfirm($event)"
-                        @moveUp.stop="movePriority($event.item, 'up')"
-                        @moveDown.stop="movePriority($event.item, 'down')"
-                    >
-                    </KnListBox>
+                    <KnListBox v-if="!loading" class="kn-height-full" :options="document.drivers" :settings="driversDescriptor.knListSettings" @click="selectDriver($event.item)" @delete.stop="deleteDriverConfirm($event)" @moveUp.stop="movePriority($event.item, 'up')" @moveDown.stop="movePriority($event.item, 'down')"> </KnListBox>
                 </div>
             </div>
         </div>
@@ -35,8 +25,11 @@
             <div v-if="!loading" id="driver-details-container" class="kn-flex kn-relative">
                 <div :style="mainDescriptor.style.absoluteScroll">
                     <div class="p-m-2">
+                        <div v-if="hasDatasetWithDrivers">
+                            <InlineMessage severity="warn" class="kn-width-full">{{ $t('documentExecution.documentDetails.drivers.dashboardUsesQBEDrivers') }}</InlineMessage>
+                        </div>
                         <div v-if="Object.keys(selectedDriver).length === 0">
-                            <InlineMessage severity="info" class="kn-width-full">{{ $t('documentExecution.documentDetails.drivers.noDriverSelected') }}</InlineMessage>
+                            <InlineMessage v-if="!hasDatasetWithDrivers" severity="info" class="kn-width-full">{{ $t('documentExecution.documentDetails.drivers.noDriverSelected') }}</InlineMessage>
                         </div>
                         <Card v-else>
                             <template #content>
@@ -109,12 +102,7 @@
                                             />
                                             <label for="parameterUrlName" class="kn-material-input-label"> {{ $t('documentExecution.documentDetails.drivers.parameterUrlName') }} * </label>
                                         </span>
-                                        <KnValidationMessages
-                                            class="p-mt-1"
-                                            :v-comp="v$.selectedDriver.parameterUrlName"
-                                            :additional-translate-params="{ fieldName: $t('documentExecution.documentDetails.drivers.parameterUrlName') }"
-                                            :specific-translate-keys="{ custom_unique: 'managers.businessModelManager.driversUrlNotUnique' }"
-                                        />
+                                        <KnValidationMessages class="p-mt-1" :v-comp="v$.selectedDriver.parameterUrlName" :additional-translate-params="{ fieldName: $t('documentExecution.documentDetails.drivers.parameterUrlName') }" :specific-translate-keys="{ custom_unique: 'managers.businessModelManager.driversUrlNotUnique' }" />
                                     </div>
                                     <span class="p-field p-col-12 p-md-4 p-jc-center p-mt-3">
                                         <InputSwitch id="visible" v-model="selectedDriver.visible" @change="markSelectedDriverForChange" />
@@ -146,7 +134,7 @@
 </template>
 
 <script lang="ts">
-import { iDriver, iAnalyticalDriver, iDocument } from '@/modules/documentExecution/documentDetails/DocumentDetails'
+import { iDriver, iAnalyticalDriver, iDocument, iTemplate } from '@/modules/documentExecution/documentDetails/DocumentDetails'
 import { createValidations, ICustomValidatorMap } from '@/helpers/commons/validationHelper'
 import { defineComponent, PropType } from 'vue'
 import { AxiosResponse } from 'axios'
@@ -191,7 +179,9 @@ export default defineComponent({
             dataDependencyObjects: [] as any,
             transformedObj: {} as any,
             document: {} as any,
-            loading: false
+            loading: false,
+            listOfTemplates: [] as iTemplate[],
+            hasDatasetWithDrivers: false as boolean
         }
     },
     watch: {
@@ -207,6 +197,8 @@ export default defineComponent({
     created() {
         this.getDocumentDrivers()
         this.document = this.selectedDocument
+
+        this.loadTemplatesAndSelectActive()
     },
     validations() {
         const customValidators: ICustomValidatorMap = {
@@ -325,6 +317,23 @@ export default defineComponent({
             this.getDocumentDrivers()
             this.document = this.selectedDocument
             this.selectedDriver = {} as iDriver
+        },
+        async loadTemplatesAndSelectActive() {
+            this.loading = true
+
+            this.$http
+                .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates`)
+                .then((response: AxiosResponse<any>) => {
+                    this.listOfTemplates = response.data as iTemplate[]
+
+                    const activeTemplate = this.listOfTemplates.find((template) => template.active)
+                    if (activeTemplate) {
+                        this.$http.get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/2.0/documentdetails/${this.selectedDocument.id}/templates/selected/${activeTemplate.id}`, { headers: { 'X-Disable-Errors': 'true' } }).then((response: AxiosResponse<any>) => {
+                            this.hasDatasetWithDrivers = response.data.configuration?.datasets?.some((dataset) => Array.isArray(dataset.drivers) && dataset.drivers.length > 0) || false
+                        })
+                    }
+                })
+                .finally(() => (this.loading = false))
         }
     }
 })
