@@ -1,6 +1,6 @@
 <template>
     <div class="custom-header-group-container" :style="getSummaryStyle()">
-        <span v-if="!params.hideSummary" class="custom-header-group-label kn-width-full p-d-flex">
+        <span v-if="!params.hideSummary" class="custom-header-group-label kn-width-full p-d-flex" :style="getSummaryStyle()">
             <b v-if="isFirstColumn()" style="margin-right: 4px" class="p-mr-auto">
                 {{ params.summaryRows[params.node.rowIndex] || '' }}
             </b>
