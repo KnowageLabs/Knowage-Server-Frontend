@@ -283,7 +283,7 @@ export default defineComponent({
                     filter: {},
                     formula: calcFieldOutput.formula,
                     formulaEditor: calcFieldOutput.formula,
-                    aggregation: 'NONE'
+                    aggregation: 'SUM'
                 })
             }
 

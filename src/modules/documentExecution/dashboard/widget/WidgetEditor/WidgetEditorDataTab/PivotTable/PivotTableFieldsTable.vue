@@ -18,7 +18,7 @@
                     <template #body="slotProps">
                         <div :style="column.style ?? ''">
                             <InputText v-if="column.field === 'alias'" v-model="slotProps.data[column.field]" class="kn-material-input" @change="onColumnAliasRenamed(slotProps.data)" />
-                            <Dropdown v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)" v-model="slotProps.data[column.field]" class="kn-material-input column-aggregation-dropdown" :options="descriptor.columnAggregationOptions" option-label="label" option-value="value" @change="$emit('itemUpdated', slotProps.data)" />
+                            <Dropdown v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)" v-model="slotProps.data[column.field]" class="kn-material-input column-aggregation-dropdown" :options="getAggregationOptions(slotProps.data)" option-label="label" option-value="value" @change="$emit('itemUpdated', slotProps.data)" />
                             <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ '(' + slotProps.data[column.field] + ')' }}</span>
                             <span v-else class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                         </div>
@@ -203,6 +203,12 @@ export default defineComponent({
                 functionToEmit.orderColumn = functionColumn.originalFunctionColumnName
             }
             emitter.emit('editFunctionColumn', functionToEmit)
+        },
+        getAggregationOptions(data) {
+            if (data.formula) {
+                return this.descriptor.columnAggregationOptions.filter((option) => option.value !== 'NONE')
+            }
+            return this.descriptor.columnAggregationOptions
         }
     }
 })
