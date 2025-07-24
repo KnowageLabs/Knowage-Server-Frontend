@@ -189,6 +189,7 @@ export default defineComponent({
             this.loadSelectedDatasetForFunctions()
         },
         onDatasetSelected() {
+            console.log('onDatasetSelected', this.selectedDataset)
             if (this.availableFunctions.length === 0) this.loadAvailableFunctions(this.selectedDataset)
             this.loadDatasetColumns()
             if (this.model) {
@@ -200,6 +201,7 @@ export default defineComponent({
             this.loadSelectedDatasetForFunctions()
             this.$emit('datasetSelected', this.selectedDataset)
             emitter.emit('clearWidgetData', this.widgetModel.id)
+            emitter.emit('reloadChartColumns', this.widgetModel.id)
         },
         addAllColumnsToWidgetModel() {
             const formattedColumns = [] as IWidgetColumn[]
