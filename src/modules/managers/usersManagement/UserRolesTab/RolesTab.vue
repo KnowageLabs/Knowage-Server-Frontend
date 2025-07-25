@@ -42,7 +42,7 @@ export default defineComponent({
             ] as any[]
         }
     },
-    mounted() {
+    updated() {
         this.selectedRoles = this.selected || []
         this.setDefaultRole(this.defRole)
     },
