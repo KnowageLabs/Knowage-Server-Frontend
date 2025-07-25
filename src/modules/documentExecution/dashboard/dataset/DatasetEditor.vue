@@ -223,6 +223,8 @@ export default defineComponent({
             this.$emit('datasetEditorSaved')
         },
         formatDatasetForModel(datasetToFormat) {
+            console.log('Formatting dataset for model:', datasetToFormat)
+            console.log('datasetToFormat.parameters', datasetToFormat.parameters)
             const formattedDataset = {
                 id: datasetToFormat.id.dsId,
                 dsLabel: datasetToFormat.label,
@@ -230,7 +232,7 @@ export default defineComponent({
                 frequency: datasetToFormat.frequency,
                 indexes: datasetToFormat.modelCache ? datasetToFormat.modelIndexes : [],
                 parameters: datasetToFormat.parameters.map((parameter) => {
-                    return { name: parameter.name, type: parameter.modelType, value: parameter.value, multivalue: parameter.multivalue ?? false } as IDashboardDatasetParameter
+                    return { name: parameter.name, type: parameter.modelType, value: parameter.value, multivalue: parameter.multiValue ?? false } as IDashboardDatasetParameter
                 })
             } as IDashboardDataset
 
