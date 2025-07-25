@@ -17,10 +17,14 @@
                     </span>
                 </div>
                 <div class="p-field p-d-flex p-col-4">
-                    <span class="p-float-label kn-flex">
+                    <span v-if="!parameter.multiValue" class="p-float-label kn-flex">
                         <InputText id="label" v-model="parameter.value" class="kn-material-input" type="text" />
                         <label for="label" class="kn-material-input-label"> {{ $t('common.value') }} </label>
                     </span>
+                    <div v-else class="p-d-flex p-flex-column chipsContainer">
+                        <Chips v-model="parameter.value" class="kn-border-none" />
+                        <small id="chips-help">{{ $t('common.chipsHint') }}</small>
+                    </div>
                     <Button v-if="parameter.modelType === 'dynamic' && documentDriversProp && documentDriversProp.filterStatus.length > 0" icon="fa-solid fa-link" class="p-button-text p-button-rounded p-button-plain p-as-end" @click.stop="showMenu($event, parameter.name)" />
                 </div>
             </div>
