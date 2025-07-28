@@ -559,7 +559,6 @@ export default defineComponent({
             this.toolbarMenuItems = createToolbarMenuItems(
                 this.document,
                 {
-                    print: this.print,
                     openRank: this.openRank,
                     export: this.export,
                     openMailDialog: this.openMailDialog,
@@ -585,9 +584,6 @@ export default defineComponent({
                 this.newDashboardMode,
                 this.filtersData
             )
-        },
-        print() {
-            window.print()
         },
         hiddenExport(type: string) {
             this.export(type)
