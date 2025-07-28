@@ -52,7 +52,7 @@ import { defineComponent, PropType } from 'vue'
 import { IWidget, IWidgetInteractionParameter } from '@/modules/documentExecution/dashboard/Dashboard'
 import { IMapWidgetVisualizationType, IMapWidgetLayer, IMapWidgetSelection, IMapWidgetLink, IMapWidgetLayerProperty, IMapWidgetLinkVisualizationTypeConfig, IMapWidgetLinkConfiguration } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
-import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import { mapActions } from 'pinia'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import appStore from '@/App.store'
@@ -163,7 +163,7 @@ export default defineComponent({
             const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
             if (targetLayer?.type === 'layer') {
                 this.setLoading(true)
-                const properties = await getPropertiesByLayerId(targetLayer.id)
+                const properties = await getPropertiesByLayerLabel(targetLayer.label)
                 this.setLoading(false)
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
@@ -200,7 +200,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInLinkConfigurationForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label)
             this.setLoading(false)
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties

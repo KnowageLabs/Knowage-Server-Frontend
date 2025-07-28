@@ -91,13 +91,13 @@ export const getLayerData = async (layer: IMapWidgetLayer) => {
     return tempResponse
 }
 
-export const getPropertiesByLayerId = async (layerId: number) => {
+export const getPropertiesByLayerLabel = async (layerLabel: string) => {
     let properties = [] as any[]
     await axios
-        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?id=${layerId}`)
+        .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?label=${layerLabel}`)
         .then((response: AxiosResponse<any>) => (properties = response.data))
         .catch((error: any) => {
-            showGetDataError(error, '' + layerId)
+            showGetDataError(error, '' + layerLabel)
         })
     return properties
 }

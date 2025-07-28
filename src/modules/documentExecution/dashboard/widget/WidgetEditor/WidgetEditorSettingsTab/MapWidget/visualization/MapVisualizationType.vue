@@ -128,7 +128,7 @@ import { IWidget, IWidgetColumn } from '@/modules/documentExecution/dashboard/Da
 import { IMapWidgetLayer, IMapWidgetLayerProperty, IMapWidgetLegend, IMapWidgetVisualizationType, IMapWidgetVisualizationTypeLegendSettings } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { defineComponent, PropType } from 'vue'
 import { mapActions } from 'pinia'
-import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import { emitter } from '@/modules/documentExecution/dashboard/DashboardHelpers'
 import appStore from '@/App.store'
 import descriptor from './MapVisualizationTypeDescriptor.json'
@@ -209,7 +209,7 @@ export default defineComponent({
             const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
             if (targetLayer?.type === 'layer') {
                 this.setLoading(true)
-                const properties = await getPropertiesByLayerId(targetLayer.id)
+                const properties = await getPropertiesByLayerLabel(targetLayer.label)
                 this.setLoading(false)
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
@@ -217,7 +217,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInVisualizationTypeForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label)
             this.setLoading(false)
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties

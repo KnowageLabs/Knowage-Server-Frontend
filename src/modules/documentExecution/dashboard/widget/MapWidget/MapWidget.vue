@@ -62,7 +62,7 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import LeafletWrapper from './LeafletWrapper.vue'
 import { IMapWidgetLayer, IMapWidgetVisualizationType, IMapWidgetLayerProperty } from '../../interfaces/mapWidget/DashboardMapWidget'
 import deepcopy from 'deepcopy'
-import { getPropertiesByLayerId } from './MapWidgetDataProxy'
+import { getPropertiesByLayerLabel } from './MapWidgetDataProxy'
 import MapLegend from './legend/MapLegend.vue'
 
 export default defineComponent({
@@ -181,7 +181,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label)
             const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
             this.propertiesCache.set(targetLayer.layerId, formattedProperties)
             this.setLoading(false)

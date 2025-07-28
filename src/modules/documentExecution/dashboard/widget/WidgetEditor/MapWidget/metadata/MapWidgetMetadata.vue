@@ -12,7 +12,7 @@
 import { PropType, defineComponent } from 'vue'
 import { IMapWidgetLayer, IMapWidgetLayerProperty, IWidgetMapLayerColumn } from '@/modules/documentExecution/dashboard/interfaces/mapWidget/DashboardMapWidget'
 import { mapActions } from 'pinia'
-import { getPropertiesByLayerId } from '../../../MapWidget/MapWidgetDataProxy'
+import { getPropertiesByLayerLabel } from '../../../MapWidget/MapWidgetDataProxy'
 import { IVariable, IWidget } from '@/modules/documentExecution/dashboard/Dashboard'
 import appStore from '@/App.store'
 import MapWidgetMetadataSpatialAttribute from './MapWidgetMetadataSpatialAttribute.vue'
@@ -73,7 +73,7 @@ export default defineComponent({
             }
 
             this.setLoading(true)
-            const properties = await getPropertiesByLayerId(+this.layer.id)
+            const properties = await getPropertiesByLayerLabel(this.layer.label)
             this.setLoading(false)
             this.propertiesCache.set(this.layer.layerId, properties)
             this.layer.properties = properties

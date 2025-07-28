@@ -53,7 +53,7 @@ import MultiSelect from 'primevue/multiselect'
 import Message from 'primevue/message'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
-import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 
 export default defineComponent({
     name: 'map-dialog-settings',
@@ -140,7 +140,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label)
             const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
             this.propertiesCache.set(targetLayer.layerId, formattedProperties)
             this.setLoading(false)

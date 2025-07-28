@@ -47,7 +47,7 @@ import Dropdown from 'primevue/dropdown'
 import MultiSelect from 'primevue/multiselect'
 import Message from 'primevue/message'
 import defaultsDescriptor from '../../../helpers/mapWidget/MapWidgetDefaultValuesDescriptor.json'
-import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
 
 export default defineComponent({
@@ -132,7 +132,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInTooltipSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label)
             const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
             this.propertiesCache.set(targetLayer.layerId, formattedProperties)
             this.setLoading(false)

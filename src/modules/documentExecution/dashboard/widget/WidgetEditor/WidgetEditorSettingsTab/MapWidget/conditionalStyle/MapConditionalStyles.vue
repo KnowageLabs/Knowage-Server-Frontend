@@ -87,7 +87,7 @@ import descriptor from './MapConditionalStylesDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import WidgetEditorStyleToolbar from '../../common/styleToolbar/WidgetEditorStyleToolbar.vue'
 import * as mapWidgetDefaultValues from '../../../helpers/mapWidget/MapWidgetDefaultValues'
-import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 import appStore from '@/App.store'
 
 export default defineComponent({
@@ -256,7 +256,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInConditionalStylesSettingsForLayer(targetLayer: IMapWidgetLayer) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label)
             const formattedProperties = this.getPropertiesFormattedForDropdownOptions(properties)
             this.propertiesCache.set(targetLayer.layerId, formattedProperties)
             this.setLoading(false)

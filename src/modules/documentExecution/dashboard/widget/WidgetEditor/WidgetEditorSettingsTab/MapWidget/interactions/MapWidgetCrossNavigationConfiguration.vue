@@ -56,7 +56,7 @@ import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.stor
 import Dropdown from 'primevue/dropdown'
 import WidgetOutputParametersList from '../../common/interactions/crossNavigation/WidgetOutputParametersList.vue'
 import deepcopy from 'deepcopy'
-import { getPropertiesByLayerId } from '../../../../MapWidget/MapWidgetDataProxy'
+import { getPropertiesByLayerLabel } from '../../../../MapWidget/MapWidgetDataProxy'
 
 export default defineComponent({
     name: 'map-widget-cross-navigation-configuration',
@@ -196,7 +196,7 @@ export default defineComponent({
             const targetLayer = this.widgetModel.layers.find((layer: IMapWidgetLayer) => visualization.target === layer.layerId)
             if (targetLayer?.type === 'layer') {
                 this.setLoading(true)
-                const properties = await getPropertiesByLayerId(targetLayer.id)
+                const properties = await getPropertiesByLayerLabel(targetLayer.label)
                 this.setLoading(false)
                 this.propertiesCache.set(targetLayer.layerId, properties)
                 visualization.properties = properties
@@ -204,7 +204,7 @@ export default defineComponent({
         },
         async loadAvailablePropertiesInCrossNavigationForLayer(targetLayer: IMapWidgetLayer, visualization: IMapWidgetVisualizationType) {
             this.setLoading(true)
-            const properties = await getPropertiesByLayerId(targetLayer.id)
+            const properties = await getPropertiesByLayerLabel(targetLayer.label)
             this.setLoading(false)
             this.propertiesCache.set(targetLayer.layerId, properties)
             visualization.properties = properties
