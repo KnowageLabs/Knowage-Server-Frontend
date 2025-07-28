@@ -6,7 +6,7 @@
                 <img v-else :src="item.custIcon" />
             </q-item-section>
             <q-item-section class="relative-position">
-                <q-btn flat square align="left" :label="getInternationalizedValue(subItem)" class="text-lowercase fit text-weight-regular" :to="subItem.to">
+                <q-btn flat square align="left" :label="getInternationalizedValue(subItem)" class="text-lowercase fit text-weight-regular" :to="link">
                     <q-badge v-if="subItem.badge > 0" color="accent" floating>{{ subItem.badge }}</q-badge>
                 </q-btn>
             </q-item-section>
@@ -21,23 +21,20 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
-import { useInternationalization } from '@/composables/useInternationalization'
 import AdvancedMenuSubItem from './AdvancedMenuSubItem.vue'
 import { useQuasar } from 'quasar'
+import { computed } from 'vue'
+import { getInternationalizedValue, cleanUrl } from './AdvancedMainMenuHelper'
 
 const props = defineProps<{
     item: any
 }>()
 
-const { t } = useI18n()
 const $q = useQuasar()
-const { i18n } = useInternationalization()
 
-function getInternationalizedValue(item): string {
-    const value = item.descr ? item.descr : item.label
-    return i18n(value) || t(value)
-}
+const link = computed(() => {
+    return cleanUrl(props.item)
+})
 </script>
 <style lang="scss" scoped>
 .q-item__section--main ~ .q-item__section--side {

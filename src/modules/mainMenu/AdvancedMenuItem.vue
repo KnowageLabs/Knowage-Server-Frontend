@@ -1,5 +1,5 @@
 <template>
-    <q-btn flat square size="sm" class="menu-btn" :to="props.item.to" :class="{ 'router-link-active': isActive(props.item) }" @click="onClick($event, item)">
+    <q-btn flat square size="sm" class="menu-btn" :to="link" :class="{ 'router-link-active': isActive(props.item) }" @click="onClick($event, item)">
         <q-badge v-if="props.item.badge" color="accent" class="menuBadge">{{ props.item.badge }}</q-badge>
         <q-avatar square v-if="props.item.custIcon" size="20px"><img :src="props.item.custIcon" /></q-avatar>
         <q-avatar v-else-if="props.item.iconCls && props.item.command === 'languageSelection'" size="24px"><img :src="publicPath + '/images/flags/' + store.locale.toLowerCase().substring(3, 5) + '.svg'" /></q-avatar>
@@ -12,12 +12,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
-import { useInternationalization } from '@/composables/useInternationalization'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import AdvancedMenuSubItem from './AdvancedMenuSubItem.vue'
 import useMainStore from '@/App.store'
+import { computed } from 'vue'
+import { getInternationalizedValue, cleanUrl } from './AdvancedMainMenuHelper'
 
 const props = defineProps<{
     item: any
@@ -27,19 +27,16 @@ const props = defineProps<{
 const emit = defineEmits(['click'])
 
 const $q = useQuasar()
-const { t } = useI18n()
 const route = useRoute()
-const { i18n } = useInternationalization()
 const store = useMainStore()
 const publicPath = import.meta.env.VITE_PUBLIC_PATH
 
+const link = computed(() => {
+    return cleanUrl(props.item)
+})
+
 function isActive(item): boolean {
     return route.path === item.to
-}
-
-function getInternationalizedValue(item): string {
-    const value = item.descr ? item.descr : item.label
-    return i18n(value) || t(value)
 }
 
 function onClick(event, item): void {
