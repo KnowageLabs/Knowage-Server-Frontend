@@ -1967,6 +1967,7 @@
         "zh_CN_#Hans": "Cinese (semplificato)"
     },
     "licenseDialog": {
+        "adminsCreated": "Totale di amministratori",
         "changeLicense": "Cambio licenza",
         "dataRequired": "Questi dati sono necessari per generare/aggiornare le licenze",
         "deleteLicense": "Elimina licenza",
@@ -1981,6 +1982,7 @@
         "noLicenses": "Nessuna licenza disponibile",
         "numberOfCpu": "Numero di CPUs",
         "title": "Gestore delle licenze",
+        "usersCreated": "Totale di utenti finali",
         "updateLicense": "Aggiorna la licenza",
         "validLicense": "Licenza valida",
         "warningBeforeDelete": "You are attempting to remove {0} license. This operation cannot be undone. After deletion, you will have to log in again.",

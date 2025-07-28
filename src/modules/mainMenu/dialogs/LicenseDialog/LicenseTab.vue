@@ -4,11 +4,15 @@
             <p>{{ $t('licenseDialog.hostName') }}:</p>
             <p>{{ $t('licenseDialog.hardwareId') }}:</p>
             <p>{{ $t('licenseDialog.numberOfCpu') }}:</p>
+            <p>{{ $t('licenseDialog.adminsCreated') }}:</p>
+            <p>{{ $t('licenseDialog.usersCreated') }}:</p>
         </div>
-        <div>
+        <div id="host-values">
             <p>{{ selectedHost.hostName }}</p>
             <p id="hardwareId">{{ selectedHost.hardwareId }}</p>
             <p>{{ cpunumber }}</p>
+            <p>{{ `${adminUsersCreated}/${maxAdminUsers}` }}</p>
+            <p>{{ `${endUsersCreated}/${maxEndUsers}` }}</p>
         </div>
     </div>
     <Toolbar class="kn-toolbar--transparent p-mb-2">
@@ -77,6 +81,22 @@ export default defineComponent({
         cpunumber: {
             type: Number,
             default: 0
+        },
+        maxAdminUsers: {
+            type: Number,
+            default: 0
+        },
+        maxEndUsers: {
+          type: Number,
+          default: 0
+        },
+        adminUsersCreated: {
+          type: Number,
+          default: 0
+        },
+        endUsersCreated: {
+          type: Number,
+          default: 0
         },
         licenses: {
             type: Array,
@@ -225,9 +245,16 @@ export default defineComponent({
     flex-direction: row;
 }
 #host-labels {
-    flex: 0.7;
+    flex: 0 0 auto;
     margin-left: 1rem;
 }
+
+
+#host-values {
+  flex: 1;
+  min-width: 0;
+}
+
 
 #host-info p {
     margin: 0;

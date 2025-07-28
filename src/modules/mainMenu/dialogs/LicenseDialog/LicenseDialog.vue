@@ -9,7 +9,7 @@
                 <template #header>
                     <span>{{ host.hostName }}</span>
                 </template>
-                <LicenceTab :licenses="licenses.licenses[host.hostName]" :host="host" :cpunumber="licenses.cpuNumber"></LicenceTab>
+                <LicenceTab :licenses="licenses.licenses[host.hostName]" :host="host" :cpunumber="licenses.cpuNumber" :maxAdminUsers="licenses.maxAdminUsers" :maxEndUsers="licenses.maxEndUsers" :adminUsersCreated="licenses.adminUsersCreated" :endUsersCreated="licenses.endUsersCreated"></LicenceTab>
             </TabPanel>
         </TabView>
         <template #footer>

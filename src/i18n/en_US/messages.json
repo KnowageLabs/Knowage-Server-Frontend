@@ -2232,6 +2232,7 @@
         "zh_CN_#Hans": "Chinese (simplified)"
     },
     "licenseDialog": {
+        "adminsCreated": "Admin users count",
         "changeLicense": "Change License",
         "dataRequired": "This data is required to generate/update licenses",
         "deleteLicense": "Delete License",
@@ -2246,6 +2247,7 @@
         "noLicenses": "No licenses available",
         "numberOfCpu": "Number of CPUs",
         "title": "License Management",
+        "usersCreated": "End users count",
         "updateLicense": "Update license",
         "validLicense": "Valid License",
         "warningBeforeDelete": "You are attempting to remove {0} license. This operation cannot be undone. After deletion, you will have to log in again.",
