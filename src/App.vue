@@ -115,11 +115,6 @@ export default defineComponent({
                 this.$i18n.locale = storedLocale
 
                 await loadLanguageAsync(localStorage.getItem('locale'))
-                // @ts-ignore
-                /*if (this.$i18n.messages[this.$i18n.locale.replaceAll('-', '_')]) {
-                    // @ts-ignore
-                    this.$primevue.config.locale = { ...this.$primevue.config.locale, ...this.$i18n.messages[this.$i18n.locale.replaceAll('-', '_')].locale }
-                }*/
 
                 this.$primevue.config.locale.dateFormat = primeVueDate(getLocale(true))
 

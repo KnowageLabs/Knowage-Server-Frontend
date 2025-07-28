@@ -81,7 +81,7 @@ export default defineComponent({
                 }
             })
 
-            const id = this.$router.currentRoute.value.params.id ?? this.parseSelectedMenuItem()
+            const id = this.$router.currentRoute.value.params.id
 
             if (id && id !== 'document-browser' && (this.$router.currentRoute.value.name === 'document-browser-document-execution' || this.$router.currentRoute.value.name === 'document-browser-document-details-edit' || this.$router.currentRoute.value.name === 'document-browser')) {
                 let tempDocument = {} as any
@@ -102,11 +102,6 @@ export default defineComponent({
                 this.activeIndex = 1
                 this.selectedItem = tempItem
             }
-        },
-        parseSelectedMenuItem() {
-            if (!this.selectedMenuItem) return null
-
-            return this.selectedMenuItem.to?.substring(this.selectedMenuItem.to.lastIndexOf('/') + 1)
         },
         onTabChange() {
             if (this.activeIndex === 0) {
