@@ -24,7 +24,7 @@
                 <ul v-show="showProfileMenu" ref="menuProfileSlide" class="layout-menu profile-menu">
                     <template v-for="(item, i) of commonUserFunctionalities" :key="i">
                         <template v-if="item">
-                            <MainMenuItem :item="item" @click="itemClick"></MainMenuItem>
+                            <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="setMenu(item)"></AdvancedMenuItem>
                         </template>
                     </template>
                 </ul>
@@ -34,10 +34,12 @@
                     <span :class="['p-menuitem-icon', 'fas fa-cog']"></span>
                 </li>
                 <template v-for="(item, i) of allowedUserFunctionalities" :key="i">
-                    <MainMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem>
+                    <!--MainMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem-->
+                    <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @click="itemClick" @mouseover="setMenu(item)"></AdvancedMenuItem>
                 </template>
                 <template v-for="(item, i) of dynamicUserFunctionalities" :key="i">
-                    <MainMenuItem :item="item" :internationalize="true" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem>
+                    <AdvancedMenuItem :item="item" :badge="getBadgeValue(item)" @mouseover="setMenu(item)"></AdvancedMenuItem>
+                    <!--MainMenuItem :item="item" :internationalize="true" @click="itemClick" @mouseover="toggleMenu($event, item)"></MainMenuItem-->
                 </template>
             </ul>
         </div>
@@ -65,11 +67,13 @@ import MainMenuTieredMenu from '@/modules/mainMenu/MainMenuTieredMenu.vue'
 import ScrollPanel from 'primevue/scrollpanel'
 import mainStore from '../../App.store'
 import UserFunctionalitiesConstants from '@/UserFunctionalitiesConstants.json'
+import AdvancedMenuItem from '@/modules/mainMenu/AdvancedMenuItem.vue'
 
 export default defineComponent({
     name: 'knmenu',
     components: {
         AccountDialog,
+        AdvancedMenuItem,
         InfoDialog,
         MainMenuAdmin,
         MainMenuItem,
@@ -339,6 +343,16 @@ export default defineComponent({
         },
         updateWindowWidth() {
             this.windowWidth = window.innerWidth
+        },
+        setMenu(item) {
+            this.dynamicUserFunctionalities = this.dynamicUserFunctionalities.map((el) => {
+                if (el.label === item.label) {
+                    el.visible = true
+                } else {
+                    el.visible = false
+                }
+                return el
+            })
         }
     }
 })
@@ -423,12 +437,14 @@ export default defineComponent({
         padding: 0;
         list-style: none;
         overflow-y: scroll;
-        li {
+        li,
+        button {
             &:first-child {
                 padding-top: 10px;
             }
         }
-        & > li {
+        & > li,
+        & > button {
             position: relative;
             & > a {
                 text-align: center;

@@ -7,4 +7,5 @@ export interface IMenuItem {
     conditionedView?: string
     badge?: number
     command?: string
+    visible?: boolean
 }

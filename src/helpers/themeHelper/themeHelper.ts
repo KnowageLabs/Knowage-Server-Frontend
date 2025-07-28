@@ -32,5 +32,7 @@ export default class themeHelper {
         document.documentElement.style.setProperty('--q-accent', variables['--kn-button-fab-background-color'])
         document.documentElement.style.setProperty('--q-info', variables['--kn-message-info-background-color'])
         document.documentElement.style.setProperty('--q-secondary', variables['--kn-button-secondary-background-color'])
+
+        document.documentElement.style.setProperty('--q-pe-left', '3px')
     }
 }
