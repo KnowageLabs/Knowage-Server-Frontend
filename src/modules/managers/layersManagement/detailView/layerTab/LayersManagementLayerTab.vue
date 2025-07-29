@@ -2,7 +2,7 @@
     <Card id="basic-info-card">
         <template #content>
             <div class="row q-gutter-sm">
-                <q-input filled class="col" v-model="v$.layer.label.$model" :error="v$.layer.label.$invalid && v$.layer.label.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.label') })" max-length="100" :label="$t('common.label') + '*'" data-test="description-input" @update:model-value="$emit('touched')" />
+                <q-input filled class="col" v-model="v$.layer.label.$model" :error="v$.layer.label.$invalid && v$.layer.label.$dirty" :disable="locked" :error-message="$t('common.validation.required', { fieldName: $t('common.label') })" max-length="100" :label="$t('common.label') + '*'" data-test="description-input" @update:model-value="$emit('touched')" />
                 <q-input filled class="col" v-model="v$.layer.name.$model" :error="v$.layer.name.$invalid && v$.layer.name.$dirty" :error-message="$t('common.validation.required', { fieldName: $t('common.name') })" max-length="100" :label="$t('common.name') + '*'" @update:model-value="$emit('touched')" />
             </div>
             <div class="row">
@@ -78,14 +78,10 @@ import { createValidations, ICustomValidatorMap } from '@/helpers/commons/valida
 import useValidate from '@vuelidate/core'
 import descriptor from './LayersManagementLayerTabDescriptor.json'
 import KnValidationMessages from '@/components/UI/KnValidatonMessages.vue'
-import Textarea from 'primevue/textarea'
-import MultiSelect from 'primevue/multiselect'
-import Dropdown from 'primevue/dropdown'
 import KnInputFile from '@/components/UI/KnInputFile.vue'
-import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
-    components: { KnValidationMessages, Textarea, MultiSelect, Dropdown, KnInputFile, InputSwitch },
+    components: { KnValidationMessages, KnInputFile },
     props: { selectedLayer: { type: Object, required: true }, allRoles: { type: Array, required: true }, allCategories: { type: Array, required: true } },
     emits: ['touched'],
     data() {
@@ -94,17 +90,13 @@ export default defineComponent({
             descriptor,
             layer: {} as any,
             triggerUpload: false,
-            uploading: false
+            uploading: false,
+            locked: false
         }
     },
-    watch: {
-        selectedLayer() {
-            this.layer = this.selectedLayer
-            if (this.layer.type === 'File') this.layer.type = 'geojson'
-        }
-    },
-    async created() {
+    async updated() {
         this.layer = this.selectedLayer
+        this.locked = this.selectedLayer.label ? true : false
         if (this.layer.type === 'File') this.layer.type = 'geojson'
     },
     validations() {
