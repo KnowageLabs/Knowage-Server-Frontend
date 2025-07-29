@@ -94,16 +94,15 @@ export default defineComponent({
                 message: this.$t('common.toast.deleteMessage'),
                 header: this.$t('common.toast.deleteTitle'),
                 icon: 'pi pi-exclamation-triangle',
-                accept: () => this.deleteLayer(event.item.layerId)
+                accept: () => this.deleteLayer(event.item.label)
             })
         },
-        async deleteLayer(layerId: number) {
-            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/deleteLayer?id=${layerId}`).then(() => {
+        async deleteLayer(layerLabel: string) {
+            await this.$http.post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/deleteLayer?label=${layerLabel}`).then(() => {
                 this.setInfo({
                     title: this.$t('common.toast.deleteTitle'),
                     msg: this.$t('common.toast.deleteSuccess')
                 })
-                layerId == this.selectedLayer?.layerId ? this.onDetailClose() : ''
                 this.getAllLayers()
             })
         },

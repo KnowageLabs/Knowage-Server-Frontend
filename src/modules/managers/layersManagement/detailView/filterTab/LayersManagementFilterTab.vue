@@ -82,7 +82,7 @@ export default defineComponent({
                 this.setLoading(true)
                 this.filters = []
                 await this.$http
-                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?id=${this.layer.layerId}`)
+                    .get(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/layers/getFilter?label=${this.layer.label}`)
                     .then((response: AxiosResponse<any>) => {
                         response.data?.forEach((filter: iFilter) => {
                             const index = this.layer?.properties.findIndex((property: iFilter) => property.property === filter.property)
