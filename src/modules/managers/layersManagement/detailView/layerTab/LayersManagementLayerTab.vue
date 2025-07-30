@@ -94,7 +94,12 @@ export default defineComponent({
             locked: false
         }
     },
-    async updated() {
+    mounted() {
+        this.layer = this.selectedLayer
+        this.locked = this.selectedLayer.label ? true : false
+        if (this.layer.type === 'File') this.layer.type = 'geojson'
+    },
+    updated() {
         this.layer = this.selectedLayer
         this.locked = this.selectedLayer.label ? true : false
         if (this.layer.type === 'File') this.layer.type = 'geojson'

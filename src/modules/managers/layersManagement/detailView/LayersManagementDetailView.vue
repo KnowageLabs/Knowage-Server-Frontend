@@ -57,11 +57,9 @@ export default defineComponent({
             return this.v$.$invalid
         }
     },
-    watch: {
-        selectedLayer() {
-            this.loadLayer()
-            this.getRolesForLayer()
-        }
+    async updated() {
+        this.loadLayer()
+        this.getRolesForLayer()
     },
     async created() {
         this.loadLayer()
