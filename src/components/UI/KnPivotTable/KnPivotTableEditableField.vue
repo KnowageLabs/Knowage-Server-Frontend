@@ -69,8 +69,6 @@ export default defineComponent({
     created() {
         this.loadRow()
         this.loadColumnOptions()
-
-        console.log(getLocale())
     },
     methods: {
         loadRow() {
