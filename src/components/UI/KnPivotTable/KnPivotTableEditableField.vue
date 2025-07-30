@@ -1,14 +1,7 @@
 <template>
     <div v-if="column">
-        <InputText
-            v-if="column.editorType !== 'COMBO' && column.columnInfo.type !== 'date' && column.columnInfo.type !== 'timestamp'"
-            v-model="row[column.field].data"
-            :style="knPivotTableDescriptor.pivotStyles.inputFields"
-            class="kn-material-input"
-            :type="setDataType(column.columnInfo.type)"
-            :step="getStep(column.columnInfo.type)"
-            @input="$emit('rowChanged', row)"
-        />
+        <InputNumber v-if="typeof row[column.field].data === 'number'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :locale="getLocaleString()" @input="$emit('rowChanged', row)" />
+        <InputText v-else-if="column.editorType !== 'COMBO' && column.columnInfo.type !== 'date' && column.columnInfo.type !== 'timestamp'" v-model="row[column.field].data" :style="knPivotTableDescriptor.pivotStyles.inputFields" class="kn-material-input" :type="setDataType(column.columnInfo.type)" @input="$emit('rowChanged', row)" />
         <Calendar
             v-else-if="column.columnInfo.type === 'date' || column.columnInfo.type === 'timestamp'"
             v-model="row[column.field].data"
@@ -20,15 +13,7 @@
             :date-format="column.columnInfo.type === 'date' ? getCurrentLocaleDefaultDateFormat(column) : ''"
             @date-select="$emit('rowChanged', row)"
         />
-        <Dropdown
-            v-else-if="column.editorType === 'COMBO'"
-            v-model="row[column.field].data"
-            class="kn-material-input"
-            :options="columnOptions[column.field] ? columnOptions[column.field][row[column.dependences]?.data] : []"
-            :placeholder="$t('documentExecution.registry.select')"
-            @change="$emit('dropdownChanged', { row: row, column: column })"
-            @before-show="$emit('dropdownOpened', { row: row, column: column })"
-        >
+        <Dropdown v-else-if="column.editorType === 'COMBO'" v-model="row[column.field].data" class="kn-material-input" :options="columnOptions[column.field] ? columnOptions[column.field][row[column.dependences]?.data] : []" :placeholder="$t('documentExecution.registry.select')" @change="$emit('dropdownChanged', { row: row, column: column })" @before-show="$emit('dropdownOpened', { row: row, column: column })">
             <template #value="slotProps">
                 <div v-if="slotProps.value">
                     <span>{{ slotProps.value }}</span>
@@ -46,15 +31,16 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { setInputDataType, getInputStep } from '@/helpers/commons/tableHelpers'
-import { formatDate } from '@/helpers/commons/localeHelper'
+import { formatDate, getLocale } from '@/helpers/commons/localeHelper'
 import { luxonFormatDate, primeVueDate } from '@/helpers/commons/localeHelper'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import knPivotTableDescriptor from '@/components/UI/KnPivotTable/KnPivotTableDescriptor.json'
+import InputNumber from 'primevue/inputnumber'
 
 export default defineComponent({
     name: 'kn-pivot-table-editable-field',
-    components: { Calendar, Dropdown },
+    components: { Calendar, Dropdown, InputNumber },
     props: { column: { type: Object }, propRow: { type: Object }, comboColumnOptions: { type: Array } },
     emits: ['rowChanged', 'dropdownChanged', 'dropdownOpened'],
     data() {
@@ -83,6 +69,8 @@ export default defineComponent({
     created() {
         this.loadRow()
         this.loadColumnOptions()
+
+        console.log(getLocale())
     },
     methods: {
         loadRow() {
@@ -107,6 +95,21 @@ export default defineComponent({
         },
         getFormattedDate(date: any, format: any) {
             return formatDate(date, format)
+        },
+        getLocaleString() {
+            const currentLocale = getLocale()
+            const localeMap = {
+                de_DE: 'de-DE',
+                en_GB: 'en-GB',
+                en_US: 'en-US',
+                es_ES: 'es-ES',
+                fr_FR: 'fr-FR',
+                it_IT: 'it-IT',
+                pt_BR: 'pt-BR',
+                'zh_CN_#Hans': 'zh-CN'
+            }
+
+            return localeMap[currentLocale] || 'en-US' // fallback to en-US
         }
     }
 })

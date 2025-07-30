@@ -24,6 +24,8 @@
                                 </span>
                                 <span v-else-if="row[column.field].data && column.columnInfo?.type === 'timestamp'"> {{ getFormattedDateTime(row[column.field].data, { dateStyle: 'short', timeStyle: 'medium' }, true) }}</span>
 
+                                <span v-else-if="typeof row[column.field].data === 'number'">{{ getFormattedNumber(row[column.field].data) }}</span>
+
                                 <span v-else>{{ row[column.field].data }}</span>
                             </span>
                         </td>
