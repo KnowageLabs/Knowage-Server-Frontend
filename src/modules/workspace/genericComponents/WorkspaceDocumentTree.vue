@@ -1,18 +1,17 @@
 <template>
     <q-banner v-if="nodes.length === 0 && !loading" class="bg-info text-black q-ma-sm" rounded dense>{{ $t('workspace.addViewFolderHint') }}</q-banner>
-    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
-    <q-tree v-else :nodes="nodes" node-key="id" :selected="selectedFolderKey" @update:selected="setSelectedFolder">
+    <q-tree v-if="nodes && nodes.length > 0" :nodes="nodes" node-key="id" v-model:selected="selectedFolderKey" @update:selected="setSelectedFolder" class="fit">
         <template #default-header="{ node }">
-            <div v-show="mode === 'select'" class="row full-width">
+            <div class="row full-width">
                 <q-icon :name="node.icon" class="q-mr-sm" />
                 <span class="col">{{ node.label }}</span>
-                <q-btn flat round dense size="xs" icon="add" @click.stop="createFolder(node)">
+                <q-btn v-show="mode === 'select'" flat round dense size="xs" icon="add" @click.stop="createFolder(node)">
                     <q-tooltip>{{ $t('common.add') }}</q-tooltip>
                 </q-btn>
-                <q-btn v-if="node.id" flat round dense size="xs" icon="edit" @click.stop="editFolder(node.data)">
+                <q-btn v-show="mode === 'select'" v-if="node.id" flat round dense size="xs" icon="edit" @click.stop="editFolder(node.data)">
                     <q-tooltip>{{ $t('common.edit') }}</q-tooltip>
                 </q-btn>
-                <q-btn v-if="node.id" flat round dense size="xs" icon="delete" @click.stop="deleteFolderConfirm(node)">
+                <q-btn v-show="mode === 'select'" v-if="node.id" flat round dense size="xs" icon="delete" @click.stop="deleteFolderConfirm(node)">
                     <q-tooltip class="text-capitalized">{{ $t('common.delete') }}</q-tooltip>
                 </q-btn>
             </div>
