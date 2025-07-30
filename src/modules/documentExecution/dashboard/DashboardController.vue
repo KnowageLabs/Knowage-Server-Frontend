@@ -272,6 +272,7 @@ export default defineComponent({
                 this.setDashboardDrivers(this.dashboardId, this.drivers)
                 emitter.emit('loadPivotStates', this.selectedViewForExecution)
             }
+            this.updateDatasetDriversWithSidebarValues()
 
             this.store.setDashboard(this.dashboardId, this.model)
             this.setDashboardDrivers(this.dashboardId, this.drivers)
@@ -626,6 +627,33 @@ export default defineComponent({
         },
         onSelectionsChanged() {
             this.updateVariableValuesWithDriverValuesAfterExecution()
+        },
+        updateDatasetDriversWithSidebarValues() {
+            if (this.drivers && this.model?.configuration?.datasets) {
+                this.model.configuration.datasets.forEach((dataset) => {
+                    if (dataset.drivers && dataset.drivers.length > 0) {
+                        dataset.drivers.forEach((datasetDriver) => {
+                            const matchingDriver = this.drivers.find((driver) => driver.urlName === datasetDriver.urlName)
+
+                            if (matchingDriver) {
+                                if (!datasetDriver.parameterValue) datasetDriver.parameterValue = []
+
+                                if (datasetDriver.parameterValue.length > 0) {
+                                    datasetDriver.parameterValue.forEach((param) => {
+                                        param.value = matchingDriver.value
+                                        param.description = matchingDriver.description || ''
+                                    })
+                                } else {
+                                    datasetDriver.parameterValue.push({
+                                        value: matchingDriver.value,
+                                        description: matchingDriver.description || ''
+                                    })
+                                }
+                            }
+                        })
+                    }
+                })
+            }
         }
     }
 })
