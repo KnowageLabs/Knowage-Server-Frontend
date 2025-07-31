@@ -71,9 +71,9 @@ export default defineComponent({
             }
         },
         loadCrossNavigationParameters() {
-            const fromCellParameters = this.olapDesigner.template?.wrappedObject?.olap?.CROSS_NAVIGATION?.PARAMETERS?.PARAMETER
+            const fromCellParameters = this.olapDesigner.template??.olap?.CROSS_NAVIGATION?.PARAMETERS?.PARAMETER
             const fromMemberParameters = [] as iOlapCrossNavigationParameter[]
-            this.olapDesigner?.template?.wrappedObject?.olap?.MDXQUERY?.clickable?.forEach((el: any) => fromMemberParameters.push({ ...el, name: el.clickParameter.name, type: 'From Member' }))
+            this.olapDesigner?.template??.olap?.MDXQUERY?.clickable?.forEach((el: any) => fromMemberParameters.push({ ...el, name: el.clickParameter.name, type: 'From Member' }))
 
             this.parameters = []
             if (fromCellParameters?.length > 0) this.parameters = this.parameters.concat(fromCellParameters)
@@ -95,12 +95,12 @@ export default defineComponent({
             this.loadCrossNavigationParameters()
         },
         removeCellParameter(parameter) {
-            const olapDesignerParameters = this.olapDesigner.template.wrappedObject.olap.CROSS_NAVIGATION.PARAMETERS.PARAMETER
+            const olapDesignerParameters = this.olapDesigner.template.olap.CROSS_NAVIGATION.PARAMETERS.PARAMETER
             const index = olapDesignerParameters.findIndex((el: any) => el.name === parameter?.name)
             if (index !== -1) olapDesignerParameters.splice(index, 1)
         },
         removeMemberParameter(parameter) {
-            const clickable = this.olapDesigner.template.wrappedObject.olap.MDXQUERY.clickable
+            const clickable = this.olapDesigner.template.olap.MDXQUERY.clickable
             const index = clickable.findIndex((el: any) => el.clickParameter.name === parameter.name)
             if (index !== -1) clickable.splice(index, 1)
         },
@@ -133,15 +133,15 @@ export default defineComponent({
                 type: this.selectedParameter?.type
             }
 
-            if (!this.olapDesigner.template.wrappedObject.olap.CROSS_NAVIGATION) {
-                this.olapDesigner.template.wrappedObject.olap.CROSS_NAVIGATION = {
+            if (!this.olapDesigner.template.olap.CROSS_NAVIGATION) {
+                this.olapDesigner.template.olap.CROSS_NAVIGATION = {
                     PARAMETERS: {
                         PARAMETER: []
                     }
                 }
             }
 
-            const olapDesignerParameters = this.olapDesigner.template.wrappedObject.olap.CROSS_NAVIGATION.PARAMETERS.PARAMETER
+            const olapDesignerParameters = this.olapDesigner.template.olap.CROSS_NAVIGATION.PARAMETERS.PARAMETER
 
             const index = olapDesignerParameters.findIndex((el: any) => el.name === this.selectedParameter?.name)
             index !== -1 ? (olapDesignerParameters[index] = tempParameter) : olapDesignerParameters.push(tempParameter)
@@ -151,10 +151,10 @@ export default defineComponent({
                 return
             }
 
-            if (!this.olapDesigner.template.wrappedObject.olap.MDXQUERY.clickable) {
-                this.olapDesigner.template.wrappedObject.olap.MDXQUERY.clickable = []
+            if (!this.olapDesigner.template.olap.MDXQUERY.clickable) {
+                this.olapDesigner.template.olap.MDXQUERY.clickable = []
             }
-            const clickable = this.olapDesigner.template.wrappedObject.olap.MDXQUERY.clickable
+            const clickable = this.olapDesigner.template.olap.MDXQUERY.clickable
             const tempParameter = { clickParameter: { name: this.selectedParameter.name, value: '{0}' }, name: this.selectedParameter.name, type: this.selectedParameter.type, uniqueName: this.selectedParameter.value }
 
             const index = clickable.findIndex((el: any) => el.clickParameter.name === this.selectedParameter?.name)

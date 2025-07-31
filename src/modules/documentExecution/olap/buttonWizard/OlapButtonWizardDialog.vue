@@ -147,16 +147,18 @@ export default defineComponent({
             this.wizardButtons = []
         },
         save() {
-            if (!this.olapDesigner.template.wrappedObject.olap.TOOLBAR) this.olapDesigner.template.wrappedObject.olap.TOOLBAR = {}
-            const toolbarButtonKeys = Object.keys(this.olapDesigner.template.wrappedObject.olap.TOOLBAR)
+            if (!this.olapDesigner?.template?.olap?.TOOLBAR) {
+                this.olapDesigner.template.olap.TOOLBAR = {}
+            }
+            const toolbarButtonKeys = Object.keys(this.olapDesigner.template.olap.TOOLBAR)
 
             this.wizardButtons.forEach((tempButton: iButton) => {
                 const index = toolbarButtonKeys.indexOf(tempButton.name)
                 if (index >= 0) {
-                    this.olapDesigner.template.wrappedObject.olap.TOOLBAR[toolbarButtonKeys[index]].visible = tempButton.visible
-                    this.olapDesigner.template.wrappedObject.olap.TOOLBAR[toolbarButtonKeys[index]].clicked = tempButton.clicked
+                    this.olapDesigner.template.olap.TOOLBAR[toolbarButtonKeys[index]].visible = tempButton.visible
+                    this.olapDesigner.template.olap.TOOLBAR[toolbarButtonKeys[index]].clicked = tempButton.clicked
                 } else {
-                    this.olapDesigner.template.wrappedObject.olap.TOOLBAR[tempButton.name] = { visible: tempButton.visible, clicked: tempButton.clicked }
+                    this.olapDesigner.template.olap.TOOLBAR[tempButton.name] = { visible: tempButton.visible, clicked: tempButton.clicked }
                 }
             })
             this.$emit('close')

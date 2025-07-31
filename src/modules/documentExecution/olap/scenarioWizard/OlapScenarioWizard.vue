@@ -138,9 +138,9 @@ export default defineComponent({
     },
     methods: {
         createScenario() {
-            if (this.olapDesignerProp.template.wrappedObject.olap.SCENARIO) {
-                this.scenario = deepcopy(this.olapDesignerProp.template.wrappedObject.olap.SCENARIO)
-                this.selectedCube = { name: this.olapDesignerProp.template.wrappedObject.olap.SCENARIO.editCube }
+            if (this.olapDesignerProp.template.olap.SCENARIO) {
+                this.scenario = deepcopy(this.olapDesignerProp.template.olap.SCENARIO)
+                this.selectedCube = { name: this.olapDesignerProp.template.olap.SCENARIO.editCube }
                 this.getAllMeasures()
             } else {
                 this.scenario = deepcopy(this.descriptor.scenarioTemplate)
