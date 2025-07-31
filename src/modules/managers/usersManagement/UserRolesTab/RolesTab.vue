@@ -42,6 +42,10 @@ export default defineComponent({
             ] as any[]
         }
     },
+    mounted() {
+        this.selectedRoles = this.selected || []
+        this.setDefaultRole(this.defRole)
+    },
     updated() {
         this.selectedRoles = this.selected || []
         this.setDefaultRole(this.defRole)

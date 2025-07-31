@@ -46,6 +46,7 @@ import layersManagementFilterTabDescriptor from './LayersManagementFilterTabDesc
 import Listbox from 'primevue/listbox'
 import { mapActions } from 'pinia'
 import mainStore from '@/App.store'
+import { AxiosResponse } from 'axios'
 
 export default defineComponent({
     name: 'layers-management-filter-tab',

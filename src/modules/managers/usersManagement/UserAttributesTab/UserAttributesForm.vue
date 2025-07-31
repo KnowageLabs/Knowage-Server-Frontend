@@ -58,6 +58,9 @@ export default defineComponent({
             initialSelection: null as any
         }
     },
+    mounted() {
+        this.userAttributesForm = { ...this.modelValue }
+    },
     updated() {
         this.userAttributesForm = { ...this.modelValue }
     },
