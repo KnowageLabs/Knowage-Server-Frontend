@@ -135,6 +135,8 @@ export default defineComponent({
             if (typeof this.document.reportNameInSubject === 'undefined') this.document.reportNameInSubject = false
 
             if (!this.document.mailtxt) this.document.mailtxt = ''
+            this.document.mailtxt = this.document.mailtxt.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
+
             this.document.invalid.invalidMail = false
             this.validateDocument(null)
         },

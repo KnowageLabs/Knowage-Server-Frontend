@@ -188,6 +188,12 @@ export default defineComponent({
                 })
             }
 
+            formattedTrigger.documents.forEach(d => {
+              if(d.mailtxt) {
+                d.mailtxt = this.escapeHtml(d.mailtxt);
+              }
+            })
+
             if (this.trigger.frequency) {
                 formattedTrigger.frequency = { ...this.trigger.frequency, cron: { ...this.trigger.frequency.cron, parameter: { type: this.trigger.frequency.cron.type, parameter: { ...this.trigger.frequency.cron.parameter } } } }
             }
@@ -210,6 +216,12 @@ export default defineComponent({
 
             return formattedTrigger
         },
+        escapeHtml(text) {
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        },
+
         deleteTriggerProps(formattedTrigger: any) {
             const props = ['startDateTiming', 'startTimeTiming', 'endDateTiming', 'endTimeTiming', 'startDate', 'startTime', 'startDateRFC3339', 'endDate', 'endTime']
             props.forEach((property: string) => delete formattedTrigger[property])
