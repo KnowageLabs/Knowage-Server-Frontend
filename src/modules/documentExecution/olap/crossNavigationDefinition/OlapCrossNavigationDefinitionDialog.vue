@@ -71,9 +71,9 @@ export default defineComponent({
             }
         },
         loadCrossNavigationParameters() {
-            const fromCellParameters = this.olapDesigner.template??.olap?.CROSS_NAVIGATION?.PARAMETERS?.PARAMETER
+            const fromCellParameters = this.olapDesigner.template?.olap?.CROSS_NAVIGATION?.PARAMETERS?.PARAMETER
             const fromMemberParameters = [] as iOlapCrossNavigationParameter[]
-            this.olapDesigner?.template??.olap?.MDXQUERY?.clickable?.forEach((el: any) => fromMemberParameters.push({ ...el, name: el.clickParameter.name, type: 'From Member' }))
+            this.olapDesigner?.template?.olap?.MDXQUERY?.clickable?.forEach((el: any) => fromMemberParameters.push({ ...el, name: el.clickParameter.name, type: 'From Member' }))
 
             this.parameters = []
             if (fromCellParameters?.length > 0) this.parameters = this.parameters.concat(fromCellParameters)
