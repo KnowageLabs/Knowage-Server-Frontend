@@ -4,19 +4,12 @@
             <q-card-section>
                 <div v-if="document">
                     <div class="row">
-                        <q-input
-                            bottom-slots
-                            dense
-                            filled
-                            :rules="[(val) => val.length > 0 || $t('common.validation.required', { fieldName: $t('common.fileName') })]"
-                            v-model="document.fileName"
-                            @update:model-value="setFileNameValidation"
-                            :label="$t('common.fileName')"
-                            counter
-                            :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.file.nameMaxLength"
-                            class="col"
-                        />
-                        <q-input bottom-slots dense filled v-model="document.destinationfolder" :label="$t('managers.scheduler.destinationFolder')" counter :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.file.destinationFolderMaxLength" class="col q-ml-sm" />
+                        <q-input bottom-slots dense filled :rules="[(val) => val.length > 0 || $t('common.validation.required', { fieldName: $t('common.fileName') })]" v-model="document.fileName" @update:model-value="setFileNameValidation" :label="$t('common.fileName')" counter :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.file.nameMaxLength" class="col" />
+                        <q-input bottom-slots dense filled v-model="document.destinationfolder" :label="$t('managers.scheduler.destinationFolder')" counter :maxlength="schedulerTimingOutputOutputTabDescriptor.accordion.file.destinationFolderMaxLength" class="col q-ml-sm">
+                            <q-tooltip :delay="500">
+                                {{ $t('managers.scheduler.destinationFolderHint') }}
+                            </q-tooltip>
+                        </q-input>
                     </div>
                     <div class="row">
                         <q-checkbox v-model="document.zipFileDocument" :label="$t('managers.scheduler.zipFileDocument')" />
