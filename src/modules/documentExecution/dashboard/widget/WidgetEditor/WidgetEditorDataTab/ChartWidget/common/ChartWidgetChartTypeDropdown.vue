@@ -58,7 +58,7 @@ export default defineComponent({
             if (chartModel?.chart.type) {
                 this.selectedType = chartModel.chart.type
                 if (this.selectedType === 'sankey' && chartModel.chart.inverted) this.selectedType = 'sankeyInverted'
-                if (['area', 'bar', 'line'].includes(this.selectedType) && chartModel.plotOptions.series.stacking) this.selectedType = this.selectedType + 'Stacked'
+                if (['area', 'bar', 'line', 'column'].includes(this.selectedType) && chartModel.plotOptions.series.stacking) this.selectedType = this.selectedType + 'Stacked'
                 if (this.selectedType === 'scatter' && chartModel.plotOptions?.scatter?.jitter) this.selectedType = 'scatterJitter'
             }
         },
