@@ -130,7 +130,7 @@ export const isConditionMet = (condition, valueToCompare, variables?, drivers?) 
     let fullfilledCondition = false
     let comparer = condition.value
     if (condition.type == 'variable' && variables) comparer = variables.find((i) => i.name === condition.variable).value
-    if (condition.type == 'parameter' && drivers) comparer = drivers.find((i) => i.name === condition.variable).value
+    if (condition.type == 'parameter' && drivers) comparer = drivers.find((i) => i.name === (condition.parameter || condition.variable))?.value
     switch (condition.operator) {
         case '==':
             fullfilledCondition = valueToCompare == comparer
