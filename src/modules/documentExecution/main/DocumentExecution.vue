@@ -391,7 +391,7 @@ export default defineComponent({
                 await this.loadUserConfig()
                 this.setMode()
             } else {
-                if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') {
+                if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'dashboard-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') {
                     this.$q.loading.hide()
                     return
                 }
