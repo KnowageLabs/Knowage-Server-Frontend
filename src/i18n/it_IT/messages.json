@@ -451,6 +451,7 @@
         "sheet": "Foglio",
         "sheets": {
             "add": "Aggiungi Foglio",
+            "clone": "Clona Foglio",
             "confirmDeleteMessage": "Confermi di voler eliminare il foglio selezionato? ",
             "delete": "Elimina foglio",
             "manageIcon": "Gestisci icona del foglio",

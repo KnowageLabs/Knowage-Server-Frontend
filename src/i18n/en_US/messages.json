@@ -551,6 +551,7 @@
         "sheet": "Sheet",
         "sheets": {
             "add": "Add Sheet",
+            "clone": "Clone Sheet",
             "confirmDeleteMessage": "Are you sure you want to delete the selected sheet? ",
             "delete": "Delete Sheet",
             "manageIcon": "Manage Sheet Icon",
