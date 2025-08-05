@@ -1,5 +1,5 @@
 <template>
-    <KnDashboardTabsPanel v-if="dashboardModel.sheets" v-model:sheets="dashboardModel.sheets" :active-dashboard-sheet="activeDashboardSheet" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted">
+    <KnDashboardTabsPanel v-if="dashboardModel.sheets" v-model:sheets="dashboardModel.sheets" :active-dashboard-sheet="activeDashboardSheet" :style="backgroundStyle" :current-screen-size="currentScreenSize" class="test" label-position="bottom" :edit="canEditDashboard(document)" @sheet-change="sheetChange($event)" @sheetDeleted="onSheetDeleted" @sheet-cloned="onSheetCloned">
         <div id="dashboard-css" v-html="dashboardCss" />
         <div v-if="activeDashboardSheet" class="sheet-container">
             <GridLayout v-model:layout="activeDashboardSheet.widgets[currentScreenSize]" :responsive-layouts="activeDashboardSheet.widgets" :responsive="true" :cols="colSizes" :row-height="30" :is-draggable="canEditDashboard(document)" :is-resizable="canEditDashboard(document)" :vertical-compact="false" :use-css-transforms="false" :margin="[0, 0]" :style="getGridStyle" @breakpoint-changed="breakpointChangedEvent">
@@ -28,7 +28,7 @@
  */
 import { defineComponent, PropType } from 'vue'
 import { IBackground, IDashboardSheet, IDataset, IVariable, IWidgetSheetItem } from './Dashboard'
-import { canEditDashboard } from './DashboardHelpers'
+import { canEditDashboard, cloneSheet } from './DashboardHelpers'
 import { mapActions, mapState } from 'pinia'
 import { emitter } from './DashboardHelpers'
 import WidgetController from './widget/WidgetController.vue'
@@ -162,6 +162,9 @@ export default defineComponent({
         },
         onSheetDeleted(payload: { sheetForDelete: IWidgetSheetItem; currentPage: number }) {
             this.sheetChange(payload.currentPage)
+        },
+        onSheetCloned(index) {
+            cloneSheet(this.dashboardModel, this.dashboardModel.sheets[index], index)
         }
     }
 })

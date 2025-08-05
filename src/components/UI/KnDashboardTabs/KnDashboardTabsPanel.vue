@@ -7,52 +7,47 @@
                         <i v-if="sheet.icon.className" :class="sheet.icon.className" class="p-mr-1"></i>
                         <div v-if="sheet.icon.category === 'custom'" class="custom-image" :style="{ 'background-image': `url(${sheet.icon.image})` }"></div>
                     </template>
-
                     <input v-if="index === sheetToRenameIndex" v-model="tempLabel" :ref="`input_${index}`" type="text" @click.stop="" @blur="saveRename(index, $event)" @keyup.enter="saveRename(index, $event)" />
                     <span v-else class="kn-truncated sheet-label-text" :title="sheet.label" :class="{ hasIcon: sheet.icon }">{{ sheet.label }}</span>
                     <Button v-if="edit" icon="fa-solid fa-ellipsis-vertical" class="p-button-text p-button-rounded p-button-plain" :class="`sheet_menu_${index}`" @click="toggleMenu($event, index)" />
                     <q-menu :ref="`menu_${index}`" :target="`.sheet_menu_${index}`" data-test="menu">
                         <q-list style="min-width: 100px" dense>
                             <q-item clickable v-close-popup @click="renameSheet(index)">
-                                <q-item-section>
-                                    <div>
-                                        <i class="p-mr-3 fa-solid fa-edit" />
-                                        <label>{{ $t('dashboard.sheets.rename') }}</label>
-                                    </div>
+                                <q-item-section avatar>
+                                    <q-icon size="xs" name="edit" />
                                 </q-item-section>
+                                <q-item-section>{{ $t('dashboard.sheets.rename') }}</q-item-section>
                             </q-item>
                             <q-item clickable v-close-popup @click="manageIcon(index)">
-                                <q-item-section>
-                                    <div>
-                                        <i class="p-mr-3 fa-solid fa-icons" />
-                                        <label>{{ $t('dashboard.sheets.manageIcon') }}</label>
-                                    </div>
+                                <q-item-section avatar>
+                                    <q-icon size="xs" name="fa-solid fa-icons" />
                                 </q-item-section>
+                                <q-item-section>{{ $t('dashboard.sheets.manageIcon') }}</q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup @click="clone(index)">
+                                <q-item-section avatar>
+                                    <q-icon size="xs" name="content_copy" />
+                                </q-item-section>
+                                <q-item-section>{{ $t('dashboard.sheets.clone') }}</q-item-section>
                             </q-item>
                             <q-item v-if="sheets.length > 1 && index !== sheets.length - 1" clickable v-close-popup @click="move('right', index)">
-                                <q-item-section>
-                                    <div>
-                                        <i class="p-mr-3 fa-solid fa-arrow-right" />
-                                        <label>{{ $t('dashboard.sheets.moveRight') }}</label>
-                                    </div>
+                                <q-item-section avatar>
+                                    <q-icon size="xs" name="turn_right" />
                                 </q-item-section>
+                                <q-item-section>{{ $t('dashboard.sheets.moveRight') }}</q-item-section>
                             </q-item>
                             <q-item v-if="sheets.length > 1 && index !== 0" clickable v-close-popup @click="move('left', index)">
-                                <q-item-section>
-                                    <div>
-                                        <i class="p-mr-3 fa-solid fa-arrow-left" />
-                                        <label>{{ $t('dashboard.sheets.moveLeft') }}</label>
-                                    </div>
+                                <q-item-section avatar>
+                                    <q-icon size="xs" name="turn_left" />
                                 </q-item-section>
+                                <q-item-section>{{ $t('dashboard.sheets.moveLeft') }}</q-item-section>
                             </q-item>
                             <q-separator v-if="sheets.length > 1" />
                             <q-item v-if="sheets.length > 1" clickable v-close-popup @click="deleteSheet(index)">
-                                <q-item-section>
-                                    <div>
-                                        <i class="p-mr-3 fa-solid fa-trash" />
-                                        <label>{{ $t('dashboard.sheets.delete') }}</label>
-                                    </div>
+                                <q-item-section avatar>
+                                    <q-icon size="xs" name="delete" />
                                 </q-item-section>
+                                <q-item-section>{{ $t('dashboard.sheets.delete') }}</q-item-section>
                             </q-item>
                         </q-list>
                     </q-menu>
@@ -94,7 +89,7 @@ export default defineComponent({
             type: Object as PropType<IDashboardSheet>
         }
     },
-    emits: ['sheetChange', 'update:sheets', 'sheetDeleted'],
+    emits: ['sheetChange', 'update:sheets', 'sheetDeleted', 'sheetCloned'],
     data() {
         return {
             currentPage: 0,
@@ -150,6 +145,10 @@ export default defineComponent({
                 this.$emit('update:sheets', tempSheets)
                 this.sheetToRenameIndex = null
             }
+        },
+        clone(index): void {
+            this.$emit('sheetCloned', index)
+            this.setPage(index + 1)
         },
         deleteSheet(index): void {
             this.$confirm.require({

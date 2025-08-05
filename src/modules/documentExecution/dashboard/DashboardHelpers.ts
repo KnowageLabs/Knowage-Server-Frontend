@@ -18,7 +18,9 @@ import { IDashboardTheme } from '@/modules/managers/dashboardThemeManagement/Das
 import { formatDashboardDiscoveryWidgetAfterLoading } from './widget/WidgetEditor/helpers/discoveryWidget/DiscoveryWidgetFunctions'
 import * as widgetCommonDefaultValues from './widget/WidgetEditor/helpers/common/WidgetCommonDefaultValues'
 import { formatMapWidgetAfterDashboardLoading } from './widget/MapWidget/MapWidgetFormattingHelper'
+import i18n from '@/App.i18n'
 
+const { t } = i18n.global
 const store = mainStore()
 
 export const SHEET_WIDGET_SIZES = ['xxs', 'xs', 'sm', 'md', 'lg'] as string[]
@@ -107,6 +109,37 @@ const updateWidgetCoordinatesIfOverlaping = (widgetToAdd: IWidgetSheetItem, maxW
     )
     widgetToAdd.x = newX
     widgetToAdd.y = newY
+}
+
+export const cloneSheet = (dashboard: IDashboard, selectedSheet: IDashboardSheet, sheetIndex: number) => {
+    console.log('oldWidgets', dashboard.widgets)
+    const clonedSheet = deepcopy(selectedSheet)
+    clonedSheet.id = crypto.randomUUID()
+    clonedSheet.label = `${selectedSheet.label} (${t('common.clone')})`
+
+    const idMap = new Map()
+    const newWidgets = [] as any[]
+
+    SHEET_WIDGET_SIZES.forEach((size: string) => {
+        const widgetsForSize = clonedSheet.widgets[size] || []
+        clonedSheet.widgets[size] = widgetsForSize.map((widget: IWidgetSheetItem) => {
+            const oldId = widget.id
+
+            if (!idMap.has(oldId)) {
+                const originalWidget = dashboard.widgets.find((w) => w.id === oldId)
+                const newId = crypto.randomUUID()
+                idMap.set(oldId, newId)
+
+                const clonedWidget = { ...originalWidget, id: newId }
+                newWidgets.push(clonedWidget)
+            }
+            return { ...structuredClone(widget), id: idMap.get(oldId) }
+        })
+    })
+
+    dashboard.widgets.push(...newWidgets)
+    console.log('newWidgets', dashboard.widgets)
+    dashboard.sheets.splice(sheetIndex + 1, 0, clonedSheet)
 }
 
 export const cloneWidgetInSheet = (widget: IWidget, dashboard: IDashboard, selectedSheet: IDashboardSheet) => {
