@@ -20,7 +20,7 @@
                             <InputText v-if="column.field === 'alias'" v-model="slotProps.data[column.field]" class="kn-material-input" @change="onColumnAliasRenamed(slotProps.data)" />
                             <Dropdown v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data)" v-model="slotProps.data[column.field]" class="kn-material-input column-aggregation-dropdown" :options="getAggregationOptions(slotProps.data)" option-label="label" option-value="value" @change="$emit('itemUpdated', slotProps.data)" />
                             <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ '(' + slotProps.data[column.field] + ')' }}</span>
-                            <span v-else class="kn-truncated">{{ slotProps.data[column.field] }}</span>
+                            <span v-else-if="!slotProps.data.formula" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
                         </div>
                     </template>
                 </Column>
@@ -138,7 +138,7 @@ export default defineComponent({
             this.$emit('itemDeleted', item)
         },
         aggregationDropdownIsVisible(row: any) {
-            return row.fieldType === 'MEASURE' && this.widgetType !== 'discovery'
+            return row.fieldType === 'MEASURE' && this.widgetType !== 'discovery' && !row.formula
         },
         updateSelectedColumn(selectedColumn: IWidgetColumn) {
             const index = this.rows.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === selectedColumn.id)
