@@ -14,6 +14,12 @@
             <q-toolbar class="kn-toolbar kn-toolbar--default">
                 <q-toolbar-title>{{ $t('managers.resourceManagement.selectedFiles', { num: selectedFiles.length, count: selectedFiles.length }) }}</q-toolbar-title>
 
+                <q-btn flat round dense icon="refresh" data-test="refresh-button" :disable="selectedFiles.length > 0" @click="loadSelectedFolder">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.refresh') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense icon="upload" data-test="refresh-button" :disable="selectedFiles.length > 0" @click="openImportFileDialog">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.upload') }}</q-tooltip>
+                </q-btn>
                 <q-btn flat round dense icon="download" data-test="close-button" @click="downloadFiles">
                     <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.download') }}</q-tooltip>
                 </q-btn>
