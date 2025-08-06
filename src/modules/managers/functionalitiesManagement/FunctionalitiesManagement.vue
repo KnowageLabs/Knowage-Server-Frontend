@@ -17,7 +17,7 @@
                             <q-icon name="search" />
                         </template>
                     </q-input>
-                    <q-tree ref="tree" :filter="filter" class="q-pt-sm functionalitiesTree" :nodes="nodes" node-key="id" default-expand-all selected-color="primary" @update:selected="updateSelected" v-model:selected="selectedFunctionalityKey">
+                    <q-tree ref="tree" :filter="filter" class="q-pt-sm functionalitiesTree" :nodes="nodes" node-key="id" default-expand-all selected-color="accent" @update:selected="updateSelected" v-model:selected="selectedFunctionalityKey">
                         <template #default-header="{ node }">
                             <div class="row full-width" :class="{ treeButtons: selectedFunctionalityKey !== node.id }">
                                 <span class="col">{{ node.label }}</span>

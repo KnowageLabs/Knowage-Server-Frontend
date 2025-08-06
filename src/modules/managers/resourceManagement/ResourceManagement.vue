@@ -1,7 +1,7 @@
 <template>
     <div class="kn-page">
         <div class="kn-page-content p-grid p-m-0">
-            <div class="p-col-4 p-sm-4 p-md-3 p-p-0 p-d-flex p-flex-column">
+            <div class="p-col-4 p-sm-4 p-md-3 p-p-0 column">
                 <Toolbar class="kn-toolbar kn-toolbar--primary">
                     <template #start>
                         {{ $t('managers.resourceManagement.title') }}
@@ -11,26 +11,35 @@
                         <Button icon="fas fa-folder-plus" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" @click="openCreateFolderDialog"
                     /></template>
                 </Toolbar>
-                <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
-                <ResourceManagementMetadataDialog v-model:visibility="displayMetadataDialog" v-model:id="metadataKey"></ResourceManagementMetadataDialog>
-                <ResourceManagementCreateFolderDialog v-model:visibility="folderCreation" :path="selectedFolder ? selectedFolder.relativePath : ''" @createFolder="createFolder" />
+                <div class="column" style="border: 1px solid var(--kn-list-border-color); flex: 1 0 0">
+                    <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" data-test="progress-bar" />
+                    <ResourceManagementMetadataDialog v-model:visibility="displayMetadataDialog" v-model:id="metadataKey"></ResourceManagementMetadataDialog>
+                    <ResourceManagementCreateFolderDialog v-model:visibility="folderCreation" :path="selectedFolder ? selectedFolder.relativePath : ''" @createFolder="createFolder" />
 
-                <Tree id="folders-tree" v-model:selectionKeys="selectedKeys" :value="nodes" selection-mode="single" :expanded-keys="expandedKeys" :filter="true" filter-mode="lenient" data-test="functionality-tree" class="kn-tree kn-flex p-flex-column foldersTree" @node-select="showForm($event)">
-                    <template #default="slotProps">
-                        <div class="p-d-flex p-flex-row p-ai-center p-jc-between" :data-test="'tree-item-' + slotProps.node.key" @mouseover="buttonsVisible[slotProps.node.key] = true" @mouseleave="buttonsVisible[slotProps.node.key] = false">
-                            <span v-if="!slotProps.node.edit" class="kn-truncated" @dblclick="toggleInput(slotProps.node)">
-                                {{ slotProps.node.label }}
-                            </span>
-                            <InputText v-if="slotProps.node.edit" v-model="slotProps.node.label" class="kn-material-input fileNameInputText" type="text" maxlength="50" @blur="toggleInput(slotProps.node)" @keyup.enter="toggleInput(slotProps.node)" />
+                    <q-input v-model="filter" class="q-ma-sm" outlined dense square debounce="300" :placeholder="$t('common.search')">
+                        <template v-slot:append>
+                            <q-icon name="search" />
+                        </template>
+                    </q-input>
+                    <q-tree v-if="nodes" class="kn-tree kn-flex p-flex-column foldersTree scroll" selected-color="accent" :nodes="nodes" node-key="key" :filter="filter" default-expand-all v-model:selected="selectedKeys" selection="single" v-model:expanded="expandedKeys" data-test="functionality-tree" @update:selected="(target) => showForm(target)">
+                        <template #default-header="{ node }">
+                            <div class="row full-width treeButtons">
+                                <q-icon v-if="!node.custIcon && node.icon" :name="node.icon" class="q-mr-sm" size="sm" />
+                                <span class="col">{{ node.label }}</span>
 
-                            <div>
-                                <Button v-if="slotProps.node.modelFolder" v-tooltip.top="$t('managers.resourceManagement.openMetadata')" icon="fas fa-table" :class="getButtonClass(slotProps.node)" :data-test="'move-up-button-' + slotProps.node.key" @click="openMetadataDialog(slotProps.node)" />
-                                <Button v-tooltip.top="$t('common.download')" icon="fa fa-download " :class="getButtonClass(slotProps.node)" :data-test="'move-down-button-' + slotProps.node.key" @click="downloadDirect(slotProps.node)" />
-                                <Button v-if="slotProps.node.level > 0" v-tooltip.top="$t('common.delete')" icon="far fa-trash-alt" :class="getButtonClass(slotProps.node)" :data-test="'delete-button-' + slotProps.node.key" @click="showDeleteDialog(slotProps.node)" />
+                                <q-btn v-if="node.modelFolder" flat round dense size="xs" icon="table" :data-test="'move-up-button-' + node.id" @click.stop="openMetadataDialog(node)">
+                                    <q-tooltip>{{ $t('managers.resourceManagement.openMetadata') }}</q-tooltip>
+                                </q-btn>
+                                <q-btn flat round dense size="xs" icon="download" :data-test="'download-button-' + node.id" @click.stop="downloadDirect(node)">
+                                    <q-tooltip>{{ $t('common.download') }}</q-tooltip>
+                                </q-btn>
+                                <q-btn v-if="node.level > 0" flat round dense size="xs" icon="delete" :data-test="'delete-button-' + node.key" @click.stop="showDeleteDialog(node)">
+                                    <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
+                                </q-btn>
                             </div>
-                        </div>
-                    </template>
-                </Tree>
+                        </template>
+                    </q-tree>
+                </div>
             </div>
             <div class="p-col-8 p-sm-8 p-md-9 p-p-0 p-m-0 kn-page">
                 <KnHint v-if="showHint" :title="'managers.resourceManagement.title'" :hint="'managers.resourceManagement.hint'"></KnHint>
@@ -75,7 +84,8 @@ export default defineComponent({
             touched: false,
             selectedFolder: {} as IFolderTemplate,
             folderCreation: false,
-            formVisible: false
+            formVisible: false,
+            filter: '' as string
         }
     },
     async created() {
@@ -164,7 +174,7 @@ export default defineComponent({
         addIcon(nodes) {
             for (const idx in nodes) {
                 const node = nodes[idx]
-                node.icon = 'far fa-folder'
+                node.icon = 'folder'
                 if (node.children && node.children.length > 0) {
                     this.addIcon(node.children)
                 }
@@ -179,8 +189,7 @@ export default defineComponent({
                 .then((response: AxiosResponse<any>) => {
                     const root = response.data.root[0]
                     root.label = 'HOME'
-                    root.icon = 'pi pi-home'
-                    root.disabled = true
+                    root.icon = 'home'
                     this.addIcon(root.children)
                     this.nodes = response.data.root
                     this.loading = false
@@ -231,14 +240,34 @@ export default defineComponent({
                     }
                 })
                 .then((response: AxiosResponse<any>) => {
-                    downloadDirectFromResponseWithCustomName(response, this.selectedFolder.label + '.zip')
+                    downloadDirectFromResponseWithCustomName(response, node.label + '.zip')
                 })
                 .finally(() => (this.loading = false))
         },
         setDirty(): void {
             this.dirty = true
         },
-        showForm(functionality: IFolderTemplate) {
+        findNodeById(tree, id) {
+            for (const node of tree) {
+                if (node.key === id) {
+                    return node
+                }
+                if (node.children && node.children.length > 0) {
+                    const foundNode = this.findNodeById(node.children, id)
+                    if (foundNode) {
+                        return foundNode
+                    }
+                }
+            }
+            return null
+        },
+        showForm(folderId: string) {
+            let functionality: any
+            if (folderId) {
+                functionality = this.findNodeById(this.nodes, folderId)
+            } else {
+                functionality = {} as IFolderTemplate
+            }
             /*             this.functionalityParentId = parentId */
             if (!this.touched) {
                 this.setSelected(functionality)
@@ -283,8 +312,8 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
-#folders-tree{
+<style lang="scss" scoped>
+#folders-tree {
     flex: 1 0 0;
     overflow: auto;
 }
@@ -327,5 +356,15 @@ export default defineComponent({
 }
 .p-treenode-icon {
     margin: 0px;
+}
+.treeButtons {
+    &:deep(.q-icon) {
+        opacity: 0.2;
+    }
+    &:hover {
+        &:deep(.q-icon) {
+            opacity: 0.4;
+        }
+    }
 }
 </style>

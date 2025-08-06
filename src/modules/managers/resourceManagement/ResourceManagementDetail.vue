@@ -1,82 +1,48 @@
 <template>
     <div class="kn-page">
-        <Toolbar class="kn-toolbar kn-toolbar--secondary p-m-0">
-            <template #start
-                ><span class="cleanText">{{ folder.label }}</span></template
-            >
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>{{ folder.label }}</q-toolbar-title>
 
-            <template #end>
-                <Button v-tooltip.bottom="$t('common.close')" icon="pi pi-times" class="p-button-text p-button-rounded p-button-plain" @click="closeDetail()" />
-            </template>
-        </Toolbar>
+            <q-btn flat round dense icon="cancel" data-test="close-button" @click="closeDetail">
+                <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.cancel') }}</q-tooltip>
+            </q-btn>
+        </q-toolbar>
+
         <ProgressBar v-if="loading" mode="indeterminate" class="kn-progress-bar" />
         <Breadcrumb :home="home" :model="items"> </Breadcrumb>
         <div class="kn-page-content">
-            <Toolbar v-if="selectedFiles.length > 0" class="kn-toolbar kn-toolbar--default p-m-0">
-                <template #start>{{ $t('managers.resourceManagement.selectedFiles', selectedFiles.length, { num: selectedFiles.length }) }}</template>
-                <template #end>
-                    <Button icon="fas fa-download" class="p-button-text p-button-rounded p-button-plain kn-button-light" @click="downloadFiles" />
-                    <Button icon="fas fa-trash" class="p-button-text p-button-rounded p-button-plain kn-button-light" @click="showDeleteDialog" />
-                </template>
-            </Toolbar>
+            <q-toolbar class="kn-toolbar kn-toolbar--default">
+                <q-toolbar-title>{{ $t('managers.resourceManagement.selectedFiles', { num: selectedFiles.length, count: selectedFiles.length }) }}</q-toolbar-title>
+
+                <q-btn flat round dense icon="download" data-test="close-button" @click="downloadFiles">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.download') }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense icon="delete" data-test="close-button" @click="showDeleteDialog">
+                    <q-tooltip :delay="500" class="text-capitalize">{{ $t('common.delete') }}</q-tooltip>
+                </q-btn>
+            </q-toolbar>
 
             <ResourceManagementImportFileDialog v-model:visibility="importFile" :path="folder.key" :existing-files="files" @fileUploaded="fileUploaded" />
 
-            <div class="managerDetail p-grid p-m-0 kn-height-full">
-                <div class="p-col">
-                    <DataTable
-                        ref="dt"
-                        v-model:selection="selectedFiles"
-                        v-model:filters="filters"
-                        :value="files"
-                        :loading="loading"
-                        class="p-datatable-sm kn-table"
-                        :paginator="true"
-                        :rows="10"
-                        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        :rows-per-page-options="[10, 15, 20]"
-                        responsive-layout="stack"
-                        breakpoint="960px"
-                        :current-page-report-template="$t('common.table.footer.paginated', { first: '{first}', last: '{last}', totalRecords: '{totalRecords}' })"
-                        :global-filter-fields="['name', 'type', 'tags']"
-                    >
-                        <template #header>
-                            <div class="p-grid p-pt-0">
-                                <div class="p-col-10">
-                                    <span class="p-input-icon-left p-col p-p-0">
-                                        <i class="pi pi-search" />
-                                        <InputText v-model="filters['global'].value" class="kn-material-input" type="text" :placeholder="$t('common.search')" data-test="search-input" badge="0"
-                                    /></span>
-                                </div>
-                                <div class="p-col p-d-flex p-jc-end p-ai-center">
-                                    <Button icon="fas fa-sync-alt" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :disabled="selectedFiles.length > 0" @click="loadSelectedFolder()" />
-                                    <Button icon="fas fa-upload" class="p-button-text p-button-sm p-button-rounded p-button-plain p-p-0" :disabled="selectedFiles.length > 0" @click="openImportFileDialog" />
-                                </div>
-                            </div>
+            <q-table :rows="files" :columns="columns" :filter="filter" row-key="name" dense flat class="q-ma-sm full-width" :pagination="{ rowsPerPage: 20 }" selection="multiple" v-model:selected="selectedFiles">
+                <template v-slot:top>
+                    <q-input ref="filter" class="q-ma-sm" dense square standout outlined v-model="filter" :placeholder="$t('common.search')">
+                        <template v-slot:append>
+                            <q-icon name="search" />
                         </template>
-                        <template #empty>
-                            {{ $t('common.info.noDataFound') }}
-                        </template>
-                        <template #loading>
-                            {{ $t('common.info.dataLoading') }}
-                        </template>
-
-                        <Column v-for="col in getOrderedColumns()" :key="col.position" :field="col.field" :header="$t(col.header)" class="kn-truncated" :style="col.style" :selection-mode="col.field == 'selectionMode' ? 'multiple' : ''" :exportable="col.field == 'selectionMode' ? false : ''">
-                            <template v-if="col.field != 'selectionMode'" #body="{ data }">
-                                <span v-if="col.displayType == 'fileSize'">
-                                    {{ getDataValue(data.size) }}
-                                </span>
-                                <span v-else-if="col.displayType == 'date'">
-                                    {{ getDate(data.lastModified) }}
-                                </span>
-                                <span v-else>
-                                    <span class="kn-truncated" :title="data[col.field]">{{ data[col.field] }}</span>
-                                </span>
-                            </template>
-                        </Column>
-                    </DataTable>
-                </div>
-            </div>
+                    </q-input>
+                </template>
+                <template #body-cell-size="props">
+                    <q-td :props="props">
+                        {{ getDataValue(props.value) }}
+                    </q-td>
+                </template>
+                <template #body-cell-lastModified="props">
+                    <q-td :props="props">
+                        {{ getDate(props.value) }}
+                    </q-td>
+                </template>
+            </q-table>
         </div>
     </div>
 </template>
@@ -85,10 +51,7 @@
 import { defineComponent } from 'vue'
 import { AxiosResponse } from 'axios'
 import descriptor from './ResourceManagementDescriptor.json'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
 import { IFileTemplate } from '@/modules/managers/resourceManagement/ResourceManagement'
-import { FilterMatchMode, FilterOperator } from 'primevue/api'
 import { byteToHumanFriendlyFormat } from '@/helpers/commons/fileHelper'
 import { ITableColumn } from '../../commons/ITableColumn'
 import { formatDate } from '@/helpers/commons/localeHelper'
@@ -96,9 +59,10 @@ import Breadcrumb from 'primevue/breadcrumb'
 import ResourceManagementImportFileDialog from './ResourceManagementImportFileDialog.vue'
 import { downloadDirectFromResponse } from '@/helpers/commons/fileHelper'
 import mainStore from '../../../App.store'
+import { mapActions } from 'pinia'
 
 export default defineComponent({
-    components: { Breadcrumb, Column, DataTable, ResourceManagementImportFileDialog },
+    components: { Breadcrumb, ResourceManagementImportFileDialog },
     beforeRouteUpdate() {
         this.loadSelectedFolder()
     },
@@ -106,10 +70,6 @@ export default defineComponent({
         folder: Object
     },
     emits: ['touched', 'closed', 'inserted', 'folderCreated', 'fileUploaded'],
-    setup() {
-        const store = mainStore()
-        return { store }
-    },
     data() {
         return {
             descriptor,
@@ -117,20 +77,37 @@ export default defineComponent({
             touched: false,
             files: [] as Array<IFileTemplate>,
             selectedFiles: [] as Array<IFileTemplate>,
-            filters: {
-                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-                name: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-                size: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-                lastModified: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] }
-            },
             home: { icon: 'pi pi-home' },
             items: [] as Array<{ label: string }>,
             folderName: '',
             importFile: false,
-            selectedFolder: {} as any
+            selectedFolder: {} as any,
+            columns: [
+                {
+                    field: 'name',
+                    label: this.$t('managers.resourceManagement.column.name'),
+                    name: 'name',
+                    sortable: true,
+                    align: 'left'
+                },
+                {
+                    field: 'size',
+                    label: this.$t('managers.resourceManagement.column.size'),
+                    name: 'size',
+                    sortable: true,
+                    align: 'right'
+                },
+                {
+                    field: 'lastModified',
+                    label: this.$t('managers.resourceManagement.column.lastModified'),
+                    name: 'lastModified',
+                    sortable: true,
+                    align: 'right'
+                }
+            ],
+            filter: '' as string
         }
     },
-    computed: {},
     watch: {
         id(oldId, newId) {
             if (oldId != newId) this.loadSelectedFolder()
@@ -146,8 +123,8 @@ export default defineComponent({
     created() {
         this.loadSelectedFolder()
     },
-    mounted() {},
     methods: {
+        ...mapActions(mainStore, ['setError', 'setInfo']),
         closeDetail() {
             this.$emit('closed')
         },
@@ -166,7 +143,7 @@ export default defineComponent({
                     this.selectedFiles = []
                 })
                 .catch((error) => {
-                    this.store.setError({
+                    this.setError({
                         title: this.$t('common.error.downloading'),
                         msg: this.$t(error)
                     })
@@ -217,7 +194,7 @@ export default defineComponent({
                         this.getBreadcrumbs()
                     })
                     .catch((error) => {
-                        this.store.setError({
+                        this.setError({
                             title: this.$t('common.error.downloading'),
                             msg: this.$t(error)
                         })
@@ -253,13 +230,13 @@ export default defineComponent({
                 .then(() => {
                     this.selectedFiles = []
                     this.loadSelectedFolder()
-                    this.store.setInfo({
+                    this.setInfo({
                         title: this.$t('common.toast.deleteTitle'),
                         msg: this.$t('common.toast.deleteSuccess')
                     })
                 })
                 .catch(() => {
-                    this.store.setError({
+                    this.setError({
                         title: this.$t('common.toast.deleteTitle'),
                         msg: this.$t('common.error.deleting')
                     })

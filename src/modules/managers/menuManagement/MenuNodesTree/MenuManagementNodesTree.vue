@@ -5,7 +5,7 @@
                 <q-icon name="search" />
             </template>
         </q-input>
-        <q-tree ref="tree" :filter="filter" class="q-pt-sm functionalitiesTree" :nodes="menuElements" node-key="menuId" default-expand-all selected-color="primary" v-model:selected="selectedKey" @update:selected="onNodeSelect($event)">
+        <q-tree ref="tree" :filter="filter" class="q-pt-sm functionalitiesTree" :nodes="menuElements" node-key="menuId" default-expand-all selected-color="accent" v-model:selected="selectedKey" @update:selected="onNodeSelect($event)">
             <template #default-header="{ node }">
                 <div class="row full-width" :class="{ treeButtons: selectedKey !== node.id }">
                     <q-icon v-if="!node.custIcon && node.icon" :name="iconName(node.icon)" class="q-mr-sm" />
