@@ -107,10 +107,10 @@ export default defineComponent({
             return this.widgetModel.type === 'text' || this.widgetModel.type === 'html'
         },
         isSolrDataset() {
-            const index = this.selectedDatasets?.findIndex((dataset: any) => dataset.id?.dsId === this.selectedDataset?.id)
+            if (!this.selectedDatasets?.length || !this.selectedDataset?.id) return false
 
-            if (index && this.selectedDatasets[index].type === 'SbiSolrDataSet') return true
-            else return false
+            const dataset = this.selectedDatasets.find((dataset) => dataset.id?.dsId === this.selectedDataset?.id)
+            return dataset?.type === 'SbiSolrDataSet'
         }
     },
     watch: {
