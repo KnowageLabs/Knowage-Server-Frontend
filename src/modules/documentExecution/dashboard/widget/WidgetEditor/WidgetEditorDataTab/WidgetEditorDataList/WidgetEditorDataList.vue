@@ -1,5 +1,6 @@
 <template>
     <div v-if="widgetModel" class="dashboard-editor-list-card-container p-m-3">
+        {{ isSolrDataset }}
         <span class="p-float-label p-mx-2 p-mt-4 p-mb-1">
             <Dropdown id="dataset" v-model="selectedDataset" class="kn-material-input kn-width-full" :options="datasetOptions" option-label="label" @change="onDatasetSelected"></Dropdown>
             <label for="dataset" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.selectDataset') }} </label>
@@ -7,7 +8,7 @@
         <div v-if="widgetModel.type !== 'selector'" class="p-col-12 p-d-flex">
             <label class="kn-material-input-label p-as-center p-ml-1 p-mr-auto"> {{ $t('common.columns') }} </label>
 
-            <q-btn v-if="isEnterprise && !isTextOrHTMLWidget" color="primary" class="kn-cursor-pointer p-ml-auto p-mr-1" :label="$t('common.add')">
+            <q-btn v-if="isEnterprise && !isTextOrHTMLWidget && !isSolrDataset" color="primary" class="kn-cursor-pointer p-ml-auto p-mr-1" :label="$t('common.add')">
                 <q-menu>
                     <q-list style="min-width: 100px">
                         <q-item clickable v-close-popup @click="createNewCalcField">
@@ -20,7 +21,7 @@
                 </q-menu>
             </q-btn>
 
-            <Button v-else-if="!isTextOrHTMLWidget" :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
+            <Button v-else-if="!isTextOrHTMLWidget && !isSolrDataset" :label="$t('common.addColumn')" icon="pi pi-plus-circle" class="p-button-outlined p-ml-auto p-mr-1" data-test="new-button" @click="createNewCalcField"></Button>
             <Button id="add-all-columns-button" icon="fa fa-arrow-right" class="p-button-text p-button-rounded p-button-plain" @click="addAllColumnsToWidgetModel" />
         </div>
 
@@ -105,6 +106,12 @@ export default defineComponent({
         },
         isTextOrHTMLWidget() {
             return this.widgetModel.type === 'text' || this.widgetModel.type === 'html'
+        },
+        isSolrDataset() {
+            const index = this.selectedDatasets?.findIndex((dataset: any) => dataset.id?.dsId === this.selectedDataset?.id)
+
+            if (index && this.selectedDatasets[index].type === 'SbiSolrDataSet') return true
+            else return false
         }
     },
     watch: {
@@ -183,6 +190,7 @@ export default defineComponent({
             const index = this.datasetOptions?.findIndex((dataset: IDashboardDataset) => dataset.id === this.model?.dataset)
             if (index !== -1) {
                 this.selectedDataset = this.datasetOptions[index]
+                console.log('selectedDataset', this.selectedDataset)
                 this.$emit('datasetSelected', this.selectedDataset)
             }
             this.loadDatasetColumns()
