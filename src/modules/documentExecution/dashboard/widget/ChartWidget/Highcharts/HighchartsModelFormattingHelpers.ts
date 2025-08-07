@@ -226,8 +226,9 @@ const formatVariablesForPlotLines = (axis: any, variables: IVariable[]) => {
     })
 }
 
-const isNumberAndConvert = (value: string) => {
-    const trimmedValue = value.trim()
+const isNumberAndConvert = (value: any) => {
+    const stringValue = typeof value === 'string' ? value : String(value)
+    const trimmedValue = stringValue.trim()
 
     if (!isNaN(parseFloat(trimmedValue)) && isFinite(+trimmedValue)) {
         return parseFloat(trimmedValue)
