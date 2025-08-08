@@ -142,7 +142,8 @@ export const isConditionMet = (condition, valueToCompare, variables?, drivers?) 
             fullfilledCondition = valueToCompare <= comparer
             break
         case 'IN':
-            fullfilledCondition = comparer.split(',').indexOf(valueToCompare) != -1
+            const comparerArray = comparer.split(',').map((item) => item.trim().replace(/^['"]|['"]$/g, ''))
+            fullfilledCondition = comparerArray.includes(valueToCompare)
             break
         case '>':
             fullfilledCondition = valueToCompare > comparer
