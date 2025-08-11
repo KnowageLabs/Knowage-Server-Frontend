@@ -4,4 +4,5 @@ export interface IChat {
     url?: string
     image?: string
     turnId: number
+    dashboard?: any
 }

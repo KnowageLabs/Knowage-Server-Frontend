@@ -45,6 +45,8 @@ import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const store = mainStore()
+let dashStore = null as any
+
 const { t } = useI18n()
 
 const turnId = ref(0)
@@ -68,14 +70,26 @@ function followLink(url) {
     router.push({ path: url })
 }
 
-function sendMessage() {
+async function sendMessage() {
     if (userMessage.value === '') return
     awaitingReply.value = true
-    chat.value.push({
+    const newMessage: IChat = {
         role: 'user',
         content: userMessage.value,
         turnId: turnId.value++
-    })
+    }
+    if (router.currentRoute.value?.params?.mode === 'dashboard') {
+        if (!dashStore) {
+            const dashboardStoreModule = await import('@/modules/documentExecution/dashboard/Dashboard.store')
+            dashStore = dashboardStoreModule.default()
+        }
+
+        const dashboardId = Array.isArray(router.currentRoute.value?.params?.id) ? router.currentRoute.value?.params?.id[0] : router.currentRoute.value?.params?.id
+
+        const currentDashboard: any = dashStore.getDashboardFromLabel(dashboardId)
+        newMessage.dashboard = currentDashboard.configuration.aiSettings
+    }
+    chat.value.push(newMessage)
 
     if (store.configurations['KNOWAGE.AI.URL'] === 'demo') sendToDemo()
     else sendToAI()

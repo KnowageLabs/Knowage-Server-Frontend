@@ -401,6 +401,7 @@
             "screenshotError": "Errore durante la cattura dell'immagine"
         },
         "generalSettings": {
+            "aisettings": "Impostazioni AI",
             "attribute": "Attributo",
             "background": {
                 "sheetsColor": "Colore di sfondo dei fogli",

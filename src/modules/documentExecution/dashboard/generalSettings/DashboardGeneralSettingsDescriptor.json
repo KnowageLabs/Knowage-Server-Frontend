@@ -1,4 +1,42 @@
 {
+    "aiSettingsColumns": [
+        {
+            "align": "left",
+            "field": "name",
+            "label": "common.column",
+            "name": "name",
+            "sortable": true
+        },
+        {
+            "align": "left",
+            "field": "fieldType",
+            "label": "common.type",
+            "name": "fieldType",
+            "sortable": true
+        },
+        {
+            "align": "left",
+            "field": "type",
+            "label": "Data Type",
+            "name": "dataType",
+            "sortable": true
+        },
+        {
+            "align": "center",
+            "field": "description",
+            "label": "common.description",
+            "name": "description",
+            "sortable": true,
+            "style": "width: 100px"
+        },
+        {
+            "align": "right",
+            "field": "meaningful",
+            "label": "dashboard.generalSettings.meaningful",
+            "name": "meaningful",
+            "style": "width: 100px"
+        }
+    ],
     "listStyle": {
         "listIcon": {
             "color": "#929292"
@@ -32,11 +70,6 @@
             "icon": "fa-brands fa-diaspora",
             "label": "common.variables",
             "value": "Variables"
-        },
-        {
-            "icon": "fa-solid fa-paint-roller",
-            "label": "common.themes",
-            "value": "Themes"
         },
         {
             "icon": "fa-solid fa-heading",

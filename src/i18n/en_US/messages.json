@@ -486,6 +486,8 @@
             "screenshotError": "An error occurred during the screenshot capture"
         },
         "generalSettings": {
+            "aiSettingsHint": "These settings are used by the AI algorithm to understand the data and provide better results. You can set the desired dataset to be investigated and columns specifid informations.",
+            "aisettings": "AI Settings",
             "attribute": "Attribute",
             "background": {
                 "sheetsColor": "Sheets Background Color",
@@ -499,6 +501,8 @@
             "customHeader": "Custom Header",
             "executionDate": "Execution Date",
             "executionTime": "Execution Time",
+            "meaningful": "Meaningful",
+            "meaningfulHint": " If checked, the column will be considered meaningful and will be used by the AI algorithm. Avoid columns that can produce large amount of unusable data, like addresses, fiscal codes.",
             "menuWidgets": {
                 "enableCaching": "Enable dashboard caching",
                 "enableChartChange": "Enable chart changing",
