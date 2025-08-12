@@ -32,6 +32,9 @@ const store = defineStore('dashboardStore', {
         getDashboardsList() {
             return this.dashboards
         },
+        getDashboardFromLabel(label: string) {
+            return Object.values(this.dashboards).find((dashboard: any) => dashboard.document.label === label)
+        },
         setDashboard(id: string, dashboard: any) {
             this.dashboards[id] = dashboard
         },

@@ -177,8 +177,8 @@ export default defineComponent({
                 this.store.setInfo({ title: this.$t('common.toast.error'), msg: 'Dataset is being used by some widget.' })
             } else {
                 this.$confirm.require({
-                    message: this.$t('documentExecution.dossier.deleteConfirm'),
-                    header: this.$t('documentExecution.dossier.deleteTitle'),
+                    message: this.$t('common.toast.deleteMessage'),
+                    header: this.$t('common.toast.deleteConfirmTitle'),
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
                         this.selectedAssociation = null as any

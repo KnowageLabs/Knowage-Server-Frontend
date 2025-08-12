@@ -9,7 +9,7 @@
         </Toolbar>
 
         <div class="datasetEditor-container kn-overflow">
-            <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
+            <DashboardGeneralSettingsList :dashboard-model-prop="dashboardModel" :selected="selectedOption" @selected-option="setSelectedOption"></DashboardGeneralSettingsList>
             <DashboardVariables v-if="selectedOption === 'Variables'" :dashboard-id="dashboardId" :prop-variables="variables" :selected-datasets="selectedDatasets" :selected-datasets-columns-map="selectedDatasetColumnsMap" :profile-attributes="profileAttributes" />
             <DashboardInformation v-if="selectedOption === 'Information'" :dashboard-model-prop="dashboardModel" />
             <DashboardBackground v-if="selectedOption === 'Background'" :dashboard-model-prop="dashboardModel" />
@@ -23,6 +23,7 @@
                 </span>
                 <WidgetEditor ref="widgetEditor" :dashboard-id="dashboardId" :datasets="datasets" :variables="variables" :prop-widget="customHeaderWidget" :class="{ 'editor-disabled': !menuWidgetsConfig.enableCustomHeader }"></WidgetEditor>
             </div>
+            <AiSettings v-if="isEnterprise && selectedOption === 'aisettings'" :dashboard-model-prop="dashboardModel" @change="setAiModel" />
         </div>
     </div>
 </template>
@@ -38,6 +39,7 @@ import CssEditor from './cssEditor/DashboardCssEditor.vue'
 import MenuWidgets from './menu&widgets/Menu&Widgets.vue'
 import DashboardVariables from './DashboardVariables.vue'
 import DashboardThemes from './themes/DashboardThemes.vue'
+import AiSettings from './aisettings/DashboardAiSettings.vue'
 import store from '@/modules/documentExecution/dashboard/Dashboard.store'
 import mainStore from '@/App.store'
 import deepcopy from 'deepcopy'
@@ -52,7 +54,7 @@ import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'dashboard-general-settings',
-    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, InputSwitch },
+    components: { DashboardGeneralSettingsList, DashboardVariables, DashboardInformation, DashboardBackground, MenuWidgets, CssEditor, DashboardThemes, WidgetEditor, InputSwitch, AiSettings },
     props: {
         dashboardId: { type: String, required: true },
         datasets: { type: Array as PropType<IDataset[]>, required: true },
@@ -168,6 +170,9 @@ export default defineComponent({
         },
         updateWidgetMenuSettings() {
             this.dashboardModel.configuration.menuWidgets = this.menuWidgetsConfig
+        },
+        setAiModel(aiSettings: any) {
+            this.dashboardModel.configuration.aiSettings = aiSettings
         }
     }
 })
