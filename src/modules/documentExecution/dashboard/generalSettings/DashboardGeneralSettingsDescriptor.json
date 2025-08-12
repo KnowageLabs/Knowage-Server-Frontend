@@ -35,6 +35,13 @@
             "label": "dashboard.generalSettings.meaningful",
             "name": "meaningful",
             "style": "width: 100px"
+        },
+        {
+            "align": "right",
+            "field": "buttons",
+            "label": "",
+            "name": "buttons",
+            "style": "width: 100px"
         }
     ],
     "listStyle": {

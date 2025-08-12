@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import mainStore from '@/App.store'
 import axios from 'axios'
-import { nextTick, ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IChat } from './KnChatbot'
 import avatarImg from '@/assets/images/chatbot/chatty.webp'
@@ -61,6 +61,7 @@ const chat = ref<IChat[]>([
     }
 ]) as any
 const bottomAnchor = ref(null)
+const body = reactive({} as any)
 
 function toggleChatbot() {
     showAlert.value = !showAlert.value
@@ -78,6 +79,10 @@ async function sendMessage() {
         content: userMessage.value,
         turnId: turnId.value++
     }
+    ;(body.tenant = store.user.organization), (body.token = localStorage.getItem('token')), (body.role = store.user.defaultRole || store.user.roles[0]), (body.pathQuestion = router.currentRoute.value.path), (body.promptUser = userMessage.value), (body.conversationHistory = chat.value), (body.timestamp = new Date().toISOString())
+    body.dashboard = null
+    body.drivers = null
+
     if (router.currentRoute.value?.params?.mode === 'dashboard') {
         if (!dashStore) {
             const dashboardStoreModule = await import('@/modules/documentExecution/dashboard/Dashboard.store')
@@ -87,8 +92,8 @@ async function sendMessage() {
         const dashboardId = Array.isArray(router.currentRoute.value?.params?.id) ? router.currentRoute.value?.params?.id[0] : router.currentRoute.value?.params?.id
 
         const currentDashboard: any = dashStore.getDashboardFromLabel(dashboardId)
-        newMessage.dashboard = currentDashboard.configuration.aiSettings
-        newMessage.dashboard.drivers = currentDashboard.drivers
+        body.dashboard = currentDashboard.configuration.aiSettings
+        body.drivers = currentDashboard.drivers
     }
     chat.value.push(newMessage)
 
@@ -121,15 +126,7 @@ function scrollToBottom() {
 async function sendToAI() {
     scrollToBottom()
     axios
-        .post(store.configurations['KNOWAGE.AI.URL'] + '/bot_response', {
-            tenant: store.user.organization,
-            token: localStorage.getItem('token'),
-            role: store.user.defaultRole || store.user.roles[0],
-            pathQuestion: router.currentRoute.value.path,
-            promptUser: userMessage.value,
-            conversationHistory: chat.value,
-            timestamp: new Date().toISOString()
-        })
+        .post(store.configurations['KNOWAGE.AI.URL'] + '/bot_response', body)
         .then((response) => {
             if (response.data) {
                 let tempResponse: IChat = {
