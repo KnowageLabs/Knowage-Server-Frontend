@@ -88,6 +88,7 @@ async function sendMessage() {
 
         const currentDashboard: any = dashStore.getDashboardFromLabel(dashboardId)
         newMessage.dashboard = currentDashboard.configuration.aiSettings
+        newMessage.dashboard.drivers = currentDashboard.drivers
     }
     chat.value.push(newMessage)
 

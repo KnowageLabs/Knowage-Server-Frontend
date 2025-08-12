@@ -401,6 +401,8 @@
             "screenshotError": "Errore durante la cattura dell'immagine"
         },
         "generalSettings": {
+            "aiSettingsError": "Nessun dataset disponibile per le impostazioni AI. Aggiungine almeno uno dell'editor dei dataset.",
+            "aiSettingsHint": "Le impostazioni AI ti permettono di configurare il comportamento dell'assistente virtuale. Puoi selezionare un dataset e le colonne da usare per le risposte.",
             "aisettings": "Impostazioni AI",
             "attribute": "Attributo",
             "background": {

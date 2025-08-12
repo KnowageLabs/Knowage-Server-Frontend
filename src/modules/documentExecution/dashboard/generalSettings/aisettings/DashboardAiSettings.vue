@@ -6,8 +6,11 @@
             <q-banner class="bg-info text-black q-mx-sm q-ml-md" rounded dense>
                 <template v-slot:avatar> <q-icon name="info" color="primary" /> </template>{{ $t('dashboard.generalSettings.aiSettingsHint') }}
             </q-banner>
-            <q-select filled :options="datasets" v-model="selectedDataset" option-label="dsLabel" label="Select Dataset" class="col-md-6 col-sm-12 q-ml-sm" @update:model-value="updateDatasetColumns" />
-            <q-table dense v-if="selectedDataset && datasetColumns" flat :rows="datasetColumns" :columns="columns" class="col-12" :pagination="{ rowsPerPage: 20 }" row-key="name">
+            <q-select v-if="datasets.length > 0" filled :options="datasets" v-model="selectedDataset" option-label="dsLabel" label="Select Dataset" class="col-md-6 col-sm-12 q-ml-sm" @update:model-value="updateDatasetColumns" />
+            <q-banner v-else class="bg-warning text-black q-mx-sm q-ml-md q-mt-sm" rounded dense>
+                <template v-slot:avatar> <q-icon name="warning" color="primary" /> </template>{{ $t('dashboard.generalSettings.aiSettingsError') }}
+            </q-banner>
+            <q-table dense v-if="datasets.length > 0 && selectedDataset && datasetColumns" flat :rows="datasetColumns" :columns="columns" class="col-12" :pagination="{ rowsPerPage: 20 }" row-key="name">
                 <template #body-cell-meaningful="slotProps">
                     <q-td align="right">
                         <q-checkbox indeterminate-value="not answered" size="xs" v-model="slotProps.row.meaningful" @update:model-value="updateRow(slotProps.rowIndex, slotProps.row.meaningful)" />
