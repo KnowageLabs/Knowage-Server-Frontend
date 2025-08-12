@@ -74,7 +74,7 @@ const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParam
 }
 
 const getFormattedChartDynamicParameterUrl = (parameter: IWidgetInteractionParameter, parameterSettings: IWidgetInteractionParameter, formattedChartValues: IChartInteractionValues | null) => {
-    const columnValue = getChartDynamicParameterValue(formattedChartValues, parameter.column ?? '')
+    const columnValue = getChartDynamicParameterValue(formattedChartValues, parameter.column ?? parameter.columnName ?? '')
     parameter.value = columnValue ?? ''
 }
 
