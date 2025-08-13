@@ -396,7 +396,7 @@ export default defineComponent({
                     return
                 }
 
-                if (this.$route.name === 'dashboard-new') this.newDashboardMode = true
+                if (this.$route.name === 'new-dashboard' || this.$route.name === 'dashboard-new') this.newDashboardMode = true
 
                 await this.loadUserConfig()
                 this.isOlapDesignerMode()
