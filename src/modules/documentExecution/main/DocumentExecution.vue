@@ -1296,7 +1296,7 @@ export default defineComponent({
             this.document.label = document.label
             this.newDashboardMode = false
             await this.loadDocument()
-            this.userRole = this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : null
+            this.userRole = this.user.sessionRole && this.user.sessionRole !== this.$t('role.defaultRolePlaceholder') ? this.user.sessionRole : this.document.creationUser
             this.userRole ? await this.loadPage(true) : (this.parameterSidebarVisible = true)
         },
         async onExecuteCrossNavigation(payload: { documentCrossNavigationOutputParameters: ICrossNavigationParameter[]; crossNavigationName: string | undefined; crossNavigations: IDashboardCrossNavigation[] }) {
