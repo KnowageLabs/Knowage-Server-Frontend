@@ -60,7 +60,10 @@ const baseRoutes = [
         component: () => import('@/views/Unauthorized.vue'),
         props: true,
         meta: { hideMenu: true, public: true }
-    },
+    }
+]
+
+const closingRoutes = [
     {
         name: '404',
         path: '/:catchAll(.*)*',
@@ -68,7 +71,7 @@ const baseRoutes = [
     }
 ]
 
-const routes = baseRoutes.concat(managersRoutes).concat(importExportRoutes).concat(kpiRoutes).concat(documentExecutionRoutes).concat(documentBrowserRoutes).concat(workspaceRoutes).concat(overlayRoutes).concat(dataPreparationRoutes)
+const routes = baseRoutes.concat(managersRoutes).concat(importExportRoutes).concat(kpiRoutes).concat(documentExecutionRoutes).concat(documentBrowserRoutes).concat(workspaceRoutes).concat(overlayRoutes).concat(dataPreparationRoutes).concat(closingRoutes)
 
 const router = createRouter({
     base: import.meta.env.VITE_PUBLIC_PATH,

@@ -391,13 +391,12 @@ export default defineComponent({
                 await this.loadUserConfig()
                 this.setMode()
             } else {
-                if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'dashboard-execution' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') {
+                if (this.propMode !== 'document-execution' && !this.$route.path.includes('olap-designer') && this.$route.name !== 'document-execution' && this.$route.name !== 'dashboard-execution' && this.$route.name !== 'dashboard-new' && this.$route.name !== 'document-execution-embed' && this.$route.name !== 'document-execution-workspace') {
                     this.$q.loading.hide()
                     return
                 }
 
-                const creatingDashboardFromWorkspace = this.$route.params?.id === 'new-dashboard' && this.$route.query?.fromWorkspace
-                if (this.$route.name === 'new-dashboard' || creatingDashboardFromWorkspace) this.newDashboardMode = true
+                if (this.$route.name === 'dashboard-new') this.newDashboardMode = true
 
                 await this.loadUserConfig()
                 this.isOlapDesignerMode()
