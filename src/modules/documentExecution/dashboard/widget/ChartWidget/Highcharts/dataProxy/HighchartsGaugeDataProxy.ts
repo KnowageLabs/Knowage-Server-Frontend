@@ -5,9 +5,9 @@ import { indexedDB } from '@/idb'
 import deepcopy from 'deepcopy'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
-const dashStore = dashboardStore()
-
 export const getHighchartsGaugeData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+    const dashStore = dashboardStore()
+
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 

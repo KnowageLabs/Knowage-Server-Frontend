@@ -4,14 +4,10 @@ import { addDataToCache, addDriversToData, addParametersToData, addSelectionsToD
 import { indexedDB } from '@/idb'
 import { md5 } from 'js-md5'
 import deepcopy from 'deepcopy'
-
-let dashStore = null as any
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 export const getTableWidgetData = async (dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], searchParams: IWidgetSearch, associativeResponseSelections?: any, resetPagination?: boolean) => {
-    if (!dashStore) {
-        const dashboardStoreModule = await import('@/modules/documentExecution/dashboard/Dashboard.store')
-        dashStore = dashboardStoreModule.default()
-    }
+    const dashStore = dashboardStore()
 
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex] as IDashboardDataset

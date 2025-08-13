@@ -25,7 +25,6 @@ import { indexedDB } from '@/idb'
 
 const { t } = i18n.global
 const mainStore = store()
-const dashStore = dashboardStore()
 
 export const getData = (item) =>
     new Promise((resolve) => {
@@ -84,6 +83,8 @@ export const addDriversToData = (dataset, dataToSend) => {
 }
 
 export const addParametersToData = (dataset, dashboardId, dataToSend, associativeResponseSelections?) => {
+    const dashStore = dashboardStore()
+
     if (dataset.parameters && dataset.parameters.length > 0) {
         const paramRegex = /[^$P{]+(?=\})/
         dataset.parameters.forEach((param: any) => {

@@ -4,8 +4,6 @@ import { getVariableData } from '../DataProxyHelper'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { DateTime } from 'luxon'
 
-const dashStore = dashboardStore()
-
 export const setVariableValueFromDataset = async (variable: IVariable, datasets: IDataset[], $http: any) => {
     const variableData = await getVariableData(variable, datasets, $http)
     if (!variableData) return (variable.value = '')
@@ -42,6 +40,8 @@ export const setVariableValueFromDriver = (variable: IVariable, drivers: IDashbo
 }
 
 export const setVariableExectuionTimeValue = (variable: IVariable, dashboardId: string) => {
+    const dashStore = dashboardStore()
+
     const executionTime = dashStore.getExecutionTime(dashboardId) as Date
     if (!executionTime) return
 
@@ -52,6 +52,8 @@ export const setVariableExectuionTimeValue = (variable: IVariable, dashboardId: 
 }
 
 export const setVairableExecutionDateValue = (variable: IVariable, dashboardId: string) => {
+    const dashStore = dashboardStore()
+
     const executionTime = dashStore.getExecutionTime(dashboardId) as Date
     if (!executionTime) return
 
@@ -70,6 +72,8 @@ export const setVairableLocaleValue = (variable: IVariable) => {
 }
 
 export const setVariableActiveSelectionValue = (variable: IVariable, dashboardId: string) => {
+    const dashStore = dashboardStore()
+
     const activeSelections = dashStore.getSelections(dashboardId)
     variable.value = ''
     if (!variable.activeSelectionColumn || !activeSelections) return

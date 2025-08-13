@@ -3,14 +3,10 @@ import { addDriversToData, addParametersToData, addSelectionsToData, maxRow, sho
 import { md5 } from 'js-md5'
 import { indexedDB } from '@/idb'
 import deepcopy from 'deepcopy'
-
-let dashStore = null as any
+import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
 export const getWebComponentWidgetData = async (widgetType: 'html' | 'text', dashboardId: any, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
-    if (!dashStore) {
-        const dashboardStoreModule = await import('@/modules/documentExecution/dashboard/Dashboard.store')
-        dashStore = dashboardStoreModule.default()
-    }
+    const dashStore = dashboardStore()
 
     const datasetIndex = datasets.findIndex((dataset: any) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]

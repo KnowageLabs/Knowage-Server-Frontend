@@ -17,7 +17,6 @@ import { addParametersToData } from '@/modules/documentExecution/dashboard/Dashb
 
 const { t } = i18n.global
 const mainStore = store()
-const dashStore = dashboardStore()
 
 export const getData = (item) =>
     new Promise((resolve) => {
@@ -49,7 +48,7 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
         case 'vega':
             return await getPieChartData(widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'map':
-            return await getMapWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
+        // return await getMapWidgetData(dashboardId, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         default:
             break
     }
@@ -57,6 +56,8 @@ export const getWidgetData = async (dashboardId: any, widget: IWidget, datasets:
 
 //#region ===================== Common Methods - Formatting Model, Drivers, Parameters, Selections Management ====================================================
 const formatWidgetModelForGet = (dashboardId: any, propWidget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+    const dashStore = dashboardStore()
+
     const dataToSend = {
         aggregations: {
             dataset: '',
@@ -894,6 +895,8 @@ const hasFields = (propWidget: IWidget) => {
 }
 
 const formatPivotModelForGet = (dashboardId: any, propWidget: IWidget, dataset: IDashboardDataset, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
+    const dashStore = dashboardStore()
+
     const dataToSend = {
         aggregations: {
             dataset: '',

@@ -6,9 +6,9 @@ import { KnowageHighchartsLineChart } from './ChartWidget/classes/highcharts/Kno
 import deepcopy from 'deepcopy'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 
-const dashStore = dashboardStore()
-
 export const quickWidgetCreateChartFromTable = (chartType: string, currentWidget: IWidget, dashboardId: string) => {
+    const dashStore = dashboardStore()
+
     const dashboard = dashStore.dashboards[dashboardId]
     const newWidget = createNewWidget('highcharts', dashboard)
     newWidget.dataset = currentWidget.dataset
@@ -32,6 +32,8 @@ export const quickWidgetCreateChartFromTable = (chartType: string, currentWidget
 }
 
 export const quickWidgetCreateTableFromChart = (currentWidget: IWidget, dashboardId: string) => {
+    const dashStore = dashboardStore()
+
     const dashboard = dashStore.dashboards[dashboardId]
     const newWidget = createNewWidget('table', dashboard)
     newWidget.dataset = currentWidget.dataset

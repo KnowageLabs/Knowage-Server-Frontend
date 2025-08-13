@@ -6,9 +6,9 @@ import deepcopy from 'deepcopy'
 import dashboardStore from '@/modules/documentExecution/dashboard/Dashboard.store'
 import { ISortingColumn } from '../HighchartsDataProxy'
 
-const dashStore = dashboardStore()
-
 export const getHighchartsPieData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], sortingColumn: ISortingColumn | null, associativeResponseSelections?: any) => {
+    const dashStore = dashboardStore()
+
     const datasetIndex = datasets.findIndex((dataset: IDashboardDataset) => widget.dataset === dataset.id)
     const selectedDataset = datasets[datasetIndex]
 

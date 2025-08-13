@@ -10,7 +10,6 @@ import descriptor from '../WidgetEditorSettingsTab/ChartWidget/common/ChartColor
 import useStore from '@/App.store'
 
 const store = useStore()
-const dashStore = dashboardStore()
 
 export const changeChartType = (chartType: string, widget: IWidget, isEnterprise: boolean) => {
     const selectedThemeId = widget.settings?.style?.themeId ?? null
@@ -47,6 +46,8 @@ export const changeChartType = (chartType: string, widget: IWidget, isEnterprise
 }
 
 const reapplyThemeToChartWidget = (widget: IWidget, selectedThemeId: number | null) => {
+    const dashStore = dashboardStore()
+
     const themes = dashStore.getAllThemes()
     const selectedTheme = themes.find((theme: IDashboardTheme) => theme.id === selectedThemeId)
     if (!selectedTheme) return

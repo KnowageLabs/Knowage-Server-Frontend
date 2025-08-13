@@ -16,7 +16,6 @@ import { addMapCharts } from './visualization/MapChartsVizualizationHelper'
 import useAppStore from '@/App.store'
 import i18n from '@/App.i18n'
 
-const dashStore = dashboardStore()
 const appStore = useAppStore()
 const { t } = i18n.global
 
@@ -130,6 +129,8 @@ const getCoordinatesFromJSONCoordType = (input: string) => {
 
 // Starting point for the data/layers logic
 export async function initializeLayers(map: L.Map, model: IWidget, data: any, dashboardId: string, variables: IVariable[], activeSelections: ISelection[]) {
+    const dashStore = dashboardStore()
+
     try {
         const markerBounds = [] as any
         const bounds = L.latLngBounds()
