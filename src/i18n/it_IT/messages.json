@@ -123,6 +123,7 @@
         "inactive": "inattivo",
         "info": {
             "dataLoading": "caricamento dati. attendere prego.",
+            "datasetUsed": "Il dataset è utilizzato in alcuni widget. Rimuovilo dai widget prima di eliminarlo.",
             "emptySearch": "la ricerca non ritorna dati",
             "info": "informazioni",
             "noAvailableItems": "Nessun elemento disponibile",
