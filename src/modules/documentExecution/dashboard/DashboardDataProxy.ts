@@ -22,6 +22,7 @@ import { getChartJSWidgetData } from './widget/ChartWidget/ChartJS/ChartJSDataPr
 import { getCePivotData } from './widget/cePivotWidget/cePivotWidgetDataProxy'
 import { getPythonData } from './widget/PythonWidget/PythonWidgetDataProxy'
 import { indexedDB } from '@/idb'
+import { luxonFormatDate } from '@/helpers/commons/localeHelper'
 
 const { t } = i18n.global
 const mainStore = store()
@@ -82,6 +83,14 @@ export const addDriversToData = (dataset, dataToSend) => {
     }
 }
 
+const getFormattedDateParameter = (date: any, useDefaultFormat?: boolean): string => {
+    const format = date instanceof Date ? undefined : 'dd/MM/yyyy'
+    const formattedDate = luxonFormatDate(date, format, useDefaultFormat ? undefined : store.configurations?.['SPAGOBI.DATE-FORMAT-SERVER']?.format)
+    if (formattedDate === 'Invalid DateTime') {
+        return luxonFormatDate(new Date(date), undefined, useDefaultFormat ? undefined : store.configurations?.['SPAGOBI.DATE-FORMAT-SERVER']?.format)
+    } else return formattedDate
+}
+
 export const addParametersToData = (dataset, dashboardId, dataToSend, associativeResponseSelections?) => {
     const dashStore = dashboardStore()
 
@@ -94,6 +103,7 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
                 for (let index = 0; index < documentDrivers.length; index++) {
                     const driver = documentDrivers[index]
                     if (driver.urlName == matched[0]) {
+                        if (driver.type === 'DATE' && driver.value) driver.value = getFormattedDateParameter(driver.value)
                         dataToSend.parameters[`${param.name}`] = driver.value
                     }
                 }
