@@ -156,6 +156,7 @@
         "inactive": "Inactive",
         "info": {
             "dataLoading": "Loading data. Please wait.",
+            "datasetUsed": "This dataset is used in some of the widgets. Please remove it from the widgets before deleting.",
             "emptySearch": "The search returns no data",
             "info": "Info",
             "noAvailableItems": "No available items",

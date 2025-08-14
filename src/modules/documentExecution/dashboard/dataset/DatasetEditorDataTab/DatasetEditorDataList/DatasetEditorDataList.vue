@@ -5,10 +5,12 @@
             <Listbox class="kn-list kn-list-no-border-right dashboard-editor-list" :options="selectedDatasets" :filter="true" :filter-placeholder="$t('common.search')" option-label="label" filter-match-mode="contains" :filter-fields="['label']" :empty-filter-message="$t('common.info.noDataFound')" @change="selectDataset">
                 <template #empty>{{ $t('common.info.noDataFound') }}</template>
                 <template #option="slotProps">
-                    <div v-tooltip.left="slotProps.option.label" class="kn-list-item" :style="dataListDescriptor.style.list.listItem" data-test="dataset-list-item">
+                    <div class="kn-list-item" :style="dataListDescriptor.style.list.listItem" data-test="dataset-list-item">
                         <i class="p-mx-2" :style="dataListDescriptor.style.list.listIcon" :class="dataListDescriptor.listboxSettings.avatar.values[slotProps.option.type].icon"></i>
-                        <span class="kn-list-item-text">{{ slotProps.option.label }}</span>
-                        <Button :disabled="isDatasetUsed(slotProps.option.id.dsId)" icon="far fa-trash-alt" class="p-button-text p-button-rounded p-button-plain p-ml-auto" data-test="delete-dataset-list-item" @click.stop="deleteDatasetFromModel(slotProps.option)" />
+                        <span v-tooltip.right="slotProps.option.label" class="kn-list-item-text">{{ slotProps.option.label }}</span>
+                        <q-btn flat round size="sm" :disable="isDatasetUsed(slotProps.option.id.dsId)" icon="delete" class="deleteButton" data-test="delete-dataset-list-item" @click.stop="deleteDatasetFromModel(slotProps.option)">
+                            <q-tooltip :delay="500">{{ $t(isDatasetUsed(slotProps.option.id.dsId) ? 'common.info.datasetUsed' : 'common.delete') }}</q-tooltip>
+                        </q-btn>
                     </div>
                 </template>
             </Listbox>
@@ -84,3 +86,9 @@ export default defineComponent({
     }
 })
 </script>
+<style scoped lang="scss">
+.deleteButton {
+    position: absolute;
+    right: 0;
+}
+</style>
