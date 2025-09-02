@@ -645,6 +645,12 @@ export default defineComponent({
             if (['spreadsheet'].includes(format)) {
                 url = import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${format}`
             }
+
+            if (this.filtersData && this.filtersData.filterStatus && body instanceof URLSearchParams) {
+                const structuredParameters = this.getStructuredParametersForExport()
+                body.append('parameters', JSON.stringify(structuredParameters))
+            }
+
             await this.$http
                 .post(url, body, {
                     responseType: 'blob'
@@ -653,6 +659,39 @@ export default defineComponent({
                     downloadDirectFromResponse(response)
                 })
                 .finally(() => this.setLoading(false))
+        },
+        getStructuredParametersForExport() {
+            if (!this.filtersData || !this.filtersData.filterStatus) return []
+
+            return this.filtersData.filterStatus
+                .filter((parameter) => parameter.parameterValue && parameter.parameterValue.length > 0)
+                .map((parameter) => {
+                    const paramValue = parameter.parameterValue || []
+                    let formattedValues = [] as any
+
+                    if (parameter.type === 'DATE' && paramValue[0] && paramValue[0].value) {
+                        formattedValues = [{ value: this.getFormattedDate(paramValue[0].value), description: this.getFormattedDate(paramValue[0].value, true) }]
+                    } else if (parameter.valueSelection === 'man_in') {
+                        const val = paramValue[0] || { value: '', description: '' }
+                        formattedValues = [{ value: parameter.type === 'NUM' && val.value ? +val.value : val.value, description: parameter.type === 'NUM' && val.description ? +val.description : val.description || val.value }]
+                    } else if (parameter.selectionType === 'TREE' || parameter.selectionType === 'LOOKUP' || parameter.multivalue) {
+                        formattedValues = paramValue.map((el) => ({
+                            value: typeof el.value === 'object' ? el.value[0] : el.value,
+                            description: el.description || el.value
+                        }))
+                    } else {
+                        const val = paramValue[0]
+                        if (val) formattedValues = [{ value: val.value, description: val.description || val.value }]
+                    }
+
+                    return {
+                        name: parameter.urlName,
+                        value: formattedValues,
+                        multivalue: parameter.multivalue || false,
+                        type: parameter.type,
+                        label: parameter.label || parameter.driverLabel
+                    }
+                })
         },
         openMailDialog() {
             this.mailDialogVisible = true
