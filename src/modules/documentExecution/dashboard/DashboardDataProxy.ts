@@ -84,10 +84,15 @@ export const addDriversToData = (dataset, dataToSend) => {
 }
 
 const getFormattedDateParameter = (date: any, useDefaultFormat?: boolean): string => {
+    const knowageStore = store()
+    console.log('knowageStore', knowageStore)
+    console.log('knowageStore.configurations', knowageStore.configurations)
+    console.log('date format', knowageStore.configurations?.['SPAGOBI.DATE-FORMAT-SERVER.format'])
+
     const format = date instanceof Date ? undefined : 'dd/MM/yyyy'
-    const formattedDate = luxonFormatDate(date, format, useDefaultFormat ? undefined : mainStore.configurations?.['SPAGOBI.DATE-FORMAT-SERVER']?.format)
+    const formattedDate = luxonFormatDate(date, format, useDefaultFormat ? undefined : knowageStore.configurations?.['SPAGOBI.DATE-FORMAT-SERVER.format'])
     if (formattedDate === 'Invalid DateTime') {
-        return luxonFormatDate(new Date(date), undefined, useDefaultFormat ? undefined : mainStore.configurations?.['SPAGOBI.DATE-FORMAT-SERVER']?.format)
+        return luxonFormatDate(new Date(date), undefined, useDefaultFormat ? undefined : knowageStore.configurations?.['SPAGOBI.DATE-FORMAT-SERVER.format'])
     } else return formattedDate
 }
 
