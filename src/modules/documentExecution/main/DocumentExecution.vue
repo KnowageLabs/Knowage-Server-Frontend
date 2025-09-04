@@ -648,7 +648,7 @@ export default defineComponent({
 
             if (this.filtersData && this.filtersData.filterStatus && body instanceof URLSearchParams) {
                 const structuredParameters = this.getStructuredParametersForExport()
-                body.append('parameters', JSON.stringify(structuredParameters))
+                body.set('parameters', JSON.stringify(structuredParameters))
             }
 
             await this.$http
@@ -685,11 +685,11 @@ export default defineComponent({
                     }
 
                     return {
-                        name: parameter.urlName,
+                        urlName: parameter.urlName,
                         value: formattedValues,
                         multivalue: parameter.multivalue || false,
                         type: parameter.type,
-                        label: parameter.label || parameter.driverLabel
+                        name: parameter.label || parameter.driverLabel
                     }
                 })
         },
