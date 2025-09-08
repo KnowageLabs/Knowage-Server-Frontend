@@ -71,7 +71,7 @@ async function syncronize() {
 
 function getLastUpdate() {
     axios
-        .post(store.configurations['KNOWAGE.AI.URL'] + '/get_last_update', { tenant: store.user.organization })
+        .post(store.configurations['KNOWAGE.AI.URL'] + '/last_update', { tenant: store.user.organization })
         .then((response) => {
             if (response.data.status === 'Loaded') {
                 update.value = response.data.data.lastKBUpdate
