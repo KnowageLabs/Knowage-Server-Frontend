@@ -57,7 +57,7 @@ async function syncronize() {
             .post(store.configurations['KNOWAGE.AI.URL'] + '/load_data', {
                 tenant: store.user.organization,
                 token: localStorage.getItem('token'),
-                urlExcel: { key: folderKey, selectedFilesNames: ['ai.xls'] }
+                urlExcel: { key: folderKey, selectedFilesNames: ['ai.xlsx'] }
             })
             .then((response) => {
                 getLastUpdate()
