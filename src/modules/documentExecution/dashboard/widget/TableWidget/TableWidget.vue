@@ -556,10 +556,10 @@ export default defineComponent({
             }
         },
         onCellClicked(node: any) {
-            if (this.editorMode || node.colDef.colId === 'iconColumn') return
+            if (this.editorMode || node.colDef.colId === 'iconColumn' || node.colDef.pinned || node.value === '' || node.value == undefined) return
 
-            if (node.colDef.measure == 'MEASURE' || node.colDef.pinned || node.value === '' || node.value == undefined) return
             this.executeInteractions(node)
+            if (node.colDef.measure == 'MEASURE') return
 
             //SELECTION LOGIC -------------------------------------------------------------------
             const modalSelection = this.widgetModel.settings.interactions.selection
