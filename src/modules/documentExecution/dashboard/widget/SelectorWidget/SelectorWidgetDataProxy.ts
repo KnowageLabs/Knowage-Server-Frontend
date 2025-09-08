@@ -13,7 +13,7 @@ export const getSelectorWidgetData = async (dashboardId: any, dashboardConfig: I
     const selectedDataset = datasets[datasetIndex]
 
     if (selectedDataset) {
-        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}`
+        const url = `/restful-services/2.0/datasets/${selectedDataset.dsLabel}/data?offset=-1&size=-1&nearRealtime=${!selectedDataset.cache}&useGroupBy=true`
 
         const postData = formatSelectorWidgetModelForService(dashboardId, dashboardConfig, widget, selectedDataset, initialCall, selections, associativeResponseSelections)
         let tempResponse = null as any
