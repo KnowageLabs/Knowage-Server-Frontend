@@ -3,7 +3,7 @@
     <div v-if="defaultValuesModel" class="p-grid p-jc-center p-ai-center kn-flex p-p-4">
         <div class="p-col-12 p-grid p-ai-center">
             <div class="p-col-10 p-lg-11 p-grid">
-                <div class="p-col-12 p-lg-9 p-fluid p-d-flex p-flex-column kn-flex">
+                <div class="p-col-12 p-lg-7 p-fluid p-d-flex p-flex-column kn-flex">
                     <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.defaultValues.selectDafaultValue') }}</label>
                     <Dropdown v-model="defaultValuesModel.valueType" class="kn-material-input" :options="filteredDefaultValuesTypes" option-value="value" :disabled="defaultModelDisabled" @change="onDefaultValuesTypeChanged">
                         <template #value="slotProps">
@@ -19,10 +19,10 @@
                     </Dropdown>
                 </div>
 
-                <div v-if="defaultValuesModel.valueType === 'STATIC'" class="p-col-12 p-lg-3 p-d-flex p-flex-column">
+                <div v-if="defaultValuesModel.valueType === 'STATIC'" class="p-col-12 p-lg-5 p-d-flex p-flex-column">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
                     <Calendar v-if="isDateType" v-model="(defaultValuesModel.value as Date)" :disabled="defaultModelDisabled" :manual-input="true" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
-                    <InputText v-else v-model="defaultValuesModel.value" class="kn-material-input p-inputtext-sm kn-flex" :disabled="defaultModelDisabled" @change="defaultValuesChanged" />
+                    <Chips v-else v-model="defaultValuesModel.value" class="kn-material-input kn-flex" :disabled="defaultModelDisabled" @change="defaultValuesChanged" />
                 </div>
             </div>
             <div class="p-col-2 p-lg-1 p-d-flex p-jc-center">
@@ -41,10 +41,11 @@ import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../SelectorWidgetSettingsDescriptor.json'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
+import Chips from 'primevue/chips'
 
 export default defineComponent({
     name: 'selector-widget-default-values',
-    components: { Calendar, Dropdown },
+    components: { Calendar, Dropdown, Chips },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true } },
     data() {
         return {

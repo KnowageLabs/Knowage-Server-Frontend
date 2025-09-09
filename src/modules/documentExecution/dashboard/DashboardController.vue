@@ -353,7 +353,8 @@ export default defineComponent({
                     selectionValue = enabledOptions[enabledOptions.length - 1] || null
                     break
                 case 'STATIC':
-                    selectionValue = selectorDefaultValues.value
+                    if (typeof selectorDefaultValues.value === 'string' && selectorDefaultValues.value.includes(',')) selectionValue = selectorDefaultValues.value.split(',').map((v: string) => v.trim())
+                    else selectionValue = selectorDefaultValues.value
                     break
                 default:
                     break
@@ -370,6 +371,11 @@ export default defineComponent({
                 timestamp: new Date().getTime(),
                 dynamic: true
             } as ISelection
+
+            if (selectorDefaultValues.valueType === 'STATIC') {
+                if (Array.isArray(selectionValue)) dynamicSelection.value = selectionValue
+                else dynamicSelection.value = [selectionValue]
+            } else dynamicSelection.value = [selectionValue?.column_1]
 
             if (widget?.settings?.isDateType) {
                 const formattedDate = [moment(deepcopy(dynamicSelection.value[0])).format(dashboardDescriptor.selectionsDateFormat)]
