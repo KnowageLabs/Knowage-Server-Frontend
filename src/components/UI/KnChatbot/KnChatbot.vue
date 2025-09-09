@@ -61,7 +61,9 @@ const chat = ref<IChat[]>([
     }
 ]) as any
 const bottomAnchor = ref(null)
-const body = reactive({} as any)
+const body = reactive({
+    conversationId: crypto.randomUUID()
+} as any)
 
 function toggleChatbot() {
     showAlert.value = !showAlert.value
@@ -137,6 +139,7 @@ async function sendToAI() {
                 if (response.data.urlDashboard) {
                     tempResponse.url = response.data.urlDashboard
                 }
+                chat.value.push(tempResponse)
             } else {
                 chat.value.push({
                     role: 'assistant',
@@ -155,7 +158,6 @@ async function sendToAI() {
         })
         .finally(() => {
             awaitingReply.value = false
-
             scrollToBottom()
         })
 }
