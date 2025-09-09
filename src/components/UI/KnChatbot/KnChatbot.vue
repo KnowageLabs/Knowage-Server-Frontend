@@ -126,7 +126,7 @@ function scrollToBottom() {
 async function sendToAI() {
     scrollToBottom()
     axios
-        .post(store.configurations['KNOWAGE.AI.URL'] + '/bot_response', body)
+        .post(store.configurations['KNOWAGE.AI.URL'] + '/bot-response', body)
         .then((response) => {
             if (response.data) {
                 let tempResponse: IChat = {
