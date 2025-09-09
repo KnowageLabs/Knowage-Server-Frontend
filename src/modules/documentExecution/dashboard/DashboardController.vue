@@ -336,7 +336,7 @@ export default defineComponent({
         },
         updateSelectorOptions(widget: any) {
             this.selectorWidgetsData[widget.id]?.initialData?.rows?.forEach((initialOption: any) => {
-                const index = this.selectorWidgetsData[widget.id].widgetData.rows.findIndex((row: any) => row.column_1 === initialOption.column_1)
+                const index = this.selectorWidgetsData[widget.id].widgetData?.rows?.findIndex((row: any) => row.column_1 === initialOption.column_1) || -1
                 this.selectorWidgetsData[widget.id].selectorOptions.push({
                     ...initialOption,
                     disabled: index === -1
