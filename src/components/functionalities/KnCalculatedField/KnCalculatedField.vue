@@ -36,7 +36,7 @@
                             <div v-for="(field, index) in fields" v-else :key="index" v-tooltip.bottom="source === 'QBE' ? field.fieldLabel : field.fieldAlias" class="kn-list-item p-d-flex p-ai-center fieldType kn-truncated p-ml-2" draggable="true" @dragstart="dragElement($event, field, 'field')">
                                 <div><i class="fa fa-solid fa-bars"></i></div>
                                 <div v-if="source === 'QBE'" class="p-ml-2">{{ field.fieldLabel }}</div>
-                                <div v-else class="p-ml-2">{{ field.fieldAlias }}</div>
+                                <div v-else class="p-ml-2">{{ field.fieldLabel }}</div>
                             </div>
                         </ScrollPanel>
                     </div>
@@ -326,7 +326,7 @@ export default defineComponent({
             let fieldAlias = ''
             let text = ''
             if (data.item.fieldAlias) {
-                fieldAlias = this.source !== 'QBE' && this.source !== 'dashboard' ? this.wrap(data.item.fieldAlias) : data.item.fieldAlias
+                fieldAlias = this.source !== 'QBE' && this.source !== 'dashboard' ? this.wrap(data.item.fieldLabel ?? data.item.fieldAlias) : data.item.fieldLabel ?? data.item.fieldAlias
             }
             text = data.elementType === 'function' ? data.item : fieldAlias
             const word = editor.getModel().getWordAtPosition(position)

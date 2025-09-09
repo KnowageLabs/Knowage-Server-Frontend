@@ -268,11 +268,11 @@ export default defineComponent({
                 const allFields = [].concat(modelFields?.columns, modelFields?.data, modelFields?.filters, modelFields?.rows) as any
 
                 allFields.forEach((field) => {
-                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.columnName })
                 })
             } else {
                 this.model?.columns.forEach((field) => {
-                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.alias })
+                    if (field.fieldType === 'MEASURE' && !field.formula) this.calcFieldColumns.push({ fieldAlias: `${field.alias}`, fieldLabel: field.columnName })
                 })
             }
         },
