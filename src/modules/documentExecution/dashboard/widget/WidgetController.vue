@@ -213,7 +213,8 @@ export default defineComponent({
                 { label: this.$t('dashboard.qMenu.clone'), icon: 'fa-solid fa-clone', command: () => this.onCloneWidgetClicked(), visible: canEditDashboard(this.document) },
                 { label: this.$t('dashboard.qMenu.moveWidget'), icon: 'fa fa-arrows-h', command: () => this.moveWidgetToAnotherSheet(), visible: canEditDashboard(this.document) && this.dashboards ? this.dashboards[this.dashboardId]?.sheets?.length > 1 : false },
                 { label: this.$t('dashboard.qMenu.quickWidget'), icon: 'fas fa-magic', command: () => this.toggleQuickDialog(), visible: this.quickWidgetChangeEnabled() },
-                { label: this.$t('dashboard.qMenu.xlsExport'), icon: 'fa-solid fa-file-excel', command: () => this.widgetExportExcel(), visible: canEditDashboard(this.document) && this.widget?.configuration?.exports?.showExcelExport },
+                { label: this.$t('dashboard.qMenu.xlsExport'), icon: 'fa-solid fa-file-excel', command: () => this.widgetExport('spreadsheet'), visible: canEditDashboard(this.document) && this.widget?.settings?.configuration?.exports?.showExcelExport },
+                { label: this.$t('dashboard.qMenu.pdfExport'), icon: 'fa-solid fa-file-pdf', command: () => this.widgetExport('pdf'), visible: canEditDashboard(this.document) && this.widget?.settings?.configuration?.exports?.pdf?.enabled },
                 { label: this.$t('dashboard.qMenu.delete'), icon: 'fa-solid fa-trash', command: () => this.deleteWidgetConfirm(), visible: canEditDashboard(this.document) }
             ]
         },
@@ -264,7 +265,7 @@ export default defineComponent({
             if (this.widgetModel.type === 'table') this.showQuickDialog = !this.showQuickDialog
             else quickWidgetCreateTableFromChart(this.widgetModel, this.dashboardId)
         },
-        async widgetExportExcel() {
+        async widgetExport(type: string) {
             this.setLoading(true)
             const dataset = this.dashboards[this.dashboardId].configuration.datasets.find((i) => i.id === this.widgetModel.dataset)
             const parameters = dataset ? dataset.parameters : []
@@ -274,7 +275,7 @@ export default defineComponent({
                 body.datasetDrivers = dataset.drivers
             }
             await this.$http
-                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/spreadsheet`, body, {
+                .post(import.meta.env.VITE_KNOWAGE_CONTEXT + `/restful-services/1.0/dashboardExport/${type}`, body, {
                     responseType: 'blob',
                     headers: { Accept: 'text/html,application/xhtml+xml,application/xml;application/pdf;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' }
                 })
@@ -283,6 +284,7 @@ export default defineComponent({
                 })
                 .finally(() => this.setLoading(false))
         },
+
         deleteWidgetConfirm() {
             this.$confirm.require({
                 message: this.$t('dashboard.confirm.deleteWidget'),
