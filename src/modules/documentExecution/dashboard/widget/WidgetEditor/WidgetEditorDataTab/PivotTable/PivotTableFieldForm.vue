@@ -1,28 +1,22 @@
 <template>
     <div v-if="column" class="widget-editor-card kn-flex p-m-1">
         <div class="p-fluid p-formgrid p-grid p-m-2">
-            <div class="p-field p-col-4">
+            <div class="p-field p-col-6">
                 <span class="p-float-label">
                     <InputText v-model="column.alias" class="kn-material-input" @change="onColumnAliasRenamed" />
                     <label class="kn-material-input-label">{{ $t('common.alias') }}</label>
                 </span>
             </div>
-            <div class="p-field p-col-4">
+            <div class="p-field p-col-6">
                 <span class="p-float-label">
                     <Dropdown v-model="column.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" option-value="value" option-label="label" :disabled="column.formula !== undefined" @change="columnTypeChanged"></Dropdown>
                     <label class="kn-material-input-label">{{ $t('common.type') }}</label>
                 </span>
             </div>
-            <div v-if="!isDataField" class="p-field p-col-4">
+            <div v-if="!isDataField" class="p-field p-col-12">
                 <span class="p-float-label">
                     <Dropdown v-model="column.sort" class="kn-material-input" :options="descriptor.sortOptions" option-value="value" option-label="label" @change="onFieldSortChanged"></Dropdown>
                     <label class="kn-material-input-label">{{ $t('common.sort') }}</label>
-                </span>
-            </div>
-            <div v-if="column.fieldType === 'MEASURE'" class="p-field p-col-12">
-                <span class="p-float-label">
-                    <Dropdown v-model="column.aggregation" class="kn-material-input" :options="descriptor.columnAggregationOptions" option-value="value" option-label="label" @change="selectedColumnUpdated"></Dropdown>
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
                 </span>
             </div>
 
