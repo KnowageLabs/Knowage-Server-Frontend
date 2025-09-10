@@ -85,8 +85,6 @@ export default defineComponent({
         canEditDocument(): boolean {
             if (!this.user) return false
             switch (this.document.stateCode) {
-                case 'TEST':
-                    return this.user.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_TEST_MANAGEMENT)
                 case 'DEV':
                     return this.user.functionalities.includes(UserFunctionalitiesConstants.DOCUMENT_DEV_MANAGEMENT)
                 case 'REL':
