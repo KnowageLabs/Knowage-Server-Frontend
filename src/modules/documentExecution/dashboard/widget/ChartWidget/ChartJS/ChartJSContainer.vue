@@ -91,7 +91,7 @@ export default defineComponent({
         updateChartOptions() {
             this.chartOptions = {
                 ...this.chartModel.options,
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 events: ['click', 'mousemove'],
                 onClick: this.executeInteractions
