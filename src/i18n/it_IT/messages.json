@@ -586,7 +586,7 @@
             "defaultValues": {
                 "columnsFirstItem": "Main column's first item",
                 "columnsLastItem": "Main column's last item",
-                "hint": "Default values hint placeholder",
+                "hint": "I valori inseriti saranno quelli presenti al caricamento del widget.Ricordati di premere invio dopo ogni valore.",
                 "selectDafaultValue": "Select Default Value",
                 "title": "Default Values"
             },
