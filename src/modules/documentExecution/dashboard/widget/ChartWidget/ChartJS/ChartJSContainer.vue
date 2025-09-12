@@ -43,7 +43,7 @@ export default defineComponent({
     computed: {
         myStyles(): any {
             return {
-                height: this.editorMode ? '100%' : `${this.chartHeight}px`,
+                height: '100%',
                 position: 'relative'
             }
         },
@@ -91,7 +91,7 @@ export default defineComponent({
         updateChartOptions() {
             this.chartOptions = {
                 ...this.chartModel.options,
-                responsive: false,
+                responsive: true,
                 maintainAspectRatio: false,
                 events: ['click', 'mousemove'],
                 onClick: this.executeInteractions
