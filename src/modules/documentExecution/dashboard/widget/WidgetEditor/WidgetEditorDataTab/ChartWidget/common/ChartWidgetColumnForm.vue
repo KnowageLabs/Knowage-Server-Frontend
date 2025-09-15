@@ -6,11 +6,6 @@
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.name') }}</label>
                     <InputText v-model="column.alias" class="kn-material-input p-inputtext-sm" disabled="true" />
                 </div>
-
-                <div v-if="column.fieldType === 'MEASURE'" class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
-                    <Dropdown v-model="column.aggregation" class="kn-material-input" :options="commonDescriptor.columnAggregationOptions" option-value="value" option-label="label" @change="selectedColumnUpdated"> </Dropdown>
-                </div>
             </div>
 
             <div class="p-d-flex p-flex-row p-ai-center kn-flex p-mt-2">

@@ -543,6 +543,7 @@
             "expand": "Expand to Fullscreen",
             "lock": "Lock widget position",
             "moveWidget": "Move Widget",
+            "pdfExport": "Pdf Export",
             "quickWidget": "Add Quick Widget",
             "screenshot": "Capture Screenshot",
             "search": "Search on Widget",
@@ -699,7 +700,7 @@
             "defaultValues": {
                 "columnsFirstItem": "Main column's first item",
                 "columnsLastItem": "Main column's last item",
-                "hint": "Default values hint placeholder",
+                "hint": "The values set here will be the default ones when the widget is loaded. It can be multivalue, remember to press enter after each value.",
                 "selectDafaultValue": "Select Default Value",
                 "title": "Default Values"
             },

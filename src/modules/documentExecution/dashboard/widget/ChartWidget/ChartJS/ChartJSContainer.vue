@@ -43,7 +43,7 @@ export default defineComponent({
     computed: {
         myStyles(): any {
             return {
-                height: this.editorMode ? '100%' : `${this.chartHeight}px`,
+                height: '100%',
                 position: 'relative'
             }
         },

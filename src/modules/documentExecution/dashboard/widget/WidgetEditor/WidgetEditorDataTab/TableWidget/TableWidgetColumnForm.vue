@@ -13,15 +13,7 @@
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
                     <Dropdown v-model="column.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" option-value="value" option-label="label" :disabled="column.formula !== undefined" @change="columnTypeChanged"> </Dropdown>
                 </div>
-                <div v-if="column.fieldType === 'MEASURE' && widgetType !== 'discovery'" class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
-                    <Dropdown v-model="column.aggregation" class="kn-material-input" :options="commonDescriptor.columnAggregationOptions" option-value="value" option-label="label" @change="selectedColumnUpdated"> </Dropdown>
-                </div>
-                <div v-else-if="column.fieldType === 'ATTRIBUTE' && widgetType === 'discovery'" class="p-d-flex p-flex-row kn-flex-2">
-                    <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                        <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.aggregation') }}</label>
-                        <Dropdown v-model="column.aggregation" class="kn-material-input" :options="commonDescriptor.discoveryWidgetColumnAggregationOptions" option-value="value" option-label="label" @change="onDiscoveryWidgetColumnAggregationChanged"> </Dropdown>
-                    </div>
+                <div v-if="column.fieldType === 'ATTRIBUTE' && widgetType === 'discovery'" class="p-d-flex p-flex-row kn-flex-2">
                     <div v-if="column.aggregation !== 'COUNT'" class="p-d-flex p-flex-column kn-flex p-m-2">
                         <label class="kn-material-input-label p-mr-2">{{ $t('common.column') }}</label>
                         <Dropdown v-model="column.aggregationColumn" class="kn-material-input" :options="widgetMeasureColumns" option-value="columnName" option-label="columnName" @change="selectedColumnUpdated"> </Dropdown>

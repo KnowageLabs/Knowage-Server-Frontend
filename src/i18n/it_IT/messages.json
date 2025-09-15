@@ -441,6 +441,7 @@
             "expand": "Espandi a tutti schermo",
             "lock": "Blocca posizione Widget",
             "moveWidget": "Sposta Widget",
+            "pdfExport": "Esporta in PDF",
             "quickWidget": "Aggiungi Quick Widget",
             "screenshot": "Cattura Immagine",
             "search": "Cerca nel Widget",
@@ -585,7 +586,7 @@
             "defaultValues": {
                 "columnsFirstItem": "Main column's first item",
                 "columnsLastItem": "Main column's last item",
-                "hint": "Default values hint placeholder",
+                "hint": "I valori inseriti saranno quelli presenti al caricamento del widget.Ricordati di premere invio dopo ogni valore.",
                 "selectDafaultValue": "Select Default Value",
                 "title": "Default Values"
             },

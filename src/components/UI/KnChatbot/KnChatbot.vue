@@ -10,7 +10,7 @@
             <div class="column col">
                 <div ref="chatContainer" class="col q-ml-sm" style="overflow-y: auto; overflow-x: hidden">
                     <div v-for="message in chat" class="q-mr-md relative-position">
-                        <q-chat-message :name="message.role === 'assistant' ? 'AI' : message.role" :avatar="message.role === 'assistant' ? avatarImg : undefined" :sent="message.role === 'user'">
+                        <q-chat-message :name="message.role === 'assistant' ? 'AI' : 'user'" :avatar="message.role === 'assistant' ? avatarImg : undefined" :sent="message.role === 'user'">
                             <div>{{ message.content }}</div>
                         </q-chat-message>
 
@@ -61,7 +61,9 @@ const chat = ref<IChat[]>([
     }
 ]) as any
 const bottomAnchor = ref(null)
-const body = reactive({} as any)
+const body = reactive({
+    conversationId: crypto.randomUUID()
+} as any)
 
 function toggleChatbot() {
     showAlert.value = !showAlert.value
@@ -137,6 +139,7 @@ async function sendToAI() {
                 if (response.data.urlDashboard) {
                     tempResponse.url = response.data.urlDashboard
                 }
+                chat.value.push(tempResponse)
             } else {
                 chat.value.push({
                     role: 'assistant',
@@ -155,7 +158,6 @@ async function sendToAI() {
         })
         .finally(() => {
             awaitingReply.value = false
-
             scrollToBottom()
         })
 }

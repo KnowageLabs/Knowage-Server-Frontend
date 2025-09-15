@@ -233,7 +233,11 @@ export default defineComponent({
             const dataset = { type: 'SbiFileDataSet' }
 
             const conditionalStyles = this.getFormattedConditionalStyles(this.propWidget.settings.conditionalStyles)
-            const columnDataMap = Object.fromEntries(this.propWidget.columns.map((column, index) => [column.id, `column_${index + 1}`]))
+            const columnDataMap = {}
+            this.widgetModel.columns.forEach((widgetColumn) => {
+                const matchingResponseField = responseFields.find((field) => typeof field === 'object' && widgetColumn.alias.toLowerCase() === field.header.toLowerCase())
+                if (matchingResponseField && widgetColumn.id !== undefined) columnDataMap[widgetColumn.id] = matchingResponseField.name
+            })
             // const selectedColumnsIds = this.propWidget.columns.map((currElement) => {
             //     return currElement.id
             // })

@@ -22,7 +22,8 @@
                 <div v-if="defaultValuesModel.valueType === 'STATIC'" class="p-col-12 p-lg-5 p-d-flex p-flex-column">
                     <label class="kn-material-input-label p-mr-2">{{ $t('common.value') }}</label>
                     <Calendar v-if="isDateType" v-model="(defaultValuesModel.value as Date)" :disabled="defaultModelDisabled" :manual-input="true" :min-date="getDateRange('startDate')" :max-date="getDateRange('endDate')" @input="defaultValuesChanged" @dateSelect="defaultValuesChanged"></Calendar>
-                    <Chips v-else v-model="defaultValuesModel.value" class="kn-material-input kn-flex" :disabled="defaultModelDisabled" @change="defaultValuesChanged" />
+                    <Chips v-if="!isDateType" v-model="defaultValuesModel.value" class="kn-material-input kn-flex" :disabled="defaultModelDisabled" @change="defaultValuesChanged" aria-describedby="chips-help" />
+                    <small v-if="!isDateType" id="chips-help">{{ $t('common.chipsHint') }}</small>
                 </div>
             </div>
             <div class="p-col-2 p-lg-1 p-d-flex p-jc-center">
