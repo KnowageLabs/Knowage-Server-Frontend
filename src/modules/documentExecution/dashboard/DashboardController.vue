@@ -196,10 +196,8 @@ export default defineComponent({
             await this.loadDashboardThemes()
             await this.loadPythonEnvironments()
         }
-        if (!this.showDashboard || (!this.filtersLoaded && !this.newDashboardMode)) return
-
-        await this.getData()
-        this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
+        // if (!this.showDashboard || (!this.filtersLoaded && !this.newDashboardMode)) return
+        // await this.getData()
     },
     beforeUnmount() {
         this.emptyStoreValues()
@@ -248,6 +246,7 @@ export default defineComponent({
             this.loadOutputParameters()
             await this.loadCrossNavigations()
             this.setCurrentDashboardView(this.dashboardId, this.currentView)
+            this.$watch('model.configuration.datasets', (modelDatasets: IDashboardDataset[]) => setDatasetIntervals(modelDatasets, this.datasets))
             this.loading = false
         },
         async loadModel() {
