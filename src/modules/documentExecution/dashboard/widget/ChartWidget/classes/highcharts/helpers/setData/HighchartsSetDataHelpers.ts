@@ -3,8 +3,9 @@ import { replaceVariablesPlaceholdersByVariableName } from '@/modules/documentEx
 import { isConditionMet } from '@/modules/documentExecution/dashboard/widget/PivotWidget/PivotWidgetConditionalHelper'
 import { getDataType } from '@/modules/documentExecution/dashboard/widget/SelectorWidget/SelectorWidgetDataProxy'
 import deepcopy from 'deepcopy'
-import moment from 'moment'
+import moment from 'moment/min/moment-with-locales.js'
 import { getColumnAlias } from '../dataLabels/HighchartsDataLabelsHelpers'
+import { fallbackLocale, formatWithIntl, getLocale } from '@/helpers/commons/localeHelper'
 
 export enum DataType {
     DATE_SHORT = 'DD/MM/YYYY',
@@ -28,8 +29,8 @@ export const getAllColumnsOfSpecificTypeFromDataResponse = (data: any, widgetMod
 
 export const getFormattedDateCategoryValue = (dateString: string, dateFormat: string, type: 'date' | 'timestamp') => {
     if (!dateFormat) return dateString
-    const date = moment(dateString, type === 'date' ? 'DD/MM/YYYY' : 'DD/MM/YYYY HH:mm:ss.SSS')
-    return date.isValid() ? date.format(dateFormat) : dateString
+    const locale = getLocale() || fallbackLocale
+    return formatWithIntl(dateFormat, locale.replace('_', '-'), type === 'date' ? moment(dateString, 'DD/MM/YYYY').toDate() : moment(dateString, 'DD/MM/YYYY HH:mm:ss.SSS').toDate())
 }
 
 export const setRegularData = (model: any, widgetModel: IWidget, data: any, attributeColumns: any[], measureColumns: any[], drilldownEnabled: boolean, dateFormat: string, variables: IVariable[]) => {

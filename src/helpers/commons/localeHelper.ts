@@ -109,3 +109,39 @@ export function getDateStringFromJSDate(date: Date, outputFormat: string) {
     if (!date) return
     return DateTime.fromJSDate(date).toFormat(outputFormat)
 }
+
+export function formatWithIntl(momentFormat, locale, date = new Date()) {
+    const preformats = {
+        L: { year: 'numeric', month: '2-digit', day: '2-digit' },
+        LL: { year: 'numeric', month: 'long', day: 'numeric' },
+        LLL: { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' },
+        LLLL: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+    }
+    const tokenMap = {
+        YYYY: () => date.getFullYear(),
+        MMMM: () => new Intl.DateTimeFormat(locale, { month: 'long' }).format(date),
+        MMM: () => new Intl.DateTimeFormat(locale, { month: 'short' }).format(date),
+        MM: () => String(date.getMonth() + 1).padStart(2, '0'),
+        dddd: () => new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(date),
+        ddd: () => new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date),
+        DD: () => String(date.getDate()).padStart(2, '0'),
+        D: () => String(date.getDate()),
+        HH: () => String(date.getHours()).padStart(2, '0'),
+        hh: () => String(date.getHours() % 12 || 12).padStart(2, '0'),
+        h: () => date.getHours() % 12 || 12,
+        mm: () => String(date.getMinutes()).padStart(2, '0'),
+        ss: () => String(date.getSeconds()).padStart(2, '0'),
+        A: () => (date.getHours() >= 12 ? 'PM' : 'AM'),
+        a: () => (date.getHours() >= 12 ? 'pm' : 'am')
+    }
+    // Se è un preformat come LLLL, usa direttamente Intl
+    if (preformats[momentFormat]) {
+        return new Intl.DateTimeFormat(locale, preformats[momentFormat]).format(date)
+    }
+    // Altrimenti, sostituisci i token manualmente
+    const tokenRegex = new RegExp(Object.keys(tokenMap).join('|'), 'g')
+    return momentFormat.replace(tokenRegex, (match) => {
+        const formatter = tokenMap[match]
+        return formatter ? formatter() : match
+    })
+}
