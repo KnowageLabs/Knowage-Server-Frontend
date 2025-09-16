@@ -23,10 +23,25 @@ const resetSeriesSettings = (model: any) => {
 }
 
 const setSpecificSeriesSettings = (model: any, widgetModel: IWidget) => {
+    debugger
     for (let i = 1; i < widgetModel.settings.series.seriesSettings.length; i++) {
         const seriesSettings = widgetModel.settings.series.seriesSettings[i] as IHighchartsSeriesLabelsSetting
-        if (seriesSettings.label.enabled) seriesSettings.names.forEach((serieName: string) => updateSpecificSeriesLabelSettings(model, serieName, seriesSettings))
+        if (seriesSettings.label.enabled)
+            seriesSettings.names.forEach((serieName: string) => {
+                const possibleAliasToReplace = getColumnAliasToReplace(serieName, widgetModel.settings.series.aliases)
+                updateSpecificSeriesLabelSettings(model, possibleAliasToReplace, seriesSettings)
+            })
     }
+}
+
+const getColumnAliasToReplace = (columnName: string, columnAliases: { column: IWidgetColumn | null; alias: string }[]) => {
+    if (!columnAliases || columnAliases.length === 0) return columnName
+
+    columnAliases.forEach((columnAlias) => {
+        if (columnAlias.column?.columnName === columnName) columnName = columnAlias.alias
+    })
+
+    return columnName
 }
 
 const updateSpecificSeriesLabelSettings = (model: any, serieName: string, seriesSettings: IHighchartsSeriesLabelsSetting) => {
