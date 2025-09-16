@@ -23,7 +23,6 @@ const resetSeriesSettings = (model: any) => {
 }
 
 const setSpecificSeriesSettings = (model: any, widgetModel: IWidget) => {
-    debugger
     for (let i = 1; i < widgetModel.settings.series.seriesSettings.length; i++) {
         const seriesSettings = widgetModel.settings.series.seriesSettings[i] as IHighchartsSeriesLabelsSetting
         if (seriesSettings.label.enabled)
