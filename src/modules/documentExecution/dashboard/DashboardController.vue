@@ -177,14 +177,9 @@ export default defineComponent({
             await this.getData()
         },
         async propView() {
-            // if (!this.showDashboard || (!this.filtersLoaded && !this.newDashboardMode)) return
             if (!this.showDashboard || (!this.filtersData?.isReadyForExecution && !this.newDashboardMode)) return
             await this.getData()
         },
-        // async filtersLoaded() {
-        //     if (!this.showDashboard || !this.filtersData?.isReadyForExecution) return
-        //     await this.getData()
-        // },
         'filtersData.isReadyForExecution': {
             async handler(newVal) {
                 if (this.showDashboard && newVal) await this.getData()
@@ -197,8 +192,7 @@ export default defineComponent({
             await this.loadDashboardThemes()
             await this.loadPythonEnvironments()
         }
-        // if (!this.showDashboard || (!this.filtersLoaded && !this.newDashboardMode)) return
-        // await this.getData()
+        if (this.newDashboardMode) await this.getData()
     },
     beforeUnmount() {
         this.emptyStoreValues()
