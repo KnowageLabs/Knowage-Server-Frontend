@@ -208,14 +208,21 @@ export default defineComponent({
             await this.$http
                 .post(import.meta.env.VITE_KNOWAGE_CONTEXT + '/restful-services/1.0/glossary/business/addWord', this.word)
                 .then((response: AxiosResponse<any>) => {
-                    this.$emit('saved')
-                    if (this.word.PARENT) {
-                        this.saveContent(response.data.id)
+                    if (response.data.Status !== 'NON OK') {
+                        this.$emit('saved')
+                        if (this.word.PARENT) {
+                            this.saveContent(response.data.id)
+                        }
+                        this.store.setInfo({
+                            title: this.$t(this.glossaryDefinitionDialogDescriptor.operation[this.operation].toastTitle),
+                            msg: this.$t(this.glossaryDefinitionDialogDescriptor.operation.success)
+                        })
+                    } else {
+                        this.store.setError({
+                            title: this.$t('common.error.generic'),
+                            msg: this.$t(this.glossaryDefinitionDescriptor.translation[response.data.Message])
+                        })
                     }
-                    this.store.setInfo({
-                        title: this.$t(this.glossaryDefinitionDialogDescriptor.operation[this.operation].toastTitle),
-                        msg: this.$t(this.glossaryDefinitionDialogDescriptor.operation.success)
-                    })
                 })
                 .catch((error) => {
                     this.store.setError({
