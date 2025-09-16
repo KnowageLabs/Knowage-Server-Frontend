@@ -134,11 +134,9 @@ export function formatWithIntl(momentFormat, locale, date = new Date()) {
         A: () => (date.getHours() >= 12 ? 'PM' : 'AM'),
         a: () => (date.getHours() >= 12 ? 'pm' : 'am')
     }
-    // Se è un preformat come LLLL, usa direttamente Intl
     if (preformats[momentFormat]) {
         return new Intl.DateTimeFormat(locale, preformats[momentFormat]).format(date)
     }
-    // Altrimenti, sostituisci i token manualmente
     const tokenRegex = new RegExp(Object.keys(tokenMap).join('|'), 'g')
     return momentFormat.replace(tokenRegex, (match) => {
         const formatter = tokenMap[match]
