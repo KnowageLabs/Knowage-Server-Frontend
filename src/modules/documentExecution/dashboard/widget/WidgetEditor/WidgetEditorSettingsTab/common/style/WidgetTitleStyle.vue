@@ -77,7 +77,7 @@ export default defineComponent({
 
             this.titleStyleModel.properties['background-color'] = model['background-color'] ?? 'rgb(137, 158, 175)'
             this.titleStyleModel.properties.color = model.color ?? 'rgb(255, 255, 255)'
-            this.titleStyleModel.properties['justify-content'] = model['text-align'] ?? 'center'
+            this.titleStyleModel.properties['justify-content'] = model['justify-content'] ?? 'center'
             this.titleStyleModel.properties['text-align'] = model['text-align'] ?? 'center'
             this.titleStyleModel.properties['font-size'] = model['font-size'] ?? '14px'
             this.titleStyleModel.properties['font-family'] = model['font-family'] ?? ''
