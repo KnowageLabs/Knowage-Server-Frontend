@@ -7,8 +7,9 @@
             <div class="p-col-11 p-md-5 p-d-flex p-flex-column kn-flex">
                 <q-input v-model="aliasSettings.alias" :label="$t('common.alias')" />
             </div>
-            <div class="p-col-1 p-d-flex p-flex-column p-jc-center p-ai-center p-pl-2">
-                <i :class="[index === 0 ? 'pi pi-plus-circle' : 'pi pi-trash']" class="kn-cursor-pointer p-ml-2 p-mt-4" @click="index === 0 ? addAliasSettings() : removeAliasSettings(index)"></i>
+            <div class="p-col-1 p-d-flex p-flex-row p-jc-center p-ai-center p-pl-2">
+                <i v-if="index === 0" :class="'pi pi-plus-circle'" class="kn-cursor-pointer p-ml-2 p-mt-4" @click="addAliasSettings()"></i>
+                <i :class="'pi pi-trash'" class="kn-cursor-pointer p-ml-2 p-mt-4" @click="removeAliasSettings(index)"></i>
             </div>
         </div>
     </div>
