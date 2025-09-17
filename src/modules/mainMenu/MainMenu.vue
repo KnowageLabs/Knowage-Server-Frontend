@@ -179,7 +179,7 @@ export default defineComponent({
             this.display = !this.display
         },
         logout() {
-            auth.logout(localStorage.getItem('public') ? true : undefined)
+            auth.logout()
         },
         roleSelection() {
             this.roleDisplay = !this.roleDisplay
