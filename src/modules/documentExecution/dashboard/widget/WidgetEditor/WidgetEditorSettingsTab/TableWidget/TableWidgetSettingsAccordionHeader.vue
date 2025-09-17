@@ -3,6 +3,7 @@
         <InputSwitch v-if="model" v-model="model.enabled" class="p-mr-3" @click.stop="onModelChange"></InputSwitch>
         <label class="kn-material-input-label">{{ title ? $t(title) : '' }}</label>
     </div>
+    {{ model }}
 </template>
 
 <script lang="ts">

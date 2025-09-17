@@ -254,6 +254,9 @@ export interface IWidgetPreview {
 
 export interface IWidgetSelection {
     enabled: boolean
+    type?: string
+    column?: string
+    icon?: string
     modalColumn?: string
     multiselection?: {
         enabled: boolean

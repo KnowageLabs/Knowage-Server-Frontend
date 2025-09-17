@@ -189,11 +189,20 @@ const getColumnType = (columnField: string, dataToShow: any) => {
 
 export const getActiveInteractions = (tableNode: any, widgetInteracitonsConfiguration: IWidgetInteractions) => {
     const activeInteractions = []
+    addActiveSelectionInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.selection)
     addActiveCrossNavigationInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.crossNavigation)
     addActiveLinkInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.link)
     addActivePreviewInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.preview)
     addActiveIFrameInteractions(tableNode, activeInteractions, widgetInteracitonsConfiguration.iframe)
     return activeInteractions
+}
+
+const addActiveSelectionInteractions = (tableNode: any, activeInteractions: any[], selectionSettings: any) => {
+    if (!selectionSettings || !selectionSettings.enabled) return
+    if (tableNode.colDef.measure === 'MEASURE') return
+
+    const isSingleColumnSelectionActiveForSelectedColumn = selectionSettings.column && tableNode.colDef?.colId === selectionSettings.column
+    if (selectionSettings.type === 'allRow' || isSingleColumnSelectionActiveForSelectedColumn) activeInteractions.push({ ...selectionSettings, interactionType: 'selection' })
 }
 
 const addActiveCrossNavigationInteractions = (tableNode: any, activeInteractions: any[], crossNavigationSettings: IWidgetCrossNavigation | undefined) => {

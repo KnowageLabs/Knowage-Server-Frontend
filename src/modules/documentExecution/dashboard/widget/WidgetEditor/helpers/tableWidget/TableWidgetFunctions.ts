@@ -1,20 +1,4 @@
-import {
-    IWidget,
-    IWidgetColumn,
-    ITableWidgetColumnGroup,
-    IWidgetInteractionParameter,
-    ITableWidgetSettings,
-    ITableWidgetConfiguration,
-    ITableWidgetHeaders,
-    ITableWidgetVisualization,
-    ITableWidgetConditionalStyles,
-    IWidgetInteractions,
-    IWidgetSelection,
-    ITableWidgetColumnGroups,
-    IWidgetCrossNavigation,
-    ITableWidgetTooltipStyle,
-    ITableWidgetColumnStyles
-} from '../../../../Dashboard'
+import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import * as tableWidgetDefaultValues from './TableWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
@@ -265,6 +249,7 @@ const formatTableInteractions = (widgetInteractions: IWidgetInteractions) => {
 
 const formatSelection = (selection: IWidgetSelection) => {
     if (selection.modalColumn) selection.modalColumn = getColumnId(selection.modalColumn)
+    if (selection.column) selection.column = getColumnId(selection.column)
 }
 
 const formatCrossNavigation = (crossNavigation: IWidgetCrossNavigation) => {

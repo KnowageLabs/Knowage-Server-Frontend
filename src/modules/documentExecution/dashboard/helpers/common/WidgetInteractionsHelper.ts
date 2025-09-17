@@ -148,7 +148,7 @@ const getFormattededLinks = (links: any) => {
             type: link.interactionType,
             baseurl: link.baseurl,
             action: link.type,
-            parameters: getFormattedLinkParameters(link.parameters),
+            parameters: getFormattedLinkParameters(link.parameters)
         } as ITableWidgetLink
 
         if (link.icon) formattedLink.icon = link.icon
@@ -163,7 +163,7 @@ const getFormattededLinks = (links: any) => {
 const getFormattedLinkParameters = (linkParameters: any[]) => {
     if (!linkParameters || linkParameters.length === 0) return []
     const formattedParameters = [] as IWidgetInteractionParameter[]
-    let useAsResourceSelected = false;
+    let useAsResourceSelected = false
     linkParameters.forEach((linkParameter: any) => {
         const formattedParameter = {
             enabled: true,
