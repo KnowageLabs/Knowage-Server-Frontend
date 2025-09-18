@@ -122,6 +122,17 @@
             }
         }
     },
+    "defaultLinks": {
+        "enabled": false,
+        "multiselection": {
+            "enabled": false,
+            "properties": {
+                "background-color": "",
+                "color": ""
+            }
+        },
+        "links": []
+    },
     "defaultSummaryRowsConfiguration": {
         "enabled": false,
         "list": [],

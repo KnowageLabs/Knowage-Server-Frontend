@@ -217,6 +217,13 @@ export interface IWidgetCrossNavigation {
 
 export interface IWidgetLinks {
     enabled: boolean
+    multiselection?: {
+        enabled: boolean
+        properties: {
+            'background-color': string
+            color: string
+        }
+    }
     links: ITableWidgetLink[]
 }
 

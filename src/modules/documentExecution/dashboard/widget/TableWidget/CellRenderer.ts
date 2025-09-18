@@ -56,6 +56,17 @@ export default class CellRenderer {
                 else if (!selection.modalColumn && selectedColumn == params.colDef.field && celectedCellValues.includes(params.value)) return selection.multiselection.properties
             } else return null
         }
+        const getLinkMultiselectStyle = () => {
+            const linkSettings = params.propWidget.settings.interactions.link
+            const selectedLinkRows = params.multiSelectedLinkRows
+
+            console.log('selectedLinkRows', selectedLinkRows)
+            if (linkSettings?.multiselection?.enabled) {
+                const isRowSelected = selectedLinkRows.some((row) => row.rowIndex === params.node.rowIndex)
+                if (isRowSelected) return linkSettings.multiselection.properties
+            }
+            return null
+        }
 
         const getConditionalStyle = () => {
             if (params.propWidget.settings.conditionalStyles.enabled) {
@@ -96,6 +107,9 @@ export default class CellRenderer {
             const multiselectStyle = getMultiselectStyle()
             if (multiselectStyle) return multiselectStyle
 
+            const linkMultiselectStyle = getLinkMultiselectStyle()
+            if (linkMultiselectStyle) return linkMultiselectStyle
+
             const conditionalStyle = getConditionalStyle()
             if (conditionalStyle) {
                 applyConditionalStyleToBar = true
@@ -107,8 +121,6 @@ export default class CellRenderer {
 
             const rowSpanStyle = getRowspanRowStyle()
             if (rowSpanStyle) return rowSpanStyle
-
-            // else return helpersDecriptor.defaultColumnStyles.styles[0].properties
         }
 
         const styleObject = getCellStyle()

@@ -1,9 +1,14 @@
 <template>
     <div class="kn-table-widget-container p-d-flex p-d-row kn-flex">
         <div v-if="selectedColumn" class="multiselect-overlay kn-cursor-pointer" @click="applyMultiSelection">
-            <i class="fas fa-bolt" />
+            <i class="fas fa-bolt p-mr-2" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
+        <div v-if="multiSelectedLinkRows.length > 0" class="multiselect-overlay kn-cursor-pointer" @click="applyMultiLink">
+            <i class="fas fa-external-link-alt p-mr-2" />
+            {{ $t('dashboard.tableWidget.launchSelection') }}
+        </div>
+
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context" :theme="themeBalham"> </ag-grid-vue>
         <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
 
@@ -15,7 +20,7 @@
 <script lang="ts">
 import { emitter } from '../../DashboardHelpers'
 import { mapActions } from 'pinia'
-import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions } from '../../Dashboard'
+import { IDataset, ISelection, ITableWidgetColumnStyle, ITableWidgetColumnStyles, ITableWidgetVisualizationTypes, IVariable, IWidget, IWidgetInteractions, ITableWidgetLink } from '../../Dashboard'
 import { defineComponent, PropType } from 'vue'
 import { createNewTableSelection, isConditionMet, formatRowDataForCrossNavigation, getFormattedClickedValueForCrossNavigation, getActiveInteractions, replaceTooltipConfigurationVariablesAndParametersPlaceholders } from './TableWidgetHelper'
 import { executeTableWidgetCrossNavigation, updateStoreSelections } from '../interactionsHelpers/InteractionHelper'
@@ -89,7 +94,8 @@ export default defineComponent({
             truncateDialogVisible: false,
             truncateDialogCellContent: '',
             variables: [] as IVariable[],
-            themeBalham: themeBalham
+            themeBalham: themeBalham,
+            multiSelectedLinkRows: [] as any[]
         }
     },
     watch: {
@@ -282,6 +288,7 @@ export default defineComponent({
                                 propWidget: this.widgetModel,
                                 multiSelectedCells: this.multiSelectedCells,
                                 selectedColumnArray: this.selectedColumnArray,
+                                multiSelectedLinkRows: this.multiSelectedLinkRows,
                                 dashboardDrivers: dashboardDrivers,
                                 dashboardVariables: dashboardVariables,
                                 columnDataMap,
@@ -574,6 +581,17 @@ export default defineComponent({
         executeInteractions(node: any) {
             const activeInteractions = getActiveInteractions(node, this.widgetModel.settings.interactions) as any[]
 
+            const linkSettings = this.widgetModel.settings.interactions.link
+            const hasEligibleLinksForMultiselect = linkSettings.multiselection?.enabled && linkSettings.links.some((link) => link.parameters.length > 0 && link.parameters.some((param) => param.type === 'dynamic' && param.enabled))
+            const hasLinkInteraction = activeInteractions.some((interaction) => interaction.interactionType === 'link')
+
+            if (hasEligibleLinksForMultiselect && hasLinkInteraction) {
+                // Find the link interaction and call it directly (it will handle multiselection internally)
+                const linkInteraction = activeInteractions.find((interaction) => interaction.interactionType === 'link')
+                this.startLinkInteraction(node, linkInteraction)
+                return
+            }
+
             if (activeInteractions.length > 1) {
                 this.createInteractionsMenuItems(node, activeInteractions)
                 const interactionsMenuRef = this.$refs.interactionMenu as any
@@ -584,6 +602,7 @@ export default defineComponent({
         },
         createInteractionsMenuItems(node: any, activeInteractions: any[]) {
             this.interactionsMenuItems = []
+            console.log('activeInteractions', activeInteractions)
             activeInteractions.forEach((activeInteraction: any) => {
                 this.interactionsMenuItems.push({ node: node, interaction: activeInteraction, label: activeInteraction.interactionType, command: () => this.startInteraction(node, activeInteraction) })
             })
@@ -707,9 +726,54 @@ export default defineComponent({
         },
         startLinkInteraction(node: any, activeInteraction: any) {
             if (!activeInteraction) return
-            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            openNewLinkTableWidget(formattedRow, this.dashboardId, this.variables, activeInteraction)
+
+            const linkSettings = this.widgetModel.settings.interactions.link
+            const hasEligibleLinks = linkSettings.links.some((link) => link.parameters.length > 0 && link.parameters.some((param) => param.type === 'dynamic' && param.enabled))
+
+            if (linkSettings.multiselection?.enabled && hasEligibleLinks) {
+                const rowIndex = node.rowIndex
+                if (!this.multiSelectedLinkRows) this.multiSelectedLinkRows = []
+
+                const existingRowIndex = this.multiSelectedLinkRows.findIndex((row) => row.rowIndex === rowIndex)
+                if (existingRowIndex === -1) this.multiSelectedLinkRows.push({ node, rowIndex })
+                else this.multiSelectedLinkRows.splice(existingRowIndex, 1)
+
+                console.log(this.multiSelectedLinkRows)
+
+                this.refreshGridCells()
+            } else {
+                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+                openNewLinkTableWidget(formattedRow, this.dashboardId, this.variables, activeInteraction)
+            }
         },
+        applyMultiLink() {
+            const linkSettings = this.widgetModel.settings.interactions.link
+            const eligibleLinks = linkSettings.links.filter((link) => link.parameters.length > 0 && link.parameters.some((param) => param.type === 'dynamic' && param.enabled))
+
+            if (eligibleLinks.length === 1) this.executeMultiLinkInteraction(eligibleLinks[0])
+            else {
+                this.createMultiLinkMenuItems(eligibleLinks)
+                const interactionsMenuRef = this.$refs.interactionMenu as any
+                interactionsMenuRef.show(event)
+            }
+        },
+        createMultiLinkMenuItems(eligibleLinks: any[]) {
+            this.interactionsMenuItems = []
+            eligibleLinks.forEach((link: any) => {
+                this.interactionsMenuItems.push({ link: link, label: `${link.baseurl}`, command: () => this.executeMultiLinkInteraction(link) })
+            })
+        },
+        executeMultiLinkInteraction(selectedLink: any) {
+            const formattedRows = this.multiSelectedLinkRows.map(({ node }) => formatRowDataForCrossNavigation(node, this.dataToShow))
+
+            this.multiSelectedLinkRows.splice(0, this.multiSelectedLinkRows.length)
+
+            const params = { force: true }
+            this.gridApi?.refreshCells(params)
+
+            openNewLinkTableWidget(formattedRows, this.dashboardId, this.variables, selectedLink)
+        },
+
         startIframeInteraction(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
             startTableWidgetIFrameInteractions(formattedRow, this.widgetModel.settings.interactions.iframe, this.dashboardId, this.variables, window)

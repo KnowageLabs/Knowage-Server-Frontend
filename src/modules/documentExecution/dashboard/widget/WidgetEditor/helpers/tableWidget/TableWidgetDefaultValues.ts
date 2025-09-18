@@ -1,4 +1,24 @@
-import { ITableWidgetColumnGroups, ITableWidgetColumnStyles, ITableWidgetConditionalStyle, ITableWidgetConditionalStyles, ITableWidgetCustomMessages, IWidgetExports, ITableWidgetHeaders, ITableWidgetPagination, ITableWidgetRows, IWidgetRowsStyle, IWidgetSelection, ITableWidgetSummaryRows, ITableWidgetSummaryStyle, ITableWidgetTooltipStyle, ITableWidgetVisibilityCondition, ITableWidgetVisualization, ITableWidgetHeadersStyle, ITableWidgetPaginatorStyle } from "../../../../Dashboard"
+import {
+    ITableWidgetColumnGroups,
+    ITableWidgetColumnStyles,
+    ITableWidgetConditionalStyle,
+    ITableWidgetConditionalStyles,
+    ITableWidgetCustomMessages,
+    IWidgetExports,
+    ITableWidgetHeaders,
+    ITableWidgetPagination,
+    ITableWidgetRows,
+    IWidgetRowsStyle,
+    IWidgetSelection,
+    ITableWidgetSummaryRows,
+    ITableWidgetSummaryStyle,
+    ITableWidgetTooltipStyle,
+    ITableWidgetVisibilityCondition,
+    ITableWidgetVisualization,
+    ITableWidgetHeadersStyle,
+    ITableWidgetPaginatorStyle,
+    IWidgetLinks
+} from '../../../../Dashboard'
 import descriptor from './TableWidgetHelpersDescriptor.json'
 import deepcopy from 'deepcopy'
 
@@ -36,6 +56,10 @@ export const getDefaultCustomMessages = () => {
 
 export const getDefaultSelection = () => {
     return deepcopy(descriptor.defaultSelection) as IWidgetSelection
+}
+
+export const getDefaultLinks = () => {
+    return deepcopy(descriptor.defaultLinks) as IWidgetLinks
 }
 
 export const getDefaultPagination = () => {

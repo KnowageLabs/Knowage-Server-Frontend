@@ -16,6 +16,7 @@ interface IFormattedLink {
 ;[]
 
 export const openNewLinkTableWidget = (formattedRow: any, dashboardId: string, variables: IVariable[], activeLink: ITableWidgetLink) => {
+    console.log('openNewLinkTableWidget called with row:', formattedRow, 'and link:', activeLink)
     const formattedLinks = [getFormattedLink(activeLink, formattedRow, null, dashboardId, variables)]
     executeFormattedLinks(formattedLinks)
 }
@@ -31,6 +32,7 @@ export const openNewLinkChartWidget = (formattedChartValues: IChartInteractionVa
 }
 
 const executeFormattedLinks = (formattedLinks: IFormattedLink[]) => {
+    console.log('Executing formatted links:', formattedLinks)
     const linksForNewTab = formattedLinks.filter((formattedLink: IFormattedLink) => formattedLink.action === 'blank')
     const linkForReplace = formattedLinks.find((formattedLink: IFormattedLink) => formattedLink.action === 'replace')
     linksForNewTab.forEach((formattedLink: IFormattedLink) => window.open(formattedLink.url, '_blank'))
@@ -105,7 +107,24 @@ const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
 }
 
 const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParameter, formattedRow: any, useAsResource: boolean) => {
+    console.log('Getting formatted table dynamic parameter for', parameter, 'with row:', formattedRow)
     let columnValue = ''
+
+    if (Array.isArray(formattedRow) && formattedRow.length > 1) {
+        const values = formattedRow
+            .map((row: any) => {
+                if (parameter.column === 'column_name_mode') return row.columnName
+                if (parameter.column && row[parameter.column]) return row[parameter.column].value
+                return null
+            })
+            .filter((v) => v !== null && v !== undefined)
+
+        const uniqueValues = [...new Set(values)]
+        const value = uniqueValues.join(',')
+
+        return useAsResource ? `${value}` : `${parameter.name}=${value}&`
+    }
+
     if (parameter.column === 'column_name_mode') columnValue = formattedRow.columnName
     else if (parameter.column) columnValue = formattedRow[parameter.column].value
     const value = columnValue ?? ''
