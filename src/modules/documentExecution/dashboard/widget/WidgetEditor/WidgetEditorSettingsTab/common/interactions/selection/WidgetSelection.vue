@@ -1,6 +1,6 @@
 <template>
     <div v-if="selectionModel" class="p-grid p-jc-center p-ai-center p-p-4">
-        <div v-if="['table'].includes(widgetModel.type)" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
+        <div v-if="['table'].includes(widgetModel.type)" class="p-sm-12 p-d-flex p-flex-column kn-flex p-px-2">
             <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
             <Dropdown v-model="selectionModel.type" class="kn-material-input" :options="interactionTypes" option-value="value" :disabled="selectionDisabled" @change="onInteractionTypeChanged">
                 <template #value="slotProps">
@@ -15,10 +15,16 @@
                 </template>
             </Dropdown>
         </div>
-        <div v-if="['table', 'discovery'].includes(widgetModel.type) && selectionModel.type !== 'allRow'" class="p-sm-12 p-md-5 p-d-flex p-flex-row p-ai-center p-px-2">
+        <div v-if="['table', 'discovery'].includes(widgetModel.type) && selectionModel.type === 'singleColumn'" class="p-sm-12 p-md-3 p-d-flex p-flex-row p-ai-center p-px-2">
             <div class="p-d-flex p-flex-column kn-flex">
                 <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
                 <Dropdown v-model="selectionModel.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="id" :disabled="selectionDisabled"> </Dropdown>
+            </div>
+        </div>
+        <div v-if="['table'].includes(widgetModel.type)" class="p-sm-12 p-md-3 p-d-flex p-flex-row p-ai-center p-px-2">
+            <div class="p-d-flex p-flex-column kn-flex p-m-2">
+                <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.modalColumn') }}</label>
+                <Dropdown v-model="selectionModel.modalColumn" class="kn-material-input" :options="widgetModel.columns" :show-clear="true" option-label="alias" option-value="id" @change="selectionChanged"> </Dropdown>
             </div>
         </div>
         <div v-if="selectionModel.type === 'icon'" class="p-col-2 p-pt-4">
@@ -40,12 +46,6 @@
                         :disabled="!selectionModel.multiselection.enabled"
                         @change="onStyleToolbarChange($event)"
                     ></WidgetEditorStyleToolbar>
-                </div>
-            </div>
-            <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-d-flex p-flex-row p-ai-center p-p-3">
-                <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.modalColumn') }}</label>
-                    <Dropdown v-model="selectionModel.modalColumn" class="kn-material-input" :options="widgetModel.columns" :show-clear="true" option-label="alias" option-value="id" @change="selectionChanged"> </Dropdown>
                 </div>
             </div>
         </div>
@@ -105,10 +105,10 @@ export default defineComponent({
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (!this.selectionModel) return
             if (this.selectionModel.multiselection) {
-                this.selectionModel.multiselection.properties.color = model.color ?? ''
-                this.selectionModel.multiselection.properties['background-color'] = model['background-color'] ?? ''
+                if (model.color !== undefined) this.selectionModel.multiselection.properties.color = model.color
+                if (model['background-color'] !== undefined) this.selectionModel.multiselection.properties['background-color'] = model['background-color']
             }
-            this.selectionModel.icon = model.icon
+            if (model.icon !== undefined) this.selectionModel.icon = model.icon
             this.selectionChanged()
         },
         onInteractionTypeChanged() {

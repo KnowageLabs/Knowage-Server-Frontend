@@ -568,43 +568,6 @@ export default defineComponent({
             this.executeInteractions(node)
             if (node.colDef.measure == 'MEASURE') return
 
-            // //SELECTION LOGIC -------------------------------------------------------------------
-            // const modalSelection = this.widgetModel.settings.interactions.selection
-
-            // if (modalSelection.enabled) {
-            //     if (modalSelection.multiselection.enabled) {
-            //         //first check to see it the column selected is the same, if not clear the past selections
-            //         if (!this.selectedColumn || this.selectedColumn != node.colDef.field) {
-            //             this.multiSelectedCells.splice(0, this.multiSelectedCells.length)
-            //             this.selectedColumn = node.colDef.field
-            //         }
-
-            //         if (modalSelection.modalColumn) {
-            //             const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
-            //             const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
-
-            //             if (!this.multiSelectedCells.includes(modalColumnValue)) this.multiSelectedCells.push(modalColumnValue)
-            //             else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(modalColumnValue), 1)
-            //             if (this.multiSelectedCells.length == 0) this.selectedColumn = false
-            //         } else {
-            //             if (!this.multiSelectedCells.includes(node.value)) this.multiSelectedCells.push(node.value)
-            //             else this.multiSelectedCells.splice(this.multiSelectedCells.indexOf(node.value), 1)
-            //             if (this.multiSelectedCells.length == 0) this.selectedColumn = false
-            //         }
-            //     } else if (!modalSelection.multiselection.enabled) {
-            //         if (modalSelection.modalColumn) {
-            //             const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == modalSelection.modalColumn)
-            //             const modalColumnValue = node.data[`column_${modalColumnIndex + 1}`]
-            //             updateStoreSelections(createNewTableSelection([modalColumnValue], this.widgetModel.columns[modalColumnIndex].columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-            //         } else {
-            //             updateStoreSelections(createNewTableSelection([node.value], node.colDef.columnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-            //         }
-            //     }
-            // }
-
-            // this.selectedColumnArray.pop()
-            // this.selectedColumnArray.push(node.colDef.field)
-
             const params = { force: true }
             this.gridApi?.refreshCells(params)
         },
@@ -644,64 +607,84 @@ export default defineComponent({
                     break
             }
         },
-        // startSelectionInteraction(node: any, selectionSettings: any) {
-        //     // For now, ignore multiselection as requested
-        //     if (selectionSettings.multiselection?.enabled) return
-
-        //     let selectedValue = node.value
-        //     let selectedColumnName = node.colDef.columnName
-
-        //     // Handle icon type selection - get value from configured column
-        //     if (selectionSettings.type === 'icon' && selectionSettings.column) {
-        //         const columnIndex = this.widgetModel.columns.findIndex((column) => column.id === selectionSettings.column)
-        //         if (columnIndex !== -1) {
-        //             selectedValue = node.data[`column_${columnIndex + 1}`]
-        //             selectedColumnName = this.widgetModel.columns[columnIndex].columnName
-        //         }
-        //     }
-        //     // Handle modal column selection if configured (for non-icon types)
-        //     else if (selectionSettings.modalColumn) {
-        //         const modalColumnIndex = this.widgetModel.columns.findIndex((column) => column.id == selectionSettings.modalColumn)
-        //         if (modalColumnIndex !== -1) {
-        //             selectedValue = node.data[`column_${modalColumnIndex + 1}`]
-        //             selectedColumnName = this.widgetModel.columns[modalColumnIndex].columnName
-        //         }
-        //     }
-
-        //     console.log('node', node)
-        //     updateStoreSelections(createNewTableSelection([selectedValue], selectedColumnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
-        // },
 
         startSelectionInteraction(node: any, selectionSettings: any) {
-            if (selectionSettings.multiselection?.enabled) return
+            if (selectionSettings.multiselection?.enabled) this.handleMultiSelection(node, selectionSettings)
+            else this.handleSingleSelection(node, selectionSettings)
+        },
 
-            let selectedValue = node.value
-            let selectedColumnName = node.colDef.columnName
+        handleMultiSelection(node: any, selectionSettings: any) {
+            const { valueToToggle, columnToTrack } = this.getSelectionValues(node, selectionSettings)
 
-            if (selectionSettings.type === 'icon') {
-                if (selectionSettings.modalColumn) {
-                    const modal = this.getColumnValueById(selectionSettings.modalColumn, node)
-                    if (modal) {
-                        selectedValue = modal.value
-                        selectedColumnName = modal.name
-                    }
-                } else if (selectionSettings.column) {
-                    const iconCol = this.getColumnValueById(selectionSettings.column, node)
-                    if (iconCol) {
-                        selectedValue = iconCol.value
-                        selectedColumnName = iconCol.name
-                    }
-                }
-            } else if (selectionSettings.modalColumn) {
-                const modal = this.getColumnValueById(selectionSettings.modalColumn, node)
-                if (modal) {
-                    selectedValue = modal.value
-                    selectedColumnName = modal.name
+            this.updateMultiSelectionState(valueToToggle, columnToTrack)
+            this.refreshGridCells()
+        },
+        getSelectionValues(node: any, selectionSettings: any) {
+            let valueToToggle = node.value
+            let columnToTrack = node.colDef.field
+
+            const targetColumn = this.determineTargetColumn(selectionSettings)
+
+            if (targetColumn) {
+                const columnData = this.getColumnValueById(targetColumn, node)
+                if (columnData) {
+                    valueToToggle = columnData.value
+                    const columnIndex = this.getColumnIndexById(targetColumn)
+                    columnToTrack = `column_${columnIndex + 1}`
                 }
             }
 
-            console.log('node', node)
+            return { valueToToggle, columnToTrack }
+        },
+        updateMultiSelectionState(valueToToggle: any, columnToTrack: string) {
+            if (!this.selectedColumn || this.selectedColumn !== columnToTrack) {
+                this.multiSelectedCells.splice(0, this.multiSelectedCells.length)
+                this.selectedColumn = columnToTrack
+            }
+
+            this.toggleMultiSelectedValue(valueToToggle)
+            this.updateSelectedColumnArray(columnToTrack)
+        },
+        toggleMultiSelectedValue(value: any) {
+            const existingIndex = this.multiSelectedCells.indexOf(value)
+            if (existingIndex === -1) this.multiSelectedCells.push(value)
+            else this.multiSelectedCells.splice(existingIndex, 1)
+
+            if (this.multiSelectedCells.length === 0) this.selectedColumn = false
+        },
+        updateSelectedColumnArray(columnToTrack: string) {
+            this.selectedColumnArray.pop()
+            this.selectedColumnArray.push(columnToTrack)
+        },
+
+        handleSingleSelection(node: any, selectionSettings: any) {
+            const { selectedValue, selectedColumnName } = this.getSingleSelectionValues(node, selectionSettings)
             updateStoreSelections(createNewTableSelection([selectedValue], selectedColumnName, this.widgetModel, this.datasets), this.activeSelections, this.dashboardId, this.setSelections, this.$http)
+        },
+        getSingleSelectionValues(node: any, selectionSettings: any) {
+            let selectedValue = node.value
+            let selectedColumnName = node.colDef.columnName
+
+            const targetColumn = this.determineTargetColumn(selectionSettings)
+
+            if (targetColumn) {
+                const columnData = this.getColumnValueById(targetColumn, node)
+                if (columnData) {
+                    selectedValue = columnData.value
+                    selectedColumnName = columnData.name
+                }
+            }
+
+            return { selectedValue, selectedColumnName }
+        },
+        determineTargetColumn(selectionSettings: any): string | null {
+            if (selectionSettings.type === 'icon') return selectionSettings.modalColumn || null
+            return selectionSettings.modalColumn || null
+        },
+
+        refreshGridCells() {
+            const params = { force: true }
+            this.gridApi?.refreshCells(params)
         },
         getColumnIndexById(columnId: string | number): number {
             return this.widgetModel.columns.findIndex((column) => column.id == columnId)
@@ -712,6 +695,7 @@ export default defineComponent({
 
             return { value: node.data[`column_${columnIndex + 1}`], name: this.widgetModel.columns[columnIndex].columnName }
         },
+
         startCrossNavigation(node: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
             const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)

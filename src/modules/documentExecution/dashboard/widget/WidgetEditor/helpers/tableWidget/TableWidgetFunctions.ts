@@ -250,6 +250,7 @@ const formatTableInteractions = (widgetInteractions: IWidgetInteractions) => {
 const formatSelection = (selection: IWidgetSelection) => {
     if (selection.modalColumn) selection.modalColumn = getColumnId(selection.modalColumn)
     if (selection.column) selection.column = getColumnId(selection.column)
+    if (!selection.type) selection.type = 'allRow'
 }
 
 const formatCrossNavigation = (crossNavigation: IWidgetCrossNavigation) => {
