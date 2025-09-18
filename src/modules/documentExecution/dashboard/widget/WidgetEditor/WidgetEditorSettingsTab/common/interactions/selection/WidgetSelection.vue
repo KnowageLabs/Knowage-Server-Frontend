@@ -24,7 +24,7 @@
         <div v-if="['table'].includes(widgetModel.type)" class="p-sm-12 p-md-3 p-d-flex p-flex-row p-ai-center p-px-2">
             <div class="p-d-flex p-flex-column kn-flex p-m-2">
                 <label class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.interactions.modalColumn') }}</label>
-                <Dropdown v-model="selectionModel.modalColumn" class="kn-material-input" :options="widgetModel.columns" :show-clear="true" option-label="alias" option-value="id" @change="selectionChanged"> </Dropdown>
+                <Dropdown v-model="selectionModel.modalColumn" class="kn-material-input" :options="attributeColumns" :show-clear="true" option-label="alias" option-value="id" @change="selectionChanged"> </Dropdown>
             </div>
         </div>
         <div v-if="selectionModel.type === 'icon'" class="p-col-2 p-pt-4">
@@ -85,6 +85,9 @@ export default defineComponent({
         },
         selectionDisabled() {
             return !this.selectionModel || !this.selectionModel.enabled
+        },
+        attributeColumns() {
+            return this.widgetModel.columns.filter((col) => col.fieldType === 'ATTRIBUTE')
         }
     },
     created() {
