@@ -748,11 +748,11 @@ export default defineComponent({
         },
         applyMultiLink() {
             const linkSettings = this.widgetModel.settings.interactions.link
-            const eligibleLinks = linkSettings.links.filter((link) => link.parameters.length > 0 && link.parameters.some((param) => param.type === 'dynamic' && param.enabled))
+            const allLinks = linkSettings.links
 
-            if (eligibleLinks.length === 1) this.executeMultiLinkInteraction(eligibleLinks[0])
+            if (allLinks.length === 1) this.executeMultiLinkInteraction(allLinks[0])
             else {
-                this.createMultiLinkMenuItems(eligibleLinks)
+                this.createMultiLinkMenuItems(allLinks)
                 const interactionsMenuRef = this.$refs.interactionMenu as any
                 interactionsMenuRef.show(event)
             }
