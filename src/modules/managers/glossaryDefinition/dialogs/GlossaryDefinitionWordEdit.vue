@@ -226,8 +226,8 @@ export default defineComponent({
                 })
                 .catch((error) => {
                     this.store.setError({
-                        title: this.$t('managers.constraintManagment.saveError'),
-                        msg: error.message
+                        title: this.$t('common.error.generic'),
+                        msg: error.message || error || this.$t('common.error.generic')
                     })
                 })
         },
