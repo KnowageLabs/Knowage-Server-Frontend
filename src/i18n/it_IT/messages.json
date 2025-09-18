@@ -25,6 +25,7 @@
         "message": {
             "placeholder": "Scrivi qui il tuo messaggio"
         },
+        "newConversationConfirm": "Sei sicuro di voler iniziare una nuova conversazione? Tutti i messaggi precedenti andranno persi.",
         "title": "Assistente Virtuale",
         "welcomeMessage": "Benvenuto nell'assitente virtuale di Knowage! Fammi una domanda e farò del mio meglio per aiutarti."
     },
@@ -63,6 +64,7 @@
         "comment": "commento",
         "confirmPassword": "Conferma Password",
         "continue": "continua",
+        "conversation": "conversazione",
         "copyOf": "copia di",
         "create": "crea",
         "creationDate": "data creazione",

@@ -26,6 +26,7 @@
         "message": {
             "placeholder": "Type your message"
         },
+        "newConversationConfirm": "Are you sure you want to start a new conversation? All the current conversation will be lost.",
         "title": "Virtual Assistant",
         "welcomeMessage": "Welcome to the Knowage Virtual Assistant! Ask me anything and I will do my best to help you."
     },
@@ -77,6 +78,7 @@
         "condition": "Condition",
         "confirmPassword": "Confirm Password",
         "continue": "Continue",
+        "conversation": "Conversation",
         "copyOf": "Copy of",
         "create": "Create",
         "creationDate": "Creation Date",
@@ -202,7 +204,7 @@
         "move": "Move",
         "name": "Name",
         "never": "Never",
-        "new": "new",
+        "new": "new {name}",
         "next": "next",
         "no": "No",
         "notVisible": "Not visible",
