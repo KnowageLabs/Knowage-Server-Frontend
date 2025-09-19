@@ -42,7 +42,8 @@
             <div v-if="previewModel.type === 'singleColumn'" class="p-sm-11 p-md-5">
                 <div class="p-d-flex p-flex-column kn-flex p-mx-2">
                     <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown v-model="previewModel.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions()" :disabled="previewDisabled"> </Dropdown>
+                    <!-- <Dropdown v-model="previewModel.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions()" :disabled="previewDisabled"> </Dropdown> -->
+                    <Dropdown v-model="previewModel.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="columnName" :disabled="previewDisabled"> </Dropdown>
                 </div>
             </div>
             <div v-else-if="previewModel.type === 'icon'" class="p-sm-11 p-md-5 p-p-4">

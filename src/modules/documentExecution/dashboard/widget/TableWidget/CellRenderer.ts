@@ -60,9 +60,20 @@ export default class CellRenderer {
             const linkSettings = params.propWidget.settings.interactions.link
             const selectedLinkRows = params.multiSelectedLinkRows
 
-            if (linkSettings?.multiselection?.enabled) {
-                const isRowSelected = selectedLinkRows.some((row) => row.rowIndex === params.node.rowIndex)
+            if (linkSettings.enabled && linkSettings?.multiselection?.enabled) {
+                const isRowSelected = selectedLinkRows?.some((row) => row.rowIndex === params.node.rowIndex)
                 if (isRowSelected) return linkSettings.multiselection.properties
+            }
+            return null
+        }
+
+        const getPreviewMultiselectStyle = () => {
+            const previewSettings = params.propWidget.settings.interactions.preview
+            const selectedPreviewRows = params.multiSelectedPreviewRows
+
+            if (previewSettings?.enabled && previewSettings?.multiselection?.enabled && selectedPreviewRows) {
+                const isRowSelected = selectedPreviewRows?.some((row) => row.rowIndex === params.node.rowIndex)
+                if (isRowSelected) return previewSettings.multiselection.properties
             }
             return null
         }
@@ -108,6 +119,9 @@ export default class CellRenderer {
 
             const linkMultiselectStyle = getLinkMultiselectStyle()
             if (linkMultiselectStyle) return linkMultiselectStyle
+
+            const previewMultiselectStyle = getPreviewMultiselectStyle()
+            if (previewMultiselectStyle) return previewMultiselectStyle
 
             const conditionalStyle = getConditionalStyle()
             if (conditionalStyle) {

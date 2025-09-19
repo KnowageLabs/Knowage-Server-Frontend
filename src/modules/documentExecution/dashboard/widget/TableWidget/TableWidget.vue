@@ -8,6 +8,10 @@
             <i class="fas fa-external-link-alt p-mr-2" />
             {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
+        <div v-if="multiSelectedPreviewRows.length > 0" class="multiselect-overlay kn-cursor-pointer" @click="applyMultiPreview">
+            <i class="fas fa-eye p-mr-2" />
+            {{ $t('dashboard.tableWidget.launchPreview') }}
+        </div>
 
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context" :theme="themeBalham"> </ag-grid-vue>
         <ContextMenu ref="interactionMenu" :model="interactionsMenuItems" />
@@ -95,7 +99,8 @@ export default defineComponent({
             truncateDialogCellContent: '',
             variables: [] as IVariable[],
             themeBalham: themeBalham,
-            multiSelectedLinkRows: [] as any[]
+            multiSelectedLinkRows: [] as any[],
+            multiSelectedPreviewRows: [] as any[]
         }
     },
     watch: {
@@ -289,6 +294,7 @@ export default defineComponent({
                                 multiSelectedCells: this.multiSelectedCells,
                                 selectedColumnArray: this.selectedColumnArray,
                                 multiSelectedLinkRows: this.multiSelectedLinkRows,
+                                multiSelectedPreviewRows: this.multiSelectedPreviewRows,
                                 dashboardDrivers: dashboardDrivers,
                                 dashboardVariables: dashboardVariables,
                                 columnDataMap,
@@ -582,13 +588,22 @@ export default defineComponent({
             const activeInteractions = getActiveInteractions(node, this.widgetModel.settings.interactions) as any[]
 
             const linkSettings = this.widgetModel.settings.interactions.link
-            const hasEligibleLinksForMultiselect = linkSettings.multiselection?.enabled && linkSettings.links.some((link) => link.parameters.length > 0 && link.parameters.some((param) => param.type === 'dynamic' && param.enabled))
+            const hasEligibleLinksForMultiselect = linkSettings?.multiselection?.enabled && linkSettings.links.some((link) => link.parameters.length > 0 && link.parameters.some((param) => param.type === 'dynamic' && param.enabled))
             const hasLinkInteraction = activeInteractions.some((interaction) => interaction.interactionType === 'link')
 
+            const previewSettings = this.widgetModel.settings.interactions.preview
+            const hasPreviewMultiselect = previewSettings?.multiselection?.enabled && previewSettings.parameters?.some((param) => param.type === 'dynamic' && param.enabled)
+            const hasPreviewInteraction = activeInteractions.some((interaction) => interaction.interactionType === 'preview')
+
             if (hasEligibleLinksForMultiselect && hasLinkInteraction) {
-                // Find the link interaction and call it directly (it will handle multiselection internally)
                 const linkInteraction = activeInteractions.find((interaction) => interaction.interactionType === 'link')
                 this.startLinkInteraction(node, linkInteraction)
+                return
+            }
+
+            if (hasPreviewMultiselect && hasPreviewInteraction) {
+                const previewInteraction = activeInteractions.find((interaction) => interaction.interactionType === 'preview')
+                this.startPreview(node, previewInteraction)
                 return
             }
 
@@ -602,7 +617,6 @@ export default defineComponent({
         },
         createInteractionsMenuItems(node: any, activeInteractions: any[]) {
             this.interactionsMenuItems = []
-            console.log('activeInteractions', activeInteractions)
             activeInteractions.forEach((activeInteraction: any) => {
                 this.interactionsMenuItems.push({ node: node, interaction: activeInteraction, label: activeInteraction.interactionType, command: () => this.startInteraction(node, activeInteraction) })
             })
@@ -720,11 +734,63 @@ export default defineComponent({
             const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
             executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
         },
-        startPreview(node: any, activeInteraction: any) {
+        startPreviewOld(node: any, activeInteraction: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            console.log('startPreview', formattedRow, activeInteraction)
-            // this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction })
+            this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction })
         },
+        startPreview(node: any, activeInteraction: any) {
+            const previewSettings = activeInteraction || this.widgetModel.settings.interactions.preview
+            const hasMultiselection = previewSettings?.multiselection?.enabled && previewSettings.parameters?.some((param) => param.type === 'dynamic' && param.enabled)
+
+            if (hasMultiselection) {
+                const rowIndex = node.rowIndex ?? node.value - 1 //in case of icon interaction, rowIndex is not present, we use value instead
+                if (!this.multiSelectedPreviewRows) this.multiSelectedPreviewRows = []
+
+                const existingRowIndex = this.multiSelectedPreviewRows.findIndex((row) => row.rowIndex === rowIndex)
+                if (existingRowIndex === -1) this.multiSelectedPreviewRows.push({ node, rowIndex })
+                else this.multiSelectedPreviewRows.splice(existingRowIndex, 1)
+
+                this.refreshGridCells()
+            } else {
+                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+                this.$emit('datasetInteractionPreview', { formattedRow: formattedRow, previewSettings: activeInteraction })
+            }
+        },
+        applyMultiPreview() {
+            const previewSettings = this.widgetModel.settings.interactions.preview
+            const formattedRows = this.multiSelectedPreviewRows.map(({ node }) => formatRowDataForCrossNavigation(node, this.dataToShow))
+            const mergedFormattedRow = this.mergeFormattedRowsForPreview(formattedRows, previewSettings)
+
+            this.$emit('datasetInteractionPreview', { formattedRow: mergedFormattedRow, previewSettings: previewSettings })
+
+            this.multiSelectedPreviewRows.splice(0, this.multiSelectedPreviewRows.length)
+            this.refreshGridCells()
+        },
+        mergeFormattedRowsForPreview(formattedRows: any[], previewSettings: any) {
+            if (!formattedRows || formattedRows.length === 0) return {}
+            const mergedRow = { ...formattedRows[0] }
+            if (previewSettings.parameters) {
+                previewSettings.parameters.forEach((param: any) => {
+                    if (param.type === 'dynamic' && param.enabled && param.column) {
+                        const uniqueValues = new Set()
+
+                        formattedRows.forEach((row) => {
+                            if (row[param.column]?.value !== undefined && row[param.column]?.value !== null) uniqueValues.add(row[param.column].value)
+                        })
+
+                        const valuesArray = Array.from(uniqueValues)
+                        if (valuesArray.length > 0) {
+                            mergedRow[param.column] = {
+                                value: valuesArray
+                            }
+                        }
+                    }
+                })
+            }
+
+            return mergedRow
+        },
+
         startLinkInteraction(node: any, activeInteraction: any) {
             if (!activeInteraction) return
 
@@ -732,14 +798,12 @@ export default defineComponent({
             const hasEligibleLinks = linkSettings.links.some((link) => link.parameters.length > 0 && link.parameters.some((param) => param.type === 'dynamic' && param.enabled))
 
             if (linkSettings.multiselection?.enabled && hasEligibleLinks) {
-                const rowIndex = node.rowIndex
+                const rowIndex = node.rowIndex ?? node.value - 1 //in case of icon interaction, rowIndex is not present, we use value instead
                 if (!this.multiSelectedLinkRows) this.multiSelectedLinkRows = []
 
                 const existingRowIndex = this.multiSelectedLinkRows.findIndex((row) => row.rowIndex === rowIndex)
                 if (existingRowIndex === -1) this.multiSelectedLinkRows.push({ node, rowIndex })
                 else this.multiSelectedLinkRows.splice(existingRowIndex, 1)
-
-                console.log(this.multiSelectedLinkRows)
 
                 this.refreshGridCells()
             } else {
