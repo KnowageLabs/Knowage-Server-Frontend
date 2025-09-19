@@ -257,6 +257,13 @@ export interface IWidgetPreview {
     column?: string
     directDownload: boolean
     icon?: string
+    multiselection?: {
+        enabled: boolean
+        properties: {
+            'background-color': string
+            color: string
+        }
+    }
 }
 
 export interface IWidgetSelection {

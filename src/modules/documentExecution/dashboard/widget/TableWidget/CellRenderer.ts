@@ -60,7 +60,6 @@ export default class CellRenderer {
             const linkSettings = params.propWidget.settings.interactions.link
             const selectedLinkRows = params.multiSelectedLinkRows
 
-            console.log('selectedLinkRows', selectedLinkRows)
             if (linkSettings?.multiselection?.enabled) {
                 const isRowSelected = selectedLinkRows.some((row) => row.rowIndex === params.node.rowIndex)
                 if (isRowSelected) return linkSettings.multiselection.properties

@@ -83,6 +83,17 @@
             "justify-content": "center"
         }
     },
+    "defaultLinks": {
+        "enabled": false,
+        "links": [],
+        "multiselection": {
+            "enabled": false,
+            "properties": {
+                "background-color": "",
+                "color": ""
+            }
+        }
+    },
     "defaultPagination": {
         "enabled": false,
         "properties": {
@@ -95,6 +106,20 @@
         "background-color": "",
         "color": "",
         "justify-content": ""
+    },
+    "defaultPreview": {
+        "dataset": -1,
+        "directDownload": false,
+        "enabled": false,
+        "multiselection": {
+            "enabled": false,
+            "properties": {
+                "background-color": "",
+                "color": ""
+            }
+        },
+        "parameters": [],
+        "type": ""
     },
     "defaultRowsConfiguration": {
         "indexColumn": false,
@@ -121,17 +146,6 @@
                 "color": ""
             }
         }
-    },
-    "defaultLinks": {
-        "enabled": false,
-        "multiselection": {
-            "enabled": false,
-            "properties": {
-                "background-color": "",
-                "color": ""
-            }
-        },
-        "links": []
     },
     "defaultSummaryRowsConfiguration": {
         "enabled": false,

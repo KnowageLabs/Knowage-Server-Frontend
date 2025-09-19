@@ -17,7 +17,8 @@ import {
     ITableWidgetVisualization,
     ITableWidgetHeadersStyle,
     ITableWidgetPaginatorStyle,
-    IWidgetLinks
+    IWidgetLinks,
+    IWidgetPreview
 } from '../../../../Dashboard'
 import descriptor from './TableWidgetHelpersDescriptor.json'
 import deepcopy from 'deepcopy'
@@ -60,6 +61,10 @@ export const getDefaultSelection = () => {
 
 export const getDefaultLinks = () => {
     return deepcopy(descriptor.defaultLinks) as IWidgetLinks
+}
+
+export const getDefaultPreview = () => {
+    return deepcopy(descriptor.defaultPreview) as IWidgetPreview
 }
 
 export const getDefaultPagination = () => {

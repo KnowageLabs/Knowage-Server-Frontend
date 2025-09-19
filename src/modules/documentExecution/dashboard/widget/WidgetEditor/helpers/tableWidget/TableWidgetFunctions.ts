@@ -1,4 +1,4 @@
-import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation, ITableWidgetTooltipStyle, ITableWidgetColumnStyles, IWidgetLinks } from '../../../../Dashboard'
+import { IWidget, IWidgetColumn, ITableWidgetColumnGroup, IWidgetInteractionParameter, ITableWidgetSettings, ITableWidgetConfiguration, ITableWidgetHeaders, ITableWidgetVisualization, ITableWidgetConditionalStyles, IWidgetInteractions, IWidgetSelection, ITableWidgetColumnGroups, IWidgetCrossNavigation, ITableWidgetTooltipStyle, ITableWidgetColumnStyles, IWidgetLinks, IWidgetPreview } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import * as tableWidgetDefaultValues from './TableWidgetDefaultValues'
 import * as widgetCommonDefaultValues from '../common/WidgetCommonDefaultValues'
@@ -22,7 +22,7 @@ export const createNewTableWidgetSettings = () => {
         interactions: {
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
             link: tableWidgetDefaultValues.getDefaultLinks(),
-            preview: widgetCommonDefaultValues.getDefaultPreview(),
+            preview: tableWidgetDefaultValues.getDefaultPreview(),
             selection: tableWidgetDefaultValues.getDefaultSelection(),
             iframe: widgetCommonDefaultValues.getDefaultIFrameInteraction()
         },
@@ -246,6 +246,7 @@ const formatTableInteractions = (widgetInteractions: IWidgetInteractions) => {
     formatSelection(widgetInteractions.selection as IWidgetSelection)
     formatCrossNavigation(widgetInteractions.crossNavigation)
     formatLinks(widgetInteractions.link as IWidgetLinks)
+    formatPreview(widgetInteractions.preview as IWidgetPreview)
 }
 
 const formatSelection = (selection: IWidgetSelection) => {
@@ -260,4 +261,8 @@ const formatCrossNavigation = (crossNavigation: IWidgetCrossNavigation) => {
 
 const formatLinks = (links: IWidgetLinks) => {
     if (!links.multiselection) links.multiselection = tableWidgetDefaultValues.getDefaultLinks().multiselection
+}
+
+const formatPreview = (preview: IWidgetPreview) => {
+    if (!preview.multiselection) preview.multiselection = tableWidgetDefaultValues.getDefaultPreview().multiselection
 }
