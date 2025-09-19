@@ -34,9 +34,9 @@ export const addHighchartsColumnToTable = (tempColumn: IWidgetColumn, rows: IWid
 }
 
 const addHighchartsColumnToTableRows = (tempColumn: IWidgetColumn, rows: IWidgetColumn[], chartType: string | undefined, mode: string, widgetModel: IWidget) => {
-    if (mode === 'attributesOnly' && chartType !== 'scatter') {
+    if (mode === 'attributesOnly') {
         addAttributeColumnToTableRows(tempColumn, rows)
-    } else if (mode === 'measuresOnly' || chartType === 'scatter') {
+    } else if (mode === 'measuresOnly') {
         addMeasureColumnToTableRows(tempColumn, rows, chartType, widgetModel, mode)
     }
 }
@@ -67,7 +67,6 @@ const convertColumnToMeasure = (tempColumn: IWidgetColumn, chartType: string | u
         tempColumn.fieldType = 'MEASURE'
         tempColumn.aggregation = 'COUNT'
     }
-    if (chartType === 'scatter' && mode === 'attributesOnly') tempColumn.scatterAttributeAsMeasure = true
 }
 
 const addColumnToRows = (rows: IWidgetColumn[], tempColumn: IWidgetColumn) => {

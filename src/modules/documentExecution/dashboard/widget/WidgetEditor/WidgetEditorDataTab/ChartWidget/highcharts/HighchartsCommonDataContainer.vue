@@ -8,13 +8,25 @@
             :settings="columnTableSettings"
             :chart-type="chartType"
             :error="isAttributesTableInvalid()"
-            @rowReorder="onColumnsReorder($event, 'ATTRIBUTES')"
+            @rowReorder="onColumnsReorder($event, 'MEASURES')"
             @itemAdded="onColumnAdded"
             @itemUpdated="onColumnItemUpdate"
             @itemSelected="setSelectedColumn($event, 2)"
             @itemDeleted="onColumnDelete"
         ></WidgetEditorColumnTable>
-        <WidgetEditorColumnTable class="p-m-2 p-order-3" :widget-model="widgetModel" :items="columnTableItems['MEASURES'] ?? []" :settings="valuesColumnSettings" :chart-type="chartType" :error="isMeasureTableInvalid()" @rowReorder="onColumnsReorder($event, 'MEASURES')" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemSelected="setSelectedColumn($event, 4)" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
+        <WidgetEditorColumnTable
+            class="p-m-2 p-order-3"
+            :widget-model="widgetModel"
+            :items="columnTableItems['MEASURES'] ?? []"
+            :settings="valuesColumnSettings"
+            :chart-type="chartType"
+            :error="isMeasureTableInvalid()"
+            @rowReorder="onColumnsReorder($event, 'MEASURES')"
+            @itemAdded="onColumnAdded"
+            @itemUpdated="onColumnItemUpdate"
+            @itemSelected="setSelectedColumn($event, 4)"
+            @itemDeleted="onColumnDelete"
+        ></WidgetEditorColumnTable>
         <ChartWidgetColumnForm class="p-m-2" :style="{ order: formFlexOrder }" :widget-model="widgetModel" :selected-column="selectedColumn" :chart-type="chartType"></ChartWidgetColumnForm>
     </div>
 </template>
@@ -29,6 +41,7 @@ import highchartDescriptor from './HighchartsDataContainerDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import WidgetEditorColumnTable from '../../common/WidgetEditorColumnTable.vue'
 import ChartWidgetColumnForm from '../common/ChartWidgetColumnForm.vue'
+import { log } from 'vega'
 
 export default defineComponent({
     name: 'highcharts-widget-common-data-container',
@@ -160,12 +173,13 @@ export default defineComponent({
             this.columnTableItems = []
             this.columnTableItems['ATTRIBUTES'] = []
             this.columnTableItems['MEASURES'] = []
+            console.log(this.widgetModel)
             this.widgetModel.columns.forEach((column: IWidgetColumn) => {
                 const type = column.fieldType == 'MEASURE' && !column.scatterAttributeAsMeasure ? 'MEASURES' : 'ATTRIBUTES'
                 this.columnTableItems[type].push(column)
             })
         },
-        onColumnsReorder(columns: IWidgetColumn[], type: 'ATTRIBUTES' | 'MEASURES') {
+        onColumnsReorder(columns: IWidgetColumn[], type: 'ATTRIBUTES' | 'MEASURES' | 'GROUPBY') {
             this.columnTableItems[type] = columns
             this.widgetModel.columns = this.columnTableItems['ATTRIBUTES'].concat(this.columnTableItems['MEASURES'])
             emitter.emit('columnsReordered', this.widgetModel.columns)
@@ -219,7 +233,10 @@ export default defineComponent({
                     case 'bar':
                     case 'column':
                     case 'line':
-                        invalid = (this.widgetModel.settings.configuration?.grouping?.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2) || (this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['ATTRIBUTES'].length !== 1) || (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
+                        invalid =
+                            (this.widgetModel.settings.configuration?.grouping?.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2) ||
+                            (this.widgetModel.settings.configuration?.grouping?.secondSeries.enabled && this.columnTableItems['ATTRIBUTES'].length !== 1) ||
+                            (this.widgetModel.settings.configuration?.grouping?.secondDimension.enabled && this.columnTableItems['ATTRIBUTES'].length !== 2)
                         break
                     case 'scatter':
                     case 'spline':

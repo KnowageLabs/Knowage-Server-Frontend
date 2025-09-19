@@ -80,8 +80,8 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     }
 
     setRegularData(data: any, measureColumns: any[], dateFormat: string, widgetModel: IWidget) {
-        const firstMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.scatterAttributeAsMeasure)
-        const secondMeasure = measureColumns.find((measureColumn: any) => !measureColumn.column.scatterAttributeAsMeasure)
+        const firstMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'X')
+        const secondMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'Y')
 
         if (!firstMeasure || !firstMeasure.metadata) return
         const columnAliases = widgetModel.settings?.series?.aliases ?? []
@@ -101,8 +101,8 @@ export class KnowageHighchartsScatterChart extends KnowageHighcharts {
     }
 
     setJitteredChartData(data: any, measureColumns: any[], dateFormat: string) {
-        const firstMeasure = measureColumns.find((column: any) => column.measureColumns)
-        const measureColumn = measureColumns[0]
+        const firstMeasure = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'X')
+        const measureColumn = measureColumns.find((measureColumn: any) => measureColumn.column.axis === 'Y')
         if (!firstMeasure || !measureColumn || !data.rows) return
 
         const seriesMapByAttributeValueIndex: { [key: string]: { id: number; name: string; data: any[]; connectNulls: boolean } } = {}

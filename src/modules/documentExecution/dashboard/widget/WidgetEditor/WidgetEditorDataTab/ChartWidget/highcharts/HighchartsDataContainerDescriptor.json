@@ -160,26 +160,36 @@
     ],
     "scatterChartColumnTableSettings": [
         {
-            "attributesOnly": true,
-            "hint": "dashboard.widgetEditor.highcharts.scatterchart.dimensionsTableHint",
-            "label": "X"
-        },
-        {
-            "hint": "dashboard.widgetEditor.highcharts.scatterchart.valuesTableHint",
-            "label": "Y",
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.valuesTableHint",
+            "label": "X",
             "measuresOnly": true
-        }
-    ],
-    "scatterJitterChartColumnTableSettings": [
-        {
-            "attributesOnly": true,
-            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.dimensionsTableHint",
-            "label": "X"
         },
         {
             "hint": "dashboard.widgetEditor.highcharts.scatterJitter.valuesTableHint",
             "label": "Y",
             "measuresOnly": true
+        },
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.dimensionsTableHint",
+            "label": "Dimension"
+        }
+    ],
+    "scatterJitterChartColumnTableSettings": [
+        {
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.valuesTableHint",
+            "label": "X",
+            "measuresOnly": true
+        },
+        {
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.valuesTableHint",
+            "label": "Y",
+            "measuresOnly": true
+        },
+        {
+            "attributesOnly": true,
+            "hint": "dashboard.widgetEditor.highcharts.scatterJitter.dimensionsTableHint",
+            "label": "Dimension"
         }
     ],
     "solidgaugeChartColumnTableSettings": [
