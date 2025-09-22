@@ -2,7 +2,7 @@
     <div v-if="crossNavigationModel" class="p-grid p-p-4">
         <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
             <div v-if="crossNavigationModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
-                <InputSwitch v-model="crossNavigationModel.multiselection.enabled" :disabled="crossNavigationDisabled"></InputSwitch>
+                <InputSwitch v-model="crossNavigationModel.multiselection.enabled" :disabled="crossNavigationDisabled" @click="toggleMultiselect"></InputSwitch>
                 <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
             </div>
             <div v-if="crossNavigationModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
@@ -64,7 +64,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetCrossNavigation, IWidgetInteractionParameter, IDataset, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetCrossNavigation, IWidgetInteractionParameter, IDataset, IWidgetStyleToolbarModel, IWidgetInteractions } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { emitter } from '../../../../../../DashboardHelpers'
 import descriptor from '../WidgetInteractionsDescriptor.json'
@@ -204,6 +204,14 @@ export default defineComponent({
                 if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
                 if (this.widget.settings.interactions.preview) this.widget.settings.interactions.preview.enabled = false
                 if (this.widget.settings.interactions.iframe) this.widget.settings.interactions.iframe.enabled = false
+            }
+        },
+        toggleMultiselect() {
+            const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
+            if (interactions) {
+                Object.entries(interactions).forEach(([key, interaction]) => {
+                    if (key !== 'crossNavigation' && interaction?.enabled) interaction.enabled = false
+                })
             }
         }
     }

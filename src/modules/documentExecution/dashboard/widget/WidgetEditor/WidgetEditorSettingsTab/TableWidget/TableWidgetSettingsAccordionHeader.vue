@@ -1,9 +1,8 @@
 <template>
     <div class="p-d-flex p-flex-row p-ai-center">
-        <InputSwitch v-if="model" v-model="model.enabled" class="p-mr-3" @click.stop="onModelChange"></InputSwitch>
+        <InputSwitch v-if="model" v-model="model.enabled" class="p-mr-3" :disabled="multiselectInteractionsDisable" @click.stop="onModelChange"></InputSwitch>
         <label class="kn-material-input-label">{{ title ? $t(title) : '' }}</label>
     </div>
-    {{ model }}
 </template>
 
 <script lang="ts">
@@ -22,7 +21,18 @@ export default defineComponent({
             model: null as any
         }
     },
-    computed: {},
+    computed: {
+        multiselectInteractionsDisable(): boolean {
+            const interactionTypes = ['Selection', 'CrossNavigation', 'Link', 'Preview', 'IFrameInteraction']
+            const interactions = this.widgetModel?.settings?.interactions
+            if (!interactions || !interactionTypes.includes(this.type)) return false
+
+            return Object.entries(interactions).some(([key, interaction]: [string, any]) => {
+                const map: Record<string, string> = { Selection: 'selection', CrossNavigation: 'crossNavigation', Link: 'link', Preview: 'preview', IFrameInteraction: 'iframe' }
+                return map[this.type] !== key && interaction?.multiselection?.enabled === true
+            })
+        }
+    },
     watch: {
         type() {
             this.updateModel()

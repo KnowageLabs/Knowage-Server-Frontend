@@ -2,7 +2,7 @@
     <div v-if="linksModel" class="p-grid p-p-4">
         <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
             <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
-                <InputSwitch v-model="linksModel.multiselection.enabled" :disabled="linksDisabled"></InputSwitch>
+                <InputSwitch v-model="linksModel.multiselection.enabled" :disabled="linksDisabled" @click="toggleMultiselect"></InputSwitch>
                 <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
             </div>
             <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
@@ -78,7 +78,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IWidgetLinks, ITableWidgetLink, IWidgetStyleToolbarModel, IWidgetInteractionParameter } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IDataset, IWidgetLinks, ITableWidgetLink, IWidgetStyleToolbarModel, IWidgetInteractionParameter, IWidgetInteractions } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../WidgetInteractionsDescriptor.json'
@@ -207,6 +207,14 @@ export default defineComponent({
         },
         onParameterDelete(index: number, link: ITableWidgetLink) {
             link.parameters.splice(index, 1)
+        },
+        toggleMultiselect() {
+            const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
+            if (interactions) {
+                Object.entries(interactions).forEach(([key, interaction]) => {
+                    if (key !== 'link' && interaction?.enabled) interaction.enabled = false
+                })
+            }
         }
     }
 })

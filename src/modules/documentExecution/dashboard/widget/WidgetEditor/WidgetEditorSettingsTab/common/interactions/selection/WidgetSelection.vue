@@ -54,7 +54,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetSelection, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetInteractions, IWidgetSelection, IWidgetStyleToolbarModel } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../../DashboardHelpers'
 import descriptor from '../WidgetInteractionsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
@@ -86,6 +86,12 @@ export default defineComponent({
         selectionDisabled() {
             return !this.selectionModel || !this.selectionModel.enabled
         },
+        multiselectDisabled() {
+            const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
+            return Object.entries(interactions).some(([key, interaction]) => {
+                return key !== 'selection' && interaction?.enabled
+            })
+        },
         attributeColumns() {
             return this.widgetModel.columns.filter((col) => col.fieldType === 'ATTRIBUTE')
         }
@@ -102,6 +108,15 @@ export default defineComponent({
             if (this.widgetModel?.settings?.interactions?.selection) this.selectionModel = this.widgetModel.settings.interactions.selection
         },
         selectionChanged() {
+            const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
+            if (this.selectionModel?.multiselection?.enabled && interactions) {
+                Object.entries(interactions).forEach(([key, interaction]) => {
+                    if (key !== 'selection' && interaction?.enabled) {
+                        interaction.enabled = false
+                    }
+                })
+            }
+
             emitter.emit('selectionChanged', this.selectionModel)
             emitter.emit('refreshTable', this.widgetModel.id)
         },
