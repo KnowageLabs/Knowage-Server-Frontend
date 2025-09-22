@@ -213,10 +213,24 @@ export interface IWidgetCrossNavigation {
     label?: string
     name: string
     parameters: IWidgetInteractionParameter[]
+    multiselection?: {
+        enabled: boolean
+        properties: {
+            'background-color': string
+            color: string
+        }
+    }
 }
 
 export interface IWidgetLinks {
     enabled: boolean
+    multiselection?: {
+        enabled: boolean
+        properties: {
+            'background-color': string
+            color: string
+        }
+    }
     links: ITableWidgetLink[]
 }
 
@@ -250,10 +264,20 @@ export interface IWidgetPreview {
     column?: string
     directDownload: boolean
     icon?: string
+    multiselection?: {
+        enabled: boolean
+        properties: {
+            'background-color': string
+            color: string
+        }
+    }
 }
 
 export interface IWidgetSelection {
     enabled: boolean
+    type?: string
+    column?: string
+    icon?: string
     modalColumn?: string
     multiselection?: {
         enabled: boolean

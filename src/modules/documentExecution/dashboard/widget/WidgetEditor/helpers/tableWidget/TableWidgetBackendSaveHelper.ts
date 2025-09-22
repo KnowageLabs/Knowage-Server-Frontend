@@ -1,18 +1,4 @@
-import {
-    ITableWidgetColumnGroups,
-    ITableWidgetConditionalStyles,
-    ITableWidgetConfiguration,
-    IWidgetCrossNavigation,
-    ITableWidgetHeaders,
-    IWidgetInteractions,
-    IWidgetSelection,
-    ITableWidgetSettings,
-    ITableWidgetVisualization,
-    IWidget,
-    IWidgetColumn,
-    ITableWidgetTooltipStyle,
-    ITableWidgetColumnStyles
-} from '../../../../Dashboard'
+import { ITableWidgetColumnGroups, ITableWidgetConditionalStyles, ITableWidgetConfiguration, IWidgetCrossNavigation, ITableWidgetHeaders, IWidgetInteractions, IWidgetSelection, ITableWidgetSettings, ITableWidgetVisualization, IWidget, IWidgetColumn, ITableWidgetTooltipStyle, ITableWidgetColumnStyles } from '../../../../Dashboard'
 
 const columnIdNameMap = {}
 
@@ -161,6 +147,8 @@ const formatTableInteractions = (widgetInteractions: IWidgetInteractions) => {
 
 const formatSelection = (selection: IWidgetSelection) => {
     if (selection.modalColumn) selection.modalColumn = getColumnName(selection.modalColumn)
+    if (selection.column) selection.column = getColumnName(selection.column)
+    if (!selection.type) selection.type = 'allRow'
 }
 
 const formatCrossNavigation = (crossNavigation: IWidgetCrossNavigation) => {

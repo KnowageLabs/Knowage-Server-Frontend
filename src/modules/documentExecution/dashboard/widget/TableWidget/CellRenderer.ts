@@ -56,6 +56,38 @@ export default class CellRenderer {
                 else if (!selection.modalColumn && selectedColumn == params.colDef.field && celectedCellValues.includes(params.value)) return selection.multiselection.properties
             } else return null
         }
+        const getLinkMultiselectStyle = () => {
+            const linkSettings = params.propWidget.settings.interactions.link
+            const selectedLinkRows = params.multiSelectedLinkRows
+
+            if (linkSettings.enabled && linkSettings?.multiselection?.enabled) {
+                const isRowSelected = selectedLinkRows?.some((row) => row.rowIndex === params.node.rowIndex)
+                if (isRowSelected) return linkSettings.multiselection.properties
+            }
+            return null
+        }
+
+        const getPreviewMultiselectStyle = () => {
+            const previewSettings = params.propWidget.settings.interactions.preview
+            const selectedPreviewRows = params.multiSelectedPreviewRows
+
+            if (previewSettings?.enabled && previewSettings?.multiselection?.enabled && selectedPreviewRows) {
+                const isRowSelected = selectedPreviewRows?.some((row) => row.rowIndex === params.node.rowIndex)
+                if (isRowSelected) return previewSettings.multiselection.properties
+            }
+            return null
+        }
+
+        const getCrossNavMultiselectStyle = () => {
+            const crossNavSettings = params.propWidget.settings.interactions.crossNavigation
+            const selectedCrossNavRows = params.multiSelectedCrossNavRows
+
+            if (crossNavSettings?.enabled && crossNavSettings?.multiselection?.enabled && selectedCrossNavRows) {
+                const isRowSelected = selectedCrossNavRows.some((row) => row.rowIndex === params.node.rowIndex)
+                if (isRowSelected) return crossNavSettings.multiselection.properties
+            }
+            return null
+        }
 
         const getConditionalStyle = () => {
             if (params.propWidget.settings.conditionalStyles.enabled) {
@@ -96,6 +128,15 @@ export default class CellRenderer {
             const multiselectStyle = getMultiselectStyle()
             if (multiselectStyle) return multiselectStyle
 
+            const linkMultiselectStyle = getLinkMultiselectStyle()
+            if (linkMultiselectStyle) return linkMultiselectStyle
+
+            const previewMultiselectStyle = getPreviewMultiselectStyle()
+            if (previewMultiselectStyle) return previewMultiselectStyle
+
+            const crossNavMultiselectStyle = getCrossNavMultiselectStyle()
+            if (crossNavMultiselectStyle) return crossNavMultiselectStyle
+
             const conditionalStyle = getConditionalStyle()
             if (conditionalStyle) {
                 applyConditionalStyleToBar = true
@@ -107,8 +148,6 @@ export default class CellRenderer {
 
             const rowSpanStyle = getRowspanRowStyle()
             if (rowSpanStyle) return rowSpanStyle
-
-            // else return helpersDecriptor.defaultColumnStyles.styles[0].properties
         }
 
         const styleObject = getCellStyle()

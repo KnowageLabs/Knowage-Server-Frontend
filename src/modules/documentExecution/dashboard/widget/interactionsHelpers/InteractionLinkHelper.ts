@@ -106,6 +106,22 @@ const getFormattedDriverValuesMap = (drivers: IDashboardDriver[]) => {
 
 const getFormattedTableDynamicParameterUrl = (parameter: IWidgetInteractionParameter, formattedRow: any, useAsResource: boolean) => {
     let columnValue = ''
+
+    if (Array.isArray(formattedRow) && formattedRow.length > 1) {
+        const values = formattedRow
+            .map((row: any) => {
+                if (parameter.column === 'column_name_mode') return row.columnName
+                if (parameter.column && row[parameter.column]) return row[parameter.column].value
+                return null
+            })
+            .filter((v) => v !== null && v !== undefined)
+
+        const uniqueValues = [...new Set(values)]
+        const value = uniqueValues.join(',')
+
+        return useAsResource ? `${value}` : `${parameter.name}=${value}&`
+    }
+
     if (parameter.column === 'column_name_mode') columnValue = formattedRow.columnName
     else if (parameter.column) columnValue = formattedRow[parameter.column].value
     const value = columnValue ?? ''

@@ -1,5 +1,22 @@
 <template>
-    <div v-if="previewModel" class="p-grid p-jc-center p-ai-center p-p-4">
+    <div v-if="previewModel" class="p-grid p-p-4">
+        <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
+            <div v-if="previewModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
+                <InputSwitch v-model="previewModel.multiselection.enabled" :disabled="previewDisabled" @click="toggleMultiselect"></InputSwitch>
+                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
+            </div>
+            <div v-if="previewModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
+                <WidgetEditorStyleToolbar
+                    :options="descriptor.styleToolbarSelectionOptions"
+                    :prop-model="{
+                        color: previewModel.multiselection.properties.color,
+                        'background-color': previewModel.multiselection.properties['background-color']
+                    }"
+                    :disabled="!previewModel.multiselection.enabled"
+                    @change="onStyleToolbarChange($event)"
+                ></WidgetEditorStyleToolbar>
+            </div>
+        </div>
         <div v-if="['table', 'discovery'].includes(widgetModel.type)" class="p-grid p-col-12 p-pt-4 p-ai-center">
             <div v-if="widgetModel.type !== 'chart' && widgetModel.type !== 'customchart'" class="p-col-6 p-sm-12 p-md-6 p-d-flex p-flex-column kn-flex p-px-2">
                 <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
@@ -27,7 +44,8 @@
             <div v-if="previewModel.type === 'singleColumn'" class="p-sm-11 p-md-5">
                 <div class="p-d-flex p-flex-column kn-flex p-mx-2">
                     <label class="kn-material-input-label"> {{ $t('common.column') }}</label>
-                    <Dropdown v-model="previewModel.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions()" :disabled="previewDisabled"> </Dropdown>
+                    <!-- <Dropdown v-model="previewModel.column" class="kn-material-input" :options="getSelectionDatasetColumnOptions()" :disabled="previewDisabled"> </Dropdown> -->
+                    <Dropdown v-model="previewModel.column" class="kn-material-input" :options="widgetModel.columns" option-label="alias" option-value="columnName" :disabled="previewDisabled"> </Dropdown>
                 </div>
             </div>
             <div v-else-if="previewModel.type === 'icon'" class="p-sm-11 p-md-5 p-p-4">
@@ -39,22 +57,14 @@
             </div>
         </div>
         <div v-if="previewModel.parameters.length > 0" class="p-col-12 p-p-2">
-            <TableWidgetPreviewParameterList
-                class="kn-flex p-mr-2"
-                :widget-model="widgetModel"
-                :prop-parameters="previewModel.parameters"
-                :selected-datasets-columns-map="selectedDatasetColumnNameMap"
-                :dashboard-id="dashboardId"
-                :disabled="previewDisabled"
-                @change="onParametersChanged"
-            ></TableWidgetPreviewParameterList>
+            <TableWidgetPreviewParameterList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="previewModel.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :dashboard-id="dashboardId" :disabled="previewDisabled" @change="onParametersChanged"></TableWidgetPreviewParameterList>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IWidgetInteractionParameter, IDataset, IDatasetParameter, IWidgetStyleToolbarModel, IWidgetPreview } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IWidgetInteractionParameter, IDataset, IDatasetParameter, IWidgetStyleToolbarModel, IWidgetPreview, IWidgetInteractions } from '@/modules/documentExecution/dashboard/Dashboard'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import { emitter } from '../../../../../../DashboardHelpers'
 import descriptor from '../WidgetInteractionsDescriptor.json'
@@ -63,6 +73,7 @@ import Checkbox from 'primevue/checkbox'
 import Dropdown from 'primevue/dropdown'
 import TableWidgetPreviewParameterList from './WidgetPreviewParameterList.vue'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
+import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'table-widget-preview',
@@ -70,7 +81,8 @@ export default defineComponent({
         Checkbox,
         Dropdown,
         TableWidgetPreviewParameterList,
-        WidgetEditorStyleToolbar
+        WidgetEditorStyleToolbar,
+        InputSwitch
     },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
@@ -174,6 +186,10 @@ export default defineComponent({
         },
         onStyleToolbarChange(model: IWidgetStyleToolbarModel) {
             if (this.previewModel) this.previewModel.icon = model.icon
+            if (this.previewModel && this.previewModel.multiselection) {
+                if (model.color !== undefined) this.previewModel.multiselection.properties.color = model.color
+                if (model['background-color'] !== undefined) this.previewModel.multiselection.properties['background-color'] = model['background-color']
+            }
         },
         getSelectionDatasetColumnOptions() {
             if (!this.previewModel) return []
@@ -200,6 +216,14 @@ export default defineComponent({
                 if (this.widget.settings.interactions.link) this.widget.settings.interactions.link.enabled = false
                 if (this.widget.settings.interactions.crossNavigation) this.widget.settings.interactions.crossNavigation.enabled = false
                 if (this.widget.settings.interactions.iframe) this.widget.settings.interactions.iframe.enabled = false
+            }
+        },
+        toggleMultiselect() {
+            const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
+            if (interactions) {
+                Object.entries(interactions).forEach(([key, interaction]) => {
+                    if (key !== 'preview' && interaction?.enabled) interaction.enabled = false
+                })
             }
         }
     }

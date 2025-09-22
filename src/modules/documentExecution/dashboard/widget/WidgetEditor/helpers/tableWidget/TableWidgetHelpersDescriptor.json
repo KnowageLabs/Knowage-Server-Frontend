@@ -45,6 +45,20 @@
         "conditions": [],
         "enabled": false
     },
+    "defaultCrossNavigation": {
+        "column": "",
+        "enabled": false,
+        "multiselection": {
+            "enabled": false,
+            "properties": {
+                "background-color": "",
+                "color": ""
+            }
+        },
+        "name": "",
+        "parameters": [],
+        "type": ""
+    },
     "defaultCustomMessages": {
         "hideNoRowsMessage": true,
         "noRowsMessage": ""
@@ -83,6 +97,17 @@
             "justify-content": "center"
         }
     },
+    "defaultLinks": {
+        "enabled": false,
+        "links": [],
+        "multiselection": {
+            "enabled": false,
+            "properties": {
+                "background-color": "",
+                "color": ""
+            }
+        }
+    },
     "defaultPagination": {
         "enabled": false,
         "properties": {
@@ -95,6 +120,20 @@
         "background-color": "",
         "color": "",
         "justify-content": ""
+    },
+    "defaultPreview": {
+        "dataset": -1,
+        "directDownload": false,
+        "enabled": false,
+        "multiselection": {
+            "enabled": false,
+            "properties": {
+                "background-color": "",
+                "color": ""
+            }
+        },
+        "parameters": [],
+        "type": ""
     },
     "defaultRowsConfiguration": {
         "indexColumn": false,

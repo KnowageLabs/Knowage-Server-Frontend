@@ -1,5 +1,22 @@
 <template>
     <div v-if="linksModel" class="p-grid p-p-4">
+        <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
+            <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
+                <InputSwitch v-model="linksModel.multiselection.enabled" :disabled="linksDisabled" @click="toggleMultiselect"></InputSwitch>
+                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
+            </div>
+            <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
+                <WidgetEditorStyleToolbar
+                    :options="descriptor.styleToolbarSelectionOptions"
+                    :prop-model="{
+                        color: linksModel.multiselection.properties.color,
+                        'background-color': linksModel.multiselection.properties['background-color']
+                    }"
+                    :disabled="!linksModel.multiselection.enabled"
+                    @change="onStyleToolbarChange($event)"
+                ></WidgetEditorStyleToolbar>
+            </div>
+        </div>
         <div v-for="(link, index) in linksModel.links" :key="index" class="dynamic-form-item p-grid p-ai-center p-col-12">
             <div v-if="widgetType === 'table'" class="p-sm-12 p-md-12 p-d-flex p-flex-column">
                 <label class="kn-material-input-label"> {{ $t('common.type') }}</label>
@@ -53,17 +70,7 @@
             </div>
 
             <div class="p-sm-12 p-md-12">
-                <TableWidgetLinkParameterList
-                    class="kn-flex p-mr-2"
-                    :widget-model="widgetModel"
-                    :prop-parameters="link.parameters"
-                    :selected-datasets-columns-map="selectedDatasetColumnNameMap"
-                    :disabled="linksDisabled"
-                    :dashboard-id="dashboardId"
-                    @change="onParametersChanged($event, link)"
-                    @addParameter="onAddParameter(link)"
-                    @delete="onParameterDelete($event, link)"
-                ></TableWidgetLinkParameterList>
+                <TableWidgetLinkParameterList class="kn-flex p-mr-2" :widget-model="widgetModel" :prop-parameters="link.parameters" :selected-datasets-columns-map="selectedDatasetColumnNameMap" :disabled="linksDisabled" :dashboard-id="dashboardId" @change="onParametersChanged($event, link)" @addParameter="onAddParameter(link)" @delete="onParameterDelete($event, link)"></TableWidgetLinkParameterList>
             </div>
         </div>
     </div>
@@ -71,17 +78,18 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { IWidget, IDataset, IWidgetLinks, ITableWidgetLink, IWidgetStyleToolbarModel, IWidgetInteractionParameter } from '@/modules/documentExecution/dashboard/Dashboard'
+import { IWidget, IDataset, IWidgetLinks, ITableWidgetLink, IWidgetStyleToolbarModel, IWidgetInteractionParameter, IWidgetInteractions } from '@/modules/documentExecution/dashboard/Dashboard'
 import { emitter } from '../../../../../../DashboardHelpers'
 import { getTranslatedLabel } from '@/helpers/commons/dropdownHelper'
 import descriptor from '../WidgetInteractionsDescriptor.json'
 import Dropdown from 'primevue/dropdown'
 import WidgetEditorStyleToolbar from '../../styleToolbar/WidgetEditorStyleToolbar.vue'
 import TableWidgetLinkParameterList from './WidgetLinkParameterList.vue'
+import InputSwitch from 'primevue/inputswitch'
 
 export default defineComponent({
     name: 'table-widget-interactions-links',
-    components: { Dropdown, TableWidgetLinkParameterList, WidgetEditorStyleToolbar },
+    components: { Dropdown, TableWidgetLinkParameterList, WidgetEditorStyleToolbar, InputSwitch },
     props: {
         widgetModel: { type: Object as PropType<IWidget>, required: true },
         datasets: { type: Array as PropType<IDataset[]> },
@@ -158,8 +166,12 @@ export default defineComponent({
                     delete link.column
             }
         },
-        onStyleToolbarChange(model: IWidgetStyleToolbarModel, link: ITableWidgetLink) {
-            link.icon = model.icon
+        onStyleToolbarChange(model: IWidgetStyleToolbarModel, link?: ITableWidgetLink) {
+            if (link) link.icon = model.icon
+            if (this.linksModel && this.linksModel.multiselection) {
+                if (model.color !== undefined) this.linksModel.multiselection.properties.color = model.color
+                if (model['background-color'] !== undefined) this.linksModel.multiselection.properties['background-color'] = model['background-color']
+            }
         },
         onColumnRemoved() {
             this.loadLinksModel()
@@ -195,6 +207,14 @@ export default defineComponent({
         },
         onParameterDelete(index: number, link: ITableWidgetLink) {
             link.parameters.splice(index, 1)
+        },
+        toggleMultiselect() {
+            const interactions = this.widgetModel?.settings?.interactions as IWidgetInteractions
+            if (interactions) {
+                Object.entries(interactions).forEach(([key, interaction]) => {
+                    if (key !== 'link' && interaction?.enabled) interaction.enabled = false
+                })
+            }
         }
     }
 })

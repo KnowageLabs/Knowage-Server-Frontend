@@ -77,11 +77,23 @@ const getFormattedTableOutputParameters = (clickedValue: IClickedValue, formatte
 
 const getFormattedTableDynamicOutputParameter = (clickedValue: IClickedValue, crossNavigationParameter: IWidgetInteractionParameter, formattedRow: any) => {
     const valueAndType = getDynamicValueAndTypeForTableDynamicOutputParameter(clickedValue, crossNavigationParameter, formattedRow)
-    const value = valueAndType ? valueAndType.value : ''
+    let value = valueAndType ? valueAndType.value : ''
+
+    let parameterValue
+    let multivalue = false
+
+    if (Array.isArray(value)) {
+        parameterValue = value.map((v) => ({ value: v, description: v }))
+        multivalue = value.length > 1
+    } else {
+        parameterValue = [{ value: value, description: value }]
+        multivalue = false
+    }
+
     return {
         targetDriverUrlName: '',
-        parameterValue: [{ value: value, description: value }],
-        multivalue: false,
+        parameterValue: parameterValue,
+        multivalue: multivalue,
         type: 'fromSourceDocumentOutputParameter',
         parameterType: getDriverParameterTypeFromOutputParameterType(valueAndType?.type),
         outputDriverName: crossNavigationParameter.name
@@ -91,13 +103,25 @@ const getFormattedTableDynamicOutputParameter = (clickedValue: IClickedValue, cr
 const getDynamicValueAndTypeForTableDynamicOutputParameter = (clickedValue: IClickedValue, crossNavigationParameter: IWidgetInteractionParameter, formattedRow: any) => {
     if (!crossNavigationParameter.column) {
         if (clickedValue.type === 'icon') return { value: '', type: 'string' }
-        else return { value: ['date', 'timestamp'].includes(clickedValue.type) ? getFormattedDateValue(clickedValue.value, clickedValue.type) : clickedValue.value, type: clickedValue.type }
+        else
+            return {
+                value: ['date', 'timestamp'].includes(clickedValue.type) ? getFormattedDateValue(clickedValue.value, clickedValue.type) : clickedValue.value,
+                type: clickedValue.type
+            }
     }
     const rowField = formattedRow[crossNavigationParameter.column]
     if (!rowField) return null
-    const fieldTypeIsDate = ['date', 'timestamp'].includes(rowField.type)
-    const value = fieldTypeIsDate ? getFormattedDateValue(rowField.value, rowField.type) : rowField.value
-    return { value: value, type: rowField.type }
+
+    if (Array.isArray(rowField.value)) {
+        const fieldTypeIsDate = ['date', 'timestamp'].includes(rowField.type)
+        const values = rowField.value.map((v) => (fieldTypeIsDate ? getFormattedDateValue(v, rowField.type) : v))
+        return { value: values, type: rowField.type }
+    } else {
+        // Single value
+        const fieldTypeIsDate = ['date', 'timestamp'].includes(rowField.type)
+        const value = fieldTypeIsDate ? getFormattedDateValue(rowField.value, rowField.type) : rowField.value
+        return { value: value, type: rowField.type }
+    }
 }
 
 export const executeHTMLandTextWidgetCrossNavigation = (dynamicValue: string, crossNavigationModel: IWidgetCrossNavigation, dashboardId: string) => {

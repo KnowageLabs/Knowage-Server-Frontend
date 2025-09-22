@@ -94,7 +94,7 @@ const store = defineStore('dashboardStore', {
             if (this.dashboards[dashboardId]) this.dashboards[dashboardId].outputParameters = outputParameters
         },
         getSelections(dashboardId: string) {
-            return this.dashboards[dashboardId].selections
+            return this.dashboards[dashboardId] ? this.dashboards[dashboardId].selections : []
         },
         setInternationalization(internationalization) {
             this.internationalization = internationalization
