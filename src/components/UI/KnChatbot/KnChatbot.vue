@@ -4,6 +4,9 @@
             <q-card-section class="q-pa-none">
                 <q-toolbar class="bg-primary text-white">
                     <q-toolbar-title><q-icon class="q-mr-sm" name="smart_toy" />{{ $t('ai.title') }} </q-toolbar-title>
+                    <q-btn flat round dense icon="queue" @click="confirm = true">
+                        <q-tooltip :delay="500" anchor="center left" self="center right">{{ $t('common.new', { name: $t('common.conversation') }) }}</q-tooltip>
+                    </q-btn>
                 </q-toolbar>
             </q-card-section>
 
@@ -16,9 +19,11 @@
 
                         <q-chip v-if="message.url" clickable class="dashboard-link" size="sm" color="accent" text-color="white" icon="open_in_new" @click="followLink(message.url)"> {{ $t('ai.dashboardLink') }} </q-chip>
                     </div>
+
                     <q-chat-message v-if="awaitingReply" name="AI" :avatar="avatarImg">
                         <q-spinner-dots size="2rem" />
                     </q-chat-message>
+
                     <div ref="bottomAnchor"></div>
                 </div>
                 <div class="row q-gutter-sm q-pa-sm">
@@ -28,6 +33,18 @@
                 </div>
             </div>
         </q-card>
+        <q-dialog v-model="confirm" persistent>
+            <q-card>
+                <q-card-section class="row items-center">
+                    <span class="q-ml-sm">{{ $t('ai.newConversationConfirm') }}</span>
+                </q-card-section>
+
+                <q-card-actions align="right">
+                    <q-btn flat :label="$t('common.cancel')" color="primary" v-close-popup />
+                    <q-btn flat :label="$t('common.yes')" color="primary" v-close-popup @click="newChat" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </q-dialog>
     <q-btn flat square class="q-py-md" color="accent" :icon="'smart_toy'" @click="toggleChatbot">
         <q-tooltip :delay="500" anchor="center right" self="center left">{{ $t('AI assistant') }}</q-tooltip>
@@ -49,6 +66,7 @@ let dashStore = null as any
 
 const { t } = useI18n()
 
+const confirm = ref(false)
 const turnId = ref(0)
 const showAlert = ref(false)
 const awaitingReply = ref(false)
@@ -64,6 +82,18 @@ const bottomAnchor = ref(null)
 const body = reactive({
     conversationId: crypto.randomUUID()
 } as any)
+
+function newChat() {
+    chat.value = [
+        {
+            role: 'assistant',
+            content: t('ai.welcomeMessage'),
+            turnId: 0
+        }
+    ]
+    turnId.value = 0
+    body.conversationId = crypto.randomUUID()
+}
 
 function toggleChatbot() {
     showAlert.value = !showAlert.value
