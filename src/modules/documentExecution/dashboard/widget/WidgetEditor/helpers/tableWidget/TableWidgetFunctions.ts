@@ -20,7 +20,7 @@ export const createNewTableWidgetSettings = () => {
             widgetMenu: { enabled: true }
         },
         interactions: {
-            crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),
+            crossNavigation: tableWidgetDefaultValues.getDefaultCrossNavigation(),
             link: tableWidgetDefaultValues.getDefaultLinks(),
             preview: tableWidgetDefaultValues.getDefaultPreview(),
             selection: tableWidgetDefaultValues.getDefaultSelection(),
@@ -257,6 +257,7 @@ const formatSelection = (selection: IWidgetSelection) => {
 
 const formatCrossNavigation = (crossNavigation: IWidgetCrossNavigation) => {
     if (crossNavigation.column) crossNavigation.column = getColumnId(crossNavigation.column)
+    if (!crossNavigation.multiselection) crossNavigation.multiselection = tableWidgetDefaultValues.getDefaultCrossNavigation().multiselection
 }
 
 const formatLinks = (links: IWidgetLinks) => {

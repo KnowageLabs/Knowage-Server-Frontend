@@ -1,19 +1,21 @@
 <template>
     <div v-if="linksModel" class="p-grid p-p-4">
-        <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
-            <InputSwitch v-model="linksModel.multiselection.enabled" :disabled="linksDisabled"></InputSwitch>
-            <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
-        </div>
-        <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
-            <WidgetEditorStyleToolbar
-                :options="descriptor.styleToolbarSelectionOptions"
-                :prop-model="{
-                    color: linksModel.multiselection.properties.color,
-                    'background-color': linksModel.multiselection.properties['background-color']
-                }"
-                :disabled="!linksModel.multiselection.enabled"
-                @change="onStyleToolbarChange($event)"
-            ></WidgetEditorStyleToolbar>
+        <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
+            <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
+                <InputSwitch v-model="linksModel.multiselection.enabled" :disabled="linksDisabled"></InputSwitch>
+                <label class="kn-material-input-label p-m-3">{{ $t('dashboard.widgetEditor.interactions.enableMultiselection') }}</label>
+            </div>
+            <div v-if="linksModel.multiselection" class="p-col-12 p-md-4 style-toolbar-container p-pt-3 p-pr-5">
+                <WidgetEditorStyleToolbar
+                    :options="descriptor.styleToolbarSelectionOptions"
+                    :prop-model="{
+                        color: linksModel.multiselection.properties.color,
+                        'background-color': linksModel.multiselection.properties['background-color']
+                    }"
+                    :disabled="!linksModel.multiselection.enabled"
+                    @change="onStyleToolbarChange($event)"
+                ></WidgetEditorStyleToolbar>
+            </div>
         </div>
         <div v-for="(link, index) in linksModel.links" :key="index" class="dynamic-form-item p-grid p-ai-center p-col-12">
             <div v-if="widgetType === 'table'" class="p-sm-12 p-md-12 p-d-flex p-flex-column">

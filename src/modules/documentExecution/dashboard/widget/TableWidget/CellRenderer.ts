@@ -78,6 +78,17 @@ export default class CellRenderer {
             return null
         }
 
+        const getCrossNavMultiselectStyle = () => {
+            const crossNavSettings = params.propWidget.settings.interactions.crossNavigation
+            const selectedCrossNavRows = params.multiSelectedCrossNavRows
+
+            if (crossNavSettings?.enabled && crossNavSettings?.multiselection?.enabled && selectedCrossNavRows) {
+                const isRowSelected = selectedCrossNavRows.some((row) => row.rowIndex === params.node.rowIndex)
+                if (isRowSelected) return crossNavSettings.multiselection.properties
+            }
+            return null
+        }
+
         const getConditionalStyle = () => {
             if (params.propWidget.settings.conditionalStyles.enabled) {
                 const test = getCellConditionalStyles(params)
@@ -122,6 +133,9 @@ export default class CellRenderer {
 
             const previewMultiselectStyle = getPreviewMultiselectStyle()
             if (previewMultiselectStyle) return previewMultiselectStyle
+
+            const crossNavMultiselectStyle = getCrossNavMultiselectStyle()
+            if (crossNavMultiselectStyle) return crossNavMultiselectStyle
 
             const conditionalStyle = getConditionalStyle()
             if (conditionalStyle) {

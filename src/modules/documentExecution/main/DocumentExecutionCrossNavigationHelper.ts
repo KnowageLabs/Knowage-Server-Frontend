@@ -1,8 +1,8 @@
-import { IDashboardCrossNavigation } from "../dashboard/Dashboard"
+import { IDashboardCrossNavigation } from '../dashboard/Dashboard'
 import { iParameter } from '@/components/UI/KnParameterSidebar/KnParameterSidebar'
-import { IDocumentNavigationParameter, ICrossNavigationParameter, ICrossNavigationBreadcrumb, IDocumentNavigationParameterValue } from "./DocumentExecution"
-import { getDateStringFromJSDate } from "@/helpers/commons/localeHelper"
-import moment from "moment"
+import { IDocumentNavigationParameter, ICrossNavigationParameter, ICrossNavigationBreadcrumb, IDocumentNavigationParameterValue } from './DocumentExecution'
+import { getDateStringFromJSDate } from '@/helpers/commons/localeHelper'
+import moment from 'moment'
 
 export const getSelectedCrossNavigation = (crossNavigationName: string | undefined, crossNavigations: IDashboardCrossNavigation[]) => {
     const index = crossNavigations.findIndex((crossNavigation: IDashboardCrossNavigation) => crossNavigation.crossName === crossNavigationName)
@@ -11,7 +11,7 @@ export const getSelectedCrossNavigation = (crossNavigationName: string | undefin
     else return null
 }
 
-export const getDocumentForCrossNavigation = (documentCrossNavigationOutputParameters: ICrossNavigationParameter[], sourceFiltersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, selectedCrossNavigation: IDashboardCrossNavigation | null) => {
+export const getDocumentForCrossNavigation = (documentCrossNavigationOutputParameters: ICrossNavigationParameter[], sourceFiltersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, selectedCrossNavigation: IDashboardCrossNavigation | null) => {
     if (!selectedCrossNavigation) return null
     const formattedCrossNavigationParameters = getFormattedCrossNavigationParameters(selectedCrossNavigation, sourceFiltersData, documentCrossNavigationOutputParameters)
     const crossNavigationDocument = selectedCrossNavigation.document
@@ -24,7 +24,7 @@ export const getDocumentForCrossNavigation = (documentCrossNavigationOutputParam
     return crossNavigationDocument
 }
 
-const getFormattedCrossNavigationParameters = (documentCrossNavigation: IDashboardCrossNavigation, sourceFiltersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, documentCrossNavigationOutputParameters: ICrossNavigationParameter[]) => {
+const getFormattedCrossNavigationParameters = (documentCrossNavigation: IDashboardCrossNavigation, sourceFiltersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, documentCrossNavigationOutputParameters: ICrossNavigationParameter[]) => {
     const formattedCrossNavigationParameters = [] as ICrossNavigationParameter[]
     const documentCrossNavigationParameters = getFormattedDocumentCrossNavigationParameters(documentCrossNavigation.navigationParams)
     documentCrossNavigationParameters.forEach((documentCrossNavigationParameter: IDocumentNavigationParameter) => {
@@ -56,13 +56,13 @@ const addFixedDocumentCrossNavigationParameter = (documentCrossNavigationParamet
     formattedCrossNavigationParameters.push(formattedCrossNavigationParameter)
 }
 
-const addSourceDocumentCrossNavigationParameterFromInputDriver = (documentCrossNavigationParameter: IDocumentNavigationParameter, formattedCrossNavigationParameters: ICrossNavigationParameter[], sourceFiltersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) => {
+const addSourceDocumentCrossNavigationParameterFromInputDriver = (documentCrossNavigationParameter: IDocumentNavigationParameter, formattedCrossNavigationParameters: ICrossNavigationParameter[], sourceFiltersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) => {
     const sourceDocumentDriver = getSourceDocumentDriver(documentCrossNavigationParameter, sourceFiltersData)
     const formattedCrossNavigationParameter = createCrossNavigationParameterFromSourceDocumentDriver(sourceDocumentDriver, documentCrossNavigationParameter.id)
     if (formattedCrossNavigationParameter) formattedCrossNavigationParameters.push(formattedCrossNavigationParameter)
 }
 
-const getSourceDocumentDriver = (documentCrossNavigationParameter: IDocumentNavigationParameter, sourceFiltersData: { filterStatus: iParameter[], isReadyForExecution: boolean }) => {
+const getSourceDocumentDriver = (documentCrossNavigationParameter: IDocumentNavigationParameter, sourceFiltersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }) => {
     const index = sourceFiltersData.filterStatus.findIndex((parameter: iParameter) => parameter.urlName === documentCrossNavigationParameter.sourceDriverUrlName)
     return index !== -1 ? sourceFiltersData.filterStatus[index] : null
 }
@@ -78,7 +78,7 @@ const createCrossNavigationParameterFromSourceDocumentDriver = (sourceDocumentDr
         multivalue: sourceDocumentDriver.multivalue,
         type: 'fromSourceDocumentDriver',
         selectionType: sourceDocumentDriver.selectionType ?? null,
-        parameterType: sourceDocumentDriver.type,
+        parameterType: sourceDocumentDriver.type
     } as ICrossNavigationParameter
     return crossNavigationParameter
 }
@@ -97,8 +97,7 @@ const getDateValueFromSourceDocumentDriverAsMilliseconds = (parameterValue: { va
     if (!parameterValue[0] || !parameterValue[0].value) return [{ value: '', description: '' }]
     if (parameterValue[0].value instanceof Date) {
         return [{ value: parameterValue[0].value.valueOf(), descripton: '' }]
-    }
-    else return [{ value: parameterValue[0].value, description: '' + parameterValue[0].value }] as { value: string | number, description: string }[]
+    } else return [{ value: parameterValue[0].value, description: '' + parameterValue[0].value }] as { value: string | number; description: string }[]
 }
 
 const createDocumentNavigationParametersForFilterService = (formattedCrossNavigationParameters: ICrossNavigationParameter[]) => {
@@ -107,7 +106,7 @@ const createDocumentNavigationParametersForFilterService = (formattedCrossNaviga
         if (formattedCrossNavigationParameter.type === 'fixed') {
             documentNavigationParamsForFilterService[formattedCrossNavigationParameter.targetDriverUrlName] = formattedCrossNavigationParameter.parameterValue[0].value
         } else if (formattedCrossNavigationParameter.type === 'fromSourceDocumentDriver') {
-            const valueAndDescription = getValueAndDescriptionForFilterServiceFromSourceDocumentDriverCrossNavigationParameter(formattedCrossNavigationParameter) as { value: string | number | (string | number)[] | null, description: string | string[] | null }
+            const valueAndDescription = getValueAndDescriptionForFilterServiceFromSourceDocumentDriverCrossNavigationParameter(formattedCrossNavigationParameter) as { value: string | number | (string | number)[] | null; description: string | string[] | null }
             documentNavigationParamsForFilterService[formattedCrossNavigationParameter.targetDriverUrlName] = valueAndDescription.value
             if (valueAndDescription.description) documentNavigationParamsForFilterService[formattedCrossNavigationParameter.targetDriverUrlName + '_field_visible_description'] = valueAndDescription.description
         } else if (formattedCrossNavigationParameter.type === 'fromSourceDocumentOutputParameter') {
@@ -121,10 +120,10 @@ const createDocumentNavigationParametersForFilterService = (formattedCrossNaviga
 
 const getValueAndDescriptionForFilterServiceFromSourceDocumentDriverCrossNavigationParameter = (formattedCrossNavigationParameter: ICrossNavigationParameter) => {
     const parameterValue = formattedCrossNavigationParameter.parameterValue
-    let valueAndDescription = { value: '', description: null } as { value: string | number | (string | number)[] | null, description: string | string[] | null }
+    let valueAndDescription = { value: '', description: null } as { value: string | number | (string | number)[] | null; description: string | string[] | null }
     if (!formattedCrossNavigationParameter.selectionType && parameterValue[0]) {
         if (formattedCrossNavigationParameter.parameterType === 'STRING') valueAndDescription = { value: parameterValue[0].value, description: '' + parameterValue[0].value }
-        else if (formattedCrossNavigationParameter.parameterType === 'NUM' && parameterValue[0].value) valueAndDescription = { value: +parameterValue[0].value, description: "" + parameterValue[0].value }
+        else if (formattedCrossNavigationParameter.parameterType === 'NUM' && parameterValue[0].value) valueAndDescription = { value: +parameterValue[0].value, description: '' + parameterValue[0].value }
         else if (formattedCrossNavigationParameter.parameterType === 'DATE') {
             const dateValue = getDateStringFromJSDate(new Date(parameterValue[0].value), 'dd/MM/y')
             valueAndDescription.value = dateValue ?? ''
@@ -143,13 +142,12 @@ const getValueAndDescriptionForFilterServiceFromSourceDocumentDriverCrossNavigat
         valueAndDescription.description = parameterValue.map((tempValue: { value: string | number; description: string }) => tempValue.description)
     }
     return valueAndDescription
-
 }
 
 const getValueForFilterServiceFromSourceDocumentOutputParameter = (formattedCrossNavigationParameter: ICrossNavigationParameter) => {
     const values = [] as (string | number)[]
     for (let i = 0; i < formattedCrossNavigationParameter.parameterValue.length; i++) {
-        const tempValue = formattedCrossNavigationParameter.parameterValue[i].value;
+        const tempValue = formattedCrossNavigationParameter.parameterValue[i].value
         const formattedParameterValue = formattedCrossNavigationParameter.parameterType === 'DATE' ? getDateStringFromMilliseconds(tempValue) : tempValue
         values.push(formattedParameterValue)
     }
@@ -163,13 +161,12 @@ const getDateStringFromMilliseconds = (miliseconds: any) => {
     return dateAsString ?? ''
 }
 
-
 const addSourceDocumentCrossNavigationParameterFromOutputParameter = (documentCrossNavigationParameter: IDocumentNavigationParameter, documentCrossNavigationOutputParameters: ICrossNavigationParameter[], formattedCrossNavigationParameters: ICrossNavigationParameter[]) => {
     const selectedDocumentCrossNavigationParameter = documentCrossNavigationOutputParameters.find((tempParameter: ICrossNavigationParameter) => tempParameter.outputDriverName === documentCrossNavigationParameter.sourceDriverUrlName)
     if (selectedDocumentCrossNavigationParameter) formattedCrossNavigationParameters.push({ ...selectedDocumentCrossNavigationParameter, targetDriverUrlName: documentCrossNavigationParameter.id })
 }
 
-export const loadNavigationInitialValuesFromDashboard = (document: any, filtersData: { filterStatus: iParameter[], isReadyForExecution: boolean }, dateFormat: string) => {
+export const loadNavigationInitialValuesFromDashboard = (document: any, filtersData: { filterStatus: iParameter[]; isReadyForExecution: boolean }, dateFormat: string) => {
     document.formattedCrossNavigationParameters.forEach((crossNavigationParameter: ICrossNavigationParameter) => {
         const index = filtersData.filterStatus.findIndex((parameter: iParameter) => parameter.urlName === crossNavigationParameter.targetDriverUrlName)
         if (index !== -1) loadDriverInitialValue(filtersData.filterStatus[index], crossNavigationParameter, dateFormat)
@@ -191,7 +188,7 @@ const loadDriverInitialValue = (parameter: iParameter, crossNavigationParameter:
 }
 
 const formattDateCrossNavigatonParameterForNonDateDriver = (crossNavigationParameter: ICrossNavigationParameter, dateFormat: string) => {
-    crossNavigationParameter.parameterValue.forEach((parameterValue: { value: string | number, description: string }) => {
+    crossNavigationParameter.parameterValue.forEach((parameterValue: { value: string | number; description: string }) => {
         const dateValue = new Date(parameterValue.value)
         const dateDescription = getDateStringFromJSDate(dateValue, dateFormat) ?? '' + parameterValue.value
         parameterValue.value = dateDescription
@@ -206,12 +203,12 @@ const loadManualStringDriverInitialValue = (parameter: iParameter, crossNavigati
 
 const getCrossNavigationParameterValuesAsString = (crossNavigationParameter: ICrossNavigationParameter) => {
     let value = ''
-    crossNavigationParameter.parameterValue.forEach((parameterValue: { value: string | number, description: string }, index) => value += index === crossNavigationParameter.parameterValue.length - 1 ? parameterValue.value : parameterValue.value + ',')
+    crossNavigationParameter.parameterValue.forEach((parameterValue: { value: string | number; description: string }, index) => (value += index === crossNavigationParameter.parameterValue.length - 1 ? parameterValue.value : parameterValue.value + ','))
     return value
 }
 
 const loadManualNumberDriverInitialValue = (parameter: iParameter, crossNavigationParameter: ICrossNavigationParameter) => {
-    parameter.parameterValue[0] = { value: getFormattedNumberValue(crossNavigationParameter.parameterValue[0].value), description: "" + crossNavigationParameter.parameterValue[0].description }
+    parameter.parameterValue[0] = { value: getFormattedNumberValue(crossNavigationParameter.parameterValue[0].value), description: '' + crossNavigationParameter.parameterValue[0].description }
 }
 
 const getFormattedNumberValue = (value: string | number) => {
@@ -224,8 +221,7 @@ const loadDateDriverInitialValue = (parameter: iParameter, crossNavigationParame
     if (crossNavigationParameter.type === 'fixed') {
         const date = moment(crossNavigationParameter.parameterValue[0].value, 'MM/DD/YYYY', true)
         if (date.isValid()) parameter.parameterValue[0].value = date.toDate()
-    }
-    else if (typeof crossNavigationParameter.parameterValue[0].value !== 'number') {
+    } else if (typeof crossNavigationParameter.parameterValue[0].value !== 'number') {
         if (parameter.parameterValue[0].value instanceof Date) parameter.parameterValue[0].value = null
         return
     } else {
@@ -280,15 +276,15 @@ const loadPopupAndTreeDriverSingleInitialValue = (parameter: iParameter, crossNa
 }
 
 const loadPopupAndTreeDriverMultiInitialValue = (parameter: iParameter, crossNavigationParameter: ICrossNavigationParameter) => {
-    const parameterValues = [] as { value: string | number, description: string }[]
-    crossNavigationParameter.parameterValue.forEach((parameterValue: { value: string | number, description: string }, index) => {
+    const parameterValues = [] as { value: string | number; description: string }[]
+    crossNavigationParameter.parameterValue.forEach((parameterValue: { value: string | number; description: string }, index) => {
         if (parameter.parameterDescription[index] !== 'NOT ADMISSIBLE') parameterValues.push(parameterValue)
     })
     parameter.parameterValue = parameterValues
 }
 
 const addMissingDescriptionForPopupAndTreeDriver = (crossNavigationParameter: ICrossNavigationParameter) => {
-    crossNavigationParameter.parameterValue.forEach((parameterValue: { value: string | number, description: string }) => {
+    crossNavigationParameter.parameterValue.forEach((parameterValue: { value: string | number; description: string }) => {
         if (parameterValue.description === '' || parameterValue.description === null) parameterValue.description = '' + parameterValue.value
     })
 }

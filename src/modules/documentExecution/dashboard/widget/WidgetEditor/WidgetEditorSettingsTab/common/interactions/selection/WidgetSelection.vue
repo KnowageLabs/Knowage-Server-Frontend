@@ -30,7 +30,7 @@
         <div v-if="selectionModel.type === 'icon'" class="p-col-2 p-pt-4">
             <WidgetEditorStyleToolbar :options="[{ type: 'icon' }]" :prop-model="{ icon: selectionModel.icon }" :disabled="selectionDisabled" @change="onStyleToolbarChange($event)"> </WidgetEditorStyleToolbar>
         </div>
-        <div class="p-col-12 p-grid">
+        <div v-if="['table'].includes(widgetModel.type)" class="p-col-12 p-grid">
             <div class="p-col-12 p-grid p-ai-center">
                 <div v-if="selectionModel.multiselection" class="p-col-12 p-md-4 p-pt-4 p-pr-4">
                     <InputSwitch v-model="selectionModel.multiselection.enabled" :disabled="selectionDisabled" @change="selectionChanged"></InputSwitch>

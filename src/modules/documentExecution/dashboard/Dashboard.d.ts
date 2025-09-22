@@ -213,6 +213,13 @@ export interface IWidgetCrossNavigation {
     label?: string
     name: string
     parameters: IWidgetInteractionParameter[]
+    multiselection?: {
+        enabled: boolean
+        properties: {
+            'background-color': string
+            color: string
+        }
+    }
 }
 
 export interface IWidgetLinks {

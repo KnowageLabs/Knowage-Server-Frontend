@@ -1029,6 +1029,7 @@ export default defineComponent({
         getFormattedParameters() {
             if (!this.filtersData || !this.filtersData.filterStatus) return {}
             const parameters = {} as any
+            console.log('this.filtersData', this.filtersData)
             Object.keys(this.filtersData.filterStatus).forEach((key: any) => {
                 const parameter = this.filtersData.filterStatus[key]
                 if (parameter.parameterValue) {

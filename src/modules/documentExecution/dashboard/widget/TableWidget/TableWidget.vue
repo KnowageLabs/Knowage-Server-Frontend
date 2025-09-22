@@ -10,7 +10,11 @@
         </div>
         <div v-if="multiSelectedPreviewRows.length > 0" class="multiselect-overlay kn-cursor-pointer" @click="applyMultiPreview">
             <i class="fas fa-eye p-mr-2" />
-            {{ $t('dashboard.tableWidget.launchPreview') }}
+            {{ $t('dashboard.tableWidget.launchSelection') }}
+        </div>
+        <div v-if="multiSelectedCrossNavRows.length > 0" class="multiselect-overlay kn-cursor-pointer" @click="applyMultiCrossNav">
+            <i class="fas fa-share-alt p-mr-2" />
+            {{ $t('dashboard.tableWidget.launchSelection') }}
         </div>
 
         <ag-grid-vue class="kn-table-widget-grid ag-theme-alpine kn-flex" :grid-options="gridOptions" :context="context" :theme="themeBalham"> </ag-grid-vue>
@@ -100,7 +104,8 @@ export default defineComponent({
             variables: [] as IVariable[],
             themeBalham: themeBalham,
             multiSelectedLinkRows: [] as any[],
-            multiSelectedPreviewRows: [] as any[]
+            multiSelectedPreviewRows: [] as any[],
+            multiSelectedCrossNavRows: [] as any[]
         }
     },
     watch: {
@@ -295,6 +300,7 @@ export default defineComponent({
                                 selectedColumnArray: this.selectedColumnArray,
                                 multiSelectedLinkRows: this.multiSelectedLinkRows,
                                 multiSelectedPreviewRows: this.multiSelectedPreviewRows,
+                                multiSelectedCrossNavRows: this.multiSelectedCrossNavRows,
                                 dashboardDrivers: dashboardDrivers,
                                 dashboardVariables: dashboardVariables,
                                 columnDataMap,
@@ -595,6 +601,10 @@ export default defineComponent({
             const hasPreviewMultiselect = previewSettings?.multiselection?.enabled && previewSettings.parameters?.some((param) => param.type === 'dynamic' && param.enabled)
             const hasPreviewInteraction = activeInteractions.some((interaction) => interaction.interactionType === 'preview')
 
+            const crossNavSettings = this.widgetModel.settings.interactions.crossNavigation
+            const hasCrossNavMultiselect = crossNavSettings?.multiselection?.enabled && crossNavSettings.parameters?.some((param) => param.type === 'dynamic' && param.enabled)
+            const hasCrossNavInteraction = activeInteractions.some((interaction) => interaction.interactionType === 'crossNavigation')
+
             if (hasEligibleLinksForMultiselect && hasLinkInteraction) {
                 const linkInteraction = activeInteractions.find((interaction) => interaction.interactionType === 'link')
                 this.startLinkInteraction(node, linkInteraction)
@@ -604,6 +614,12 @@ export default defineComponent({
             if (hasPreviewMultiselect && hasPreviewInteraction) {
                 const previewInteraction = activeInteractions.find((interaction) => interaction.interactionType === 'preview')
                 this.startPreview(node, previewInteraction)
+                return
+            }
+
+            if (hasCrossNavMultiselect && hasCrossNavInteraction) {
+                const crossNavInteraction = activeInteractions.find((interaction) => interaction.interactionType === 'crossNavigation')
+                this.startCrossNavigation(node, crossNavInteraction)
                 return
             }
 
@@ -627,7 +643,7 @@ export default defineComponent({
                     this.startSelectionInteraction(node, this.widgetModel.settings.interactions.selection)
                     break
                 case 'crossNavigation':
-                    this.startCrossNavigation(node)
+                    this.startCrossNavigation(node, activeInteraction)
                     break
                 case 'link':
                     this.startLinkInteraction(node, activeInteraction)
@@ -729,10 +745,56 @@ export default defineComponent({
             return { value: node.data[`column_${columnIndex + 1}`], name: this.widgetModel.columns[columnIndex].columnName }
         },
 
-        startCrossNavigation(node: any) {
-            const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
-            const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
-            executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, this.widgetModel.settings.interactions.crossNavigation, this.dashboardId)
+        startCrossNavigation(node: any, crossNavInteraction?: any) {
+            const crossNavSettings = crossNavInteraction || this.widgetModel.settings.interactions.crossNavigation
+            const hasMultiselection = crossNavSettings?.multiselection?.enabled && crossNavSettings.parameters?.some((param) => param.type === 'dynamic' && param.enabled)
+
+            if (hasMultiselection) {
+                const rowIndex = node.rowIndex ?? node.value - 1 // in case of icon interaction, rowIndex is not present
+                if (!this.multiSelectedCrossNavRows) this.multiSelectedCrossNavRows = []
+
+                const existingRowIndex = this.multiSelectedCrossNavRows.findIndex((row) => row.rowIndex === rowIndex)
+                if (existingRowIndex === -1) this.multiSelectedCrossNavRows.push({ node, rowIndex })
+                else this.multiSelectedCrossNavRows.splice(existingRowIndex, 1)
+
+                this.refreshGridCells()
+            } else {
+                const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
+                const formattedClickedValue = getFormattedClickedValueForCrossNavigation(node, this.dataToShow)
+                executeTableWidgetCrossNavigation(formattedClickedValue, formattedRow, crossNavSettings, this.dashboardId)
+            }
+        },
+        applyMultiCrossNav() {
+            const crossNavSettings = this.widgetModel.settings.interactions.crossNavigation
+            const formattedRows = this.multiSelectedCrossNavRows.map(({ node }) => formatRowDataForCrossNavigation(node, this.dataToShow))
+            const mergedFormattedRow = this.mergeFormattedRowsForCrossNav(formattedRows, crossNavSettings)
+            const formattedClickedValue = this.multiSelectedCrossNavRows.length > 0 ? getFormattedClickedValueForCrossNavigation(this.multiSelectedCrossNavRows[0].node, this.dataToShow) : { value: '', type: 'string' }
+
+            executeTableWidgetCrossNavigation(formattedClickedValue, mergedFormattedRow, crossNavSettings, this.dashboardId)
+
+            this.multiSelectedCrossNavRows.splice(0, this.multiSelectedCrossNavRows.length)
+            this.refreshGridCells()
+        },
+        mergeFormattedRowsForCrossNav(formattedRows: any[], crossNavSettings: any) {
+            if (!formattedRows || formattedRows.length === 0) return {}
+            const mergedRow = { ...formattedRows[0] }
+
+            if (crossNavSettings.parameters) {
+                crossNavSettings.parameters.forEach((param: any) => {
+                    if (param.type === 'dynamic' && param.enabled && param.column) {
+                        const uniqueValues = new Set()
+
+                        formattedRows.forEach((row) => {
+                            if (row[param.column]?.value !== undefined && row[param.column]?.value !== null) uniqueValues.add(row[param.column].value)
+                        })
+
+                        const valuesArray = Array.from(uniqueValues)
+                        if (valuesArray.length > 0) mergedRow[param.column] = { value: valuesArray, type: mergedRow[param.column]?.type || 'string' }
+                    }
+                })
+            }
+
+            return mergedRow
         },
         startPreviewOld(node: any, activeInteraction: any) {
             const formattedRow = formatRowDataForCrossNavigation(node, this.dataToShow)
@@ -779,11 +841,7 @@ export default defineComponent({
                         })
 
                         const valuesArray = Array.from(uniqueValues)
-                        if (valuesArray.length > 0) {
-                            mergedRow[param.column] = {
-                                value: valuesArray
-                            }
-                        }
+                        if (valuesArray.length > 0) mergedRow[param.column] = { value: valuesArray }
                     }
                 })
             }

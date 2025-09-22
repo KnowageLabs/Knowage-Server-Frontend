@@ -109,7 +109,8 @@ export const addParametersToData = (dataset, dashboardId, dataToSend, associativ
                     const driver = documentDrivers[index]
                     if (driver.urlName == matched[0]) {
                         if (driver.type === 'DATE' && driver.value) driver.value = getFormattedDateParameter(driver.value)
-                        dataToSend.parameters[`${param.name}`] = driver.value
+                        if (typeof driver.value === 'string' && driver.multivalue) dataToSend.parameters[`${param.name}`] = driver.value.split(',').map((val) => val.trim())
+                        else dataToSend.parameters[`${param.name}`] = driver.value
                     }
                 }
             } else dataToSend.parameters[`${param.name}`] = param.value
