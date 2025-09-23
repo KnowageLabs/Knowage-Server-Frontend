@@ -23,7 +23,9 @@ export class KnowageHighcharts {
             lang: { noData: '' },
             chart: {
                 options3d: highchartsDefaultValues.getDefault3DOptions(),
-                type: ''
+                type: '',
+                height: '100%',
+                width: '100%'
             },
             noData: highchartsDefaultValues.getDefaultNoDataConfiguration(),
             accessibility: highchartsDefaultValues.getDefaultAccessibilitySettings(),

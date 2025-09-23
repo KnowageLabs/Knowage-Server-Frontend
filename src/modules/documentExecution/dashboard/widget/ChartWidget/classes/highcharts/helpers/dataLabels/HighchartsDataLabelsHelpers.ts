@@ -82,6 +82,7 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
                 backgroundColor: seriesLabelSetting.label.backgroundColor ?? '',
                 distance: 30,
                 enabled: true,
+                headers: true,
                 position: '',
                 style: {
                     fontFamily: seriesLabelSetting.label.style.fontFamily,
@@ -97,6 +98,9 @@ export const updateSeriesLabelSettingsWhenOnlySingleSerieIsAvailable = (model: a
             if (model?.chart?.type === 'pictorial') {
                 delete data.dataLabels.alignTo
                 data.dataLabels.align = 'center'
+            }
+            if (model?.chart?.type === 'treemap') {
+                delete data.dataLabels.alignTo
             }
         })
     })

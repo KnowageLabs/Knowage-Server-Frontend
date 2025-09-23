@@ -40,7 +40,7 @@ export const createNewHighchartsSettings = () => {
             axisLines: { color: '', crosshairColor: '', crosshairWidth: 8 }
         },
         accesssibility: { seriesAccesibilitySettings: getSeriesAccesibilitySettings() },
-        series: { seriesSettings: getSerieSettings(), conditionalStyles: { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } },
+        series: { aliases: [], seriesSettings: getSerieSettings(), conditionalStyles: { enabled: false, conditions: [widgetCommonDefaultValues.getDefaultConditionalStyles()] } },
         interactions: {
             drilldown: { enabled: false },
             crossNavigation: widgetCommonDefaultValues.getDefaultCrossNavigation(),

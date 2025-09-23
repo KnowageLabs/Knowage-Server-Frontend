@@ -15,49 +15,56 @@ import { formatActivityGauge, formatBubble, formatHeatmap, formatRadar, formatSp
 import { applyAdvancedSettingsToModelForRender, formatChartAnnotations, formatForCrossNavigation, getFormattedChartValues } from './HighchartsContainerHelpers'
 import { getChartDrilldownData } from '../../../DataProxyHelper'
 import HighchartsSonificationControls from './HighchartsSonificationControls.vue'
-import Highcharts from 'highcharts'
-import Highcharts3D from 'highcharts/highcharts-3d'
-import HighchartsMore from 'highcharts/highcharts-more'
-import HighchartsSolidGauge from 'highcharts/modules/solid-gauge'
-import Accessibility from 'highcharts/modules/accessibility'
-import NoDataToDisplay from 'highcharts/modules/no-data-to-display'
-import SeriesLabel from 'highcharts/modules/series-label'
-import HighchartsHeatmap from 'highcharts/modules/heatmap'
-import Drilldown from 'highcharts/modules/drilldown'
+import * as Highcharts from 'highcharts'
+import * as Highcharts3D from 'highcharts/highcharts-3d'
+import * as HighchartsMore from 'highcharts/highcharts-more'
+import * as HighchartsSolidGauge from 'highcharts/modules/solid-gauge'
+import * as Accessibility from 'highcharts/modules/accessibility'
+import * as NoDataToDisplay from 'highcharts/modules/no-data-to-display'
+import * as SeriesLabel from 'highcharts/modules/series-label'
+import * as HighchartsHeatmap from 'highcharts/modules/heatmap'
+import * as Drilldown from 'highcharts/modules/drilldown'
 import store from '../../../Dashboard.store'
 import deepcopy from 'deepcopy'
 import mainStore from '@/App.store'
-import HighchartsTreemap from 'highcharts/modules/treemap'
-import HighchartsSunburst from 'highcharts/modules/sunburst'
-import HighchartsSankey from 'highcharts/modules/sankey'
-import HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
-import HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinates'
-import Sonification from 'highcharts/modules/sonification'
-import HighchartsPictorial from 'highcharts/modules/pictorial'
-import HighchartsFunnel from 'highcharts/modules/funnel'
-import HighchartsDumbbell from 'highcharts/modules/dumbbell'
-import HighchartsStreamgraph from 'highcharts/modules/streamgraph'
-import HighchartsAnnotations from 'highcharts/modules/annotations'
+import * as HighchartsTreemap from 'highcharts/modules/treemap'
+import * as HighchartsSunburst from 'highcharts/modules/sunburst'
+import * as HighchartsSankey from 'highcharts/modules/sankey'
+import * as HighchartsDependencyWheel from 'highcharts/modules/dependency-wheel'
+import * as HighchartsParallelCoordinates from 'highcharts/modules/parallel-coordinates'
+import * as Sonification from 'highcharts/modules/sonification'
+import * as HighchartsPictorial from 'highcharts/modules/pictorial'
+import * as HighchartsFunnel from 'highcharts/modules/funnel'
+import * as HighchartsDumbbell from 'highcharts/modules/dumbbell'
+import * as HighchartsStreamgraph from 'highcharts/modules/streamgraph'
+import * as HighchartsAnnotations from 'highcharts/modules/annotations'
 
-HighchartsMore(Highcharts)
-HighchartsSolidGauge(Highcharts)
-HighchartsHeatmap(Highcharts)
-HighchartsTreemap(Highcharts)
-HighchartsSunburst(Highcharts)
-HighchartsSankey(Highcharts)
-HighchartsDependencyWheel(Highcharts)
-HighchartsParallelCoordinates(Highcharts)
-Accessibility(Highcharts)
-Sonification(Highcharts)
-NoDataToDisplay(Highcharts)
-SeriesLabel(Highcharts)
-Highcharts3D(Highcharts)
-Drilldown(Highcharts)
-HighchartsPictorial(Highcharts)
-HighchartsFunnel(Highcharts)
-HighchartsDumbbell(Highcharts)
-HighchartsStreamgraph(Highcharts)
-HighchartsAnnotations(Highcharts)
+const initHighchartsModule = (mod: any) => {
+    const fn = mod && (mod.default ?? mod)
+    if (typeof fn === 'function') {
+        fn(Highcharts as any)
+    }
+}
+
+initHighchartsModule(HighchartsMore)
+initHighchartsModule(HighchartsSolidGauge)
+initHighchartsModule(HighchartsHeatmap)
+initHighchartsModule(HighchartsTreemap)
+initHighchartsModule(HighchartsSunburst)
+initHighchartsModule(HighchartsSankey)
+initHighchartsModule(HighchartsDependencyWheel)
+initHighchartsModule(HighchartsParallelCoordinates)
+initHighchartsModule(Accessibility)
+initHighchartsModule(Sonification)
+initHighchartsModule(NoDataToDisplay)
+initHighchartsModule(SeriesLabel)
+initHighchartsModule(Highcharts3D)
+initHighchartsModule(Drilldown)
+initHighchartsModule(HighchartsPictorial)
+initHighchartsModule(HighchartsFunnel)
+initHighchartsModule(HighchartsDumbbell)
+initHighchartsModule(HighchartsStreamgraph)
+initHighchartsModule(HighchartsAnnotations)
 
 export default defineComponent({
     name: 'highcharts-container',

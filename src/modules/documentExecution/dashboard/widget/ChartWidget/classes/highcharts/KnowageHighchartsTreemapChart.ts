@@ -58,47 +58,51 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
         treemapArray.forEach((el: any) => {
             if (el.value === 0) delete el.value
         })
-        treemapArray.splice(0, 1)
         serieElement.data = treemapArray
         this.model.series = [serieElement]
         this.model.colors = []
+        console.log(this.model.series)
     }
 
     createSerieElement(measureColumn: any, interactionsEnabled: boolean) {
         const serieElement = {
-            id: 0,
+            id: 'root',
             name: measureColumn.column.columnName,
             data: [] as any[],
             type: 'treemap',
-            layoutAlgorithm: 'squarified',
             allowDrillToNode: !interactionsEnabled,
+            allowTraversingTree: true,
+            alternateStartingDirection: true,
             showInLegend: false,
             animationLimit: 1000,
             dataLabels: {
-                enabled: false
+                format: '{point.name}',
+                style: {
+                    textOutline: 'none'
+                }
             },
             levels: [
                 {
                     level: 1,
+                    layoutAlgorithm: 'sliceAndDice',
                     dataLabels: {
+                        headers: true,
                         enabled: true,
-                        textOutline: 'none'
-                    },
-                    borderWidth: 3,
-                    levelIsConstant: false
-                },
-                {
-                    level: 1,
-                    dataLabels: {
                         style: {
-                            fontSize: '',
-                            textOutline: 'none'
+                            fontSize: '0.6em',
+                            fontWeight: 'normal',
+                            textTransform: 'uppercase'
                         }
-                    }
+                    },
+                    borderWidth: 1,
+                    colorByPoint: true
                 },
                 {
                     level: 2,
-                    colorByPoint: true
+                    colorByPoint: true,
+                    dataLabels: {
+                        enabled: true
+                    }
                 },
                 {
                     level: 3,
