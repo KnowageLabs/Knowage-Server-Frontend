@@ -137,7 +137,8 @@ export default defineComponent({
             if (this.settings?.length === 1) this.activeIndex = 0
         },
         onStyleChanged() {
-            ;(this.styleChangedFlag = !this.styleChangedFlag), (this.themePropertyChanged = true)
+            this.styleChangedFlag = !this.styleChangedFlag
+            if (this.themeId) this.themePropertyChanged = true
         },
         onThemeSelected(themeId: number | null) {
             this.themeId = themeId

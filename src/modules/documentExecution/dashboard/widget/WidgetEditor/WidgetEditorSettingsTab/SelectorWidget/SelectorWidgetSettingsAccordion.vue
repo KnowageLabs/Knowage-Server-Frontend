@@ -133,7 +133,7 @@ export default defineComponent({
         },
         onStyleChanged() {
             this.styleChangedFlag = !this.styleChangedFlag
-            this.themePropertyChanged = true
+            if (this.themeId) this.themePropertyChanged = true
         },
         onThemeSelected(themeId: number | null) {
             this.themeId = themeId
