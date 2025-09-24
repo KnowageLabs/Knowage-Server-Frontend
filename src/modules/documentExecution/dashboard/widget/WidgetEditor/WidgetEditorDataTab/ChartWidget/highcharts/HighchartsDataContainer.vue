@@ -33,7 +33,6 @@ export default defineComponent({
     },
     computed: {
         chartType() {
-            console.log(this.widgetModel)
             return this.widgetModel?.settings.chartModel?.model?.chart.type
         }
     },
