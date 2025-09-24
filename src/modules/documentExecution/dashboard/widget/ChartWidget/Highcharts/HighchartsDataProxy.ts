@@ -6,18 +6,7 @@ import { getHighchartsPieData } from './dataProxy/HighchartsPieDataProxy'
 import { getHighchartsScatterData } from './dataProxy/HighchartsScatterDataProxy'
 import { getHighchartsSunburstData } from './dataProxy/HighchartsSunburstDataProxy'
 
-export interface ISortingColumn {
-    datasetColumn: IDatasetColumn
-    sortingOrder: string
-    sortingColumnAggregation: string
-}
-
 export const getHighchartsWidgetData = async (dashboardId, dashboardConfig: IDashboardConfiguration, widget: IWidget, datasets: IDashboardDataset[], $http: any, initialCall: boolean, selections: ISelection[], associativeResponseSelections?: any) => {
-    let sortingColumn = null as ISortingColumn | null
-    if (widget.settings && widget.settings.sortingColumn && widget.settings.sortingOrder) {
-        sortingColumn = { datasetColumn: widget.settings.sortingColumn, sortingOrder: widget.settings.sortingOrder || 'ASC', sortingColumnAggregation: widget.settings.sortingColumnAggregation || 'COUNT' }
-    }
-
     const chartType = widget.settings.chartModel?.model?.chart.type
     switch (chartType) {
         case 'area':
@@ -27,7 +16,7 @@ export const getHighchartsWidgetData = async (dashboardId, dashboardConfig: IDas
         case 'radar':
         case 'dumbbell':
         case 'waterfall':
-            return await getHighchartsBarData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, sortingColumn, associativeResponseSelections)
+            return await getHighchartsBarData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'scatter':
             return await getHighchartsScatterData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'sunburst':
@@ -43,7 +32,7 @@ export const getHighchartsWidgetData = async (dashboardId, dashboardConfig: IDas
         case 'packedbubble':
             return await getHighchartsSunburstData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'pie':
-            return await getHighchartsPieData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, sortingColumn, associativeResponseSelections)
+            return await getHighchartsPieData(dashboardId, dashboardConfig, widget, datasets, $http, initialCall, selections, associativeResponseSelections)
         case 'gauge':
         case 'activitygauge':
         case 'solidgauge':
