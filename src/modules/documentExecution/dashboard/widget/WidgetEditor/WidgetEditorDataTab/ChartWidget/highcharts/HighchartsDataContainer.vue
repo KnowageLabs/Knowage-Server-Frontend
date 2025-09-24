@@ -2,7 +2,7 @@
     <div v-if="widgetModel">
         <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
         <HighchartsLimitSettings :widget-model="widgetModel"> </HighchartsLimitSettings>
-        <HighchartsSortingSettings v-if="['pie', 'area', 'bar', 'column', 'line'].includes(chartType)" :widget-model="widgetModel" :selected-dataset-columns="selectedDatasetColumns">></HighchartsSortingSettings>
+        <!-- <HighchartsSortingSettings v-if="['pie', 'area', 'bar', 'column', 'line'].includes(chartType)" :widget-model="widgetModel" :selected-dataset-columns="selectedDatasetColumns">></HighchartsSortingSettings> -->
         <HighchartsBubbleDataContainer v-if="['bubble'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsBubbleDataContainer>
         <HighchartsSankeyDataContainer v-else-if="['dependencywheel', 'sankey', 'streamgraph', 'packedbubble'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsSankeyDataContainer>
         <HighchartsDumbbellDataContainer v-else-if="['dumbbell'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsDumbbellDataContainer>
@@ -36,7 +36,9 @@ export default defineComponent({
             return this.widgetModel?.settings.chartModel?.model?.chart.type
         }
     },
-    async created() {},
+    async created() {
+        console.log('HighchartsDataContainer created', this.widgetModel)
+    },
     methods: {}
 })
 </script>
