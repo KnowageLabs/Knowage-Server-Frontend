@@ -189,14 +189,12 @@ export default defineComponent({
             const index = this.datasetOptions?.findIndex((dataset: IDashboardDataset) => dataset.id === this.model?.dataset)
             if (index !== -1) {
                 this.selectedDataset = this.datasetOptions[index]
-                console.log('selectedDataset', this.selectedDataset)
                 this.$emit('datasetSelected', this.selectedDataset)
             }
             this.loadDatasetColumns()
             this.loadSelectedDatasetForFunctions()
         },
         onDatasetSelected() {
-            console.log('onDatasetSelected', this.selectedDataset)
             if (this.availableFunctions.length === 0) this.loadAvailableFunctions(this.selectedDataset)
             this.loadDatasetColumns()
             if (this.model) {
