@@ -14,7 +14,7 @@ const store = useStore()
 export const changeChartType = (chartType: string, widget: IWidget, isEnterprise: boolean) => {
     const selectedThemeId = widget.settings?.style?.themeId ?? null
     delete widget.invalid
-    const tempWidgetColors = widget.settings.chartModel?.model?.colors ? [...widget.settings.chartModel.model.colors] : [...descriptor.defaultColors]
+    const tempWidgetColors = widget.settings.chartModel?.model?.colors && widget.settings.chartModel.model.colors.length > 0 ? [...widget.settings.chartModel.model.colors] : [...descriptor.defaultColors]
     const originalChartStyle = widget.settings.style
 
     if (chartType === 'wordcloud') {
