@@ -168,7 +168,7 @@ export default defineComponent({
     }
     & > table {
         border-collapse: collapse;
-        width: auto;
+        width: 100%;
         border-bottom: 1px solid #c3d4df;
         thead,
         tbody {

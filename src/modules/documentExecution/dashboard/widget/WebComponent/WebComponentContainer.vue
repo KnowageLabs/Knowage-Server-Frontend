@@ -6,7 +6,7 @@
 import { defineComponent, PropType } from 'vue'
 import { IDashboardDriver, IDataset, ISelection, IVariable } from '../../Dashboard'
 import './component/WidgetWebComponent'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import store from '../../Dashboard.store'
 import appStore from '../../../../../App.store'
 import { IWidget } from '../../Dashboard'
@@ -16,7 +16,6 @@ import { startHTMLAndCustomChartIFrameInteractions } from '../interactionsHelper
 
 export default defineComponent({
     name: 'widget-component-container',
-    components: {},
     props: {
         propWidget: { type: Object as PropType<IWidget>, required: true },
         widgetData: { type: Object as any, required: true },
@@ -53,6 +52,9 @@ export default defineComponent({
         this.loadActiveSelections()
         this.loadDataToShow()
     },
+    computed: {
+        ...mapState(store, ['dashboards'])
+    },
     methods: {
         ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers']),
         ...mapActions(appStore, ['setError']),
@@ -72,7 +74,8 @@ export default defineComponent({
             if (this.propWidget.type === 'html') {
                 temp = parseHtml(this.propWidget, this.drivers, this.variables, this.activeSelections, this.getInternationalization(), this.dataToShow, this.$toast)
                 this.htmlContent = temp.html
-                this.webComponentCss = temp.css
+                if (this.dashboards[this.dashboardId]) this.webComponentCss = temp.css + this.dashboards[this.dashboardId].configuration?.cssToRender
+                this.webComponentCss += temp.css
             } else {
                 this.htmlContent = parseText(this.propWidget, this.drivers, this.variables, this.activeSelections, this.getInternationalization(), this.dataToShow, this.$toast)
             }
