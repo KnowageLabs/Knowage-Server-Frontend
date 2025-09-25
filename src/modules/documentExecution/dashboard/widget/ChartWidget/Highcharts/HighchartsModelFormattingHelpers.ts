@@ -210,19 +210,19 @@ const formatVariablesForAxis = (formattedChartModel: IHighchartsChartModel, vari
 const formatVariablesForPlotBands = (axis: any, variables: IVariable[]) => {
     if (!axis || !axis.plotBands) return
     axis.plotBands.forEach((plotBand: any) => {
-        plotBand.from = replaceVariablesPlaceholdersByVariableName(plotBand.from, variables)
         plotBand.from = isNumberAndConvert(plotBand.from)
+        plotBand.from = replaceVariablesPlaceholdersByVariableName(plotBand.from, variables)
 
-        plotBand.to = replaceVariablesPlaceholdersByVariableName(plotBand.to, variables)
         plotBand.to = isNumberAndConvert(plotBand.to)
+        plotBand.to = replaceVariablesPlaceholdersByVariableName(plotBand.to, variables)
     })
 }
 
 const formatVariablesForPlotLines = (axis: any, variables: IVariable[]) => {
     if (!axis || !axis.plotLines) return
     axis.plotLines.forEach((plotLine: any) => {
-        plotLine.value = replaceVariablesPlaceholdersByVariableName(plotLine.value, variables)
         plotLine.value = isNumberAndConvert(plotLine.value)
+        plotLine.value = replaceVariablesPlaceholdersByVariableName(plotLine.value, variables)
     })
 }
 
