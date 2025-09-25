@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IDataset, ISelection, IVariable } from '../../Dashboard'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { IWidget } from '../../Dashboard'
 import { updateStoreSelections, executeChartCrossNavigation } from '../interactionsHelpers/InteractionHelper'
 import { CustomChartDatastore } from '../WidgetEditor/WidgetEditorSettingsTab/CustomChartWidget/datastore/CustomChartWidgetDatastore'
@@ -67,7 +67,9 @@ export default defineComponent({
         this.iframeDocument = null
         this.loadedScriptsCount = 0
     },
-
+    computed: {
+        ...mapState(store, ['dashboards'])
+    },
     methods: {
         ...mapActions(store, ['getInternationalization', 'setSelections', 'getAllDatasets', 'getDashboardDrivers', 'getProfileAttributes', 'getCurrentDashboardView']),
         ...mapActions(appStore, ['setError']),
@@ -114,7 +116,9 @@ export default defineComponent({
             if (!this.propWidget.settings || !this.propWidget.settings.editor) return
 
             this.htmlContent = this.propWidget.settings.editor.html
-            this.webComponentCss = this.propWidget.settings.editor.css
+            this.webComponentCss = ''
+            if (this.dashboards[this.dashboardId]) this.webComponentCss = this.dashboards[this.dashboardId].configuration?.cssToRender
+            this.webComponentCss += this.propWidget.settings.editor.css
             this.webComponentJs = this.propWidget.settings.editor.js
 
             this.renderCustomWidget()
