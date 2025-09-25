@@ -26,7 +26,6 @@
                         <template #body="slotProps">
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
-                            <!-- <Button v-if="slotProps.data.type !== 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" data-test="edit-button" @click.stop="$emit('itemSelected', slotProps.data)"></Button> -->
                         </template>
                     </Column>
                     <Column expander style="width: 10px" />
@@ -36,7 +35,7 @@
                         </template>
                     </Column>
                     <template #expansion="slotProps">
-                        <ChartWidgetColumnForm v-if="widgetModel.type !== 'table'" class="" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
+                        <ChartWidgetColumnForm v-if="widgetType === 'highcharts' || widgetType === 'chartjs'" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
                         <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
                     </template>
                 </DataTable>
@@ -64,7 +63,7 @@ export default defineComponent({
     name: 'widget-editor-column-table',
     components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
-    emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
+    emits: ['rowReorder', 'itemUpdated', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {
             commonDescriptor,

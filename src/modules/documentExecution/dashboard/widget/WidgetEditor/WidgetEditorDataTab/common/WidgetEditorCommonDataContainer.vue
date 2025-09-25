@@ -1,18 +1,8 @@
 <template>
-    <div v-if="widgetModel">
-        <TableWidgetDataForm v-if="widgetType !== 'discovery'" class="p-m-2" :widget-model="widgetModel" :sorting-column-options="columnTableItems"></TableWidgetDataForm>
-        <WidgetEditorColumnTable
-            class="p-m-2"
-            :widget-model="widgetModel"
-            :items="columnTableItems"
-            :settings="descriptor.columnTableSettings"
-            @rowReorder="onColumnsReorder"
-            @itemAdded="onColumnAdded"
-            @itemUpdated="onColumnItemUpdate"
-            @itemSelected="setSelectedColumn"
-            @itemDeleted="onColumnDelete"
-        ></WidgetEditorColumnTable>
-        <TableWidgetColumnForm class="p-m-2" :widget-model="widgetModel" :selected-column="selectedColumn"></TableWidgetColumnForm>
+    <div v-if="widgetModel" class="p-m-3">
+        <TableWidgetDataForm v-if="widgetType !== 'discovery'" class="p-mb-3" :widget-model="widgetModel" :sorting-column-options="columnTableItems"></TableWidgetDataForm>
+        <WidgetEditorColumnTable :widget-model="widgetModel" :items="columnTableItems" :settings="descriptor.columnTableSettings" @rowReorder="onColumnsReorder" @itemAdded="onColumnAdded" @itemUpdated="onColumnItemUpdate" @itemDeleted="onColumnDelete"></WidgetEditorColumnTable>
+        <TableWidgetColumnForm :widget-model="widgetModel" :selected-column="selectedColumn"></TableWidgetColumnForm>
     </div>
 </template>
 
@@ -87,9 +77,6 @@ export default defineComponent({
                 if (this.widgetModel.columns[index].id === this.selectedColumn?.id) this.selectedColumn = { ...this.widgetModel.columns[index] }
             }
             this.loadColumnTableItems()
-        },
-        setSelectedColumn(column: IWidgetColumn) {
-            this.selectedColumn = { ...column }
         },
         onColumnDelete(column: IWidgetColumn) {
             if (column.id === this.selectedColumn?.id) this.selectedColumn = null
