@@ -9,6 +9,7 @@ export class CustomChartDatastore {
     variables: any = {}
     profile: any = {}
     state: any = {}
+    drivers: any = {}
 
     constructor(data) {
         this.data = data
@@ -16,6 +17,10 @@ export class CustomChartDatastore {
 
     setData(data) {
         this.data = this.transformDataStore(data)
+    }
+
+    setDrivers(drivers) {
+        this.drivers = drivers
     }
 
     setVariables(variables: IVariable[]) {
@@ -44,6 +49,18 @@ export class CustomChartDatastore {
             newDataStore.rows.push(obj)
         }
         return newDataStore
+    }
+
+    getDrivers() {
+        return this.drivers
+    }
+
+    /**
+     * @deprecated used by old custom chart. Suggest the new method getDrivers() for new customCharts
+     */
+    parameters() {
+        console.warn('CustomChartDatastore.parameters() is deprecated. Use getDrivers() instead.')
+        return this.getDrivers()
     }
 
     getRecords() {

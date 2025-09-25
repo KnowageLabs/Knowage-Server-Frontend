@@ -58,6 +58,7 @@ export default defineComponent({
         this.loadWidgetState()
         this.loadDataToShow()
         this.loadProfileAttributesToDatastore()
+        this.loadDriversToDatastore()
         this.loadVariablesToDatastore()
     },
     unmounted() {
@@ -81,6 +82,13 @@ export default defineComponent({
                 this.setError({ title: this.$t('common.error.generic'), msg: event.data.error?.message ?? '' })
             } else if (event.data.type === 'clickManager') this.onClickManager(event.data.payload.columnName, event.data.payload.columnValue)
             else if (event.data.type === 'setState') this.onSetState(event.data.payload)
+        },
+        loadDriversToDatastore() {
+            const formattedDrivers = this.getDashboardDrivers(this.dashboardId).reduce((acc: Record<string, any>, driver: any) => {
+                acc[driver.name] = driver.value
+                return acc
+            }, {})
+            this.datastore.setDrivers(formattedDrivers)
         },
         loadProfileAttributesToDatastore() {
             const profileAttributes = this.getProfileAttributes()
