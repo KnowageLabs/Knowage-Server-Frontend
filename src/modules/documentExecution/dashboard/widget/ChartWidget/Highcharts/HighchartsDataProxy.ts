@@ -138,7 +138,7 @@ export const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
                 continue
             }
-            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType ?? '' } as any
+            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure?.sortColumn ?? measure.alias, orderType: measure.orderType ?? '' } as any
             if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
 
             dataToSend.aggregations.measures.push(measureToPush)
@@ -151,7 +151,7 @@ export const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
                 return
             }
-            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType ?? '' } as any
+            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure?.sortColumn ?? measure.alias, orderType: measure.orderType ?? '' } as any
             if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
 
             dataToSend.aggregations.measures.push(measureToPush)
@@ -165,8 +165,12 @@ export const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig
         for (let index = 0; index < categoryLength; index++) {
             console.log('categories', categories[index])
             if (drillLevel) console.log('drillLevel', categories[drillLevel])
+
             const category = categories[drillLevel ?? index]
-            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: category.alias, orderType: category.orderType ?? '', funct: 'NONE' } as any
+            const sortColumnAlias = widget.columns.find((column) => column.id === category?.sortColumn)?.alias
+
+            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: sortColumnAlias ?? category.alias, orderType: category.orderType ?? '', funct: 'NONE' } as any
+
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }
