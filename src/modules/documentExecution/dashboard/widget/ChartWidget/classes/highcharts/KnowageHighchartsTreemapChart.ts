@@ -72,6 +72,8 @@ export class KnowageHighchartsTreemapChart extends KnowageHighcharts {
             type: 'treemap',
             layoutAlgorithm: 'squarified',
             allowDrillToNode: !interactionsEnabled,
+            allowTraversingTree: true,
+            alternateStartingDirection: true,
             showInLegend: false,
             animationLimit: 1000,
             dataLabels: {
