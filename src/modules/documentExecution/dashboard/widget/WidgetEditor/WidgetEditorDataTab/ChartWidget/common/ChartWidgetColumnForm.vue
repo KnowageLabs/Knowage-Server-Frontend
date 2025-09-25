@@ -1,5 +1,6 @@
 <template>
     <q-card v-if="column" flat square class="p-p-3" style="background-color: rgb(0, 0, 0, 0.03)">
+        {{ column }}
         <div class="row q-col-gutter-xs p-pb-3">
             <q-input class="col-6" :label="$t('components.knCalculatedField.columnName')" v-model="column.columnName" dense square disable />
             <q-select class="col-6" v-model="column.orderType" :options="commonDescriptor.sortingOrderOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.sortingOrder')" option-value="value" @update:model-value="selectedColumnUpdated">
@@ -23,7 +24,8 @@
                     </q-item>
                 </template>
             </q-select>
-            <q-select v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="col-6" v-model="column.drillOrder.orderColumnId" :options="sortingColumnOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingColumn')" option-value="id" option-label="alias" @update:model-value="sortingChanged">
+            <!-- <q-select v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="col-6" v-model="column.drillOrder.orderColumnId" :options="sortingColumnOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingColumn')" option-value="id" option-label="alias" @update:model-value="sortingChanged"> -->
+            <q-select v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="col-6" v-model="column.sortColumn" :options="sortingColumnOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingColumn')" option-value="id" option-label="alias" @update:model-value="sortingChanged">
                 <template v-slot:selected-item="scope">
                     {{ sortingColumnOptions.find((tempColumn: IWidgetColumn) => tempColumn.id === scope.opt)?.alias ?? '' }}
                 </template>
