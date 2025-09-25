@@ -87,7 +87,9 @@ export interface IHighchartsWidgetStyle {
 }
 
 export interface IHighchartsChartModel {
-    title: string
+    title: {
+        text: string
+    }
     lang: {
         noData: string
     }
