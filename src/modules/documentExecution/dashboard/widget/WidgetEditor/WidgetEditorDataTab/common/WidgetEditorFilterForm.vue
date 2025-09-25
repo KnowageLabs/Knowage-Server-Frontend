@@ -1,29 +1,22 @@
 <template>
-    <div v-if="column">
-        <div class="p-d-flex p-flex-row p-ai-center">
-            <div class="kn-flex p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.enableFilter') }}</label>
-                <InputSwitch v-model="column.filter.enabled" @change="selectedColumnUpdated"></InputSwitch>
-            </div>
-        </div>
-
-        <div class="p-d-flex p-flex-row p-ai-center p-mt-2">
-            <div id="filter-operator-dropdown" class="p-d-flex p-flex-column kn-flex p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('common.operator') }}</label>
-                <Dropdown v-model="column.filter.operator" class="kn-material-input" :options="getColumnFilterOptions()" option-value="value" option-label="label" :disabled="!column.filter.enabled" @change="onFilterOperatorChange"> </Dropdown>
-            </div>
-
-            <div v-if="['=', '<', '>', '<=', '>=', '!=', 'IN', 'like', 'range'].includes(column.filter.operator)" class="p-d-flex p-flex-column kn-flex-3 p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ column.filter.operator === 'range' ? $t('common.from') : $t('common.value') }}</label>
-                <InputText v-model="column.filter.value" class="kn-material-input p-inputtext-sm" :disabled="!column.filter.enabled" @change="selectedColumnUpdated" />
-            </div>
-
-            <div v-if="column.filter.operator === 'range'" class="p-d-flex p-flex-column kn-flex-3 p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('common.to') }}</label>
-                <InputText v-model="column.filter.value2" class="kn-material-input p-inputtext-sm" :disabled="!column.filter.enabled" @change="selectedColumnUpdated" />
-            </div>
-            <i v-tooltip.top="$t('dashboard.widgetEditor.columnFilterHint')" class="pi pi-question-circle kn-cursor-pointer p-ml-auto p-mr-4"></i>
-        </div>
+    <div v-if="column" class="row q-col-gutter-xs">
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>
+                <q-toggle class="col-12" v-model="column.filter.enabled" dense color="accent" :label="$t('dashboard.widgetEditor.enableFilter')" @update:model-value="selectedColumnUpdated" />
+            </q-toolbar-title>
+            <Button v-tooltip.left="$t('dashboard.widgetEditor.columnFilterHint')" icon="pi pi-question-circle" class="p-button-text p-button-plain" />
+        </q-toolbar>
+        <q-select class="col-2" v-model="column.filter.operator" :options="getColumnFilterOptions()" emitValue clearable dense square :label="$t('common.operator')" option-label="label" option-value="value" :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange">
+            <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                        <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                    </q-item-section>
+                </q-item>
+            </template>
+        </q-select>
+        <q-input v-if="['=', '<', '>', '<=', '>=', '!=', 'IN', 'like', 'range', 'not IN'].includes(column.filter.operator)" class="col-5" :label="column.filter.operator === 'range' ? $t('common.from') : $t('common.value')" v-model="column.filter.value" dense square :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange" />
+        <q-input v-if="column.filter.operator === 'range'" class="col-5" :label="column.filter.operator === 'range' ? $t('common.from') : $t('common.value')" v-model="column.filter.value2" dense square :disable="!column.filter.enabled" @update:model-value="onFilterOperatorChange" />
     </div>
 </template>
 
@@ -58,6 +51,7 @@ export default defineComponent({
             this.column = this.propColumn
         },
         selectedColumnUpdated() {
+            console.log('selectedColumnUpdated', this.column)
             emitter.emit('selectedColumnUpdated', this.column)
         },
         getColumnFilterOptions() {

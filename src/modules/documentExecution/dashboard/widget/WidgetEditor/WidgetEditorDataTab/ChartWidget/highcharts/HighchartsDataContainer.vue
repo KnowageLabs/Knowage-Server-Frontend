@@ -1,7 +1,14 @@
 <template>
     <div v-if="widgetModel">
-        <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
-        <HighchartsLimitSettings :widget-model="widgetModel"> </HighchartsLimitSettings>
+        <q-card class="p-m-3" flat bordered>
+            <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+                <q-toolbar-title>{{ $t('dashboard.widgetEditor.toolbars.general') }}</q-toolbar-title>
+            </q-toolbar>
+            <q-card-section>
+                <ChartWidgetChartTypeDropdown :widget-model="widgetModel" @selectedChartTypeChanged="$emit('selectedChartTypeChanged', $event)"></ChartWidgetChartTypeDropdown>
+                <HighchartsLimitSettings :widget-model="widgetModel"> </HighchartsLimitSettings>
+            </q-card-section>
+        </q-card>
         <!-- <HighchartsSortingSettings v-if="['pie', 'area', 'bar', 'column', 'line'].includes(chartType)" :widget-model="widgetModel" :selected-dataset-columns="selectedDatasetColumns">></HighchartsSortingSettings> -->
         <HighchartsBubbleDataContainer v-if="['bubble'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsBubbleDataContainer>
         <HighchartsSankeyDataContainer v-else-if="['dependencywheel', 'sankey', 'streamgraph', 'packedbubble'].includes(chartType)" :prop-widget-model="widgetModel" :selected-dataset="selectedDataset"></HighchartsSankeyDataContainer>

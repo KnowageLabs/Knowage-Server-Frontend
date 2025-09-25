@@ -69,10 +69,9 @@
                     }
                 }
                 .dropzone-active {
-                    border: 1.5px var(--kn-color-primary) dashed;
-                    border-radius: 6px;
-                    padding: 1rem;
-                    padding-bottom: 1.5rem;
+                    border: 1px var(--kn-color-info) solid;
+                    border-radius: 0px 0px 6px 6px;
+                    box-shadow: 0px 0px 3px 1px var(--kn-color-info) !important;
                 }
                 .kn-material-input {
                     border: 1px solid var(--kn-color-borders);

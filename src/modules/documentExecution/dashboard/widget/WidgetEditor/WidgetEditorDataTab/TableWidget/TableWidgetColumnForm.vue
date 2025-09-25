@@ -1,31 +1,23 @@
 <template>
-    <div v-if="column" class="widget-editor-card p-p-2">
-        <div class="p-my-2">
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.alias') }}</label>
-                    <InputText v-model="column.alias" class="kn-material-input p-inputtext-sm" @change="onColumnAliasRenamed" />
-                </div>
-            </div>
+    <q-card v-if="column" flat square class="p-p-3" style="background-color: rgb(0, 0, 0, 0.03)">
+        <div class="row q-col-gutter-xs p-pb-3">
+            <q-input class="col-4" :label="$t('components.knCalculatedField.columnName')" v-model="column.columnName" dense square disable />
+            <q-input class="col-4" :label="$t('common.alias')" v-model="column.alias" dense square />
+            <q-select class="col-4" v-model="column.fieldType" :options="descriptor.columnTypeOptions" emitValue clearable dense square :label="$t('common.type')" option-value="value" option-label="label" :disable="column.formula !== undefined" @update:model-value="columnTypeChanged">
+                <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                        <q-item-section>
+                            <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                </template>
+            </q-select>
 
-            <div class="p-d-flex p-flex-row p-ai-center p-mt-2">
-                <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
-                    <Dropdown v-model="column.fieldType" class="kn-material-input" :options="descriptor.columnTypeOptions" option-value="value" option-label="label" :disabled="column.formula !== undefined" @change="columnTypeChanged"> </Dropdown>
-                </div>
-                <div v-if="column.fieldType === 'ATTRIBUTE' && widgetType === 'discovery'" class="p-d-flex p-flex-row kn-flex-2">
-                    <div v-if="column.aggregation !== 'COUNT'" class="p-d-flex p-flex-column kn-flex p-m-2">
-                        <label class="kn-material-input-label p-mr-2">{{ $t('common.column') }}</label>
-                        <Dropdown v-model="column.aggregationColumn" class="kn-material-input" :options="widgetMeasureColumns" option-value="columnName" option-label="columnName" @change="selectedColumnUpdated"> </Dropdown>
-                    </div>
-                </div>
-            </div>
+            <q-select v-if="column.fieldType === 'ATTRIBUTE' && widgetType === 'discovery' && column.aggregation !== 'COUNT'" class="col-12" v-model="column.aggregationColumn" :options="widgetMeasureColumns" emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingColumn')" option-value="columnName" option-label="columnName" @update:model-value="selectedColumnUpdated" />
         </div>
 
-        <hr />
-
         <WidgetEditorFilterForm v-if="column.filter" :prop-column="column"></WidgetEditorFilterForm>
-    </div>
+    </q-card>
 </template>
 
 <script lang="ts">
