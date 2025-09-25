@@ -578,6 +578,9 @@
         },
         "widgetEditor": {
             "absolute": "Absolute",
+            "toolbars": {
+                "general": "General Settings"
+            },
             "accessibility": {
                 "enabelKeyboardNavigation": "Enable Keyboard Navigation",
                 "exposeAsGroupOnly": "Expose As Group Only",

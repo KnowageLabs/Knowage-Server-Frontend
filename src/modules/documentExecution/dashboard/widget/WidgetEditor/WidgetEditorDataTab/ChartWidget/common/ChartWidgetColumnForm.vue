@@ -1,76 +1,46 @@
 <template>
-    <div v-if="column" class="widget-editor-card p-p-2">
-        <div class="p-my-2">
-            <div class="p-d-flex p-flex-row p-ai-center">
-                <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('common.name') }}</label>
-                    <InputText v-model="column.alias" class="kn-material-input p-inputtext-sm" disabled="true" />
-                </div>
-            </div>
-
-            <div class="p-d-flex p-flex-row p-ai-center kn-flex p-mt-2">
-                <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                    <Dropdown v-model="column.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" showClear @change="selectedColumnUpdated">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ slotProps.value }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                </div>
-
-                <div v-if="['area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.fieldType === 'MEASURE'" class="p-d-flex p-flex-column kn-flex">
-                    <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                        <label class="kn-material-input-label p-mr-2">{{ $t('common.type') }}</label>
-                        <Dropdown v-model="column.serieType" class="kn-material-input" :options="descriptor.serieTypeOptions" option-value="value" @change="selectedColumnUpdated">
-                            <template #value="slotProps">
-                                <div>
-                                    <span>{{ getTranslatedLabel(slotProps.value, descriptor.serieTypeOptions, $t) }}</span>
-                                </div>
-                            </template>
-                            <template #option="slotProps">
-                                <div>
-                                    <span>{{ $t(slotProps.option.label) }}</span>
-                                </div>
-                            </template>
-                        </Dropdown>
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="p-d-flex p-flex-row p-ai-center p-mt-2">
-                <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.drillSortingColumn') }}</label>
-                    <Dropdown v-model="column.drillOrder.orderColumnId" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" @change="sortingChanged"> </Dropdown>
-                </div>
-                <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                    <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.drillSortingOrder') }}</label>
-                    <Dropdown v-model="column.drillOrder.orderType" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" showClear @change="selectedColumnUpdated">
-                        <template #value="slotProps">
-                            <div>
-                                <span>{{ slotProps.value }}</span>
-                            </div>
-                        </template>
-                        <template #option="slotProps">
-                            <div>
-                                <span>{{ $t(slotProps.option.label) }}</span>
-                            </div>
-                        </template>
-                    </Dropdown>
-                </div>
-            </div>
+    <q-card v-if="column" flat square class="p-p-3" style="background-color: rgb(0, 0, 0, 0.03)">
+        <div class="row q-col-gutter-xs p-pb-3">
+            <q-input class="col-6" :label="$t('components.knCalculatedField.columnName')" v-model="column.columnName" dense square disable />
+            <q-select class="col-6" v-model="column.orderType" :options="commonDescriptor.sortingOrderOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.sortingOrder')" option-value="value" @update:model-value="selectedColumnUpdated">
+                <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                        <q-item-section>
+                            <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                </template>
+            </q-select>
+            <q-select v-if="showTypeDropdown" class="col-12" v-model="column.serieType" :options="descriptor.serieTypeOptions" emitValue clearable dense square :label="$t('common.type')" option-value="value" @update:model-value="selectedColumnUpdated">
+                <template v-slot:selected-item="scope">
+                    {{ $t(descriptor.serieTypeOptions.find((option) => option.value === scope.opt)?.label ?? '') }}
+                </template>
+                <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                        <q-item-section>
+                            <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                </template>
+            </q-select>
+            <q-select v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="col-6" v-model="column.drillOrder.orderColumnId" :options="sortingColumnOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingColumn')" option-value="id" option-label="alias" @update:model-value="sortingChanged">
+                <template v-slot:selected-item="scope">
+                    {{ sortingColumnOptions.find((tempColumn: IWidgetColumn) => tempColumn.id === scope.opt)?.alias ?? '' }}
+                </template>
+            </q-select>
+            <q-select v-if="['pie', 'area', 'bar', 'column', 'line', 'radar'].includes(chartType) && column.drillOrder" class="col-6" v-model="column.drillOrder.orderType" :options="commonDescriptor.sortingOrderOptions" emitValue clearable dense square :label="$t('dashboard.widgetEditor.drillSortingOrder')" option-label="label" option-value="value" @update:model-value="selectedColumnUpdated">
+                <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                        <q-item-section>
+                            <q-item-label>{{ $t(scope.opt.label) }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                </template>
+            </q-select>
         </div>
 
-        <hr />
-
         <WidgetEditorFilterForm v-if="column.filter" :prop-column="column"></WidgetEditorFilterForm>
-    </div>
+    </q-card>
 </template>
 
 <script lang="ts">
@@ -98,6 +68,9 @@ export default defineComponent({
     computed: {
         sortingColumnOptions() {
             return this.widgetModel.columns
+        },
+        showTypeDropdown() {
+            return ['area', 'bar', 'column', 'line', 'radar'].includes(this.chartType) && this.column?.fieldType === 'MEASURE'
         }
     },
     watch: {
@@ -143,6 +116,9 @@ export default defineComponent({
             const index = this.sortingColumnOptions.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === this.column?.drillOrder?.orderColumnId)
             if (index !== -1) this.column.drillOrder.orderColumn = this.sortingColumnOptions[index].columnName
             this.selectedColumnUpdated()
+        },
+        translateLabel(label: string) {
+            return this.$t(label)
         }
     }
 })

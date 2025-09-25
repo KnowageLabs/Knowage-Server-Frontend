@@ -1,5 +1,5 @@
 <template>
-    <div v-if="widgetModel" class="dashboard-editor-list-card-container p-m-3">
+    <div v-if="widgetModel" class="dashboard-editor-list-card-container p-my-3 p-ml-3">
         <span class="p-float-label p-mx-2 p-mt-4 p-mb-1">
             <Dropdown id="dataset" v-model="selectedDataset" class="kn-material-input kn-width-full" :options="datasetOptions" option-label="label" @change="onDatasetSelected"></Dropdown>
             <label for="dataset" class="kn-material-input-label"> {{ $t('dashboard.widgetEditor.selectDataset') }} </label>
@@ -27,7 +27,7 @@
         <Listbox v-if="selectedDataset" class="kn-list kn-list-no-border-right dashboard-editor-list" :options="selectedDatasetColumns" :filter="true" :filter-placeholder="$t('common.search')" :filter-fields="descriptor.filterFields" :empty-filter-message="$t('common.info.noDataFound')">
             <template #empty>{{ $t('common.info.noDataFound') }}</template>
             <template #option="slotProps">
-                <div class="kn-list-item kn-draggable" draggable="true" :style="dataListDescriptor.style.list.listItem" data-test="list-item" @dragstart="onDragStart($event, slotProps.option)">
+                <div class="kn-list-item kn-draggable" draggable="true" :style="dataListDescriptor.style.list.listItem" data-test="list-item" @dragstart="onDragStart($event, slotProps.option)" @dragend="onDragEnd($event)">
                     <i class="pi pi-bars" :style="dataListDescriptor.style.list.listIcon"></i>
                     <i :style="dataListDescriptor.style.list.listIcon" :class="slotProps.option.fieldType === 'ATTRIBUTE' ? 'fas fa-font' : 'fas fa-hashtag'" class="p-ml-2"></i>
                     <div class="kn-list-item-text">
@@ -66,7 +66,7 @@ export default defineComponent({
     name: 'widget-editor-data-list',
     components: { Dropdown, Listbox, KnCalculatedField, WidgetEditorFunctionsDialog },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, datasets: { type: Array }, selectedDatasets: { type: Array as PropType<IDataset[]> }, variables: { type: Array as PropType<IVariable[]>, required: true } },
-    emits: ['datasetSelected', 'selectedDatasetColumnsChanged'],
+    emits: ['datasetSelected', 'selectedDatasetColumnsChanged', 'toggleListDrag'],
     setup() {
         const store = mainStore()
         return { store }
@@ -248,6 +248,10 @@ export default defineComponent({
             event.dataTransfer.setData('text/plain', JSON.stringify(datasetColumn))
             event.dataTransfer.dropEffect = 'move'
             event.dataTransfer.effectAllowed = 'move'
+            this.$emit('toggleListDrag')
+        },
+        onDragEnd(event: any) {
+            this.$emit('toggleListDrag')
         },
         createNewCalcField() {
             this.createCalcFieldColumns()

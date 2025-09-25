@@ -92,7 +92,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
                 continue
             }
-            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
+            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType ?? '' } as any
             if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
 
             dataToSend.aggregations.measures.push(measureToPush)
@@ -105,7 +105,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
                 addFunctionColumnToTheMeasuresForThePostData(dataToSend.aggregations.measures, measure as IWidgetFunctionColumn)
                 return
             }
-            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType } as any
+            const measureToPush = { id: `${measure.alias}`, alias: `${measure.alias}`, columnName: measure.columnName, funct: measure.aggregation, orderColumn: measure.alias, orderType: measure.orderType ?? '' } as any
             if (measure.formula) measureToPush.formula = addVariablesToFormula(measure, dashboardConfig)
 
             dataToSend.aggregations.measures.push(measureToPush)
@@ -118,7 +118,7 @@ const addMeasuresAndCategoriesByCount = (widget: IWidget, dashboardConfig: IDash
     if (categories.length >= categoryLength) {
         for (let index = 0; index < categoryLength; index++) {
             const category = categories[index]
-            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: category.alias, orderType: category.orderType, funct: 'NONE' } as any
+            const categoryToPush = { id: category.alias, alias: category.alias, columnName: category.columnName, orderColumn: category.alias, orderType: category.orderType ?? '', funct: 'NONE' } as any
             dataToSend.aggregations.categories.push(categoryToPush)
         }
     }

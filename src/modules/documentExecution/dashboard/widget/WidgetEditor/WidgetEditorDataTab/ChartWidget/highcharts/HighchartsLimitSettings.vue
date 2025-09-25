@@ -1,14 +1,16 @@
 <template>
-    <div v-if="limitModel" class="p-grid p-jc-center p-ai-center">
-        <div class="p-col-12 p-md-3">
-            <label class="kn-material-input-label p-mr-4">{{ $t('common.enable') }}</label>
-            <InputSwitch v-model="limitModel.enabled"></InputSwitch>
+    <form v-if="limitModel" class="p-fluid p-formgrid p-grid p-mt-3">
+        <div class="p-col-6 p-lg-4">
+            <span class="p-float-label">
+                <InputNumber v-model="limitModel.itemsNumber" class="kn-material-input p-inputtext-sm" :disabled="limitSettingsDisabled" />
+                <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.highcharts.limit.itemsNumber') }}</label>
+            </span>
         </div>
-        <div class="p-col-12 p-md-7 p-d-flex p-flex-column">
-            <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.highcharts.limit.itemsNumber') }}</label>
-            <InputNumber v-model="limitModel.itemsNumber" class="kn-material-input p-inputtext-sm" :disabled="limitSettingsDisabled" />
-        </div>
-    </div>
+        <span class="p-col-6 p-lg-6 p-d-flex p-ai-center">
+            <InputSwitch id="visible" v-model="limitModel.enabled" />
+            <label for="visible" class="kn-material-input-label p-ml-2"> {{ $t('common.enable') }} </label>
+        </span>
+    </form>
 </template>
 
 <script lang="ts">

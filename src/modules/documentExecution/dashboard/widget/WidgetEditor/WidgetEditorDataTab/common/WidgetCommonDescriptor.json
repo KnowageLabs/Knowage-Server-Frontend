@@ -206,8 +206,8 @@
     ],
     "columnChartSettings": {
         "buttonColumnStyle": {
-            "min-width": "125px",
-            "text-align": "end"
+            "text-align": "end",
+            "width": "94px"
         },
         "columns": [
             {
@@ -223,13 +223,13 @@
         "dropIsActive": true,
         "label": "dashboard.widgetEditor.selectedColumns",
         "rowReorder": {
-            "rowReorderColumnStyle": "width: 3rem"
+            "rowReorderColumnStyle": "width: 2rem; text-align: center;"
         }
     },
     "columnTableSettings": {
         "buttonColumnStyle": {
-            "min-width": "125px",
-            "text-align": "end"
+            "text-align": "end",
+            "width": "{}px"
         },
         "columns": [
             {
@@ -249,7 +249,7 @@
         "dropIsActive": true,
         "label": "dashboard.widgetEditor.selectedColumns",
         "rowReorder": {
-            "rowReorderColumnStyle": "width: 3rem"
+            "rowReorderColumnStyle": "width: 2rem; text-align: center;"
         }
     },
     "discoveryWidgetColumnAggregationOptions": [

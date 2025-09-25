@@ -1,6 +1,6 @@
 <template>
     <div v-if="widgetModel">
-        <div class="p-d-flex p-flex-row p-ai-center p-p-4">
+        <div class="p-d-flex p-flex-row p-ai-center">
             <Dropdown v-model="selectedType" class="kn-material-input kn-flex" :options="chartTypeOptions" option-value="value" @change="onChange">
                 <template #value="slotProps">
                     <div class="p-d-flex p-flex-row p-ai-center">

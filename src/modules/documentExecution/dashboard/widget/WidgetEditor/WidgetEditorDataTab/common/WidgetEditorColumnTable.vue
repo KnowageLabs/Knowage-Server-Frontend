@@ -1,60 +1,52 @@
 <template>
-    <div class="widget-editor-card p-p-2" :class="{ ['widget-editor-column-table-invalid']: error }">
-        <div class="p-d-flex p-flex-column">
-            <label v-if="settings.label" class="kn-material-input-label">{{ $t(settings.label) }}</label>
-            <small v-if="settings.hint"> {{ $t(settings.hint) }}</small>
-        </div>
-
-        <div :class="{ 'dropzone-active': settings.dropIsActive }" @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
-            <div v-if="settings.dropIsActive && rows.length === 0">
-                <div id="drag-columns-hint" class="p-d-flex p-flex-row p-jc-center p-ai-center">{{ $t(settings.dragColumnsHint) }}</div>
-            </div>
-            <DataTable v-else v-model:filters="filters" :value="rows" class="p-datatable-sm kn-table table-headers-hidden" :data-key="settings.dataKey" :global-filter-fields="settings.globalFilterFields" :responsive-layout="'stack'" :breakpoint="'600px'" @rowReorder="onRowReorder">
-                <template #header>
-                    <div v-if="settings.globalFilterFields?.length > 0" class="table-header p-d-flex p-ai-center">
-                        <span id="search-container" class="p-input-icon-left p-mr-3">
-                            <i class="pi pi-search" />
-                            <InputText v-model="filters['global'].value" class="kn-material-input" :placeholder="$t('common.search')" data-test="search-input" />
-                        </span>
-                    </div>
-                </template>
-                <template #empty>
-                    {{ $t('common.info.noDataFound') }}
-                </template>
-                <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" :style="settings.rowReorder.rowReorderColumnStyle" />
-                <Column v-if="widgetModel.type !== 'highcharts' && widgetModel.type !== 'chartJS'">
-                    <template #body="slotProps">
-                        <i :class="getIcon(slotProps.data)"></i>
-                    </template>
-                </Column>
-                <Column v-for="column in settings.columns" :key="column.field" class="kn-truncated" :field="column.field" :header="column.header ? $t(column.header) : ''" :sortable="column.sortable">
-                    <template #body="slotProps">
-                        <div>
-                            <InputText v-if="column.field === 'alias'" v-model="slotProps.data[column.field]" class="kn-material-input" :disabled="slotProps.data.type === 'pythonFunction'" @change="onColumnAliasRenamed(slotProps.data)" />
-                            <Dropdown v-else-if="column.field === 'aggregation' && aggregationDropdownIsVisible(slotProps.data) && slotProps.data.type !== 'pythonFunction'" v-model="slotProps.data[column.field]" class="kn-material-input column-aggregation-dropdown" :options="commonDescriptor.columnAggregationOptions" option-label="label" option-value="value" @change="$emit('itemUpdated', slotProps.data)" />
-                            <span v-else-if="column.field === 'columnName'" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
-                            <span v-else-if="!slotProps.data.formula" class="kn-truncated">{{ slotProps.data[column.field] }}</span>
-                        </div>
-                    </template>
-                </Column>
-                <Column :style="settings.buttonColumnStyle">
-                    <template #body="slotProps">
-                        <div>
+    <q-card :class="{ ['widget-editor-column-table-invalid']: error, 'dropzone-active': listDragActive }" flat bordered>
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title v-if="settings.label">{{ $t(settings.label) }}</q-toolbar-title>
+            <Button v-if="settings.hint" v-tooltip.left="$t(settings.hint)" icon="pi pi-question-circle" class="p-button-text p-button-plain" />
+        </q-toolbar>
+        <q-card-section class="p-p-0">
+            <div @drop.stop="onDropComplete($event)" @dragover.prevent @dragenter.prevent @dragleave.prevent>
+                <InlineMessage v-if="settings.dropIsActive && rows.length === 0" class="p-d-flex p-flex-row p-jc-center p-ai-center p-m-3" severity="info" closable="false">{{ $t(settings.dragColumnsHint) }}</InlineMessage>
+                <DataTable v-else :value="rows" v-model:expandedRows="expandedRows" class="kn-table p-datatable-sm editor-col-table" :data-key="settings.dataKey" collapsedRowIcon="fas fa-cog" expandedRowIcon="fas fa-cog" responsiveLayout="scroll" breakpoint="940px" @rowReorder="onRowReorder">
+                    <Column v-if="rowReorderEnabled" :row-reorder="rowReorderEnabled" style="padding-top: 5px" :style="settings.rowReorder.rowReorderColumnStyle" />
+                    <Column v-if="widgetModel.type !== 'highcharts' && widgetModel.type !== 'chartJS'" :style="settings.rowReorder.rowReorderColumnStyle">
+                        <template #body="slotProps">
+                            <i :class="getIcon(slotProps.data)"></i>
+                        </template>
+                    </Column>
+                    <Column v-for="column in settings.columns" :key="column.field" class="kn-truncated p-pl-2" :field="column.field" :header="column.header ? $t(column.header) : ''" :sortable="column.sortable">
+                        <template #body="slotProps">
+                            <q-input v-if="column.field === 'alias'" :label="$t('common.alias')" v-model="slotProps.data[column.field]" dense square :disable="slotProps.data.type === 'pythonFunction'" @change="onColumnAliasRenamed(slotProps.data)" />
+                            <q-select v-else-if="aggregationDropdownIsVisible(column, slotProps.data)" v-model="slotProps.data[column.field]" :options="commonDescriptor.columnAggregationOptions" emitValue dense option-label="label" option-value="value" @update:model-value="$emit('itemUpdated', slotProps.data)" />
+                            <q-input v-else-if="column.field === 'columnName'" :label="$t('components.knCalculatedField.columnName')" v-model="slotProps.data[column.field]" dense square readonly @change="onColumnAliasRenamed(slotProps.data)" />
+                            <span v-else-if="!slotProps.data.formula && column.field !== 'columnName'" class="kn-truncated 2">{{ slotProps.data[column.field] }}</span>
+                        </template>
+                    </Column>
+                    <Column :style="settings.buttonColumnStyle">
+                        <template #body="slotProps">
                             <Button v-if="slotProps.data.formula" v-tooltip.top="$t('common.edit')" icon="fas fa-calculator" class="p-button-link" @click.stop="openCalculatedFieldDialog(slotProps.data)"></Button>
                             <Button v-if="slotProps.data.type === 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-superscript" class="p-button-link" @click.stop="openFunctionsColumnDialog(slotProps.data)"></Button>
-                            <Button v-if="slotProps.data.type !== 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" data-test="edit-button" @click.stop="$emit('itemSelected', slotProps.data)"></Button>
+                            <!-- <Button v-if="slotProps.data.type !== 'pythonFunction'" v-tooltip.top="$t('common.edit')" icon="fas fa-cog" class="p-button-link" data-test="edit-button" @click.stop="$emit('itemSelected', slotProps.data)"></Button> -->
+                        </template>
+                    </Column>
+                    <Column expander style="width: 10px" />
+                    <Column style="width: 10px">
+                        <template #body="slotProps">
                             <Button v-tooltip.top="$t('common.delete')" icon="pi pi-trash" class="p-button-link" data-test="delete-button" @click.stop="deleteItem(slotProps.data, slotProps.index)"></Button>
-                        </div>
+                        </template>
+                    </Column>
+                    <template #expansion="slotProps">
+                        <ChartWidgetColumnForm v-if="widgetModel.type !== 'table'" class="" :widget-model="widgetModel" :selected-column="slotProps.data" :chart-type="chartType"></ChartWidgetColumnForm>
+                        <TableWidgetColumnForm v-else :widget-model="widgetModel" :selected-column="slotProps.data"></TableWidgetColumnForm>
                     </template>
-                </Column>
-            </DataTable>
-        </div>
-    </div>
+                </DataTable>
+            </div>
+        </q-card-section>
+    </q-card>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { filterDefault } from '@/helpers/commons/filterHelper'
+import { defineComponent, inject, PropType } from 'vue'
 import { IWidget, IWidgetColumn, IWidgetFunctionColumn } from '../../../../Dashboard'
 import { emitter } from '../../../../DashboardHelpers'
 import { addChartColumnToTable } from '../../helpers/chartWidget/ChartWidgetDataTabHelpers'
@@ -64,26 +56,58 @@ import DataTable from 'primevue/datatable'
 import Dropdown from 'primevue/dropdown'
 import commonDescriptor from '../common/WidgetCommonDescriptor.json'
 import deepcopy from 'deepcopy'
+import InlineMessage from 'primevue/inlinemessage'
+import ChartWidgetColumnForm from '../ChartWidget/common/ChartWidgetColumnForm.vue'
+import TableWidgetColumnForm from '../TableWidget/TableWidgetColumnForm.vue'
 
 export default defineComponent({
     name: 'widget-editor-column-table',
-    components: { Column, DataTable, Dropdown },
+    components: { Column, DataTable, Dropdown, InlineMessage, ChartWidgetColumnForm, TableWidgetColumnForm },
     props: { widgetModel: { type: Object as PropType<IWidget>, required: true }, items: { type: Array, required: true }, settings: { type: Object, required: true }, chartType: { type: String }, axis: { type: String }, error: { type: Boolean } },
     emits: ['rowReorder', 'itemUpdated', 'itemSelected', 'itemDeleted', 'itemAdded', 'singleItemReplaced'],
     data() {
         return {
             commonDescriptor,
             rows: [] as IWidgetColumn[],
-            filters: {} as any,
-            inputValuesMap: {}
+            inputValuesMap: {},
+            listDragActive: inject('listDragActive', false) as boolean,
+            expandedRows: [],
+            products: [
+                {
+                    id: '1000',
+                    code: 'f230fh0g3',
+                    name: 'Bamboo Watch',
+                    description: 'Product Description',
+                    image: 'bamboo-watch.jpg',
+                    price: 65,
+                    category: 'Accessories',
+                    quantity: 24,
+                    inventoryStatus: 'INSTOCK',
+                    rating: 5,
+                    orders: [
+                        {
+                            id: '1000-0',
+                            productCode: 'f230fh0g3',
+                            date: '2020-09-13',
+                            amount: 65,
+                            quantity: 1,
+                            customer: 'David James',
+                            status: 'PENDING'
+                        }
+                    ]
+                }
+            ]
         }
     },
     computed: {
         widgetType() {
-            return this.widgetModel.type
+            return this.widgetModel?.type
         },
         rowReorderEnabled(): boolean {
             return this.widgetModel && (['table', 'html', 'text', 'discovery', 'customchart'].includes(this.widgetModel.type) || this.chartType !== 'heatmap') && this.rows.length > 1
+        },
+        chartType() {
+            return this.widgetModel?.settings.chartModel?.model?.chart.type
         }
     },
     watch: {
@@ -94,7 +118,7 @@ export default defineComponent({
     created() {
         this.setEventListeners()
         this.loadItems()
-        this.setFilters()
+        console.log('settings', this.settings)
     },
     unmounted() {
         this.removeEventListeners()
@@ -117,9 +141,6 @@ export default defineComponent({
         },
         loadItems() {
             this.rows = this.items as IWidgetColumn[]
-        },
-        setFilters() {
-            if (this.settings?.globalFilterFields?.length) this.filters.global = [filterDefault]
         },
         getIcon(item: IWidgetColumn) {
             return item.fieldType === 'ATTRIBUTE' ? 'fas fa-font' : 'fas fa-hashtag'
@@ -159,8 +180,8 @@ export default defineComponent({
                 this.$emit('itemDeleted', item)
             }
         },
-        aggregationDropdownIsVisible(row: any) {
-            return (row.fieldType === 'MEASURE' || ['Y', 'Z'].includes(row.axis)) && this.widgetType !== 'discovery' && !row.formula
+        aggregationDropdownIsVisible(column, row: any) {
+            return column.field === 'aggregation' && row.type !== 'pythonFunction' && (row.fieldType === 'MEASURE' || ['Y', 'Z'].includes(row.axis)) && this.widgetType !== 'discovery' && !row.formula
         },
         updateSelectedColumn(selectedColumn: IWidgetColumn) {
             const index = this.rows.findIndex((tempColumn: IWidgetColumn) => tempColumn.id === selectedColumn.id)
@@ -209,15 +230,21 @@ export default defineComponent({
         onFunctionsColumnEdited(functionColumn: any) {
             this.deleteItem(functionColumn, -1)
             this.onFunctionsColumnAdded(functionColumn)
+        },
+        testMe(event) {
+            console.log('itemUpdated', event)
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
-.table-headers-hidden {
-    ::v-deep(.p-datatable-header) {
+.editor-col-table {
+    :deep(.p-datatable-thead) {
         display: none;
+    }
+    :deep(.p-datatable-row-expansion > td) {
+        padding: 0px !important;
     }
 }
 
@@ -232,6 +259,8 @@ export default defineComponent({
 }
 
 .widget-editor-column-table-invalid {
-    border: 1.5px solid red;
+    border: 1px solid rgba(255, 0, 0, 0.61);
+    border-radius: 0px 0px 6px 6px;
+    box-shadow: 0px 0px 3px 1px rgba(255, 0, 0, 0.637) !important;
 }
 </style>
