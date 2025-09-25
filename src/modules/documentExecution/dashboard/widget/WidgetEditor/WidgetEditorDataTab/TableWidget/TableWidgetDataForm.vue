@@ -1,39 +1,39 @@
 <template>
-    <div v-if="widget" class="widget-editor-card p-p-2">
-        <div v-if="widget.type === 'table'" class="p-d-flex p-flex-row p-ai-center p-my-1">
-            <div class="kn-flex p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.pagination') }}</label>
-                <InputSwitch v-model="paginationEnabled" @change="paginationChanged"></InputSwitch>
+    <q-card v-if="widget" flat bordered>
+        <q-toolbar class="kn-toolbar kn-toolbar--secondary">
+            <q-toolbar-title>{{ $t('dashboard.widgetEditor.toolbars.general') }}</q-toolbar-title>
+        </q-toolbar>
+        <q-card-section class="p-pb-0">
+            <div class="p-fluid p-grid p-formgrid">
+                <span class="p-field p-float-label p-col-12 p-lg-6">
+                    <Dropdown v-model="sortingColumn" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" show-clear @change="sortingChanged"> </Dropdown>
+                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
+                </span>
+                <span class="p-field p-float-label p-col-12 p-lg-6">
+                    <Dropdown v-model="sortingOrder" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-label="value" option-value="value" show-clear @change="sortingChanged">
+                        <template #option="slotProps">
+                            <div>
+                                <span>{{ $t(slotProps.option.label) }}</span>
+                            </div>
+                        </template>
+                    </Dropdown>
+                    <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
+                </span>
             </div>
-
-            <div class="p-d-flex p-flex-column kn-flex p-ml-auto p-mr-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.itemsPerPage') }}</label>
-                <InputText v-model="itemsNumber" class="kn-material-input p-inputtext-sm" type="number" :disabled="!paginationEnabled" @change="paginationChanged" />
-            </div>
-        </div>
-
-        <div class="p-d-flex p-flex-row p-ai-center p-mt-2">
-            <div class="p-d-flex p-flex-column kn-flex-2 p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingColumn') }}</label>
-                <Dropdown v-model="sortingColumn" class="kn-material-input" :options="sortingColumnOptions" option-value="id" option-label="alias" show-clear @change="sortingChanged"> </Dropdown>
-            </div>
-            <div class="p-d-flex p-flex-column kn-flex p-m-2">
-                <label class="kn-material-input-label p-mr-2">{{ $t('dashboard.widgetEditor.sortingOrder') }}</label>
-                <Dropdown v-model="sortingOrder" class="kn-material-input" :options="commonDescriptor.sortingOrderOptions" option-value="value" show-clear @change="sortingChanged">
-                    <template #value="slotProps">
-                        <div>
-                            <span>{{ slotProps.value }}</span>
-                        </div>
-                    </template>
-                    <template #option="slotProps">
-                        <div>
-                            <span>{{ $t(slotProps.option.label) }}</span>
-                        </div>
-                    </template>
-                </Dropdown>
-            </div>
-        </div>
-    </div>
+            <form v-if="widget.type === 'table'" class="p-fluid p-formgrid p-grid p-mb-4">
+                <div class="p-col-6 p-lg-4">
+                    <span class="p-float-label">
+                        <InputText v-model="itemsNumber" class="kn-material-input p-inputtext-sm" type="number" :disabled="!paginationEnabled" @change="paginationChanged" />
+                        <label class="kn-material-input-label">{{ $t('dashboard.widgetEditor.itemsPerPage') }}</label>
+                    </span>
+                </div>
+                <span class="p-col-6 p-lg-6 p-d-flex p-ai-center">
+                    <InputSwitch v-model="paginationEnabled" @change="paginationChanged"></InputSwitch>
+                    <label for="visible" class="kn-material-input-label p-ml-2"> {{ $t('common.enable') }} {{ $t('dashboard.widgetEditor.pagination') }}</label>
+                </span>
+            </form>
+        </q-card-section>
+    </q-card>
 </template>
 
 <script lang="ts">
