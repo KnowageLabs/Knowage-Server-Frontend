@@ -1,10 +1,6 @@
 {
     "availableWidgets": [
         {
-            "name": "scatter",
-            "tooltip": "dashboard.widgetEditor.chartTypes.scatterChart"
-        },
-        {
             "name": "bubble",
             "tooltip": "dashboard.widgetEditor.chartTypes.bubbleChart"
         },
