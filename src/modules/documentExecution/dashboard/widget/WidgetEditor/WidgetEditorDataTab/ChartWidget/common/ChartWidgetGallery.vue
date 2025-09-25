@@ -1,12 +1,12 @@
 <template>
     <div v-if="widgetModel" class="dashboard-editor-list-card-container kn-flex p-m-3">
         <div class="gallery-inputs p-d-flex p-flex-row p-ai-center p-flex-wrap p-mt-4 p-ml-4">
-            <InputText v-model="searchWord" class="kn-material-input p-mr-2 model-search" :style="galleryDescriptor.style.filterInput" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
+            <InputText v-model="searchWord" class="kn-material-input p-mr-2 model-search" style="width: 35%" type="text" :placeholder="$t('common.search')" data-test="search-input" @input="searchItems" />
         </div>
 
-        <MasonryWall class="scroll q-pa-md" :items="filteredChartTypes" :column-width="200" :gap="6">
+        <MasonryWall class="scroll q-pa-md" :items="filteredChartTypes" :column-width="120" :gap="6">
             <template #default="{ chart, index }">
-                <div class="gallery-card kn-cursor-pointer relative-position" :class="{ 'gallery-card-disabled': filteredChartTypes[index].disabled || (filteredChartTypes[index].eeOnly && !isEnterprise) }" :style="(galleryDescriptor.style.galleryCard as any)" @click="onChange(filteredChartTypes[index])">
+                <div class="gallery-card kn-cursor-pointer relative-position" :class="{ 'gallery-card-disabled': filteredChartTypes[index].disabled || (filteredChartTypes[index].eeOnly && !isEnterprise) }" @click="onChange(filteredChartTypes[index])">
                     <q-badge v-if="filteredChartTypes[index].eeOnly && !isEnterprise" color="accent" floating>
                         EE
                         <q-tooltip :delay="500">{{ $t('dashboard.widgets.eeOnly') }}</q-tooltip>
@@ -22,7 +22,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { IWidget, IChartType } from '@/modules/documentExecution/dashboard/Dashboard'
-import galleryDescriptor from './ChartWidgetGalleryDescriptor.json'
 import commonDescriptor from '../../common/WidgetCommonDescriptor.json'
 import MasonryWall from '@yeger/vue-masonry-wall'
 import { mapState } from 'pinia'
@@ -35,7 +34,6 @@ export default defineComponent({
     emits: ['selectedChartTypeChanged'],
     data() {
         return {
-            galleryDescriptor,
             commonDescriptor,
             selectedType: '',
             searchWord: '',
@@ -81,14 +79,21 @@ export default defineComponent({
 </script>
 <style lang="scss" scoped>
 .gallery-card {
-    height: 180px;
-    width: 180px;
+    border: 1px solid #cccccc;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 140px;
+    transition: 0.5s ease;
+    width: 110px;
+    padding: 8px 0;
     .kn-material-input-label {
-        font-size: 1.2rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
         text-align: center;
     }
     img {
-        max-height: 160px;
+        max-height: 100px;
         filter: hue-rotate(196deg);
     }
     &.gallery-card-disabled {
